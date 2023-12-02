@@ -10,7 +10,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-report-queue',
   templateUrl: './report-queue.component.html',
-  styleUrls: ['./report-queue.component.scss'],
   standalone: true,
   imports: [SharedModule, QueuedReportComponent]
 })

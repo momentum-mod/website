@@ -24,7 +24,6 @@ import { MapListItemComponent } from './map-list-item/map-list-item.component';
 @Component({
   selector: 'mom-map-list',
   templateUrl: './map-list.component.html',
-  styleUrls: ['./map-list.component.scss'],
   standalone: true,
   imports: [SharedModule, MapListItemComponent]
 })

@@ -10,7 +10,6 @@ import { PipesModule } from '@momentum/frontend/pipes';
 @Component({
   selector: 'mom-activity-content',
   templateUrl: './activity-content.component.html',
-  styleUrls: ['./activity-content.component.scss'],
   standalone: true,
   imports: [
     NgClass,

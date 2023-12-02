@@ -6,11 +6,9 @@
     Filters
   </button>
   <div
-    class="filter-content"
-    [ngClass]="{ 'filter-active': showFilters }"
-    [ngStyle]="{
-      'max-height': showFilters ? filterContent.scrollHeight + 'px' : null
-    }"
+    class="overflow-hidden [transition:max-weight_0.2s_ease-out,margin-bottom_0.2s_ease-out_0.1s]"
+    [ngClass]="{ 'mb-4': showFilters }"
+    [ngStyle]="{ 'max-height': showFilters ? filterContent.scrollHeight + 'px' : 0 }"
     #filterContent
   >
     <div class="row-cols-md-3 flex flex-wrap items-center p-6" [formGroup]="filterFG">
@@ -53,9 +51,10 @@
                 totalItems: runCount
               }
       "
+      class="basis-full"
     >
       <div class="no-gutters flex flex-wrap items-center">
-        <div class="icon w-1/5 pl-0 pl-4 pr-4 sm:w-1/6 md:pl-4">
+        <div class="w-1/5 pl-4 pr-4 text-3xl [font-color:silver] sm:w-1/6 md:pl-4">
           <mom-icon *ngIf="run.leaderboardRun" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
         </div>
         <div class="relative max-w-full flex-1 flex-grow px-4">

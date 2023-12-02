@@ -1,6 +1,6 @@
 <p class="mb-3 block p-6">{{ map.info.description }}</p>
 <!-- TODO: Styling here is terrible, needs doing properly! -->
-<nb-tabset class="block" *ngIf="map.leaderboards.length > 0; else elseBlock">
+<nb-tabset class="rounded bg-black bg-opacity-25" *ngIf="map.leaderboards.length > 0; else elseBlock">
   <nb-tab *ngFor="let kv of sortedLeaderboards | keyvalue" [tabTitle]="GamemodeName.get(kv.key)">
     <div class="flex flex-wrap">
       <div class="w-1/2">

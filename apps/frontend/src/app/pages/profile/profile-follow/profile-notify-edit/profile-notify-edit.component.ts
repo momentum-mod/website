@@ -7,7 +7,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-profile-notify-edit-modal',
   templateUrl: './profile-notify-edit.component.html',
-  styleUrls: ['./profile-notify-edit.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

@@ -1,7 +1,7 @@
 <nb-card *ngIf="run">
   <nb-card-header>
     <div class="flex flex-wrap items-center">
-      <div class="col-auto">
+      <div class="flex-1">
         <div class="flex flex-wrap items-center">
           <a [routerLink]="'/profile/' + run.user.id">
             <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
@@ -22,17 +22,17 @@
       </div>
 
       <ng-container *ngIf="run.leaderboardRun">
-        <div class="base mx-1 mb-3">
+        <div class="mx-1 mb-3 border-b-2 border-blue-500">
           <h5>Jumps</h5>
           <h1>{{ run.leaderboardRun?.stats?.overall?.jumps }}</h1>
         </div>
 
-        <div class="base mx-1 mb-3">
+        <div class="mx-1 mb-3 border-b-2 border-blue-500">
           <h5>Strafes</h5>
           <h1>{{ run.leaderboardRun?.stats?.overall?.strafes }}</h1>
         </div>
 
-        <div class="base mx-1 mb-3">
+        <div class="mx-1 mb-3 border-b-2 border-blue-500">
           <h5>Rank</h5>
           <h1>{{ run?.leaderboardRun?.rank || 'N/A' }}</h1>
         </div>

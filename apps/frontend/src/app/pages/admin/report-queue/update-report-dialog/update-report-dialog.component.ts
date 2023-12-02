@@ -8,7 +8,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-update-report-dialog',
   templateUrl: './update-report-dialog.component.html',
-  styleUrls: ['./update-report-dialog.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

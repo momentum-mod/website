@@ -6,7 +6,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-map-info-credits',
   templateUrl: './map-info-credits.component.html',
-  styleUrls: ['./map-info-credits.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

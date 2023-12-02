@@ -8,7 +8,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-utilities',
   templateUrl: './utilities.component.html',
-  styleUrls: ['./utilities.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

@@ -1,18 +1,12 @@
-<div class="container mx-auto mx-auto mb-3 max-w-full sm:px-4 sm:px-4">
+<div class="container mx-auto mb-3 max-w-full sm:px-4">
   <form
-    class="search flex flex-wrap items-center justify-between"
+    class="flex flex-wrap items-center justify-between gap-4"
     [formGroup]="searchOptions"
     (ngSubmit)="onPageChange(1)"
     (change)="onPageChange(1)"
   >
-    <div class="search-controls flex flex-wrap items-center">
-      <input
-        nbInput
-        class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-        type="text"
-        placeholder="Map Name"
-        formControlName="search"
-      />
+    <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+      <input class="m-textinput w-64" type="text" placeholder="Map Name" formControlName="search" />
       <!-- TODO: Enable when map credits get reworked (#415) -->
       <!-- <div class="form-col w-full sm:w-4/5 pr-4 pl-4 md:w-1/2 pr-4 pl-4 lg:w-1/3 pr-4 pl-4 xl:w-1/4 pr-4 pl-4 mt-3 md:mt-0">
         <input nbInput fullWidth class="block appearance-none w-full py-1 px-2 mb-1 text-base leading-normal bg-white text-gray-800 border border-gray-200 rounded" type="text" placeholder="Author" formControlName="author">
@@ -25,7 +19,7 @@
       <nb-select placeholder="Status" formControlName="status" (selectedChange)="onPageChange(1)" *ngIf="isUpload">
         <nb-option *ngFor="let enum of statuses" [value]="enum.value">{{ enum.text }}</nb-option>
       </nb-select>
-      <div class="search-toggles flex">
+      <div class="-mb-2 flex gap-8">
         <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">In Library</nb-toggle>
         <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites </nb-toggle>
       </div>
@@ -45,6 +39,7 @@
                 totalItems: mapCount
               }
       "
+      class="basis-full"
     >
       <mom-map-list-item
         [map]="map"

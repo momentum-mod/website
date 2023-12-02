@@ -7,7 +7,6 @@ import { IconComponent } from '@momentum/frontend/icons';
 @Component({
   selector: 'mom-report-button',
   templateUrl: './report-button.component.html',
-  styleUrls: ['./report-button.component.scss'],
   standalone: true,
   imports: [NbButtonModule, IconComponent]
 })

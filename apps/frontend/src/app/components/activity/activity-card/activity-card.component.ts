@@ -10,7 +10,6 @@ import { PageHeaderComponent } from '../../page-header.component';
 @Component({
   selector: 'mom-activity-card',
   templateUrl: './activity-card.component.html',
-  styleUrls: ['./activity-card.component.scss'],
   standalone: true,
   imports: [
     NbCardModule,

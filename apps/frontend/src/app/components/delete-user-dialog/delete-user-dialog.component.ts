@@ -9,7 +9,6 @@ import {
 @Component({
   selector: 'mom-delete-user-dialog',
   templateUrl: './delete-user-dialog.component.html',
-  styleUrls: ['./delete-user-dialog.component.scss'],
   standalone: true,
   imports: [NbCardModule, NbInputModule, NbButtonModule]
 })

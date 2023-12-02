@@ -13,15 +13,16 @@
               totalItems: creditCount
             }
     "
+    class="basis-full"
   >
     <div class="flex flex-wrap items-center justify-center">
-      <div class="type-col text flex-grow">
+      <div class="max-w-[20rem] flex-grow lg:text-xl">
         <div class="mb-3">{{ MapCreditType[mapCredit.type] }} ON</div>
-        <a routerLink="/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
+        <a class="text-lg" routerLink="/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
       </div>
       <div>
         <a routerLink="/maps/{{ mapCredit.map?.id }}">
-          <img class="map-image rounded" [ngSrc]="mapCredit.map?.thumbnail?.small" fill />
+          <img class="h-14 rounded lg:h-16" [ngSrc]="mapCredit.map?.thumbnail?.small" />
         </a>
       </div>
     </div>

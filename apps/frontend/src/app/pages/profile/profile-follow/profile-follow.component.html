@@ -1,23 +1,20 @@
-<div class="follow-status mb-2 text-center text-gray-600" *ngIf="targetFollowStatus">
+<div class="translate-y- -mt-8 mb-2 text-center text-gray-600" *ngIf="targetFollowStatus">
   <span [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)" nbPopoverTrigger="hint"> Follows You </span>
 </div>
-<div class="text-center" *ngIf="checked" [ngClass]="{ 'btn-group': localFollowStatus }">
-  <button
-    nbButton
-    status="primary"
-    class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
-    (click)="followClick()"
-  >
-    <span [ngClass]="{ 'c-anim-btn': localFollowStatus }">{{ localFollowStatus ? 'Following' : 'Follow' }}</span>
-    <span *ngIf="localFollowStatus">Unfollow</span>
+<div class="text-center" *ngIf="checked" [ngClass]="{ group: localFollowStatus }">
+  <!--  TODO: This styling is a little insane and I haven't had a chance to 
+              test properly since porting to Tailwind. - Tom-->
+  <button class="m-btn m-btn-blue ml-2 h-12 overflow-hidden p-0 font-bold" (click)="followClick()">
+    <span
+      class="block"
+      [ngClass]="{
+        'mt-0 [transition-duration:0.3s] hover:-mt-12': localFollowStatus
+      }"
+      >{{ localFollowStatus ? 'Following' : 'Follow' }}</span
+    >
+    <span class="block" *ngIf="localFollowStatus">Unfollow</span>
   </button>
-  <button
-    nbButton
-    status="primary"
-    class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
-    *ngIf="localFollowStatus"
-    (click)="editNotificationSettings()"
-  >
-    <mom-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell-alert'"></mom-icon>
+  <button class="m-btn m-btn-blue" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
+    <mom-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
   </button>
 </div>

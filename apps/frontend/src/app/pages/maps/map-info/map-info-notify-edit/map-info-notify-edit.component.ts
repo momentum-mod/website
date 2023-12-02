@@ -7,7 +7,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-map-info-notify-edit-modal',
   templateUrl: './map-info-notify-edit.component.html',
-  styleUrls: ['./map-info-notify-edit.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

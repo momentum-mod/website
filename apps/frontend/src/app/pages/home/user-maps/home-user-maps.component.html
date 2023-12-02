@@ -5,20 +5,20 @@
     </nb-accordion-item-header>
     <nb-accordion-item-body>
       <div class="flex flex-wrap justify-around text-center">
-        <div class="approved mx-1 mb-3">
-          <h4>
+        <div class="mx-1 mb-3 border-b-2 border-green-500">
+          <h4 class="mb-0">
             {{ submittedMapStatusSummary[MapStatus.APPROVED] || 0 }}
           </h4>
           <h5>Approved</h5>
         </div>
 
-        <div class="pending mx-1 mb-3">
-          <h4>{{ submittedMapStatusSummary[MapStatus.PENDING] || 0 }}</h4>
+        <div class="mx-1 mb-3 border-b-2 border-orange-500">
+          <h4 class="mb-0">{{ submittedMapStatusSummary[MapStatus.PENDING] || 0 }}</h4>
           <h5>Pending</h5>
         </div>
 
-        <div class="rejected mx-1 mb-3">
-          <h4>
+        <div class="mx-1 mb-3 border-b-2 border-red-500">
+          <h4 class="mb-0">
             {{ submittedMapStatusSummary[MapStatus.REJECTED] || 0 }}
           </h4>
           <h5>Rejected</h5>

@@ -5,7 +5,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-home-stats',
   templateUrl: './home-stats.component.html',
-  styleUrls: ['./home-stats.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

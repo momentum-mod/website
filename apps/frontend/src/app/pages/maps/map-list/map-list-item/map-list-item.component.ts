@@ -8,7 +8,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-map-list-item',
   templateUrl: './map-list-item.component.html',
-  styleUrls: ['./map-list-item.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

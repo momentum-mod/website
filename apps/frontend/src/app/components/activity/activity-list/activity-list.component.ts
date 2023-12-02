@@ -7,7 +7,6 @@ import { NbListModule } from '@nebular/theme';
 @Component({
   selector: 'mom-activity-list',
   templateUrl: './activity-list.component.html',
-  styleUrls: ['./activity-list.component.scss'],
   standalone: true,
   imports: [NbListModule, NgIf, NgFor, ActivityContentComponent]
 })

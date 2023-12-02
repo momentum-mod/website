@@ -10,7 +10,6 @@ import { PipesModule } from '@momentum/frontend/pipes';
 @Component({
   selector: 'mom-notifications',
   templateUrl: './notification.component.html',
-  styleUrls: ['./notification.component.scss'],
   standalone: true,
   imports: [
     NbListModule,

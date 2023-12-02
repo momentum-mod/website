@@ -1,4 +1,4 @@
-<div class="text flex flex-wrap items-center" [ngClass]="dateNone ? 'cont' : ''">
+<div class="text flex flex-wrap items-center" [ngClass]="{ 'w-[14rem]': dateNone }">
   <a routerLink="/profile/{{ activity.user.id }}" class="mr-1">
     <nb-user [name]="activity.user.alias" [picture]="activity.user.avatarURL"></nb-user>
   </a>
@@ -9,7 +9,7 @@
       >!
     </div>
     <div class="icon" [ngStyle]="{ color: eventColor }">
-      <mom-icon [icon]="activityIcon"></mom-icon>
+      <mom-icon class="text-3xl" [icon]="activityIcon" />
     </div>
   </div>
   <div class="ml-auto" [ngClass]="dateNone ? 'd-none' : ''">

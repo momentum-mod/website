@@ -8,7 +8,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-community-twitch-stream',
   templateUrl: './community-twitch-stream.component.html',
-  styleUrls: ['./community-twitch-stream.component.scss'],
   standalone: true,
   imports: [SharedModule, TwitchDataComponent]
 })

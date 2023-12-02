@@ -1,19 +1,19 @@
 <div *ngIf="map" class="no-gutters outer flex flex-wrap items-center py-2 sm:pt-0 lg:pb-0" [ngClass]="isUpload ? status : ''">
   <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-1/2">
     <div class="flex flex-wrap sm:items-center">
-      <div class="map-image-container mb-3 w-full pl-4 pl-4 pr-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">
+      <div class="mb-3 h-[105px] w-full overflow-hidden pl-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">
         <a [routerLink]="'/maps/' + map?.id">
-          <img [ngSrc]="map.thumbnail?.small" priority width="186" height="105" />
+          <img [ngSrc]="map.thumbnail?.small" priority width="186" height="105" class="h-[105px]" />
         </a>
       </div>
-      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">
+      <div class="w-1/2 pl-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">
         <ul>
           <li>Map Name:</li>
           <li>Submitted:</li>
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 sm:w-1/3 lg:w-1/4">
+      <div class="w-1/2 pl-4 pr-4 sm:w-1/3 lg:w-1/4">
         <ul>
           <li>
             <a [routerLink]="'/maps/' + map?.id">{{ map.name }}</a>

@@ -7,7 +7,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-home-user-library',
   templateUrl: './home-user-library.component.html',
-  styleUrls: ['./home-user-library.component.scss'],
   standalone: true,
   imports: [NbAccordionModule, SharedModule]
 })

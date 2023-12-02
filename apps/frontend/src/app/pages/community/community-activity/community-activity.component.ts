@@ -5,7 +5,6 @@ import { ActivityCardComponent } from '../../../components/activity/activity-car
 @Component({
   selector: 'mom-community-activity',
   templateUrl: './community-activity.component.html',
-  styleUrls: ['./community-activity.component.scss'],
   standalone: true,
   imports: [SharedModule, ActivityCardComponent]
 })
