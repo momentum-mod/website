@@ -125,7 +125,7 @@ export type MapLeaderboardGetQuery = PagedQuery & {
   orderByDate?: boolean;
 };
 
-export type MapLeaderboardGetRun = PagedQuery & {
+export type MapLeaderboardGetRunQuery = PagedQuery & {
   gamemode: Gamemode;
   trackType?: TrackType; // Default 0
   trackNum?: number; // Default 0

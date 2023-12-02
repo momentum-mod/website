@@ -67,7 +67,7 @@ import {
   CreateMapWithFilesDto,
   MapZonesDto,
   LeaderboardRunDto,
-  MapLeaderboardGetRunQuery,
+  MapLeaderboardGetRunQueryDto,
   MinimalLeaderboardRunDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
@@ -670,7 +670,7 @@ export class MapsController {
   getLeaderboardRun(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapLeaderboardGetRunQuery
+    @Query() query?: MapLeaderboardGetRunQueryDto
   ): Promise<LeaderboardRunDto> {
     return this.runsService.getRun(mapID, query, userID);
   }

@@ -22,7 +22,7 @@ import {
   MapLeaderboardGetQuery,
   MapRunsGetExpand,
   MapRunsGetFilter,
-  MapLeaderboardGetRun
+  MapLeaderboardGetRunQuery
 } from '@momentum/constants';
 import {
   MapCreditsGetQuery,
@@ -272,9 +272,9 @@ export class MapLeaderboardGetQueryDto
   readonly orderByDate?: boolean;
 }
 
-export class MapLeaderboardGetRunQuery
+export class MapLeaderboardGetRunQueryDto
   extends QueryDto
-  implements MapLeaderboardGetRun
+  implements MapLeaderboardGetRunQuery
 {
   @EnumQueryProperty(Gamemode, { required: true })
   gamemode: Gamemode;
