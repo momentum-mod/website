@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { HttpService } from './http.service';
-import { JWTResponseWebDto } from '@momentum/backend/dto';
+import { JWTResponseWeb } from '@momentum/constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) throw new Error('Missing refresh token');
     return this.http
-      .post<JWTResponseWebDto>('refresh', {
+      .post<JWTResponseWeb>('refresh', {
         type: 'auth',
         body: { refreshToken }
       })
