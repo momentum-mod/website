@@ -20,11 +20,7 @@
           "node_modules/@fontsource/roboto/index.css",
           "libs/frontend/theme/src/styles/styles.scss"
         ],
-        "scripts": [],
         "aot": true,
-        "stylePreprocessorOptions": {
-          "includePaths": ["libs/frontend/theme/src/styles"]
-        },
         "statsJson": true
       },
       "configurations": {
