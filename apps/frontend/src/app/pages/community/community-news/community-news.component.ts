@@ -7,7 +7,7 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-community-news',
   templateUrl: './community-news.component.html',
-  styleUrls: ['./community-news.component.scss'],
+  styleUrls: ['./community-news.component.css'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [SharedModule]

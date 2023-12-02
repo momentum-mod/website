@@ -1,6 +1,3 @@
-@use 'theme' as *;
-@import '@nebular/theme/styles/global/breakpoints';
-
 nb-tabset ::ng-deep .tabset {
   overflow-x: auto;
   padding-bottom: 0.25rem !important;
@@ -46,14 +43,14 @@ nb-card-header {
     margin-right: 1rem;
 
     mom-icon {
-      color: nb-theme(text-control-color);
+      @apply text-gray-50;
       transition: color ease-out 0.1s;
       width: 2rem;
       height: 2rem;
     }
 
     &:hover mom-icon {
-      color: nb-theme(color-primary-default);
+      @apply text-blue-500;
     }
   }
 }
@@ -73,7 +70,7 @@ nb-card-header {
   border-radius: 50%;
   background-size: cover;
   background-repeat: no-repeat;
-  border: 4px solid nb-theme(color-primary-default);
+  @apply border-4 border-blue-500;
   width: 15rem;
   height: 15rem;
 }

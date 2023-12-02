@@ -1,5 +1,7 @@
-$timing-func: cubic-bezier(0, 0, 0.2, 1);
-$image-width: 192px;
+:host {
+  --timing-func: cubic-bezier(0, 0, 0.2, 1);
+  --image-width: 192px;
+}
 
 mom-icon {
   font-size: 2rem;
@@ -14,15 +16,15 @@ mom-icon {
 }
 
 .thumb-text {
-  width: calc(#{$image-width} + 3rem);
+  width: calc(var(--image-width) + 3rem);
 }
 
 .map-image {
-  width: $image-width;
+  width: var(--image-width);
 }
 
 .upload-box {
-  min-width: $image-width;
+  min-width: var(--image-width);
 }
 
 .map-image-cont {
@@ -54,7 +56,7 @@ mom-icon {
 
 .cdk-drag {
   cursor: move;
-  transition: box-shadow 0.2s $timing-func;
+  transition: box-shadow 0.2s var(--timing-func);
 }
 
 .cdk-drag-preview {
@@ -68,9 +70,9 @@ mom-icon {
 }
 
 .cdk-drag-animating {
-  transition: transform 0.25s $timing-func;
+  transition: transform 0.25s var(--timing-func);
 }
 
 .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
-  transition: transform 0.25s $timing-func;
+  transition: transform 0.25s var(--timing-func);
 }

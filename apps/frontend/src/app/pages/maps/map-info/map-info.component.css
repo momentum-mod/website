@@ -1,7 +1,5 @@
-@use 'theme' as *;
-
 nb-tabset {
-  background-color: nb-theme(background-basic-color-4);
+  @apply bg-gray-700;
   height: 380px;
 }
 
@@ -23,19 +21,19 @@ nb-tab {
 .btn-group {
   display: block;
 
-  button {
+  & button {
     &:first-of-type {
       justify-content: flex-start;
       flex-direction: column;
       padding-top: 0;
     }
     height: 3em;
-    font: normal normal 400 1em/2.85em nb-theme(font-family-primary);
+    /* font: normal normal 400 1em/2.85em nb-theme(font-family-primary); // what the fuck lol */
     overflow: hidden;
     padding: 0;
 
-    span,
-    mom-icon {
+    & span,
+    & mom-icon {
       color: white;
       display: block;
     }

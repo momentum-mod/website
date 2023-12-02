@@ -15,7 +15,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'mom-queued-map',
   templateUrl: './queued-map.component.html',
-  styleUrls: ['./queued-map.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })
