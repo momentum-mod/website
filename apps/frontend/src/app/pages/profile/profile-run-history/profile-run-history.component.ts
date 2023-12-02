@@ -10,7 +10,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-profile-run-history',
   templateUrl: './profile-run-history.component.html',
-  styleUrls: ['./profile-run-history.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

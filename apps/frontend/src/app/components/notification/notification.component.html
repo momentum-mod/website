@@ -1,8 +1,8 @@
 <nb-list>
   <nb-list-item *ngIf="notifications.length === 0">
-    <span class="no-notifs">No notifications</span>
+    <span class="italic">No notifications</span>
   </nb-list-item>
-  <nb-list-item *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{ unread: !notification.read }">
+  <nb-list-item *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{ 'bg-blue-500': !notification.read }">
     <mom-activity-content
       [activity]="notification.activity"
       [dateNone]="true"
@@ -10,11 +10,15 @@
       (click)="onClickNotif(notification)"
     >
     </mom-activity-content>
-    <div class="date text-center">
+    <!-- TODO: Idiotic styling.  -->
+    <div class="absolute bottom-1 left-0 right-0 translate-y-6 text-center transition-transform [:hover>&]:translate-y-0">
       {{ notification.activity.createdAt | timeAgo }}
     </div>
-    <button nbButton outline status="danger" size="tiny" (click)="removeNotif(notification)">
-      <mom-icon icon="close-circle-outline"></mom-icon>
+    <button
+      class="m-btn m-btn-blue [:hover>&]:opacity-1 absolute right-[0.4rem] top-[0.4rem] px-[3px] py-[1px] pt-[2px] opacity-0 transition-opacity"
+      (click)="removeNotif(notification)"
+    >
+      <mom-icon icon="close-circle-outline" />
     </button>
   </nb-list-item>
 </nb-list>

@@ -10,7 +10,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-profile-follow',
   templateUrl: './profile-follow.component.html',
-  styleUrls: ['./profile-follow.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

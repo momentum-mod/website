@@ -8,7 +8,6 @@ import { QueuedMapComponent } from './queued-map/queued-map.component';
 
 @Component({
   templateUrl: './map-queue.component.html',
-  styleUrls: ['./map-queue.component.scss'],
   standalone: true,
   imports: [SharedModule, QueuedMapComponent]
 })

@@ -10,7 +10,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-profile-credits',
   templateUrl: './profile-credits.component.html',
-  styleUrls: ['./profile-credits.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

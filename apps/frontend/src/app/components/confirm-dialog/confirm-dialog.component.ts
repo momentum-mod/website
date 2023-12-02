@@ -4,7 +4,6 @@ import { NbDialogRef, NbCardModule, NbButtonModule } from '@nebular/theme';
 @Component({
   selector: 'mom-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.scss'],
   standalone: true,
   imports: [NbCardModule, NbButtonModule]
 })

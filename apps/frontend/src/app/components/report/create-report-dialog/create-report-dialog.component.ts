@@ -21,7 +21,6 @@ import { ReportCategory, ReportType } from '@momentum/constants';
 @Component({
   selector: 'mom-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
-  styleUrls: ['./create-report-dialog.component.scss'],
   standalone: true,
   imports: [
     NbCardModule,

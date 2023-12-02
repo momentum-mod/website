@@ -65,7 +65,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-map-submission-form',
   templateUrl: './map-submission-form.component.html',
-  styleUrls: ['./map-submission-form.component.scss'],
   standalone: true,
   imports: [
     SharedModule,

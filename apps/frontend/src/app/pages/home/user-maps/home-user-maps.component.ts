@@ -6,7 +6,6 @@ import { NbAccordionModule } from '@nebular/theme';
 @Component({
   selector: 'mom-home-user-maps',
   templateUrl: './home-user-maps.component.html',
-  styleUrls: ['./home-user-maps.component.scss'],
   standalone: true,
   imports: [NbAccordionModule]
 })

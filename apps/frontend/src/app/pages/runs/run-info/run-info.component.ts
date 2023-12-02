@@ -9,7 +9,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'mom-run-info',
   templateUrl: './run-info.component.html',
-  styleUrls: ['./run-info.component.scss'],
   standalone: true,
   imports: [SharedModule]
 })

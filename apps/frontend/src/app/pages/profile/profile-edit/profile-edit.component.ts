@@ -34,7 +34,6 @@ import { UserSearchComponent } from '../../../components/search/user-search/user
 @Component({
   selector: 'mom-profile-edit',
   templateUrl: './profile-edit.component.html',
-  styleUrls: ['./profile-edit.component.scss'],
   standalone: true,
   imports: [SharedModule, UserSearchComponent]
 })
