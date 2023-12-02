@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
-  selector: 'mom-user-search-result',
+  selector: 'm-user-search-result',
   templateUrl: './user-search-result.component.html',
   standalone: true,
   imports: [RouterLink, NgIf, NgOptimizedImage, TooltipModule]

@@ -5,7 +5,7 @@ import { Bitflags } from '@momentum/bitflags';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-map-info-notify-edit-modal',
+  selector: 'm-map-info-notify-edit-modal',
   templateUrl: './map-info-notify-edit.component.html',
   standalone: true,
   imports: [SharedModule]

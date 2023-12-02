@@ -26,7 +26,7 @@ import { PageHeaderComponent } from '../../../components/page-header.component';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 @Component({
-  selector: 'mom-map-info',
+  selector: 'm-map-info',
   templateUrl: './map-info.component.html',
   styleUrls: ['./map-info.component.css'],
   standalone: true,

@@ -23,7 +23,7 @@ enum SearchState {
  */
 
 @Component({
-  selector: 'mom-map-credits',
+  selector: 'm-map-credits',
   templateUrl: './map-credits.component.html',
   styleUrls: ['./map-credits.component.css'],
   standalone: true,

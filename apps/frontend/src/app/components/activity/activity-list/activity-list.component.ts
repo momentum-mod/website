@@ -5,7 +5,7 @@ import { NgIf, NgFor } from '@angular/common';
 import { NbListModule } from '@nebular/theme';
 
 @Component({
-  selector: 'mom-activity-list',
+  selector: 'm-activity-list',
   templateUrl: './activity-list.component.html',
   standalone: true,
   imports: [NbListModule, NgIf, NgFor, ActivityContentComponent]

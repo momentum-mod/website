@@ -29,7 +29,7 @@ import { FileUploadComponent } from '../../../components/file-upload/file-upload
 const youtubeRegex = /[\w-]{11}/;
 
 @Component({
-  selector: 'mom-map-edit',
+  selector: 'm-map-edit',
   templateUrl: './map-edit.component.html',
   styleUrls: ['./map-edit.component.css'],
   standalone: true,

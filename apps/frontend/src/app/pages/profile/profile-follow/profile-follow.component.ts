@@ -8,7 +8,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-profile-follow',
+  selector: 'm-profile-follow',
   templateUrl: './profile-follow.component.html',
   standalone: true,
   imports: [SharedModule]

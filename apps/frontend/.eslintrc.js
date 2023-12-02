@@ -9,14 +9,14 @@ module.exports = {
           'error',
           {
             type: ['element', 'attribute'],
-            prefix: ['mom', 'nb']
+            prefix: ['m', 'nb']
           }
         ],
         '@angular-eslint/component-selector': [
           'error',
           {
             type: 'element',
-            prefix: ['mom', 'ngx'],
+            prefix: ['m', 'ngx'],
             style: 'kebab-case'
           }
         ],

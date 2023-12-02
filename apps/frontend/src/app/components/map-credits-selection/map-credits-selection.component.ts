@@ -30,7 +30,7 @@ import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
-  selector: 'mom-map-credits-selection',
+  selector: 'm-map-credits-selection',
   templateUrl: 'map-credits-selection.component.html',
   providers: [
     {

@@ -19,7 +19,7 @@ import { ReportService } from '@momentum/frontend/data';
 import { ReportCategory, ReportType } from '@momentum/constants';
 
 @Component({
-  selector: 'mom-create-report-dialog',
+  selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
   standalone: true,
   imports: [

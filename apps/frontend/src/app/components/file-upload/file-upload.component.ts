@@ -8,7 +8,7 @@ import { IconComponent } from '@momentum/frontend/icons';
  * A form control for file selection/uploading with support for drag and drop.
  */
 @Component({
-  selector: 'mom-file-upload',
+  selector: 'm-file-upload',
   templateUrl: 'file-upload.component.html',
   providers: [
     {

@@ -9,7 +9,7 @@ import {
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-map-info-description',
+  selector: 'm-map-info-description',
   templateUrl: './map-info-description.component.html',
   standalone: true,
   imports: [SharedModule]

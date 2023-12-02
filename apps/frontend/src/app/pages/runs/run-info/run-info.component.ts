@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-run-info',
+  selector: 'm-run-info',
   templateUrl: './run-info.component.html',
   standalone: true,
   imports: [SharedModule]

@@ -21,7 +21,7 @@ enum LeaderboardType {
 }
 
 @Component({
-  selector: 'mom-map-leaderboard',
+  selector: 'm-map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
   standalone: true,
   imports: [SharedModule]

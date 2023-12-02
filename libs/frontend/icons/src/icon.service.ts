@@ -4,7 +4,7 @@ import { kebabCase } from '@momentum/util-fn';
 
 /**
  * This service simply provides a nested Map of SVG HTML strings containing icons
- * in ICON_PACKS. Instances of the mom-icon component inject it as a  performant
+ * in ICON_PACKS. Instances of the m-icon component inject it as a performant
  * way of fetching the SVG strings.
  */
 @Injectable({ providedIn: 'root' })

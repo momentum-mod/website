@@ -8,7 +8,7 @@ import { UsersService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-profile-credits',
+  selector: 'm-profile-credits',
   templateUrl: './profile-credits.component.html',
   standalone: true,
   imports: [SharedModule]

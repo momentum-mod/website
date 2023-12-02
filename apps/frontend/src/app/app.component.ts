@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
 
 @Component({
-  selector: 'mom-app',
+  selector: 'm-app',
   templateUrl: 'app.component.html',
   standalone: true,
   imports: [

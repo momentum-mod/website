@@ -4,7 +4,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { NbAccordionModule } from '@nebular/theme';
 
 @Component({
-  selector: 'mom-home-user-maps',
+  selector: 'm-home-user-maps',
   templateUrl: './home-user-maps.component.html',
   standalone: true,
   imports: [NbAccordionModule]

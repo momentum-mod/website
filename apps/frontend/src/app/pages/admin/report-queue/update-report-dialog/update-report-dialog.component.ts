@@ -6,7 +6,7 @@ import { AdminService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-update-report-dialog',
+  selector: 'm-update-report-dialog',
   templateUrl: './update-report-dialog.component.html',
   standalone: true,
   imports: [SharedModule]

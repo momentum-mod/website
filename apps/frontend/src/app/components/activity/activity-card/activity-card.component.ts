@@ -8,7 +8,7 @@ import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
 import { PageHeaderComponent } from '../../page-header.component';
 
 @Component({
-  selector: 'mom-activity-card',
+  selector: 'm-activity-card',
   templateUrl: './activity-card.component.html',
   standalone: true,
   imports: [

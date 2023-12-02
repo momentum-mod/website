@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { NbDialogRef, NbCardModule, NbButtonModule } from '@nebular/theme';
 
 @Component({
-  selector: 'mom-confirm-dialog',
+  selector: 'm-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
   standalone: true,
   imports: [NbCardModule, NbButtonModule]

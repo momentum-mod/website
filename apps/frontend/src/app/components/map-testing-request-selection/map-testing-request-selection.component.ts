@@ -11,7 +11,7 @@ import { showPopoverDuration } from '../../utils/popover-utils';
 import { NgClass, NgFor } from '@angular/common';
 
 @Component({
-  selector: 'mom-map-testing-request-selection',
+  selector: 'm-map-testing-request-selection',
   templateUrl: 'map-testing-request-selection.component.html',
   providers: [
     {

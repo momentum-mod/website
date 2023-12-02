@@ -5,7 +5,7 @@ import { NbAccordionModule } from '@nebular/theme';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-home-user-library',
+  selector: 'm-home-user-library',
   templateUrl: './home-user-library.component.html',
   standalone: true,
   imports: [NbAccordionModule, SharedModule]

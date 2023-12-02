@@ -22,7 +22,7 @@ import { ActivityCardComponent } from '../../components/activity/activity-card/a
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 
 @Component({
-  selector: 'mom-user-profile',
+  selector: 'm-user-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
   standalone: true,

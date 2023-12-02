@@ -63,7 +63,7 @@ import { SharedModule } from '../../../shared.module';
 // TODO: "are you sure you wnat to leave this page" thingy!
 
 @Component({
-  selector: 'mom-map-submission-form',
+  selector: 'm-map-submission-form',
   templateUrl: './map-submission-form.component.html',
   standalone: true,
   imports: [

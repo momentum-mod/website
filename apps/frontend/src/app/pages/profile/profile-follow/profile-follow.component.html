@@ -15,6 +15,6 @@
     <span class="block" *ngIf="localFollowStatus">Unfollow</span>
   </button>
   <button class="m-btn m-btn-blue" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
-    <mom-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
+    <m-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
   </button>
 </div>

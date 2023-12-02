@@ -9,7 +9,7 @@ import { IconComponent } from '@momentum/frontend/icons';
  * and drop.
  */
 @Component({
-  selector: 'mom-multi-file-upload',
+  selector: 'm-multi-file-upload',
   templateUrl: 'file-upload.component.html',
   providers: [
     {

@@ -27,7 +27,7 @@ enum ImageType {
 }
 
 @Component({
-  selector: 'mom-map-image-selection',
+  selector: 'm-map-image-selection',
   templateUrl: 'map-image-selection.component.html',
   providers: [
     {

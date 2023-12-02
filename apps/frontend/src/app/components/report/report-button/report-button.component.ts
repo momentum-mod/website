@@ -5,7 +5,7 @@ import { CreateReportDialogComponent } from '../create-report-dialog/create-repo
 import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
-  selector: 'mom-report-button',
+  selector: 'm-report-button',
   templateUrl: './report-button.component.html',
   standalone: true,
   imports: [NbButtonModule, IconComponent]

@@ -7,7 +7,7 @@ import {
 } from '@nebular/theme';
 
 @Component({
-  selector: 'mom-delete-user-dialog',
+  selector: 'm-delete-user-dialog',
   templateUrl: './delete-user-dialog.component.html',
   standalone: true,
   imports: [NbCardModule, NbInputModule, NbButtonModule]

@@ -11,7 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
 @Component({
-  selector: 'mom-sidenav',
+  selector: 'm-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css'],
   standalone: true,

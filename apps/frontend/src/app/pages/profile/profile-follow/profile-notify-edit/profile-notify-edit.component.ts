@@ -5,7 +5,7 @@ import { Bitflags } from '@momentum/bitflags';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-profile-notify-edit-modal',
+  selector: 'm-profile-notify-edit-modal',
   templateUrl: './profile-notify-edit.component.html',
   standalone: true,
   imports: [SharedModule]

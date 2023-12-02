@@ -32,7 +32,7 @@ import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 
 @Component({
-  selector: 'mom-profile-edit',
+  selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   standalone: true,
   imports: [SharedModule, UserSearchComponent]

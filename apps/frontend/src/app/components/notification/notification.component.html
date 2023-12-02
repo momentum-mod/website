@@ -3,13 +3,13 @@
     <span class="italic">No notifications</span>
   </nb-list-item>
   <nb-list-item *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{ 'bg-blue-500': !notification.read }">
-    <mom-activity-content
+    <m-activity-content
       [activity]="notification.activity"
       [dateNone]="true"
       (mouseenter)="onHoverNotif(notification)"
       (click)="onClickNotif(notification)"
     >
-    </mom-activity-content>
+    </m-activity-content>
     <!-- TODO: Idiotic styling.  -->
     <div class="absolute bottom-1 left-0 right-0 translate-y-6 text-center transition-transform [:hover>&]:translate-y-0">
       {{ notification.activity.createdAt | timeAgo }}
@@ -18,7 +18,7 @@
       class="m-btn m-btn-blue [:hover>&]:opacity-1 absolute right-[0.4rem] top-[0.4rem] px-[3px] py-[1px] pt-[2px] opacity-0 transition-opacity"
       (click)="removeNotif(notification)"
     >
-      <mom-icon icon="close-circle-outline" />
+      <m-icon icon="close-circle-outline" />
     </button>
   </nb-list-item>
 </nb-list>

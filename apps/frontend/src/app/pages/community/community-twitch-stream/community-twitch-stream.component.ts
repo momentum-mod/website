@@ -6,7 +6,7 @@ import { TwitchDataComponent } from './twitch-data/twitch-data.component';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-community-twitch-stream',
+  selector: 'm-community-twitch-stream',
   templateUrl: './community-twitch-stream.component.html',
   standalone: true,
   imports: [SharedModule, TwitchDataComponent]
