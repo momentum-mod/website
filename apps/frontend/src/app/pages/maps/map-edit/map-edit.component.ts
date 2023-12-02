@@ -31,7 +31,7 @@ const youtubeRegex = /[\w-]{11}/;
 @Component({
   selector: 'mom-map-edit',
   templateUrl: './map-edit.component.html',
-  styleUrls: ['./map-edit.component.scss'],
+  styleUrls: ['./map-edit.component.css'],
   standalone: true,
   imports: [
     SharedModule,

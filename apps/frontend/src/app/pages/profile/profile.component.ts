@@ -24,7 +24,7 @@ import { ReportButtonComponent } from '../../components/report/report-button/rep
 @Component({
   selector: 'mom-user-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss'],
+  styleUrls: ['./profile.component.css'],
   standalone: true,
   imports: [
     SharedModule,

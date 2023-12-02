@@ -1,4 +1,6 @@
-$timing-func: cubic-bezier(0, 0, 0.2, 1);
+:root {
+  --timing-func: cubic-bezier(0, 0, 0.2, 1);
+}
 
 h4 {
   margin-bottom: 1rem;
@@ -17,7 +19,7 @@ nb-list-item {
   background-color: rgba(255, 255, 255, 0.05);
   transition:
     background-color ease-out 0.1s,
-    box-shadow 0.2s $timing-func;
+    box-shadow 0.2s var(--timing-func);
 
   .avatar {
     flex: 0 1 auto;
@@ -76,11 +78,11 @@ nb-list-item {
 }
 
 .cdk-drag-animating {
-  transition: transform 0.25s $timing-func;
+  transition: transform 0.25s var(--timing-func);
 }
 
 .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
-  transition: transform 0.25s $timing-func;
+  transition: transform 0.25s var(--timing-func);
 }
 
 .new-user {

@@ -28,7 +28,7 @@ import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive'
 @Component({
   selector: 'mom-map-info',
   templateUrl: './map-info.component.html',
-  styleUrls: ['./map-info.component.scss'],
+  styleUrls: ['./map-info.component.css'],
   standalone: true,
   imports: [
     SharedModule,
