@@ -11,6 +11,9 @@
 @import '../styling/fonts/BebasNeue/400.css';
 @import '../styling/fonts/BebasNeue/700.css';
 
+@import './primeng-theme-nolayers.css';
+@import './primeng-nolayers.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
