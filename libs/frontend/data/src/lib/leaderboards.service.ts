@@ -3,10 +3,10 @@ import { Observable } from 'rxjs';
 import {
   LeaderboardRun,
   MapLeaderboardGetQuery,
+  MapLeaderboardGetRunQuery,
   PagedResponse
 } from '@momentum/constants';
 import { HttpService } from './http.service';
-import { MapLeaderboardGetRunQuery } from '@momentum/backend/dto';
 
 @Injectable({ providedIn: 'root' })
 export class LeaderboardsService {

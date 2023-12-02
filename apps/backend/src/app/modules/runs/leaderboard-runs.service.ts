@@ -11,7 +11,7 @@ import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
   MapLeaderboardGetQueryDto,
-  MapLeaderboardGetRunQuery,
+  MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
   LeaderboardRunDto,
   MinimalLeaderboardRunDto
@@ -144,7 +144,7 @@ export class LeaderboardRunsService {
 
   async getRun(
     mapID: number,
-    query: MapLeaderboardGetRunQuery,
+    query: MapLeaderboardGetRunQueryDto,
     loggedInUserID: number
   ): Promise<LeaderboardRunDto> {
     const where: Prisma.LeaderboardRunWhereInput = {
