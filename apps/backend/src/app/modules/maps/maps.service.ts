@@ -66,8 +66,7 @@ import {
   expandToIncludes,
   intersection,
   isEmpty,
-  parallel,
-  throwIfEmpty
+  parallel
 } from '@momentum/util-fn';
 import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
@@ -976,8 +975,9 @@ export class MapsService {
   //#region Updates
 
   async updateAsSubmitter(mapID: number, userID: number, dto: UpdateMapDto) {
-    throwIfEmpty(dto);
-
+    if (isEmpty(dto)) {
+      throw new BadRequestException('Empty body');
+    }
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { submission: true }
@@ -1066,8 +1066,9 @@ export class MapsService {
    * changes are done here, so a lot can happen.
    */
   async updateAsAdmin(mapID: number, userID: number, dto: UpdateMapAdminDto) {
-    throwIfEmpty(dto);
-
+    if (isEmpty(dto)) {
+      throw new BadRequestException('Empty body');
+    }
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { submission: true }

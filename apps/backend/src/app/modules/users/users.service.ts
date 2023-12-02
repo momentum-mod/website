@@ -51,12 +51,7 @@ import {
 import { Bitflags } from '@momentum/bitflags';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import {
-  expandToIncludes,
-  isEmpty,
-  throwIfEmpty,
-  undefinedIfEmpty
-} from '@momentum/util-fn';
+import { expandToIncludes, isEmpty, undefinedIfEmpty } from '@momentum/util-fn';
 import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
@@ -208,8 +203,9 @@ export class UsersService {
   }
 
   async update(userID: number, update: UpdateUserDto) {
-    throwIfEmpty(update);
-
+    if (isEmpty(update)) {
+      throw new BadRequestException('Empty body');
+    }
     const user = await this.db.user.findUnique({
       where: { id: userID },
       include: { profile: true }
