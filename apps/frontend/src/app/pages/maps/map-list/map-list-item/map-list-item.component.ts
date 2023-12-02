@@ -6,7 +6,7 @@ import { MapStatusName } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-map-list-item',
+  selector: 'm-map-list-item',
   templateUrl: './map-list-item.component.html',
   standalone: true,
   imports: [SharedModule]

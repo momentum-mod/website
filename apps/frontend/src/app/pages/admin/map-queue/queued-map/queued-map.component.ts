@@ -13,7 +13,7 @@ import { NbToastrService } from '@nebular/theme';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-queued-map',
+  selector: 'm-queued-map',
   templateUrl: './queued-map.component.html',
   standalone: true,
   imports: [SharedModule]

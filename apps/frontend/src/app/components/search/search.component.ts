@@ -9,7 +9,7 @@ enum SearchType {
 }
 
 @Component({
-  selector: 'mom-search',
+  selector: 'm-search',
   standalone: true,
   imports: [CommonModule, FormsModule, UserSearchComponent],
   templateUrl: './search.component.html',

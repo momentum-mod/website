@@ -1,17 +1,17 @@
-<mom-page-header [title]="map.name" titleSize="8rem">
+<m-page-header [title]="map.name" titleSize="8rem">
   <ng-container *ngIf="!previewMap">
     <a routerLink="/edit" class="text-lg font-medium" *ngIf="isSubmitter || isModerator">Edit Map</a>
-    <mom-report-button class="text-lg" *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+    <m-report-button class="text-lg" *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
     <button
       type="button"
       (click)="editNotificationSettings()"
       nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
       nbPopoverTrigger="hint"
     >
-      <mom-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
+      <m-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
     </button>
   </ng-container>
-</mom-page-header>
+</m-page-header>
 <div class="card" *ngIf="previewMap || map">
   <nb-card-body>
     <div class="flex flex-wrap">
@@ -21,13 +21,13 @@
       <div class="w-full pl-4 pr-4 lg:w-3/5">
         <nb-tabset [fullWidth]="true" class="mb-4 overflow-hidden shadow">
           <nb-tab tabTitle="Description" [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }" responsive>
-            <mom-map-info-description [map]="map" />
+            <m-map-info-description [map]="map" />
           </nb-tab>
           <nb-tab tabTitle="Credits" [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }" responsive>
-            <mom-map-info-credits [map]="map" />
+            <m-map-info-credits [map]="map" />
           </nb-tab>
           <nb-tab tabTitle="Statistics" [tabIcon]="{ icon: 'chart-pie-outline', pack: 'mdi' }" responsive *ngIf="!previewMap">
-            <mom-map-info-stats [map]="map" />
+            <m-map-info-stats [map]="map" />
           </nb-tab>
         </nb-tabset>
         <div class="no-gutters flex flex-wrap">
@@ -52,19 +52,19 @@
           <div *ngIf="!previewMap" class="relative w-full sm:flex-1 sm:flex-grow">
             <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
               <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
-                <mom-icon icon="folder"></mom-icon>
+                <m-icon icon="folder"></m-icon>
                 {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
-                <mom-icon icon="star"></mom-icon>
+                <m-icon icon="star"></m-icon>
                 {{ map.stats?.favorites | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
-                <mom-icon icon="download-outline"></mom-icon>
+                <m-icon icon="download-outline"></m-icon>
                 {{ map.stats?.downloads | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
-                <mom-icon icon="play-circle-outline"></mom-icon>
+                <m-icon icon="play-circle-outline"></m-icon>
                 {{ map.stats?.plays | thousandsSuffix: 1 }}
               </div>
             </div>
@@ -90,7 +90,7 @@
                 nbPopover="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
                 nbPopoverTrigger="hint"
               >
-                <mom-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></mom-icon>
+                <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
               </button>
             </div>
           </div>
@@ -100,4 +100,4 @@
   </nb-card-body>
 </div>
 
-<mom-map-leaderboard *ngIf="!previewMap && map" [setMap]="map" />
+<m-map-leaderboard *ngIf="!previewMap && map" [setMap]="map" />

@@ -4,7 +4,7 @@ import { MMap, MapCredit } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-map-info-credits',
+  selector: 'm-map-info-credits',
   templateUrl: './map-info-credits.component.html',
   standalone: true,
   imports: [SharedModule]

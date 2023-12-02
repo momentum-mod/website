@@ -8,7 +8,7 @@ import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-report-queue',
+  selector: 'm-report-queue',
   templateUrl: './report-queue.component.html',
   standalone: true,
   imports: [SharedModule, QueuedReportComponent]

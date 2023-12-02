@@ -4,11 +4,11 @@ import { NbCardModule } from '@nebular/theme';
 import { PageHeaderComponent } from '../../../components/page-header.component';
 
 @Component({
-  selector: 'mom-view-map-queue',
+  selector: 'm-view-map-queue',
   template: `
-    <mom-page-header title="Browse Maps" />
+    <m-page-header title="Browse Maps" />
     <div class="card">
-      <mom-map-list [isUpload]="false" />
+      <m-map-list [isUpload]="false" />
     </div>
   `,
   standalone: true,

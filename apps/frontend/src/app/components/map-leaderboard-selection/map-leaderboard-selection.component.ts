@@ -17,7 +17,7 @@ import { NgClass, NgFor } from '@angular/common';
 import { PipesModule } from '@momentum/frontend/pipes';
 
 @Component({
-  selector: 'mom-map-leaderboards-selection',
+  selector: 'm-map-leaderboards-selection',
   templateUrl: 'map-leaderboards-selection.component.html',
   providers: [
     {

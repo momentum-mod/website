@@ -8,7 +8,7 @@ import { PastRunsService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-profile-run-history',
+  selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   standalone: true,
   imports: [SharedModule]

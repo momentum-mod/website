@@ -6,7 +6,7 @@ import { AdminService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-utilities',
+  selector: 'm-utilities',
   templateUrl: './utilities.component.html',
   standalone: true,
   imports: [SharedModule]

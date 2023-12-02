@@ -33,7 +33,7 @@ nb-tab {
     padding: 0;
 
     & span,
-    & mom-icon {
+    & m-icon {
       color: white;
       display: block;
     }

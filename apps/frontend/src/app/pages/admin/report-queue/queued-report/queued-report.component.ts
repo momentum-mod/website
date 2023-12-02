@@ -6,7 +6,7 @@ import { UpdateReportDialogComponent } from '../update-report-dialog/update-repo
 import { SharedModule } from '../../../../shared.module';
 
 @Component({
-  selector: 'mom-queued-report',
+  selector: 'm-queued-report',
   templateUrl: './queued-report.component.html',
   standalone: true,
   imports: [SharedModule]

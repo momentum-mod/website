@@ -26,7 +26,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 
 @Component({
-  selector: 'mom-user-search',
+  selector: 'm-user-search',
   templateUrl: './user-search.component.html',
   standalone: true,
   imports: [

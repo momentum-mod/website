@@ -1,4 +1,4 @@
-<mom-page-header [title]="headerTitle">
+<m-page-header [title]="headerTitle">
   <span class="mr-2">Filter:</span>
   <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
     <nb-option [value]="ActivityType.ALL">All</nb-option>
@@ -6,7 +6,7 @@
     <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
     <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
   </nb-select>
-</mom-page-header>
+</m-page-header>
 <div class="card">
-  <mom-activity-list [activities]="filteredActivities" [hasRequested]="initialActivity" (showMore)="getMoreActivities()" />
+  <m-activity-list [activities]="filteredActivities" [hasRequested]="initialActivity" (showMore)="getMoreActivities()" />
 </div>

@@ -5,7 +5,7 @@ import { parse, simplify } from 'txml';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-community-news',
+  selector: 'm-community-news',
   templateUrl: './community-news.component.html',
   styleUrls: ['./community-news.component.css'],
   encapsulation: ViewEncapsulation.None,

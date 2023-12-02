@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
  * otherwise to home page.
  */
 @Component({
-  selector: 'mom-profile-redirect-local',
+  selector: 'm-profile-redirect-local',
   template: '',
   standalone: true
 })

@@ -7,7 +7,7 @@ import { HomeUserMapsComponent } from './user-maps/home-user-maps.component';
 import { HomeStatsComponent } from './stats/home-stats.component';
 
 @Component({
-  selector: 'mom-home',
+  selector: 'm-home',
   templateUrl: './home.component.html',
   standalone: true,
   imports: [

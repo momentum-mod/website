@@ -67,7 +67,7 @@
               [pTooltip]="'Example: ' + social.value.example"
             >
               <div class="mb-1 ml-1 mt-2 flex items-center">
-                <mom-icon class="mb-2 h-5 w-5" [icon]="social.value.icon" pack="si" />
+                <m-icon class="mb-2 h-5 w-5" [icon]="social.value.icon" pack="si" />
                 <h4>{{ social.key }}</h4>
               </div>
               <input [formControlName]="social.key" class="m-textinput mb-1" type="text" />
@@ -121,7 +121,7 @@
         <div class="relative max-w-full flex-1 flex-grow px-4">
           <div class="mb-3" *ngIf="hasRole(Role.PLACEHOLDER)">
             <h5 class="whitespace-nowrap">Merge to Real User:</h5>
-            <mom-user-search paginatorID="profile-edit-merge" (userSelected)="selectMergeUser($event)" *ngIf="!mergeUser" />
+            <m-user-search paginatorID="profile-edit-merge" (userSelected)="selectMergeUser($event)" *ngIf="!mergeUser" />
             <div *ngIf="mergeErr" class="mt-2 text-center text-red-600">
               {{ mergeErr }}
             </div>

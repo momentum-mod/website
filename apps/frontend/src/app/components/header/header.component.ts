@@ -21,7 +21,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @Component({
-  selector: 'mom-header',
+  selector: 'm-header',
   templateUrl: './header.component.html',
   standalone: true,
   imports: [

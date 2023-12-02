@@ -5,7 +5,7 @@ import { MapListComponent } from '../map-list/map-list.component';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
-  selector: 'mom-map-submission-status',
+  selector: 'm-map-submission-status',
   templateUrl: './map-submission-status.component.html',
   standalone: true,
   imports: [SharedModule, MapListComponent]

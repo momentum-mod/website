@@ -1,5 +1,5 @@
 <div class="flex">
-  <mom-multi-file-upload
+  <m-multi-file-upload
     class="mr-4 flex h-auto w-[12rem] flex-shrink-0 flex-col"
     icon="image-multiple-outline"
     [formControlName]="innerFormControlName"
@@ -12,7 +12,7 @@
     <div class="lg:w-1/3">
       <p class="pointer-events-none mb-1 ml-1 text-lg">
         Thumbnail
-        <mom-icon icon="asterisk" class="mb-1 h-4 w-4 align-middle" />
+        <m-icon icon="asterisk" class="mb-1 h-4 w-4 align-middle" />
       </p>
       <!-- We want to keep setting the width and height of this container based on 1/3 width and 16/9
         aspect ratio at all times, so we use a hacky 1/1 grid to stack each item, so an item being
@@ -32,11 +32,11 @@
           *ngFor="let item of items[ImageType.THUMBNAIL]"
         >
           <img class="aspect-video w-full" [src]="item.dataUrl" />
-          <mom-icon
+          <m-icon
             icon="cursor-move"
             class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
           />
-          <mom-icon
+          <m-icon
             icon="close"
             (click)="removeItem(item.file, ImageType.THUMBNAIL)"
             class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
@@ -62,11 +62,11 @@
           *ngFor="let item of items[ImageType.EXTRA]"
         >
           <img class="aspect-video w-full" [src]="item.dataUrl" />
-          <mom-icon
+          <m-icon
             icon="cursor-move"
             class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
           />
-          <mom-icon
+          <m-icon
             icon="close"
             (click)="removeItem(item.file, ImageType.EXTRA)"
             class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"

@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { SharedModule } from '../../shared.module';
 
 @Component({
-  selector: 'mom-not-found',
+  selector: 'm-not-found',
   templateUrl: './not-found.component.html',
   standalone: true,
   imports: [SharedModule]

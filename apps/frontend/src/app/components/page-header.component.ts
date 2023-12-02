@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'mom-page-header',
+  selector: 'm-page-header',
   standalone: true,
   template: `
     <div class="flex items-end gap-4">

@@ -50,7 +50,7 @@ nb-list-item {
     margin-left: 1rem;
     margin-bottom: auto;
 
-    & > mom-icon {
+    & > m-icon {
       width: 1rem;
       height: 1rem;
     }

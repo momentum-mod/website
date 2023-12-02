@@ -2,7 +2,7 @@
   class="flex h-[5rem] w-full items-center gap-8 border-b border-white border-opacity-[0.1] bg-white bg-opacity-[0.025] px-4 backdrop-blur-lg"
 >
   <div class="mr-auto flex items-center gap-4">
-    <mom-icon
+    <m-icon
       (click)="toggleSidenav()"
       icon="menu"
       class="h-12 w-12 rounded bg-white bg-opacity-0 p-1 transition-colors hover:bg-opacity-10"
@@ -13,8 +13,8 @@
     </a>
   </div>
 
-  <p-overlayPanel #search><mom-search /></p-overlayPanel>
-  <mom-icon icon="magnify" (click)="search.toggle($event)"> </mom-icon>
+  <p-overlayPanel #search><m-search /></p-overlayPanel>
+  <m-icon icon="magnify" (click)="search.toggle($event)"> </m-icon>
 
   <nb-action
     class="control-item"
@@ -29,7 +29,7 @@
     [badgeText]="numUnreadNotifs === 0 ? '' : numUnreadNotifs.toString()"
   />
   <ng-template #notifTemplate>
-    <mom-notifications [notifications]="notifications" />
+    <m-notifications [notifications]="notifications" />
   </ng-template>
   <nb-user [nbContextMenu]="userMenu" [name]="user?.alias" [picture]="user?.avatarURL" />
 

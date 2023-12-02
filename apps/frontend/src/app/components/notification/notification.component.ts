@@ -8,7 +8,7 @@ import { IconComponent } from '@momentum/frontend/icons';
 import { PipesModule } from '@momentum/frontend/pipes';
 
 @Component({
-  selector: 'mom-notifications',
+  selector: 'm-notifications',
   templateUrl: './notification.component.html',
   standalone: true,
   imports: [

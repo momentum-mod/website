@@ -11,7 +11,7 @@ import { DEFAULT_ICON_PACK, Icon, IconPack } from './index';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'mom-icon',
+  selector: 'm-icon',
   template: '',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush

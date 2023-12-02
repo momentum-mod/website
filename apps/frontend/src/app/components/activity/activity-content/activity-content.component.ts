@@ -8,7 +8,7 @@ import { NgClass, NgStyle } from '@angular/common';
 import { PipesModule } from '@momentum/frontend/pipes';
 
 @Component({
-  selector: 'mom-activity-content',
+  selector: 'm-activity-content',
   templateUrl: './activity-content.component.html',
   standalone: true,
   imports: [

@@ -3,7 +3,7 @@ import { SharedModule } from '../../../shared.module';
 import { ActivityCardComponent } from '../../../components/activity/activity-card/activity-card.component';
 
 @Component({
-  selector: 'mom-community-activity',
+  selector: 'm-community-activity',
   templateUrl: './community-activity.component.html',
   standalone: true,
   imports: [SharedModule, ActivityCardComponent]

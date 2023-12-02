@@ -22,7 +22,7 @@ import { SharedModule } from '../../../shared.module';
 import { MapListItemComponent } from './map-list-item/map-list-item.component';
 
 @Component({
-  selector: 'mom-map-list',
+  selector: 'm-map-list',
   templateUrl: './map-list.component.html',
   standalone: true,
   imports: [SharedModule, MapListItemComponent]

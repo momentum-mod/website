@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { TwitchStream } from '@momentum/constants';
 
 @Component({
-  selector: 'mom-twitch-data',
+  selector: 'm-twitch-data',
   templateUrl: './twitch-data.component.html',
   styleUrls: ['./twitch-data.component.css'],
   standalone: true

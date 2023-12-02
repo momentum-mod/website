@@ -8,11 +8,11 @@
           class="rounded flg fi fi-{{ user.country.toLowerCase() }}"
         ></span>
         <div class="top-right-toolbar flex items-center">
-          <mom-report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
+          <m-report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
           <div *ngIf="canEdit()">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
               <span class="hidden md:inline-block">Edit Profile</span>
-              <mom-icon class="inline-block md:hidden" icon="note-edit" />
+              <m-icon class="inline-block md:hidden" icon="note-edit" />
             </button>
           </div>
         </div>
@@ -55,7 +55,7 @@
               <div class="socials">
                 <div>
                   <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" pTooltip="Steam">
-                    <mom-icon icon="steam" pack="si" />
+                    <m-icon icon="steam" pack="si" />
                   </a>
                 </div>
                 <div *ngFor="let social of user.profile.socials | unsortedKeyvalue">
@@ -65,11 +65,11 @@
                     target="_blank"
                     [pTooltip]="social.key"
                   >
-                    <mom-icon [icon]="SocialsData[social.key].icon" pack="si" />
+                    <m-icon [icon]="SocialsData[social.key].icon" pack="si" />
                   </a>
                 </div>
                 <div class="ml-auto" *ngIf="!isLocal">
-                  <mom-profile-follow [userSubj]="userSubject" />
+                  <m-profile-follow [userSubj]="userSubject" />
                 </div>
               </div>
             </div>
@@ -134,15 +134,15 @@
           </div>
         </nb-tab>
         <nb-tab tabTitle="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
-          <mom-profile-run-history [userSubj]="userSubject" />
+          <m-profile-run-history [userSubj]="userSubject" />
         </nb-tab>
         <nb-tab tabTitle="Credits">
-          <mom-profile-credits [userSubj]="userSubject" />
+          <m-profile-credits [userSubj]="userSubject" />
         </nb-tab>
       </nb-tabset>
     </nb-card>
   </div>
   <div class="w-full pl-4 pr-4 xl:w-2/5">
-    <mom-activity-card *ngIf="user" headerTitle="User Activity" [userSubject]="userSubject" />
+    <m-activity-card *ngIf="user" headerTitle="User Activity" [userSubject]="userSubject" />
   </div>
 </div>

@@ -55,7 +55,7 @@
 }
 
 @layer components {
-  mom-icon {
+  m-icon {
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -66,13 +66,13 @@
     }
   }
 
-  /* TODO: m-card */
-  .card {
+  .m-card {
     border-radius: 0.25rem;
     padding: 1rem;
-    background-color: rgb(20, 20, 20, 0.8);
-    border: 1px solid #222;
-    box-shadow: 4px 4px 16px rgb(0, 0, 0, 0.5);
+    background-color: rgb(20, 20, 20, 0.75);
+    border: 1px solid #252525;
+    box-shadow: 4px 4px 24px rgb(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
   }
 
   .m-btn {
