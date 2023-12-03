@@ -57,7 +57,7 @@ module.exports = {
         700: '#242424',
         800: '#1C1C1C',
         900: '#141414',
-        950: '#080808'
+        950: '#0B0B0B'
       },
       // Very pale blues
       pale: {
@@ -77,17 +77,17 @@ module.exports = {
       // then darker tones have a slightly more purpleish hue based on colors
       // in our dark 3D background render
       blue: {
-        50:  '#ECF6FF',
-        100: '#BFE3FA',
-        200: '#92D4F3',
-        300: '#5ABBE5',
-        400: '#329ED3',
-        500: '#1582B7',
-        600: '#074D8C',
-        700: '#052B62',
-        800: '#041435',
-        900: '#02091A',
-        950: '#01050F'
+        50:  '#DCEFFF',
+        100: '#C0E5FF',
+        200: '#A1DCFB',
+        300: '#7BCCF5',
+        400: '#52B8E9',
+        500: '#2A9BDB',
+        600: '#1980CA',
+        700: '#0E60B6',
+        800: '#104298',
+        900: '#14337F',
+        950: '#122556'
       }
     }
   },
