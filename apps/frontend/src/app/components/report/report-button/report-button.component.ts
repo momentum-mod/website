@@ -6,9 +6,13 @@ import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'm-report-button',
-  templateUrl: './report-button.component.html',
   standalone: true,
-  imports: [NbButtonModule, IconComponent]
+  imports: [NbButtonModule, IconComponent],
+  template: `
+    <button (click)="onClick()">
+      <m-icon icon="flag-outline"></m-icon>
+    </button>
+  `
 })
 export class ReportButtonComponent {
   @Input() reportType: ReportType;
