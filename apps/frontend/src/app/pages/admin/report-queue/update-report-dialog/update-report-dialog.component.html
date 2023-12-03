@@ -1,8 +1,5 @@
-<nb-card class="min-w-3xl">
-  <nb-card-header>
-    <h5 class="text-gray-600">Update Report {{ report.id }}</h5>
-  </nb-card-header>
-  <nb-card-body>
+<m-card class="min-w-3xl" [title]="'Update Report ' + report.id">
+  <div>
     <form [formGroup]="updateReportForm">
       <div class="mb-4">
         <label class="mr-3">Resolved</label>
@@ -23,8 +20,8 @@
         ></textarea>
       </div>
     </form>
-  </nb-card-body>
-  <nb-card-footer>
+  </div>
+  <div>
     <div class="no-gutters flex flex-wrap">
       <div class="w-1/2 pr-1">
         <button
@@ -44,5 +41,5 @@
         </button>
       </div>
     </div>
-  </nb-card-footer>
-</nb-card>
+  </div>
+</m-card>

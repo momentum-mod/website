@@ -1,26 +1,19 @@
-<nb-card *ngIf="run">
-  <nb-card-header>
-    <div class="flex flex-wrap items-center">
-      <div class="flex-1">
-        <div class="flex flex-wrap items-center">
-          <a [routerLink]="'/profile/' + run.user.id">
-            <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
-          </a>
-          <h2 class="ml-2">on</h2>
-          <h2 class="ml-2">
-            <a [routerLink]="'/maps/' + run.mapID">{{ run.map.name }}</a>
-          </h2>
-        </div>
-      </div>
-    </div>
-  </nb-card-header>
-  <nb-card-body>
+<m-card *ngIf="run">
+  <div header class="mb-2 flex flex-wrap items-center gap-2">
+    <a class="text-xl" [routerLink]="'/profile/' + run.user.id">
+      <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
+    </a>
+    <p class="text-xl">on</p>
+    <p class="text-xl">
+      <a [routerLink]="'/maps/' + run.mapID">{{ run.map.name }}</a>
+    </p>
+  </div>
+  <div>
     <div class="flex flex-wrap justify-around text-center">
       <div class="base mx-1 mb-3">
         <h5>Time</h5>
         <h1>{{ run.time | timing }}</h1>
       </div>
-
       <ng-container *ngIf="run.leaderboardRun">
         <div class="mx-1 mb-3 border-b-2 border-blue-500">
           <h5>Jumps</h5>
@@ -38,5 +31,5 @@
         </div>
       </ng-container>
     </div>
-  </nb-card-body>
-</nb-card>
+  </div>
+</m-card>

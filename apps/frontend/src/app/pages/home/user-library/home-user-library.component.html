@@ -1,11 +1,4 @@
-<nb-accordion>
-  <nb-accordion-item [expanded]="true">
-    <nb-accordion-item-header><h2>Map Library</h2></nb-accordion-item-header>
-    <nb-accordion-item-body>
-      <div class="text-center">
-        <h1 class="mt-0 text-gray-500">{{ mapLibraryCount || 0 }} Maps In Library</h1>
-        <h6 *ngIf="mostRecentlyAddedMap">Most recently added: "{{ mostRecentlyAddedMap.name }}"</h6>
-      </div>
-    </nb-accordion-item-body>
-  </nb-accordion-item>
-</nb-accordion>
+<m-card title="Map Library" titleSize="3">
+  <p class="mt-0 text-lg text-gray-400">{{ mapLibraryCount || 0 }} Maps In Library</p>
+  <p *ngIf="mostRecentlyAddedMap">Most recently added: "{{ mostRecentlyAddedMap.name }}"</p>
+</m-card>

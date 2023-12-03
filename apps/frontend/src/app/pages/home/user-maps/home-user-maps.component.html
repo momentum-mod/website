@@ -1,29 +1,22 @@
-<nb-accordion>
-  <nb-accordion-item [expanded]="true">
-    <nb-accordion-item-header>
-      <h2>Submitted Maps Status</h2>
-    </nb-accordion-item-header>
-    <nb-accordion-item-body>
-      <div class="flex flex-wrap justify-around text-center">
-        <div class="mx-1 mb-3 border-b-2 border-green-500">
-          <h4 class="mb-0">
-            {{ submittedMapStatusSummary[MapStatus.APPROVED] || 0 }}
-          </h4>
-          <h5>Approved</h5>
-        </div>
+<m-card title="Submitted Maps Status" titleSize="3">
+  <div class="flex flex-wrap justify-around text-center">
+    <div class="mx-1 mb-3 border-b-2 border-green-500">
+      <h4 class="mb-0">
+        {{ submittedMapStatusSummary[MapStatus.APPROVED] || 0 }}
+      </h4>
+      <h5>Approved</h5>
+    </div>
 
-        <div class="mx-1 mb-3 border-b-2 border-orange-500">
-          <h4 class="mb-0">{{ submittedMapStatusSummary[MapStatus.PENDING] || 0 }}</h4>
-          <h5>Pending</h5>
-        </div>
+    <div class="mx-1 mb-3 border-b-2 border-orange-500">
+      <h4 class="mb-0">{{ submittedMapStatusSummary[MapStatus.PENDING] || 0 }}</h4>
+      <h5>Pending</h5>
+    </div>
 
-        <div class="mx-1 mb-3 border-b-2 border-red-500">
-          <h4 class="mb-0">
-            {{ submittedMapStatusSummary[MapStatus.REJECTED] || 0 }}
-          </h4>
-          <h5>Rejected</h5>
-        </div>
-      </div>
-    </nb-accordion-item-body>
-  </nb-accordion-item>
-</nb-accordion>
+    <div class="mx-1 mb-3 border-b-2 border-red-500">
+      <h4 class="mb-0">
+        {{ submittedMapStatusSummary[MapStatus.REJECTED] || 0 }}
+      </h4>
+      <h5>Rejected</h5>
+    </div>
+  </div>
+</m-card>

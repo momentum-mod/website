@@ -1,12 +1,5 @@
-<nb-card *ngIf="user">
-  <nb-card-header>
-    <div class="flex flex-wrap items-center">
-      <h2 class="relative max-w-full flex-1 flex-grow px-4">Edit Profile</h2>
-      <div class="col-auto ml-auto">
-        <button nbButton outline status="info" (click)="returnToProfile()">Return to Profile</button>
-      </div>
-    </div>
-  </nb-card-header>
+<m-card *ngIf="user" title="Edit Profile">
+  <button header nbButton outline status="info" (click)="returnToProfile()">Return to Profile</button>
   <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
     <div class="flex flex-wrap">
       <div class="w-full">
@@ -141,4 +134,4 @@
       Save changes
     </button>
   </form>
-</nb-card>
+</m-card>

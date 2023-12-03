@@ -1,24 +1,15 @@
-<nb-card>
-  <nb-card-header>
-    <div class="flex flex-wrap">
-      <h2 class="col-auto">Uploads</h2>
-      <div class="relative max-w-full flex-1 flex-grow px-4">
-        <button
-          nbButton
-          outline
-          status="info"
-          class="float-right"
-          type="button"
-          routerLink="/maps/submissions/submit"
-          [disabled]="hasSubmissionBan"
-          [pTooltip]="hasSubmissionBan && 'You are banned from map submission'"
-        >
-          Upload a Map
-        </button>
-      </div>
-    </div>
-  </nb-card-header>
-  <nb-card-body>
-    <m-map-list [isUpload]="true" />
-  </nb-card-body>
-</nb-card>
+<m-card title="Uploads">
+  <button
+    header
+    nbButton
+    outline
+    status="info"
+    type="button"
+    routerLink="/maps/submissions/submit"
+    [disabled]="hasSubmissionBan"
+    [pTooltip]="hasSubmissionBan && 'You are banned from map submission'"
+  >
+    Upload a Map
+  </button>
+  <m-map-list [isUpload]="true" />
+</m-card>

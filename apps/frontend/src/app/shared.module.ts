@@ -8,6 +8,7 @@ import * as echarts from 'echarts';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '@momentum/frontend/icons';
+import { CardComponent } from './components/card/card.component';
 import { TooltipDirective } from './directives/tooltip/tooltip.directive';
 
 const MODULES = [
@@ -17,6 +18,7 @@ const MODULES = [
   NgxPaginationModule,
   RouterModule,
   IconComponent,
+  CardComponent
 ];
 
 const DIRECTIVES = [TooltipDirective];

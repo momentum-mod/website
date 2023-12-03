@@ -1,7 +1,7 @@
 <div class="flex flex-wrap">
   <div class="w-full pl-4 pr-4 xl:w-3/5">
-    <nb-card *ngIf="user">
-      <nb-card-header class="overflow-hidden">
+    <m-card *ngIf="user">
+      <div class="overflow-hidden">
         <span
           *ngIf="user.country && user.country.length === 2"
           [title]="countryDisplayName"
@@ -75,7 +75,7 @@
             </div>
           </div>
         </div>
-      </nb-card-header>
+      </div>
       <nb-tabset>
         <nb-tab tabTitle="Info">
           <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0">
@@ -140,7 +140,7 @@
           <m-profile-credits [userSubj]="userSubject" />
         </nb-tab>
       </nb-tabset>
-    </nb-card>
+    </m-card>
   </div>
   <div class="w-full pl-4 pr-4 xl:w-2/5">
     <m-activity-card *ngIf="user" headerTitle="User Activity" [userSubject]="userSubject" />

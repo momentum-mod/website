@@ -1,57 +1,48 @@
-<nb-card>
-  <nb-card-header>
-    <div class="no-gutters flex flex-wrap">
-      <h2 class="w-4/5">Report Queue</h2>
-      <div class="w-1/5">
-        <div class="text-right">
-          <label>Resolved: </label>
-          <select name="Resolved" (change)="loadReportQueue()" [(ngModel)]="filters.resolved">
-            <option value="true">Yes</option>
-            <option selected="selected" value="false">No</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </nb-card-header>
-  <nb-card-body>
-    <div class="flex flex-wrap">
-      <div class="w-1/6">ID</div>
-      <div class="w-1/6">Type</div>
-      <div class="w-1/6">Category</div>
-      <div class="w-1/6">Reported Resource ID</div>
-      <div class="w-1/6">Submitter</div>
-      <div class="w-1/6">Resolver</div>
-      <div class="w-1/5 text-center">Message</div>
-      <div class="w-1/5 text-center">Resolution Message</div>
-      <div class="w-1/5 text-center">Actions</div>
-    </div>
-    <div class="mt-5 text-center" *ngIf="!reportQueue?.length && !isLoading">
-      <i>There are no reports that match the search criteria.</i>
-    </div>
-    <nb-list>
-      <nb-list-item
-        *ngFor="
-          let report of reportQueue
-            | paginate
-              : {
-                  id: 'report-queue-page-ctrl',
-                  itemsPerPage: pageLimit,
-                  currentPage: currentPage,
-                  totalItems: reportQueueCount
-                }
-        "
-        class="basis-full"
-      >
-        <m-queued-report [report]="report" (reportUpdate)="loadReportQueue()" />
-      </nb-list-item>
-    </nb-list>
-    <div class="text-center">
-      <pagination-controls
-        id="report-queue-page-ctrl"
-        (pageChange)="onPageChange($event)"
-        [autoHide]="true"
-        [responsive]="true"
-      ></pagination-controls>
-    </div>
-  </nb-card-body>
-</nb-card>
+<m-card title="Report Queue">
+  <ng-container header>
+    <label>Resolved: </label>
+    <select name="Resolved" (change)="loadReportQueue()" [(ngModel)]="filters.resolved">
+      <option value="true">Yes</option>
+      <option selected="selected" value="false">No</option>
+    </select>
+  </ng-container>
+  <div class="flex flex-wrap">
+    <div class="w-1/6">ID</div>
+    <div class="w-1/6">Type</div>
+    <div class="w-1/6">Category</div>
+    <div class="w-1/6">Reported Resource ID</div>
+    <div class="w-1/6">Submitter</div>
+    <div class="w-1/6">Resolver</div>
+    <div class="w-1/5 text-center">Message</div>
+    <div class="w-1/5 text-center">Resolution Message</div>
+    <div class="w-1/5 text-center">Actions</div>
+  </div>
+  <div class="mt-5 text-center" *ngIf="!reportQueue?.length && !isLoading">
+    <i>There are no reports that match the search criteria.</i>
+  </div>
+  <nb-list>
+    <nb-list-item
+      *ngFor="
+        let report of reportQueue
+          | paginate
+            : {
+                id: 'report-queue-page-ctrl',
+                itemsPerPage: pageLimit,
+                currentPage: currentPage,
+                totalItems: reportQueueCount
+              }
+      "
+      class="basis-full"
+    >
+      <m-queued-report [report]="report" (reportUpdate)="loadReportQueue()" />
+    </nb-list-item>
+  </nb-list>
+  <div class="text-center">
+    <pagination-controls
+      id="report-queue-page-ctrl"
+      (pageChange)="onPageChange($event)"
+      [autoHide]="true"
+      [responsive]="true"
+    ></pagination-controls>
+  </div>
+</m-card>

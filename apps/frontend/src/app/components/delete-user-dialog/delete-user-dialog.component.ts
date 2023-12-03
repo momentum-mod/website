@@ -1,16 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  NbDialogRef,
-  NbCardModule,
-  NbInputModule,
-  NbButtonModule
-} from '@nebular/theme';
+import { NbDialogRef, NbInputModule, NbButtonModule } from '@nebular/theme';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'm-delete-user-dialog',
   templateUrl: './delete-user-dialog.component.html',
   standalone: true,
-  imports: [NbCardModule, NbInputModule, NbButtonModule]
+  imports: [NbInputModule, NbButtonModule, CardComponent]
 })
 export class DeleteUserDialogComponent implements OnInit {
   @Input() title: string;
