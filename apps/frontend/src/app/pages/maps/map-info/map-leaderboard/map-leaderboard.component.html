@@ -1,93 +1,84 @@
-<nb-card>
-  <nb-card-header>
-    <div class="flex flex-wrap">
-      <h2 class="relative max-w-full flex-1 flex-grow px-4">Leaderboards</h2>
-      <div class="col-auto ml-auto">
-        <button nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
-      </div>
-    </div>
-  </nb-card-header>
-  <nb-card-body>
-    <div
-      class="filter-content"
-      [ngClass]="{ 'filter-active': filterActive }"
-      [ngStyle]="{
-        'max-height': filterActive ? filterContent.scrollHeight + 'px' : null
-      }"
-      #filterContent
-    >
-      <div class="p-6">
-        <div class="mb-3 flex flex-wrap">
-          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-            <nb-select [(selected)]="selectedMode">
-              <nb-option *ngFor="let mode of availableModes">{{ GamemodeName.get(mode) }}</nb-option>
-            </nb-select>
-          </div>
-          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-            <input
-              nbInput
-              fullWidth
-              type="text"
-              class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-              placeholder="Rank"
-            />
-          </div>
-          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-            <input
-              nbInput
-              fullWidth
-              type="text"
-              class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-              placeholder="Name"
-            />
-          </div>
-          <div class="relative md:flex-1 md:flex-grow">
-            <nb-radio-group [(value)]="filterLeaderboardType">
-              <nb-radio [value]="LeaderboardType.TOP10">Show top 10 times</nb-radio>
-              <nb-radio [value]="LeaderboardType.AROUND">Show ranks around me</nb-radio>
-              <nb-radio [value]="LeaderboardType.FRIENDS">Show friend's time</nb-radio>
-            </nb-radio-group>
-          </div>
+<m-card title="Leaderboards">
+  <button header nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
+  <div
+    class="filter-content"
+    [ngClass]="{ 'filter-active': filterActive }"
+    [ngStyle]="{
+      'max-height': filterActive ? filterContent.scrollHeight + 'px' : null
+    }"
+    #filterContent
+  >
+    <div class="p-6">
+      <div class="mb-3 flex flex-wrap">
+        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
+          <nb-select [(selected)]="selectedMode">
+            <nb-option *ngFor="let mode of availableModes">{{ GamemodeName.get(mode) }}</nb-option>
+          </nb-select>
         </div>
-        <div class="no-gutters flex flex-wrap">
-          <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
-            <button nbButton outline status="info" class="w-full" (click)="loadLeaderboardRuns()">Update</button>
-          </div>
-          <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
-            <button nbButton outline status="warning" class="w-full">Clear</button>
-          </div>
+        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
+          <input
+            nbInput
+            fullWidth
+            type="text"
+            class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+            placeholder="Rank"
+          />
+        </div>
+        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
+          <input
+            nbInput
+            fullWidth
+            type="text"
+            class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+            placeholder="Name"
+          />
+        </div>
+        <div class="relative md:flex-1 md:flex-grow">
+          <nb-radio-group [(value)]="filterLeaderboardType">
+            <nb-radio [value]="LeaderboardType.TOP10">Show top 10 times</nb-radio>
+            <nb-radio [value]="LeaderboardType.AROUND">Show ranks around me</nb-radio>
+            <nb-radio [value]="LeaderboardType.FRIENDS">Show friend's time</nb-radio>
+          </nb-radio-group>
+        </div>
+      </div>
+      <div class="no-gutters flex flex-wrap">
+        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
+          <button nbButton outline status="info" class="w-full" (click)="loadLeaderboardRuns()">Update</button>
+        </div>
+        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
+          <button nbButton outline status="warning" class="w-full">Clear</button>
         </div>
       </div>
     </div>
-    <h4 *ngIf="!searchedRanks" class="text-center">Waiting for API response</h4>
-    <h4 *ngIf="searchedRanks && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
-    <div *ngIf="searchedRanks && leaderboardRuns.length > 0" class="scrolling-touch block w-full overflow-auto">
-      <table>
-        <tr>
-          <th>Rank</th>
-          <th>User</th>
-          <th>Time</th>
-          <th>Flags</th>
-          <th>Achieved</th>
-          <th>View</th>
-        </tr>
-        <tr *ngFor="let run of leaderboardRuns">
-          <td>{{ run.rank }}</td>
-          <td>
-            <a [routerLink]="'/profile/' + run.user.id">
-              <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
-            </a>
-          </td>
-          <td>{{ run.time | timing }}</td>
-          <td></td>
-          <td>{{ run.createdAt | timeAgo }}</td>
-          <td>
-            <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(run)">
-              <m-icon icon="arrow-right-thick"></m-icon>
-            </button>
-          </td>
-        </tr>
-      </table>
-    </div>
-  </nb-card-body>
-</nb-card>
+  </div>
+  <h4 *ngIf="!searchedRanks" class="text-center">Waiting for API response</h4>
+  <h4 *ngIf="searchedRanks && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
+  <div *ngIf="searchedRanks && leaderboardRuns.length > 0" class="scrolling-touch block w-full overflow-auto">
+    <table>
+      <tr>
+        <th>Rank</th>
+        <th>User</th>
+        <th>Time</th>
+        <th>Flags</th>
+        <th>Achieved</th>
+        <th>View</th>
+      </tr>
+      <tr *ngFor="let run of leaderboardRuns">
+        <td>{{ run.rank }}</td>
+        <td>
+          <a [routerLink]="'/profile/' + run.user.id">
+            <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
+          </a>
+        </td>
+        <td>{{ run.time | timing }}</td>
+        <td></td>
+        <td>{{ run.createdAt | timeAgo }}</td>
+        <td>
+          <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(run)">
+            <m-icon icon="arrow-right-thick"></m-icon>
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
+</m-card>

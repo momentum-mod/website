@@ -63,10 +63,10 @@
             <m-icon [icon]="mapInLibrary ? 'folder' : 'folder-outline'"></m-icon>
           </button>
           <ng-template #libraryPopover>
-            <nb-card class="library-popover mb-0">
-              <nb-card-header>{{ mapInLibrary ? 'Remove map from library' : 'Add map to library' }}</nb-card-header>
-              <nb-card-body>Maps in your library are automatically downloaded in-game. </nb-card-body>
-            </nb-card>
+            <div class="library-popover mb-0">
+              <p class="font-bold">{{ mapInLibrary ? 'Remove map from library' : 'Add map to library' }}</p>
+              <p>Maps in your library are automatically downloaded in-game.</p>
+            </div>
           </ng-template>
         </div>
       </div>

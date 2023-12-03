@@ -1,8 +1,5 @@
-<nb-card class="max-w-2xl">
-  <nb-card-header>
-    <h5 class="text-gray-600">Report</h5>
-  </nb-card-header>
-  <nb-card-body>
+<m-card title="Report">
+  <div>
     <form [formGroup]="createReportForm">
       <div class="mb-4">
         <label class="mr-3">Category</label>
@@ -25,8 +22,6 @@
         ></textarea>
       </div>
     </form>
-  </nb-card-body>
-  <nb-card-footer>
     <div class="no-gutters flex flex-wrap">
       <div class="w-1/2 pr-1">
         <button nbButton status="control" class="w-full" (click)="cancel()">Cancel</button>
@@ -35,5 +30,5 @@
         <button nbButton status="success" class="w-full" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
       </div>
     </div>
-  </nb-card-footer>
-</nb-card>
+  </div>
+</m-card>

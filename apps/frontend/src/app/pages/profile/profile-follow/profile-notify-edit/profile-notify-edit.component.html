@@ -1,8 +1,5 @@
-<nb-card class="min-w-[300px]">
-  <nb-card-header>
-    <h6>Edit Notification Settings</h6>
-  </nb-card-header>
-  <nb-card-body>
+<m-card class="min-w-[300px]" title="Edit Notification Settings">
+  <div>
     <div class="mb-3">Notify me when this user</div>
     <ul class="list-unstyled m-0">
       <li>
@@ -18,8 +15,8 @@
         <nb-checkbox [(ngModel)]="checkboxFlags.uploaded.checked"> uploads a map </nb-checkbox>
       </li>
     </ul>
-  </nb-card-body>
-  <nb-card-footer>
+  </div>
+  <div>
     <div class="no-gutters flex flex-wrap">
       <div class="w-1/2 pr-1">
         <button nbButton status="danger" class="w-full" (click)="close()">Close</button>
@@ -28,5 +25,5 @@
         <button nbButton status="primary" class="w-full" (click)="submit()">Submit</button>
       </div>
     </div>
-  </nb-card-footer>
-</nb-card>
+  </div>
+</m-card>

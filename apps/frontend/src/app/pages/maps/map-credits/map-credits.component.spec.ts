@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MapCreditsComponent } from './map-credits.component';
 import {
-  NbCardModule,
   NbListModule,
   NbPopoverModule,
   NbThemeModule,
@@ -11,6 +10,7 @@ import {
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
+import { SharedModule } from '../../../shared.module';
 
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;
@@ -20,7 +20,7 @@ describe('MapCreditsComponent', () => {
       imports: [
         NbThemeModule.forRoot(),
         NbListModule,
-        NbCardModule,
+        SharedModule,
         NbPopoverModule,
         NbUserModule,
         HttpClientTestingModule

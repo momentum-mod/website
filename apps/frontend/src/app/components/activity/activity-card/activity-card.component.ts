@@ -4,19 +4,18 @@ import { ActivityService } from '@momentum/frontend/data';
 import { ActivityType } from '@momentum/constants';
 import { Activity, PagedResponse, User } from '@momentum/constants';
 import { ActivityListComponent } from '../activity-list/activity-list.component';
-import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
-import { PageHeaderComponent } from '../../page-header.component';
+import { NbSelectModule, NbOptionModule } from '@nebular/theme';
+import { CardComponent } from '../../card/card.component';
 
 @Component({
   selector: 'm-activity-card',
   templateUrl: './activity-card.component.html',
   standalone: true,
   imports: [
-    NbCardModule,
     NbSelectModule,
     NbOptionModule,
     ActivityListComponent,
-    PageHeaderComponent
+    CardComponent
   ]
 })
 export class ActivityCardComponent implements OnInit {

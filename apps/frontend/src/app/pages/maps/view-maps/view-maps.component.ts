@@ -1,17 +1,15 @@
 import { Component } from '@angular/core';
 import { MapListComponent } from '../map-list/map-list.component';
-import { NbCardModule } from '@nebular/theme';
-import { PageHeaderComponent } from '../../../components/page-header.component';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'm-view-map-queue',
   template: `
-    <m-page-header title="Browse Maps" />
-    <div class="card">
+    <m-card title="Browse Maps" titleSize="6">
       <m-map-list [isUpload]="false" />
-    </div>
+    </m-card>
   `,
   standalone: true,
-  imports: [NbCardModule, MapListComponent, PageHeaderComponent]
+  imports: [SharedModule, MapListComponent]
 })
 export class ViewMapsComponent {}

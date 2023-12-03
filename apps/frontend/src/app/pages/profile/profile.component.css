@@ -8,14 +8,6 @@ nb-tabset ::ng-deep .tabset {
   }
 }
 
-nb-card-header {
-  position: relative;
-
-  .text {
-    color: lightgray;
-  }
-}
-
 .justify-content-evenly {
   justify-content: space-evenly;
 }
@@ -38,11 +30,11 @@ nb-card-header {
   display: flex;
   margin: 1rem 0.25rem;
 
-  a {
+  & a {
     font-size: 2rem;
     margin-right: 1rem;
 
-    m-icon {
+    & m-icon {
       @apply text-gray-50;
       transition: color ease-out 0.1s;
       width: 2rem;
@@ -82,7 +74,7 @@ nb-card-header {
   }
 
   .badges {
-    img {
+    & img {
       max-width: 2.75rem;
     }
   }

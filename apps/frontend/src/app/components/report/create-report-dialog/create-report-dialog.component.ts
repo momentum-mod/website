@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import {
   NbDialogRef,
   NbToastrService,
-  NbCardModule,
   NbSelectModule,
   NbOptionModule,
   NbInputModule,
@@ -17,19 +16,20 @@ import {
 } from '@angular/forms';
 import { ReportService } from '@momentum/frontend/data';
 import { ReportCategory, ReportType } from '@momentum/constants';
+import { CardComponent } from '../../card/card.component';
 
 @Component({
   selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
   standalone: true,
   imports: [
-    NbCardModule,
     FormsModule,
     ReactiveFormsModule,
     NbSelectModule,
     NbOptionModule,
     NbInputModule,
-    NbButtonModule
+    NbButtonModule,
+    CardComponent
   ]
 })
 export class CreateReportDialogComponent implements OnInit {

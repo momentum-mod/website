@@ -1,12 +1,12 @@
-<m-page-header [title]="headerTitle">
-  <span class="mr-2">Filter:</span>
-  <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
-    <nb-option [value]="ActivityType.ALL">All</nb-option>
-    <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
-    <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
-    <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
-  </nb-select>
-</m-page-header>
-<div class="card">
+<m-card [title]="headerTitle">
+  <ng-container header>
+    <span class="mr-2">Filter:</span>
+    <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
+      <nb-option [value]="ActivityType.ALL">All</nb-option>
+      <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
+      <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
+      <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
+    </nb-select>
+  </ng-container>
   <m-activity-list [activities]="filteredActivities" [hasRequested]="initialActivity" (showMore)="getMoreActivities()" />
-</div>
+</m-card>

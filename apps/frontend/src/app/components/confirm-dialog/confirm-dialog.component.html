@@ -1,11 +1,8 @@
-<nb-card class="max-w-2xl">
-  <nb-card-header>
-    <h5 class="text-red-600">{{ title }}</h5>
-  </nb-card-header>
-  <nb-card-body class="whitespace-pre-line">
+<m-card [title]="title">
+  <div class="whitespace-pre-line">
     {{ message }}
-  </nb-card-body>
-  <nb-card-footer>
+  </div>
+  <div>
     <div class="no-gutters flex flex-wrap">
       <div class="w-1/2 pr-1">
         <button nbButton status="control" class="w-full bg-gray-900 text-white hover:bg-gray-900" (click)="close(false)">No</button>
@@ -14,5 +11,5 @@
         <button nbButton status="danger" class="w-full" (click)="close(true)">Yes</button>
       </div>
     </div>
-  </nb-card-footer>
-</nb-card>
+  </div>
+</m-card>

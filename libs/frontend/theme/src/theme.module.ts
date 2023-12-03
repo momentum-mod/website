@@ -6,7 +6,6 @@ import {
   NbActionsModule,
   NbAlertModule,
   NbButtonModule,
-  NbCardModule,
   NbCheckboxModule,
   NbContextMenuModule,
   NbDatepickerModule,
@@ -29,7 +28,6 @@ import {
 } from '@nebular/theme';
 
 const NEBULAR_MODULES = [
-  NbCardModule,
   NbLayoutModule,
   NbTabsetModule,
   NbRouteTabsetModule,

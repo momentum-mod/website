@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MapStatus } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
-import { NbAccordionModule } from '@nebular/theme';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'm-home-user-maps',
   templateUrl: './home-user-maps.component.html',
   standalone: true,
-  imports: [NbAccordionModule]
+  imports: [SharedModule]
 })
 export class HomeUserMapsComponent implements OnInit {
   protected readonly MapStatus = MapStatus;
