@@ -35,28 +35,23 @@
       </div>
       <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow" *ngIf="showDownloadButton">
         <a #mapFileDownloadLink class="allowed"></a>
-        <button nbButton outline status="info">DOWNLOAD</button>
+        <button class="m-btn m-btn-blue">Download</button>
       </div>
       <div class="col-auto mx-auto sm:mr-2">
         <div class="button-group flex lg:flex-col">
           <button
-            nbButton
-            status="primary"
             type="button"
-            class="mr-2 lg:mb-2 lg:mr-0"
+            class="m-btn m-btn-blue mr-2 lg:mb-2 lg:mr-0"
             (click)="toggleMapInFavorites()"
-            size="large"
             [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"
             nbPopoverTrigger="hint"
           >
             <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
           </button>
           <button
-            nbButton
             type="button"
-            class="whitespace-no-wrap inline-block select-none rounded border bg-gray-900 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-gray-900"
+            class="m-btn"
             (click)="toggleMapInLibrary()"
-            size="large"
             [nbPopover]="libraryPopover"
             nbPopoverTrigger="hint"
           >

@@ -10,7 +10,7 @@
         <div class="top-right-toolbar flex items-center">
           <m-report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
           <div *ngIf="canEdit()">
-            <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
+            <button class="m-btn m-btn-blue ml-2" type="button" (click)="onEditProfile()">
               <span class="hidden md:inline-block">Edit Profile</span>
               <m-icon class="inline-block md:hidden" icon="note-edit" />
             </button>

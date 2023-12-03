@@ -12,12 +12,7 @@
   <div class="w-1/5 text-center">{{ report.message }}</div>
   <div class="w-1/5 text-center">{{ report.resolutionMessage }}</div>
   <div class="w-1/5 text-center">
-    <button nbButton outline status="info" (click)="update()">Update</button>
-    <a
-      [routerLink]="reportedResourceURL"
-      target="_blank"
-      class="whitespace-no-wrap text-teal-500 border-teal-500 hover:bg-teal-500 hover:bg-teal-600 inline-block select-none rounded border bg-white px-3 py-1 text-center align-middle font-normal leading-normal no-underline hover:text-white"
-      >View Reported Resource</a
-    >
+    <button class="m-btn m-btn-blue" (click)="update()">Update</button>
+    <a [routerLink]="reportedResourceURL" target="_blank" class="m-btn">View Reported Resource</a>
   </div>
 </div>

@@ -1,34 +1,28 @@
 <m-card title="Report">
-  <div>
-    <form [formGroup]="createReportForm">
-      <div class="mb-4">
-        <label class="mr-3">Category</label>
-        <nb-select placeholder="Choose one" formControlName="category">
-          <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
-          <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
-          <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
-          <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
-        </nb-select>
-      </div>
-      <div class="m-0 mb-4">
-        <label>Message</label>
-        <textarea
-          nbInput
-          fullWidth
-          rows="8"
-          class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-          [maxLength]="1000"
-          formControlName="message"
-        ></textarea>
-      </div>
-    </form>
-    <div class="no-gutters flex flex-wrap">
-      <div class="w-1/2 pr-1">
-        <button nbButton status="control" class="w-full" (click)="cancel()">Cancel</button>
-      </div>
-      <div class="w-1/2 pl-1">
-        <button nbButton status="success" class="w-full" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
-      </div>
+  <form [formGroup]="createReportForm">
+    <div class="mb-4">
+      <label class="mr-3">Category</label>
+      <nb-select placeholder="Choose one" formControlName="category">
+        <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
+        <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
+        <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
+        <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
+      </nb-select>
     </div>
+    <div class="m-0 mb-4">
+      <label>Message</label>
+      <textarea
+        nbInput
+        fullWidth
+        rows="8"
+        class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+        [maxLength]="1000"
+        formControlName="message"
+      ></textarea>
+    </div>
+  </form>
+  <div class="no-gutters flex flex-wrap">
+    <button class="m-btn w-1/2 pr-1" (click)="cancel()">Cancel</button>
+    <button class="m-btn m-btn-red w-1/2 pl-1" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
   </div>
 </m-card>

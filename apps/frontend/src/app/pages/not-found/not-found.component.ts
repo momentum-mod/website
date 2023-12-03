@@ -11,6 +11,7 @@ import { SharedModule } from '../../shared.module';
 export class NotFoundComponent {
   constructor(private menuService: NbMenuService) {}
 
+  // TODO: What the fuck
   goToHome() {
     this.menuService.navigateHome();
   }

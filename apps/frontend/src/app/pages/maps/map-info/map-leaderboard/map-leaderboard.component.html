@@ -1,5 +1,5 @@
 <m-card title="Leaderboards">
-  <button header nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
+  <button header class="m-btn m-btn-blue" type="button" (click)="filterActive = !filterActive">Filter</button>
   <div
     class="filter-content"
     [ngClass]="{ 'filter-active': filterActive }"
@@ -43,10 +43,10 @@
       </div>
       <div class="no-gutters flex flex-wrap">
         <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
-          <button nbButton outline status="info" class="w-full" (click)="loadLeaderboardRuns()">Update</button>
+          <button class="m-btn m-btn-blue w-full" (click)="loadLeaderboardRuns()">Update</button>
         </div>
         <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
-          <button nbButton outline status="warning" class="w-full">Clear</button>
+          <button class="m-btn m-btn-orange w-full">Clear</button>
         </div>
       </div>
     </div>
@@ -74,7 +74,7 @@
         <td></td>
         <td>{{ run.createdAt | timeAgo }}</td>
         <td>
-          <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(run)">
+          <button class="m-btn m-btn-blue" type="button" (click)="viewRun(run)">
             <m-icon icon="arrow-right-thick"></m-icon>
           </button>
         </td>

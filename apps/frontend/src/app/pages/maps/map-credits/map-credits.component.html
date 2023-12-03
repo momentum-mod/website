@@ -10,7 +10,7 @@
             <span class="description" *ngIf="!editable">{{ credit.description }}</span>
             <input class="description" placeholder="Description" *ngIf="editable" nbInput [(ngModel)]="credit.description" />
           </div>
-          <button nbButton class="delete" status="danger" outline size="tiny" *ngIf="editable" (click)="removeUser(type.key, credit.user)">
+          <button class="m-btn m-btn-red" *ngIf="editable" (click)="removeUser(type.key, credit.user)">
             <m-icon icon="close-thick" />
           </button>
         </nb-list-item>
@@ -19,15 +19,9 @@
     <div class="search-wrapper" *ngIf="searchStates[type.key] !== SearchState.HIDDEN">
       <div class="selected-warning" *ngIf="searchStates[type.key] === SearchState.USER_ALREADY_SELECTED">User already selected!</div>
       <m-user-search paginatorID="map-credits" (userSelected)="addUser(type.key, $event)" />
-      <button class="cancel" nbButton status="danger" (click)="hideUserSearch(type.key)">Cancel</button>
+      <button class="m-btn m-btn-orange" (click)="hideUserSearch(type.key)">Cancel</button>
     </div>
-    <button
-      class="new-user"
-      *ngIf="editable && searchStates[type.key] === SearchState.HIDDEN"
-      nbButton
-      status="primary"
-      (click)="showUserSearch(type.key)"
-    >
+    <button *ngIf="editable && searchStates[type.key] === SearchState.HIDDEN" class="m-btn m-btn-blue" (click)="showUserSearch(type.key)">
       <m-icon icon="plus-thick" />
     </button>
   </div>

@@ -3,11 +3,11 @@
     <form (ngSubmit)="createUser()" [formGroup]="userForm">
       <h4>Create Placeholder User</h4>
       <input nbInput type="text" formControlName="alias" />
-      <button nbButton type="submit">Submit</button>
+      <button class="m-btn m-btn-blue" type="submit">Submit</button>
     </form>
   </div>
   <div>
-    <button nbButton outline status="danger" class="mr-2" (click)="showResetCosXPConfigDialog()">Reset Cosmetic XP Globally</button>
-    <button nbButton outline status="danger" (click)="showResetRankXPConfirmDialog()">Reset Rank XP Globally</button>
+    <button class="m-btn m-btn-red mr-2" (click)="showResetCosXPConfigDialog()">Reset Cosmetic XP Globally</button>
+    <button class="m-btn m-btn-red" (click)="showResetRankXPConfirmDialog()">Reset Rank XP Globally</button>
   </div>
 </m-card>

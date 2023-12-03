@@ -28,22 +28,14 @@
     <div class="no-gutters flex flex-wrap sm:items-center">
       <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow">
         <a #mapFileDownloadLink class="allowed"></a>
-        <button nbButton outline status="info" (click)="onMapFileDownload(map?.id)">Download</button>
+        <button class="m-btn m-btn-blue" (click)="onMapFileDownload(map?.id)">Download</button>
       </div>
       <div class="col-auto mx-auto sm:mr-2">
         <div class="button-group flex lg:flex-col">
-          <button
-            type="button"
-            class="whitespace-no-wrap mr-2 inline-block select-none rounded border bg-green-500 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-green-600 lg:mb-2 lg:mr-0"
-            (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)"
-          >
+          <button type="button" class="m-btn m-btn-green" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
             <m-icon icon="check-circle-outline" />
           </button>
-          <button
-            type="button"
-            class="whitespace-no-wrap inline-block select-none rounded border bg-red-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-red-700"
-            (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)"
-          >
+          <button type="button" class="m-btn m-btn-red" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
             <m-icon icon="close" />
           </button>
         </div>

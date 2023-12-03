@@ -4,8 +4,7 @@ import {
   NbToastrService,
   NbSelectModule,
   NbOptionModule,
-  NbInputModule,
-  NbButtonModule
+  NbInputModule
 } from '@nebular/theme';
 import {
   FormBuilder,
@@ -28,7 +27,6 @@ import { CardComponent } from '../../card/card.component';
     NbSelectModule,
     NbOptionModule,
     NbInputModule,
-    NbButtonModule,
     CardComponent
   ]
 })
