@@ -1,5 +1,5 @@
 <m-card *ngIf="user" title="Edit Profile">
-  <button header nbButton outline status="info" (click)="returnToProfile()">Return to Profile</button>
+  <button header class="m-btn m-btn-blue" (click)="returnToProfile()">Return to Profile</button>
   <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
     <div class="flex flex-wrap">
       <div class="w-full">
@@ -13,7 +13,7 @@
               type="text"
             />
             <div class="input-group-append" *ngIf="hasBan(Ban.ALIAS)">
-              <button nbButton outline status="warning" size="small" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
+              <button class="m-btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
             </div>
           </div>
           <nb-alert class="mb-0 mt-3 px-3 py-2 text-red-600" outline="danger" *ngIf="alias.hasError('minlength')">
@@ -120,18 +120,18 @@
             </div>
             <div *ngIf="mergeUser">
               <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" class="mb-2" />
-              <button type="button" nbButton outline status="info" size="small" (click)="cancelMerge()" class="mr-2 mt-1">Cancel</button>
-              <button type="button" nbButton outline status="danger" size="small" (click)="mergeUsers()" class="mt-1">Merge To User</button>
+              <button class="m-btn mr-2 mt-1" type="button" (click)="cancelMerge()">Cancel</button>
+              <button type="button" class="m-btn m-btn-orange" (click)="mergeUsers()">Merge To User</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="mb-3">
-      <button type="button" nbButton outline *ngIf="!hasRole(Role.DELETED)" status="danger" (click)="deleteUser()">Delete User</button>
+      <button class="m-btn m-btn-red" type="button" *ngIf="!hasRole(Role.DELETED)" status="danger" (click)="deleteUser()">
+        Delete User
+      </button>
     </div>
-    <button nbButton outline status="info" size="medium" class="submit-btn" type="submit" [disabled]="form.touched && !form.valid">
-      Save changes
-    </button>
+    <button class="m-btn m-btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
   </form>
 </m-card>

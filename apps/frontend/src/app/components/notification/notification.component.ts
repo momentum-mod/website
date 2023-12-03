@@ -3,7 +3,7 @@ import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
 import { ActivityContentComponent } from '../activity/activity-content/activity-content.component';
 import { NgIf, NgFor, NgClass } from '@angular/common';
-import { NbListModule, NbButtonModule } from '@nebular/theme';
+import { NbListModule } from '@nebular/theme';
 import { IconComponent } from '@momentum/frontend/icons';
 import { PipesModule } from '@momentum/frontend/pipes';
 
@@ -17,7 +17,6 @@ import { PipesModule } from '@momentum/frontend/pipes';
     NgFor,
     NgClass,
     ActivityContentComponent,
-    NbButtonModule,
     IconComponent,
     PipesModule
   ]

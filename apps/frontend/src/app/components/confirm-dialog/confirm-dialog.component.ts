@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { NbDialogRef, NbButtonModule } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'm-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
   standalone: true,
-  imports: [NbButtonModule, CardComponent]
+  imports: [CardComponent]
 })
 export class ConfirmDialogComponent {
   @Input() title: string;

@@ -81,17 +81,23 @@
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
     font-weight: 500;
-    align-self: center;
     box-shadow: inset 0 1px 1px white;
-    @apply bg-gray-300 hover:bg-gray-400 shadow-lg transition-colors;
+    background-color: theme('colors.gray.500');
+
+    @apply bg-gray-600 hover:bg-gray-500 shadow-lg transition-colors;
+
+    &:disabled {
+      pointer-events: none;
+      filter: contrast(0.3) brightness(0.5);
+    }
   }
 
   .m-btn-blue {
-    @apply bg-blue-400 hover:bg-blue-500;
+    @apply bg-blue-500 hover:bg-blue-400;
   }
 
   .m-btn-red {
-    @apply bg-red-400 hover:bg-red-500;
+    @apply bg-red-500 hover:bg-red-400;
   }
 
   .m-btn-green {

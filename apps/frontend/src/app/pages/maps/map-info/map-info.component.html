@@ -1,8 +1,9 @@
 <m-card [title]="map.name" titleSize="8">
   <ng-container header *ngIf="!previewMap">
-    <a routerLink="/edit" class="text-lg font-medium" *ngIf="isSubmitter || isModerator">Edit Map</a>
+    <a routerLink="edit" class="m-btn m-btn-blue" *ngIf="isSubmitter || isModerator">Edit Map</a>
     <m-report-button class="text-lg" *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
     <button
+      class="m-btn"
       type="button"
       (click)="editNotificationSettings()"
       nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
@@ -61,23 +62,13 @@
             </div>
           </div>
           <div class="relative inline-flex text-center align-middle sm:text-right">
-            <button
-              nbButton
-              outline
-              status="info"
-              type="button"
-              class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
-              (click)="onLibraryUpdate()"
-            >
+            <button type="button" class="m-btn m-btn-blue" (click)="onLibraryUpdate()">
               <span [ngClass]="{ 'c-anim-btn': mapInLibrary }">{{ mapInLibrary ? 'In Library' : 'Add Map to Library' }}</span>
               <span *ngIf="mapInLibrary">Remove from Library</span>
             </button>
             <button
-              nbButton
-              outline
-              status="info"
               type="button"
-              class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
+              class="m-btn m-btn-blue"
               (click)="onFavoriteUpdate()"
               nbPopover="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
               nbPopoverTrigger="hint"

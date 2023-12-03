@@ -2,9 +2,7 @@
   <i>No runs found</i>
 </h5>
 <div *ngIf="loadedRuns && runHistory.length > 0">
-  <button class="mb-3" nbButton outline shape="round" size="small" status="info" [fullWidth]="true" (click)="showFilters = !showFilters">
-    Filters
-  </button>
+  <button class="mb-3" class="m-btn m-btn-blue" (click)="showFilters = !showFilters">Filters</button>
   <div
     class="overflow-hidden [transition:max-weight_0.2s_ease-out,margin-bottom_0.2s_ease-out_0.1s]"
     [ngClass]="{ 'mb-4': showFilters }"
@@ -35,7 +33,7 @@
         </nb-select>
       </div>
       <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
-        <button nbButton outline status="info" (click)="onFilterApply()">Apply</button>
+        <button class="m-btn m-btn-green" (click)="onFilterApply()">Apply</button>
       </div>
     </div>
   </div>

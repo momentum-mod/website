@@ -24,14 +24,8 @@
       />
     </div>
   </div>
-  <div>
-    <div class="no-gutters flex flex-wrap">
-      <div class="w-1/2 pr-1">
-        <button nbButton status="control" class="w-full bg-gray-900 text-white hover:bg-gray-900" (click)="close()">Cancel</button>
-      </div>
-      <div class="w-1/2 pl-1">
-        <button nbButton status="danger" class="w-full" [disabled]="!this.isCodeValid" (click)="submit()">Delete</button>
-      </div>
-    </div>
+  <div class="no-gutters flex flex-wrap">
+    <button class="m-btn w-1/2 pr-1" (click)="close()">Cancel</button>
+    <button class="m-btn m-btn-red w-1/2 pl-1" [disabled]="!this.isCodeValid" (click)="submit()">Delete</button>
   </div>
 </m-card>

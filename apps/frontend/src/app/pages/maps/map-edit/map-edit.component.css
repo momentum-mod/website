@@ -11,10 +11,6 @@ m-icon {
   max-width: 400px;
 }
 
-.submit-btn {
-  margin-top: 1.25rem;
-}
-
 .thumb-text {
   width: calc(var(--image-width) + 3rem);
 }
