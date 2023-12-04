@@ -1,165 +1,71 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { UsersService } from '@momentum/frontend/data';
-import { PagedResponse, User } from '@momentum/constants';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  switchMap,
-  takeUntil,
-  tap
-} from 'rxjs/operators';
-import {
-  NbFormFieldModule,
-  NbPopoverModule,
-  NbSpinnerModule,
-  NbInputModule
-} from '@nebular/theme';
-import { merge, of, Subject } from 'rxjs';
+import { Component, Input } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LocalUserService, UsersService } from '@momentum/frontend/data';
+import { Role, User } from '@momentum/constants';
+import { of } from 'rxjs';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { UserSearchResultComponent } from './user-search-result.component';
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
 import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
-import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { AbstractSearchComponent } from './abstract-search.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'm-user-search',
   templateUrl: './user-search.component.html',
   standalone: true,
   imports: [
-    NbFormFieldModule,
-    NbPopoverModule,
-    NbSpinnerModule,
-    NbInputModule,
     FormsModule,
     ReactiveFormsModule,
     IconComponent,
     NgClass,
     NgFor,
-    UserSearchResultComponent,
     NgxPaginationModule,
     TooltipModule,
-    PaginatorModule
+    PaginatorModule,
+    OverlayPanelModule,
+    NgIf,
+    NgOptimizedImage,
+    RouterLink
   ]
 })
-export class UserSearchComponent implements OnInit {
-  constructor(private readonly usersService: UsersService) {}
+export class UserSearchComponent extends AbstractSearchComponent<User> {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly localUserService: LocalUserService
+  ) {
+    super();
+  }
+
+  protected readonly Role = Role;
+  itemsName = 'users';
+  protected searchBySteam = false;
 
   /**
-   * ngx-pagination can break for multiple instances if they don't have explicit
-   * IDs, so each component instance that uses one needs to specify an ID.
-   * https://github.com/michaelbromley/ngx-pagination/blob/master/README.md#multiple-instances
-   */
-  @Input({ required: true }) paginatorID!: string;
-  @Output() public readonly userSelected = new EventEmitter<User>();
-  public readonly search: FormControl<string> = new FormControl();
-  protected readonly pageChange = new Subject<PaginatorState>();
-  private readonly stopSearch = new Subject<void>();
+   * Show a button for opening the user profile in a separate tab. Used when a
+   * component wants to select a user, not view this profile (e.g. credits
+   * picker)
+   * */
+  @Input() showProfileButton: boolean = false;
 
-  searchBySteam = false;
-  foundUsers: User[] = [];
-
-  totalRecords = 0;
-  page = 1;
-
-  first = 0;
-
-  protected readonly rows = 5;
-  protected readonly pageSize = 5;
-
-  readonly popover: any = {};
-
-  ngOnInit() {
-    this.search.statusChanges.subscribe((status) => {
-      if (status !== 'INVALID') {
-        // this.popover.hide();
-        return;
+  searchRequest(searchString: string) {
+    if (this.searchBySteam) {
+      if (Number.isNaN(+searchString)) {
+        this.search.setErrors({ error: 'Input is not a Steam ID!' });
+        return of(null);
       }
-      // showPopover(
-      //   this.popover,
-      //   Object.values(this.search.errors)[0] ?? 'Unknown error'
-      // );
-    });
-
-    merge(
-      this.pageChange.pipe(
-        // filter(({ page }) => page === this.page),
-        tap((aaa) => {
-          console.log(aaa);
-          this.first = aaa.first;
-        })
-      ),
-      this.search.valueChanges.pipe(
-        distinctUntilChanged(),
-        filter((value) => {
-          if (value?.trim().length > 0) return true;
-          this.resetSearchData();
-          return false;
-        }),
-        debounceTime(200)
-      )
-    )
-      .pipe(
-        switchMap(() => {
-          const value = this.search.value;
-          this.search.markAsPending();
-
-          if (this.searchBySteam) {
-            if (Number.isNaN(+value)) {
-              this.search.setErrors({ error: 'Input is not a Steam ID!' });
-              return of(null);
-            }
-            return this.usersService
-              .getUsers({ steamID: value })
-              .pipe(takeUntil(this.stopSearch));
-          } else
-            return this.usersService
-              .getUsers({
-                search: value,
-                take: this.pageSize,
-                skip: this.first
-              })
-              .pipe(takeUntil(this.stopSearch));
-        })
-      )
-      .subscribe({
-        next: (response: PagedResponse<User> | null) => {
-          if (!response) {
-            this.resetSearchData();
-          } else if (response.returnCount > 0) {
-            this.foundUsers = response.data;
-            this.totalRecords = response.totalCount;
-            this.search.setErrors(null);
-          } else {
-            this.resetSearchData();
-            this.search.setErrors({ error: 'No users found!' });
-          }
-        },
-        error: (err) => {
-          console.error(err);
-          this.search.setErrors({ error: 'Error fetching users!' });
-        }
+      return this.usersService.getUsers({ steamID: searchString });
+    } else
+      return this.usersService.getUsers({
+        search: searchString,
+        take: this.rows,
+        skip: this.first
       });
   }
 
-  public resetSearchBox() {
-    this.resetSearchData();
-    this.stopSearch.next();
-    // emitEvent ... TODO
-    this.search.setValue('', { emitEvent: true });
-    // this.search.reset();
-  }
-
-  protected resetSearchData() {
-    this.foundUsers = [];
-    this.first = 0;
-    this.totalRecords = 0;
-  }
-
-  protected confirmUser(user: User) {
-    this.userSelected.emit(user);
+  hasRole(role: Role, user: User) {
+    return this.localUserService.hasRole(role, user);
   }
 }

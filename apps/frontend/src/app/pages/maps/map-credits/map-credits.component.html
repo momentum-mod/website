@@ -18,7 +18,7 @@
     </ng-container>
     <div class="search-wrapper" *ngIf="searchStates[type.key] !== SearchState.HIDDEN">
       <div class="selected-warning" *ngIf="searchStates[type.key] === SearchState.USER_ALREADY_SELECTED">User already selected!</div>
-      <m-user-search paginatorID="map-credits" (userSelected)="addUser(type.key, $event)" />
+      <m-user-search (selected)="addUser(type.key, $event)" />
       <button class="m-btn m-btn-orange" (click)="hideUserSearch(type.key)">Cancel</button>
     </div>
     <button *ngIf="editable && searchStates[type.key] === SearchState.HIDDEN" class="m-btn m-btn-blue" (click)="showUserSearch(type.key)">
