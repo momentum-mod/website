@@ -232,6 +232,38 @@
       transform: translate(-50%, -50%) scale(1);
     }
   }
+
+  .m-badge {
+    pointer-events: none;
+    border-radius: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 2px 3px 8px black / 50%;
+    @apply bg-gray-600;
+  }
+
+  .m-badge-blue {
+    @apply bg-blue-600;
+  }
+
+  .m-badge-red {
+    @apply bg-red-600 hover:bg-red-400;
+  }
+
+  .m-badge-green {
+    @apply bg-green-400 hover:bg-green-500;
+  }
+
+  .m-badge-orange {
+    @apply bg-orange-400 hover:bg-orange-500;
+  }
 }
 
 @layer utilities {
