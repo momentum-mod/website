@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserSearchComponent } from './user-search/user-search.component';
+import { Router } from '@angular/router';
+import { MMap, User } from '@momentum/constants';
+import { MapSearchComponent } from './user-search/map-search.component';
 
 enum SearchType {
   USER,
@@ -11,14 +14,14 @@ enum SearchType {
 @Component({
   selector: 'm-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserSearchComponent],
+  imports: [CommonModule, FormsModule, UserSearchComponent, MapSearchComponent],
   templateUrl: './search.component.html',
   styles: [
     `
       :host {
         display: flex;
         flex-direction: column;
-        min-width: 24rem;
+        min-width: 32rem;
       }
     `
   ]
@@ -26,4 +29,17 @@ enum SearchType {
 export class SearchComponent {
   protected readonly SearchType = SearchType;
   protected activeType: SearchType = SearchType.MAP;
+  @Output() readonly selected = new EventEmitter<void>();
+
+  constructor(private readonly router: Router) {}
+
+  userSelected(user: User) {
+    this.router.navigateByUrl(`/profile/${user.id}`);
+    this.selected.emit();
+  }
+
+  mapSelected(map: MMap) {
+    this.router.navigateByUrl(`/maps/${map.id}`);
+    this.selected.emit();
+  }
 }

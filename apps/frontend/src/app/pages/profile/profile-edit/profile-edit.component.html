@@ -114,7 +114,7 @@
         <div class="relative max-w-full flex-1 flex-grow px-4">
           <div class="mb-3" *ngIf="hasRole(Role.PLACEHOLDER)">
             <h5 class="whitespace-nowrap">Merge to Real User:</h5>
-            <m-user-search paginatorID="profile-edit-merge" (userSelected)="selectMergeUser($event)" *ngIf="!mergeUser" />
+            <m-user-search (selected)="selectMergeUser($event)" *ngIf="!mergeUser" />
             <div *ngIf="mergeErr" class="mt-2 text-center text-red-600">
               {{ mergeErr }}
             </div>

@@ -13,7 +13,7 @@
     </a>
   </div>
 
-  <p-overlayPanel #search><m-search /></p-overlayPanel>
+  <p-overlayPanel #search><m-search (selected)="search.hide()" /></p-overlayPanel>
   <m-icon icon="magnify" (click)="search.toggle($event)"> </m-icon>
 
   <nb-action

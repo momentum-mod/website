@@ -28,12 +28,7 @@
       </div>
     </div>
   </div>
-  <m-user-search
-    #searchInput
-    [paginatorID]="type.key.toString()"
-    (userSelected)="addUser(type.key, $event, searchInput)"
-    class="mb-2 mt-4"
-  />
+  <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
   <div class="flex">
     <input #placeHolderInput class="input flex-grow" placeholder="Create placeholder..." />
     <button

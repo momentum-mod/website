@@ -1,24 +1,25 @@
-<div class="mb-6 flex items-center gap-4">
-  <p class="font-medium">Search By</p>
+<div class="mb-4 flex items-center justify-end gap-4">
+  <p class="font-medium italic">Search By</p>
   <label class="flex items-center">
-    <input class="m-input mr-2" type="radio" [value]="SearchType.MAP" [(ngModel)]="activeType" />
+    <input class="m-radio mr-2" type="radio" [value]="SearchType.MAP" [(ngModel)]="activeType" />
     Maps
   </label>
   <label class="flex items-center">
-    <input class="m-input mr-2" type="radio" [value]="SearchType.USER" [(ngModel)]="activeType" />
+    <input class="m-radio mr-2" type="radio" [value]="SearchType.USER" [(ngModel)]="activeType" />
     Users
   </label>
 </div>
 <div class="stack overflow-hidden">
   <m-user-search
+    #userSearch
     [ngClass]="{ hide: activeType !== SearchType.USER }"
     class="transition-all [&.hide]:-z-10 [&.hide]:translate-x-1/2 [&.hide]:opacity-0"
-    paginatorID="search-component"
+    (selected)="userSelected($event); userSearch.resetSearchBox()"
   />
-  <div
+  <m-map-search
+    #mapSearch
     [ngClass]="{ hide: activeType !== SearchType.MAP }"
     class="transition-all [&.hide]:-z-10 [&.hide]:-translate-x-1/2 [&.hide]:opacity-0"
-  >
-    <p>TODO</p>
-  </div>
+    (selected)="mapSelected($event); mapSearch.resetSearchBox()"
+  />
 </div>
