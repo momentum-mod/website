@@ -17,6 +17,7 @@ export {
   mdiAccountMultiple,
   mdiAccountMultipleOutline,
   mdiGiftOutline,
+  mdiBell,
   mdiBellAlert,
   mdiBellOutline,
   mdiMagnify,
