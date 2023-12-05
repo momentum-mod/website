@@ -127,9 +127,12 @@
   }
 
   .m-textinput-validated {
-    /*&.ng-valid.ng-dirty {*/
-    /*  @apply border-green-500 !important;*/
-    /*}*/
+    /*
+    // Making valid go green feels a bit much
+    &.ng-valid.ng-dirty {
+      @apply border-green-500 !important;
+    }
+    */
     &.ng-invalid.ng-dirty {
       @apply border-red-500 !important;
     }
@@ -272,7 +275,7 @@
     }
   }
 
-  /*TODO: Tailwind almost supports this, remove me once we're on a release with it   has it!*/
+  /*TODO: Tailwind almost supports this, remove me once we're on a release with it has it!*/
   .text-balance {
     text-wrap: balance;
   }
