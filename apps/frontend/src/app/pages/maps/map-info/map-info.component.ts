@@ -4,8 +4,8 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { MMap, MapImage, MapNotify } from '@momentum/constants';
-import { ReportType, Role } from '@momentum/constants';
+import { MMap, MapImage, MapNotify, CombinedRoles } from '@momentum/constants';
+import { ReportType } from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import { PartialDeep } from 'type-fest';
 import {
@@ -143,10 +143,8 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             .getLocal()
             .pipe(takeUntil(this.ngUnsub))
             .subscribe((locUser) => {
-              this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
               this.isModerator = this.localUserService.hasRole(
-                Role.MODERATOR,
-                locUser
+                CombinedRoles.MOD_OR_ADMIN
               );
               this.isSubmitter = this.map.submitterID === locUser.id;
             });
