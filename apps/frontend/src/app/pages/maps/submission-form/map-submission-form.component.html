@@ -169,7 +169,7 @@
           </div>
           <input
             id="name"
-            class="input input-validated !max-w-full"
+            class="m-textinput input-validated !max-w-full"
             type="text"
             nbPopover
             nbPopoverContext="mapNameError"
@@ -221,7 +221,7 @@
           <div>
             <input
               id="creationDate"
-              class="input input-validated w-full !max-w-full"
+              class="m-textinput input-validated w-full !max-w-full"
               [nbDatepicker]="datepicker"
               [formControl]="creationDate"
             />
@@ -245,7 +245,7 @@
           <input
             id="youtubeID"
             type="text"
-            class="input input-validated !max-w-full"
+            class="m-textinput input-validated !max-w-full"
             [formControl]="youtubeID"
             (change)="stripYoutubeUrl()"
           />
@@ -255,12 +255,7 @@
             <div class="my-auto -mt-1 mb-1 flex flex-grow items-center">
               <label for="description" class="text-lg">
                 Description
-                <m-icon
-                  icon="tooltip-question-outline"
-                  class="ml-1 align-middle"
-                  [nbPopover]="descriptionInfo"
-                  nbPopoverTrigger="hover"
-                />
+                <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="descriptionInfo" nbPopoverTrigger="hover" />
                 <ng-template #descriptionInfo>
                   <div class="prose p-3">
                     <p>
@@ -280,9 +275,7 @@
           </div>
           <textarea
             id="description"
-            nbInput
-            class="input input-validated flex-grow"
-            fullWidth
+            class="m-textinput m-textinput-validated flex-grow"
             rows="4"
             [formControl]="description"
             [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"

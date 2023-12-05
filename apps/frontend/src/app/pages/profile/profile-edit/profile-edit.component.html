@@ -3,15 +3,10 @@
   <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
     <div class="flex flex-wrap">
       <div class="w-full">
-        <div class="mb-4 mb-4" [ngClass]="{ 'has-error': !alias.valid }">
+        <div class="mb-4" [ngClass]="{ 'has-error': !alias.valid }">
           <h3>Alias</h3>
           <div class="relative flex w-full items-stretch">
-            <input
-              nbInput
-              class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-              formControlName="alias"
-              type="text"
-            />
+            <input class="m-textinput mb-1" formControlName="alias" type="text" />
             <div class="input-group-append" *ngIf="hasBan(Ban.ALIAS)">
               <button class="m-btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
             </div>
@@ -36,15 +31,7 @@
 
         <div class="mb-4" [ngClass]="{ 'has-error': !bio.valid }">
           <h3>Bio</h3>
-          <textarea
-            nbInput
-            fullWidth
-            rows="6"
-            class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
-            formControlName="bio"
-            type="bio"
-            #description
-          ></textarea>
+          <textarea rows="6" class="m-textinput mb-1 w-full" formControlName="bio" type="bio" #description></textarea>
           <nb-alert class="mb-0 mt-2 px-3 py-2 text-red-600" outline="danger" *ngIf="bio.hasError('maxlength')">
             Text cannot exceed 1000 characters.
           </nb-alert>

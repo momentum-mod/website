@@ -24,13 +24,13 @@
             <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
           </button>
         </div>
-        <input class="input !px-3 !py-0.5 text-sm" placeholder="Description" [(ngModel)]="credit.description" />
+        <input class="m-textinput !px-3 !py-0.5 text-sm" placeholder="Description" [(ngModel)]="credit.description" />
       </div>
     </div>
   </div>
   <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
   <div class="flex">
-    <input #placeHolderInput class="input flex-grow" placeholder="Create placeholder..." />
+    <input #placeHolderInput class="m-textinput flex-grow" placeholder="Create placeholder..." />
     <button
       class="btn ml-3 bg-green-600 transition-colors hover:bg-green-500"
       *ngIf="placeHolderInput.value.length > 0"

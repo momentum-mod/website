@@ -10,7 +10,6 @@ import {
   NbDatepickerModule,
   NbDialogModule,
   NbGlobalPhysicalPosition,
-  NbInputModule,
   NbLayoutModule,
   NbListModule,
   NbMenuModule,
@@ -40,7 +39,6 @@ const NEBULAR_MODULES = [
   NbContextMenuModule,
   NbProgressBarModule,
   NbSelectModule,
-  NbInputModule,
   NbAccordionModule,
   NbToastrModule,
   NbAlertModule

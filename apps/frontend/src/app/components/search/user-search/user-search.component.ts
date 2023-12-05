@@ -48,7 +48,7 @@ export class UserSearchComponent extends AbstractSearchComponent<User> {
    * component wants to select a user, not view this profile (e.g. credits
    * picker)
    * */
-  @Input() showProfileButton: boolean = false;
+  @Input() showProfileButton = false;
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {
