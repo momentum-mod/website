@@ -1,23 +1,12 @@
-<nb-card>
-  <nb-card-header>
-    <div class="no-gutters flex flex-wrap">
-      <h2 class="col-auto">{{ headerTitle }}</h2>
-      <div class="col-auto ml-auto">
-        <div class="flex items-center">
-          <span class="mr-2">Filter:</span>
-          <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
-            <nb-option [value]="ActivityType.ALL">All</nb-option>
-            <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
-            <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
-            <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
-          </nb-select>
-        </div>
-      </div>
-    </div>
-  </nb-card-header>
-  <mom-activity-list
-    [activities]="filteredActivities"
-    [hasRequested]="initialActivity"
-    (showMore)="getMoreActivities()"
-  ></mom-activity-list>
-</nb-card>
+<mom-page-header [title]="headerTitle">
+  <span class="mr-2">Filter:</span>
+  <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
+    <nb-option [value]="ActivityType.ALL">All</nb-option>
+    <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
+    <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
+    <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
+  </nb-select>
+</mom-page-header>
+<div class="card">
+  <mom-activity-list [activities]="filteredActivities" [hasRequested]="initialActivity" (showMore)="getMoreActivities()" />
+</div>

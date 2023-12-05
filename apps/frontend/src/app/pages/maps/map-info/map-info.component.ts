@@ -22,6 +22,7 @@ import { SharedModule } from '../../../shared.module';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { GallerizeDirective } from 'ng-gallery/lightbox';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
+import { PageHeaderComponent } from '../../../components/page-header.component';
 
 @Component({
   selector: 'mom-map-info',
@@ -36,7 +37,8 @@ import { ReportButtonComponent } from '../../../components/report/report-button/
     MapInfoDescriptionComponent,
     MapInfoCreditsComponent,
     MapInfoStatsComponent,
-    ReportButtonComponent
+    ReportButtonComponent,
+    PageHeaderComponent
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {

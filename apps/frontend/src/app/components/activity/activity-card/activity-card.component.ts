@@ -5,13 +5,20 @@ import { ActivityType } from '@momentum/constants';
 import { Activity, PagedResponse, User } from '@momentum/constants';
 import { ActivityListComponent } from '../activity-list/activity-list.component';
 import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
+import { PageHeaderComponent } from '../../page-header.component';
 
 @Component({
   selector: 'mom-activity-card',
   templateUrl: './activity-card.component.html',
   styleUrls: ['./activity-card.component.scss'],
   standalone: true,
-  imports: [NbCardModule, NbSelectModule, NbOptionModule, ActivityListComponent]
+  imports: [
+    NbCardModule,
+    NbSelectModule,
+    NbOptionModule,
+    ActivityListComponent,
+    PageHeaderComponent
+  ]
 })
 export class ActivityCardComponent implements OnInit {
   @Input() headerTitle: string;
