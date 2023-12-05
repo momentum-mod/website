@@ -1,33 +1,18 @@
-<nb-card *ngIf="previewMap || map">
-  <nb-card-header>
-    <div class="flex flex-wrap">
-      <h2 class="relative my-auto max-w-full flex-1 flex-grow px-4">{{ map.name }}</h2>
-      <div class="col-auto ml-auto">
-        <div class="flex items-center" *ngIf="!previewMap">
-          <mom-report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
-          <div *ngIf="isSubmitter || isAdmin || isModerator">
-            <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditMap()">
-              <span class="hidden md:inline-block">Edit Map</span>
-              <mom-icon icon="image-edit" class="inline-block md:hidden" />
-            </button>
-          </div>
-          <div class="m-2">
-            <button
-              nbButton
-              outline
-              status="info"
-              type="button"
-              (click)="editNotificationSettings()"
-              nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-              nbPopoverTrigger="hint"
-            >
-              <mom-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nb-card-header>
+<mom-page-header [title]="map.name" titleSize="8rem">
+  <ng-container *ngIf="!previewMap">
+    <a routerLink="/edit" class="text-lg font-medium" *ngIf="isSubmitter || isModerator">Edit Map</a>
+    <mom-report-button class="text-lg" *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+    <button
+      type="button"
+      (click)="editNotificationSettings()"
+      nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+      nbPopoverTrigger="hint"
+    >
+      <mom-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
+    </button>
+  </ng-container>
+</mom-page-header>
+<div class="card" *ngIf="previewMap || map">
   <nb-card-body>
     <div class="flex flex-wrap">
       <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-2/5">
@@ -113,6 +98,6 @@
       </div>
     </div>
   </nb-card-body>
-</nb-card>
+</div>
 
 <mom-map-leaderboard *ngIf="!previewMap && map" [setMap]="map" />
