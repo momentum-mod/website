@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   NbMenuItem,
   NbMenuService,
-  NbSidebarService,
   NbActionsModule,
   NbPopoverModule,
   NbUserModule,
@@ -21,7 +20,6 @@ import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-header',
-  styleUrls: ['./header.component.scss'],
   templateUrl: './header.component.html',
   standalone: true,
   imports: [
@@ -59,11 +57,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   numUnreadNotifs: number;
 
   constructor(
-    private sidebarService: NbSidebarService,
-    private menuService: NbMenuService,
-    private userService: LocalUserService,
-    private layoutService: LayoutService,
-    private notificationService: NotificationsService
+    private readonly menuService: NbMenuService,
+    private readonly userService: LocalUserService,
+    private readonly layoutService: LayoutService,
+    private readonly notificationService: NotificationsService
   ) {
     this.notifications = [];
     this.numUnreadNotifs = 0;
@@ -76,7 +73,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService
       .getLocal()
       .pipe(takeUntil(this.ngUnsub))
-      .subscribe((usr) => (this.user = usr));
+      .subscribe((user) => (this.user = user));
     this.notificationService.notifications.subscribe((notifs) => {
       this.notifications = notifs;
       this.numUnreadNotifs = this.notifications.filter(
@@ -96,6 +93,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  logout() {
+    this.userService.logout();
+  }
 
   toggleSidenav() {
     this.layoutService.toggleSidenavState();
