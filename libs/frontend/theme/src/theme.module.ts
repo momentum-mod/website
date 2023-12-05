@@ -37,7 +37,6 @@ const NEBULAR_MODULES = [
   NbUserModule,
   NbListModule,
   NbActionsModule,
-  NbSidebarModule,
   NbCheckboxModule,
   NbRadioModule,
   NbPopoverModule,
@@ -63,7 +62,6 @@ export class ThemeModule {
         ...NbThemeModule.forRoot({ name: 'momentum' }, [
           { name: 'momentum', base: 'dark' }
         ]).providers,
-        ...NbSidebarModule.forRoot().providers,
         ...NbMenuModule.forRoot().providers,
         ...NbToastrModule.forRoot({
           duration: 3000,

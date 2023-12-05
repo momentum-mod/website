@@ -41,7 +41,8 @@ export {
   mdiChartPieOutline,
   mdiImageEdit,
   mdiChartBoxOutline,
-  mdiHomeOutline,
+  mdiHome,
+  mdiNewspaperVariant,
   mdiCloudUploadOutline,
   mdiRunFast,
   mdiBookOpenVariant,
@@ -57,5 +58,9 @@ export {
   mdiCog,
   mdiCheckOutline,
   mdiPencilOutline,
-  mdiLockOutline
+  mdiLockOutline,
+  mdiTrayFull,
+  mdiEmoticonAngry,
+  mdiTools,
+  mdiAbacus
 } from '@mdi/js';

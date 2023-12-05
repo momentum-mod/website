@@ -1,0 +1,77 @@
+/* 
+* I've styled this in CSS since the collapsing stuff is annoying in Tailwind,
+* and we need to do responsive versions in the future.
+*/
+nav {
+  display: flex;
+  flex-direction: column;
+
+  width: 15rem;
+  height: 100%;
+  padding: 0.5rem 0;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.075);
+  background-color: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(16px);
+
+  & p.category {
+    pointer-events: none;
+
+    margin-bottom: 0.25rem;
+    margin-top: 1.5rem;
+    padding: 0 2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    @apply font-medium text-sm text-gray-300;
+  }
+
+  & a.item {
+    display: flex;
+    justify-items: center;
+    height: 2.5rem;
+    padding: 0 2rem;
+    @apply text-gray-50 bg-blue-500 bg-opacity-0 border-blue-500  border-opacity-0 transition-colors;
+
+    &:hover {
+      @apply bg-opacity-25 border-opacity-100;
+    }
+
+    & mom-icon {
+      margin: auto 0;
+    }
+
+    & p {
+      margin: auto 0 auto 0.75rem;
+      @apply text-lg font-light;
+    }
+  }
+}
+
+nav.smol {
+  width: 3.5rem;
+
+  & p.category {
+    overflow: clip;
+    opacity: 0;
+    width: 0;
+    margin-top: 0;
+    height: 1rem;
+
+    &:first-of-type {
+      height: 0;
+    }
+  }
+
+  & a.item {
+    padding: 0;
+
+    & mom-icon {
+      margin: auto;
+    }
+
+    & p {
+      margin-left: 0;
+      display: none;
+    }
+  }
+}

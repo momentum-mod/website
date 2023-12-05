@@ -1,0 +1,18 @@
+<nav [ngClass]="{ smol: isCollapsed() }">
+  @for (category of getMenuItems(); track category.title) {
+    <p class="category">{{ category.title }}</p>
+    @for (item of category.items; track item.title) {
+      @if (item.external) {
+        <a [href]="item.link" class="item" target="_blank" [pTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
+          <mom-icon [icon]="item.icon" [pack]="item.pack" />
+          <p>{{ item.title }}</p>
+        </a>
+      } @else {
+        <a [routerLink]="[item.link]" class="item" [pTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
+          <mom-icon [icon]="item.icon" [pack]="item.pack" />
+          <p>{{ item.title }}</p>
+        </a>
+      }
+    }
+  }
+</nav>
