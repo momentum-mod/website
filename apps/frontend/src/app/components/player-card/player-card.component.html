@@ -1,0 +1,15 @@
+<div class="bg-image"></div>
+<div class="pointer-events-none flex h-full gap-2 p-2">
+  <img [src]="user.avatarURL" class="aspect-square h-full rounded-sm shadow-md" />
+  <div class="ml-2 flex flex-grow flex-col">
+    <p class="mb-auto text-lg">{{ user.alias }}</p>
+    <p class="text-sm">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
+    <p-progressBar
+      class="playercard__progressbar h-4"
+      [showValue]="false"
+      [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)"
+    />
+  </div>
+  <!-- TODO: Level indicator component - https://github.com/momentum-mod/website/issues/870 -->
+  <p class="self-end rounded bg-gray-500 px-2 py-0 font-display text-xl shadow">{{ user.userStats.level }}</p>
+</div>
