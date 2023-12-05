@@ -21,7 +21,7 @@ export class HomeComponent {
   user: User;
 
   constructor(public localUserService: LocalUserService) {
-    this.localUserService.getLocalUser({ expand: ['userStats'] }).subscribe({
+    this.localUserService.localUserSubject.subscribe({
       next: (response) => (this.user = response),
       error: (error) => console.error(error)
     });

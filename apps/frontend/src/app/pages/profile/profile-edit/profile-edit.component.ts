@@ -175,7 +175,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     ) {
       this.localUserService.updateUser(update).subscribe({
         next: () => {
-          this.localUserService.refreshLocal();
+          this.localUserService.refreshLocalUser();
           this.toasterService.success('Updated user profile!', 'Success');
         },
         error: (error) =>
@@ -320,7 +320,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   resetAlias() {
     this.localUserService.resetAliasToSteamAlias().subscribe({
       next: () => {
-        this.localUserService.refreshLocal();
+        this.localUserService.refreshLocalUser();
         this.toasterService.success(
           'Successfully reset alias to Steam name!',
           'Success'

@@ -97,8 +97,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
       .subscribe((map: MMap) => {
         // TODO: Reduce nesting?
         this.map = map;
-        this.localUserService
-          .getLocal()
+        this.localUserService.localUserSubject
           .pipe(takeUntil(this.ngUnsub))
           .subscribe((localUser) => {
             this.isAdmin = this.localUserService.hasRole(Role.ADMIN, localUser);
