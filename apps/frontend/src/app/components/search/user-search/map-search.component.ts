@@ -15,10 +15,6 @@ import { AbstractSearchComponent } from './abstract-search.component';
   templateUrl: './map-search.component.html',
   standalone: true,
   imports: [
-    NbFormFieldModule,
-    NbPopoverModule,
-    NbSpinnerModule,
-    NbInputModule,
     FormsModule,
     ReactiveFormsModule,
     IconComponent,

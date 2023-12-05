@@ -3,8 +3,7 @@ import {
   NbDialogRef,
   NbToastrService,
   NbSelectModule,
-  NbOptionModule,
-  NbInputModule
+  NbOptionModule
 } from '@nebular/theme';
 import {
   FormBuilder,
@@ -26,7 +25,6 @@ import { CardComponent } from '../../card/card.component';
     ReactiveFormsModule,
     NbSelectModule,
     NbOptionModule,
-    NbInputModule,
     CardComponent
   ]
 })
