@@ -74,6 +74,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   isModerator: boolean;
 
   private ngUnsub = new Subject<void>();
+  refreshCurrentUser = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -133,12 +134,15 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
             const id = Number(params.get('id'));
             if (this.localUserService.localUser?.id !== id) {
               this.isLocal = false;
-              return this.usersService
-                .getUser(id, { expand: ['profile', 'userStats'] })
-                .pipe(
-                  take(1),
-                  tap((user) => this.setUser(user))
-                );
+              return merge(
+                this.usersService
+                  .getUser(id, { expand: ['profile', 'userStats'] })
+                  .pipe(
+                    take(1),
+                    tap((user) => this.setUser(user))
+                  ),
+                this.refreshCurrentUser
+              );
             }
           }
 
@@ -202,7 +206,11 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       (update as AdminUpdateUser).bans = this.user.bans;
       this.adminService.updateUser(this.user.id, update).subscribe({
         next: () => {
-          if (this.isLocal) this.localUserService.refreshLocal();
+          if (this.isLocal) {
+            this.localUserService.refreshLocalUser();
+          } else {
+            this.refreshCurrentUser.next();
+          }
           this.toasterService.success('Updated user profile!', 'Success');
         },
         error: (error) =>
