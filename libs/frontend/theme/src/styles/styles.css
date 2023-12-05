@@ -37,12 +37,6 @@
     }
   }
 
-  /*TODO: delete this shit*/
-  .no-gutters {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
   iframe {
     border: none;
   }
