@@ -86,7 +86,7 @@ html {
 }
 
 body {
-  background-color: nb-theme(layout-background-color);
+  //background-color: nb-theme(layout-background-color);
 }
 
 .no-gutters {
@@ -243,4 +243,28 @@ mom-icon {
   svg {
     vertical-align: middle;
   }
+}
+
+.card {
+  //backdrop-filter: contrast(0.3);
+  border-radius: 0.25rem;
+  padding: 1rem;
+  background-color: rgb(20, 20, 20, 0.8);
+  border: 1px solid #222;
+  box-shadow: 4px 4px 16px rgb(0, 0, 0, 0.5);
+}
+
+.bg-image {
+  filter: contrast(0.3) brightness(0.45) saturate(0) opacity(0.8);
+  background: url('apps/frontend/src/assets/images/BGDark.png') no-repeat center
+    center fixed;
+  background-size: cover;
+}
+
+h1 {
+  @apply font-display;
+  font-size: 4rem;
+  line-height: 4.5rem;
+  text-shadow: 4px 4px 0 #141414;
+  color: #eee;
 }
