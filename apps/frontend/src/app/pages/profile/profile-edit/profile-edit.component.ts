@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { switchMap, takeUntil } from 'rxjs/operators';
-import { of, Subject } from 'rxjs';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { EMPTY, merge, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../components/delete-user-dialog/delete-user-dialog.component';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
@@ -73,7 +73,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   isModerator: boolean;
 
-  private ngUnSub = new Subject<void>();
+  private ngUnsub = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -122,29 +122,42 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.paramMap
-      .pipe(switchMap((params: ParamMap) => of(params.get('id'))))
-      .subscribe((id: string) => {
-        if (id) {
-          const numID = Number(id);
-          this.isLocal = numID === this.localUserService.localUser.id;
-          if (!this.isLocal) {
-            this.usersService
-              .getUser(numID, { expand: ['profile'] })
-              .subscribe((user) => this.setUser(user));
+      .pipe(
+        switchMap((params: ParamMap) => {
+          if (!this.localUserService.isLoggedIn()) {
+            this.router.navigateByUrl('/');
+            return EMPTY;
           }
-        }
-        this.localUserService
-          .getLocal()
-          .pipe(takeUntil(this.ngUnSub))
-          .subscribe((user) => {
-            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
-            this.isModerator = this.localUserService.hasRole(
-              Role.MODERATOR,
-              user
-            );
-            if (this.isLocal) this.setUser(user);
-          });
-      });
+
+          if (params.has('id')) {
+            const id = Number(params.get('id'));
+            if (this.localUserService.localUser?.id !== id) {
+              this.isLocal = false;
+              return this.usersService
+                .getUser(id, { expand: ['profile', 'userStats'] })
+                .pipe(
+                  take(1),
+                  tap((user) => this.setUser(user))
+                );
+            }
+          }
+
+          this.localUserService.refreshLocalUser();
+          return this.localUserService.localUserSubject.pipe(
+            take(1),
+            tap((user) => {
+              this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
+              this.isModerator = this.localUserService.hasRole(
+                Role.MODERATOR,
+                user
+              );
+              if (this.isLocal) this.setUser(user);
+            })
+          );
+        }),
+        takeUntil(this.ngUnsub)
+      )
+      .subscribe();
   }
 
   setUser(user: User) {
@@ -335,7 +348,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnSub.next();
-    this.ngUnSub.complete();
+    this.ngUnsub.next();
+    this.ngUnsub.complete();
   }
 }
