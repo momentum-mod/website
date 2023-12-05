@@ -1,0 +1,47 @@
+/*
+* This component's game UI sibling lives at
+* https://github.com/momentum-mod/panorama/blob/master/styles/pages/main-menu.scss#L131 
+*/
+
+/* This isn't a pointless div, it's needed for variable sidenav width (seriously) */
+.header {
+  width: 100%;
+  height: 5rem;
+
+  display: flex;
+  align-items: center;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+  background: linear-gradient(
+    rgba(128, 128, 128, 0.25),
+    rgba(95, 95, 95, 0.25)
+  );
+  backdrop-filter: blur(48px);
+
+  & .item {
+    height: 100%;
+    /* Game uses a slight gradient for hover background, but can't animate
+       browser like you can in Panorama without CSS --var trickier - not going
+       to bother for such a subtle effect. */
+    background-color: rgba(255, 255, 255, 0);
+    border-color: rgba(0, 0, 0, 0);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    transition-property: background, border;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-in;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  & m-icon {
+    padding: 1rem;
+    width: 5rem;
+
+    filter: drop-shadow(0px 1px 0px rgba(0, 0, 0, 0.9))
+      drop-shadow(1px 2px 8px rgba(0, 0, 0, 0.35));
+  }
+}
