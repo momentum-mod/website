@@ -36,7 +36,7 @@ import { ReportButtonComponent } from '../../components/report/report-button/rep
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
-  private ngUnsub = new Subject<void>();
+  private readonly ngUnsub = new Subject<void>();
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
   protected readonly SocialsData = SocialsData as Readonly<
@@ -69,7 +69,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    public userService: LocalUserService,
+    public localUserService: LocalUserService,
     private usersService: UsersService,
     private toastService: NbToastrService
   ) {
@@ -92,28 +92,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => {
           if (params.has('id')) {
-            const idNum = Number(params.get('id'));
-            this.userService
-              .getLocal()
-              .pipe(takeUntil(this.ngUnsub))
-              .subscribe({
-                next: (user) => (this.isLocal = idNum === user.id),
-                error: (error) =>
-                  this.toastService.danger(
-                    error.message,
-                    'Cannot get user profile'
-                  )
+            const id = Number(params.get('id'));
+            if (
+              !this.localUserService.isLoggedIn() ||
+              this.localUserService.localUser?.id !== id
+            ) {
+              this.isLocal = false;
+              return this.usersService.getUser(id, {
+                expand: ['profile', 'userStats']
               });
-            return this.usersService.getUser(idNum, {
-              expand: ['profile', 'userStats']
-            });
-          } else {
-            this.isLocal = true;
-            return this.userService.getLocalUser({
-              expand: ['profile', 'userStats']
-            });
+            }
           }
-        })
+          this.isLocal = true;
+          this.localUserService.refreshLocalUser();
+          return this.localUserService.localUserSubject;
+        }),
+        takeUntil(this.ngUnsub)
       )
       .subscribe({
         next: (user) => {
@@ -152,19 +146,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.ngUnsub.next();
     this.ngUnsub.complete();
   }
 
   hasRole(role: Role) {
     if (!this.user) return false;
-    return this.userService.hasRole(role, this.user);
+    return this.localUserService.hasRole(role, this.user);
   }
 
   hasBan(ban: Ban) {
     if (!this.user) return false;
-    return this.userService.hasBan(ban, this.user);
+    return this.localUserService.hasBan(ban, this.user);
   }
 
   onEditProfile() {
@@ -175,7 +169,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   canEdit(): boolean {
     return (
-      this.isLocal || this.userService.hasRole(Role.MODERATOR | Role.ADMIN)
+      this.isLocal || this.localUserService.hasRole(Role.MODERATOR | Role.ADMIN)
     );
   }
 }

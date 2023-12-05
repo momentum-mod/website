@@ -1,68 +1,63 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { CookieService } from 'ngx-cookie-service';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
+  Ban,
   Follow,
   FollowStatus,
-  MMap,
   MapCredit,
   MapCreditsGetQuery,
   MapFavorite,
   MapLibraryEntry,
   MapNotify,
   MapSummary,
+  MMap,
   Notification,
+  PagedResponse,
+  Profile,
+  Role,
   UpdateNotification,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
   UserMapLibraryGetQuery,
   UserMapSubmittedGetQuery,
-  UsersGetQuery
+  UsersGetQuery,
+  UserStats
 } from '@momentum/constants';
-import { Ban, Role } from '@momentum/constants';
-import { PagedResponse } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { HttpService } from './http.service';
 
+export type FullUser = User & { profile?: Profile; userStats?: UserStats };
+
 @Injectable({ providedIn: 'root' })
 export class LocalUserService {
-  public localUser: User;
-  private localUserSubject: Subject<User>;
+  public readonly localUserSubject: BehaviorSubject<FullUser | null>;
 
   constructor(
     private authService: AuthService,
-    private cookieService: CookieService,
     private http: HttpService
   ) {
-    this.localUserSubject = new ReplaySubject<User>(1);
-    const userCookieExists = this.cookieService.check('user');
-    if (userCookieExists) {
-      const userCookie = decodeURIComponent(this.cookieService.get('user'));
-      localStorage.setItem('user', userCookie);
-      this.cookieService.delete('user', '/');
-    }
-    const user = localStorage.getItem('user') as string;
+    const storedUser =
+      this.isLoggedIn() && localStorage.getItem('user')
+        ? (JSON.parse(localStorage.getItem('user') as string) as FullUser)
+        : null;
 
-    // TODO: Handle this properly - redirect to login?
-    // if (!user) throw new Error('fuck');
-
-    this.localUser = JSON.parse(user);
-    this.localUserSubject.next(this.localUser);
-    this.refreshLocal();
+    this.localUserSubject = new BehaviorSubject(storedUser);
+    this.refreshLocalUser();
   }
 
-  public refreshLocal(): void {
-    this.getLocalUser({ expand: ['profile'] }).subscribe((user) => {
-      this.localUserSubject.next(user);
-      this.localUser = user as User;
-      localStorage.setItem('user', JSON.stringify(user));
-    });
+  public refreshLocalUser(): void {
+    this.getLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
+      (user) => {
+        this.localUserSubject.next(user as FullUser);
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+    );
   }
 
-  public getLocal(): Observable<User> {
-    return this.localUserSubject.asObservable();
+  public get localUser(): FullUser | null {
+    return this.localUserSubject.getValue();
   }
 
   public isLoggedIn(): boolean {
@@ -73,15 +68,25 @@ export class LocalUserService {
     this.authService.logout();
   }
 
-  public hasRole(roles: Role, user: User = this.localUser): boolean {
+  public hasRole(roles: Role, user?: User): boolean {
+    if (!user && !this.isLoggedIn())
+      throw new Error(
+        'LocalUserService.hasRole: called with no logged in user'
+      );
+    user ??= this.localUser as User;
     return user.roles ? Bitflags.has(roles, user.roles) : false;
   }
 
-  public hasBan(bans: Ban, user: User = this.localUser): boolean {
-    return user.bans ? Bitflags.has(bans, user.bans) : false;
+  public hasBan(bans: Ban, user?: User): boolean {
+    if (!user && !this.isLoggedIn())
+      throw new Error(
+        'LocalUserService.hasRole: called with no logged in user'
+      );
+    user ??= this.localUser as User;
+    return user.roles ? Bitflags.has(bans, user.bans) : false;
   }
 
-  public getLocalUser(query?: UsersGetQuery): Observable<User> {
+  private getLocalUser(query?: UsersGetQuery): Observable<User> {
     return this.http.get<User>('user', { query });
   }
 

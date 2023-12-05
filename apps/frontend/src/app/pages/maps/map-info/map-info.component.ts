@@ -142,8 +142,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           if (this.map.libraryEntries && this.map.libraryEntries.length > 0)
             this.mapInLibrary = true;
           this.updateGallery(galleryRef, map.images, map.info.youtubeID);
-          this.localUserService
-            .getLocal()
+          this.localUserService.localUserSubject
             .pipe(takeUntil(this.ngUnsub))
             .subscribe((locUser) => {
               this.isModerator = this.localUserService.hasRole(

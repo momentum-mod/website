@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocalUserService } from '@momentum/frontend/data';
-import { firstValueFrom } from 'rxjs';
 
 /**
  * Redirects `/profile` to `/profile/<logged-in-ID>` if has a logged in user,
@@ -19,7 +18,7 @@ export class ProfileRedirectComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const localUser = await firstValueFrom(this.localUserService.getLocal());
+    const localUser = this.localUserService.localUser;
 
     await this.router.navigate([
       localUser?.id ? `/profile/${localUser.id}` : '/'
