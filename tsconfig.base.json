@@ -38,7 +38,8 @@
         "libs/frontend/validators/src/index.ts"
       ],
       "@momentum/random": ["libs/random/src/index.ts"],
-      "@momentum/util-fn": ["libs/util-fn/src/index.ts"]
+      "@momentum/util-fn": ["libs/util-fn/src/index.ts"],
+      "@momentum/xp-systems": ["libs/xp-systems/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

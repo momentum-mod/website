@@ -31,6 +31,7 @@ module.exports = {
         'meta',
         'deps',
         'db',
+        'xpsys',
         'utils',
         'tools',
         'eslint',
