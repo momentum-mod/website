@@ -39,5 +39,4 @@ export * from './socials/twitch-stream.model';
 export * from './stats/base-stats.model';
 export * from './stats/run-stats.model';
 export * from './report/report.model';
-export * from './xp-systems/xp-systems.model';
 export * from './paged-response.model';
