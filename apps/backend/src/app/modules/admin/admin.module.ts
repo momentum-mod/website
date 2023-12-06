@@ -3,7 +3,6 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { DbModule } from '../database/db.module';
 import { MapsModule } from '../maps/maps.module';
-import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { UsersModule } from '../users/users.module';
 import { AdminActivityService } from './admin-activity.service';
 
@@ -11,7 +10,6 @@ import { AdminActivityService } from './admin-activity.service';
   imports: [
     DbModule.forRoot(),
     forwardRef(() => MapsModule),
-    forwardRef(() => XpSystemsModule),
     forwardRef(() => UsersModule)
   ],
   controllers: [AdminController],

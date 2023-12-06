@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
   UseGuards
 } from '@nestjs/common';
@@ -28,7 +27,6 @@ import { RolesGuard } from '../auth/roles.guard';
 import { NonGameAuthGuard } from '../auth/jwt/game.guard';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role as RolesEnum } from '@momentum/constants';
-import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsService } from '../maps/maps.service';
 import { UsersService } from '../users/users.service';
 import {
@@ -46,9 +44,7 @@ import {
   ReportDto,
   UpdateMapAdminDto,
   UpdateReportDto,
-  UpdateXpSystemsDto,
-  UserDto,
-  XpSystemsDto
+  UserDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { AdminActivityService } from './admin-activity.service';
@@ -62,7 +58,6 @@ import { AdminActivityService } from './admin-activity.service';
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
-    private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService,
     private readonly usersService: UsersService,
     private readonly adminActivityService: AdminActivityService
@@ -268,35 +263,6 @@ export class AdminController {
     @Body() body: UpdateReportDto
   ) {
     return this.adminService.updateReport(userID, reportID, body);
-  }
-
-  @Get('/xpsys')
-  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
-  @ApiOperation({ description: 'Retrives the current XP system variables' })
-  @ApiOkResponse({
-    type: XpSystemsDto,
-    description: 'The current XP system variables'
-  })
-  getXPSystems() {
-    return this.xpSystems.get();
-  }
-
-  @Put('/xpsys')
-  @Roles(RolesEnum.ADMIN)
-  @ApiOperation({
-    description: 'Creates or Updates the current XP System variables'
-  })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiNoContentResponse({
-    description: 'The XP System variables were updated successfully'
-  })
-  @ApiBody({
-    type: UpdateXpSystemsDto,
-    description: 'The XP System variables to set',
-    required: true
-  })
-  updateXPSystems(@Body() body: UpdateXpSystemsDto) {
-    return this.xpSystems.update(body);
   }
 
   @Get('/activities')
