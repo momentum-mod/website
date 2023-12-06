@@ -5,6 +5,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SharedModule } from '../../shared.module';
 import { LocalUserService } from '@momentum/frontend/data';
 import { mock } from 'jest-mock-extended';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UserSearchComponent', () => {
   let component: UserSearchResultComponent;
@@ -12,7 +13,7 @@ describe('UserSearchComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [SharedModule, HttpClientTestingModule],
+      imports: [SharedModule, HttpClientTestingModule, RouterTestingModule],
       declarations: [UserSearchResultComponent],
       providers: [
         { provide: LocalUserService, useValue: mock<LocalUserService>() }
