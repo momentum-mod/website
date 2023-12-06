@@ -2008,13 +2008,6 @@ describe('Admin', () => {
                 trackNum: 0,
                 tier: 1,
                 ranked: true
-              },
-              {
-                gamemode: Gamemode.RJ,
-                trackType: TrackType.BONUS,
-                trackNum: 0,
-                tier: 1,
-                ranked: true
               }
             ]
           },
