@@ -589,12 +589,6 @@ model RunSessionTimestamp {
   @@index([sessionID])
 }
 
-model XpSystems {
-  id     Int   @id
-  rankXP Json?
-  cosXP  Json?
-}
-
 model AdminActivity {
   id Int @id @default(autoincrement())
 
