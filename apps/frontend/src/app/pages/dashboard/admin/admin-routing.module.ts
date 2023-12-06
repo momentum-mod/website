@@ -5,7 +5,6 @@ import { MapQueueComponent } from './map-queue/map-queue.component';
 import { AdminComponent } from './admin.component';
 import { ReportQueueComponent } from './report-queue/report-queue.component';
 import { UtilitiesComponent } from './utilities/utilities.component';
-import { XPSystemComponent } from './xp-system/xp-system.component';
 import { RoleGuard } from '../../../guards/role.guard';
 import { Role } from '@momentum/constants';
 
@@ -29,7 +28,6 @@ import { Role } from '@momentum/constants';
             component: ReportQueueComponent
           },
           { path: 'utilities', component: UtilitiesComponent },
-          { path: 'xp-systems', component: XPSystemComponent },
           { path: '**', component: NotFoundDashboardComponent }
         ]
       }

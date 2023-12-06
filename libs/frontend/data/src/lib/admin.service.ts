@@ -8,9 +8,7 @@ import {
   Report,
   UpdateMap,
   UpdateReport,
-  UpdateXpSystems,
-  User,
-  XpSystems
+  User
 } from '@momentum/constants';
 import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
@@ -46,14 +44,6 @@ export class AdminService {
   updateAllUserStats(_userStats: object): Observable<never> {
     // Removed
     return EMPTY;
-  }
-
-  getXPSystems(): Observable<XpSystems> {
-    return this.http.get<XpSystems>('admin/xpsys');
-  }
-
-  updateXPSystems(body: UpdateXpSystems): Observable<void> {
-    return this.http.put('admin/xpsys', { body });
   }
 
   createUser(alias: string): Observable<User> {
