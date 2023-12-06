@@ -1,10 +1,6 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
-import {
-  BspHeader,
-  BspReadError,
-  validateZoneFile,
-  ZoneValidationError
-} from '@momentum/formats';
+import { BspHeader, BspReadError } from '@momentum/formats/bsp';
+import { validateZoneFile, ZoneValidationError } from '@momentum/formats/zone';
 import { vdf, ParseError as VdfParseError } from 'fast-vdf';
 
 /**

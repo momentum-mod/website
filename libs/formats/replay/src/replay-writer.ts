@@ -1,4 +1,4 @@
-﻿import { BaseStats, Replay, RunFrame } from './';
+﻿import { BaseStats, Replay, RunFrame } from './index';
 
 /**
  * Utility class for writing Momentum Replay Files (.mrf)

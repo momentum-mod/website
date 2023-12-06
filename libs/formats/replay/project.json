@@ -1,0 +1,32 @@
+{
+  "name": "formats-replay",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/formats/replay/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/replay/formats/replay",
+        "main": "libs/formats/bsp/src/index.ts",
+        "tsConfig": "libs/formats/replay/tsconfig.lib.json",
+        "assets": ["libs/formats/replay/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/formats/replay/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/formats/replay/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

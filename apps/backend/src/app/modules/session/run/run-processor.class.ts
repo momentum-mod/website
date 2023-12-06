@@ -8,7 +8,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { CompletedRunSession, ProcessedRun } from './run-session.interface';
-import { Replay, ReplayFileReader } from '@momentum/formats';
+import { Replay, ReplayFileReader } from '@momentum/formats/replay';
 
 /**
  * Class for managing the parsing of a replay file and validating it against

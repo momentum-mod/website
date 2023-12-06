@@ -42,7 +42,7 @@ import { Config } from '@momentum/backend/config';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import { Enum } from '@momentum/enum';
 import { difference } from '@momentum/util-fn';
-import { ZonesStub } from '@momentum/formats';
+import { ZonesStub } from '@momentum/formats/zone';
 
 describe('Maps Part 2', () => {
   let app,

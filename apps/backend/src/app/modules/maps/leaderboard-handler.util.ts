@@ -5,7 +5,7 @@ import {
   MapZones,
   TrackType
 } from '@momentum/constants';
-import { ZoneUtil } from '@momentum/formats';
+import { ZoneUtil } from '@momentum/formats/zone';
 import { Enum } from '@momentum/enum';
 
 export interface LeaderboardProps

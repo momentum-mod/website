@@ -31,7 +31,7 @@ import {
   MAX_TRACK_SEGMENTS,
   MAX_ZONE_REGION_POINTS,
   MAX_ZONES_ALL_TRACKS
-} from '@momentum/formats';
+} from '@momentum/formats/zone';
 
 export class RegionDto /* extends JsonifiableDto */ implements Region {
   @ApiProperty({

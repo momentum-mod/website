@@ -4,7 +4,7 @@ import {
   IncompatibleGamemodes,
   TrackType
 } from '@momentum/constants';
-import { ZonesStub } from '@momentum/formats';
+import { ZonesStub } from '@momentum/formats/zone';
 import { LeaderboardHandler } from './leaderboard-handler.util';
 
 describe('LeaderboardHandler', () => {

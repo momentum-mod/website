@@ -26,7 +26,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import axios from 'axios';
 import Zip from 'adm-zip';
-import { BabyZonesStub } from '@momentum/formats';
+import { BabyZonesStub } from '@momentum/formats/zone';
 
 describe('Multi-stage E2E tests', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;

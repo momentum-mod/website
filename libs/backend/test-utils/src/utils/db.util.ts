@@ -23,7 +23,7 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { ZonesStub } from '@momentum/formats';
+import { ZonesStub } from '@momentum/formats/zone';
 
 export const NULL_ID = 999999999;
 
