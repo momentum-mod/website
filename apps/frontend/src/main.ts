@@ -1,7 +1,7 @@
 import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
-import { AuthInterceptor } from './app/services/auth.interceptor';
+import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import {
   HTTP_INTERCEPTORS,
   withInterceptorsFromDi,
