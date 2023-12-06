@@ -1,0 +1,32 @@
+{
+  "name": "formats-bsp",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/formats/bsp/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/formats/bsp",
+        "main": "libs/formats/bsp/src/index.ts",
+        "tsConfig": "libs/formats/bsp/tsconfig.lib.json",
+        "assets": ["libs/formats/bsp/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/formats/bsp/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/formats/bsp/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

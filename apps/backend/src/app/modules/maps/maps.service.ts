@@ -82,7 +82,7 @@ import {
   validateSuggestions,
   validateZoneFile,
   ZoneValidationError
-} from '@momentum/formats';
+} from '@momentum/formats/zone';
 import {
   LeaderboardHandler,
   LeaderboardProps

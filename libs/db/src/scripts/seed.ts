@@ -5,7 +5,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as Random from '@momentum/random';
-import { ZoneUtil } from '@momentum/formats';
+import { ZoneUtil } from '@momentum/formats/zone';
 import {
   ActivityType,
   Ban,

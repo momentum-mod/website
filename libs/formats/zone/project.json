@@ -1,0 +1,32 @@
+{
+  "name": "formats-zone",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/formats/zone/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/formats/zone",
+        "main": "libs/formats/zone/src/index.ts",
+        "tsConfig": "libs/formats/zone/tsconfig.lib.json",
+        "assets": ["libs/formats/zone/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/formats/zone/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "libs/formats/zone/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

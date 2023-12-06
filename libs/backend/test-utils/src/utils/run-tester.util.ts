@@ -4,7 +4,7 @@
   ReplayFileWriter,
   RunFrame,
   ZoneStats
-} from '@momentum/formats';
+} from '@momentum/formats/replay';
 import { ParsedResponse, RequestUtil } from './request.util';
 import { Gamemode, Tickrates, TrackType } from '@momentum/constants';
 import * as Random from '@momentum/random';

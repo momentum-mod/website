@@ -45,7 +45,7 @@ import {
   BabyZonesStub,
   ZonesStub,
   ZonesStubLeaderboards
-} from '@momentum/formats';
+} from '@momentum/formats/zone';
 import { JsonValue } from 'type-fest';
 
 describe('Admin', () => {

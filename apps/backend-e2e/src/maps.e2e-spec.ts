@@ -37,7 +37,11 @@ import { Config } from '@momentum/backend/config';
 import path from 'node:path';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
-import { ZonesStub, ZonesStubLeaderboards, ZoneUtil } from '@momentum/formats';
+import {
+  ZonesStub,
+  ZonesStubLeaderboards,
+  ZoneUtil
+} from '@momentum/formats/zone';
 import { from } from '@momentum/util-fn';
 
 describe('Maps', () => {

@@ -23,7 +23,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { ZonesStub } from '@momentum/formats';
+import { ZonesStub } from '@momentum/formats/zone';
 import { JsonValue } from 'type-fest';
 
 describe('Session', () => {
