@@ -8,7 +8,6 @@ import { ReportQueueComponent } from './report-queue/report-queue.component';
 import { QueuedReportComponent } from './report-queue/queued-report/queued-report.component';
 import { UpdateReportDialogComponent } from './report-queue/update-report-dialog/update-report-dialog.component';
 import { UtilitiesComponent } from './utilities/utilities.component';
-import { XPSystemComponent } from './xp-system/xp-system.component';
 
 @NgModule({
   imports: [SharedModule, AdminRoutingModule],
@@ -19,8 +18,7 @@ import { XPSystemComponent } from './xp-system/xp-system.component';
     ReportQueueComponent,
     QueuedReportComponent,
     UpdateReportDialogComponent,
-    UtilitiesComponent,
-    XPSystemComponent
+    UtilitiesComponent
   ],
   providers: []
 })
