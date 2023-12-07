@@ -153,44 +153,48 @@ prismaWrapper(async (prisma: PrismaClient) => {
   console.log('Creating users');
   const usersToCreate = randRange(vars.users);
   await parallel(
-    ...from(usersToCreate, () =>
-      prisma.user.create({
-        data: {
-          steamID: Random.int(1000000000, 99999999999),
-          alias: faker.internet.userName(),
-          avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
-          country: faker.location.countryCode(),
-          roles: Bitflags.join(
-            Random.chance(0.1) ? Role.VERIFIED : 0,
-            Random.chance(0.1) ? Role.PLACEHOLDER : 0,
-            Random.chance(0.1) ? Role.ADMIN : 0,
-            Random.chance(0.1) ? Role.MODERATOR : 0
-          ),
-          bans: Bitflags.join(
-            Random.chance(0.1) ? Ban.BIO : 0,
-            Random.chance(0.1) ? Ban.AVATAR : 0,
-            Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
-            Random.chance(0.1) ? Ban.ALIAS : 0
-          ),
-          profile: {
-            create: {
-              bio: faker.lorem
-                .paragraphs({ min: 1, max: 2 })
-                .slice(0, MAX_BIO_LENGTH)
+    promiseAllSync(
+      from(
+        usersToCreate,
+        () => () =>
+          prisma.user.create({
+            data: {
+              steamID: Random.int(1000000000, 99999999999),
+              alias: faker.internet.userName(),
+              avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
+              country: faker.location.countryCode(),
+              roles: Bitflags.join(
+                Random.chance(0.1) ? Role.VERIFIED : 0,
+                Random.chance(0.1) ? Role.PLACEHOLDER : 0,
+                Random.chance(0.1) ? Role.ADMIN : 0,
+                Random.chance(0.1) ? Role.MODERATOR : 0
+              ),
+              bans: Bitflags.join(
+                Random.chance(0.1) ? Ban.BIO : 0,
+                Random.chance(0.1) ? Ban.AVATAR : 0,
+                Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
+                Random.chance(0.1) ? Ban.ALIAS : 0
+              ),
+              profile: {
+                create: {
+                  bio: faker.lorem
+                    .paragraphs({ min: 1, max: 2 })
+                    .slice(0, MAX_BIO_LENGTH)
+                }
+              },
+              userStats: {
+                create: {
+                  totalJumps: Random.int(10000),
+                  totalStrafes: Random.int(10000),
+                  level: Random.int(0, 1000),
+                  cosXP: Random.int(10000),
+                  mapsCompleted: Random.int(10000),
+                  runsSubmitted: Random.int(10000)
+                }
+              }
             }
-          },
-          userStats: {
-            create: {
-              totalJumps: Random.int(10000),
-              totalStrafes: Random.int(10000),
-              level: Random.int(0, 1000),
-              cosXP: Random.int(10000),
-              mapsCompleted: Random.int(10000),
-              runsSubmitted: Random.int(10000)
-            }
-          }
-        }
-      })
+          })
+      )
     ),
 
     doFileUploads
