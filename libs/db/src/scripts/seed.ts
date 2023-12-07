@@ -313,9 +313,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
   //   )();
 
   const mapsToCreate = randRange(vars.maps);
+  const usedNames = [];
   for (let i = 0; i < mapsToCreate; i++) {
     console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
-    const name = faker.lorem.word();
+    let name = faker.lorem.word();
+    while (usedNames.includes(name)) {
+      name = faker.lorem.word();
+    }
+
+    usedNames.push(name);
 
     const majCps = randRange(vars.majorCPs);
     const randomZones = () =>
