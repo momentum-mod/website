@@ -17,6 +17,8 @@ import { NotificationComponent } from '../notification/notification.component';
 import { SearchComponent } from '../search/search.component';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@momentum/frontend/icons';
+import { TooltipModule } from 'primeng/tooltip';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @Component({
   selector: 'mom-header',
@@ -30,7 +32,9 @@ import { IconComponent } from '@momentum/frontend/icons';
     NbPopoverModule,
     NotificationComponent,
     NbUserModule,
-    NbContextMenuModule
+    NbContextMenuModule,
+    TooltipModule,
+    OverlayPanelModule
   ]
 })
 export class HeaderComponent implements OnInit, OnDestroy {

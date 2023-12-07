@@ -1,14 +1,7 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersService } from '@momentum/frontend/data';
-import { User } from '@momentum/constants';
+import { PagedResponse, User } from '@momentum/constants';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -18,19 +11,19 @@ import {
   tap
 } from 'rxjs/operators';
 import {
-  NbPopoverDirective,
   NbFormFieldModule,
   NbPopoverModule,
   NbSpinnerModule,
   NbInputModule
 } from '@nebular/theme';
 import { merge, of, Subject } from 'rxjs';
-import { PagedResponseDto } from '@momentum/backend/dto';
-import { showPopover } from '../../../utils/popover-utils';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserSearchResultComponent } from './user-search-result.component';
 import { NgClass, NgFor } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
+import { TooltipModule } from 'primeng/tooltip';
+import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorState } from 'primeng/paginator/paginator.interface';
 
 @Component({
   selector: 'mom-user-search',
@@ -47,7 +40,9 @@ import { IconComponent } from '@momentum/frontend/icons';
     NgClass,
     NgFor,
     UserSearchResultComponent,
-    NgxPaginationModule
+    NgxPaginationModule,
+    TooltipModule,
+    PaginatorModule
   ]
 })
 export class UserSearchComponent implements OnInit {
@@ -61,34 +56,41 @@ export class UserSearchComponent implements OnInit {
   @Input({ required: true }) paginatorID!: string;
   @Output() public readonly userSelected = new EventEmitter<User>();
   public readonly search: FormControl<string> = new FormControl();
-  protected readonly pageChange = new Subject<number>();
+  protected readonly pageChange = new Subject<PaginatorState>();
   private readonly stopSearch = new Subject<void>();
 
   searchBySteam = false;
   foundUsers: User[] = [];
-  userSearchCount = 0;
-  userSearchPage = 1;
 
-  readonly pageSize = 5;
+  totalRecords = 0;
+  page = 1;
 
-  @ViewChild(NbPopoverDirective) readonly popover: NbPopoverDirective;
+  first = 0;
+
+  protected readonly rows = 5;
+  protected readonly pageSize = 5;
+
+  readonly popover: any = {};
 
   ngOnInit() {
     this.search.statusChanges.subscribe((status) => {
       if (status !== 'INVALID') {
-        this.popover.hide();
+        // this.popover.hide();
         return;
       }
-      showPopover(
-        this.popover,
-        Object.values(this.search.errors)[0] ?? 'Unknown error'
-      );
+      // showPopover(
+      //   this.popover,
+      //   Object.values(this.search.errors)[0] ?? 'Unknown error'
+      // );
     });
 
     merge(
       this.pageChange.pipe(
-        filter((page) => page !== this.userSearchPage),
-        tap((page: number) => (this.userSearchPage = page))
+        // filter(({ page }) => page === this.page),
+        tap((aaa) => {
+          console.log(aaa);
+          this.first = aaa.first;
+        })
       ),
       this.search.valueChanges.pipe(
         distinctUntilChanged(),
@@ -118,18 +120,18 @@ export class UserSearchComponent implements OnInit {
               .getUsers({
                 search: value,
                 take: this.pageSize,
-                skip: (this.userSearchPage - 1) * this.pageSize
+                skip: this.first
               })
               .pipe(takeUntil(this.stopSearch));
         })
       )
       .subscribe({
-        next: (response: PagedResponseDto<User> | null) => {
+        next: (response: PagedResponse<User> | null) => {
           if (!response) {
             this.resetSearchData();
           } else if (response.returnCount > 0) {
             this.foundUsers = response.data;
-            this.userSearchCount = response.totalCount;
+            this.totalRecords = response.totalCount;
             this.search.setErrors(null);
           } else {
             this.resetSearchData();
@@ -137,7 +139,7 @@ export class UserSearchComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.log(err);
+          console.error(err);
           this.search.setErrors({ error: 'Error fetching users!' });
         }
       });
@@ -153,8 +155,8 @@ export class UserSearchComponent implements OnInit {
 
   protected resetSearchData() {
     this.foundUsers = [];
-    this.userSearchPage = 1;
-    this.userSearchCount = 0;
+    this.first = 0;
+    this.totalRecords = 0;
   }
 
   protected confirmUser(user: User) {
