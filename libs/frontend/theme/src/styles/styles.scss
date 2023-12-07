@@ -1,5 +1,3 @@
-@use 'sass:color';
-
 // Nebular themes - deleting soon...
 @use 'theme' as *;
 
@@ -8,10 +6,6 @@
 
 // ngx-pagination theme
 @use './pagination';
-
-// TODO: Delete!!! https://github.com/momentum-mod/website/issues/746
-@use '../../../../../apps/frontend/src/app/components/search/search.component.theme'
-  as search;
 
 @import '@fontsource/roboto/300.css';
 @import '@fontsource/roboto/300-italic.css';
@@ -26,17 +20,18 @@
 @import '../styling/fonts/BebasNeue/400.css';
 @import '../styling/fonts/BebasNeue/700.css';
 
-@import "primeng/resources/themes/md-dark-indigo/theme.css";
-@import "primeng/resources/primeng.css";
+@import 'primeng/resources/themes/md-dark-indigo/theme.css';
+@import 'primeng/resources/primeng.css';
 
+// Tailwind's base styles - as far as I know this is just Preflight, their
+// normalizer stylesheet. Important this is loaded before everything else.
+// The rest of Tailwind comes at the very bottom, so utility classes always
+// have precedent over styles defined in here.
+// https://tailwindcss.com/docs/functions-and-directives
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@layer components {
-  .drag-n-drop-trans {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-  }
+.drag-n-drop-trans {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cdk-drag-animating {
@@ -70,7 +65,6 @@ we still enforce color-scheme: dark, despite the user preference */
 // Install the framework and custom global styles
 @include nb-install() {
   @include nb-theme-global();
-  @include search.mom-search-theme();
 }
 
 // Global CSS overrides
@@ -92,6 +86,7 @@ body {
   //background-color: nb-theme(layout-background-color);
 }
 
+// TODO: delete this shit
 .no-gutters {
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -129,6 +124,7 @@ nb-card-header {
   text-wrap: balance;
 }
 
+
 .btn {
   display: flex;
   justify-content: center;
@@ -147,7 +143,7 @@ nb-card-header {
 
   @apply border border-white border-opacity-[0.025];
 
-  transition-duration: 0.15s;
+  transition-duration: 0.075s;
   transition-property: border, background-color, color, box-shadow;
   transition-timing-function: ease-in;
 
@@ -177,14 +173,14 @@ nb-card-header {
 }
 
 // Using techniques from https://moderncss.dev/pure-css-custom-checkbox-style/
-input[type='checkbox'] {
+input[type='checkbox'].m-input {
+  padding: 1.125rem; // This value controls the overall width/height of the element.
   -webkit-appearance: none;
   appearance: none;
   margin: 0;
   font: inherit;
   color: #1896d3;
   content: ' ';
-  padding: 1.125rem;
   border-radius: 0.25rem;
   position: relative;
   float: left;
@@ -214,6 +210,51 @@ input[type='checkbox'] {
     background-color: currentColor;
     transform-origin: center;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  &:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.m-input {
+  padding: 0.75rem;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  font: inherit;
+  color: #1896d3;
+  content: ' ';
+  border-radius: 50%;
+  position: relative;
+  float: left;
+
+  @apply border border-gray-300 border-opacity-[0.15];
+  @apply bg-gray-800;
+
+  &:hover {
+    @apply bg-gray-700;
+    @apply border-opacity-[0.2];
+  }
+
+  &:focus {
+    outline: none !important;
+    @apply border-opacity-[0.225];
+  }
+
+  &::before {
+    position: absolute;
+    content: ' ';
+    width: 60%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.1s transform ease-in-out;
+    background-color: currentColor;
+    transform-origin: center;
+    //clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
   }
 
   &:checked::before {
@@ -271,3 +312,5 @@ h1 {
   text-shadow: 4px 4px 0 #141414;
   color: #eee;
 }
+
+@tailwind utilities;

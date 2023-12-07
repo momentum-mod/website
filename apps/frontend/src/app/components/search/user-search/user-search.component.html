@@ -1,42 +1,33 @@
-<nb-form-field class="mb-1 flex" [nbSpinner]="search.status === 'PENDING'" nbPopover nbPopoverTrigger="noop">
+<div class="mb-1 flex w-full items-center gap-4">
   <input
-    nbInput
-    class="input"
-    fullWidth
+    class="m-textinput flex-grow"
+    [nbSpinner]="search.status === 'PENDING'"
+    nbPopover
+    nbPopoverTrigger="noop"
     [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
     [formControl]="search"
     type="text"
   />
   <mom-icon
-    nbSuffix
-    class="my-auto mr-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
+    class="h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
     [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
     pTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
     icon="steam"
     pack="si"
     (click)="searchBySteam = !searchBySteam"
   />
-</nb-form-field>
+</div>
 <div
-  *ngFor="
-    let user of foundUsers
-      | paginate
-        : {
-            id: 'user-search-paginator-' + paginatorID,
-            itemsPerPage: pageSize,
-            currentPage: userSearchPage,
-            totalItems: userSearchCount
-          }
-  "
+  *ngFor="let user of foundUsers"
   class="rounded border-2 border-dashed border-blue-500 border-opacity-0 p-2 transition-colors hover:border-opacity-100"
   (click)="confirmUser(user)"
 >
   <mom-user-search-result [user]="user" />
 </div>
-<pagination-controls
-  [id]="'user-search-paginator-' + paginatorID"
-  class="text-center [&_nav]:mt-2"
-  [autoHide]="true"
-  [responsive]="true"
-  (pageChange)="pageChange.next($event)"
+<p-paginator
+  (onPageChange)="pageChange.next($event)"
+  [first]="first"
+  [rows]="rows"
+  [totalRecords]="totalRecords"
+  [showCurrentPageReport]="true"
 />
