@@ -33,6 +33,7 @@ import { createHash } from 'node:crypto';
 import { JsonValue } from 'type-fest';
 import { readFileSync } from 'node:fs';
 import path = require('node:path');
+import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 
 //#region Configuration
 const vars = {
@@ -553,7 +554,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
             usedUserIDs.push(userID);
           } else {
             userID = Random.element(usedUserIDs);
-            if (!userID) console.log({ possibleUserIDs, usedUserIDs });
           }
 
           return prisma.pastRun.create({
@@ -700,16 +700,28 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const personalSteamIDs = process.env['ADMIN_STEAM_ID64S'];
   if (!personalSteamIDs) return;
 
+  const xp = new XpSystems();
   const steamIDs = personalSteamIDs.split(',');
   for (const [i, steamID] of steamIDs.entries()) {
     console.log(`Making user ${steamID} an admin`);
+    const level = Random.int(COS_XP_PARAMS.levels.maxLevels, 1);
     await prisma.user.create({
       data: {
         steamID: BigInt(steamID),
         roles: Role.ADMIN,
         alias: `Admin User ${i + 1}`,
         profile: { create: {} },
-        userStats: { create: {} }
+        userStats: {
+          create: {
+            level,
+            cosXP: Math.floor(
+              xp.getCosmeticXpForLevel(level) +
+                Math.random() *
+                  (xp.getCosmeticXpForLevel(level + 1) -
+                    xp.getCosmeticXpForLevel(level))
+            )
+          }
+        }
       }
     });
   }
