@@ -9,8 +9,8 @@ import {
 import { MapStatus } from '@momentum/constants';
 import { AdminService, MapsService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
-import { NbToastrService } from '@nebular/theme';
 import { SharedModule } from '../../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-queued-map',
@@ -28,13 +28,17 @@ export class QueuedMapComponent {
   constructor(
     private adminService: AdminService,
     private mapService: MapsService,
-    private toasterService: NbToastrService
+    private messageService: MessageService
   ) {}
   updateMapStatus(mapID: number, status: number) {
     this.adminService.updateMap(mapID, { status }).subscribe({
       next: () => this.statusUpdate.emit(),
       error: (error) =>
-        this.toasterService.danger(error.message, 'Failed to update map status')
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to update map status',
+          detail: error.message
+        })
     });
   }
 
@@ -50,10 +54,11 @@ export class QueuedMapComponent {
       },
       error: (error) => {
         console.error(error);
-        this.toasterService.danger(
-          error.message,
-          'Failed to start map file download'
-        );
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to start map file download',
+          detail: error.message
+        });
       }
     });
   }

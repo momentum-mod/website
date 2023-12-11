@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { NbToastrService } from '@nebular/theme';
 import { ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SharedModule } from '../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-report-queue',
@@ -24,7 +24,7 @@ export class ReportQueueComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private toasterService: NbToastrService
+    private toasterService: MessageService
   ) {
     this.ReportType = ReportType;
     this.isLoading = false;
@@ -58,7 +58,11 @@ export class ReportQueueComponent implements OnInit {
         },
         error: (error) => {
           console.error(error);
-          this.toasterService.danger('Failed to load report queue');
+          this.toasterService.add({
+            severity: 'error',
+            summary: 'Failed to load report queue',
+            detail: error.message
+          });
         }
       });
   }

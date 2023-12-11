@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NbDialogRef, NbToastrService } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-update-report-dialog',
@@ -19,7 +20,7 @@ export class UpdateReportDialogComponent implements OnInit {
     private ref: NbDialogRef<UpdateReportDialogComponent>,
     private fb: FormBuilder,
     private adminService: AdminService,
-    private toastService: NbToastrService
+    private messageService: MessageService
   ) {
     this.updateReportForm = this.fb.group({
       resolved: ['', Validators.required],
@@ -48,13 +49,17 @@ export class UpdateReportDialogComponent implements OnInit {
         next: () => {
           this.updateReportForm.reset();
           this.ref.close(this.report);
-          this.toastService.success('Report has been updated');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Report has been updated'
+          });
         },
         error: (error) => {
-          this.toastService.danger(
-            error.message,
-            'Failed to update the report'
-          );
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to update the report',
+            detail: error.message
+          });
         }
       });
   }

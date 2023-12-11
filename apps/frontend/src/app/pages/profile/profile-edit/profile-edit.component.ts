@@ -5,7 +5,7 @@ import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { EMPTY, merge, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../components/delete-user-dialog/delete-user-dialog.component';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService } from '@nebular/theme';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
@@ -30,6 +30,7 @@ import { Icon } from '@momentum/frontend/icons';
 import { omit } from 'lodash-es';
 import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-profile-edit',
@@ -83,7 +84,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     private usersService: UsersService,
     private adminService: AdminService,
     private authService: AuthService,
-    private toasterService: NbToastrService,
+    private messageService: MessageService,
     private dialogService: NbDialogService,
     private fb: FormBuilder
   ) {
@@ -193,13 +194,17 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       this.localUserService.updateUser(update).subscribe({
         next: () => {
           this.localUserService.refreshLocalUser();
-          this.toasterService.success('Updated user profile!', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Updated user profile!'
+          });
         },
         error: (error) =>
-          this.toasterService.danger(
-            'Failed to update user profile!',
-            error.message
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to update user profile!',
+            detail: error.message
+          })
       });
     } else {
       (update as AdminUpdateUser).roles = this.user.roles;
@@ -211,13 +216,17 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           } else {
             this.refreshCurrentUser.next();
           }
-          this.toasterService.success('Updated user profile!', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Updated user profile!'
+          });
         },
         error: (error) =>
-          this.toasterService.danger(
-            'Failed to update user profile!',
-            error.message
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to update user profile!',
+            detail: error.message
+          })
       });
     }
   }
@@ -284,20 +293,36 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   deleteUserAsAdmin() {
     this.adminService.deleteUser(this.user.id).subscribe({
       next: () => {
-        this.toasterService.success('Successfully deleted user!');
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Successfully deleted user!'
+        });
         this.router.navigate(['/']);
       },
-      error: () => this.toasterService.danger('Failed to delete user!')
+      error: (error) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to delete user!',
+          detail: error.message
+        })
     });
   }
 
   deleteLocalUser() {
     this.localUserService.deleteUser().subscribe({
       next: () => {
-        this.toasterService.success('Successfully deleted user!');
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Successfully deleted user!'
+        });
         this.authService.logout();
       },
-      error: () => this.toasterService.danger('Failed to delete user!')
+      error: (error) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to delete user!',
+          detail: error.message
+        })
     });
   }
 
@@ -325,11 +350,19 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
         if (!response) return;
         this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
           next: () => {
-            this.toasterService.success('Successfully merged the two users!');
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Successfully merged the two users!'
+            });
             this.router.navigate([`/profile/${this.mergeUser.id}`]);
             this.mergeUser = null;
           },
-          error: () => this.toasterService.danger('Failed to merge users!')
+          error: (error) =>
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Failed to merge users!',
+              detail: error.message
+            })
         });
       });
   }
@@ -342,16 +375,17 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     this.localUserService.resetAliasToSteamAlias().subscribe({
       next: () => {
         this.localUserService.refreshLocalUser();
-        this.toasterService.success(
-          'Successfully reset alias to Steam name!',
-          'Success'
-        );
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Successfully reset alias to Steam name!'
+        });
       },
-      error: () =>
-        this.toasterService.danger(
-          'Failed to reset alias to Steam alias!',
-          'Failed'
-        )
+      error: (error) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to reset alias to Steam alias!',
+          detail: error.message
+        })
     });
   }
 

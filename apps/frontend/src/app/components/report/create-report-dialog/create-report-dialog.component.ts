@@ -1,10 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  NbDialogRef,
-  NbToastrService,
-  NbSelectModule,
-  NbOptionModule
-} from '@nebular/theme';
+import { NbDialogRef, NbSelectModule, NbOptionModule } from '@nebular/theme';
 import {
   FormBuilder,
   FormGroup,
@@ -15,6 +10,7 @@ import {
 import { ReportService } from '@momentum/frontend/data';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { CardComponent } from '../../card/card.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-create-report-dialog',
@@ -38,7 +34,7 @@ export class CreateReportDialogComponent implements OnInit {
     protected ref: NbDialogRef<CreateReportDialogComponent>,
     private fb: FormBuilder,
     private reportService: ReportService,
-    private toastService: NbToastrService
+    private messageService: MessageService
   ) {
     this.ReportCategory = ReportCategory;
     this.createReportForm = this.fb.group({
@@ -65,14 +61,18 @@ export class CreateReportDialogComponent implements OnInit {
       next: () => {
         this.createReportForm.reset();
         this.ref.close();
-        this.toastService.success('Report submitted');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Report submitted!'
+        });
       },
       error: (error) => {
         console.error(error);
-        this.toastService.danger(
-          `Failed to submit report: ${error.error.error.message}`,
-          'Error'
-        );
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Failed to submit report: ${error.error.error.message}`
+        });
       }
     });
   }

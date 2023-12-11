@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { NbToastrService } from '@nebular/theme';
 import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
 import { UsersService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-profile-credits',
@@ -26,7 +26,7 @@ export class ProfileCreditsComponent implements OnInit {
 
   constructor(
     private usersService: UsersService,
-    private toastService: NbToastrService
+    private messageService: MessageService
   ) {
     this.loadedCredits = false;
     this.pageLimit = 10;
@@ -56,7 +56,11 @@ export class ProfileCreditsComponent implements OnInit {
           this.mapCredits = response.data;
         },
         error: (error) =>
-          this.toastService.danger(error.message, 'Cannot get user map credits')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Cannot get user map credits',
+            detail: error.message
+          })
       });
   }
 

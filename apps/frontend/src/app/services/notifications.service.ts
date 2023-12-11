@@ -9,9 +9,9 @@ import {
   throttleTime
 } from 'rxjs/operators';
 import { Observable, ReplaySubject, timer } from 'rxjs';
-import { NbToastrService } from '@nebular/theme';
 import { Notification } from '@momentum/constants';
 import { AuthService, LocalUserService } from '@momentum/frontend/data';
+import { MessageService } from 'primeng/api';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -23,7 +23,7 @@ export class NotificationsService {
     private router: Router,
     private authService: AuthService,
     private localUserService: LocalUserService,
-    private toasterService: NbToastrService
+    private messageService: MessageService
   ) {}
 
   inject() {
@@ -68,10 +68,11 @@ export class NotificationsService {
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
         error: (error) =>
-          this.toasterService.danger(
-            error.message,
-            'Could not mark notification as read'
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not mark notification as read',
+            detail: error.message
+          })
       });
   }
 
@@ -81,10 +82,11 @@ export class NotificationsService {
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
         error: (error) =>
-          this.toasterService.danger(
-            error.message,
-            'Could not dismiss notification'
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not dismiss notification',
+            detail: error.message
+          })
       });
   }
 }

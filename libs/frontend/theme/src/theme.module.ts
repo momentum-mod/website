@@ -9,7 +9,6 @@ import {
   NbContextMenuModule,
   NbDatepickerModule,
   NbDialogModule,
-  NbGlobalPhysicalPosition,
   NbLayoutModule,
   NbListModule,
   NbMenuModule,
@@ -20,7 +19,6 @@ import {
   NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
-  NbToastrModule,
   NbUserModule
 } from '@nebular/theme';
 
@@ -38,7 +36,6 @@ const NEBULAR_MODULES = [
   NbProgressBarModule,
   NbSelectModule,
   NbAccordionModule,
-  NbToastrModule,
   NbAlertModule
 ];
 
@@ -55,12 +52,6 @@ export class ThemeModule {
           { name: 'momentum', base: 'dark' }
         ]).providers,
         ...NbMenuModule.forRoot().providers,
-        ...NbToastrModule.forRoot({
-          duration: 3000,
-          destroyByClick: true,
-          preventDuplicates: false,
-          position: NbGlobalPhysicalPosition.TOP_RIGHT
-        }).providers,
         ...NbDialogModule.forRoot({
           hasBackdrop: true,
           closeOnBackdropClick: true,

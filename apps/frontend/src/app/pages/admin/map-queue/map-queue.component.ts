@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { NbToastrService } from '@nebular/theme';
 import { MMap } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 import { QueuedMapComponent } from './queued-map/queued-map.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   templateUrl: './map-queue.component.html',
@@ -22,7 +22,7 @@ export class MapQueueComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
-    private toasterService: NbToastrService
+    private messageService: MessageService
   ) {
     this.priorityQueueCount = 0;
     this.nonPriorityQueueCount = 0;
@@ -60,7 +60,10 @@ export class MapQueueComponent implements OnInit {
         },
         error: (error) => {
           console.error(error);
-          this.toasterService.danger('Failed to load priority queue');
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to load priority queue'
+          });
         }
       });
   }
