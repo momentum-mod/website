@@ -9363,7 +9363,7 @@ p-multiselect.ng-dirty.ng-invalid .p-multiselect:not(.p-disabled).p-focus {
 
 .p-tooltip .p-tooltip-text {
   box-shadow: none;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 .p-tooltip .p-tooltip-arrow {
   display: none;

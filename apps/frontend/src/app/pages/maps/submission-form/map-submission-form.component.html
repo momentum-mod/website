@@ -26,22 +26,19 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': isGroupValid(files) }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': isGroupInvalid(files) }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': isGroupAwaitingEditing(files) }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
         </div>
         <span class="mx-3 text-3xl">Files</span>
@@ -49,7 +46,7 @@
       <div class="flex flex-col">
         <h5 class="mb-1 text-center">
           BSP File
-          <m-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+          <m-icon icon="asterisk" class="mb-1 align-middle" mTooltip="Required" />
         </h5>
         <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
           This is the main map file for your map. It should have all custom assets packed into it, and <i>must</i> be compressed.
@@ -78,7 +75,7 @@
       <div class="flex flex-col">
         <h5 class="mb-1 text-center">
           Zones File
-          <m-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+          <m-icon icon="asterisk" class="mb-1 align-middle" mTooltip="Required" />
         </h5>
         <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">The zones for your map</p>
         <div>
@@ -125,22 +122,19 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': isGroupValid(info) }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': isGroupInvalid(info) }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': isGroupAwaitingEditing(info) }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
         </div>
         <span class="mx-3 text-3xl">Details</span>
@@ -150,7 +144,7 @@
           <div class="flex flex-col">
             <label class="my-auto text-lg leading-4">
               Map Name
-              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="mapNameInfo" nbPopoverTrigger="hover" />
+              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapNameInfo" />
               <ng-template #mapNameInfo>
                 <div class="prose p-3">
                   <p>
@@ -171,9 +165,9 @@
             id="name"
             class="m-textinput input-validated !max-w-full"
             type="text"
-            nbPopover
-            nbPopoverContext="mapNameError"
-            nbPopoverTrigger="noop"
+            mTooltip
+            tooltipContext="mapNameError"
+            tooltipEvent="noop"
             [formControl]="name"
           />
           <div class="flex flex-col">
@@ -182,8 +176,7 @@
               <m-icon
                 icon="tooltip-question-outline"
                 class="mb-[1px] ml-0.5 align-middle"
-                nbPopover="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
-                nbPopoverTrigger="hover"
+                mTooltip="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
               />
             </label>
             <span class="text-sm italic leading-4 text-gray-500">Required</span>
@@ -196,12 +189,7 @@
           <div class="flex flex-col">
             <label for="creationDate" class="my-auto text-lg leading-4">
               Creation Date
-              <m-icon
-                icon="tooltip-question-outline"
-                class="ml-1 align-middle"
-                [nbPopover]="mapCreationDateInfo"
-                nbPopoverTrigger="hover"
-              />
+              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapCreationDateInfo" />
               <ng-template #mapCreationDateInfo>
                 <div class="prose p-3">
                   <p>This is the date the map was first released, in any game, not just Momentum.</p>
@@ -229,12 +217,7 @@
           </div>
           <label for="youtubeID" class="my-auto text-lg leading-4">
             Youtube ID
-            <m-icon
-              icon="tooltip-question-outline"
-              class="mb-[1px] ml-0.5 align-middle"
-              [nbPopover]="youtubeIDInfo"
-              nbPopoverTrigger="hover"
-            />
+            <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
             <ng-template #youtubeIDInfo>
               <div class="prose p-3">
                 <p>An optional Youtube video showcasing your map.</p>
@@ -255,7 +238,7 @@
             <div class="my-auto -mt-1 mb-1 flex flex-grow items-center">
               <label for="description" class="text-lg">
                 Description
-                <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="descriptionInfo" nbPopoverTrigger="hover" />
+                <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="descriptionInfo" />
                 <ng-template #descriptionInfo>
                   <div class="prose p-3">
                     <p>
@@ -293,22 +276,19 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': images.valid && images.dirty }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': images.invalid && images.dirty }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': images.pristine }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
         </div>
         <span class="mx-3 text-3xl">Images</span>
@@ -345,26 +325,23 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': credits.valid && credits.dirty }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': credits.invalid && credits.dirty }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': credits.pristine }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
         </div>
         <span class="mx-3 text-3xl">Credits</span>
-        <m-icon icon="tooltip-question-outline" class="mr-3 align-middle" [nbPopover]="creditsInfo" nbPopoverTrigger="hover" />
+        <m-icon icon="tooltip-question-outline" class="mr-3 align-middle" [mTooltip]="creditsInfo" />
         <ng-template #creditsInfo>
           <div class="prose p-3">
             <p>Our credits system lets you link to the Momentum profile of everyone who's contributed to your map.</p>
@@ -404,33 +381,29 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': suggestions.valid }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': suggestions.dirty && suggestions.invalid }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': suggestions.pristine && suggestions.invalid && suggestions.enabled }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
           <m-icon
             class="scale-0 text-3xl text-orange-400 transition-transform"
             [icon]="'lock-outline'"
             [ngClass]="{ 'scale-100': suggestions.disabled }"
-            nbPopover="Add a zones file to enable leaderboard editing!"
-            nbPopoverTrigger="hover"
+            mTooltip="Add a zones file to enable leaderboard editing!"
           />
         </div>
         <span class="mx-3 text-3xl">Leaderboards</span>
-        <m-icon icon="tooltip-question-outline" class="mr-2 align-middle" [nbPopover]="leaderboardsInfo" nbPopoverTrigger="hover" />
+        <m-icon icon="tooltip-question-outline" class="mr-2 align-middle" [mTooltip]="leaderboardsInfo" />
         <ng-template #leaderboardsInfo>
           <div class="prose p-3">
             <p>wow</p>
@@ -452,22 +425,19 @@
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
             [ngClass]="{ 'scale-100': privateTesting.valid }"
-            nbPopover="Section is complete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
             [ngClass]="{ 'scale-100': testInvites.dirty && privateTesting.invalid }"
-            nbPopover="Section contains invalid items!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
             [ngClass]="{ 'scale-100': !testInvites.dirty && privateTesting.invalid }"
-            nbPopover="Section is incomplete!"
-            nbPopoverTrigger="hover"
+            mTooltip="Section is incomplete!"
           />
         </div>
         <span class="mx-3 text-3xl">Private Testing</span>

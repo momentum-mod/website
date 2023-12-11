@@ -6,8 +6,7 @@
       class="m-btn"
       type="button"
       (click)="editNotificationSettings()"
-      nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-      nbPopoverTrigger="hint"
+      mTooltip="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
     >
       <m-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
     </button>
@@ -44,19 +43,19 @@
         </div>
         <div *ngIf="!previewMap" class="relative w-full sm:flex-1 sm:flex-grow">
           <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
-            <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
+            <div class="stat" mTooltip="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}">
               <m-icon icon="folder"></m-icon>
               {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
             </div>
-            <div class="stat sm:ml-6" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
+            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
               <m-icon icon="star"></m-icon>
               {{ map.stats?.favorites | thousandsSuffix: 1 }}
             </div>
-            <div class="stat sm:ml-6" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
+            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
               <m-icon icon="download-outline"></m-icon>
               {{ map.stats?.downloads | thousandsSuffix: 1 }}
             </div>
-            <div class="stat sm:ml-6" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
+            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
               <m-icon icon="play-circle-outline"></m-icon>
               {{ map.stats?.plays | thousandsSuffix: 1 }}
             </div>
@@ -70,8 +69,7 @@
               type="button"
               class="m-btn m-btn-blue"
               (click)="onFavoriteUpdate()"
-              nbPopover="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
-              nbPopoverTrigger="hint"
+              mTooltip="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
             >
               <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
             </button>

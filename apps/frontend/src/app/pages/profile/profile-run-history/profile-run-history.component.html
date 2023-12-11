@@ -47,7 +47,7 @@
     >
       <div class="flex flex-wrap items-center">
         <div class="w-1/5 pl-4 pr-4 text-3xl [font-color:silver] sm:w-1/6 md:pl-4">
-          <m-icon *ngIf="run.leaderboardRun" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
+          <m-icon *ngIf="run.leaderboardRun" icon="trophy-outline" mTooltip="Personal Best" />
         </div>
         <div class="relative max-w-full flex-1 flex-grow px-4">
           <a routerLink="/runs/{{ run.id }}">

@@ -1,14 +1,10 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
-import {
-  NbPopoverDirective,
-  NbPopoverModule,
-  NbUserModule
-} from '@nebular/theme';
+import { NbUserModule } from '@nebular/theme';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
-import { showPopoverDuration } from '../../utils/popover-utils';
 import { NgClass, NgFor } from '@angular/common';
+import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'm-map-testing-request-selection',
@@ -21,7 +17,7 @@ import { NgClass, NgFor } from '@angular/common';
     }
   ],
   standalone: true,
-  imports: [NgClass, UserSearchComponent, NbPopoverModule, NgFor, NbUserModule]
+  imports: [NgClass, UserSearchComponent, NgFor, NbUserModule, TooltipDirective]
 })
 export class MapTestingRequestSelectionComponent
   implements ControlValueAccessor
@@ -32,7 +28,7 @@ export class MapTestingRequestSelectionComponent
   protected readonly max = MAX_TESTING_REQUESTS;
   protected disabled = false;
 
-  @ViewChild(NbPopoverDirective) popover: NbPopoverDirective;
+  @ViewChild(TooltipDirective) tooltip: TooltipDirective;
 
   get value(): number[] {
     return this.users.map(({ id }) => id);
@@ -40,9 +36,9 @@ export class MapTestingRequestSelectionComponent
 
   addUser(user: User, searchInput: UserSearchComponent): void {
     if (this.users.length >= this.max) {
-      showPopoverDuration(this.popover, 'Maximum number of users reached!');
+      this.tooltip.setAndShow('Maximum number of users reached!', true);
     } else if (this.users.some(({ id }) => id === user.id)) {
-      showPopoverDuration(this.popover, 'User already added!');
+      this.tooltip.setAndShow('User already added!', true);
     } else {
       searchInput.resetSearchBox();
       this.users.push(user);

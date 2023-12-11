@@ -7,7 +7,7 @@ import { CombinedRoles } from '@momentum/constants';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { LayoutService, SidenavState } from '../../services/layout.service';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
 @Component({
@@ -15,7 +15,7 @@ import { SIDENAV_ITEMS } from '../../side-menu.const';
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css'],
   standalone: true,
-  imports: [IconComponent, RouterLink, CommonModule, TooltipModule]
+  imports: [IconComponent, RouterLink, CommonModule, TooltipDirective]
 })
 export class SidenavComponent implements OnInit, OnDestroy {
   protected readonly SidenavState = SidenavState;

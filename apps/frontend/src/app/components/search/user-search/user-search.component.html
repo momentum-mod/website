@@ -9,7 +9,7 @@
   <m-icon
     class="h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
     [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
-    pTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
+    mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
     icon="steam"
     pack="si"
     (click)="searchBySteam = !searchBySteam"
@@ -28,29 +28,29 @@
           *ngIf="hasRole(Role.PLACEHOLDER, user)"
           class="my-auto ml-1 h-4 w-4"
           src="assets/images/badges/BadgePlaceholder.svg"
-          pTooltip="Placeholder"
+          mTooltip="Placeholder"
         />
         <img
           *ngIf="hasRole(Role.VERIFIED, user)"
           class="my-auto ml-1 h-4 w-4"
           src="assets/images/badges/BadgeVerified.svg"
-          pTooltip="Verified"
+          mTooltip="Verified"
         />
-        <img *ngIf="hasRole(Role.MAPPER, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeMapper.svg" pTooltip="Mapper" />
+        <img *ngIf="hasRole(Role.MAPPER, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeMapper.svg" mTooltip="Mapper" />
         <!-- TODO: Porter badge-->
         <img
           *ngIf="hasRole(Role.PORTER, user)"
           class="my-auto ml-1 h-4 w-4"
           src="assets/images/badges/BadgePorter.svg"
-          pTooltip="Map Porter"
+          mTooltip="Map Porter"
         />
         <img
           *ngIf="hasRole(Role.MODERATOR, user)"
           class="my-auto ml-1 h-4 w-4"
           src="assets/images/badges/BadgeMod.svg"
-          pTooltip="Moderator"
+          mTooltip="Moderator"
         />
-        <img *ngIf="hasRole(Role.ADMIN, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeAdmin.svg" pTooltip="Admin" />
+        <img *ngIf="hasRole(Role.ADMIN, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeAdmin.svg" mTooltip="Admin" />
         <a
           *ngIf="showProfileButton"
           [routerLink]="'/profile/' + user.id"

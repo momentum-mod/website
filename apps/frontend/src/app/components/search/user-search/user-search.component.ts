@@ -6,11 +6,11 @@ import { of } from 'rxjs';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
-import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { RouterLink } from '@angular/router';
+import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'm-user-search',
@@ -23,12 +23,12 @@ import { RouterLink } from '@angular/router';
     NgClass,
     NgFor,
     NgxPaginationModule,
-    TooltipModule,
     PaginatorModule,
     OverlayPanelModule,
     NgIf,
     NgOptimizedImage,
-    RouterLink
+    RouterLink,
+    TooltipDirective
   ]
 })
 export class UserSearchComponent extends AbstractSearchComponent<User> {

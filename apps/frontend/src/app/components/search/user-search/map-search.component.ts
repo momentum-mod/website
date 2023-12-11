@@ -5,7 +5,6 @@ import { MMap } from '@momentum/constants';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
-import { TooltipModule } from 'primeng/tooltip';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';
@@ -21,7 +20,6 @@ import { AbstractSearchComponent } from './abstract-search.component';
     NgClass,
     NgFor,
     NgxPaginationModule,
-    TooltipModule,
     PaginatorModule,
     OverlayPanelModule,
     NgIf,

@@ -25,6 +25,7 @@ import { ReportButtonComponent } from '../../../components/report/report-button/
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 import { CardHeaderComponent } from '../../../components/card/card-header.component';
 import { CardComponent } from '../../../components/card/card.component';
+import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'm-map-info',
@@ -41,7 +42,8 @@ import { CardComponent } from '../../../components/card/card.component';
     MapInfoStatsComponent,
     ReportButtonComponent,
     CardHeaderComponent,
-    CardComponent
+    CardComponent,
+    TooltipDirective
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {

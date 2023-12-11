@@ -6,12 +6,13 @@ import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify
 import { Follow, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
+import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'm-profile-follow',
   templateUrl: './profile-follow.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, TooltipDirective]
 })
 export class ProfileFollowComponent implements OnInit {
   @Input() userSubj: ReplaySubject<User>;
