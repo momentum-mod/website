@@ -1,6 +1,6 @@
 <p class="font-display text-8xl font-bold opacity-80">Map Submission</p>
 <ng-container *ngIf="isMapperOrPorter || !hasMapInSubmission; else notMapperBlock">
-  <nb-alert *ngIf="!isMapperOrPorter" class="prose prose-invert mb-8 max-w-none p-5" accent="info">
+  <nb-alert *ngIf="!isMapperOrPorter" class="prose mb-8 max-w-none p-5" accent="info">
     <h4>Welcome to the Momentum Mod map submission page!</h4>
     <p>
       This is where you can submit maps to the game, and if your submission is approved, it'll be hosted by us and will appear in the
@@ -366,7 +366,7 @@
         <span class="mx-3 text-3xl">Credits</span>
         <m-icon icon="tooltip-question-outline" class="mr-3 align-middle" [nbPopover]="creditsInfo" nbPopoverTrigger="hover" />
         <ng-template #creditsInfo>
-          <div class="prose prose-invert p-3">
+          <div class="prose p-3">
             <p>Our credits system lets you link to the Momentum profile of everyone who's contributed to your map.</p>
             <p>
               If you know their Steam account but not their name in Momentum, search by their Steam Community ID - you can find that by
@@ -432,7 +432,7 @@
         <span class="mx-3 text-3xl">Leaderboards</span>
         <m-icon icon="tooltip-question-outline" class="mr-2 align-middle" [nbPopover]="leaderboardsInfo" nbPopoverTrigger="hover" />
         <ng-template #leaderboardsInfo>
-          <div class="prose prose-invert p-3">
+          <div class="prose p-3">
             <p>wow</p>
           </div>
         </ng-template>
