@@ -278,4 +278,13 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /**
+   * @tailwindcss/typography's `prose` class is styled for light-mode by
+   * default, and uses prose-invert for dark mode. We're only dark mode, so
+   * just apply .prose-invert on top of .prose everywhere.
+   */
+  .prose {
+    @apply prose-invert;
+  }
 }
