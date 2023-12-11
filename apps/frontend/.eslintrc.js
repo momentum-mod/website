@@ -9,7 +9,7 @@ module.exports = {
           'error',
           {
             type: ['element', 'attribute'],
-            prefix: ['m', 'nb']
+            prefix: ['m']
           }
         ],
         '@angular-eslint/component-selector': [
