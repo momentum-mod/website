@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AdminService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-utilities',
@@ -20,7 +21,7 @@ export class UtilitiesComponent {
   }
   constructor(
     private adminService: AdminService,
-    private toasterService: NbToastrService,
+    private messageService: MessageService,
     private dialogService: NbDialogService
   ) {}
 
@@ -64,20 +65,30 @@ export class UtilitiesComponent {
       })
       .subscribe({
         next: () =>
-          this.toasterService.success(
-            'Successfully reset cosmetic XP globally'
-          ),
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully reset cosmetic XP globally'
+          }),
         error: () =>
-          this.toasterService.danger('Failed to reset cosmetic XP globally')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to reset cosmetic XP globally'
+          })
       });
   }
 
   resetRankXPGobally() {
     this.adminService.updateAllUserStats({ rankXP: 0 }).subscribe({
       next: () =>
-        this.toasterService.success('Successfully reset rank XP globally'),
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successfully reset rank XP globally'
+        }),
       error: () =>
-        this.toasterService.danger('Failed to reset rank XP globally')
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to reset rank XP globally'
+        })
     });
   }
 
@@ -86,11 +97,18 @@ export class UtilitiesComponent {
     this.adminService.createUser(this.alias.value).subscribe({
       next: (response) => {
         if (response.alias && response.alias === this.alias.value) {
-          this.toasterService.success('Successfully created user!');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully created user!'
+          });
           this.userForm.reset();
         }
       },
-      error: () => this.toasterService.danger('Failed to create user!')
+      error: () =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to create user!'
+        })
     });
   }
 }

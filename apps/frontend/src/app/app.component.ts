@@ -4,6 +4,7 @@ import { IconComponent } from '@momentum/frontend/icons';
 import { HeaderComponent } from './components/header/header.component';
 import { RouterOutlet } from '@angular/router';
 import { SidenavComponent } from './components/sidenav/sidenav.component';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'm-app',
@@ -13,7 +14,8 @@ import { SidenavComponent } from './components/sidenav/sidenav.component';
     HeaderComponent,
     IconComponent,
     RouterOutlet,
-    SidenavComponent
+    SidenavComponent,
+    ToastModule
   ]
 })
 export class AppComponent {

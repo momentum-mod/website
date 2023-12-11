@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { NbToastrService } from '@nebular/theme';
 import {
   Gamemode,
   GamemodeName,
@@ -13,6 +12,7 @@ import {
 import { LeaderboardsService } from '@momentum/frontend/data';
 import { Observable } from 'rxjs';
 import { SharedModule } from '../../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 enum LeaderboardType {
   TOP10,
@@ -56,7 +56,7 @@ export class MapLeaderboardComponent {
   constructor(
     private leaderboardService: LeaderboardsService,
     private router: Router,
-    private toasterService: NbToastrService
+    private messageService: MessageService
   ) {
     this.filterActive = false;
     this.searchedRanks = false;
@@ -100,7 +100,11 @@ export class MapLeaderboardComponent {
           this.leaderboardRuns = response.data;
         },
         error: (error) =>
-          this.toasterService.danger(error.message, 'Could not find runs')
+          this.messageService.add({
+            severity: 'error',
+            detail: error.message,
+            summary: 'Could not find runs'
+          })
       });
   }
 

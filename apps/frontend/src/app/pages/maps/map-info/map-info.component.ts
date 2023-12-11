@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { MMap, MapImage, MapNotify, CombinedRoles } from '@momentum/constants';
@@ -25,7 +25,7 @@ import { ReportButtonComponent } from '../../../components/report/report-button/
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 import { CardHeaderComponent } from '../../../components/card/card-header.component';
 import { CardComponent } from '../../../components/card/card.component';
-import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-map-info',
@@ -67,7 +67,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     private router: Router,
     private mapService: MapsService,
     private localUserService: LocalUserService,
-    private toastService: NbToastrService,
+    private messageService: MessageService,
     private dialogService: NbDialogService,
     private gallery: Gallery
   ) {
@@ -133,10 +133,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             },
             error: (error) => {
               if (error.status !== 404)
-                this.toastService.danger(
-                  error.message,
-                  'Could not check if following'
-                );
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Could not check if following',
+                  detail: error.message
+                });
             }
           });
           if (this.map.favorites && this.map.favorites.length > 0)
@@ -174,7 +175,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           this.map.stats.subscriptions++;
         },
         error: (error) =>
-          this.toastService.danger(error.message, 'Cannot add map to library')
+          this.messageService.add({
+            severity: 'danager',
+            summary: 'Cannot add map to library',
+            detail: error.message
+          })
       });
     }
   }
@@ -194,10 +199,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           this.map.stats.favorites++;
         },
         error: (error) =>
-          this.toastService.danger(
-            error.message,
-            'Failed to add map to favorites'
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to add map to favorites',
+            detail: error.message
+          })
       });
     }
   }
@@ -219,10 +225,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
               this.mapNotifications = false;
             },
             error: (error) =>
-              this.toastService.danger(
-                'Could not disable notifications',
-                error.message
-              )
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Could not disable notifications',
+                detail: error.message
+              })
           });
         } else {
           this.localUserService
@@ -234,10 +241,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
                 else this.mapNotify.notifyOn = response.newFlags;
               },
               error: (error) =>
-                this.toastService.danger(
-                  'Could not enable notificaions',
-                  error.message
-                )
+                this.messageService.add({
+                  severity: 'error',
+                  summary: error.message,
+                  detail: 'Could not enable notificaions'
+                })
             });
         }
       });

@@ -14,7 +14,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { NbDatepickerModule, NbToastrService } from '@nebular/theme';
+import { NbDatepickerModule } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   Ban,
@@ -55,6 +55,8 @@ import { MultiFileUploadComponent } from '../../../components/file-upload/multi-
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { MessageService } from 'primeng/api';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -85,7 +87,7 @@ export class MapSubmissionFormComponent implements OnInit {
     private readonly mapsService: MapsService,
     private readonly router: Router,
     private readonly localUserService: LocalUserService,
-    private readonly toasterService: NbToastrService,
+    private readonly messageService: MessageService,
     private readonly fb: FormBuilder
   ) {}
 
@@ -284,7 +286,10 @@ export class MapSubmissionFormComponent implements OnInit {
 
     if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
       this.router.navigate(['/']);
-      this.toasterService.danger('You are banned from map submission.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'You are banned from map submission'
+      });
     }
   }
 
@@ -442,8 +447,9 @@ export class MapSubmissionFormComponent implements OnInit {
           this.uploadPercentage = 100;
           this.isUploading = false;
           this.uploadStatusDescription = 'Upload completed!';
-          this.toasterService.success('Map upload complete!', null, {
-            duration: 5000
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Map upload complete!'
           });
         },
         error: (httpError: HttpErrorResponse) =>
@@ -461,11 +467,12 @@ export class MapSubmissionFormComponent implements OnInit {
 
   onUploadError(error: HttpErrorResponse, type: string, extraMessage?: string) {
     const errorMessage = JSON.parse(error?.error)?.message ?? 'Unknown error';
-    this.toasterService.danger(
-      `Image submission failed with error: ${errorMessage}. ${extraMessage}`,
-      `${type} upload failed!`,
-      { duration: 0 }
-    );
+    this.messageService.add({
+      severity: 'error',
+      summary: `${type} upload failed!`,
+      detail: `Image submission failed with error: ${errorMessage}. ${extraMessage}`,
+      life: 20000
+    });
     console.error(`${type} upload failure: ${errorMessage}`);
 
     this.resetUploadStatus();

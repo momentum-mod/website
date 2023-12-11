@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService } from '@nebular/theme';
 import { finalize } from 'rxjs/operators';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { Follow, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-profile-follow',
@@ -23,7 +24,7 @@ export class ProfileFollowComponent implements OnInit {
 
   constructor(
     private localUserService: LocalUserService,
-    private toastService: NbToastrService,
+    private messageService: MessageService,
     private dialogService: NbDialogService
   ) {
     this.user = null;
@@ -44,10 +45,11 @@ export class ProfileFollowComponent implements OnInit {
             this.targetFollowStatus = response.target;
           },
           error: (error) =>
-            this.toastService.danger(
-              error.message,
-              'Could not check follow status'
-            )
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Could not check follow status',
+              detail: error.message
+            })
         });
     });
   }
@@ -57,13 +59,21 @@ export class ProfileFollowComponent implements OnInit {
       this.localUserService.followUser(this.user).subscribe({
         next: (response) => (this.localFollowStatus = response),
         error: (error) =>
-          this.toastService.danger(error.message, 'Could not follow user')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not follow user',
+            detail: error.message
+          })
       });
     } else {
       this.localUserService.unfollowUser(this.user).subscribe({
         next: () => (this.localFollowStatus = null),
         error: (error) =>
-          this.toastService.danger(error.message, 'Could not unfollow user')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not unfollow user',
+            detail: error.message
+          })
       });
     }
   }
@@ -81,10 +91,11 @@ export class ProfileFollowComponent implements OnInit {
           .subscribe({
             next: () => (this.localFollowStatus.notifyOn = response.newFlags),
             error: (error) =>
-              this.toastService.danger(
-                'Could not update follow status',
-                error.message
-              )
+              this.messageService.add({
+                severity: 'error',
+                detail: error.message,
+                summary: 'Could not update follow status'
+              })
           });
       });
   }

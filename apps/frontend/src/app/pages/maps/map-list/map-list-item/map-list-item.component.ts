@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { NbToastrService } from '@nebular/theme';
 import { MMap } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { MapStatusName } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-map-list-item',
@@ -25,7 +25,7 @@ export class MapListItemComponent implements OnInit {
 
   constructor(
     private localUserService: LocalUserService,
-    private toastService: NbToastrService
+    private messageService: MessageService
   ) {
     this.inLibrary = false;
     this.inFavorites = false;
@@ -46,23 +46,33 @@ export class MapListItemComponent implements OnInit {
         next: () => {
           this.mapInFavorites = false;
           this.favoriteUpdate.emit(false);
-          this.toastService.success('Removed map from favorites', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Removed map from favorites'
+          });
         },
-        error: () =>
-          this.toastService.danger(
-            'Failed to remove map from favorites',
-            'Error'
-          )
+        error: (error) =>
+          this.messageService.add({
+            summary: 'Failed to remove map from favorites',
+            detail: error.message
+          })
       });
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
           this.mapInFavorites = true;
           this.favoriteUpdate.emit(true);
-          this.toastService.success('Added map to favorites', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Added map to favorites'
+          });
         },
-        error: () =>
-          this.toastService.danger('Failed to add map to favorites', 'Error')
+        error: (error) =>
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to add map to favorites',
+            detail: error.message
+          })
       });
     }
   }
@@ -73,26 +83,34 @@ export class MapListItemComponent implements OnInit {
         next: () => {
           this.mapInLibrary = false;
           this.libraryUpdate.emit(false);
-          this.toastService.success('Removed map from library', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Removed map from library'
+          });
         },
         error: (error) =>
-          this.toastService.danger(
-            error.message,
-            'Failed to remove map from library'
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to remove map from library',
+            detail: error.message
+          })
       });
     } else {
       this.localUserService.addMapToLibrary(this.map.id).subscribe({
         next: () => {
           this.mapInLibrary = true;
           this.libraryUpdate.emit(true);
-          this.toastService.success('Added map to library', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Added map to library'
+          });
         },
         error: (error) =>
-          this.toastService.danger(
-            error.message,
-            'Failed to add map to library'
-          )
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to add map to library',
+            detail: error.message
+          })
       });
     }
   }

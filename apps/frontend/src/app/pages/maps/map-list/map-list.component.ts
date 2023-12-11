@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize, map } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
-import { NbLayoutScrollService, NbToastrService } from '@nebular/theme';
+import { NbLayoutScrollService } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapStatus,
@@ -20,6 +20,7 @@ import {
 import { Enum } from '@momentum/enum';
 import { SharedModule } from '../../../shared.module';
 import { MapListItemComponent } from './map-list-item/map-list-item.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-map-list',
@@ -59,7 +60,7 @@ export class MapListComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private mapService: MapsService,
-    private toasterService: NbToastrService,
+    private messageService: MessageService,
     private scrollService: NbLayoutScrollService,
     private localUserService: LocalUserService,
     private fb: FormBuilder
@@ -171,7 +172,11 @@ export class MapListComponent implements OnInit {
         this.maps = res.data;
       },
       error: (err) => {
-        this.toasterService.danger(err.message, 'Failed to get maps');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to get maps',
+          detail: err.message
+        });
       }
     });
   }

@@ -8,7 +8,7 @@ import {
   CdkDropList,
   moveItemInArray
 } from '@angular/cdk/drag-drop';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
@@ -25,6 +25,7 @@ import {
 import { SharedModule } from '../../../shared.module';
 import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
+import { MessageService } from 'primeng/api';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -77,7 +78,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
     private localUserService: LocalUserService,
     private adminService: AdminService,
     private dialogService: NbDialogService,
-    private toasterService: NbToastrService,
+    private messageService: MessageService,
     private fb: FormBuilder
   ) {
     this.imagesLimit = 6;
@@ -129,9 +130,18 @@ export class MapEditComponent implements OnInit, OnDestroy {
       this.youtubeID.patchValue(youtubeIDMatch ? youtubeIDMatch[0] : null);
     }
     this.mapService.updateMapInfo(this.map.id, this.infoForm.value).subscribe({
-      next: () => this.toasterService.success('Updated the map!', 'Success'),
+      next: () =>
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Updated the map!'
+        }),
       error: (error) =>
-        this.toasterService.danger(error.message, 'Failed to update the map!')
+        this.messageService.add({
+          severity: 'error',
+          summary: error.message,
+          detail: 'Failed to update the map!'
+        })
     });
   }
 
@@ -151,10 +161,17 @@ export class MapEditComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (credits) => {
           this.credits.set(credits as EditableMapCredit[]);
-          this.toasterService.success('Updated map credits!', 'Success');
+          this.messageService.add({
+            severity: 'success',
+            detail: 'Updated map credits!'
+          });
         },
         error: (error) =>
-          this.toasterService.danger(error.message, 'Failed to update credits!')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Failed to update credits!',
+            detail: error.message
+          })
       });
   }
 
@@ -215,12 +232,16 @@ export class MapEditComponent implements OnInit, OnDestroy {
         if (!response) return;
         this.adminService.deleteMap(this.map.id).subscribe({
           next: () =>
-            this.toasterService.success(
-              'Successfully deleted the map',
-              'Success'
-            ),
-          error: () =>
-            this.toasterService.danger('Failed to delete the map', 'Failed')
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Successfully deleted the map'
+            }),
+          error: (error) =>
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Failed to delete the map',
+              detail: error.message
+            })
         });
       });
   }

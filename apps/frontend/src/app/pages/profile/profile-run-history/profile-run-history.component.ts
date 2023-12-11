@@ -2,10 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { NbToastrService } from '@nebular/theme';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { PastRunsService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-profile-run-history',
@@ -41,7 +41,7 @@ export class ProfileRunHistoryComponent implements OnInit {
 
   constructor(
     private pastRunsService: PastRunsService,
-    private toastService: NbToastrService,
+    private messageService: MessageService,
     private fb: FormBuilder
   ) {
     this.loadedRuns = false;
@@ -84,7 +84,11 @@ export class ProfileRunHistoryComponent implements OnInit {
           this.runHistory = response.data;
         },
         error: (error) =>
-          this.toastService.danger(error.message, 'Cannot get user map credits')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Cannot get user map credits',
+            detail: error.message
+          })
       });
   }
 

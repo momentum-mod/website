@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ReplaySubject, Subject } from 'rxjs';
-import { NbToastrService } from '@nebular/theme';
 import {
   Ban,
   ISOCountryCode,
@@ -20,6 +19,7 @@ import { ProfileFollowComponent } from './profile-follow/profile-follow.componen
 import { SharedModule } from '../../shared.module';
 import { ActivityCardComponent } from '../../components/activity/activity-card/activity-card.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-user-profile',
@@ -71,7 +71,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     public localUserService: LocalUserService,
     private usersService: UsersService,
-    private toastService: NbToastrService
+    private messageService: MessageService
   ) {
     this.ReportType = ReportType;
     this.isLocal = true;
@@ -127,22 +127,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
             error: (error) =>
-              this.toastService.danger(
-                error.message,
-                'Could not retrieve user follows'
-              )
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Could not retrieve user follows',
+                detail: error.message
+              })
           });
           this.usersService.getFollowersOfUser(this.user).subscribe({
             next: (response) => (this.followedByUsers = response.data),
             error: (error) =>
-              this.toastService.danger(
-                error.message,
-                'Could not retrieve user following'
-              )
+              this.messageService.add({
+                severity: 'error',
+                detail: error.message,
+                summary: 'Could not retrieve user following'
+              })
           });
         },
         error: (error) =>
-          this.toastService.danger(error.message, 'Cannot get user details')
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Cannot get user details',
+            detail: error.message
+          })
       });
   }
 
