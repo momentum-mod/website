@@ -3,12 +3,12 @@
     <p class="category">{{ category.title }}</p>
     @for (item of category.items; track item.title) {
       @if (item.external) {
-        <a [href]="item.link" class="item" target="_blank" [pTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
+        <a [href]="item.link" class="item" target="_blank" [mTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>
         </a>
       } @else {
-        <a [routerLink]="[item.link]" class="item" [pTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
+        <a [routerLink]="[item.link]" class="item" [mTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>
         </a>

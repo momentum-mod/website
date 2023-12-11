@@ -8,7 +8,6 @@ import { NotificationComponent } from '../notification/notification.component';
 import { SearchComponent } from '../search/search.component';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@momentum/frontend/icons';
-import { TooltipModule } from 'primeng/tooltip';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CommonModule } from '@angular/common';
 import { PlayerCardComponent } from '../player-card/player-card.component';
@@ -26,7 +25,6 @@ import { MenuModule } from 'primeng/menu';
     IconComponent,
     SearchComponent,
     NotificationComponent,
-    TooltipModule,
     OverlayPanelModule,
     CommonModule,
     PlayerCardComponent,

@@ -14,11 +14,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import {
-  NbDatepickerModule,
-  NbPopoverDirective,
-  NbToastrService
-} from '@nebular/theme';
+import { NbDatepickerModule, NbToastrService } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   Ban,
@@ -46,7 +42,6 @@ import {
 import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
 import { MapLeaderboardSelectionComponent } from '../../../components/map-leaderboard-selection/map-leaderboard-selection.component';
 import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
-import { showPopover } from '../../../utils/popover-utils';
 import {
   HttpErrorResponse,
   HttpEvent,
@@ -59,6 +54,7 @@ import { MapImageSelectionComponent } from '../../../components/map-image-select
 import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
 import { SharedModule } from '../../../shared.module';
+import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -74,7 +70,8 @@ import { SharedModule } from '../../../shared.module';
     MapImageSelectionComponent,
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
-    MapTestingRequestSelectionComponent
+    MapTestingRequestSelectionComponent,
+    TooltipDirective
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {
@@ -98,8 +95,8 @@ export class MapSubmissionFormComponent implements OnInit {
   @ViewChild('submitButton', { static: true })
   submitButton: ElementRef<HTMLButtonElement>;
 
-  @ViewChildren(NbPopoverDirective)
-  popovers: QueryList<NbPopoverDirective>;
+  @ViewChildren(TooltipDirective)
+  tooltips: QueryList<TooltipDirective>;
 
   isUploading = false;
   uploadPercentage = 0;
@@ -335,24 +332,26 @@ export class MapSubmissionFormComponent implements OnInit {
   }
 
   /**
-   * Show error popover for any map name errors
+   * Show error tooltip for any map name errors
    */
   onNameStatusChange(status: FormControlStatus) {
-    const popover = this.popovers.find((p) => p.context === 'mapNameError');
+    const tooltip = TooltipDirective.findByContext(
+      this.tooltips,
+      'mapNameError'
+    );
     if (status !== 'INVALID') {
-      popover.hide();
+      tooltip.hide();
       return;
     }
 
     if (this.name.errors['uniqueMapName']) {
-      showPopover(popover, 'Map name is in use!');
+      tooltip.setAndShow('Map name is in use!');
     } else if (this.name.errors['maxlength'] || this.name.errors['minlength']) {
-      showPopover(
-        popover,
+      tooltip.setAndShow(
         `Map name must be between ${MIN_MAP_NAME_LENGTH} and ${MAX_MAP_NAME_LENGTH} characters.`
       );
     } else {
-      popover.hide();
+      tooltip.hide();
     }
   }
 

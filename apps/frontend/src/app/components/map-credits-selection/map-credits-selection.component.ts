@@ -18,16 +18,12 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import {
-  NbPopoverDirective,
-  NbPopoverModule,
-  NbUserModule
-} from '@nebular/theme';
+import { NbUserModule } from '@nebular/theme';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { Enum } from '@momentum/enum';
-import { showPopoverDuration } from '../../utils/popover-utils';
 import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
+import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'm-map-credits-selection',
@@ -43,14 +39,14 @@ import { IconComponent } from '@momentum/frontend/icons';
   imports: [
     NgFor,
     CdkDropList,
-    NbPopoverModule,
     CdkDrag,
     NbUserModule,
     IconComponent,
     FormsModule,
     UserSearchComponent,
     NgIf,
-    KeyValuePipe
+    KeyValuePipe,
+    TooltipDirective
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {
@@ -61,8 +57,8 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
 
   protected readonly connectedTo = Enum.values(MapCreditType).map(String);
 
-  @ViewChildren(NbPopoverDirective)
-  popovers: QueryList<NbPopoverDirective>;
+  @ViewChildren(TooltipDirective)
+  tooltips: QueryList<TooltipDirective>;
 
   addUser(
     type: MapCreditType,
@@ -73,12 +69,11 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       .getAll()
       .some((userEntry) => userEntry.user.id === user.id);
     if (alreadyContainsUser) {
-      const popover = this.popovers.find((p) => p.context === type);
-      showPopoverDuration(
-        popover,
+      TooltipDirective.findByContext(this.tooltips, type).setAndShow(
         `User is already in the "${MapCreditNames.get(
           type
-        )}" credits, just drag the credit instead!`
+        )}" credits, just drag the credit instead!`,
+        true
       );
     } else {
       searchComponent.resetSearchBox();

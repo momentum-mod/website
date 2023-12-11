@@ -1,5 +1,5 @@
 <div class="translate-y- -mt-8 mb-2 text-center text-gray-600" *ngIf="targetFollowStatus">
-  <span [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)" nbPopoverTrigger="hint"> Follows You </span>
+  <span [mTooltip]="'Following since: ' + (targetFollowStatus?.createdAt | date)"> Follows You </span>
 </div>
 <div class="text-center" *ngIf="checked" [ngClass]="{ group: localFollowStatus }">
   <!--  TODO: This styling is a little insane and I haven't had a chance to 

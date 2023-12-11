@@ -558,7 +558,7 @@ p-radiobutton {
   position: absolute;
   display: none;
   padding: 0.25em 0.5rem;
-  max-width: 12.5rem;
+  max-width: 60rem;
   pointer-events: none;
 }
 

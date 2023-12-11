@@ -7,9 +7,10 @@
     [cdkDropListData]="value[type.key]"
     (cdkDropListDropped)="drop($event)"
     [cdkDropListConnectedTo]="connectedTo"
-    nbPopover
-    [nbPopoverContext]="type.key"
-    nbPopoverTrigger="noop"
+    mTooltip
+    [tooltipContext]="type.key"
+    tooltipPosition="top"
+    tooltipEvent="noop"
   >
     <div
       *ngFor="let credit of value[type.key]"
@@ -40,8 +41,7 @@
     </button>
     <m-icon
       class="my-auto ml-3 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
-      [nbPopover]="creditsInfo"
-      nbPopoverTrigger="hover"
+      [mTooltip]="creditsInfo"
       icon="tooltip-question-outline"
     />
   </div>
