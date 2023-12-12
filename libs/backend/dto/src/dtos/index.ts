@@ -38,4 +38,5 @@ export * from './user/user-stats.dto';
 export * from './user/notification.dto';
 export * from './user/user-maps-summary.dto';
 export * from './user/socials.dto';
+export * from './user/admin-activity-dto';
 export * from './xp-systems/xp-systems.dto';

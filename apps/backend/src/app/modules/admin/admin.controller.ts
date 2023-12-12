@@ -32,6 +32,8 @@ import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsService } from '../maps/maps.service';
 import { UsersService } from '../users/users.service';
 import {
+  AdminActivityDto,
+  AdminGetAdminActivitiesQueryDto,
   AdminGetReportsQueryDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
@@ -49,6 +51,7 @@ import {
   XpSystemsDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
+import { AdminActivityService } from './admin-activity.service';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -61,7 +64,8 @@ export class AdminController {
     private readonly adminService: AdminService,
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
   @Post('/users')
@@ -72,8 +76,11 @@ export class AdminController {
   })
   @ApiOperation({ summary: 'Create a placeholder user' })
   @ApiOkResponse({ type: UserDto, description: 'The newly created user' })
-  createPlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
-    return this.adminService.createPlaceholderUser(body.alias);
+  createPlaceholderUser(
+    @LoggedInUser('id') adminID: number,
+    @Body() body: CreateUserDto
+  ): Promise<UserDto> {
+    return this.adminService.createPlaceholderUser(adminID, body.alias);
   }
 
   @Post('/users/merge')
@@ -93,8 +100,15 @@ export class AdminController {
   @ApiBadRequestResponse({
     description: 'If the placeholder ID is not a placeholder'
   })
-  mergeUsers(@Body() body: MergeUserDto): Promise<UserDto> {
-    return this.adminService.mergeUsers(body.placeholderID, body.userID);
+  mergeUsers(
+    @LoggedInUser('id') adminID: number,
+    @Body() body: MergeUserDto
+  ): Promise<UserDto> {
+    return this.adminService.mergeUsers(
+      adminID,
+      body.placeholderID,
+      body.userID
+    );
   }
 
   @Patch('/users/:userID')
@@ -132,8 +146,11 @@ export class AdminController {
     required: true
   })
   @ApiNoContentResponse({ description: 'The user was deleted successfully' })
-  deleteUser(@Param('userID', ParseIntSafePipe) userID: number) {
-    return this.usersService.delete(userID);
+  deleteUser(
+    @LoggedInUser('id') adminID: number,
+    @Param('userID', ParseIntSafePipe) userID: number
+  ) {
+    return this.usersService.delete(userID, adminID);
   }
 
   // This seems to only be used to reset all cosmetic or ranked XP.
@@ -204,8 +221,11 @@ export class AdminController {
     required: true
   })
   @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-  deleteMap(@Param('mapID', ParseIntSafePipe) mapID: number) {
-    return this.mapsService.delete(mapID);
+  deleteMap(
+    @LoggedInUser('id') adminID: number,
+    @Param('mapID', ParseIntSafePipe) mapID: number
+  ) {
+    return this.mapsService.delete(mapID, adminID);
   }
 
   @Get('/reports')
@@ -277,5 +297,49 @@ export class AdminController {
   })
   updateXPSystems(@Body() body: UpdateXpSystemsDto) {
     return this.xpSystems.update(body);
+  }
+
+  @Get('/activities')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @ApiOperation({
+    description: 'Get list of all admin activities'
+  })
+  @ApiOkResponse({
+    type: AdminActivityDto,
+    description: 'List of admin activities'
+  })
+  getAllAdminActivities(
+    @Query() query: AdminGetAdminActivitiesQueryDto
+  ): Promise<PagedResponseDto<AdminActivityDto>> {
+    return this.adminActivityService.getList(
+      undefined,
+      query.skip,
+      query.take,
+      query.filter
+    );
+  }
+
+  @Get('/activities/:userID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @ApiOperation({
+    description: 'Get list of admin activities'
+  })
+  @ApiOkResponse({
+    type: AdminActivityDto,
+    description: 'List of admin activities'
+  })
+  @ApiBadRequestResponse({
+    description: 'Requested user is neither admin nor moderator'
+  })
+  getAdminActivities(
+    @Param('userID', ParseIntSafePipe) userID: number,
+    @Query() query: AdminGetAdminActivitiesQueryDto
+  ): Promise<PagedResponseDto<AdminActivityDto>> {
+    return this.adminActivityService.getList(
+      userID,
+      query.skip,
+      query.take,
+      query.filter
+    );
   }
 }

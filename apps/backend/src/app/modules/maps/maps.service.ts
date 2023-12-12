@@ -34,6 +34,7 @@ import {
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  AdminActivityType,
   approvedBspPath,
   approvedVmfsPath,
   Ban,
@@ -76,6 +77,7 @@ import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
 import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
+import { AdminActivityService } from '../admin/admin-activity.service';
 import {
   SuggestionValidationError,
   validateSuggestions,
@@ -99,7 +101,8 @@ export class MapsService {
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapTestingRequestService: MapTestingRequestService
+    private readonly mapTestingRequestService: MapTestingRequestService,
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
   private readonly baseMapsSelect: Prisma.MMapSelect = {
@@ -1096,7 +1099,7 @@ export class MapsService {
         false
       );
 
-      await tx.mMap.update({
+      const updatedMap = await tx.mMap.update({
         where: { id: mapID },
         data: deepmerge({ all: true })(
           update,
@@ -1104,6 +1107,14 @@ export class MapsService {
           statusChanges
         ) as Prisma.MMapUpdateInput
       });
+
+      await this.adminActivityService.create(
+        userID,
+        AdminActivityType.MAP_UPDATE,
+        mapID,
+        updatedMap,
+        map
+      );
     });
   }
 
@@ -1396,7 +1407,7 @@ export class MapsService {
 
   //#region Deletions
 
-  async delete(mapID: number): Promise<void> {
+  async delete(mapID: number, adminID?: number): Promise<void> {
     const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('No map found');
@@ -1414,6 +1425,16 @@ export class MapsService {
     await this.fileStoreService.deleteFile(approvedBspPath(map.fileName));
 
     await this.db.mMap.delete({ where: { id: mapID } });
+
+    if (adminID) {
+      await this.adminActivityService.create(
+        adminID,
+        AdminActivityType.MAP_DELETE,
+        mapID,
+        {},
+        map
+      );
+    }
   }
 
   //#endregion
