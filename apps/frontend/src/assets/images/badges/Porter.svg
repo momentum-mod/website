@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+  <linearGradient id="a" x1="32" x2="32" y1="64" y2="0" gradientUnits="userSpaceOnUse">
+    <stop offset="0" style="stop-color:#66ab2f"/>
+    <stop offset="1" style="stop-color:#d9df61"/>
+  </linearGradient>
+  <path d="M57.6 0 44.7 6.4l.7 7.1-8.6 8.5-2.4-2.4L0 54.4C0 57.7 6.2 64 9.5 64l34.6-34.6-2.3-2.3 8.6-8.6 7.1.7L64 6.4 57.6 0z" style="fill:url(#a)"/>
+</svg>
