@@ -3,37 +3,22 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   NbAccordionModule,
-  NbActionsModule,
   NbAlertModule,
-  NbCheckboxModule,
-  NbContextMenuModule,
   NbDatepickerModule,
   NbDialogModule,
-  NbLayoutModule,
   NbListModule,
-  NbMenuModule,
-  NbProgressBarModule,
   NbRadioModule,
-  NbRouteTabsetModule,
   NbSelectModule,
-  NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
   NbUserModule
 } from '@nebular/theme';
 
 const NEBULAR_MODULES = [
-  NbLayoutModule,
   NbTabsetModule,
-  NbRouteTabsetModule,
-  NbMenuModule,
   NbUserModule,
   NbListModule,
-  NbActionsModule,
-  NbCheckboxModule,
   NbRadioModule,
-  NbContextMenuModule,
-  NbProgressBarModule,
   NbSelectModule,
   NbAccordionModule,
   NbAlertModule
@@ -51,7 +36,6 @@ export class ThemeModule {
         ...NbThemeModule.forRoot({ name: 'momentum' }, [
           { name: 'momentum', base: 'dark' }
         ]).providers,
-        ...NbMenuModule.forRoot().providers,
         ...NbDialogModule.forRoot({
           hasBackdrop: true,
           closeOnBackdropClick: true,
