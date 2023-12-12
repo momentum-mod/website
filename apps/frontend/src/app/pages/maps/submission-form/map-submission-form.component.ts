@@ -73,7 +73,8 @@ import { MessageService } from 'primeng/api';
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
     MapTestingRequestSelectionComponent,
-    TooltipDirective
+    TooltipDirective,
+    ProgressBarModule
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {

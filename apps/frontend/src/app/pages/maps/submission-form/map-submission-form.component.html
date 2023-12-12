@@ -479,7 +479,7 @@
 
   <div class="mt-4 flex">
     <div class="flex flex-grow flex-col" *ngIf="isUploading">
-      <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>
+      <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
       <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
     </div>
     <div class="ml-auto h-full">
