@@ -34,6 +34,7 @@ export * from './user/user-stats.model';
 export * from './user/notification.model';
 export * from './user/user-maps-summary.model';
 export * from './user/socials.model';
+export * from './user/admin-activity.model';
 export * from './socials/twitch-stream.model';
 export * from './stats/base-stats.model';
 export * from './stats/run-stats.model';

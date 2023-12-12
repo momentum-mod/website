@@ -16,6 +16,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import {
+  AdminActivityDto,
   MapDto,
   ReportDto,
   UserDto,
@@ -23,6 +24,7 @@ import {
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  AdminActivityType,
   Ban,
   Gamemode,
   MapCreditType,
@@ -53,7 +55,11 @@ describe('Admin', () => {
     req: RequestUtil,
     db: DbUtil,
     fileStore: FileStoreUtil,
-    auth: AuthUtil;
+    auth: AuthUtil,
+    adminActivityWasCreated: (
+      userID: number,
+      types: AdminActivityType[]
+    ) => Promise<boolean>;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -63,23 +69,36 @@ describe('Admin', () => {
     db = env.db;
     auth = env.auth;
     fileStore = env.fileStore;
+    adminActivityWasCreated = async (
+      userID: number,
+      types: AdminActivityType[]
+    ) => {
+      const adminActivitiesTypes = await prisma.adminActivity.findMany({
+        where: { userID }
+      });
+      for (const activity of adminActivitiesTypes) {
+        if (!types.includes(activity.type)) return false;
+        types = types.filter((type) => type != activity.type);
+      }
+      return types.length === 0;
+    };
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
 
   describe('admin/users', () => {
     describe('POST', () => {
-      let modToken, adminToken, nonAdminToken;
+      let modToken, admin, adminToken, nonAdminToken;
 
       beforeAll(async () => {
-        [modToken, adminToken, nonAdminToken] = await Promise.all([
+        [modToken, [admin, adminToken], nonAdminToken] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
-          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser()
         ]);
       });
 
-      afterAll(() => db.cleanup('user'));
+      afterAll(() => db.cleanup('user', 'adminActivity'));
 
       it('should successfully create a placeholder user', async () => {
         const res = await req.post({
@@ -91,6 +110,11 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Burger');
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_CREATE_PLACEHOLDER
+          ])
+        ).toBe(true);
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -116,23 +140,22 @@ describe('Admin', () => {
 
   describe('admin/users/merge', () => {
     describe('POST', () => {
-      let u1, u1Token, u2, mu1, mu2, adminToken, modToken;
+      let u1, u1Token, u2, mu1, mu2, admin, adminToken, modToken;
 
       beforeEach(async () => {
-        [[u1, u1Token], u2, mu1, mu2, adminToken, modToken] = await Promise.all(
-          [
+        [[u1, u1Token], u2, mu1, mu2, [admin, adminToken], modToken] =
+          await Promise.all([
             db.createAndLoginUser(),
             db.createUser(),
             db.createUser({
               data: { roles: Role.PLACEHOLDER }
             }),
             db.createUser(),
-            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
             db.loginNewUser({
               data: { roles: Role.MODERATOR }
             })
-          ]
-        );
+          ]);
 
         await prisma.follow.createMany({
           data: [
@@ -158,7 +181,7 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      afterAll(() => db.cleanup('user', 'adminActivity'));
 
       it('should merge two accounts together', async () => {
         const res = await req.post({
@@ -204,6 +227,11 @@ describe('Admin', () => {
         // Placeholder should have been deleted
         const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
         expect(mu1DB).toBeNull();
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_MERGE
+          ])
+        ).toBe(true);
       });
 
       it('should 400 if the user to merge from is not a placeholder', () =>
@@ -296,6 +324,8 @@ describe('Admin', () => {
         adminGameToken = auth.gameLogin(admin);
       });
 
+      afterEach(() => db.cleanup('adminActivity'));
+
       afterAll(() => db.cleanup('user'));
 
       it("should successfully update a specific user's alias", async () => {
@@ -313,6 +343,11 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Barry 2');
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_UPDATE_ALIAS
+          ])
+        ).toBe(true);
       });
 
       it("should 409 when an admin tries to set a verified user's alias to something used by another verified user", () =>
@@ -355,6 +390,11 @@ describe('Admin', () => {
         });
 
         expect(res.body.bio).toBe(bio);
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_UPDATE_BIO
+          ])
+        ).toBe(true);
       });
 
       it("should successfully update a specific user's bans", async () => {
@@ -370,6 +410,11 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(userDB.bans).toBe(bans);
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_UPDATE_BANS
+          ])
+        ).toBe(true);
       });
 
       it("should successfully update a specific user's roles", async () => {
@@ -383,6 +428,11 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_UPDATE_ROLES
+          ])
+        ).toBe(true);
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
@@ -513,12 +563,12 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, adminToken, modToken;
+      let u1, u1Token, admin, adminToken, modToken;
 
       beforeEach(async () => {
-        [[u1, u1Token], adminToken, modToken] = await Promise.all([
+        [[u1, u1Token], [admin, adminToken], modToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });
@@ -526,7 +576,13 @@ describe('Admin', () => {
       afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user'));
 
       afterAll(() =>
-        db.cleanup('mMap', 'report', 'activity', 'deletedSteamID')
+        db.cleanup(
+          'mMap',
+          'report',
+          'activity',
+          'deletedSteamID',
+          'adminActivity'
+        )
       );
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
@@ -713,6 +769,11 @@ describe('Admin', () => {
         });
 
         expect(deletedSteamIDEntry).toBeTruthy();
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.USER_DELETE
+          ])
+        ).toBe(true);
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -1640,11 +1701,11 @@ describe('Admin', () => {
         };
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user'));
+      afterAll(() => db.cleanup('leaderboardRun', 'user', 'adminActivity'));
 
       afterEach(() =>
         Promise.all([
-          db.cleanup('mMap'),
+          db.cleanup('mMap', 'adminActivity'),
           fileStore.deleteDirectory('maps'),
           fileStore.deleteDirectory('submissions')
         ])
@@ -1705,6 +1766,11 @@ describe('Admin', () => {
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
+          expect(
+            await adminActivityWasCreated(admin.id, [
+              AdminActivityType.MAP_UPDATE
+            ])
+          ).toBe(true);
         });
 
         it(`should allow a mod to update map data during ${MapStatusNew[status]}`, async () => {
@@ -1761,6 +1827,11 @@ describe('Admin', () => {
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
+          expect(
+            await adminActivityWasCreated(mod.id, [
+              AdminActivityType.MAP_UPDATE
+            ])
+          ).toBe(true);
         });
 
         it(`should not allow a reviewer to update map data during ${MapStatusNew[status]}`, async () => {
@@ -2234,17 +2305,19 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, adminToken, u1, u1Token, m1;
+      let modToken, admin, adminToken, u1, u1Token, m1;
 
       beforeAll(async () => {
-        [modToken, adminToken, [u1, u1Token]] = await Promise.all([
+        [modToken, [admin, adminToken], [u1, u1Token]] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
-          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser({ data: { roles: Role.MAPPER } })
         ]);
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
+      afterAll(() =>
+        db.cleanup('leaderboardRun', 'user', 'mMap', 'adminActivity')
+      );
 
       beforeEach(async () => {
         m1 = await db.createMap({
@@ -2306,6 +2379,11 @@ describe('Admin', () => {
             await fileStore.exists(`img/${img.id}-${size}.jpg`)
           ).toBeFalsy();
         }
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.MAP_DELETE
+          ])
+        ).toBe(true);
       });
 
       it('should return 404 if map not found', () =>
@@ -2493,7 +2571,7 @@ describe('Admin', () => {
         });
       });
 
-      afterEach(() => db.cleanup('user', 'report'));
+      afterEach(() => db.cleanup('user', 'report', 'adminActivity'));
 
       it('should edit a report', async () => {
         await req.patch({
@@ -2510,6 +2588,11 @@ describe('Admin', () => {
         expect(changedReport.resolved).toBe(true);
         expect(changedReport.resolutionMessage).toBe('resolved');
         expect(changedReport.resolverID).toBe(admin.id);
+        expect(
+          await adminActivityWasCreated(admin.id, [
+            AdminActivityType.REPORT_RESOLVE
+          ])
+        ).toBe(true);
       });
 
       it('should return 404 if targeting a nonexistent report', () =>
@@ -2706,6 +2789,163 @@ describe('Admin', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/xpsys', 'get'));
+    });
+  });
+
+  describe('admin/activities', () => {
+    describe('GET', () => {
+      let admin, adminToken, mod, u1, u1Token;
+      beforeAll(async () => {
+        [[admin, adminToken], mod, [u1, u1Token]] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser()
+        ]);
+
+        // Seperate creates for different createdAt
+        await prisma.adminActivity.create({
+          data: {
+            type: AdminActivityType.MAP_UPDATE,
+            target: 1,
+            oldData: {},
+            newData: { someData: 'yes' },
+            user: { connect: { id: admin.id } }
+          }
+        });
+        await prisma.adminActivity.create({
+          data: {
+            type: AdminActivityType.USER_UPDATE_ALIAS,
+            target: u1.id,
+            oldData: {},
+            newData: { profile: { alias: 'yes' } },
+            user: { connect: { id: mod.id } }
+          }
+        });
+        await prisma.adminActivity.create({
+          data: {
+            type: AdminActivityType.USER_UPDATE_BIO,
+            target: u1.id,
+            oldData: {},
+            newData: { profile: { bio: 'yes' } },
+            user: { connect: { id: admin.id } }
+          }
+        });
+      });
+
+      afterAll(() => db.cleanup('user', 'adminActivity'));
+
+      it('should return a list of all sorted admin activities', async () => {
+        const adminActivities = await req.get({
+          url: 'admin/activities',
+          status: 200,
+          token: adminToken,
+          validatePaged: { type: AdminActivityDto, count: 3 }
+        });
+
+        expect(adminActivities.body).toHaveProperty('data');
+
+        expect(adminActivities.body.data[0].type).toEqual(
+          AdminActivityType.USER_UPDATE_BIO
+        );
+        expect(adminActivities.body.data[1].type).toEqual(
+          AdminActivityType.USER_UPDATE_ALIAS
+        );
+      });
+
+      it('should return a filtered list of all admin activities', async () => {
+        const adminActivities = await req.get({
+          url: 'admin/activities',
+          status: 200,
+          token: adminToken,
+          query: {
+            filter: `${AdminActivityType.MAP_UPDATE},${AdminActivityType.USER_UPDATE_BIO}`
+          },
+          validatePaged: { type: AdminActivityDto, count: 2 }
+        });
+
+        expect(adminActivities.body).toHaveProperty('data');
+
+        expect(adminActivities.body.data[0].type).toEqual(
+          AdminActivityType.USER_UPDATE_BIO
+        );
+        expect(adminActivities.body.data[1].type).toEqual(
+          AdminActivityType.MAP_UPDATE
+        );
+      });
+
+      it('should 403 when the user tries to get admin activities', () =>
+        req.get({
+          url: 'admin/activities',
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should 403 when no access token is provided', () =>
+        req.unauthorizedTest('admin/activities', 'get'));
+    });
+  });
+
+  describe('admin/activities/{adminID}', () => {
+    describe('GET', () => {
+      let admin, adminToken, u1, u1Token;
+      beforeAll(async () => {
+        [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser()
+        ]);
+      });
+
+      afterAll(() => db.cleanup('user', 'adminActivity'));
+
+      it('should return a list of admin activities', async () => {
+        const oldUser = await prisma.user.findUnique({
+          where: { id: u1.id },
+          include: { profile: true }
+        });
+
+        await req.patch({
+          url: `admin/users/${u1.id}`,
+          status: 204,
+          body: { alias: 'Update Alias' },
+          token: adminToken
+        });
+
+        const newUser = await prisma.user.findUnique({
+          where: { id: u1.id },
+          include: { profile: true }
+        });
+
+        const adminActivities = await req.get({
+          url: 'admin/activities/' + admin.id,
+          status: 200,
+          token: adminToken,
+          validatePaged: { type: AdminActivityDto, count: 1 }
+        });
+
+        expect(adminActivities.body).toHaveProperty('data');
+
+        const userUpdateActivity = adminActivities.body.data.find(
+          (activity) => activity.type == AdminActivityType.USER_UPDATE_ALIAS
+        );
+
+        expect(userUpdateActivity.oldData).toEqual(
+          JSON.parse(JSON.stringify(oldUser)) // To convert object to format from the request (For example: convert dates and bigints to strings)
+        );
+        expect(userUpdateActivity.newData).toEqual(
+          JSON.parse(JSON.stringify(newUser))
+        );
+        expect(userUpdateActivity.target).toBe(oldUser.id.toString());
+      });
+
+      it('should 403 when the user tries to get admin activities', () =>
+        req.get({
+          url: 'admin/activities/' + admin.id,
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should 403 when no access token is provided', () =>
+        req.unauthorizedTest('admin/activities/' + admin.id, 'get'));
     });
   });
 });

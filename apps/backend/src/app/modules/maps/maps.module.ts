@@ -11,6 +11,7 @@ import { MapReviewService } from './map-review.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
+import { AdminModule } from '../admin/admin.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { MapTestingRequestService } from './map-testing-request.service';
     FileStoreModule,
     SteamModule,
     SessionModule,
-    forwardRef(() => RunsModule)
+    forwardRef(() => RunsModule),
+    forwardRef(() => AdminModule)
   ],
   controllers: [MapsController],
   providers: [

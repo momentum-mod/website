@@ -16,30 +16,44 @@ import {
   UserDto
 } from '@momentum/backend/dto';
 import { Bitflags } from '@momentum/bitflags';
-import { Role } from '@momentum/constants';
+import { AdminActivityType, Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { expandToIncludes, throwIfEmpty } from '@momentum/util-fn';
+import { AdminActivityService } from './admin-activity.service';
 
 @Injectable()
 export class AdminService {
   constructor(
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
-  async createPlaceholderUser(alias: string): Promise<UserDto> {
-    return DtoFactory(
-      UserDto,
-      await this.db.user.create({
-        data: {
-          alias: alias,
-          roles: Role.PLACEHOLDER
-        }
-      })
+  async createPlaceholderUser(
+    adminID: number,
+    alias: string
+  ): Promise<UserDto> {
+    const placeholder = await this.db.user.create({
+      data: {
+        alias: alias,
+        roles: Role.PLACEHOLDER
+      }
+    });
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.USER_CREATE_PLACEHOLDER,
+      placeholder.id,
+      placeholder
     );
+
+    return DtoFactory(UserDto, placeholder);
   }
 
-  async mergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
+  async mergeUsers(
+    adminID: number,
+    placeholderID: number,
+    userID: number
+  ): Promise<UserDto> {
     const placeholder = await this.db.user.findUnique({
       where: { id: placeholderID },
       include: { follows: true, followers: true }
@@ -153,6 +167,14 @@ export class AdminService {
         where: { id: userID }
       });
 
+      await this.adminActivityService.create(
+        adminID,
+        AdminActivityType.USER_MERGE,
+        userID,
+        { user: mergedUserDbResponse, placeholder: null },
+        { user, placeholder }
+      );
+
       return DtoFactory(UserDto, mergedUserDbResponse);
     });
   }
@@ -164,20 +186,25 @@ export class AdminService {
   ) {
     throwIfEmpty(update);
 
-    const user: any = await this.db.user.findUnique({
+    const user = await this.db.user.findUnique({
       where: { id: userID },
       include: { profile: true }
     });
 
     if (!user) throw new NotFoundException('User not found');
 
+    const activities = [];
+
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (update.bans !== undefined) updateInput.bans = update.bans;
+    if (update.bans !== undefined) {
+      updateInput.bans = update.bans;
+      activities.push(AdminActivityType.USER_UPDATE_BANS);
+    }
 
     let newRoles: number;
 
-    if (update.roles !== undefined) {
+    if (update.roles !== undefined && user.roles !== update.roles) {
       const admin = await this.db.user.findUnique({
         where: { id: adminID },
         select: { roles: true }
@@ -214,6 +241,7 @@ export class AdminService {
 
       // If all we make it through all these checks, finally we can update the flags
       updateInput.roles = update.roles;
+      activities.push(AdminActivityType.USER_UPDATE_ROLES);
 
       newRoles = update.roles;
     } else {
@@ -237,13 +265,27 @@ export class AdminService {
       }
 
       updateInput.alias = update.alias;
+      activities.push(AdminActivityType.USER_UPDATE_ALIAS);
     }
 
-    if (update.bio) {
+    if (update.bio && user.profile.bio !== update.bio) {
       updateInput.profile = { update: { bio: update.bio } };
+      activities.push(AdminActivityType.USER_UPDATE_BIO);
     }
 
-    await this.db.user.update({ where: { id: userID }, data: updateInput });
+    const updatedUser = await this.db.user.update({
+      where: { id: userID },
+      data: updateInput,
+      include: { profile: true }
+    });
+
+    await this.adminActivityService.create(
+      adminID,
+      activities,
+      userID,
+      updatedUser,
+      user
+    );
   }
 
   async getReports(
@@ -272,17 +314,30 @@ export class AdminService {
 
     if (!report) throw new NotFoundException('Report not found');
 
+    let activity = AdminActivityType.REPORT_UPDATE;
+
     const data: Prisma.ReportUpdateInput = {
       resolved: reportDto.resolved,
       resolutionMessage: reportDto.resolutionMessage
     };
-    if (reportDto.resolved) data.resolver = { connect: { id: userID } };
+    if (reportDto.resolved) {
+      activity = AdminActivityType.REPORT_RESOLVE;
+      data.resolver = { connect: { id: userID } };
+    }
 
-    await this.db.report.update({
+    const updatedReport = await this.db.report.update({
       where: {
         id: reportID
       },
       data
     });
+
+    await this.adminActivityService.create(
+      userID,
+      activity,
+      reportID,
+      updatedReport,
+      report
+    );
   }
 }

@@ -42,6 +42,7 @@ import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import {
   ActivityType,
+  AdminActivityType,
   Ban,
   Role,
   UserMapFavoritesGetExpand,
@@ -56,13 +57,15 @@ import {
   throwIfEmpty,
   undefinedIfEmpty
 } from '@momentum/util-fn';
+import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly steamService: SteamService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
   //#region Main User Functions
@@ -271,7 +274,7 @@ export class UsersService {
     await this.db.user.update({ where: { id: userID }, data: updateInput });
   }
 
-  async delete(userID: number) {
+  async delete(userID: number, adminID?: number) {
     const user = await this.db.user.findUnique({
       where: { id: userID }
     });
@@ -295,7 +298,7 @@ export class UsersService {
       runSessions: { deleteMany: {} }
     };
 
-    await this.db.$transaction([
+    const [deletedUser] = await this.db.$transaction([
       this.db.user.update({
         where: { id: userID },
         data: updateInputToClean
@@ -303,6 +306,16 @@ export class UsersService {
       this.db.userAuth.deleteMany({ where: { userID } }),
       this.db.deletedSteamID.create({ data: { steamID: user.steamID } })
     ]);
+
+    if (adminID) {
+      await this.adminActivityService.create(
+        adminID,
+        AdminActivityType.USER_DELETE,
+        userID,
+        deletedUser,
+        user
+      );
+    }
   }
 
   //#endregion
