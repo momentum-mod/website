@@ -29,15 +29,30 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule, MapListItemComponent]
 })
 export class MapListComponent implements OnInit {
-  @Input() isUpload: boolean;
-  statuses: { value?: MapStatus; text: string }[] = [];
-  types: { value: Gamemode; text: string }[] = [];
-  requestSent: boolean;
-  mapCount: number;
-  maps: MMap[];
-  pageLimit: number;
-  currentPage: number;
+  @Input() isUpload = false;
+
+  statuses: { value?: MapStatus; text: string }[] = [
+    { value: undefined, text: 'All' },
+    ...Enum.values(MapStatus)
+      .map((status) => ({ value: status, text: MapStatusName.get(status) }))
+      .sort((a, b) => (a.text > b.text ? 1 : -1))
+  ];
+  types: { value: Gamemode; text: string }[] = [
+    { value: undefined, text: 'All' },
+    ...Enum.values(Gamemode)
+      .map((status) => ({ value: status, text: GamemodeName.get(status) }))
+      .sort((a, b) => (a.text > b.text ? 1 : -1))
+  ];
+
+  requestSent = false;
+
+  mapCount = 0;
+  maps: MMap[] = [];
+  pageLimit = 10;
+  currentPage = 1;
   noMapsText: string;
+
+  // TODO: TypeError when FormGroup weakening is removed.
   searchOptions: FormGroup = this.fb.group({
     search: [''],
     // TODO: Enable when map credits get reworked (#415)
@@ -47,6 +62,7 @@ export class MapListComponent implements OnInit {
     inLibrary: [false],
     inFavorites: [false]
   });
+
   lastSearch: {
     search: string;
     // TODO: Enable when map credits get reworked (#415)
@@ -65,26 +81,6 @@ export class MapListComponent implements OnInit {
     private localUserService: LocalUserService,
     private fb: FormBuilder
   ) {
-    this.pageLimit = 10;
-    this.currentPage = 1;
-    this.isUpload = false;
-    this.requestSent = false;
-    this.maps = [];
-    this.mapCount = 0;
-
-    this.statuses = [
-      { value: undefined, text: 'All' },
-      ...Enum.values(MapStatus)
-        .map((status) => ({ value: status, text: MapStatusName.get(status) }))
-        .sort((a, b) => (a.text > b.text ? 1 : -1))
-    ];
-
-    this.types = [
-      { value: undefined, text: 'All' },
-      ...Enum.values(Gamemode)
-        .map((status) => ({ value: status, text: GamemodeName.get(status) }))
-        .sort((a, b) => (a.text > b.text ? 1 : -1))
-    ];
   }
 
   ngOnInit() {

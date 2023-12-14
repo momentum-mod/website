@@ -45,13 +45,14 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapEditComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   map: MMap;
-  images: MapImage[];
-  imagesLimit: number;
-  credits: SortedMapCredits;
+  images: MapImage[] = [];
+  readonly imagesLimit = 6; // TODO: use @momentum/constants
+  credits = new SortedMapCredits();
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
 
+  // TODO: `: FormGroup` actually makes this a WEAKER type, removing it causes, you guessed it, a type error!
   infoForm: FormGroup = this.fb.group({
     youtubeID: ['', [Validators.pattern(youtubeRegex)]],
     description: ['', [Validators.maxLength(1000)]]
@@ -72,19 +73,15 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private mapService: MapsService,
-    private localUserService: LocalUserService,
-    private adminService: AdminService,
-    private dialogService: NbDialogService,
-    private messageService: MessageService,
-    private fb: FormBuilder
-  ) {
-    this.imagesLimit = 6;
-    this.images = [];
-    this.credits = new SortedMapCredits();
-  }
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly mapService: MapsService,
+    private readonly localUserService: LocalUserService,
+    private readonly adminService: AdminService,
+    private readonly dialogService: NbDialogService,
+    private readonly messageService: MessageService,
+    private readonly fb: FormBuilder
+  ) {}
 
   ngOnInit() {
     this.route.paramMap

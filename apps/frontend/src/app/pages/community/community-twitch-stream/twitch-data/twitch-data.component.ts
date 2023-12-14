@@ -8,10 +8,7 @@ import { TwitchStream } from '@momentum/constants';
   standalone: true
 })
 export class TwitchDataComponent {
-  @Input() stream: TwitchStream;
-  constructor() {
-    this.stream = null;
-  }
+  @Input() stream: TwitchStream = null;
 
   getImage(): string {
     return this.stream

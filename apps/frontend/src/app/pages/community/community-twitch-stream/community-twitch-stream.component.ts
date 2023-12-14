@@ -12,14 +12,10 @@ import { SharedModule } from '../../../shared.module';
   imports: [SharedModule, TwitchDataComponent]
 })
 export class CommunityTwitchStreamComponent implements OnInit {
-  streams: TwitchStream[];
-  queriedStreams: boolean;
-  queriedVideos: boolean;
   constructor(private twitchAPI: TwitchAPIService) {
-    this.streams = [];
-    this.queriedStreams = false;
-    this.queriedVideos = false;
-  }
+  streams: TwitchStream[] = [];
+  queriedStreams = false;
+
 
   ngOnInit() {
     this.twitchAPI

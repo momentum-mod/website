@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { NbDialogRef } from '@nebular/theme';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
@@ -14,19 +14,18 @@ import { MessageService } from 'primeng/api';
 })
 export class UpdateReportDialogComponent implements OnInit {
   @Input() report: Report;
-  updateReportForm: FormGroup;
+
+  updateReportForm = this.fb.group({
+    resolved: [false, Validators.required],
+    resolutionMessage: ['', [Validators.required, Validators.maxLength(1000)]]
+  });
 
   constructor(
-    private ref: NbDialogRef<UpdateReportDialogComponent>,
-    private fb: FormBuilder,
-    private adminService: AdminService,
-    private messageService: MessageService
-  ) {
-    this.updateReportForm = this.fb.group({
-      resolved: ['', Validators.required],
-      resolutionMessage: ['', [Validators.required, Validators.maxLength(1000)]]
-    });
-  }
+    private readonly ref: NbDialogRef<UpdateReportDialogComponent>,
+    private readonly fb: FormBuilder,
+    private readonly adminService: AdminService,
+    private readonly messageService: MessageService
+  ) {}
 
   ngOnInit() {
     if (this.report) {
@@ -44,7 +43,13 @@ export class UpdateReportDialogComponent implements OnInit {
 
   save() {
     this.adminService
-      .updateReport(this.report.id, this.updateReportForm.value)
+      .updateReport(
+        this.report.id,
+        this.updateReportForm.value as {
+          resolved: boolean;
+          resolutionMessage: string;
+        }
+      )
       .subscribe({
         next: () => {
           this.updateReportForm.reset();

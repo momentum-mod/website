@@ -20,17 +20,13 @@ export class ProfileFollowComponent implements OnInit {
   user: User;
   localFollowStatus: Follow; // The follow object of the local user following target user
   targetFollowStatus: Follow; // The follow object of the target user following local user
-  checked: boolean;
+  checked = false;
 
   constructor(
     private localUserService: LocalUserService,
     private messageService: MessageService,
     private dialogService: NbDialogService
   ) {
-    this.user = null;
-    this.checked = false;
-    this.localFollowStatus = null;
-    this.targetFollowStatus = null;
   }
 
   ngOnInit() {

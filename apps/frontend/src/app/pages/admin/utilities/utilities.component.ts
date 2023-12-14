@@ -13,9 +13,10 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule]
 })
 export class UtilitiesComponent {
-  userForm: FormGroup = new FormGroup({
+  protected readonly userForm = new FormGroup({
     alias: new FormControl('')
   });
+
   get alias() {
     return this.userForm.get('alias');
   }

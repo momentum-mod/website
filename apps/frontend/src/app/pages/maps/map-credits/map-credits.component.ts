@@ -34,9 +34,14 @@ export class MapCreditsComponent {
   protected readonly MapCreditNames = MapCreditNames;
 
   protected readonly SearchState = SearchState;
-  searchStates: Record<MapCreditType, SearchState>;
+  searchStates: Record<MapCreditType, SearchState> = {
+    [MapCreditType.AUTHOR]: SearchState.HIDDEN,
+    [MapCreditType.CONTRIBUTOR]: SearchState.HIDDEN,
+    [MapCreditType.TESTER]: SearchState.HIDDEN,
+    [MapCreditType.SPECIAL_THANKS]: SearchState.HIDDEN
+  };
 
-  @Input() editable: boolean;
+  @Input() editable = false;
   @Input() credits: SortedMapCredits;
 
   /**
@@ -44,18 +49,7 @@ export class MapCreditsComponent {
    * It's required so we can update a credits FormGroup on map-edit and
    * map-submission that requires at least one author credit.
    */
-  @Output() creditChange: EventEmitter<void>;
-
-  constructor() {
-    this.editable = false;
-    this.creditChange = new EventEmitter();
-    this.searchStates = {
-      [MapCreditType.AUTHOR]: SearchState.HIDDEN,
-      [MapCreditType.CONTRIBUTOR]: SearchState.HIDDEN,
-      [MapCreditType.TESTER]: SearchState.HIDDEN,
-      [MapCreditType.SPECIAL_THANKS]: SearchState.HIDDEN
-    };
-  }
+  @Output() creditChange = new EventEmitter();
 
   addUser(type: MapCreditType, user: User) {
     const alreadyContainsUser = this.credits

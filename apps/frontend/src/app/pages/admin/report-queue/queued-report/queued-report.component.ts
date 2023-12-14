@@ -13,15 +13,13 @@ import { SharedModule } from '../../../../shared.module';
 })
 export class QueuedReportComponent implements OnInit {
   @Input() report: Report;
-  @Output() reportUpdate: EventEmitter<Report>;
+  @Output() reportUpdate = new EventEmitter<Report>();
+
   typeText: string;
   categoryText: string;
-  reportedResourceURL: string;
+  reportedResourceURL = '';
 
-  constructor(private dialogService: NbDialogService) {
-    this.reportedResourceURL = '';
-    this.reportUpdate = new EventEmitter();
-  }
+  constructor(private dialogService: NbDialogService) {}
 
   ngOnInit() {
     switch (this.report.type) {

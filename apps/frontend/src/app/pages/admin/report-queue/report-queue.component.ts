@@ -15,26 +15,17 @@ import { MessageService } from 'primeng/api';
 })
 export class ReportQueueComponent implements OnInit {
   ReportType: typeof ReportType;
-  isLoading: boolean;
+  isLoading = false;
   reportQueue: Report[];
-  reportQueueCount: number;
-  pageLimit: number;
-  currentPage: number;
-  filters: any;
+  reportQueueCount = 0;
+  pageLimit = 5;
+  currentPage = 1;
+  filters = { resolved: false };
 
   constructor(
     private adminService: AdminService,
     private toasterService: MessageService
-  ) {
-    this.ReportType = ReportType;
-    this.isLoading = false;
-    this.reportQueueCount = 0;
-    this.pageLimit = 5;
-    this.currentPage = 1;
-    this.filters = {
-      resolved: false
-    };
-  }
+  ) {}
 
   ngOnInit() {
     this.loadReportQueue();

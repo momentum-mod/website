@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NbDialogRef, NbSelectModule, NbOptionModule } from '@nebular/theme';
 import {
   FormBuilder,
-  FormGroup,
   Validators,
   FormsModule,
   ReactiveFormsModule
@@ -26,54 +25,53 @@ import { MessageService } from 'primeng/api';
 })
 export class CreateReportDialogComponent implements OnInit {
   @Input() reportType: ReportType;
-  @Input() reportData: string;
-  ReportCategory: typeof ReportCategory;
-  createReportForm: FormGroup;
+  @Input() reportData: number;
+
+  protected readonly createReportForm = this.fb.group({
+    data: [0, Validators.required],
+    type: [ReportType.USER_PROFILE_REPORT, Validators.required],
+    category: [ReportCategory.INAPPROPRIATE_CONTENT, Validators.required],
+    message: ['', [Validators.required, Validators.maxLength(1000)]]
+  });
 
   constructor(
     protected ref: NbDialogRef<CreateReportDialogComponent>,
     private fb: FormBuilder,
     private reportService: ReportService,
     private messageService: MessageService
-  ) {
-    this.ReportCategory = ReportCategory;
-    this.createReportForm = this.fb.group({
-      data: ['', Validators.required],
-      type: ['', Validators.required],
-      category: ['', Validators.required],
-      message: ['', [Validators.required, Validators.maxLength(1000)]]
-    });
-  }
+  ) {}
 
   ngOnInit() {
     this.createReportForm.patchValue({
       type: this.reportType,
-      data: this.reportData.toString()
+      data: this.reportData
     });
-  }
-
-  cancel() {
-    this.ref.close();
   }
 
   submit() {
-    this.reportService.createReport(this.createReportForm.value).subscribe({
-      next: () => {
-        this.createReportForm.reset();
-        this.ref.close();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Report submitted!'
-        });
-      },
-      error: (error) => {
-        console.error(error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `Failed to submit report: ${error.error.error.message}`
-        });
-      }
-    });
+    this.reportService
+      .createReport(
+        this.createReportForm.value as Required<
+          typeof this.createReportForm.value
+        >
+      )
+      .subscribe({
+        next: () => {
+          this.createReportForm.reset();
+          this.ref.close();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Report submitted!'
+          });
+        },
+        error: (error) => {
+          console.error(error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Failed to submit report: ${error.error.error.message}`
+          });
+        }
+      });
   }
 }

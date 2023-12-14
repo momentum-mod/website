@@ -14,22 +14,16 @@ import { MessageService } from 'primeng/api';
 export class MapQueueComponent implements OnInit {
   priorityQueue: MMap[];
   nonPriorityQueue: MMap[];
-  priorityQueueCount: number;
-  nonPriorityQueueCount: number;
-  pageLimit: number;
-  priorityQueuePage: number;
-  nonPriorityQueuePage: number;
+  priorityQueueCount = 0;
+  nonPriorityQueueCount = 0;
+  pageLimit = 5;
+  priorityQueuePage = 1;
+  nonPriorityQueuePage = 1;
 
   constructor(
     private adminService: AdminService,
     private messageService: MessageService
-  ) {
-    this.priorityQueueCount = 0;
-    this.nonPriorityQueueCount = 0;
-    this.pageLimit = 5;
-    this.priorityQueuePage = 1;
-    this.nonPriorityQueuePage = 1;
-  }
+  ) {}
 
   ngOnInit() {
     this.loadMapQueue(true);

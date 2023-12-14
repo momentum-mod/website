@@ -11,10 +11,9 @@ import { SharedModule } from '../../../shared.module';
 })
 export class HomeUserMapsComponent implements OnInit {
   protected readonly MapStatus = MapStatus;
-  submittedMapStatusSummary;
+  submittedMapStatusSummary = {};
 
   constructor(private userService: LocalUserService) {
-    this.submittedMapStatusSummary = {};
   }
 
   ngOnInit() {

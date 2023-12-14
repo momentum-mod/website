@@ -56,17 +56,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   >;
   userSubject = new BehaviorSubject<User>(null);
   user: User;
-  isLocal: boolean;
-  isMapper: boolean;
-  isVerified: boolean;
-  isMod: boolean;
-  isAdmin: boolean;
-  isDeleted: boolean;
-  avatarUrl: string;
+  isLocal = true;
+  avatarUrl = '/assets/images/blank_avatar.jpg';
   avatarLoaded: boolean;
-  countryDisplayName: string;
-  followingUsers: Follow[];
-  followedByUsers: Follow[];
+  countryDisplayName = '';
+  followingUsers: Follow[] = [];
+  followedByUsers: Follow[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -74,20 +69,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     public localUserService: LocalUserService,
     private usersService: UsersService,
     private messageService: MessageService
-  ) {
-    this.ReportType = ReportType;
-    this.isLocal = true;
-    this.userSubject = new ReplaySubject<User>(1);
-    this.isMapper = false;
-    this.isMod = false;
-    this.isAdmin = false;
-    this.isDeleted = false;
-    this.isVerified = false;
-    this.followingUsers = [];
-    this.followedByUsers = [];
-    this.avatarUrl = '/assets/images/blank_avatar.jpg';
-    this.countryDisplayName = '';
-  }
+  ) {}
 
   ngOnInit() {
     this.route.paramMap
@@ -105,7 +87,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
               });
             }
           }
-          this.isLocal = true;
+          this.isLocal = false;
           this.localUserService.refreshLocalUser();
           return this.localUserService.localUserSubject;
         }),
@@ -115,11 +97,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: (user) => {
           this.user = user;
           this.user.profile.socials ??= {}; // So we can ngFor over this safely
-          this.isMapper = this.hasRole(Role.MAPPER);
-          this.isMod = this.hasRole(Role.MODERATOR);
-          this.isAdmin = this.hasRole(Role.ADMIN);
-          this.isDeleted = this.hasRole(Role.DELETED);
-          this.isVerified = this.hasRole(Role.VERIFIED);
           this.userSubject.next(user);
           if (!this.hasBan(Ban.AVATAR) && this.user.avatarURL)
             this.avatarUrl = this.user.avatarURL;
