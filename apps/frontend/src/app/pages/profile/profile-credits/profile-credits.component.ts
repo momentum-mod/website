@@ -15,24 +15,19 @@ import { MessageService } from 'primeng/api';
 })
 export class ProfileCreditsComponent implements OnInit {
   @Input() userSubj: Observable<User>;
+  protected readonly MapCreditType = MapCreditType;
 
   user: User;
-  protected readonly MapCreditType = MapCreditType;
-  mapCredits: MapCredit[];
-  loadedCredits: boolean;
-  pageLimit: number;
-  currentPage: number;
-  creditCount: number;
+  mapCredits: MapCredit[] = [];
+  loadedCredits = false;
+  pageLimit = 10;
+  currentPage = 1;
+  creditCount = 0;
 
   constructor(
     private usersService: UsersService,
     private messageService: MessageService
   ) {
-    this.loadedCredits = false;
-    this.pageLimit = 10;
-    this.currentPage = 1;
-    this.creditCount = 0;
-    this.mapCredits = [];
   }
 
   ngOnInit() {

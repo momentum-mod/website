@@ -19,26 +19,21 @@ import { CardComponent } from '../../card/card.component';
   ]
 })
 export class ActivityCardComponent implements OnInit {
-  @Input() headerTitle: string;
+  protected readonly ActivityType = ActivityType;
+
+  @Input() headerTitle = 'Activity';
   @Input() follow: boolean;
   @Input() recent: boolean;
   @Input() userSubject: BehaviorSubject<User>;
 
-  constructor(private activityService: ActivityService) {
-    this.headerTitle = 'Activity';
-    this.filterValue = ActivityType.ALL;
-    this.activities = [];
-    this.filteredActivities = [];
-    this.initialActivity = false;
-    this.canLoadMore = true;
-  }
-  protected readonly ActivityType = ActivityType;
-  filterValue: ActivityType;
-  activities: Activity[];
-  filteredActivities: Activity[];
-  initialActivity: boolean;
+  filterValue: ActivityType = ActivityType.ALL;
+  activities: Activity[] = [];
+  filteredActivities: Activity[] = [];
+  initialActivity = false;
   recentActPage = 1;
-  canLoadMore: boolean;
+  canLoadMore = true;
+
+  constructor(private readonly activityService: ActivityService) {}
 
   ngOnInit(): void {
     if (!this.initialActivity) this.getActivities();

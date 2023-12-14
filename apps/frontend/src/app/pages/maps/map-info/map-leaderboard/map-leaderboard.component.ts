@@ -48,22 +48,20 @@ export class MapLeaderboardComponent {
 
   protected availableModes: Gamemode[];
   protected selectedMode: Gamemode;
-  protected filterActive: boolean;
-  protected leaderboardRuns: LeaderboardRun[];
-  protected searchedRanks: boolean;
-  protected filterLeaderboardType: LeaderboardType;
+  protected filterActive = false;
+  protected leaderboardRuns: LeaderboardRun[] = [];
+  protected searchedRanks = false;
+  protected filterLeaderboardType: LeaderboardType = LeaderboardType.TOP10;
 
   constructor(
     private leaderboardService: LeaderboardsService,
     private router: Router,
     private messageService: MessageService
   ) {
-    this.filterActive = false;
-    this.searchedRanks = false;
-    this.leaderboardRuns = [];
-    this.LeaderboardType = LeaderboardType;
-    this.filterLeaderboardType = LeaderboardType.TOP10;
   }
+    private readonly leaderboardService: LeaderboardsService,
+    private readonly router: Router,
+    private readonly messageService: MessageService
 
   filterLeaderboardRuns(
     gamemode: Gamemode,

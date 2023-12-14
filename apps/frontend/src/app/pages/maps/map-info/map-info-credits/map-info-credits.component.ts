@@ -10,9 +10,10 @@ import { SharedModule } from '../../../../shared.module';
   imports: [SharedModule]
 })
 export class MapInfoCreditsComponent {
-  @Input() map: MMap;
   protected readonly MapCreditType = MapCreditType;
   protected readonly MapCreditNames = MapCreditNames;
+
+  @Input() map: MMap;
 
   filterMapCredits(
     mapCredits: MapCredit[],

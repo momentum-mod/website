@@ -51,6 +51,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     >
   >;
 
+  // Built up in ctor
   form: FormGroup;
   adminEditForm: FormGroup;
 
@@ -67,11 +68,11 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     return this.form.get('socials');
   }
 
-  user: User;
-  mergeUser: User;
-  mergeErr: string;
-  isLocal: boolean;
-  isAdmin: boolean;
+  user: User = null;
+  mergeUser: User = null;
+  mergeErr = null;
+  isLocal = false;
+  isAdmin = false;
   isModerator: boolean;
 
   private ngUnsub = new Subject<void>();
@@ -88,12 +89,6 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     private dialogService: NbDialogService,
     private fb: FormBuilder
   ) {
-    this.user = null;
-    this.isLocal = true;
-    this.isAdmin = false;
-    this.mergeUser = null;
-    this.mergeErr = null;
-
     const socialsForm = {};
     for (const [name, { regex }] of Object.entries(SocialsData)) {
       socialsForm[name] = ['', [Validators.pattern(regex)]];

@@ -16,13 +16,10 @@ export class CommunityNewsComponent implements OnInit {
   // The number of blog posts to display on this component
   readonly POSTS_DISPLAYED = 10;
 
-  feed: { item: BlogPost[] };
-  loaded: boolean;
+  feed: { item: BlogPost[] } = { item: [] };
+  loaded = false;
 
   constructor(private blogService: BlogService) {
-    this.feed = { item: [] };
-    this.loaded = false;
-  }
 
   ngOnInit() {
     this.blogService

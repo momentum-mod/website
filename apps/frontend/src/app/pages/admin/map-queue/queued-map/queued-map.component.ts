@@ -19,7 +19,8 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule]
 })
 export class QueuedMapComponent {
-  MapUploadStatus: typeof MapStatus = MapStatus;
+  protected readonly MapUploadStatus = MapStatus;
+
   @Input() map: MMap;
   @Output() statusUpdate = new EventEmitter();
   @ViewChild('mapFileDownloadLink', { static: false })

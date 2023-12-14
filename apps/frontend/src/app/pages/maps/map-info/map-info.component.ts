@@ -47,17 +47,19 @@ import { MessageService } from 'primeng/api';
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {
+  protected readonly ReportType = ReportType;
+
   private ngUnsub = new Subject<void>();
+
   @Input() previewMap: PartialDeep<
     { map: MMap; images: MapImage[] },
     { recurseIntoArrays: true }
   >;
-  protected readonly ReportType = ReportType;
   map: MMap;
   mapNotify: MapNotify;
-  mapNotifications: boolean;
-  mapInLibrary: boolean;
-  mapInFavorites: boolean;
+  mapNotifications = false;
+  mapInLibrary = false;
+  mapInFavorites = false;
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
@@ -71,13 +73,6 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     private dialogService: NbDialogService,
     private gallery: Gallery
   ) {
-    this.ReportType = ReportType;
-    this.mapInLibrary = false;
-    this.map = undefined;
-    this.previewMap = undefined;
-    this.mapInFavorites = false;
-    this.mapNotify = undefined;
-    this.mapNotifications = false;
   }
 
   ngOnInit() {

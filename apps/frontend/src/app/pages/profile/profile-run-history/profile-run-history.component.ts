@@ -17,20 +17,14 @@ export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderBy = RunsGetAllOrder;
   protected readonly Order = Order;
 
-  @Input() userSubj: Observable<User>;
+  @Input() userSubject: Observable<User>;
   user: User;
-  runHistory: PastRun[];
-  loadedRuns: boolean;
-  pageLimit: number;
-  currentPage: number;
-  runCount: number;
-  showFilters: boolean;
-  currentFilter: {
-    isPB: boolean;
-    map: string;
-    orderBy: RunsGetAllOrder;
-    order: Order;
-  };
+  runHistory: PastRun[] = [];
+  loadedRuns = false;
+  pageLimit = 10;
+  currentPage = 1;
+  runCount = 10;
+  showFilters = false;
 
   filterFG: FormGroup = this.fb.group({
     isPersonalBest: [false],
@@ -39,27 +33,26 @@ export class ProfileRunHistoryComponent implements OnInit {
     order: [Order.DESC]
   });
 
+  currentFilter: {
+    isPB: boolean;
+    map: string;
+    orderBy: RunsGetAllOrder;
+    order: Order;
+  } = {
+    isPB: this.filterFG.value.isPersonalBest,
+    map: this.filterFG.value.map,
+    orderBy: this.filterFG.value.orderBy,
+    order: this.filterFG.value.order
+  };
+
   constructor(
     private pastRunsService: PastRunsService,
     private messageService: MessageService,
     private fb: FormBuilder
   ) {
-    this.loadedRuns = false;
-    this.pageLimit = 10;
-    this.currentPage = 1;
-    this.runCount = 0;
-    this.showFilters = false;
-    this.runHistory = [];
-    this.currentFilter = {
-      isPB: this.filterFG.value.isPersonalBest,
-      map: this.filterFG.value.map,
-      orderBy: this.filterFG.value.orderBy,
-      order: this.filterFG.value.order
-    };
-  }
 
   ngOnInit() {
-    this.userSubj.subscribe((user) => {
+    this.userSubject.subscribe((user) => {
       this.user = user;
       this.loadRunHistory();
     });

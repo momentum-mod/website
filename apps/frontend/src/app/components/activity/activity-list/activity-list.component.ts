@@ -11,14 +11,9 @@ import { NbListModule } from '@nebular/theme';
   imports: [NbListModule, NgIf, NgFor, ActivityContentComponent]
 })
 export class ActivityListComponent {
-  @Input() activities: Activity[];
-  @Input() hasRequested: boolean;
+  @Input() activities: Activity[] = [];
+  @Input() hasRequested = false;
   @Output() showMore = new EventEmitter();
-
-  constructor() {
-    this.hasRequested = false;
-    this.activities = [];
-  }
 
   loadMore(): void {
     this.showMore.emit(null);
