@@ -24,33 +24,7 @@
     <div class="ml-4 mt-1 w-full">
       <div class="flex w-full leading-4">
         <p class="mr-1 text-lg font-bold leading-4">{{ user.alias }}</p>
-        <img
-          *ngIf="hasRole(Role.PLACEHOLDER, user)"
-          class="my-auto ml-1 h-4 w-4"
-          src="assets/images/badges/BadgePlaceholder.svg"
-          mTooltip="Placeholder"
-        />
-        <img
-          *ngIf="hasRole(Role.VERIFIED, user)"
-          class="my-auto ml-1 h-4 w-4"
-          src="assets/images/badges/BadgeVerified.svg"
-          mTooltip="Verified"
-        />
-        <img *ngIf="hasRole(Role.MAPPER, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeMapper.svg" mTooltip="Mapper" />
-        <!-- TODO: Porter badge-->
-        <img
-          *ngIf="hasRole(Role.PORTER, user)"
-          class="my-auto ml-1 h-4 w-4"
-          src="assets/images/badges/BadgePorter.svg"
-          mTooltip="Map Porter"
-        />
-        <img
-          *ngIf="hasRole(Role.MODERATOR, user)"
-          class="my-auto ml-1 h-4 w-4"
-          src="assets/images/badges/BadgeMod.svg"
-          mTooltip="Moderator"
-        />
-        <img *ngIf="hasRole(Role.ADMIN, user)" class="my-auto ml-1 h-4 w-4" src="assets/images/badges/BadgeAdmin.svg" mTooltip="Admin" />
+        <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
         <a
           *ngIf="showProfileButton"
           [routerLink]="'/profile/' + user.id"
