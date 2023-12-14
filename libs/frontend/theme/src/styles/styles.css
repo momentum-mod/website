@@ -142,7 +142,10 @@
 
   /* Using techniques from https://moderncss.dev/pure-css-custom-checkbox-style/ */
   .m-checkbox {
-    padding: 1.125rem; /* This value controls the overall width/height of the element.*/
+    vertical-align: middle;
+    height: 1.5rem;
+    aspect-ratio: 1 / 1;
+    /*padding: 1.125rem; !* This value controls the overall width/height of the element.*!*/
     -webkit-appearance: none;
     appearance: none;
     margin: 0;
@@ -153,7 +156,7 @@
     position: relative;
     float: left;
 
-    @apply border border-white border-opacity-[0.025];
+    @apply border border-white border-opacity-[0.05];
     @apply bg-gray-800;
 
     &:hover {

@@ -63,38 +63,36 @@
           <h2>Bans</h2>
           <ul class="list-unstyled whitespace-nowrap">
             <li>
-              <nb-checkbox (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
+              <input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias" />Ban changing alias
+            </li>
+            <li><input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.BIO)" formControlName="banBio" />Ban changing bio</li>
+            <li><input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar" />Ban avatar</li>
+            <li>
+              <input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards" />Ban
+              submitting to leaderboards >
             </li>
             <li>
-              <nb-checkbox (change)="toggleBan(Ban.BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
-            </li>
-            <li>
-              <nb-checkbox (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
-            </li>
-            <li>
-              <nb-checkbox (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards"
-                >Ban submitting to leaderboards</nb-checkbox
-              >
-            </li>
-            <li>
-              <nb-checkbox (change)="toggleBan(Ban.MAP_SUBMISSION)" formControlName="banMapSubmission">Ban submitting maps</nb-checkbox>
+              <input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.MAP_SUBMISSION)" formControlName="banMapSubmission" />Ban
+              submitting maps
             </li>
           </ul>
         </div>
         <div class="relative max-w-full flex-1 flex-grow px-4 pl-4 pr-4 md:w-1/4">
           <h2>Roles</h2>
           <ul class="list-unstyled whitespace-nowrap">
+            <li><input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified</li>
+            <li><input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.MAPPER)" formControlName="mapper" />Mapper</li>
             <li>
-              <nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
+              <input
+                type="checkbox"
+                class="m-checkbox"
+                *ngIf="isAdmin"
+                (change)="toggleRole(Role.MODERATOR)"
+                formControlName="moderator"
+              />Moderator
             </li>
             <li>
-              <nb-checkbox (change)="toggleRole(Role.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
-            </li>
-            <li>
-              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
-            </li>
-            <li>
-              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox>
+              <input type="checkbox" class="m-checkbox" *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin" />Admin
             </li>
           </ul>
         </div>
