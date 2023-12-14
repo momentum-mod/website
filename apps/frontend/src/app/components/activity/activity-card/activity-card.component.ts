@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { ActivityService } from '@momentum/frontend/data';
 import { ActivityType } from '@momentum/constants';
 import { Activity, PagedResponse, User } from '@momentum/constants';
@@ -22,7 +22,7 @@ export class ActivityCardComponent implements OnInit {
   @Input() headerTitle: string;
   @Input() follow: boolean;
   @Input() recent: boolean;
-  @Input() userSubject: ReplaySubject<User>;
+  @Input() userSubject: BehaviorSubject<User>;
 
   constructor(private activityService: ActivityService) {
     this.headerTitle = 'Activity';

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ReplaySubject } from 'rxjs';
 import { NbDialogService } from '@nebular/theme';
+import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { Follow, User } from '@momentum/constants';
@@ -16,7 +16,7 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule, TooltipDirective]
 })
 export class ProfileFollowComponent implements OnInit {
-  @Input() userSubj: ReplaySubject<User>;
+  @Input() userSubject: BehaviorSubject<User>;
   user: User;
   localFollowStatus: Follow; // The follow object of the local user following target user
   targetFollowStatus: Follow; // The follow object of the target user following local user
@@ -34,7 +34,7 @@ export class ProfileFollowComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj.subscribe((usr) => {
+    this.userSubject.subscribe((usr) => {
       this.user = usr;
       this.localUserService
         .checkFollowStatus(this.user)

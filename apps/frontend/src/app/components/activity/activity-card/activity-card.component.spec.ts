@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivityCardComponent } from './activity-card.component';
 import { ActivityService } from '@momentum/frontend/data';
-import { ReplaySubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Activity, User } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
@@ -54,7 +54,7 @@ describe('ActivityCardComponent', () => {
       component.follow = true;
       jest
         .spyOn(activityService, 'getFollowedActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.ngOnInit();
       expect(activityService.getFollowedActivity).toHaveBeenCalled();
     });
@@ -63,17 +63,17 @@ describe('ActivityCardComponent', () => {
       component.follow = false;
       jest
         .spyOn(activityService, 'getFollowedActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.ngOnInit();
       expect(activityService.getFollowedActivity).not.toHaveBeenCalled();
     });
 
     it('should call getUserActivity on init if userSubject is defined', () => {
-      component.userSubject = new ReplaySubject<User>();
+      component.userSubject = new BehaviorSubject<User>(null);
       jest.spyOn(component.userSubject, 'subscribe');
       jest
         .spyOn(activityService, 'getUserActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.ngOnInit();
       expect(component.userSubject.subscribe).toHaveBeenCalled();
     });
@@ -82,7 +82,7 @@ describe('ActivityCardComponent', () => {
       component.recent = true;
       jest
         .spyOn(activityService, 'getRecentActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.ngOnInit();
       expect(activityService.getRecentActivity).toHaveBeenCalled();
     });
@@ -91,7 +91,7 @@ describe('ActivityCardComponent', () => {
       component.recent = false;
       jest
         .spyOn(activityService, 'getRecentActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.ngOnInit();
       expect(activityService.getRecentActivity).not.toHaveBeenCalled();
     });
@@ -129,17 +129,17 @@ describe('ActivityCardComponent', () => {
       component.follow = true;
       jest
         .spyOn(activityService, 'getFollowedActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.getActivities();
       expect(activityService.getFollowedActivity).toHaveBeenCalled();
     });
 
     it('should call getUserActivity if userSubject is defined', () => {
-      component.userSubject = new ReplaySubject<User>();
+      component.userSubject = new BehaviorSubject<User>(null);
       jest.spyOn(component.userSubject, 'subscribe');
       jest
         .spyOn(activityService, 'getUserActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.getActivities();
       expect(component.userSubject.subscribe).toHaveBeenCalled();
     });
@@ -148,7 +148,7 @@ describe('ActivityCardComponent', () => {
       component.recent = true;
       jest
         .spyOn(activityService, 'getRecentActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.getActivities();
       expect(activityService.getRecentActivity).toHaveBeenCalled();
     });
@@ -160,7 +160,7 @@ describe('ActivityCardComponent', () => {
       component.canLoadMore = true;
       jest
         .spyOn(activityService, 'getRecentActivity')
-        .mockReturnValueOnce(new ReplaySubject());
+        .mockReturnValueOnce(new BehaviorSubject(null));
       component.getMoreActivities();
       expect(activityService.getRecentActivity).toHaveBeenCalled();
     });
