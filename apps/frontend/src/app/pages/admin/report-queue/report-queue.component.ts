@@ -14,7 +14,7 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule, QueuedReportComponent]
 })
 export class ReportQueueComponent implements OnInit {
-  ReportType: typeof ReportType;
+  protected readonly ReportType = ReportType;
   isLoading = false;
   reportQueue: Report[];
   reportQueueCount = 0;

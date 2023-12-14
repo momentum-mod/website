@@ -11,8 +11,10 @@ import { SharedModule } from '../../../../shared.module';
   imports: [SharedModule]
 })
 export class MapNotifyEditComponent implements OnInit {
-  @Input() flags: number;
   protected readonly ActivityType = ActivityType;
+
+  @Input() flags: number;
+
   checkboxFlags = {
     PB: { checked: false, value: ActivityType.PB_ACHIEVED },
     WR: { checked: false, value: ActivityType.WR_ACHIEVED }

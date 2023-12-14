@@ -14,8 +14,9 @@ import { MessageService } from 'primeng/api';
   imports: [SharedModule]
 })
 export class ProfileCreditsComponent implements OnInit {
-  @Input() userSubj: Observable<User>;
   protected readonly MapCreditType = MapCreditType;
+
+  @Input() userSubject: Observable<User>;
 
   user: User;
   mapCredits: MapCredit[] = [];
@@ -30,7 +31,7 @@ export class ProfileCreditsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userSubj.subscribe((user) => {
+    this.userSubject.subscribe((user) => {
       this.user = user;
       this.loadCredits();
     });
