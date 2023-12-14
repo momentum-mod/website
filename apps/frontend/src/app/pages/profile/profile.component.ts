@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Ban,
   ISOCountryCode,
@@ -54,7 +54,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       }
     >
   >;
-  userSubject: ReplaySubject<User>;
+  userSubject = new BehaviorSubject<User>(null);
   user: User;
   isLocal: boolean;
   isMapper: boolean;
