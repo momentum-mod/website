@@ -2,18 +2,10 @@
   <div>
     <div class="mb-3">Notify me when this user</div>
     <ul class="list-unstyled m-0">
-      <li>
-        <nb-checkbox [(ngModel)]="checkboxFlags.pb.checked"> achieves a personal best </nb-checkbox>
-      </li>
-      <li>
-        <nb-checkbox [(ngModel)]="checkboxFlags.wr.checked"> achieves a world record </nb-checkbox>
-      </li>
-      <li>
-        <nb-checkbox [(ngModel)]="checkboxFlags.approved.checked"> gets a map approved </nb-checkbox>
-      </li>
-      <li>
-        <nb-checkbox [(ngModel)]="checkboxFlags.uploaded.checked"> uploads a map </nb-checkbox>
-      </li>
+      <li><input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.pb.checked" /> achieves a personal best</li>
+      <li><input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.wr.checked" /> achieves a world record</li>
+      <li><input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.approved.checked" /> gets a map approved</li>
+      <li><input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.uploaded.checked" /> uploads a map</li>
     </ul>
   </div>
   <div>
