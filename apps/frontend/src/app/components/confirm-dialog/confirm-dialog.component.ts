@@ -12,7 +12,7 @@ export class ConfirmDialogComponent {
   @Input() title: string;
   @Input() message: string;
 
-  constructor(protected ref: NbDialogRef<ConfirmDialogComponent>) {}
+  constructor(protected readonly ref: NbDialogRef<ConfirmDialogComponent>) {}
 
   close(response: boolean) {
     this.ref.close(response);

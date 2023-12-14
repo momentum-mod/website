@@ -24,7 +24,7 @@ import { PipesModule } from '@momentum/frontend/pipes';
 export class NotificationComponent implements OnInit {
   @Input() notifications: Notification[];
 
-  constructor(private notificationService: NotificationsService) {}
+  constructor(private readonly notificationService: NotificationsService) {}
 
   // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {

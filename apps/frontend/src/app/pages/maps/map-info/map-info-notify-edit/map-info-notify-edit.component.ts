@@ -17,7 +17,10 @@ export class MapNotifyEditComponent implements OnInit {
     PB: { checked: false, value: ActivityType.PB_ACHIEVED },
     WR: { checked: false, value: ActivityType.WR_ACHIEVED }
   };
-  constructor(protected dialogRef: NbDialogRef<MapNotifyEditComponent>) {}
+
+  constructor(
+    private readonly dialogRef: NbDialogRef<MapNotifyEditComponent>
+  ) {}
 
   ngOnInit() {
     for (const [type, { value }] of Object.entries(this.checkboxFlags))

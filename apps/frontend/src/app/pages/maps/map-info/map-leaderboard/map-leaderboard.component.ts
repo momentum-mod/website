@@ -54,14 +54,10 @@ export class MapLeaderboardComponent {
   protected filterLeaderboardType: LeaderboardType = LeaderboardType.TOP10;
 
   constructor(
-    private leaderboardService: LeaderboardsService,
-    private router: Router,
-    private messageService: MessageService
-  ) {
-  }
     private readonly leaderboardService: LeaderboardsService,
     private readonly router: Router,
     private readonly messageService: MessageService
+  ) {}
 
   filterLeaderboardRuns(
     gamemode: Gamemode,

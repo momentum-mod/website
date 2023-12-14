@@ -20,10 +20,10 @@ export class UtilitiesComponent {
   get alias() {
     return this.userForm.get('alias');
   }
+
   constructor(
-    private adminService: AdminService,
-    private messageService: MessageService,
-    private dialogService: NbDialogService
+    private readonly adminService: AdminService,
+    private readonly messageService: MessageService
   ) {}
 
   showResetCosXPConfigDialog() {

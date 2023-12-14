@@ -74,14 +74,13 @@ export class MapListComponent implements OnInit {
   };
 
   constructor(
-    private route: ActivatedRoute,
-    private mapService: MapsService,
-    private messageService: MessageService,
-    private scrollService: NbLayoutScrollService,
-    private localUserService: LocalUserService,
-    private fb: FormBuilder
-  ) {
-  }
+    private readonly route: ActivatedRoute,
+    private readonly mapService: MapsService,
+    private readonly messageService: MessageService,
+    private readonly scrollService: NbLayoutScrollService,
+    private readonly localUserService: LocalUserService,
+    private readonly fb: FormBuilder
+  ) {}
 
   ngOnInit() {
     this.noMapsText = this.isUpload

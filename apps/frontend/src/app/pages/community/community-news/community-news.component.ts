@@ -19,7 +19,7 @@ export class CommunityNewsComponent implements OnInit {
   feed: { item: BlogPost[] } = { item: [] };
   loaded = false;
 
-  constructor(private blogService: BlogService) {
+  constructor(private readonly blogService: BlogService) {}
 
   ngOnInit() {
     this.blogService

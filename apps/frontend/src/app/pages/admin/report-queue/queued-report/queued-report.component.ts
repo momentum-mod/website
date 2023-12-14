@@ -19,7 +19,7 @@ export class QueuedReportComponent implements OnInit {
   categoryText: string;
   reportedResourceURL = '';
 
-  constructor(private dialogService: NbDialogService) {}
+  constructor(private readonly dialogService: DialogService) {}
 
   ngOnInit() {
     switch (this.report.type) {

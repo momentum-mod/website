@@ -14,7 +14,7 @@ export class HomeUserLibraryComponent implements OnInit {
   mapLibraryCount: number;
   mostRecentlyAddedMap: MMap;
 
-  constructor(private userService: LocalUserService) {}
+  constructor(private readonly userService: LocalUserService) {}
 
   ngOnInit() {
     this.userService.getMapLibrary({ take: 1 }).subscribe({

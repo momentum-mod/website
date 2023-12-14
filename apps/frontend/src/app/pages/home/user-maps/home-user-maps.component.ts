@@ -13,8 +13,7 @@ export class HomeUserMapsComponent implements OnInit {
   protected readonly MapStatus = MapStatus;
   submittedMapStatusSummary = {};
 
-  constructor(private userService: LocalUserService) {
-  }
+  constructor(private readonly userService: LocalUserService) {}
 
   ngOnInit() {
     this.userService.getSubmittedMapSummary().subscribe({

@@ -23,11 +23,10 @@ export class ProfileFollowComponent implements OnInit {
   checked = false;
 
   constructor(
-    private localUserService: LocalUserService,
-    private messageService: MessageService,
-    private dialogService: NbDialogService
-  ) {
-  }
+    private readonly localUserService: LocalUserService,
+    private readonly messageService: MessageService,
+    private readonly dialogService: DialogService
+  ) {}
 
   ngOnInit() {
     this.userSubject.subscribe((usr) => {

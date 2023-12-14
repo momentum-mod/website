@@ -18,7 +18,7 @@ export class ReportButtonComponent {
   @Input() reportType: ReportType;
   @Input() reportData: string;
 
-  constructor(private dialogService: NbDialogService) {}
+  constructor(private readonly dialogService: NbDialogService) {}
 
   onClick() {
     this.dialogService.open(CreateReportDialogComponent, {
