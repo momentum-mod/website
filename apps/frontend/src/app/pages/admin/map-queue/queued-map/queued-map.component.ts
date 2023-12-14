@@ -27,10 +27,11 @@ export class QueuedMapComponent {
   private mapFileDownloadLink: ElementRef;
 
   constructor(
-    private adminService: AdminService,
-    private mapService: MapsService,
-    private messageService: MessageService
+    private readonly adminService: AdminService,
+    private readonly mapService: MapsService,
+    private readonly messageService: MessageService
   ) {}
+
   updateMapStatus(mapID: number, status: number) {
     this.adminService.updateMap(mapID, { status }).subscribe({
       next: () => this.statusUpdate.emit(),

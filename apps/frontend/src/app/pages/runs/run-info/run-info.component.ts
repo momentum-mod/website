@@ -17,9 +17,9 @@ export class RunInfoComponent implements OnInit {
   pbRun: LeaderboardRun;
 
   constructor(
-    private route: ActivatedRoute,
-    private runService: PastRunsService,
-    private leaderboardsService: LeaderboardsService
+    private readonly route: ActivatedRoute,
+    private readonly runService: PastRunsService,
+    private readonly leaderboardsService: LeaderboardsService
   ) {}
 
   ngOnInit() {

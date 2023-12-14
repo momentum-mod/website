@@ -25,10 +25,9 @@ export class ProfileCreditsComponent implements OnInit {
   creditCount = 0;
 
   constructor(
-    private usersService: UsersService,
-    private messageService: MessageService
-  ) {
-  }
+    private readonly usersService: UsersService,
+    private readonly messageService: MessageService
+  ) {}
 
   ngOnInit() {
     this.userSubj.subscribe((user) => {

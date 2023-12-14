@@ -46,10 +46,10 @@ export class ProfileRunHistoryComponent implements OnInit {
   };
 
   constructor(
-    private pastRunsService: PastRunsService,
-    private messageService: MessageService,
-    private fb: FormBuilder
-  ) {
+    private readonly pastRunsService: PastRunsService,
+    private readonly messageService: MessageService,
+    private readonly fb: FormBuilder
+  ) {}
 
   ngOnInit() {
     this.userSubject.subscribe((user) => {

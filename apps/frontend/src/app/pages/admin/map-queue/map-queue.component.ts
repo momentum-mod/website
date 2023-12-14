@@ -21,8 +21,8 @@ export class MapQueueComponent implements OnInit {
   nonPriorityQueuePage = 1;
 
   constructor(
-    private adminService: AdminService,
-    private messageService: MessageService
+    private readonly adminService: AdminService,
+    private readonly messageService: MessageService
   ) {}
 
   ngOnInit() {

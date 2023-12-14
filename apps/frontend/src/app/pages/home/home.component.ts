@@ -20,7 +20,7 @@ import { HomeStatsComponent } from './stats/home-stats.component';
 export class HomeComponent {
   user: User;
 
-  constructor(public localUserService: LocalUserService) {
+  constructor(private readonly localUserService: LocalUserService) {
     this.localUserService.localUserSubject.subscribe({
       next: (response) => (this.user = response),
       error: (error) => console.error(error)

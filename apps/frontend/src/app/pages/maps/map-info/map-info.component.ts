@@ -65,15 +65,14 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   isModerator: boolean;
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private mapService: MapsService,
-    private localUserService: LocalUserService,
-    private messageService: MessageService,
-    private dialogService: NbDialogService,
-    private gallery: Gallery
-  ) {
-  }
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly mapService: MapsService,
+    private readonly localUserService: LocalUserService,
+    private readonly messageService: MessageService,
+    private readonly dialogService: NbDialogService,
+    private readonly gallery: Gallery
+  ) {}
 
   ngOnInit() {
     const galleryRef = this.gallery.ref('image-gallery');

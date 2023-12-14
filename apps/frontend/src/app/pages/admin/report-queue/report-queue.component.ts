@@ -23,8 +23,8 @@ export class ReportQueueComponent implements OnInit {
   filters = { resolved: false };
 
   constructor(
-    private adminService: AdminService,
-    private toasterService: MessageService
+    private readonly adminService: AdminService,
+    private readonly toasterService: MessageService
   ) {}
 
   ngOnInit() {
