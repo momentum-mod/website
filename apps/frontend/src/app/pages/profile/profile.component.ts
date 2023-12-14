@@ -20,6 +20,7 @@ import { SharedModule } from '../../shared.module';
 import { ActivityCardComponent } from '../../components/activity/activity-card/activity-card.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 import { MessageService } from 'primeng/api';
+import { RoleBadgesComponent } from '../../components/roles/role-badges.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -32,7 +33,8 @@ import { MessageService } from 'primeng/api';
     ReportButtonComponent,
     ProfileFollowComponent,
     ProfileRunHistoryComponent,
-    ProfileCreditsComponent
+    ProfileCreditsComponent,
+    RoleBadgesComponent
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

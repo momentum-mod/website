@@ -11,6 +11,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { RouterLink } from '@angular/router';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { RoleBadgesComponent } from '../../roles/role-badges.component';
 
 @Component({
   selector: 'm-user-search',
@@ -28,7 +29,8 @@ import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive'
     NgIf,
     NgOptimizedImage,
     RouterLink,
-    TooltipDirective
+    TooltipDirective,
+    RoleBadgesComponent
   ]
 })
 export class UserSearchComponent extends AbstractSearchComponent<User> {
