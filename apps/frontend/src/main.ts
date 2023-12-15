@@ -13,6 +13,7 @@ import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
 import { SharedModule } from './app/shared.module';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -26,8 +27,9 @@ bootstrapApplication(AppComponent, {
     provideRouter(APP_ROUTES),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
-    // PrimeNg's MessageService is injected into other services and doesn't have
-    // `providedIn: root` so we provider it globally here.
-    MessageService
+    // These PrimeNg services don't have `providedIn: root` so need providing
+    // global here.
+    MessageService,
+    DialogService
   ]
 }).catch((error) => console.error(error));

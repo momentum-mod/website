@@ -1,7 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { NbDialogService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { MMap, MapImage, MapNotify, CombinedRoles } from '@momentum/constants';
@@ -26,6 +25,7 @@ import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive'
 import { CardHeaderComponent } from '../../../components/card/card-header.component';
 import { CardComponent } from '../../../components/card/card.component';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-map-info',
@@ -70,7 +70,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     private readonly mapService: MapsService,
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: DialogService,
     private readonly gallery: Gallery
   ) {}
 
@@ -205,7 +205,8 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   editNotificationSettings() {
     this.dialogService
       .open(MapNotifyEditComponent, {
-        context: {
+        header: 'Edit map notification',
+        data: {
           flags: this.mapNotify ? this.mapNotify.notifyOn : 0
         }
       })

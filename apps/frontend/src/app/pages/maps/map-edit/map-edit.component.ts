@@ -8,7 +8,6 @@ import {
   CdkDropList,
   moveItemInArray
 } from '@angular/cdk/drag-drop';
-import { NbDialogService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
@@ -26,6 +25,7 @@ import { SharedModule } from '../../../shared.module';
 import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -78,7 +78,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
     private readonly mapService: MapsService,
     private readonly localUserService: LocalUserService,
     private readonly adminService: AdminService,
-    private readonly dialogService: NbDialogService,
+    private readonly dialogService: DialogService,
     private readonly messageService: MessageService,
     private readonly fb: FormBuilder
   ) {}
@@ -219,8 +219,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
   showMapDeleteDialog() {
     this.dialogService
       .open(ConfirmDialogComponent, {
-        context: {
-          title: 'Are you sure?',
+        header: 'Are you sure?',
+        data: {
           message:
             'You are about to permanently delete this map. Are you sure you want to proceed?'
         }

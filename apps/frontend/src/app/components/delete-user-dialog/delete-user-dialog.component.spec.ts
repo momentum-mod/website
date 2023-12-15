@@ -1,7 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DeleteUserDialogComponent } from './delete-user-dialog.component';
-import { NbDialogRef, NbDialogService } from '@nebular/theme';
 import { SharedModule } from '../../shared.module';
 
 describe('ConfirmDialogComponent', () => {
@@ -11,8 +10,7 @@ describe('ConfirmDialogComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [SharedModule],
-      declarations: [DeleteUserDialogComponent],
-      providers: [NbDialogService, { provide: NbDialogRef, useValue: {} }]
+      declarations: [DeleteUserDialogComponent]
     }).compileComponents();
   }));
 

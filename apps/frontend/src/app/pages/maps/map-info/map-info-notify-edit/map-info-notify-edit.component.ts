@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
-import { NbDialogRef } from '@nebular/theme';
 import { Bitflags } from '@momentum/bitflags';
 import { SharedModule } from '../../../../shared.module';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-map-info-notify-edit-modal',
@@ -20,9 +20,7 @@ export class MapNotifyEditComponent implements OnInit {
     WR: { checked: false, value: ActivityType.WR_ACHIEVED }
   };
 
-  constructor(
-    private readonly dialogRef: NbDialogRef<MapNotifyEditComponent>
-  ) {}
+  constructor(private readonly ref: DynamicDialogRef) {}
 
   ngOnInit() {
     for (const [type, { value }] of Object.entries(this.checkboxFlags))
@@ -33,7 +31,7 @@ export class MapNotifyEditComponent implements OnInit {
   }
 
   close() {
-    this.dialogRef.close();
+    this.ref.close();
   }
 
   submit() {
@@ -41,6 +39,6 @@ export class MapNotifyEditComponent implements OnInit {
       this.flags = checked
         ? Bitflags.add(this.flags, 1 << value)
         : Bitflags.remove(this.flags, 1 << value);
-    this.dialogRef.close({ newFlags: this.flags });
+    this.ref.close({ newFlags: this.flags });
   }
 }

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NbDialogRef, NbSelectModule, NbOptionModule } from '@nebular/theme';
+import { NbSelectModule, NbOptionModule } from '@nebular/theme';
 import {
   FormBuilder,
   Validators,
@@ -10,6 +10,7 @@ import { ReportService } from '@momentum/frontend/data';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { CardComponent } from '../../card/card.component';
 import { MessageService } from 'primeng/api';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-create-report-dialog',
@@ -35,10 +36,10 @@ export class CreateReportDialogComponent implements OnInit {
   });
 
   constructor(
-    protected ref: NbDialogRef<CreateReportDialogComponent>,
-    private fb: FormBuilder,
-    private reportService: ReportService,
-    private messageService: MessageService
+    protected readonly ref: DynamicDialogRef,
+    private readonly fb: FormBuilder,
+    private readonly reportService: ReportService,
+    private readonly messageService: MessageService
   ) {}
 
   ngOnInit() {

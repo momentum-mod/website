@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
-import { NbDialogRef } from '@nebular/theme';
 import { Bitflags } from '@momentum/bitflags';
 import { SharedModule } from '../../../../shared.module';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-profile-notify-edit-modal',
@@ -11,8 +11,10 @@ import { SharedModule } from '../../../../shared.module';
   imports: [SharedModule]
 })
 export class ProfileNotifyEditComponent implements OnInit {
-  @Input() flags: number;
   protected readonly ActivityType = ActivityType;
+
+  @Input() flags: number;
+
   checkboxFlags = {
     pb: { checked: false, value: ActivityType.PB_ACHIEVED },
     wr: { checked: false, value: ActivityType.WR_ACHIEVED },
@@ -20,7 +22,7 @@ export class ProfileNotifyEditComponent implements OnInit {
     uploaded: { checked: false, value: ActivityType.MAP_UPLOADED }
   };
 
-  constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {}
+  constructor(private readonly ref: DynamicDialogRef) {}
 
   ngOnInit() {
     for (const [type, { value }] of Object.entries(this.checkboxFlags))
@@ -31,7 +33,7 @@ export class ProfileNotifyEditComponent implements OnInit {
   }
 
   close() {
-    this.dialogRef.close();
+    this.ref.close();
   }
 
   submit() {
@@ -39,6 +41,6 @@ export class ProfileNotifyEditComponent implements OnInit {
       this.flags = checked
         ? Bitflags.add(this.flags, 1 << value)
         : Bitflags.remove(this.flags, 1 << value);
-    this.dialogRef.close({ newFlags: this.flags });
+    this.ref.close({ newFlags: this.flags });
   }
 }

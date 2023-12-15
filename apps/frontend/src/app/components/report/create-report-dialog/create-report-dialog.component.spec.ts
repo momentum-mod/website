@@ -4,7 +4,6 @@ import { ThemeModule } from '@momentum/frontend/theme';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CreateReportDialogComponent } from './create-report-dialog.component';
-import { NbDialogRef } from '@nebular/theme';
 
 describe('CreateReportDialogComponent', () => {
   let component: CreateReportDialogComponent;
@@ -18,8 +17,7 @@ describe('CreateReportDialogComponent', () => {
         RouterTestingModule,
         HttpClientTestingModule
       ],
-      declarations: [CreateReportDialogComponent],
-      providers: [{ provide: NbDialogRef, useValue: {} }]
+      declarations: [CreateReportDialogComponent]
     });
 
     await TestBed.compileComponents();
