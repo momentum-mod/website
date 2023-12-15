@@ -5,6 +5,7 @@ services:
     image: minio/minio
     container_name: MinIO
     command: server /data --console-address ":9001"
+    restart: always
     ports:
       - '9000:9000'
       - '9001:9001'
