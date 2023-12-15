@@ -5,7 +5,6 @@ import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { EMPTY, merge, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../components/delete-user-dialog/delete-user-dialog.component';
-import { NbDialogService } from '@nebular/theme';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
@@ -31,6 +30,7 @@ import { omit } from 'lodash-es';
 import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-profile-edit',
@@ -86,7 +86,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     private adminService: AdminService,
     private authService: AuthService,
     private messageService: MessageService,
-    private dialogService: NbDialogService,
+    private dialogService: DialogService,
     private fb: FormBuilder
   ) {
     const socialsForm = {};
@@ -277,7 +277,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
   deleteUser() {
     this.dialogService
-      .open(DeleteUserDialogComponent)
+      .open(DeleteUserDialogComponent, { header: 'Delete user account' })
       .onClose.subscribe((response) => {
         if (!response) return;
         if (this.isLocal) this.deleteLocalUser();
@@ -334,8 +334,8 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     if (!this.mergeUser) return;
     this.dialogService
       .open(ConfirmDialogComponent, {
-        context: {
-          title: 'Merge users?',
+        header: 'Merge users?',
+        data: {
           message: `You are about to merge the placeholder user ${this.user.alias} with the user ${this.mergeUser.alias}.
         This will merge over all activities, credits, and user follows, and then delete the placeholder user!
         Are you sure you want to proceed?`

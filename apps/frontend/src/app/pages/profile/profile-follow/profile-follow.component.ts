@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NbDialogService } from '@nebular/theme';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
@@ -8,6 +7,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-profile-follow',
@@ -77,7 +77,8 @@ export class ProfileFollowComponent implements OnInit {
     if (!this.localFollowStatus) return;
     this.dialogService
       .open(ProfileNotifyEditComponent, {
-        context: { flags: this.localFollowStatus.notifyOn }
+        header: 'Edit Notification Settings',
+        data: { flags: this.localFollowStatus.notifyOn }
       })
       .onClose.subscribe((response) => {
         if (!response) return;

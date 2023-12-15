@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
-import { NbDialogService } from '@nebular/theme';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { SharedModule } from '../../../../shared.module';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-queued-report',
@@ -54,7 +54,10 @@ export class QueuedReportComponent implements OnInit {
 
   update() {
     this.dialogService
-      .open(UpdateReportDialogComponent, { context: { report: this.report } })
+      .open(UpdateReportDialogComponent, {
+        header: 'Update Report',
+        data: { report: this.report }
+      })
       .onClose.subscribe((report) => {
         if (report) this.reportUpdate.emit(report);
       });

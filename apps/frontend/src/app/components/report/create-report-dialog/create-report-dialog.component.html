@@ -1,21 +1,19 @@
-<m-card title="Report">
-  <form [formGroup]="createReportForm">
-    <div class="mb-4">
-      <label class="mr-3">Category</label>
-      <nb-select placeholder="Choose one" formControlName="category">
-        <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
-        <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
-        <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
-        <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
-      </nb-select>
-    </div>
-    <div class="m-0 mb-4">
-      <label>Message</label>
-      <textarea rows="8" class="m-textinput mb-1" [maxLength]="1000" formControlName="message"></textarea>
-    </div>
-  </form>
-  <div class="flex flex-wrap">
-    <button class="m-btn w-1/2 pr-1" (click)="cancel()">Cancel</button>
-    <button class="m-btn m-btn-red w-1/2 pl-1" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
+<form [formGroup]="createReportForm">
+  <div class="mb-4">
+    <label class="mr-3">Category</label>
+    <nb-select placeholder="Choose one" formControlName="category">
+      <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
+      <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
+      <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
+      <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
+    </nb-select>
   </div>
-</m-card>
+  <div class="m-0 mb-4">
+    <label>Message</label>
+    <textarea rows="8" class="m-textinput mb-1" [maxLength]="1000" formControlName="message"></textarea>
+  </div>
+</form>
+<div class="grid grid-cols-2 gap-2">
+  <button class="m-btn" (click)="ref.close()">Cancel</button>
+  <button class="m-btn m-btn-red" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
+</div>

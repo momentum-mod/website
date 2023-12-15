@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { NbDialogRef } from '@nebular/theme';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-update-report-dialog',
@@ -21,7 +21,7 @@ export class UpdateReportDialogComponent implements OnInit {
   });
 
   constructor(
-    private readonly ref: NbDialogRef<UpdateReportDialogComponent>,
+    private readonly ref: DynamicDialogRef,
     private readonly fb: FormBuilder,
     private readonly adminService: AdminService,
     private readonly messageService: MessageService

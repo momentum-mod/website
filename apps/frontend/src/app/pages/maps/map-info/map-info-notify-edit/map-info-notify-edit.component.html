@@ -1,33 +1,11 @@
-<m-card class="max-w-3xl" title="Edit Notification Settings">
-  <div>
-    <div class="mb-3">Notify me when a</div>
-    <ul class="list-unstyled m-0">
-      <li>
-        <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.PB.checked"> personal best is set
-      </li>
-      <li>
-        <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.WR.checked"> world record is set 
-      </li>
-    </ul>
-  </div>
-  <div>
-    <div class="flex flex-wrap">
-      <div class="w-1/2 pr-1">
-        <button
-          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-red-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-red-700"
-          (click)="close()"
-        >
-          Close
-        </button>
-      </div>
-      <div class="w-1/2 pl-1">
-        <button
-          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-blue-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-blue-600"
-          (click)="submit()"
-        >
-          Submit
-        </button>
-      </div>
-    </div>
-  </div>
-</m-card>
+<p>Notify me when a</p>
+<ul class="my-4 grid items-center gap-x-2 gap-y-4 [grid-template-columns:auto_1fr]">
+  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.PB.checked" />
+  <p>personal best is set</p>
+  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.WR.checked" />
+  <p>world record is set</p>
+</ul>
+<div class="grid grid-cols-2 gap-2">
+  <button class="m-btn" (click)="close()">Close</button>
+  <button class="m-btn m-btn-blue" (click)="submit()">Submit</button>
+</div>

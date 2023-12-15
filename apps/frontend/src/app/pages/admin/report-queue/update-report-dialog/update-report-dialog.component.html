@@ -1,38 +1,17 @@
-<m-card class="min-w-3xl" [title]="'Update Report ' + report.id">
-  <div>
-    <form [formGroup]="updateReportForm">
-      <div class="mb-4">
-        <label class="mr-3">Resolved</label>
-        <nb-radio-group formControlName="resolved">
-          <nb-radio [value]="true" class="inline-block">Yes</nb-radio>
-          <nb-radio [value]="false" class="inline-block">No</nb-radio>
-        </nb-radio-group>
-      </div>
-      <div class="m-0 mb-4">
-        <label>Resolution Message</label>
-        <textarea rows="8" class="m-textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
-      </div>
-    </form>
+<form [formGroup]="updateReportForm">
+  <div class="mb-4">
+    <label class="mr-3">Resolved</label>
+    <nb-radio-group formControlName="resolved">
+      <nb-radio [value]="true" class="inline-block">Yes</nb-radio>
+      <nb-radio [value]="false" class="inline-block">No</nb-radio>
+    </nb-radio-group>
   </div>
-  <div>
-    <div class="flex flex-wrap">
-      <div class="w-1/2 pr-1">
-        <button
-          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-gray-900 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-gray-900"
-          (click)="cancel()"
-        >
-          Cancel
-        </button>
-      </div>
-      <div class="w-1/2 pl-1">
-        <button
-          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-green-500 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-green-600"
-          (click)="save()"
-          [disabled]="!updateReportForm.valid"
-        >
-          Save
-        </button>
-      </div>
-    </div>
+  <div class="m-0 mb-4">
+    <label>Resolution Message</label>
+    <textarea rows="8" class="m-textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
   </div>
-</m-card>
+</form>
+<div class="grid grid-cols-2 gap-2">
+  <button class="m-btn" (click)="cancel()">Cancel</button>
+  <button class="m-btn m-btn-red" (click)="save()" [disabled]="!updateReportForm.valid">Submit</button>
+</div>

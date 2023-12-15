@@ -5,7 +5,6 @@ import {
   NbAccordionModule,
   NbAlertModule,
   NbDatepickerModule,
-  NbDialogModule,
   NbListModule,
   NbRadioModule,
   NbSelectModule,
@@ -36,12 +35,6 @@ export class ThemeModule {
         ...NbThemeModule.forRoot({ name: 'momentum' }, [
           { name: 'momentum', base: 'dark' }
         ]).providers,
-        ...NbDialogModule.forRoot({
-          hasBackdrop: true,
-          closeOnBackdropClick: true,
-          closeOnEsc: true,
-          autoFocus: true
-        }).providers,
         ...NbDatepickerModule.forRoot().providers
       ]
     };

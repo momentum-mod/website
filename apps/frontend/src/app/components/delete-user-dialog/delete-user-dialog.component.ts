@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
 import { CardComponent } from '../card/card.component';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-delete-user-dialog',
@@ -15,7 +15,7 @@ export class DeleteUserDialogComponent implements OnInit {
   protected randomCode: string;
   protected isCodeValid: boolean;
 
-  constructor(protected ref: NbDialogRef<DeleteUserDialogComponent>) {}
+  constructor(protected readonly ref: DynamicDialogRef) {}
 
   ngOnInit(): void {
     this.randomCode = this.generateNewCode();
@@ -29,10 +29,6 @@ export class DeleteUserDialogComponent implements OnInit {
   onCodeInput(event: Event) {
     this.isCodeValid =
       (event.target as HTMLInputElement).value === this.randomCode;
-  }
-
-  close() {
-    this.ref.close(false);
   }
 
   submit() {

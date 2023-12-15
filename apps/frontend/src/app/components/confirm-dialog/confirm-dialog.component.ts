@@ -1,18 +1,19 @@
 import { Component, Input } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
-import { CardComponent } from '../card/card.component';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-confirm-dialog',
-  templateUrl: './confirm-dialog.component.html',
-  standalone: true,
-  imports: [CardComponent]
+  template: `<p>{{ message }}</p>
+    <div class="grid grid-cols-2 gap-2">
+      <button class="m-btn" (click)="ref.close(false)">Close</button>
+      <button class="m-btn m-btn-blue" (click)="ref.close(true)">Submit</button>
+    </div>`,
+  standalone: true
 })
 export class ConfirmDialogComponent {
-  @Input() title: string;
   @Input() message: string;
 
-  constructor(protected readonly ref: NbDialogRef<ConfirmDialogComponent>) {}
+  constructor(protected readonly ref: DynamicDialogRef) {}
 
   close(response: boolean) {
     this.ref.close(response);
