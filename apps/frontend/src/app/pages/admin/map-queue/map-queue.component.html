@@ -1,6 +1,6 @@
 <m-card title="Map Queue">
-  <nb-tabset>
-    <nb-tab tabTitle="Mapper Submissions">
+  <p-tabView>
+    <p-tabPanel header="Mapper Submissions">
       <nb-list class="overflow-hidden">
         <nb-list-item
           *ngFor="
@@ -29,8 +29,8 @@
       <div class="text-center" *ngIf="!priorityQueue?.length">
         <h3 class="m-0">There are currently no maps in this queue.</h3>
       </div>
-    </nb-tab>
-    <nb-tab tabTitle="Non-Mapper Submissions">
+    </p-tabPanel>
+    <p-tabPanel header="Non-Mapper Submissions">
       <nb-list class="overflow-hidden">
         <nb-list-item
           *ngFor="
@@ -53,6 +53,6 @@
       <div class="text-center" *ngIf="!nonPriorityQueue?.length">
         <h3 class="m-0">There are currently no maps in this queue.</h3>
       </div>
-    </nb-tab>
-  </nb-tabset>
+    </p-tabPanel>
+  </p-tabView>
 </m-card>

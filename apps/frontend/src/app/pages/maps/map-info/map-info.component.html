@@ -16,17 +16,17 @@
       <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
     </div>
     <div class="w-full pl-4 pr-4 lg:w-3/5">
-      <nb-tabset [fullWidth]="true" class="mb-4 overflow-hidden shadow">
-        <nb-tab tabTitle="Description" [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }" responsive>
+      <p-tabView class="mb-4 w-full overflow-hidden shadow">
+        <p-tabPanel header="Description">
           <m-map-info-description [map]="map" />
-        </nb-tab>
-        <nb-tab tabTitle="Credits" [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }" responsive>
+        </p-tabPanel>
+        <p-tabPanel header="Credits">
           <m-map-info-credits [map]="map" />
-        </nb-tab>
-        <nb-tab tabTitle="Statistics" [tabIcon]="{ icon: 'chart-pie-outline', pack: 'mdi' }" responsive *ngIf="!previewMap">
+        </p-tabPanel>
+        <p-tabPanel header="Statistics" *ngIf="!previewMap">
           <m-map-info-stats [map]="map" />
-        </nb-tab>
-      </nb-tabset>
+        </p-tabPanel>
+      </p-tabView>
       <div class="flex flex-wrap">
         <div class="relative w-full sm:flex-1 sm:flex-grow">
           <h6>

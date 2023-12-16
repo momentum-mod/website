@@ -1,9 +1,9 @@
-nb-tabset {
+p-tabView {
   @apply bg-gray-700;
   height: 380px;
 }
 
-nb-tab {
+p-tabPanel {
   overflow-y: auto;
   height: 88%;
   padding-bottom: 0 !important;

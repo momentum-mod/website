@@ -5,11 +5,12 @@ import { MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 import { QueuedMapComponent } from './queued-map/queued-map.component';
 import { MessageService } from 'primeng/api';
+import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   templateUrl: './map-queue.component.html',
   standalone: true,
-  imports: [SharedModule, QueuedMapComponent]
+  imports: [SharedModule, QueuedMapComponent, TabViewModule]
 })
 export class MapQueueComponent implements OnInit {
   priorityQueue: MMap[];

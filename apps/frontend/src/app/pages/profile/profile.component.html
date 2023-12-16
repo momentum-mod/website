@@ -63,16 +63,16 @@
           </div>
         </div>
       </div>
-      <nb-tabset>
-        <nb-tab tabTitle="Info">
+      <p-tabView>
+        <p-tabPanel header="Info">
           <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0">
             <i>No bio found</i>
           </h5>
           <p class="bio" *ngIf="user.profile?.bio?.length > 0">
             {{ user?.profile?.bio }}
           </p>
-        </nb-tab>
-        <nb-tab tabTitle="Following ({{ followingUsers.length }})" *ngIf="!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)">
+        </p-tabPanel>
+        <p-tabPanel header="Following ({{ followingUsers.length }})" *ngIf="!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)">
           <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
             <i>Not following anyone</i>
           </h5>
@@ -83,8 +83,8 @@
               </a>
             </nb-list-item>
           </nb-list>
-        </nb-tab>
-        <nb-tab tabTitle="Followers ({{ followedByUsers.length }})">
+        </p-tabPanel>
+        <p-tabPanel header="Followers ({{ followedByUsers.length }})">
           <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0">
             <i>No followers</i>
           </h5>
@@ -95,8 +95,8 @@
               </a>
             </nb-list-item>
           </nb-list>
-        </nb-tab>
-        <nb-tab tabTitle="Stats" *ngIf="user.userStats">
+        </p-tabPanel>
+        <p-tabPanel header="Stats" *ngIf="user.userStats">
           <div class="flex flex-wrap justify-around text-center">
             <div class="base m-1">
               <h6>Maps Completed</h6>
@@ -119,14 +119,14 @@
               <h2>{{ user.userStats.cosXP }}</h2>
             </div>
           </div>
-        </nb-tab>
-        <nb-tab tabTitle="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
+        </p-tabPanel>
+        <p-tabPanel header="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
           <m-profile-run-history [userSubject]="userSubject" />
-        </nb-tab>
-        <nb-tab tabTitle="Credits">
+        </p-tabPanel>
+        <p-tabPanel header="Credits">
           <m-profile-credits [userSubject]="userSubject" />
-        </nb-tab>
-      </nb-tabset>
+        </p-tabPanel>
+      </p-tabView>
     </m-card>
   </div>
   <div class="w-full pl-4 pr-4 xl:w-2/5">
