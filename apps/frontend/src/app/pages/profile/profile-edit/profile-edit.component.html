@@ -24,9 +24,7 @@
 
         <div class="mb-4">
           <h3>Country</h3>
-          <nb-select formControlName="country">
-            <nb-option *ngFor="let item of AlphabeticalCountryCode | keyvalue" [value]="item.key">{{ item.value }}</nb-option>
-          </nb-select>
+          <p-dropdown formControlName="country" [options]="AlphabeticalCountryCodes" optionValue="code" optionLabel="label" />
         </div>
 
         <div class="mb-4" [ngClass]="{ 'has-error': !bio.valid }">

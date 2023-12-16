@@ -25,29 +25,45 @@
   <tbody class="contents">
     <tr *ngFor="let item of value; index as i" class="contents">
       <td>
-        <nb-select class="w-full" [(selected)]="item.gamemode" (blur)="onTouched()" (selectedChange)="onChange(value)">
-          <nb-option *ngFor="let mode of Gamemode | enumValue" [value]="mode">
-            {{ GamemodeName.get(mode) }}
-          </nb-option>
-        </nb-select>
+        <p-dropdown
+          class="w-full"
+          [(ngModel)]="item.gamemode"
+          [options]="Gamemodes"
+          optionLabel="label"
+          optionValue="gamemode"
+          (blur)="onTouched()"
+          (onChange)="onChange(value)"
+        />
       </td>
       <td>
-        <nb-select class="w-full" [(selected)]="item.trackType" (blur)="onTouched()" (selectedChange)="onChange(value)">
-          <nb-option [value]="TrackType.MAIN">Main</nb-option>
-          <nb-option [value]="TrackType.BONUS">Bonus</nb-option>
-        </nb-select>
+        <p-dropdown
+          class="w-full"
+          [(ngModel)]="item.trackType"
+          [options]="TrackTypes"
+          optionLabel="label"
+          optionValue="type"
+          (blur)="onTouched()"
+          (onChange)="onChange(value)"
+        />
       </td>
       <td>
-        <nb-select class="w-full" [(selected)]="item.trackNum" (blur)="onTouched()" (selectedChange)="onChange(value)">
-          <nb-option *ngFor="let i of getAvailableTrackNums(item.trackType)" [value]="i"
-            >{{ item.trackType === TrackType.BONUS ? 'Track ' + (i + 1) : 'Main Track' }}
-          </nb-option>
-        </nb-select>
+        <p-dropdown
+          *ngIf="item.trackType === TrackType.BONUS"
+          class="w-full"
+          [(ngModel)]="item.trackNum"
+          [options]="availableBonusTrackNums"
+          (blur)="onTouched()"
+          (onChange)="onChange(value)"
+        />
       </td>
       <td>
-        <nb-select class="w-full" [(selected)]="item.tier" (blur)="onTouched()" (selectedChange)="onChange(value)">
-          <nb-option *ngFor="let tier of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" [value]="tier">{{ tier }}</nb-option>
-        </nb-select>
+        <p-dropdown
+          class="w-full"
+          [(ngModel)]="item.tier"
+          [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+          (blur)="onTouched()"
+          (onChange)="onChange(value)"
+        />
       </td>
       <td class="ml-auto">
         <input type="checkbox" [(ngModel)]="item.ranked" (blur)="onTouched()" (ngModelChange)="onChange(value)" />

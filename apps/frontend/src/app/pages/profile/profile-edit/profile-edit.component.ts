@@ -31,17 +31,18 @@ import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   standalone: true,
-  imports: [SharedModule, UserSearchComponent]
+  imports: [SharedModule, UserSearchComponent, DropdownModule]
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
-  protected readonly AlphabeticalCountryCode = Object.fromEntries(
-    Object.entries(ISOCountryCode).sort(([_, a], [__, b]) => a.localeCompare(b))
-  );
+  protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)
+    .sort(([_, a], [__, b]) => a.localeCompare(b))
+    .map(([code, label]) => ({ code, label }));
   protected readonly Role = Role;
   protected readonly Ban = Ban;
   protected readonly SocialsData = SocialsData as Readonly<
@@ -142,16 +143,16 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
             }
           }
 
+          this.isLocal = true;
           this.localUserService.refreshLocalUser();
           return this.localUserService.localUserSubject.pipe(
-            take(1),
             tap((user) => {
               this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
               this.isModerator = this.localUserService.hasRole(
                 Role.MODERATOR,
                 user
               );
-              if (this.isLocal) this.setUser(user);
+              this.setUser(user);
             })
           );
         }),

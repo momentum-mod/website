@@ -7,7 +7,6 @@ import {
   NbDatepickerModule,
   NbListModule,
   NbRadioModule,
-  NbSelectModule,
   NbTabsetModule,
   NbThemeModule,
   NbUserModule
@@ -18,7 +17,6 @@ const NEBULAR_MODULES = [
   NbUserModule,
   NbListModule,
   NbRadioModule,
-  NbSelectModule,
   NbAccordionModule,
   NbAlertModule
 ];

@@ -15,14 +15,8 @@
         <input class="m-textinput" type="text" placeholder="Map" formControlName="map" />
       </div>
       <div class="relative text-left md:flex-1 md:flex-grow md:text-center">
-        <nb-select placeholder="Sort by" formControlName="orderBy">
-          <nb-option [value]="OrderBy.DATE">Sort by Date</nb-option>
-          <nb-option [value]="OrderBy.RUN_TIME">Sort by Time</nb-option>
-        </nb-select>
-        <nb-select placeholder="Order" formControlName="order">
-          <nb-option [value]="Order.ASC">Ascending</nb-option>
-          <nb-option [value]="Order.DESC">Descending</nb-option>
-        </nb-select>
+        <p-dropdown formControlName="orderBy" [options]="OrderByDropdown" optionValue="value" optionLabel="label" placeholder="Sort by" />
+        <p-dropdown formControlName="order" [options]="OrderDropdown" optionValue="value" optionLabel="label" placeholder="Order" />
       </div>
       <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
         <button class="m-btn m-btn-green" (click)="onFilterApply()">Apply</button>
