@@ -26,6 +26,7 @@ import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { TabViewModule } from 'primeng/tabview';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -39,7 +40,8 @@ const youtubeRegex = /[\w-]{11}/;
     CdkDrag,
     CdkDropList,
     MapCreditsComponent,
-    FileUploadComponent
+    FileUploadComponent,
+    TabViewModule
   ]
 })
 export class MapEditComponent implements OnInit, OnDestroy {

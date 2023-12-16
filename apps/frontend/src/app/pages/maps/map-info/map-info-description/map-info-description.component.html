@@ -1,7 +1,7 @@
 <p class="mb-3 block p-6">{{ map.info.description }}</p>
 <!-- TODO: Styling here is terrible, needs doing properly! -->
-<nb-tabset class="rounded bg-black bg-opacity-25" *ngIf="map.leaderboards.length > 0; else elseBlock">
-  <nb-tab *ngFor="let kv of sortedLeaderboards | keyvalue" [tabTitle]="GamemodeName.get(kv.key)">
+<p-tabView class="rounded bg-black bg-opacity-25" *ngIf="map.leaderboards.length > 0; else elseBlock">
+  <p-tabPanel *ngFor="let kv of sortedLeaderboards | keyvalue" [header]="GamemodeName.get(kv.key)">
     <div class="flex flex-wrap">
       <div class="w-1/2">
         <h3>{{ kv.value.get(TrackType.MAIN)[0].linear ? 'Linear' : 'Staged' }} main track</h3>
@@ -25,6 +25,6 @@
         </div>
       </div>
     </div>
-  </nb-tab>
-</nb-tabset>
+  </p-tabPanel>
+</p-tabView>
 <ng-template #elseBlock><span>No track data found.</span></ng-template>

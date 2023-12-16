@@ -1,13 +1,3 @@
-nb-tabset ::ng-deep .tabset {
-  overflow-x: auto;
-  padding-bottom: 0.25rem !important;
-
-  .tab {
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
 .justify-content-evenly {
   justify-content: space-evenly;
 }

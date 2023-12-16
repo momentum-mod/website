@@ -26,6 +26,7 @@ import { CardHeaderComponent } from '../../../components/card/card-header.compon
 import { CardComponent } from '../../../components/card/card.component';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'm-map-info',
@@ -43,7 +44,8 @@ import { DialogService } from 'primeng/dynamicdialog';
     ReportButtonComponent,
     CardHeaderComponent,
     CardComponent,
-    TooltipDirective
+    TooltipDirective,
+    TabViewModule
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {
