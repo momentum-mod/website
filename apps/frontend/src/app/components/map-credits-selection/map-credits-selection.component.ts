@@ -18,12 +18,12 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import { NbUserModule } from '@nebular/theme';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { Enum } from '@momentum/enum';
 import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
 import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'm-map-credits-selection',
@@ -40,13 +40,13 @@ import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
     NgFor,
     CdkDropList,
     CdkDrag,
-    NbUserModule,
     IconComponent,
     FormsModule,
     UserSearchComponent,
     NgIf,
     KeyValuePipe,
-    TooltipDirective
+    TooltipDirective,
+    AvatarComponent
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {

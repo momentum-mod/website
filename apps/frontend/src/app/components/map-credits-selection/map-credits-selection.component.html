@@ -17,7 +17,7 @@
       class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5"
       cdkDrag
     >
-      <nb-user class="mr-2" [picture]="credit.user.avatarURL" onlyPicture />
+      <m-avatar class="mr-2" [url]="credit.user.avatarURL" />
       <div class="flex flex-grow flex-col">
         <div class="flex">
           <span class="mr-3 flex-grow">{{ credit.user.alias }}</span>

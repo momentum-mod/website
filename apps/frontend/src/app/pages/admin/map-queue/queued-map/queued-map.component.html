@@ -18,7 +18,10 @@
           <li>{{ map?.name }}</li>
           <li>{{ map?.createdAt | date }}</li>
           <li>
-            <nb-user class="inline-block" [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small" />
+            <a [routerLink]="'/profile/' + map?.submitter?.id" class="flex items-center gap-2">
+              <m-avatar class="h-6" [url]="map?.submitter.avatarURL" />
+              <p>{{ map?.submitter.alias }}</p>
+            </a>
           </li>
         </ul>
       </div>

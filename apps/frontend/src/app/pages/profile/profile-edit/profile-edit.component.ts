@@ -32,12 +32,13 @@ import { UserSearchComponent } from '../../../components/search/user-search/user
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { AvatarComponent } from '../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   standalone: true,
-  imports: [SharedModule, UserSearchComponent, DropdownModule]
+  imports: [SharedModule, UserSearchComponent, DropdownModule, AvatarComponent]
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)

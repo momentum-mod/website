@@ -4,12 +4,13 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { MapStatusName } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { AvatarComponent } from '../../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-map-list-item',
   templateUrl: './map-list-item.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, AvatarComponent]
 })
 export class MapListItemComponent implements OnInit {
   @Input() map: MMap;

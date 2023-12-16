@@ -10,6 +10,7 @@ import {
 
 import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
+import { AvatarComponent } from '../../../components/avatar/avatar.component';
 
 enum SearchState {
   HIDDEN,
@@ -27,7 +28,13 @@ enum SearchState {
   templateUrl: './map-credits.component.html',
   styleUrls: ['./map-credits.component.css'],
   standalone: true,
-  imports: [SharedModule, CdkDropList, CdkDrag, UserSearchComponent]
+  imports: [
+    SharedModule,
+    CdkDropList,
+    CdkDrag,
+    UserSearchComponent,
+    AvatarComponent
+  ]
 })
 export class MapCreditsComponent {
   protected readonly MapCreditType = MapCreditType;

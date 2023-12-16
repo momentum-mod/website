@@ -10,7 +10,7 @@
   </div>
   <div class="flex flex-col overflow-y-auto rounded bg-black bg-opacity-25 py-2 md:w-full lg:w-1/2">
     <div *ngFor="let user of users" class="flex items-center bg-white bg-opacity-0 p-2 px-4 transition-colors hover:bg-opacity-5">
-      <nb-user class="mr-2" [picture]="user.avatarURL" onlyPicture />
+      <m-avatar class="h-6" [url]="user.avatarURL" />
       <span class="mr-3 flex-grow">{{ user.alias }}</span>
       <button class="btn bg-red-900 transition-colors hover:bg-red-800" (click)="removeUser(user.id)">Delete</button>
     </div>

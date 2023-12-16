@@ -78,8 +78,9 @@
           </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
-              <a [routerLink]="'/profile/' + usr.followed?.id">
-                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL"></nb-user>
+              <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
+                <m-avatar [url]="usr.followed?.avatarURL" />
+                <p>{{ usr.followed?.alias }}</p>
               </a>
             </nb-list-item>
           </nb-list>
@@ -90,8 +91,9 @@
           </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
-              <a [routerLink]="'/profile/' + usr.followee?.id">
-                <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL"></nb-user>
+              <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
+                <m-avatar [url]="usr.followee?.avatarURL" />
+                <p>{{ usr.followee?.alias }}</p>
               </a>
             </nb-list-item>
           </nb-list>

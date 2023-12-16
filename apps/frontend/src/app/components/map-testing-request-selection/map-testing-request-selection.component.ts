@@ -1,10 +1,10 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
-import { NbUserModule } from '@nebular/theme';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { NgClass, NgFor } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'm-map-testing-request-selection',
@@ -17,7 +17,13 @@ import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
     }
   ],
   standalone: true,
-  imports: [NgClass, UserSearchComponent, NgFor, NbUserModule, TooltipDirective]
+  imports: [
+    NgClass,
+    UserSearchComponent,
+    NgFor,
+    TooltipDirective,
+    AvatarComponent
+  ]
 })
 export class MapTestingRequestSelectionComponent
   implements ControlValueAccessor

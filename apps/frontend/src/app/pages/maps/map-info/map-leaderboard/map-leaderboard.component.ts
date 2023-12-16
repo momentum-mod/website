@@ -14,6 +14,7 @@ import { Observable } from 'rxjs';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
+import { AvatarComponent } from '../../../../components/avatar/avatar.component';
 
 enum LeaderboardType {
   TOP10,
@@ -25,7 +26,7 @@ enum LeaderboardType {
   selector: 'm-map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
   standalone: true,
-  imports: [SharedModule, DropdownModule]
+  imports: [SharedModule, DropdownModule, AvatarComponent]
 })
 export class MapLeaderboardComponent {
   protected readonly LeaderboardType = LeaderboardType;

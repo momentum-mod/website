@@ -4,7 +4,7 @@
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, type.key)" class="mb-4">
         <a class="flex" [routerLink]="'/profile/' + credit?.user.id">
-          <nb-user class="avatar" [picture]="credit?.user.avatarURL" onlyPicture />
+          <m-avatar class="!h-8" [url]="credit?.user.avatarURL" />
           <div class="ml-2">
             <span class="block text-white">{{ credit.user.alias }}</span>
             <span class="block text-gray-300">{{ credit.description }}</span>

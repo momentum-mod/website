@@ -11,12 +11,13 @@ import { AdminService, MapsService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { AvatarComponent } from '../../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-queued-map',
   templateUrl: './queued-map.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, AvatarComponent]
 })
 export class QueuedMapComponent {
   protected readonly MapUploadStatus = MapStatus;
