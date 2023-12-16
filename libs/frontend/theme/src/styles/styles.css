@@ -104,7 +104,7 @@
 
   .m-textinput {
     padding: 0.5rem 1rem;
-    line-height: 1.25rem;
+    /*line-height: 1.25rem;*/
     border-radius: 0.25rem;
 
     @apply border border-white border-opacity-[0.025];
