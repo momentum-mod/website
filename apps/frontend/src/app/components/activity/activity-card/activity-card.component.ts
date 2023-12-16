@@ -6,6 +6,8 @@ import { Activity, PagedResponse, User } from '@momentum/constants';
 import { ActivityListComponent } from '../activity-list/activity-list.component';
 import { NbSelectModule, NbOptionModule } from '@nebular/theme';
 import { CardComponent } from '../../card/card.component';
+import { DropdownModule } from 'primeng/dropdown';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'm-activity-card',
@@ -15,11 +17,18 @@ import { CardComponent } from '../../card/card.component';
     NbSelectModule,
     NbOptionModule,
     ActivityListComponent,
-    CardComponent
+    CardComponent,
+    DropdownModule,
+    FormsModule
   ]
 })
 export class ActivityCardComponent implements OnInit {
-  protected readonly ActivityType = ActivityType;
+  protected readonly Types = [
+    { value: ActivityType.ALL, label: 'All' },
+    { value: ActivityType.MAP_APPROVED, label: 'Maps Only' },
+    { value: ActivityType.PB_ACHIEVED, label: 'PBs Only' },
+    { value: ActivityType.WR_ACHIEVED, label: 'WRs Only' }
+  ];
 
   @Input() headerTitle = 'Activity';
   @Input() follow: boolean;
@@ -41,7 +50,7 @@ export class ActivityCardComponent implements OnInit {
 
   filterActivites(acts: Activity[]): void {
     this.filteredActivities =
-      this.filterValue === this.ActivityType.ALL
+      this.filterValue === ActivityType.ALL
         ? acts
         : acts.filter((value) => value.type === this.filterValue);
   }

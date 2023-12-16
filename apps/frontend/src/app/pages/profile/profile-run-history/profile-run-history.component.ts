@@ -6,16 +6,24 @@ import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { PastRunsService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, DropdownModule]
 })
 export class ProfileRunHistoryComponent implements OnInit {
-  protected readonly OrderBy = RunsGetAllOrder;
-  protected readonly Order = Order;
+  protected readonly OrderByDropdown = [
+    { label: 'Sort by Date', type: RunsGetAllOrder.DATE },
+    { label: 'Sort by Time', type: RunsGetAllOrder.RUN_TIME }
+  ];
+
+  protected readonly OrderDropdown = [
+    { label: 'Ascending', type: Order.ASC },
+    { label: 'Descending', type: Order.DESC }
+  ];
 
   @Input() userSubject: Observable<User>;
   user: User;

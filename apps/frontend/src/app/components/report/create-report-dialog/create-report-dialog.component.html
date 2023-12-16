@@ -1,14 +1,9 @@
 <form [formGroup]="createReportForm">
   <div class="mb-4">
     <label class="mr-3">Category</label>
-    <nb-select placeholder="Choose one" formControlName="category">
-      <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
-      <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
-      <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
-      <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
-    </nb-select>
+    <p-dropdown [options]="Categories" optionLabel="label" optionValue="value" formControlName="category" placeholder="Select category" />
   </div>
-  <div class="m-0 mb-4">
+  <div class="mb-4">
     <label>Message</label>
     <textarea rows="8" class="m-textinput mb-1" [maxLength]="1000" formControlName="message"></textarea>
   </div>

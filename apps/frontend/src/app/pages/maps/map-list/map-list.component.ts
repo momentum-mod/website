@@ -21,22 +21,25 @@ import { Enum } from '@momentum/enum';
 import { SharedModule } from '../../../shared.module';
 import { MapListItemComponent } from './map-list-item/map-list-item.component';
 import { MessageService } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'm-map-list',
   templateUrl: './map-list.component.html',
   standalone: true,
-  imports: [SharedModule, MapListItemComponent]
+  imports: [SharedModule, MapListItemComponent, DropdownModule]
 })
 export class MapListComponent implements OnInit {
   @Input() isUpload = false;
 
+  // TODO: "empty" field here is due to not switching to MapStatusNew yet (I think!)
   statuses: { value?: MapStatus; text: string }[] = [
     { value: undefined, text: 'All' },
     ...Enum.values(MapStatus)
       .map((status) => ({ value: status, text: MapStatusName.get(status) }))
       .sort((a, b) => (a.text > b.text ? 1 : -1))
   ];
+
   types: { value: Gamemode; text: string }[] = [
     { value: undefined, text: 'All' },
     ...Enum.values(Gamemode)

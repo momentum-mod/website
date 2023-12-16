@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NbSelectModule, NbOptionModule } from '@nebular/theme';
 import {
   FormBuilder,
   Validators,
@@ -11,20 +10,25 @@ import { ReportCategory, ReportType } from '@momentum/constants';
 import { CardComponent } from '../../card/card.component';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
   standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    NbSelectModule,
-    NbOptionModule,
-    CardComponent
-  ]
+  imports: [FormsModule, ReactiveFormsModule, CardComponent, DropdownModule]
 })
 export class CreateReportDialogComponent implements OnInit {
+  protected readonly Categories = [
+    {
+      value: ReportCategory.INAPPROPRIATE_CONTENT,
+      label: 'Inappropriate Content'
+    },
+    { value: ReportCategory.SPAM, label: 'Spam' },
+    { value: ReportCategory.PLAGIARISM, label: 'Plagiarism' },
+    { value: ReportCategory.OTHER, label: 'Other' }
+  ];
+
   @Input() reportType: ReportType;
   @Input() reportData: number;
 

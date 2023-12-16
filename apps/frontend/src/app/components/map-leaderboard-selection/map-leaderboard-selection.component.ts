@@ -12,9 +12,10 @@ import {
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
-import { NbSelectModule, NbOptionModule } from '@nebular/theme';
-import { NgClass, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { PipesModule } from '@momentum/frontend/pipes';
+import { Enum } from '@momentum/enum';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'm-map-leaderboards-selection',
@@ -27,25 +28,36 @@ import { PipesModule } from '@momentum/frontend/pipes';
     }
   ],
   standalone: true,
-  imports: [
-    NgClass,
-    NgFor,
-    NbSelectModule,
-    NbOptionModule,
-    FormsModule,
-    PipesModule
-  ]
+  imports: [CommonModule, FormsModule, PipesModule, DropdownModule]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
-  protected readonly Gamemode = Gamemode;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({
+    gamemode,
+    label: GamemodeName.get(gamemode)
+  }));
+
   protected readonly TrackType = TrackType;
+  protected readonly TrackTypes = [
+    { type: TrackType.MAIN, label: 'Main' },
+    { type: TrackType.BONUS, label: 'Bonus' }
+  ];
   protected readonly MAX_MAP_SUGGESTION_COMMENT_LENGTH =
     MAX_MAP_SUGGESTION_COMMENT_LENGTH;
 
   protected value: MapSubmissionSuggestion[] = [];
   protected disabled = false;
-  public zones: MapZones | null = null;
+
+  availableBonusTrackNums: number[] = [];
+  private _zones: MapZones | null = null;
+  get zones() {
+    return this._zones;
+  }
+
+  set zones(zones: MapZones | null) {
+    this._zones = zones;
+    this.availableBonusTrackNums =
+      zones?.tracks?.bonuses?.map((_, i) => i) ?? [];
+  }
 
   @Input() defaultMode?: Gamemode;
 
@@ -96,11 +108,6 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
 
     this.onChange(this.value);
     this.onTouched();
-  }
-
-  getAvailableTrackNums(type: TrackType): number[] {
-    if (type === TrackType.MAIN || !this.zones) return [0];
-    return this.zones.tracks.bonuses.map((_, i) => i);
   }
 
   writeValue(value: MapSubmissionSuggestion[] | null): void {
