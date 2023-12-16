@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MapInfoDescriptionComponent } from './map-info-description.component';
-import { NbUserModule } from '@nebular/theme';
 import { Gamemode, MapStatusNew, MMap, TrackType } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
 
@@ -10,7 +9,6 @@ describe('MapInfoDescriptionComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbUserModule],
       declarations: [MapInfoDescriptionComponent]
     }).compileComponents();
   }));

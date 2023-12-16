@@ -52,8 +52,9 @@
       <tr *ngFor="let run of leaderboardRuns">
         <td>{{ run.rank }}</td>
         <td>
-          <a [routerLink]="'/profile/' + run.user.id">
-            <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
+          <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2">
+            <m-avatar class="h-6" [url]="run.user.avatarURL" />
+            <p>{{ run.user }}</p>
           </a>
         </td>
         <td>{{ run.time | timing }}</td>

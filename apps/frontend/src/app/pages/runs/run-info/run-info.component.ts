@@ -5,12 +5,13 @@ import { LeaderboardRun, PastRun } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../../shared.module';
+import { AvatarComponent } from '../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-run-info',
   templateUrl: './run-info.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, AvatarComponent]
 })
 export class RunInfoComponent implements OnInit {
   run: PastRun;

@@ -1,7 +1,8 @@
 <m-card *ngIf="run">
   <div header class="mb-2 flex flex-wrap items-center gap-2">
-    <a class="text-xl" [routerLink]="'/profile/' + run.user.id">
-      <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
+    <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2 text-xl">
+      <m-avatar class="h-8" [url]="run.user.avatarURL" />
+      <p>{{ run.user.alias }}</p>
     </a>
     <p class="text-xl">on</p>
     <p class="text-xl">

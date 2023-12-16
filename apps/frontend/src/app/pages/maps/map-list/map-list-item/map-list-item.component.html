@@ -20,8 +20,9 @@
           </li>
           <li>{{ map.createdAt | date }}</li>
           <li>
-            <a [routerLink]="'/profile/' + map.submitter?.id">
-              <nb-user class="inline-block" [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user>
+            <a [routerLink]="'/profile/' + map.submitter?.id" class="flex items-center">
+              <m-avatar [url]="map.submitter?.avatarURL" />
+              <p>{{ map.submitter?.alias }}</p>
             </a>
           </li>
         </ul>

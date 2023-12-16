@@ -36,8 +36,9 @@
           <h6>Original Release Date: {{ map.info?.creationDate | date }}</h6>
           <h6>
             Submitted By:
-            <a [routerLink]="'/' + map.submitter?.id">
-              <nb-user [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small" class="inline-block align-middle" />
+            <a [routerLink]="'/' + map.submitter?.id" class="flex items-center gap-2">
+              <m-avatar class="h-6" [url]="map.submitter?.avatarURL" />
+              <p>{{ map.submitter?.alias }}</p>
             </a>
           </h6>
         </div>

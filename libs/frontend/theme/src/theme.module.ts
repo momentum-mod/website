@@ -7,12 +7,10 @@ import {
   NbDatepickerModule,
   NbListModule,
   NbRadioModule,
-  NbThemeModule,
-  NbUserModule
+  NbThemeModule
 } from '@nebular/theme';
 
 const NEBULAR_MODULES = [
-  NbUserModule,
   NbListModule,
   NbRadioModule,
   NbAccordionModule,

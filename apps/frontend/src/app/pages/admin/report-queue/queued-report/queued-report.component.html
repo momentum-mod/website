@@ -4,10 +4,16 @@
   <div class="w-1/6 text-left">{{ categoryText }}</div>
   <div class="w-1/6 text-left">{{ report.data }}</div>
   <div class="w-1/6 text-left">
-    <nb-user [name]="report.submitter.alias" [picture]="report.submitter.avatarURL" size="medium"></nb-user>
+    <a [routerLink]="'/profile/' + report.submitter?.id" class="flex items-center gap-2">
+      <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
+      <p>{{ report.submitter.alias }}</p>
+    </a>
   </div>
   <div class="w-1/6 text-left">
-    <nb-user *ngIf="report.resolver" [name]="report.resolver.alias" [picture]="report.resolver.avatarURL" size="medium"></nb-user>
+    <a [routerLink]="'/profile/' + report.resolver?.id" class="flex items-center gap-2">
+      <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
+      <p>{{ report.resolver.alias }}</p>
+    </a>
   </div>
   <div class="w-1/5 text-center">{{ report.message }}</div>
   <div class="w-1/5 text-center">{{ report.resolutionMessage }}</div>

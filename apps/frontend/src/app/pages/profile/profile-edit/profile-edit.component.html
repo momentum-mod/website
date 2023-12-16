@@ -102,7 +102,10 @@
               {{ mergeErr }}
             </div>
             <div *ngIf="mergeUser">
-              <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" class="mb-2" />
+              <a [routerLink]="'/profile/' + mergeUser?.id" class="flex items-center gap-2">
+                <m-avatar class="h-6" [url]="mergeUser.avatarURL" />
+                <p>{{ mergeUser.alias }}</p>
+              </a>
               <button class="m-btn mr-2 mt-1" type="button" (click)="cancelMerge()">Cancel</button>
               <button type="button" class="m-btn m-btn-orange" (click)="mergeUsers()">Merge To User</button>
             </div>

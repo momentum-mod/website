@@ -22,6 +22,7 @@ import { ReportButtonComponent } from '../../components/report/report-button/rep
 import { MessageService } from 'primeng/api';
 import { RoleBadgesComponent } from '../../components/roles/role-badges.component';
 import { TabViewModule } from 'primeng/tabview';
+import { AvatarComponent } from '../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -36,7 +37,8 @@ import { TabViewModule } from 'primeng/tabview';
     ProfileRunHistoryComponent,
     ProfileCreditsComponent,
     RoleBadgesComponent,
-    TabViewModule
+    TabViewModule,
+    AvatarComponent
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
