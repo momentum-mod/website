@@ -115,5 +115,12 @@ module.exports = {
       addVariant('invalidchild', '&:has( .ng-invalid.ng-dirty)');
       addVariant('pendingchild', '&:has( .ng-pending.ng-dirty)');
     })
+  ],
+  safelist: [
+    {
+      // We set these dynamically in code in some places, treeshaker doesn't
+      // pick them up.
+      pattern: /text-(red|green|blue|orange|indigo|yellow)/
+    }
   ]
 };
