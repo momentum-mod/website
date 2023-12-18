@@ -12,6 +12,7 @@ import { AbstractSearchComponent } from './abstract-search.component';
 import { RouterLink } from '@angular/router';
 import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 import { RoleBadgesComponent } from '../../roles/role-badges.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
 
 @Component({
   selector: 'm-user-search',
@@ -30,7 +31,8 @@ import { RoleBadgesComponent } from '../../roles/role-badges.component';
     NgOptimizedImage,
     RouterLink,
     TooltipDirective,
-    RoleBadgesComponent
+    RoleBadgesComponent,
+    SpinnerDirective
   ]
 })
 export class UserSearchComponent extends AbstractSearchComponent<User> {

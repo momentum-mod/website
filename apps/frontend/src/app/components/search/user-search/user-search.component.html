@@ -1,7 +1,7 @@
 <div class="mb-2 flex w-full items-center gap-4">
   <input
     class="m-textinput flex-grow"
-    [nbSpinner]="search.status === 'PENDING'"
+    [mSpinner]="search.status === 'PENDING'"
     [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
     [formControl]="search"
     type="text"
