@@ -299,4 +299,14 @@
   .prose {
     @apply prose-invert;
   }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.3);
+  }
 }
