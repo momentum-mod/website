@@ -1,10 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '@momentum/frontend/icons';
 import { LocalUserService } from '@momentum/frontend/data';
-import { Subject } from 'rxjs';
 import { CombinedRoles } from '@momentum/constants';
-import { takeUntil } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { LayoutService, SidenavState } from '../../services/layout.service';
 import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
@@ -17,13 +15,10 @@ import { SIDENAV_ITEMS } from '../../side-menu.const';
   standalone: true,
   imports: [IconComponent, RouterLink, CommonModule, TooltipDirective]
 })
-export class SidenavComponent implements OnInit, OnDestroy {
-  protected readonly SidenavState = SidenavState;
+export class SidenavComponent implements OnInit {
   protected state: SidenavState;
   protected isLoggedIn = false;
   protected isMod = false;
-
-  private readonly ngUnsub = new Subject<void>();
 
   constructor(
     private readonly localUserService: LocalUserService,
@@ -33,18 +28,13 @@ export class SidenavComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.handleLoggedInState();
 
-    this.layoutService.sidenavToggled
-      .pipe(takeUntil(this.ngUnsub))
-      .subscribe((state) => (this.state = state));
+    this.layoutService.sidenavToggled.subscribe((state) => {
+      this.state = state;
+    });
 
-    this.localUserService.localUserSubject
-      .pipe(takeUntil(this.ngUnsub))
-      .subscribe(this.handleLoggedInState.bind(this));
-  }
-
-  ngOnDestroy() {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
+    this.localUserService.localUserSubject.subscribe(
+      this.handleLoggedInState.bind(this)
+    );
   }
 
   handleLoggedInState() {

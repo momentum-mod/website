@@ -5,14 +5,22 @@
 nav {
   display: flex;
   flex-direction: column;
+  position: fixed;
+  overflow-y: auto;
 
   width: 15rem;
   height: 100%;
   padding: 0.5rem 0;
 
-  border-right: 1px solid rgba(255, 255, 255, 0.075);
-  background-color: rgba(255, 255, 255, 0.025);
-  backdrop-filter: blur(16px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 1px 0 12px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(
+    90deg,
+    rgba(40, 40, 40, 0.5),
+    rgba(50, 50, 50, 0.5)
+  );
+
+  backdrop-filter: blur(36px) saturate(1.25);
 
   & p.category {
     pointer-events: none;
@@ -22,15 +30,19 @@ nav {
     padding: 0 2rem;
     font-weight: 600;
     text-transform: uppercase;
-    @apply font-medium text-sm text-gray-300;
+    color: rgb(236, 236, 236);
+
+    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.1))
+      drop-shadow(1px 2px 12px rgba(0, 0, 0, 0.2));
+    @apply font-medium text-sm;
   }
 
   & a.item {
     display: flex;
     justify-items: center;
-    height: 2.5rem;
-    padding: 0 2rem;
-    @apply text-gray-50 bg-blue-500 bg-opacity-0 border-blue-500  border-opacity-0 transition-colors;
+    font-size: 1rem;
+    padding: 0.25rem 2rem;
+    @apply text-gray-50 bg-blue-500 bg-opacity-0 border-blue-500 border-opacity-0 transition-colors;
 
     &:hover {
       @apply bg-opacity-25 border-opacity-100;
@@ -38,11 +50,17 @@ nav {
 
     & m-icon {
       margin: auto 0;
+      filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3))
+        drop-shadow(1px 2px 16px rgba(0, 0, 0, 0.2));
     }
 
     & p {
       margin: auto 0 auto 0.75rem;
-      @apply text-lg font-light;
+      font-weight: 300;
+      text-shadow:
+        1px 1px 2px rgba(0, 0, 0, 0.4),
+        1px 2px 8px rgba(0, 0, 0, 0.2);
+      @apply text-lg;
     }
   }
 }
@@ -63,7 +81,7 @@ nav.smol {
   }
 
   & a.item {
-    padding: 0;
+    padding: 0.375rem 0;
 
     & m-icon {
       margin: auto;
