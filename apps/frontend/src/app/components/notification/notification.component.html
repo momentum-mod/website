@@ -1,8 +1,10 @@
-<nb-list>
-  <nb-list-item *ngIf="notifications.length === 0">
+<!-- TODO: This component probably wants infinite scrolling and general cleanup,
+     not worth doing until we rework notifications though. -->
+<ul>
+  <li *ngIf="notifications.length === 0">
     <span class="italic">No notifications</span>
-  </nb-list-item>
-  <nb-list-item *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{ 'bg-blue-500': !notification.read }">
+  </li>
+  <li *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{ 'bg-blue-500': !notification.read }">
     <m-activity-content
       [activity]="notification.activity"
       [dateNone]="true"
@@ -20,5 +22,5 @@
     >
       <m-icon icon="close-circle-outline" />
     </button>
-  </nb-list-item>
-</nb-list>
+  </li>
+</ul>

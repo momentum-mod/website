@@ -23,8 +23,8 @@
       </div>
     </div>
   </div>
-  <nb-list>
-    <nb-list-item
+  <ul>
+    <li
       *ngFor="
         let run of runHistory
           | paginate
@@ -48,8 +48,8 @@
         </div>
         <div class="text col-auto ml-auto">{{ run.createdAt | timeAgo }}</div>
       </div>
-    </nb-list-item>
-  </nb-list>
+    </li>
+  </ul>
   <div class="text-center">
     <pagination-controls id="run-history" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
   </div>

@@ -2,8 +2,8 @@
   <div *ngFor="let type of MapCreditNames | keyvalue" class="mb-4 w-full pl-4 pr-4 md:w-1/2 lg:w-1/4">
     <h4>{{ type.value }}</h4>
     <ng-container *ngIf="credits[type.key].length > 0">
-      <nb-list cdkDropList (cdkDropListDropped)="drop($event, type.key)">
-        <nb-list-item *ngFor="let credit of credits[type.key]" cdkDrag>
+      <ul cdkDropList (cdkDropListDropped)="drop($event, type.key)">
+        <li *ngFor="let credit of credits[type.key]" cdkDrag>
           <m-avatar class="avatar" [url]="credit.user.avatarURL" />
           <div class="main">
             <span class="name">{{ credit.user.alias }}</span>
@@ -13,8 +13,8 @@
           <button class="m-btn m-btn-red" *ngIf="editable" (click)="removeUser(type.key, credit.user)">
             <m-icon icon="close-thick" />
           </button>
-        </nb-list-item>
-      </nb-list>
+        </li>
+      </ul>
     </ng-container>
     <div class="search-wrapper" *ngIf="searchStates[type.key] !== SearchState.HIDDEN">
       <div class="selected-warning" *ngIf="searchStates[type.key] === SearchState.USER_ALREADY_SELECTED">User already selected!</div>

@@ -76,27 +76,27 @@
           <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
             <i>Not following anyone</i>
           </h5>
-          <nb-list>
-            <nb-list-item *ngFor="let usr of followingUsers">
+          <ul>
+            <li *ngFor="let usr of followingUsers">
               <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
                 <m-avatar [url]="usr.followed?.avatarURL" />
                 <p>{{ usr.followed?.alias }}</p>
               </a>
-            </nb-list-item>
-          </nb-list>
+            </li>
+          </ul>
         </p-tabPanel>
         <p-tabPanel header="Followers ({{ followedByUsers.length }})">
           <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0">
             <i>No followers</i>
           </h5>
-          <nb-list>
-            <nb-list-item *ngFor="let usr of followedByUsers">
+          <ul>
+            <li *ngFor="let usr of followedByUsers">
               <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
                 <m-avatar [url]="usr.followee?.avatarURL" />
                 <p>{{ usr.followee?.alias }}</p>
               </a>
-            </nb-list-item>
-          </nb-list>
+            </li>
+          </ul>
         </p-tabPanel>
         <p-tabPanel header="Stats" *ngIf="user.userStats">
           <div class="flex flex-wrap justify-around text-center">

@@ -37,8 +37,8 @@
   </form>
 </div>
 <div *ngIf="requestSent && maps?.length">
-  <nb-list class="overflow-hidden">
-    <nb-list-item
+  <ul>
+    <li
       *ngFor="
         let map of maps
           | paginate
@@ -58,8 +58,8 @@
         [inFavorites]="isMapInFavorites(map)"
         (favoriteUpdate)="favoriteUpdate()"
       />
-    </nb-list-item>
-  </nb-list>
+    </li>
+  </ul>
   <div class="text-center">
     <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
   </div>

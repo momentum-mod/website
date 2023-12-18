@@ -20,8 +20,8 @@
   <div class="mt-5 text-center" *ngIf="!reportQueue?.length && !isLoading">
     <i>There are no reports that match the search criteria.</i>
   </div>
-  <nb-list>
-    <nb-list-item
+  <ul>
+    <li
       *ngFor="
         let report of reportQueue
           | paginate
@@ -35,8 +35,8 @@
       class="basis-full"
     >
       <m-queued-report [report]="report" (reportUpdate)="loadReportQueue()" />
-    </nb-list-item>
-  </nb-list>
+    </li>
+  </ul>
   <div class="text-center">
     <pagination-controls
       id="report-queue-page-ctrl"

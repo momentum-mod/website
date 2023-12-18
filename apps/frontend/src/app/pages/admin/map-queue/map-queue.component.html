@@ -1,8 +1,8 @@
 <m-card title="Map Queue">
   <p-tabView>
     <p-tabPanel header="Mapper Submissions">
-      <nb-list class="overflow-hidden">
-        <nb-list-item
+      <ul>
+        <li
           *ngFor="
             let map of priorityQueue
               | paginate
@@ -16,8 +16,8 @@
           class="basis-full"
         >
           <m-queued-map [map]="map" (statusUpdate)="loadMapQueue(true)" />
-        </nb-list-item>
-      </nb-list>
+        </li>
+      </ul>
       <div class="text-center">
         <pagination-controls
           id="priority-page-ctrl"
@@ -31,8 +31,8 @@
       </div>
     </p-tabPanel>
     <p-tabPanel header="Non-Mapper Submissions">
-      <nb-list class="overflow-hidden">
-        <nb-list-item
+      <ul>
+        <li
           *ngFor="
             let map of nonPriorityQueue
               | paginate
@@ -45,8 +45,8 @@
           "
         >
           <m-queued-map [map]="map" (statusUpdate)="loadMapQueue(false)" />
-        </nb-list-item>
-      </nb-list>
+        </li>
+      </ul>
       <div class="text-center">
         <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)" [autoHide]="true" [responsive]="true" />
       </div>
