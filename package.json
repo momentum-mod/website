@@ -25,7 +25,6 @@
     "@fastify/swagger": "8.12.0",
     "@fontsource/roboto": "5.0.8",
     "@mdi/js": "7.3.67",
-    "@nebular/theme": "12.0.0",
     "@nest-lab/fastify-multer": "1.2.0",
     "@nestjs/axios": "3.0.1",
     "@nestjs/common": "10.2.10",
@@ -137,25 +136,5 @@
     "type-fest": "4.8.2",
     "typescript": "5.2.2",
     "webpack-bundle-analyzer": "4.10.1"
-  },
-  "overrides": {
-    "@nebular/auth": {
-      "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core",
-      "@angular/forms": "$@angular/forms",
-      "@angular/router": "$@angular/router"
-    },
-    "@nebular/security": {
-      "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core",
-      "@angular/router": "$@angular/router"
-    },
-    "@nebular/theme": {
-      "@angular/animations": "$@angular/animations",
-      "@angular/cdk": "$@angular/cdk",
-      "@angular/common": "$@angular/common",
-      "@angular/core": "$@angular/core",
-      "@angular/router": "$@angular/router"
-    }
   }
 }
