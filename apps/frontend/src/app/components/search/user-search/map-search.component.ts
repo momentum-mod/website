@@ -8,6 +8,7 @@ import { IconComponent } from '@momentum/frontend/icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
 
 @Component({
   selector: 'm-map-search',
@@ -23,7 +24,8 @@ import { AbstractSearchComponent } from './abstract-search.component';
     PaginatorModule,
     OverlayPanelModule,
     NgIf,
-    NgOptimizedImage
+    NgOptimizedImage,
+    SpinnerDirective
   ]
 })
 export class MapSearchComponent extends AbstractSearchComponent<MMap> {

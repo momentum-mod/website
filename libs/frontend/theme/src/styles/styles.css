@@ -264,6 +264,14 @@
   .m-badge-orange {
     @apply bg-orange-400 hover:bg-orange-500;
   }
+
+  .m-spinner-container:not(.m-spinner-container--active) > m-spinner {
+    display: none;
+  }
+
+  .m-spinner-container--active > *:not(m-spinner) {
+    opacity: 0.8;
+  }
 }
 
 @layer utilities {
