@@ -5,11 +5,10 @@ import {
   NbAccordionModule,
   NbAlertModule,
   NbDatepickerModule,
-  NbRadioModule,
   NbThemeModule
 } from '@nebular/theme';
 
-const NEBULAR_MODULES = [NbRadioModule, NbAccordionModule, NbAlertModule];
+const NEBULAR_MODULES = [NbAccordionModule, NbAlertModule];
 
 @NgModule({
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ...NEBULAR_MODULES],
