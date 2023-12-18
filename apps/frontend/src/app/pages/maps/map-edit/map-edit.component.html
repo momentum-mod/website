@@ -16,9 +16,9 @@
             type="description"
             [ngClass]="{ 'form-control-danger': description.invalid }"
           ></textarea>
-          <nb-alert class="mb-0 mt-2 px-3 py-2 text-red-600" outline="danger" *ngIf="description.hasError('maxlength')">
+          <div class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="description.hasError('maxlength')">
             Text cannot exceed 1000 characters.
-          </nb-alert>
+          </div>
           <span class="mr-2 mt-2 block justify-end">{{ 1000 - description.value.length | plural: 'character' }} remaining</span>
         </div>
         <button class="m-btn m-btn-blue" type="submit" [disabled]="infoForm.invalid">Save info</button>

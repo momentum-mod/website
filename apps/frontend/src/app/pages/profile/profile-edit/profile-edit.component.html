@@ -11,15 +11,15 @@
               <button class="m-btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
             </div>
           </div>
-          <nb-alert class="mb-0 mt-3 px-3 py-2 text-red-600" outline="danger" *ngIf="alias.hasError('minlength')">
+          <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="alias.hasError('minlength')">
             Username must be at least 3 characters.
-          </nb-alert>
-          <nb-alert class="mb-0 mt-3 px-3 py-2 text-red-600" outline="danger" *ngIf="alias.hasError('maxlength')">
+          </p>
+          <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="alias.hasError('maxlength')">
             Username cannot exceed 32 characters.
-          </nb-alert>
-          <nb-alert class="mb-0 mt-3 px-3 py-2 text-red-600" outline="danger" *ngIf="alias.hasError('required') && alias.dirty">
+          </p>
+          <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="alias.hasError('required') && alias.dirty">
             Username is required.
-          </nb-alert>
+          </p>
         </div>
 
         <div class="mb-4">
@@ -30,9 +30,9 @@
         <div class="mb-4" [ngClass]="{ 'has-error': !bio.valid }">
           <h3>Bio</h3>
           <textarea rows="6" class="m-textinput mb-1 w-full" formControlName="bio" type="bio" #description></textarea>
-          <nb-alert class="mb-0 mt-2 px-3 py-2 text-red-600" outline="danger" *ngIf="bio.hasError('maxlength')">
+          <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="bio.hasError('maxlength')">
             Text cannot exceed 1000 characters.
-          </nb-alert>
+          </p>
           <span class="mr-2 mt-2 flex justify-end">{{ 1000 - description.value.length | plural: 'character' }} remaining</span>
         </div>
 
