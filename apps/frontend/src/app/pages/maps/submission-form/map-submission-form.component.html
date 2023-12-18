@@ -206,15 +206,7 @@
             </label>
             <span class="text-sm italic leading-4 text-gray-500">Required</span>
           </div>
-          <div>
-            <input
-              id="creationDate"
-              class="m-textinput input-validated w-full !max-w-full"
-              [nbDatepicker]="datepicker"
-              [formControl]="creationDate"
-            />
-            <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
-          </div>
+          <p-calendar class="w-full [&>*]:w-full" [formControl]="creationDate" />
           <label for="youtubeID" class="my-auto text-lg leading-4">
             Youtube ID
             <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
