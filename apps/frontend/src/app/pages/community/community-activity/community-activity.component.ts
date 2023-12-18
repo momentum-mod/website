@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
-import { SharedModule } from '../../../shared.module';
-import { ActivityCardComponent } from '../../../components/activity/activity-card/activity-card.component';
+import { ActivityComponent } from '../../../components/activity/activity.component';
 
 @Component({
   selector: 'm-community-activity',
-  templateUrl: './community-activity.component.html',
+  template: `<m-activity
+    headerTitle="Recent Activity"
+    [activityFetchType]="'all'"
+    height="36rem"
+  />`,
   standalone: true,
-  imports: [SharedModule, ActivityCardComponent]
+  imports: [ActivityComponent]
 })
 export class CommunityActivityComponent {}

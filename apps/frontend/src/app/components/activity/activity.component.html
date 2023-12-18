@@ -1,0 +1,24 @@
+<m-card [title]="headerTitle">
+  <ng-container header>
+    <span class="mr-2">Filter:</span>
+    <p-dropdown [options]="Types" [(ngModel)]="filterValue" optionLabel="label" optionValue="value" (onChange)="filterActivities()" />
+  </ng-container>
+  <div [mSpinner]="loading" [ngStyle]="{ height }" class="infinite-scroll-container scroll-thin overflow-y-scroll pr-4">
+    <div
+      infinite-scroll
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="100"
+      infiniteScrollContainer=".infinite-scroll-container"
+      [fromRoot]="true"
+      (scrolled)="load.next()"
+    >
+      @for (item of filteredActivities; track item.createdAt) {
+        <m-activity-content [activity]="item" />
+      } @empty {
+        @if (!loading) {
+          <p class="italics m-8 h-8 text-center text-2xl text-gray-400" *ngIf="activities.length === 0 && !loading">No activities found</p>
+        }
+      }
+    </div>
+  </div>
+</m-card>

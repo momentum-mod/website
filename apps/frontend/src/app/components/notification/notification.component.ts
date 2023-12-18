@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
-import { ActivityContentComponent } from '../activity/activity-content/activity-content.component';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { NbListModule } from '@nebular/theme';
 import { IconComponent } from '@momentum/frontend/icons';
 import { PipesModule } from '@momentum/frontend/pipes';
+import { ActivityContentComponent } from '../activity/activity-content.component';
 
 @Component({
   selector: 'm-notifications',
