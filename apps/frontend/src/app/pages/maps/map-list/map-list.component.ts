@@ -22,12 +22,18 @@ import { SharedModule } from '../../../shared.module';
 import { MapListItemComponent } from './map-list-item/map-list-item.component';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
+import { InputSwitchModule } from 'primeng/inputswitch';
 
 @Component({
   selector: 'm-map-list',
   templateUrl: './map-list.component.html',
   standalone: true,
-  imports: [SharedModule, MapListItemComponent, DropdownModule]
+  imports: [
+    SharedModule,
+    MapListItemComponent,
+    DropdownModule,
+    InputSwitchModule
+  ]
 })
 export class MapListComponent implements OnInit {
   @Input() isUpload = false;
