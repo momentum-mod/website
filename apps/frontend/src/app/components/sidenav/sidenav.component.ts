@@ -5,7 +5,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { CombinedRoles } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
 import { LayoutService, SidenavState } from '../../services/layout.service';
-import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
 @Component({

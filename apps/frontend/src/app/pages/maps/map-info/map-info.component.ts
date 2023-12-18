@@ -21,7 +21,7 @@ import { SharedModule } from '../../../shared.module';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { GallerizeDirective } from 'ng-gallery/lightbox';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
-import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { CardHeaderComponent } from '../../../components/card/card-header.component';
 import { CardComponent } from '../../../components/card/card.component';
 import { MessageService } from 'primeng/api';

@@ -10,7 +10,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { RouterLink } from '@angular/router';
-import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { RoleBadgesComponent } from '../../roles/role-badges.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 

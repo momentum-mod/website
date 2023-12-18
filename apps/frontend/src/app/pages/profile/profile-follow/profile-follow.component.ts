@@ -5,7 +5,7 @@ import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify
 import { Follow, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 
