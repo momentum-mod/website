@@ -5,7 +5,7 @@
     (ngSubmit)="onPageChange(1)"
     (change)="onPageChange(1)"
   >
-    <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
+    <div class="flex flex-wrap items-center gap-4">
       <input class="m-textinput w-64" type="text" placeholder="Map Name" formControlName="search" />
       <!-- TODO: Enable when map credits get reworked (#415) -->
       <!-- <div class="form-col w-full sm:w-4/5 pr-4 pl-4 md:w-1/2 pr-4 pl-4 lg:w-1/3 pr-4 pl-4 xl:w-1/4 pr-4 pl-4 mt-3 md:mt-0">
@@ -28,10 +28,10 @@
         (onChange)="onPageChange(1)"
         *ngIf="isUpload"
       />
-      <div class="-mb-2 flex gap-8">
-        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">In Library</nb-toggle>
-        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites </nb-toggle>
-      </div>
+      <span class="ml-8">In Library</span>
+      <p-inputSwitch formControlName="inLibrary" *ngIf="!isUpload" />
+      <span class="ml-4">Favorites</span>
+      <p-inputSwitch formControlName="inFavorites" *ngIf="!isUpload" />
     </div>
     <button class="m-btn m-btn-green" type="submit">Search</button>
   </form>
