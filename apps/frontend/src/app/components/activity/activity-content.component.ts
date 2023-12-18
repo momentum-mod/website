@@ -5,7 +5,7 @@ import { ActivityType } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
 import { PipesModule } from '@momentum/frontend/pipes';
-import { AvatarComponent } from '../../avatar/avatar.component';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'm-activity-content',

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ActivitiesGetQuery, Activity } from '@momentum/constants';
+import { ActivitiesGetQuery, Activity, PagedQuery } from '@momentum/constants';
 import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -8,16 +8,32 @@ import { HttpService } from './http.service';
 export class ActivityService {
   constructor(private http: HttpService) {}
 
-  getFollowedActivity(): Observable<PagedResponse<Activity>> {
-    return this.http.get<PagedResponse<Activity>>('user/activities/followed');
+  getFollowedActivity(query?: PagedQuery): Observable<PagedResponse<Activity>> {
+    return this.http.get<PagedResponse<Activity>>('user/activities/followed', {
+      query
+    });
   }
 
-  getUserActivity(userID: number): Observable<PagedResponse<Activity>> {
-    return this.http.get<PagedResponse<Activity>>(`users/${userID}/activities`);
+  getUserActivity(
+    userID: number,
+    query?: PagedQuery
+  ): Observable<PagedResponse<Activity>> {
+    return this.http.get<PagedResponse<Activity>>(
+      `users/${userID}/activities`,
+      { query }
+    );
+  }
+
+  getLocalUserActivity(
+    query?: PagedQuery
+  ): Observable<PagedResponse<Activity>> {
+    return this.http.get<PagedResponse<Activity>>('user/activities', {
+      query
+    });
   }
 
   getRecentActivity(
-    query: ActivitiesGetQuery
+    query?: ActivitiesGetQuery
   ): Observable<PagedResponse<Activity>> {
     return this.http.get<PagedResponse<Activity>>('activities', { query });
   }

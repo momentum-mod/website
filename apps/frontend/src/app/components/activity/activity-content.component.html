@@ -1,6 +1,6 @@
-<div class="my-1 flex flex-wrap items-center gap-1" [ngClass]="{ 'w-[14rem]': dateNone }">
+<div class="flex h-[50px] flex-wrap items-center gap-1" [ngClass]="{ 'w-[14rem]': dateNone }">
   <a routerLink="/profile/{{ activity.user.id }}" class="contents">
-    <m-avatar [url]="activity.user.avatarURL" class="!h-7 mr-2" />
+    <m-avatar [url]="activity.user.avatarURL" class="mr-2 !h-7" />
     <p>{{ activity.user.alias }}</p>
   </a>
   <p>{{ actionText }}</p>

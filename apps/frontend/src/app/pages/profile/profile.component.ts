@@ -17,12 +17,12 @@ import { ProfileCreditsComponent } from './profile-credits/profile-credits.compo
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { SharedModule } from '../../shared.module';
-import { ActivityCardComponent } from '../../components/activity/activity-card/activity-card.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 import { MessageService } from 'primeng/api';
 import { RoleBadgesComponent } from '../../components/roles/role-badges.component';
 import { TabViewModule } from 'primeng/tabview';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
+import { ActivityComponent } from '../../components/activity/activity.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -31,7 +31,7 @@ import { AvatarComponent } from '../../components/avatar/avatar.component';
   standalone: true,
   imports: [
     SharedModule,
-    ActivityCardComponent,
+    ActivityComponent,
     ReportButtonComponent,
     ProfileFollowComponent,
     ProfileRunHistoryComponent,

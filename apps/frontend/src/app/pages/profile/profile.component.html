@@ -132,6 +132,6 @@
     </m-card>
   </div>
   <div class="w-full pl-4 pr-4 xl:w-2/5">
-    <m-activity-card *ngIf="user" headerTitle="User Activity" [userSubject]="userSubject" />
+    <m-activity *ngIf="user" headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" />
   </div>
 </div>
