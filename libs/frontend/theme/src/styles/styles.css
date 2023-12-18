@@ -19,6 +19,11 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --sidenav-width-wide: 15rem;
+    --sidenav-width-smol: 4rem;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -39,12 +44,6 @@
 
   iframe {
     border: none;
-  }
-
-  .main-bg-image {
-    background: url('apps/frontend/src/assets/images/BGDarkGray.png') no-repeat
-      center center fixed;
-    background-size: cover;
   }
 }
 
@@ -132,9 +131,11 @@
       @apply border-green-500 !important;
     }
     */
+
     &.ng-invalid.ng-dirty {
       @apply border-red-500 !important;
     }
+
     &.ng-pending.ng-dirty {
       @apply border-orange-500 !important;
     }

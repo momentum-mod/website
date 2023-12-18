@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  height: 100vh;
+  width: 100%;
+}
+
+.bg-image {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  z-index: -10;
+
+  background: url('/assets/images/BGDarkGray.png') no-repeat center center fixed;
+  background-size: cover;
+}
+
+:root {
+  /* These vars need to be global so are set in styles.css.
+     layout.service.ts handles flipping between the underlying vars. */
+  --sidenav-width: var(--sidenav-width-wide);
+}
+
+.chungus {
+  height: 100%;
+  width: 100%;
+
+  display: grid;
+  grid-template-areas:
+    'head head'
+    'side main';
+  grid-template-rows: 5rem 1fr;
+  grid-template-columns: var(--sidenav-width) 1fr;
+}
+
+m-header {
+  grid-area: head;
+  position: fixed;
+
+  display: block;
+  height: 5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 1000; /* :D */
+
+  box-shadow: 1px 0 16px rgba(0, 0, 0, 0.6);
+}
+
+m-sidenav {
+  grid-area: side;
+  position: sticky;
+  display: block;
+
+  height: 100%;
+}
+
+main {
+  grid-area: main;
+
+  width: 100%;
+  max-width: 1800px;
+  margin: 3rem auto;
+
+  display: flex;
+  flex-direction: column;
+  padding: 0 64px;
+}
