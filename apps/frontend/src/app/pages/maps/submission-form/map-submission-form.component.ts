@@ -14,7 +14,6 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { NbDatepickerModule } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   Ban,
@@ -57,6 +56,7 @@ import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
+import { CalendarModule } from 'primeng/calendar';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -66,7 +66,6 @@ import { MessageService } from 'primeng/api';
   standalone: true,
   imports: [
     SharedModule,
-    NbDatepickerModule,
     FileUploadComponent,
     MultiFileUploadComponent,
     MapImageSelectionComponent,
@@ -74,7 +73,8 @@ import { MessageService } from 'primeng/api';
     MapLeaderboardSelectionComponent,
     MapTestingRequestSelectionComponent,
     TooltipDirective,
-    ProgressBarModule
+    ProgressBarModule,
+    CalendarModule
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {
