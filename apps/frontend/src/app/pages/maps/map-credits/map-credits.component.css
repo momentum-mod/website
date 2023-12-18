@@ -7,12 +7,12 @@ h4 {
   text-align: center;
 }
 
-nb-list {
+ul {
   border: 1px solid var(--list-item-divider-color);
   border-radius: 4px;
 }
 
-nb-list-item {
+li {
   width: 100%;
   padding: 1rem;
   cursor: move;

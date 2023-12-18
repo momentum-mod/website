@@ -1,8 +1,8 @@
 <h5 class="m-0 text-center" *ngIf="loadedCredits && mapCredits.length === 0">
   <i>No credits found</i>
 </h5>
-<nb-list class="overflow-hidden">
-  <nb-list-item
+<ul>
+  <li
     *ngFor="
       let mapCredit of mapCredits
         | paginate
@@ -26,8 +26,8 @@
         </a>
       </div>
     </div>
-  </nb-list-item>
-</nb-list>
+  </li>
+</ul>
 <div class="text-center">
   <pagination-controls id="credits" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
 </div>
