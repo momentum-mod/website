@@ -22,7 +22,7 @@ import { UserSearchComponent } from '../search/user-search/user-search.component
 import { Enum } from '@momentum/enum';
 import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
-import { TooltipDirective } from '../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({

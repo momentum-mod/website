@@ -9,7 +9,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '@momentum/frontend/icons';
 import { CardComponent } from './components/card/card.component';
-import { TooltipDirective } from './directives/tooltip/tooltip.directive';
+import { TooltipDirective } from './directives/tooltip.directive';
 
 const MODULES = [
   CommonModule,

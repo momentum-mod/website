@@ -54,7 +54,7 @@ import { MapImageSelectionComponent } from '../../../components/map-image-select
 import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
 import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
 
