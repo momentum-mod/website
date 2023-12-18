@@ -1,6 +1,6 @@
 <p class="font-display text-8xl font-bold opacity-80">Map Submission</p>
-<ng-container *ngIf="isMapperOrPorter || !hasMapInSubmission; else notMapperBlock">
-  <nb-alert *ngIf="!isMapperOrPorter" class="prose mb-8 max-w-none p-5" accent="info">
+<ng-container *ngIf="isMapperOrPorter || !hasMapInSubmission || true; else notMapperBlock">
+  <div class="prose mb-8 max-w-none rounded border-2 border-blue-800 bg-blue-900 p-5">
     <h4>Welcome to the Momentum Mod map submission page!</h4>
     <p>
       This is where you can submit maps to the game, and if your submission is approved, it'll be hosted by us and will appear in the
@@ -15,7 +15,7 @@
       questions in our
       <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
     </p>
-  </nb-alert>
+  </div>
   <form [formGroup]="form">
     <fieldset class="card grid gap-4 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
       <legend
