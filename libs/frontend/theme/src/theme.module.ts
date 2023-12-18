@@ -2,13 +2,12 @@ import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-  NbAccordionModule,
   NbAlertModule,
   NbDatepickerModule,
   NbThemeModule
 } from '@nebular/theme';
 
-const NEBULAR_MODULES = [NbAccordionModule, NbAlertModule];
+const NEBULAR_MODULES = [NbAlertModule];
 
 @NgModule({
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ...NEBULAR_MODULES],

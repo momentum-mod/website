@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
-import { NbAccordionModule } from '@nebular/theme';
 import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'm-home-user-library',
   templateUrl: './home-user-library.component.html',
   standalone: true,
-  imports: [NbAccordionModule, SharedModule]
+  imports: [SharedModule]
 })
 export class HomeUserLibraryComponent implements OnInit {
   mapLibraryCount: number;
