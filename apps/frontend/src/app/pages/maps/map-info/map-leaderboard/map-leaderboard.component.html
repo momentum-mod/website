@@ -19,12 +19,19 @@
         <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
           <input type="text" class="m-textinput mb-1" placeholder="Name" />
         </div>
-        <div class="relative md:flex-1 md:flex-grow">
-          <nb-radio-group [(value)]="filterLeaderboardType">
-            <nb-radio [value]="LeaderboardType.TOP10">Show top 10 times</nb-radio>
-            <nb-radio [value]="LeaderboardType.AROUND">Show ranks around me</nb-radio>
-            <nb-radio [value]="LeaderboardType.FRIENDS">Show friend's time</nb-radio>
-          </nb-radio-group>
+        <div class="relative flex gap-4 md:flex-1 md:flex-grow">
+          <label class="flex items-center">
+            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.TOP10" [(ngModel)]="filterLeaderboardType" />
+            Show top 10 times
+          </label>
+          <label class="flex items-center">
+            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.AROUND" [(ngModel)]="filterLeaderboardType" />
+            Show ranks around me
+          </label>
+          <label class="flex items-center">
+            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.FRIENDS" [(ngModel)]="filterLeaderboardType" />
+            Show friend's time
+          </label>
         </div>
       </div>
       <div class="flex flex-wrap">

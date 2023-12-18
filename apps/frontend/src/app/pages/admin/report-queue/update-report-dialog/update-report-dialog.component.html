@@ -1,10 +1,14 @@
 <form [formGroup]="updateReportForm">
   <div class="mb-4">
     <label class="mr-3">Resolved</label>
-    <nb-radio-group formControlName="resolved">
-      <nb-radio [value]="true" class="inline-block">Yes</nb-radio>
-      <nb-radio [value]="false" class="inline-block">No</nb-radio>
-    </nb-radio-group>
+    <label class="flex items-center">
+      <input formControlName="resolved" class="m-radio mr-2" type="radio" [value]="true" />
+      Yes
+    </label>
+    <label class="flex items-center">
+      <input formControlName="resolved" class="m-radio mr-2" type="radio" [value]="false" />
+      No
+    </label>
   </div>
   <div class="m-0 mb-4">
     <label>Resolution Message</label>
