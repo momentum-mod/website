@@ -1,6 +1,6 @@
-import { NbMenuService } from '@nebular/theme';
 import { Component } from '@angular/core';
 import { SharedModule } from '../../shared.module';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'm-not-found',
@@ -9,10 +9,5 @@ import { SharedModule } from '../../shared.module';
   imports: [SharedModule]
 })
 export class NotFoundComponent {
-  constructor(private menuService: NbMenuService) {}
-
-  // TODO: What the fuck
-  goToHome() {
-    this.menuService.navigateHome();
-  }
+  constructor(protected readonly router: Router) {}
 }
