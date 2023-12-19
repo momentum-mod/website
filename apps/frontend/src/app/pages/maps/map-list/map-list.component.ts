@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { finalize, map } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Observable } from 'rxjs';
-import { NbLayoutScrollService } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapStatus,
@@ -86,7 +85,6 @@ export class MapListComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly mapService: MapsService,
     private readonly messageService: MessageService,
-    private readonly scrollService: NbLayoutScrollService,
     private readonly localUserService: LocalUserService,
     private readonly fb: FormBuilder
   ) {}
@@ -186,7 +184,6 @@ export class MapListComponent implements OnInit {
   }
 
   onPageChange(pageNum: number) {
-    this.scrollService.scrollTo(0, 0);
     this.currentPage = pageNum;
     this.loadMaps();
   }
