@@ -26,8 +26,9 @@ The vast majority of the codebase is written in
 [integrated monorepo](https://nx.dev/concepts/integrated-vs-package-based#integrated-repos)
 using [Nx](https://nx.dev). We use npm as our package manager.
 
-The frontend runs on [Angular](https://angular.io) and uses the
-[Nebular](https://github.com/akveo/nebular) component library.
+The frontend runs on [Angular](https://angular.io) 17. We use
+[Tailwind](https://tailwindcss.com/) for most styling,
+[PrimeNG](https://primeng.org/) for some components.
 
 The backend runs on [NodeJS](https://nodejs.org/), with
 
