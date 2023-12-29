@@ -1,48 +1,91 @@
-<div class="flex flex-wrap items-center py-2 sm:pt-0 lg:pb-0">
-  <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-1/2">
-    <div class="flex flex-wrap sm:items-center">
-      <div class="map-image-container mb-3 w-full pl-4 pl-4 pr-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">
-        <a [routerLink]="'/maps/' + map?.id">
-          <img [ngSrc]="map?.thumbnail?.small" priority width="186" height="105" />
-        </a>
-      </div>
-      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">
-        <ul>
-          <li>Map Name:</li>
-          <li>Submitted:</li>
-          <li>Submitted By:</li>
-        </ul>
-      </div>
-      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 sm:w-1/3 lg:w-1/4">
-        <ul>
-          <li>{{ map?.name }}</li>
-          <li>{{ map?.createdAt | date }}</li>
-          <li>
-            <a [routerLink]="'/profile/' + map?.submitter?.id" class="flex items-center gap-2">
-              <m-avatar class="h-6" [url]="map?.submitter.avatarURL" />
-              <p>{{ map?.submitter.alias }}</p>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="w-full pl-4 pr-4 lg:w-1/2">
-    <div class="flex flex-wrap sm:items-center">
-      <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow">
-        <a #mapFileDownloadLink class="allowed"></a>
-        <button class="m-btn m-btn-blue" (click)="onMapFileDownload(map?.id)">Download</button>
-      </div>
-      <div class="col-auto mx-auto sm:mr-2">
-        <div class="button-group flex lg:flex-col">
-          <button type="button" class="m-btn m-btn-green" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
-            <m-icon icon="check-circle-outline" />
-          </button>
-          <button type="button" class="m-btn m-btn-red" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
-            <m-icon icon="close" />
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!--NEW SHIT-->
+<!--<a-->
+<!--  [routerLink]="'/maps/' + map?.id"-->
+<!--  class="grid grid-flow-col items-center gap-x-4 bg-white bg-opacity-0 px-4 py-2 transition-colors [grid-template-columns:auto_1fr_1fr_1fr_auto] [grid-template-rows:3fr_4fr] hover:bg-opacity-5"-->
+<!--&gt;-->
+<!--  <img [src]="map.thumbnail?.small" class="row-span-2 aspect-video h-20 grow-0" />-->
+<!--  <p class="row-span-2 grow-4 font-display text-5xl">{{ map.name }}</p>-->
+<!--  <p class="self-end text-sm italic leading-none text-gray-100">Submitted On</p>-->
+<!--  <p class="grow-4 self-start text-lg">{{ map.createdAt | date }}</p>-->
+<!--  <p class="ml-auto self-end text-sm italic leading-none text-gray-100">Submitted By</p>-->
+<!--  <a [routerLink]="'/profile/' + map.submitter?.id" class="flex grow-2 items-center justify-end gap-2 self-start">-->
+<!--    <m-avatar [url]="map.submitter?.avatarURL" />-->
+<!--    <p class="text-lg">{{ map.submitter?.alias }}</p>-->
+<!--  </a>-->
+<!--  <div class="row-span-2 flex flex-col items-center justify-items-center">-->
+<!--    <div>-->
+<!--      &lt;!&ndash; TODO: This uses crazy js setup to create link, still needed in modern browsers?&ndash;&gt;-->
+<!--      <a #mapFileDownloadLink class="allowed">Download</a>-->
+<!--      <button class="m-btn m-btn-blue">Download</button>-->
+<!--    </div>-->
+<!--    <div class="col-auto mx-auto sm:mr-2">-->
+<!--      <div class="button-group flex lg:flex-col">-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="m-btn m-btn-blue mr-2 lg:mb-2 lg:mr-0"-->
+<!--          (click)="toggleMapInFavorites()"-->
+<!--          mTooltip="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"-->
+<!--        >-->
+<!--          <m-icon [icon]="inFavorites ? 'star' : 'star-outline'"></m-icon>-->
+<!--        </button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</a>-->
+
+<!--OLD SHIT-->
+<!--<div *ngIf="map" class="outer flex flex-wrap items-center py-2 sm:pt-0 lg:pb-0" [ngClass]="isUpload ? status : ''">-->
+<!--  <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-1/2">-->
+<!--    <div class="flex flex-wrap sm:items-center">-->
+<!--      <div class="mb-3 h-[105px] w-full overflow-hidden pl-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">-->
+<!--        <a [routerLink]="'/maps/' + map?.id">-->
+<!--          <img [ngSrc]="map.thumbnail?.small" priority width="186" height="105" class="h-[105px]" />-->
+<!--        </a>-->
+<!--      </div>-->
+<!--      <div class="w-1/2 pl-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">-->
+<!--        <ul>-->
+<!--          <li>Map Name:</li>-->
+<!--          <li>Submitted:</li>-->
+<!--          <li>Submitted By:</li>-->
+<!--        </ul>-->
+<!--      </div>-->
+<!--      <div class="w-1/2 pl-4 pr-4 sm:w-1/3 lg:w-1/4">-->
+<!--        <ul>-->
+<!--          <li>-->
+<!--            <a [routerLink]="'/maps/' + map?.id">{{ map.name }}</a>-->
+<!--          </li>-->
+<!--          <li>{{ map.createdAt | date }}</li>-->
+<!--          <li>-->
+<!--            <a [routerLink]="'/profile/' + map.submitter?.id" class="flex items-center">-->
+<!--              <m-avatar [url]="map.submitter?.avatarURL" />-->
+<!--              <p>{{ map.submitter?.alias }}</p>-->
+<!--            </a>-->
+<!--          </li>-->
+<!--        </ul>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <div class="w-full pl-4 pr-4 lg:w-1/2">-->
+<!--    <div class="flex flex-wrap sm:items-center">-->
+<!--      <div class="relative mb-3 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow" *ngIf="isUpload">-->
+<!--        <span class="mapStatus">{{ status }}</span>-->
+<!--      </div>-->
+<!--      <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow" *ngIf="showDownloadButton">-->
+<!--        <a #mapFileDownloadLink class="allowed"></a>-->
+<!--        <button class="m-btn m-btn-blue">Download</button>-->
+<!--      </div>-->
+<!--      <div class="col-auto mx-auto sm:mr-2">-->
+<!--        <div class="button-group flex lg:flex-col">-->
+<!--          <button-->
+<!--            type="button"-->
+<!--            class="m-btn m-btn-blue mr-2 lg:mb-2 lg:mr-0"-->
+<!--            (click)="toggleMapInFavorites()"-->
+<!--            mTooltip="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"-->
+<!--          >-->
+<!--            <m-icon [icon]="inFavorites ? 'star' : 'star-outline'"></m-icon>-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
