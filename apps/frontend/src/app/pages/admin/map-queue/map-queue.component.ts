@@ -17,6 +17,7 @@ export class MapQueueComponent implements OnInit {
   nonPriorityQueue: MMap[];
   priorityQueueCount = 0;
   nonPriorityQueueCount = 0;
+  // TODO: Not yet ported to PrimeNG pagination!
   pageLimit = 5;
   priorityQueuePage = 1;
   nonPriorityQueuePage = 1;

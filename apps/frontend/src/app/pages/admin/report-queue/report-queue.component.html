@@ -1,7 +1,7 @@
 <m-card title="Report Queue">
   <ng-container header>
     <label>Resolved: </label>
-    <select name="Resolved" (change)="loadReportQueue()" [(ngModel)]="filters.resolved">
+    <select name="Resolved" (change)="filterChange.next()" [(ngModel)]="filters.resolved">
       <option value="true">Yes</option>
       <option selected="selected" value="false">No</option>
     </select>
@@ -17,32 +17,23 @@
     <div class="w-1/5 text-center">Resolution Message</div>
     <div class="w-1/5 text-center">Actions</div>
   </div>
-  <div class="mt-5 text-center" *ngIf="!reportQueue?.length && !isLoading">
-    <i>There are no reports that match the search criteria.</i>
-  </div>
-  <ul>
-    <li
-      *ngFor="
-        let report of reportQueue
-          | paginate
-            : {
-                id: 'report-queue-page-ctrl',
-                itemsPerPage: pageLimit,
-                currentPage: currentPage,
-                totalItems: reportQueueCount
-              }
-      "
-      class="basis-full"
-    >
-      <m-queued-report [report]="report" (reportUpdate)="loadReportQueue()" />
-    </li>
+  <ul [mSpinner]="loading">
+    @for (report of reportQueue; track $index) {
+      <li class="basis-full">
+        <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
+      </li>
+    } @empty {
+      @if (!loading) {
+        <i>There are no reports that match the search criteria.</i>
+      }
+    }
   </ul>
-  <div class="text-center">
-    <pagination-controls
-      id="report-queue-page-ctrl"
-      (pageChange)="onPageChange($event)"
-      [autoHide]="true"
-      [responsive]="true"
-    ></pagination-controls>
-  </div>
+  <p-paginator
+    (onPageChange)="pageChange.next($event)"
+    [first]="first"
+    [rows]="rows"
+    [totalRecords]="totalRecords"
+    [showCurrentPageReport]="true"
+    [alwaysShow]="false"
+  />
 </m-card>

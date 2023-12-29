@@ -1,29 +1,37 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { finalize } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject, merge } from 'rxjs';
 import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
 import { UsersService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { PaginatorModule } from 'primeng/paginator';
 
 @Component({
   selector: 'm-profile-credits',
   templateUrl: './profile-credits.component.html',
   standalone: true,
-  imports: [SharedModule]
+  imports: [SharedModule, SpinnerDirective, PaginatorModule]
 })
 export class ProfileCreditsComponent implements OnInit {
   protected readonly MapCreditType = MapCreditType;
 
+  // TODO: Subject/BehaviorSubject
   @Input() userSubject: Observable<User>;
 
-  user: User;
-  mapCredits: MapCredit[] = [];
-  loadedCredits = false;
-  pageLimit = 10;
-  currentPage = 1;
-  creditCount = 0;
+  userID: number;
+  credits: MapCredit[] = [];
+
+  protected readonly rows = 10;
+  protected totalRecords = 0;
+  protected first = 0;
+
+  protected loading: boolean;
+  protected readonly load = new Subject<void>();
+  protected readonly pageChange = new Subject<PaginatorState>();
 
   constructor(
     private readonly usersService: UsersService,
@@ -32,23 +40,29 @@ export class ProfileCreditsComponent implements OnInit {
 
   ngOnInit() {
     this.userSubject.subscribe((user) => {
-      this.user = user;
-      this.loadCredits();
+      this.userID = user.id;
+      this.load.next();
     });
-  }
 
-  loadCredits() {
-    this.usersService
-      .getMapCredits(this.user.id, {
-        expand: ['map', 'info', 'thumbnail'],
-        take: this.pageLimit,
-        skip: (this.currentPage - 1) * this.pageLimit
-      })
-      .pipe(finalize(() => (this.loadedCredits = true)))
+    merge(
+      this.load,
+      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+    )
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.usersService.getMapCredits(this.userID, {
+            expand: ['map', 'info', 'thumbnail'],
+            take: this.rows,
+            skip: this.first
+          })
+        ),
+        tap(() => (this.loading = false))
+      )
       .subscribe({
         next: (response) => {
-          this.creditCount = response.totalCount;
-          this.mapCredits = response.data;
+          this.totalRecords = response.totalCount;
+          this.credits = response.data;
         },
         error: (error) =>
           this.messageService.add({
@@ -57,10 +71,5 @@ export class ProfileCreditsComponent implements OnInit {
             detail: error.message
           })
       });
-  }
-
-  onPageChange(pageNum: number) {
-    this.currentPage = pageNum;
-    this.loadCredits();
   }
 }
