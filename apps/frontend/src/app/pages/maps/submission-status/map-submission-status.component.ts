@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
 import { Ban } from '@momentum/constants';
-import { MapListComponent } from '../map-list/map-list.component';
 import { SharedModule } from '../../../shared.module';
+import { MapListComponent } from '../../../components/map-list/map-list.component';
 
 @Component({
   selector: 'm-map-submission-status',

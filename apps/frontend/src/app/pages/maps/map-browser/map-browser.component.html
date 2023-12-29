@@ -1,0 +1,21 @@
+<m-card-header titleSize="4" title="Browse Maps">
+  <form class="mb-1 mt-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
+    <input
+      class="m-textinput w-64 border border-gray-600 bg-gray-800 hover:border-gray-500"
+      type="text"
+      placeholder="Map Name"
+      formControlName="search"
+    />
+    <p-dropdown
+      class="[&>*]:w-48"
+      placeholder="Game Mode"
+      formControlName="gamemode"
+      [options]="ORDERED_GAMEMODES"
+      optionLabel="text"
+      optionValue="value"
+    />
+    <span class="ml-4">Favorites</span>
+    <p-inputSwitch formControlName="favorites" />
+  </form>
+</m-card-header>
+<m-map-list [isUpload]="false" [filters]="filters" />
