@@ -50,9 +50,3 @@ export type UserMapFavoritesGetExpand = (
 export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapFavoritesGetExpand;
 };
-
-export type UserMapSubmittedGetExpand = ('info' | 'submitter' | 'credits')[];
-
-export type UserMapSubmittedGetQuery = UserMapsBaseGetQuery & {
-  expand?: UserMapSubmittedGetExpand;
-};

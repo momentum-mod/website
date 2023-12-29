@@ -10,6 +10,7 @@ import {
   MapFavorite,
   MapLibraryEntry,
   MapNotify,
+  MapsGetAllUserSubmissionQuery,
   MapSummary,
   MMap,
   Notification,
@@ -21,7 +22,6 @@ import {
   User,
   UserMapFavoritesGetQuery,
   UserMapLibraryGetQuery,
-  UserMapSubmittedGetQuery,
   UsersGetQuery,
   UserStats
 } from '@momentum/constants';
@@ -165,7 +165,7 @@ export class LocalUserService {
   }
 
   public getSubmittedMaps(
-    query?: UserMapSubmittedGetQuery
+    query?: MapsGetAllUserSubmissionQuery
   ): Observable<PagedResponse<MMap>> {
     return this.http.get<PagedResponse<MMap>>('user/maps/submitted', { query });
   }

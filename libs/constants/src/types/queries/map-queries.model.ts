@@ -49,7 +49,7 @@ type MapsGetAllBaseQuery = {
 
 export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: MapsGetAllExpand;
-  type?: Gamemode;
+  gamemode?: Gamemode;
   difficultyLow?: number;
   difficultyHigh?: number;
   linear?: boolean;

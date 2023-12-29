@@ -15,8 +15,6 @@ import {
   UserMapFavoritesGetQuery,
   UserMapLibraryGetExpand,
   UserMapLibraryGetQuery,
-  UserMapSubmittedGetExpand,
-  UserMapSubmittedGetQuery,
   UsersGetActivitiesQuery,
   UsersGetAllExpand,
   UsersGetAllQuery,
@@ -149,12 +147,4 @@ export class UserMapFavoritesGetQueryDto
     'personalBest'
   ])
   readonly expand: UserMapFavoritesGetExpand;
-}
-
-export class UserMapSubmittedGetQueryDto
-  extends UserMapsBaseGetQuery
-  implements UserMapSubmittedGetQuery
-{
-  @ExpandQueryProperty(['info', 'submitter', 'credits'])
-  readonly expand: UserMapSubmittedGetExpand;
 }
