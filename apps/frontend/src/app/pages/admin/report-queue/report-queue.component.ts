@@ -1,26 +1,41 @@
 import { Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 import { ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
+import { PaginatorModule } from 'primeng/paginator';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { merge, of, Subject } from 'rxjs';
+import { PaginatorState } from 'primeng/paginator/paginator.interface';
 
 @Component({
   selector: 'm-report-queue',
   templateUrl: './report-queue.component.html',
   standalone: true,
-  imports: [SharedModule, QueuedReportComponent]
+  imports: [
+    SharedModule,
+    QueuedReportComponent,
+    PaginatorModule,
+    SpinnerDirective
+  ]
 })
 export class ReportQueueComponent implements OnInit {
   protected readonly ReportType = ReportType;
-  isLoading = false;
-  reportQueue: Report[];
-  reportQueueCount = 0;
-  pageLimit = 5;
-  currentPage = 1;
+
+  reportQueue: Report[] = [];
   filters = { resolved: false };
+
+  protected readonly rows = 5;
+  protected totalRecords = 0;
+  protected first = 0;
+
+  protected loading: boolean;
+  protected readonly pageChange = new Subject<PaginatorState>();
+  protected readonly refresh = new Subject<void>();
+  protected readonly filterChange = new Subject<void>();
 
   constructor(
     private readonly adminService: AdminService,
@@ -28,23 +43,32 @@ export class ReportQueueComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadReportQueue();
-  }
-
-  loadReportQueue() {
-    this.reportQueue = [];
-    this.reportQueueCount = 0;
-    this.isLoading = true;
-    this.adminService
-      .getReports({
-        expand: ['submitter', 'resolver'],
-        skip: (this.currentPage - 1) * this.pageLimit,
-        resolved: this.filters.resolved
-      })
-      .pipe(finalize(() => (this.isLoading = false)))
+    merge(
+      of(null),
+      this.refresh,
+      this.filterChange.pipe(
+        tap(() => {
+          this.first = 0;
+          this.totalRecords = 0;
+        })
+      ),
+      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+    )
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.adminService.getReports({
+            expand: ['submitter', 'resolver'],
+            resolved: this.filters.resolved,
+            take: this.rows,
+            skip: this.first
+          })
+        ),
+        tap(() => (this.loading = false))
+      )
       .subscribe({
         next: (response) => {
-          this.reportQueueCount = response.totalCount;
+          this.totalRecords = response.totalCount;
           this.reportQueue = response.data;
         },
         error: (error) => {
@@ -56,10 +80,5 @@ export class ReportQueueComponent implements OnInit {
           });
         }
       });
-  }
-
-  onPageChange(pageNum) {
-    this.currentPage = pageNum;
-    this.loadReportQueue();
   }
 }

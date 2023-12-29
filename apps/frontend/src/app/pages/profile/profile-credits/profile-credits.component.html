@@ -1,33 +1,29 @@
-<h5 class="m-0 text-center" *ngIf="loadedCredits && mapCredits.length === 0">
-  <i>No credits found</i>
-</h5>
-<ul>
-  <li
-    *ngFor="
-      let mapCredit of mapCredits
-        | paginate
-          : {
-              id: 'credits',
-              itemsPerPage: pageLimit,
-              currentPage: currentPage,
-              totalItems: creditCount
-            }
-    "
-    class="basis-full"
-  >
-    <div class="flex flex-wrap items-center justify-center">
-      <div class="max-w-[20rem] flex-grow lg:text-xl">
-        <div class="mb-3">{{ MapCreditType[mapCredit.type] }} ON</div>
-        <a class="text-lg" routerLink="/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
+<ul [mSpinner]="loading">
+  @for (credit of credits; track $index) {
+    <li class="basis-full">
+      <div class="flex flex-wrap items-center justify-center">
+        <div class="max-w-[20rem] flex-grow lg:text-xl">
+          <div class="mb-3">{{ MapCreditType[credit.type] }} ON</div>
+          <a class="text-lg" routerLink="/maps/{{ credit.map?.id }}">{{ credit.map?.name }}</a>
+        </div>
+        <div>
+          <a routerLink="/maps/{{ credit.map?.id }}">
+            <img class="h-14 rounded lg:h-16" [ngSrc]="credit.map?.thumbnail?.small" />
+          </a>
+        </div>
       </div>
-      <div>
-        <a routerLink="/maps/{{ mapCredit.map?.id }}">
-          <img class="h-14 rounded lg:h-16" [ngSrc]="mapCredit.map?.thumbnail?.small" />
-        </a>
-      </div>
-    </div>
-  </li>
+    </li>
+  } @empty {
+    @if (!loading) {
+      <i>No credits found</i>
+    }
+  }
 </ul>
-<div class="text-center">
-  <pagination-controls id="credits" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
-</div>
+<p-paginator
+  (onPageChange)="pageChange.next($event)"
+  [first]="first"
+  [rows]="rows"
+  [totalRecords]="totalRecords"
+  [showCurrentPageReport]="true"
+  [alwaysShow]="false"
+/>

@@ -1,18 +1,21 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { merge, Observable, Subject } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { PastRunsService } from '@momentum/frontend/data';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorState } from 'primeng/paginator/paginator.interface';
 
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   standalone: true,
-  imports: [SharedModule, DropdownModule]
+  imports: [SharedModule, DropdownModule, SpinnerDirective, PaginatorModule]
 })
 export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderByDropdown = [
@@ -25,14 +28,19 @@ export class ProfileRunHistoryComponent implements OnInit {
     { label: 'Descending', type: Order.DESC }
   ];
 
+  // TODO: Subject/BehaviorSubject
   @Input() userSubject: Observable<User>;
-  user: User;
-  runHistory: PastRun[] = [];
-  loadedRuns = false;
-  pageLimit = 10;
-  currentPage = 1;
-  runCount = 10;
+  userID: number;
+  runs: PastRun[] = [];
   showFilters = false;
+
+  protected readonly rows = 10;
+  protected totalRecords = 0;
+  protected first = 0;
+
+  protected loading: boolean;
+  protected readonly load = new Subject<void>();
+  protected readonly pageChange = new Subject<PaginatorState>();
 
   filterFG: FormGroup = this.fb.group({
     isPersonalBest: [false],
@@ -61,41 +69,42 @@ export class ProfileRunHistoryComponent implements OnInit {
 
   ngOnInit() {
     this.userSubject.subscribe((user) => {
-      this.user = user;
-      this.loadRunHistory();
+      this.userID = user.id;
+      this.load.next();
     });
-  }
 
-  loadRunHistory() {
-    this.pastRunsService
-      .getRuns({
-        userID: this.user.id,
-        expand: ['map'],
-        mapName: this.currentFilter.map,
-        isPB: this.currentFilter.isPB,
-        orderBy: this.currentFilter.orderBy,
-        order: this.currentFilter.order,
-        take: this.pageLimit,
-        skip: (this.currentPage - 1) * this.pageLimit
-      })
-      .pipe(finalize(() => (this.loadedRuns = true)))
+    merge(
+      this.load,
+      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+    )
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.pastRunsService.getRuns({
+            userID: this.userID,
+            expand: ['map'],
+            mapName: this.currentFilter.map,
+            isPB: this.currentFilter.isPB,
+            orderBy: this.currentFilter.orderBy,
+            order: this.currentFilter.order,
+            take: this.rows,
+            skip: this.first
+          })
+        ),
+        tap(() => (this.loading = false))
+      )
       .subscribe({
         next: (response) => {
-          this.runCount = response.totalCount;
-          this.runHistory = response.data;
+          this.totalRecords = response.totalCount;
+          this.runs = response.data;
         },
         error: (error) =>
           this.messageService.add({
             severity: 'error',
-            summary: 'Cannot get user map credits',
+            summary: 'Cannot get user runs',
             detail: error.message
           })
       });
-  }
-
-  onPageChange(pageNum: number) {
-    this.currentPage = pageNum;
-    this.loadRunHistory();
   }
 
   onFilterApply() {
@@ -109,7 +118,7 @@ export class ProfileRunHistoryComponent implements OnInit {
     )
       return;
     this.currentFilter = { isPB: isPersonalBest, map, order, orderBy };
-    this.currentPage = 1; // Reset page back to 1 so you don't potentially pull a page past the last filtered page
-    this.loadRunHistory();
+    this.first = 0;
+    this.load.next();
   }
 }

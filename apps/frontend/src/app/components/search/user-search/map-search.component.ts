@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MapsService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '@momentum/frontend/icons';
 import { PaginatorModule } from 'primeng/paginator';
@@ -20,7 +19,6 @@ import { SpinnerDirective } from '../../../directives/spinner.directive';
     IconComponent,
     NgClass,
     NgFor,
-    NgxPaginationModule,
     PaginatorModule,
     OverlayPanelModule,
     NgIf,
