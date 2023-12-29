@@ -35,7 +35,6 @@
       "@momentum/frontend/env": ["libs/frontend/env/src/index.ts"],
       "@momentum/frontend/icons": ["libs/frontend/icons/src/index.ts"],
       "@momentum/frontend/pipes": ["libs/frontend/pipes/src/index.ts"],
-      "@momentum/frontend/theme": ["libs/frontend/theme/src/index.ts"],
       "@momentum/frontend/validators": [
         "libs/frontend/validators/src/index.ts"
       ],
