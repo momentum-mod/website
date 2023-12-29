@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
-import { ThemeModule } from '@momentum/frontend/theme';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NotificationComponent } from './notification.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';

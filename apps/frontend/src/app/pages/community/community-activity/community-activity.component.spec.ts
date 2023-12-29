@@ -1,9 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
-import { ThemeModule } from '@momentum/frontend/theme';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CommunityActivityComponent } from './community-activity.component';
-import { ComponentsModule } from '../../../components/components.module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CommunityActivityComponent', () => {
