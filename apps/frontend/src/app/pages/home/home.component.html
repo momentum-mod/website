@@ -1,10 +1,7 @@
-<m-home-stats [userStats]="user?.userStats" />
-<div class="flex flex-wrap">
-  <div class="relative mb-4 w-full md:flex-1 md:flex-grow">
-    <m-home-user-maps />
-  </div>
-  <div class="relative mb-4 w-full md:flex-1 md:flex-grow">
-    <m-home-user-library />
-  </div>
+<div class="grid grid-cols-2 gap-12">
+  <m-home-stats [userStats]="user?.userStats" />
+  <m-home-user-maps />
+  <m-activity headerTitle="Your Activity" [activityFetchType]="'own'" height="16rem" />
+  <m-activity headerTitle="Followed Activity" [activityFetchType]="'follow'" height="16rem" />
+  <m-activity class="col-span-2" headerTitle="All Activity" [activityFetchType]="'all'" height="16rem" />
 </div>
-<m-activity headerTitle="Followed Activity" [activityFetchType]="'follow'" height="16rem" />
