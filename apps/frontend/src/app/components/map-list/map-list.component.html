@@ -1,0 +1,24 @@
+<div [mSpinner]="loading" class="flex flex-wrap">
+  @for (map of maps; track $index) {
+    <m-map-list-item class="w-1/4 p-4" [map]="map" [isUpload]="isUpload" [filterGamemode]="filters?.value?.gamemode" />
+  } @empty {
+    @if (!loading) {
+      @if (isUpload && !hasFilters()) {
+        <p class="italics m-8 h-8 text-center text-2xl text-gray-400">
+          You have not uploaded any maps. Try <a routerLink="/maps/uploads/new" class="text-blue-300">uploading a new one!</a>
+        </p>
+      } @else {
+        <p class="italics m-8 h-8 text-center text-2xl text-gray-400">No maps found</p>
+      }
+    }
+  }
+</div>
+<p-paginator
+  class="mt-2"
+  (onPageChange)="pageChange.next($event)"
+  [first]="first"
+  [rows]="rows"
+  [totalRecords]="totalRecords"
+  [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[12, 24, 36]"
+/>
