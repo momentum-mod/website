@@ -1,5 +1,7 @@
 /**
- * Ugly script for seeding the DB with faker.js data, useful for frontend developers.
+ * Script for seeding the DB with faker.js data, useful for frontend developers.
+ *
+ * This script is my evil little JS monster, and I love it very much.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -36,10 +38,11 @@ import path = require('node:path');
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 
 //#region Configuration
-const vars = {
-  imageFetches: 25,
+// Can be overridden with --key=N or --key=N-M
+const defaultVars = {
+  imageFetches: { min: 25, max: 25 },
   users: { min: 100, max: 100 },
-  maps: { min: 20, max: 20 },
+  maps: { min: 50, max: 50 },
   usersThatSubmitMaps: { min: 15, max: 20 },
   randomImagesToDownload: { min: 20, max: 20 },
   credits: { min: 2, max: 20 },
@@ -55,11 +58,14 @@ const vars = {
   suggestions: { min: 1, max: 5 },
   runsPerMap: { min: 1, max: 30 },
   pastRunsPerMap: { min: 1, max: 100 },
-  userReportChance: 0.05, // Chance that u1 reports u2 (this game is TOXIC)
-  userFollowChance: 0.01,
-  mapReportChance: 0.005,
-  mapFollowChance: 0.05,
-  mapFavoriteChance: 0.05,
+  userReportChance: { min: 0.05, max: 0.05 }, // Chance that u1 reports u2 (this game is TOXIC)
+  userFollowChance: { min: 0.01, max: 0.01 },
+  mapReportChance: { min: 0.005, max: 0.005 },
+  mapFollowChance: { min: 0.05, max: 0.05 },
+  mapFavoriteChance: { min: 0.05, max: 0.05 }
+};
+
+const weights = {
   mapStatusWeights: [
     [MapStatusNew.APPROVED, 1],
     [MapStatusNew.PUBLIC_TESTING, 0.2],
@@ -67,7 +73,7 @@ const vars = {
     [MapStatusNew.CONTENT_APPROVAL, 0.2],
     [MapStatusNew.PRIVATE_TESTING, 0.2],
     [MapStatusNew.FINAL_APPROVAL, 0.2]
-  ],
+  ] as [MapStatusNew, number][],
   submissionGraphWeights: {
     [MapStatusNew.PRIVATE_TESTING]: [
       [null, 0.3],
@@ -120,8 +126,30 @@ const randRange = ({ min, max }: { min: number; max: number }) =>
 //#region Setup
 prismaWrapper(async (prisma: PrismaClient) => {
   const args = new Set(process.argv.slice(1));
+
+  const vars = Object.fromEntries(
+    Object.entries(defaultVars).map(([varName, defaults]) => {
+      const arg = [...args].find(
+        (a) => new RegExp(`--${varName}=`).exec(a)?.[0]
+      );
+      if (!arg) return [varName, defaults];
+      const [minOrBoth, max] = arg.split('=')[1].split('-').map(Number);
+      return [
+        varName,
+        max ? { min: minOrBoth, max } : { min: minOrBoth, max: minOrBoth }
+      ];
+    })
+  );
+
   if (args.has('-h') || args.has('--help')) {
-    console.log('usage: seed.js [-h] [--s3files] [--reset]');
+    console.log(
+      'usage: seed.js [-h] [--s3files] [--reset]\n\t' +
+        Object.keys(defaultVars)
+          .map((v) => `--${v}=N (or N-M for min-max)`)
+          .join('\n\t')
+    );
+
+    return;
   }
 
   const dir = path.join(__dirname, '../../../../libs/db/src/scripts/assets');
@@ -201,7 +229,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     doFileUploads
       ? async () => {
           imageBuffers = await Promise.all(
-            from(vars.imageFetches, () =>
+            from(randRange(vars.imageFetches), () =>
               axios
                 .get('https://picsum.photos/1920/1080', {
                   responseType: 'arraybuffer'
@@ -234,7 +262,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     userIDs.flatMap((id1) =>
       userIDs.map((id2) => async () => {
         if (id1 === id2) return;
-        if (Random.chance(vars.userReportChance))
+        if (Random.chance(randRange(vars.userReportChance)))
           await prisma.follow.create({
             data: {
               followeeID: id1,
@@ -244,7 +272,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             }
           });
 
-        if (Random.chance(vars.userFollowChance))
+        if (Random.chance(randRange(vars.userFollowChance)))
           await prisma.report.create({
             data: {
               type: ReportType.USER_PROFILE_REPORT,
@@ -326,7 +354,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
         currDate = new Date(
           new Date(currDate).getTime() + Random.int(1e4)
         ).toDateString();
-        currStatus = Random.weighted(vars.submissionGraphWeights[currStatus]);
+        currStatus = Random.weighted(
+          weights.submissionGraphWeights[currStatus]
+        );
       }
 
       return dates;
@@ -336,14 +366,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       prisma.mMap.create({
         data: {
           name,
-          status: Random.weighted([
-            [MapStatusNew.APPROVED, 1],
-            [MapStatusNew.PUBLIC_TESTING, 0.2],
-            [MapStatusNew.DISABLED, 0.2],
-            [MapStatusNew.CONTENT_APPROVAL, 0.2],
-            [MapStatusNew.PRIVATE_TESTING, 0.2],
-            [MapStatusNew.FINAL_APPROVAL, 0.2]
-          ]),
+          status: Random.weighted(weights.mapStatusWeights),
           fileName: 'flat_devgrid',
           submitterID: Random.element(potentialMappers).id,
           ...Random.createdUpdatedDates(),
@@ -661,7 +684,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     //#region User Interactions
 
     for (const userID of userIDs) {
-      if (Random.chance(vars.mapFavoriteChance))
+      if (Random.chance(randRange(vars.mapFavoriteChance)))
         await prisma.mapFavorite.create({
           data: {
             userID,
@@ -670,7 +693,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           }
         });
 
-      if (Random.chance(vars.mapReportChance)) {
+      if (Random.chance(randRange(vars.mapReportChance))) {
         await prisma.report.create({
           data: {
             data: map.id,
