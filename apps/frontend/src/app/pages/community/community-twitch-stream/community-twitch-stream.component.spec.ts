@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
 import { TwitchAPIService } from '@momentum/frontend/data';
-import { SharedModule } from '../../../../shared.module';
+import { SharedModule } from '../../../shared.module';
 
 // Avast! Here be the tests for the CommunityTwitchStreamComponent
 describe('CommunityTwitchStreamComponent', () => {
@@ -14,13 +14,10 @@ describe('CommunityTwitchStreamComponent', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [SharedModule],
-      declarations: [CommunityTwitchStreamComponent],
       providers: [
         {
           provide: TwitchAPIService,
-          useValue: {
-            getGameStreams: jest.fn()
-          }
+          useValue: { getGameStreams: jest.fn() }
         }
       ]
     });
