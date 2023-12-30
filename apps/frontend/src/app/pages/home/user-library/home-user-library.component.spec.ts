@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeUserLibraryComponent } from './home-user-library.component';
 import { LocalUserService } from '@momentum/frontend/data';
 import { of } from 'rxjs';
-import { SharedModule } from '../../../../shared.module';
+import { SharedModule } from '../../../shared.module';
 
 describe('HomeUserLibraryComponent', () => {
   let component: HomeUserLibraryComponent;
@@ -13,13 +13,10 @@ describe('HomeUserLibraryComponent', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [SharedModule],
-      declarations: [HomeUserLibraryComponent],
       providers: [
         {
           provide: LocalUserService,
-          useValue: {
-            getMapLibrary: jest.fn()
-          }
+          useValue: { getMapLibrary: jest.fn() }
         }
       ]
     });
