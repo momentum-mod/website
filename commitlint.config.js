@@ -30,6 +30,7 @@ module.exports = {
         'shared',
         'meta',
         'deps',
+        'dev-deps',
         'db',
         'xpsys',
         'utils',
