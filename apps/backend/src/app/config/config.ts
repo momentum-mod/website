@@ -9,7 +9,11 @@ import {
   MAX_REVIEW_LENGTH,
   MAX_TESTING_REQUESTS,
   MIN_PUBLIC_TESTING_DURATION,
-  MAX_CREDITS_EXCEPT_TESTERS
+  MAX_CREDITS_EXCEPT_TESTERS,
+  STEAM_APPIDS,
+  JWT_GAME_EXPIRY_TIME,
+  JWT_WEB_EXPIRY_TIME,
+  JWT_REFRESH_EXPIRY_TIME
 } from '@momentum/constants';
 
 export const ConfigFactory = (): ConfigInterface => {
@@ -24,12 +28,12 @@ export const ConfigFactory = (): ConfigInterface => {
     port: port,
     url: process.env['BASE_URL'] ?? `http://localhost:${port}`,
     domain: isProd ? 'momentum-mod.org' : 'localhost',
-    appIDs: [669270, 1802710],
+    appIDs: STEAM_APPIDS,
     jwt: {
       secret: process.env['JWT_SECRET'] ?? '',
-      expTime: '15m',
-      gameExpTime: '24h',
-      refreshExpTime: '5d'
+      expTime: JWT_WEB_EXPIRY_TIME,
+      gameExpTime: JWT_GAME_EXPIRY_TIME,
+      refreshExpTime: JWT_REFRESH_EXPIRY_TIME
     },
     sentry: {
       dsn: process.env['SENTRY_DSN'] ?? ''
