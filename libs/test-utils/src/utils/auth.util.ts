@@ -1,6 +1,6 @@
 ﻿import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { GAME_JWT_EXPIRY_TIME, WEB_JWT_EXPIRY_TIME } from '@momentum/constants';
+import { JWT_GAME_EXPIRY_TIME, JWT_WEB_EXPIRY_TIME } from '@momentum/constants';
 
 export class AuthUtil {
   constructor() {
@@ -34,7 +34,7 @@ export class AuthUtil {
         steamID: user.steamID,
         gameAuth: isGame
       },
-      { expiresIn: isGame ? GAME_JWT_EXPIRY_TIME : WEB_JWT_EXPIRY_TIME }
+      { expiresIn: isGame ? JWT_GAME_EXPIRY_TIME : JWT_WEB_EXPIRY_TIME }
     );
   }
 }
