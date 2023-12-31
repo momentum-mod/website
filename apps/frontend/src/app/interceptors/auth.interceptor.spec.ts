@@ -9,7 +9,7 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
-import { AuthService } from '@momentum/frontend/data';
+import { AuthService } from '../services';
 import { of, Subject, throwError } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 

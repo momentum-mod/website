@@ -4,7 +4,7 @@ import { Report } from '@momentum/constants';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { SharedModule } from '../../../../shared.module';
 import { DialogService } from 'primeng/dynamicdialog';
-import { AvatarComponent } from '../../../../components/avatar/avatar.component';
+import { AvatarComponent } from '../../../../components';
 
 @Component({
   selector: 'm-queued-report',

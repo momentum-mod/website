@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Gamemode, GamemodeName, MMap, TrackType } from '@momentum/constants';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../services';
 import { MapStatusName } from '@momentum/constants';
 import { SharedModule } from '../../shared.module';
 import { MessageService } from 'primeng/api';

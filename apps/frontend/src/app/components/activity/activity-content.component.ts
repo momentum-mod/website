@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon, IconComponent } from '@momentum/frontend/icons';
+import { Icon, IconComponent } from '../../icons';
 import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
-import { PipesModule } from '@momentum/frontend/pipes';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { TimeAgoPipe } from '../../pipes';
 
 @Component({
   selector: 'm-activity-content',
@@ -16,8 +16,8 @@ import { AvatarComponent } from '../avatar/avatar.component';
     RouterLink,
     NgStyle,
     IconComponent,
-    PipesModule,
-    AvatarComponent
+    AvatarComponent,
+    TimeAgoPipe
   ]
 })
 export class ActivityContentComponent implements OnInit {

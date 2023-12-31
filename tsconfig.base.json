@@ -28,16 +28,6 @@
       "@momentum/formats/bsp": ["libs/formats/bsp/src/index.ts"],
       "@momentum/formats/replay": ["libs/formats/replay/src/index.ts"],
       "@momentum/formats/zone": ["libs/formats/zone/src/index.ts"],
-      "@momentum/frontend/data": ["libs/frontend/data/src/index.ts"],
-      "@momentum/frontend/directives": [
-        "libs/frontend/directives/src/index.ts"
-      ],
-      "@momentum/frontend/env": ["libs/frontend/env/src/index.ts"],
-      "@momentum/frontend/icons": ["libs/frontend/icons/src/index.ts"],
-      "@momentum/frontend/pipes": ["libs/frontend/pipes/src/index.ts"],
-      "@momentum/frontend/validators": [
-        "libs/frontend/validators/src/index.ts"
-      ],
       "@momentum/random": ["libs/random/src/index.ts"],
       "@momentum/util-fn": ["libs/util-fn/src/index.ts"],
       "@momentum/xp-systems": ["libs/xp-systems/src/index.ts"]

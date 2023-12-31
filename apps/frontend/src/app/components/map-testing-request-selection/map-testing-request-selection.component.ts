@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { NgClass, NgFor } from '@angular/common';
-import { TooltipDirective } from '../../directives/tooltip.directive';
+import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({

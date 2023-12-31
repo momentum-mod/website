@@ -3,19 +3,27 @@ import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
-import { PastRunsService } from '@momentum/frontend/data';
+import { PastRunsService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { TimeAgoPipe, TimingPipe } from '../../../pipes';
 
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   standalone: true,
-  imports: [SharedModule, DropdownModule, SpinnerDirective, PaginatorModule]
+  imports: [
+    SharedModule,
+    DropdownModule,
+    SpinnerDirective,
+    PaginatorModule,
+    TimingPipe,
+    TimeAgoPipe
+  ]
 })
 export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderByDropdown = [

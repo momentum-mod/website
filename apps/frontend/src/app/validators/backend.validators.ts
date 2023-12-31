@@ -4,7 +4,7 @@ import {
   ValidationErrors
 } from '@angular/forms';
 import { Observable, map, of, switchMap, delay } from 'rxjs';
-import { MapsService } from '@momentum/frontend/data';
+import { MapsService } from '../services';
 
 export class BackendValidators {
   // Rather than following https://angular.io/guide/form-validation#adding-async-validators-to-reactive-forms

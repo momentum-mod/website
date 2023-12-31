@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { AdminService } from '@momentum/frontend/data';
+import { AdminService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
 

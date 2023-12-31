@@ -11,18 +11,19 @@ import {
   SocialsData
 } from '@momentum/constants';
 import { Follow, User } from '@momentum/constants';
-import { LocalUserService, UsersService } from '@momentum/frontend/data';
-import { Icon } from '@momentum/frontend/icons';
+import { LocalUserService, UsersService } from '../../services';
+import { Icon } from '../../icons';
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { SharedModule } from '../../shared.module';
-import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
+import { ReportButtonComponent } from '../../components';
 import { MessageService } from 'primeng/api';
-import { RoleBadgesComponent } from '../../components/roles/role-badges.component';
+import { RoleBadgesComponent } from '../../components';
 import { TabViewModule } from 'primeng/tabview';
-import { AvatarComponent } from '../../components/avatar/avatar.component';
-import { ActivityComponent } from '../../components/activity/activity.component';
+import { AvatarComponent } from '../../components';
+import { ActivityComponent } from '../../components';
+import { UnsortedKeyvaluePipe } from '../../pipes';
 
 @Component({
   selector: 'm-user-profile',
@@ -38,7 +39,8 @@ import { ActivityComponent } from '../../components/activity/activity.component'
     ProfileCreditsComponent,
     RoleBadgesComponent,
     TabViewModule,
-    AvatarComponent
+    AvatarComponent,
+    UnsortedKeyvaluePipe
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

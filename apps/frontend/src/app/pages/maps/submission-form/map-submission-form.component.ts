@@ -14,7 +14,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { LocalUserService, MapsService } from '@momentum/frontend/data';
+import { LocalUserService, MapsService } from '../../../services';
 import {
   Ban,
   CombinedRoles,
@@ -37,26 +37,29 @@ import {
   FileValidators,
   suggestionsValidator,
   testInvitesValidator
-} from '@momentum/frontend/validators';
+} from '../../../validators';
 import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
-import { MapLeaderboardSelectionComponent } from '../../../components/map-leaderboard-selection/map-leaderboard-selection.component';
-import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
+import {
+  MapLeaderboardSelectionComponent,
+  SortedMapCredits
+} from '../../../components';
 import {
   HttpErrorResponse,
   HttpEvent,
   HttpEventType
 } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { MapTestingRequestSelectionComponent } from '../../../components/map-testing-request-selection/map-testing-request-selection.component';
-import { MapCreditsSelectionComponent } from '../../../components/map-credits-selection/map-credits-selection.component';
-import { MapImageSelectionComponent } from '../../../components/map-image-selection/map-image-selection.component';
-import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
-import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
+import { MapTestingRequestSelectionComponent } from '../../../components';
+import { MapCreditsSelectionComponent } from '../../../components';
+import { MapImageSelectionComponent } from '../../../components';
+import { MultiFileUploadComponent } from '../../../components';
+import { FileUploadComponent } from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
 import { CalendarModule } from 'primeng/calendar';
+import { PluralPipe } from '../../../pipes';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -74,7 +77,8 @@ import { CalendarModule } from 'primeng/calendar';
     MapTestingRequestSelectionComponent,
     TooltipDirective,
     ProgressBarModule,
-    CalendarModule
+    CalendarModule,
+    PluralPipe
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {

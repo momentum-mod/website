@@ -9,12 +9,13 @@ import {
   PagedResponse,
   TrackType
 } from '@momentum/constants';
-import { LeaderboardsService } from '@momentum/frontend/data';
+import { LeaderboardsService } from '../../../../services';
 import { Observable } from 'rxjs';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
-import { AvatarComponent } from '../../../../components/avatar/avatar.component';
+import { AvatarComponent } from '../../../../components';
+import { TimeAgoPipe, TimingPipe } from '../../../../pipes';
 
 enum LeaderboardType {
   TOP10,
@@ -26,7 +27,13 @@ enum LeaderboardType {
   selector: 'm-map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
   standalone: true,
-  imports: [SharedModule, DropdownModule, AvatarComponent]
+  imports: [
+    SharedModule,
+    DropdownModule,
+    AvatarComponent,
+    TimingPipe,
+    TimeAgoPipe
+  ]
 })
 export class MapLeaderboardComponent {
   protected readonly LeaderboardType = LeaderboardType;

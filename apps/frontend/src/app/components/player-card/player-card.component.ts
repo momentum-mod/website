@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FullUser, LocalUserService } from '@momentum/frontend/data';
 import { Subject, takeUntil } from 'rxjs';
-import { IconComponent } from '@momentum/frontend/icons';
+import { IconComponent } from '../../icons';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { XpSystemsService } from '../../services/xp-systems.service';
+import { FullUser, LocalUserService } from '../../services';
 
 @Component({
   selector: 'm-player-card',

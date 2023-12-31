@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { NotificationsService } from './services/notifications.service';
-import { IconComponent } from '@momentum/frontend/icons';
-import { HeaderComponent } from './components/header/header.component';
+import { IconComponent } from './icons';
+import { HeaderComponent } from './components';
 import { RouterOutlet } from '@angular/router';
-import { SidenavComponent } from './components/sidenav/sidenav.component';
+import { SidenavComponent } from './components';
 import { ToastModule } from 'primeng/toast';
 import { LayoutService, SidenavState } from './services/layout.service';
 import { takeUntil } from 'rxjs/operators';

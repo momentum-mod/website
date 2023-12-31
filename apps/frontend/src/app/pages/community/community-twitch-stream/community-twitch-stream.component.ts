@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TwitchAPIService } from '@momentum/frontend/data';
+import { TwitchAPIService } from '../../../services';
 import { TwitchStream } from '@momentum/constants';
 import { finalize } from 'rxjs/operators';
 import { TwitchDataComponent } from './twitch-data/twitch-data.component';

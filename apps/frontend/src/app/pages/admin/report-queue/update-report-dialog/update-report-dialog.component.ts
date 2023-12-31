@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Report } from '@momentum/constants';
-import { AdminService } from '@momentum/frontend/data';
+import { AdminService } from '../../../../services';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';

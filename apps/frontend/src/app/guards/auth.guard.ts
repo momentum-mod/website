@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { LocalUserService } from '@momentum/frontend/data';
-import { env } from '@momentum/frontend/env';
+import { LocalUserService } from '../services';
+import { env } from '../env/environment';
 
 const POST_AUTH_REDIRECT_KEY = 'postAuthLocation';
 

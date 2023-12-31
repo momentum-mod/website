@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
-import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
+import { SortedMapCredits } from '../../../components';
 import {
   CdkDragDrop,
   moveItemInArray,
@@ -9,8 +9,8 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { SharedModule } from '../../../shared.module';
-import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
-import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import { UserSearchComponent } from '../../../components';
+import { AvatarComponent } from '../../../components';
 
 enum SearchState {
   HIDDEN,

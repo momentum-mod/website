@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { LeaderboardsService, PastRunsService } from '@momentum/frontend/data';
+import { LeaderboardsService, PastRunsService } from '../../../services';
 import { LeaderboardRun, PastRun } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { SharedModule } from '../../../shared.module';
-import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import { AvatarComponent } from '../../../components';
+import { TimingPipe } from '../../../pipes';
 
 @Component({
   selector: 'm-run-info',
   templateUrl: './run-info.component.html',
   standalone: true,
-  imports: [SharedModule, AvatarComponent]
+  imports: [SharedModule, AvatarComponent, TimingPipe]
 })
 export class RunInfoComponent implements OnInit {
   run: PastRun;

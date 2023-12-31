@@ -1,25 +1,25 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { PipesModule } from '@momentum/frontend/pipes';
 import { RouterModule } from '@angular/router';
-import { IconComponent } from '@momentum/frontend/icons';
-import { CardComponent } from './components/card/card.component';
+import { IconComponent } from './icons';
+import { CardComponent } from './components';
 import { TooltipDirective } from './directives/tooltip.directive';
 
-const MODULES = [
+const SHARED = [
   CommonModule,
-  PipesModule,
   NgOptimizedImage,
   RouterModule,
   IconComponent,
-  CardComponent
+  CardComponent,
+  TooltipDirective
 ];
 
-const DIRECTIVES = [TooltipDirective];
-
+/**
+ * Shared imports used practically everywhere.
+ */
 @NgModule({
-  imports: [...MODULES, ...DIRECTIVES],
-  exports: [...MODULES, ...DIRECTIVES, FormsModule, ReactiveFormsModule]
+  imports: [...SHARED],
+  exports: [...SHARED, FormsModule, ReactiveFormsModule]
 })
 export class SharedModule {}

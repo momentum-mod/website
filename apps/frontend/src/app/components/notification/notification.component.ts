@@ -2,9 +2,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
 import { NgIf, NgFor, NgClass } from '@angular/common';
-import { IconComponent } from '@momentum/frontend/icons';
-import { PipesModule } from '@momentum/frontend/pipes';
+import { IconComponent } from '../../icons';
 import { ActivityContentComponent } from '../activity/activity-content.component';
+import { TimeAgoPipe } from '../../pipes';
 
 @Component({
   selector: 'm-notifications',
@@ -16,7 +16,7 @@ import { ActivityContentComponent } from '../activity/activity-content.component
     NgClass,
     ActivityContentComponent,
     IconComponent,
-    PipesModule
+    TimeAgoPipe
   ]
 })
 export class NotificationComponent implements OnInit {

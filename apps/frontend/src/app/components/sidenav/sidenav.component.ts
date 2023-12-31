@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '@momentum/frontend/icons';
-import { LocalUserService } from '@momentum/frontend/data';
+import { IconComponent } from '../../icons';
+import { LocalUserService } from '../../services';
 import { CombinedRoles } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
 import { LayoutService, SidenavState } from '../../services/layout.service';

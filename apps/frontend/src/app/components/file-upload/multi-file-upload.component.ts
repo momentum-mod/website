@@ -2,7 +2,7 @@ import { Component, forwardRef, HostListener, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 import { NgClass, NgIf, NgFor } from '@angular/common';
-import { IconComponent } from '@momentum/frontend/icons';
+import { IconComponent } from '../../icons';
 
 /**
  * A form control for multiple file selection/uploading with support for drag

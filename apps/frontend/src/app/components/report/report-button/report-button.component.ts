@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ReportType } from '@momentum/constants';
 import { CreateReportDialogComponent } from '../create-report-dialog/create-report-dialog.component';
-import { IconComponent } from '@momentum/frontend/icons';
+import { IconComponent } from '../../../icons';
 import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({

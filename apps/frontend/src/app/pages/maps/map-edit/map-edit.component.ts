@@ -8,25 +8,19 @@ import {
   CdkDropList,
   moveItemInArray
 } from '@angular/cdk/drag-drop';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../components';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
-import {
-  AdminService,
-  LocalUserService,
-  MapsService
-} from '@momentum/frontend/data';
+import { AdminService, LocalUserService, MapsService } from '../../../services';
 import { MapCreditType, Role } from '@momentum/constants';
-import {
-  EditableMapCredit,
-  SortedMapCredits
-} from '../../../components/map-credits-selection/sorted-map-credits.class';
+import { EditableMapCredit, SortedMapCredits } from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { MapCreditsComponent } from '../map-credits/map-credits.component';
-import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
+import { FileUploadComponent } from '../../../components';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
+import { PluralPipe } from '../../../pipes';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -41,7 +35,8 @@ const youtubeRegex = /[\w-]{11}/;
     CdkDropList,
     MapCreditsComponent,
     FileUploadComponent,
-    TabViewModule
+    TabViewModule,
+    PluralPipe
   ]
 })
 export class MapEditComponent implements OnInit, OnDestroy {

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeUserLibraryComponent } from './home-user-library.component';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../../services';
 import { of } from 'rxjs';
 import { SharedModule } from '../../../shared.module';
 
