@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { BlogService } from '../../../services';
 import { finalize } from 'rxjs/operators';
 import { parse, simplify } from 'txml';
+import { BlogService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 
 @Component({

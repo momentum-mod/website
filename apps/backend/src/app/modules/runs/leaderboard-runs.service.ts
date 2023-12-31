@@ -7,6 +7,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
@@ -20,7 +21,6 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
-import { runPath } from '@momentum/constants';
 
 @Injectable()
 export class LeaderboardRunsService {

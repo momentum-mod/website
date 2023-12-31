@@ -1,11 +1,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Gamemode, GamemodeName, MMap, TrackType } from '@momentum/constants';
-import { LocalUserService } from '../../services';
-import { MapStatusName } from '@momentum/constants';
-import { SharedModule } from '../../shared.module';
+import {
+  Gamemode,
+  GamemodeName,
+  MMap,
+  TrackType,
+  MapStatusName
+} from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-import { AvatarComponent } from '../avatar/avatar.component';
 import { CarouselModule } from 'primeng/carousel';
+import { LocalUserService } from '../../services';
+import { SharedModule } from '../../shared.module';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'm-map-list-item',

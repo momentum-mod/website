@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { Follow, User } from '@momentum/constants';
-import { LocalUserService } from '../../../services';
-import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { LocalUserService } from '../../../services';
+import { SharedModule } from '../../../shared.module';
+import { TooltipDirective } from '../../../directives';
+import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 
 @Component({
   selector: 'm-profile-follow',

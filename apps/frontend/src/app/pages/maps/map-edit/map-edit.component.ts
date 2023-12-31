@@ -8,18 +8,20 @@ import {
   CdkDropList,
   moveItemInArray
 } from '@angular/cdk/drag-drop';
-import { ConfirmDialogComponent } from '../../../components';
 import { Subject } from 'rxjs';
-import { MMap, MapImage } from '@momentum/constants';
-import { AdminService, LocalUserService, MapsService } from '../../../services';
-import { MapCreditType, Role } from '@momentum/constants';
-import { EditableMapCredit, SortedMapCredits } from '../../../components';
-import { SharedModule } from '../../../shared.module';
-import { MapCreditsComponent } from '../map-credits/map-credits.component';
-import { FileUploadComponent } from '../../../components';
+import { MMap, MapImage, MapCreditType, Role } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
+import {
+  ConfirmDialogComponent,
+  EditableMapCredit,
+  SortedMapCredits,
+  FileUploadComponent
+} from '../../../components';
+import { AdminService, LocalUserService, MapsService } from '../../../services';
+import { SharedModule } from '../../../shared.module';
+import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { PluralPipe } from '../../../pipes';
 
 const youtubeRegex = /[\w-]{11}/;

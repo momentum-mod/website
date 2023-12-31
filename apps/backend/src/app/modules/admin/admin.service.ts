@@ -7,6 +7,9 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Bitflags } from '@momentum/bitflags';
+import { AdminActivityType, Role } from '@momentum/constants';
+import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
   AdminUpdateUserDto,
   DtoFactory,
@@ -15,11 +18,8 @@ import {
   UpdateReportDto,
   UserDto
 } from '../../dto';
-import { Bitflags } from '@momentum/bitflags';
-import { AdminActivityType, Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import { AdminActivityService } from './admin-activity.service';
 
 @Injectable()

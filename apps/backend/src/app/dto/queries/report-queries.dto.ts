@@ -1,6 +1,6 @@
-﻿import { BooleanQueryProperty, ExpandQueryProperty } from '../decorators';
+﻿import { ReportGetExpand, ReportGetQuery } from '@momentum/constants';
+import { BooleanQueryProperty, ExpandQueryProperty } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
-import { ReportGetExpand, ReportGetQuery } from '@momentum/constants';
 
 export class ReportGetQueryDto extends PagedQueryDto implements ReportGetQuery {
   @BooleanQueryProperty({ description: 'Filter by resolved' })

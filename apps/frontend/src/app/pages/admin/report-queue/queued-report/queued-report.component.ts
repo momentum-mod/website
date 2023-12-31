@@ -1,9 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ReportCategory, ReportType } from '@momentum/constants';
-import { Report } from '@momentum/constants';
+import { ReportCategory, ReportType, Report } from '@momentum/constants';
+import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { SharedModule } from '../../../../shared.module';
-import { DialogService } from 'primeng/dynamicdialog';
 import { AvatarComponent } from '../../../../components';
 
 @Component({

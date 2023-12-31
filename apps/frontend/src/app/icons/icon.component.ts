@@ -6,9 +6,9 @@ import {
   OnChanges,
   OnInit
 } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IconService } from './icon.service';
 import { DEFAULT_ICON_PACK, Icon, IconPack } from './index';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'm-icon',

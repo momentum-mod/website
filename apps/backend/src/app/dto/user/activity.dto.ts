@@ -1,7 +1,6 @@
 import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import { IsPositive } from 'class-validator';
-import { UserDto } from './user.dto';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -9,6 +8,7 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../decorators';
+import { UserDto } from './user.dto';
 
 export class ActivityDto implements Activity {
   @IdProperty()

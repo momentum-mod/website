@@ -21,9 +21,7 @@ import {
   MaxLength,
   Min
 } from 'class-validator';
-import { IsVector } from '../../validators';
 import { ApiProperty } from '@nestjs/swagger';
-import { NestedProperty } from '../decorators';
 import {
   MAX_BONUS_TRACKS,
   MAX_SEGMENT_CHECKPOINTS,
@@ -32,6 +30,8 @@ import {
   MAX_ZONE_REGION_POINTS,
   MAX_ZONES_ALL_TRACKS
 } from '@momentum/formats/zone';
+import { IsVector } from '../../validators';
+import { NestedProperty } from '../decorators';
 
 export class RegionDto /* extends JsonifiableDto */ implements Region {
   @ApiProperty({

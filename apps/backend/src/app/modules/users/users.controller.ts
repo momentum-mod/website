@@ -1,3 +1,14 @@
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiExtraModels,
+  ApiBadRequestResponse,
+  ApiOkResponse,
+  ApiNotFoundResponse
+} from '@nestjs/swagger';
 import {
   ActivityDto,
   ApiOkPagedResponse,
@@ -13,17 +24,6 @@ import {
   UsersGetCreditsQueryDto
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-  ApiParam,
-  ApiExtraModels,
-  ApiBadRequestResponse,
-  ApiOkResponse,
-  ApiNotFoundResponse
-} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 
 @Controller('users')

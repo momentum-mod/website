@@ -1,9 +1,9 @@
+import { Route } from '@angular/router';
+import { Role } from '@momentum/constants';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
-import { Route } from '@angular/router';
 import { RoleGuard } from './guards/role.guard';
-import { Role } from '@momentum/constants';
 
 export const APP_ROUTES: Route[] = [
   {

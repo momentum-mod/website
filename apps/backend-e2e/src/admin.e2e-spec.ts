@@ -1,26 +1,14 @@
 // noinspection DuplicatedCode
 
-import { readFileSync } from 'node:fs';
-import { Prisma, PrismaClient } from '@prisma/client';
-import {
-  AuthUtil,
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  FileStoreUtil,
-  NULL_ID,
-  RequestUtil
-} from '@momentum/test-utils';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
 import {
   AdminActivityDto,
   MapDto,
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
+
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import {
   ActivityType,
   AdminActivityType,
@@ -39,7 +27,16 @@ import {
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
-import path from 'node:path';
+import {
+  AuthUtil,
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  FileStoreUtil,
+  NULL_ID,
+  RequestUtil
+} from '@momentum/test-utils';
+import { Prisma, PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
 import {
   BabyZonesStub,
@@ -47,6 +44,10 @@ import {
   ZonesStubLeaderboards
 } from '@momentum/formats/zone';
 import { JsonValue } from 'type-fest';
+import {
+  setupE2ETestEnvironment,
+  teardownE2ETestEnvironment
+} from './support/environment';
 
 describe('Admin', () => {
   let app,

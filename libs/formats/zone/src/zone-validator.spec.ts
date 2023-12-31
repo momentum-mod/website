@@ -1,3 +1,4 @@
+import { MapZones, Segment, Track, Vector2D, Zone } from '@momentum/constants';
 import {
   BabyZonesStub,
   CURRENT_ZONE_FORMAT_VERSION,
@@ -8,10 +9,9 @@ import {
   MAX_TRACK_SEGMENTS,
   MAX_ZONE_REGION_POINTS,
   MIN_COORD_FLOAT,
-  validateZoneFile
+  validateZoneFile,
+  ZonesStub
 } from './';
-import { ZonesStub } from './';
-import { MapZones, Segment, Track, Vector2D, Zone } from '@momentum/constants';
 
 describe('validateZoneFile', () => {
   let input: MapZones;

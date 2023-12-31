@@ -2,10 +2,13 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { MMap, MapImage, MapNotify, CombinedRoles } from '@momentum/constants';
-import { ReportType } from '@momentum/constants';
-import { LocalUserService, MapsService } from '../../../services';
+import {
+  MMap,
+  MapImage,
+  MapNotify,
+  CombinedRoles,
+  ReportType
+} from '@momentum/constants';
 import { PartialDeep } from 'type-fest';
 import {
   Gallery,
@@ -14,21 +17,25 @@ import {
   ImageItem,
   YoutubeItem
 } from 'ng-gallery';
-import { MapInfoStatsComponent } from './map-info-stats/map-info-stats.component';
-import { MapInfoCreditsComponent } from './map-info-credits/map-info-credits.component';
-import { MapInfoDescriptionComponent } from './map-info-description/map-info-description.component';
-import { SharedModule } from '../../../shared.module';
-import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { GallerizeDirective } from 'ng-gallery/lightbox';
-import { ReportButtonComponent } from '../../../components';
-import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { CardHeaderComponent } from '../../../components';
-import { CardComponent } from '../../../components';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
-import { AvatarComponent } from '../../../components';
+import {
+  ReportButtonComponent,
+  CardHeaderComponent,
+  CardComponent,
+  AvatarComponent
+} from '../../../components';
+import { TooltipDirective } from '../../../directives';
+import { SharedModule } from '../../../shared.module';
+import { LocalUserService, MapsService } from '../../../services';
 import { PluralPipe, ThousandsSuffixPipe } from '../../../pipes';
+import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
+import { MapInfoDescriptionComponent } from './map-info-description/map-info-description.component';
+import { MapInfoCreditsComponent } from './map-info-credits/map-info-credits.component';
+import { MapInfoStatsComponent } from './map-info-stats/map-info-stats.component';
+import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 
 @Component({
   selector: 'm-map-info',

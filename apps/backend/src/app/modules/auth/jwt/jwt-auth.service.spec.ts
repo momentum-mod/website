@@ -1,19 +1,19 @@
 ﻿import { Test, TestingModule } from '@nestjs/testing';
-import { JwtAuthService } from './jwt-auth.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
+import { mockDeep } from 'jest-mock-extended';
 import { JWTResponseGameDto, JWTResponseWebDto } from '../../../dto';
 import {
   UserJwtAccessPayloadVerified,
   UserJwtPayloadVerified
 } from '../auth.interface';
-import { mockDeep } from 'jest-mock-extended';
 import {
   PRISMA_MOCK_PROVIDER,
   PrismaMock
 } from '../../../../../test/prisma-mock.const';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
+import { JwtAuthService } from './jwt-auth.service';
 
 describe('JwtAuthService', () => {
   let service: JwtAuthService, db: PrismaMock;

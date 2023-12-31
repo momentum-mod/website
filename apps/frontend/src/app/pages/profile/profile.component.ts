@@ -8,22 +8,25 @@ import {
   ReportType,
   Role,
   Socials,
-  SocialsData
+  SocialsData,
+  Follow,
+  User
 } from '@momentum/constants';
-import { Follow, User } from '@momentum/constants';
+import { MessageService } from 'primeng/api';
+import { TabViewModule } from 'primeng/tabview';
 import { LocalUserService, UsersService } from '../../services';
 import { Icon } from '../../icons';
-import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
-import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
-import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { SharedModule } from '../../shared.module';
-import { ReportButtonComponent } from '../../components';
-import { MessageService } from 'primeng/api';
-import { RoleBadgesComponent } from '../../components';
-import { TabViewModule } from 'primeng/tabview';
-import { AvatarComponent } from '../../components';
-import { ActivityComponent } from '../../components';
+import {
+  ReportButtonComponent,
+  RoleBadgesComponent,
+  AvatarComponent,
+  ActivityComponent
+} from '../../components';
 import { UnsortedKeyvaluePipe } from '../../pipes';
+import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
+import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
+import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 
 @Component({
   selector: 'm-user-profile',

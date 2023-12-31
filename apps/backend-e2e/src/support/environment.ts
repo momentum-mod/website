@@ -1,13 +1,4 @@
-// https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
-import { AppModule } from '../../../backend/src/app/app.module';
-import {
-  AuthUtil,
-  DbUtil,
-  FileStoreUtil,
-  RequestUtil
-} from '@momentum/test-utils';
-import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
-
+import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
   ClassSerializerInterceptor,
@@ -21,10 +12,18 @@ import {
   NestFastifyApplication
 } from '@nestjs/platform-fastify';
 import { Reflector } from '@nestjs/core';
-import { Server } from 'node:http';
+import {
+  AuthUtil,
+  DbUtil,
+  FileStoreUtil,
+  RequestUtil
+} from '@momentum/test-utils';
 import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
+// https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
+import { AppModule } from '../../../backend/src/app/app.module';
+import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 
 export interface E2EUtils {
   app: NestFastifyApplication;

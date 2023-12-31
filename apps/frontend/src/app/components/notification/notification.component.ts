@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
 import { NgClass } from '@angular/common';
+import { NotificationsService } from '../../services/notifications.service';
 import { IconComponent } from '../../icons';
 import { ActivityContentComponent } from '../activity/activity-content.component';
 import { TimeAgoPipe } from '../../pipes';

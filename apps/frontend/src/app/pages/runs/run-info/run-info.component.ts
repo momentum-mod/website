@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { LeaderboardsService, PastRunsService } from '../../../services';
 import { LeaderboardRun, PastRun } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { LeaderboardsService, PastRunsService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { AvatarComponent } from '../../../components';
 import { TimingPipe } from '../../../pipes';

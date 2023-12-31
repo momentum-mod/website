@@ -2,8 +2,8 @@ import { applyDecorators, Type } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { IsArray, IsInt } from 'class-validator';
-import { DtoFactory } from './functions';
 import { PagedResponse } from '@momentum/constants';
+import { DtoFactory } from './functions';
 
 export const ApiOkPagedResponse = <TModel extends Type>(
   model: TModel,

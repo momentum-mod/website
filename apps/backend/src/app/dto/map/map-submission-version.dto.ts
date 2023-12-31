@@ -11,10 +11,10 @@ import {
   IsUrl,
   IsUUID
 } from 'class-validator';
-import { MapSubmissionDto } from './map-submission.dto';
 import { Exclude, Expose } from 'class-transformer';
 import { CreatedAtProperty, NestedProperty } from '../decorators';
 import { Config } from '../../config';
+import { MapSubmissionDto } from './map-submission.dto';
 import { MapZonesDto } from './map-zones.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;

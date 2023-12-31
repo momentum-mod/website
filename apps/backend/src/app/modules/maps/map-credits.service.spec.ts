@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MapCreditsService } from './map-credits.service';
 import { mockDeep } from 'jest-mock-extended';
 import { PRISMA_MOCK_PROVIDER } from '../../../../test/prisma-mock.const';
+import { MapCreditsService } from './map-credits.service';
 
 describe('MapCreditsService', () => {
   let service: MapCreditsService;

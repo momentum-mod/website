@@ -1,11 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MapsService } from './maps.service';
 import { mockDeep } from 'jest-mock-extended';
-import {
-  PRISMA_MOCK_PROVIDER,
-  PrismaMock
-} from '../../../../test/prisma-mock.const';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   ForbiddenException,
   InternalServerErrorException,
@@ -13,6 +7,12 @@ import {
 } from '@nestjs/common';
 import { MapStatusNew, Role } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import {
+  PRISMA_MOCK_PROVIDER,
+  PrismaMock
+} from '../../../../test/prisma-mock.const';
+import { MapsService } from './maps.service';
 
 describe('MapsService', () => {
   let service: MapsService, db: PrismaMock;

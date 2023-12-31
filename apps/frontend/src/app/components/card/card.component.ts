@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { CardHeaderComponent } from './card-header.component';
 import { NgClass } from '@angular/common';
+import { CardHeaderComponent } from './card-header.component';
 
 @Component({
   selector: 'm-card',

@@ -6,11 +6,11 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { MapStatusNew, MapTestingRequestState } from '@momentum/constants';
+import { difference } from '@momentum/util-fn';
 import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../database/prisma.extension';
-import { difference } from '@momentum/util-fn';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 
 @Injectable()

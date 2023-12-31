@@ -15,23 +15,6 @@ import {
   MMap,
   Prisma
 } from '@prisma/client';
-import { FileStoreService } from '../filestore/file-store.service';
-import {
-  CreateMapDto,
-  CreateMapSubmissionVersionDto,
-  DtoFactory,
-  MapDto,
-  MapInfoDto,
-  MapsGetAllAdminQueryDto,
-  MapsGetAllQueryDto,
-  MapsGetAllSubmissionAdminQueryDto,
-  MapsGetAllSubmissionQueryDto,
-  MapSummaryDto,
-  MapZonesDto,
-  PagedResponseDto,
-  UpdateMapAdminDto,
-  UpdateMapDto
-} from '../../dto';
 import {
   ActivityType,
   AdminActivityType,
@@ -55,12 +38,6 @@ import {
   submissionVmfsPath,
   TrackType
 } from '@momentum/constants';
-import { MapImageService } from './map-image.service';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import {
-  ExtendedPrismaService,
-  ExtendedPrismaServiceTransaction
-} from '../database/prisma.extension';
 import { Bitflags } from '@momentum/bitflags';
 import {
   expandToIncludes,
@@ -71,23 +48,46 @@ import {
 import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
 import Zip from 'adm-zip';
-import { FileStoreFile } from '../filestore/file-store.interface';
-import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
 import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
-import { AdminActivityService } from '../admin/admin-activity.service';
 import {
   SuggestionValidationError,
   validateSuggestions,
   validateZoneFile,
   ZoneValidationError
 } from '@momentum/formats/zone';
+import { AdminActivityService } from '../admin/admin-activity.service';
+import { FileStoreFile } from '../filestore/file-store.interface';
+import {
+  ExtendedPrismaService,
+  ExtendedPrismaServiceTransaction
+} from '../database/prisma.extension';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import {
+  CreateMapDto,
+  CreateMapSubmissionVersionDto,
+  DtoFactory,
+  MapDto,
+  MapInfoDto,
+  MapsGetAllAdminQueryDto,
+  MapsGetAllQueryDto,
+  MapsGetAllSubmissionAdminQueryDto,
+  MapsGetAllSubmissionQueryDto,
+  MapSummaryDto,
+  MapZonesDto,
+  PagedResponseDto,
+  UpdateMapAdminDto,
+  UpdateMapDto
+} from '../../dto';
+import { FileStoreService } from '../filestore/file-store.service';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
+import { MapTestingRequestService } from './map-testing-request.service';
+import { MapImageService } from './map-image.service';
 import {
   LeaderboardHandler,
   LeaderboardProps
 } from './leaderboard-handler.util';
-import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 
 @Injectable()
 export class MapsService {

@@ -1,7 +1,7 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt } from 'class-validator';
-import { NestedProperty } from '../decorators';
 import { CompletedRun, XpGain } from '@momentum/constants';
+import { NestedProperty } from '../decorators';
 import { LeaderboardRunDto } from './leaderboard-run.dto';
 
 class CosXpGain {

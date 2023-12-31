@@ -29,6 +29,7 @@ import {
   MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/constants';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -43,7 +44,6 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
-import { ApiProperty, OmitType } from '@nestjs/swagger';
 
 //#region Get All
 

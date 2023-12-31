@@ -4,9 +4,9 @@ import {
   ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
+import { mockDeep } from 'jest-mock-extended';
 import { SteamService } from '../../steam/steam.service';
 import { SteamOpenIDService } from './steam-openid.service';
-import { mockDeep } from 'jest-mock-extended';
 
 describe('SteamOpenIDService', () => {
   let service: SteamOpenIDService, steamService: SteamService;

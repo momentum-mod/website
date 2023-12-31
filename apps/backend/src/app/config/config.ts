@@ -1,5 +1,4 @@
-﻿import { ConfigInterface, Environment } from './config.interface';
-import {
+﻿import {
   MAX_IMAGE_SIZE,
   MAX_MAP_IMAGE_UPLOADS,
   MAX_BSP_SIZE,
@@ -15,6 +14,7 @@ import {
   JWT_WEB_EXPIRY_TIME,
   JWT_REFRESH_EXPIRY_TIME
 } from '@momentum/constants';
+import { ConfigInterface, Environment } from './config.interface';
 
 export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;

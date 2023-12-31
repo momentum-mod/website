@@ -1,9 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon, IconComponent } from '../../icons';
-import { Activity } from '@momentum/constants';
-import { ActivityType } from '@momentum/constants';
+import { Activity, ActivityType } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
+import { Icon, IconComponent } from '../../icons';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { TimeAgoPipe } from '../../pipes';
 

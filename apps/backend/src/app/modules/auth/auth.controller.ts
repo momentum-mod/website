@@ -22,17 +22,17 @@ import {
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { JwtAuthService } from './jwt/jwt-auth.service';
-import { SteamOpenIDService } from './steam/steam-openid.service';
+import { CookieSerializeOptions } from '@fastify/cookie';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
-import { SteamWebGuard } from './steam/steam-web.guard';
-import { SteamGameGuard } from './steam/steam-game.guard';
 import {
   JWTResponseGameDto,
   JWTResponseWebDto,
   RefreshTokenDto
 } from '../../dto';
-import { CookieSerializeOptions } from '@fastify/cookie';
+import { JwtAuthService } from './jwt/jwt-auth.service';
+import { SteamOpenIDService } from './steam/steam-openid.service';
+import { SteamWebGuard } from './steam/steam-web.guard';
+import { SteamGameGuard } from './steam/steam-game.guard';
 
 @Controller({
   path: 'auth',

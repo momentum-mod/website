@@ -6,6 +6,16 @@ import {
   Logger
 } from '@nestjs/common';
 import { Leaderboard, LeaderboardRun, Prisma, User } from '@prisma/client';
+import {
+  ActivityType,
+  runPath,
+  RunValidationError,
+  RunValidationErrorType,
+  TrackType,
+  XpGain
+} from '@momentum/constants';
+import { JsonValue } from 'type-fest';
+import { parallel } from '@momentum/util-fn';
 import { FileStoreService } from '../../filestore/file-store.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
 import {
@@ -16,24 +26,14 @@ import {
   UpdateRunSessionDto,
   XpGainDto
 } from '../../../dto';
-import { CompletedRunSession, ProcessedRun } from './run-session.interface';
-import {
-  ActivityType,
-  runPath,
-  RunValidationError,
-  RunValidationErrorType,
-  TrackType,
-  XpGain
-} from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../../database/prisma.extension';
 import { MapsService } from '../../maps/maps.service';
+import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 import { RunProcessor } from './run-processor.class';
-import { JsonValue } from 'type-fest';
-import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class RunSessionService {

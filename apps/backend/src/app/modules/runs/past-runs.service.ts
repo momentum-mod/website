@@ -4,12 +4,12 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
+import { MapStatusNew, RunsGetQuery } from '@momentum/constants';
+import { PastRun, Prisma } from '@prisma/client';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { DtoFactory, PastRunDto, PastRunsGetAllQueryDto } from '../../dto';
 import { PagedResponseDto } from '../../dto';
-import { MapStatusNew, RunsGetQuery } from '@momentum/constants';
-import { PastRun, Prisma } from '@prisma/client';
 import { MapsService } from '../maps/maps.service';
 
 @Injectable()

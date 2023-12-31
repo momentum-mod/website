@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
-import { SharedModule } from '../../../shared.module';
-import { MapListComponent, MapListFiltersForm } from '../../../components';
 import { Gamemode, ORDERED_GAMEMODES } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { CardHeaderComponent } from '../../../components';
+import { SharedModule } from '../../../shared.module';
+import {
+  MapListComponent,
+  MapListFiltersForm
+} from '../../../components/map-list/map-list.component';
+import { CardHeaderComponent } from '../../../components/card/card-header.component';
 
 @Component({
   templateUrl: 'map-browser.component.html',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalUserService } from '../../../services';
 import { MMap } from '@momentum/constants';
+import { LocalUserService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 
 @Component({

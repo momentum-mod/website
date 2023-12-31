@@ -14,7 +14,6 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { LocalUserService, MapsService } from '../../../services';
 import {
   Ban,
   CombinedRoles,
@@ -31,6 +30,17 @@ import {
   MIN_MAP_NAME_LENGTH,
   TrackType
 } from '@momentum/constants';
+import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpEventType
+} from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { MessageService } from 'primeng/api';
+import { CalendarModule } from 'primeng/calendar';
+import { LocalUserService, MapsService } from '../../../services';
 import {
   BackendValidators,
   creditsValidator,
@@ -38,27 +48,17 @@ import {
   suggestionsValidator,
   testInvitesValidator
 } from '../../../validators';
-import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
 import {
   MapLeaderboardSelectionComponent,
-  SortedMapCredits
+  SortedMapCredits,
+  MapTestingRequestSelectionComponent,
+  MapCreditsSelectionComponent,
+  MapImageSelectionComponent,
+  MultiFileUploadComponent,
+  FileUploadComponent
 } from '../../../components';
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpEventType
-} from '@angular/common/http';
-import { forkJoin } from 'rxjs';
-import { MapTestingRequestSelectionComponent } from '../../../components';
-import { MapCreditsSelectionComponent } from '../../../components';
-import { MapImageSelectionComponent } from '../../../components';
-import { MultiFileUploadComponent } from '../../../components';
-import { FileUploadComponent } from '../../../components';
 import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { MessageService } from 'primeng/api';
-import { CalendarModule } from 'primeng/calendar';
+import { TooltipDirective } from '../../../directives';
 import { PluralPipe } from '../../../pipes';
 
 // TODO: "are you sure you wnat to leave this page" thingy!

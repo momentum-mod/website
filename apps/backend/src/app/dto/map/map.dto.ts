@@ -11,8 +11,6 @@ import {
   UpdateMap,
   UpdateMapAdmin
 } from '@momentum/constants';
-import { UserDto } from '../user/user.dto';
-import { MapImageDto } from './map-image.dto';
 import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
@@ -29,13 +27,9 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator';
-import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
-import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
-import { MapFavoriteDto } from './map-favorite.dto';
-import { MapLibraryEntryDto } from './map-library-entry';
 import { Exclude, Expose } from 'class-transformer';
+import { UserDto } from '../user/user.dto';
 import { Config } from '../../config';
-import { MapStatsDto } from './map-stats.dto';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -44,12 +38,18 @@ import {
   UpdatedAtProperty
 } from '../decorators';
 import { IsMapName } from '../../validators';
+import { LeaderboardDto } from '../run/leaderboard.dto';
+import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
+import { MapImageDto } from './map-image.dto';
+import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
+import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
+import { MapFavoriteDto } from './map-favorite.dto';
+import { MapLibraryEntryDto } from './map-library-entry';
+import { MapStatsDto } from './map-stats.dto';
 import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 import { MapZonesDto } from './map-zones.dto';
-import { LeaderboardDto } from '../run/leaderboard.dto';
-import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;

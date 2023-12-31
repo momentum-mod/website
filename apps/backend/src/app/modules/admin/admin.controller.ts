@@ -11,7 +11,6 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common';
-import { AdminService } from './admin.service';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,10 +22,10 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
+import { Role as RolesEnum } from '@momentum/constants';
 import { RolesGuard } from '../auth/roles.guard';
 import { NonGameAuthGuard } from '../auth/jwt/game.guard';
 import { LoggedInUser, Roles } from '../../decorators';
-import { Role as RolesEnum } from '@momentum/constants';
 import { MapsService } from '../maps/maps.service';
 import { UsersService } from '../users/users.service';
 import {
@@ -47,6 +46,7 @@ import {
   UserDto
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
+import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
 
 @Controller('admin')

@@ -1,8 +1,8 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import { ExtendedPrismaService } from '../database/prisma.extension';
 import { Bitflags } from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityDto, PagedResponseDto } from '../../dto';
 
 @Injectable()

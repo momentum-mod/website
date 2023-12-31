@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { CardComponent } from '../card/card.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'm-delete-user-dialog',

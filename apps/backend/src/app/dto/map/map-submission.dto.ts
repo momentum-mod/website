@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MapSubmission, MapSubmissionType } from '@momentum/constants';
-import { NestedProperty } from '../decorators';
 import { IsArray, IsOptional, IsUUID } from 'class-validator';
-import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { Exclude } from 'class-transformer';
+import { NestedProperty } from '../decorators';
+import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionVersionDto } from './map-submission-version.dto';
 import { MapSubmissionDateDto } from './map-submission-dates.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';

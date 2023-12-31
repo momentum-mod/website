@@ -10,8 +10,8 @@ import {
 } from 'rxjs/operators';
 import { Observable, ReplaySubject, timer } from 'rxjs';
 import { Notification } from '@momentum/constants';
-import { AuthService, LocalUserService } from '../services';
 import { MessageService } from 'primeng/api';
+import { AuthService, LocalUserService } from '../services';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {

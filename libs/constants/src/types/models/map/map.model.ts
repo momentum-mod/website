@@ -1,18 +1,18 @@
 import { MMap as PrismaMMap } from '@prisma/client';
 import { MapStatusNew } from '../../../enums/map-status.enum';
+import { User } from '../user/user.model';
+import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
+import { LeaderboardRun } from '../run/leaderboard-run.model';
+import { Leaderboard } from '../run/leaderboard.model';
 import { MapImage } from './map-image.model';
 import { CreateMapInfo, MapInfo, UpdateMapInfo } from './map-info.model';
-import { User } from '../user/user.model';
 import { MapStats } from './map-stats.model';
 import { CreateMapCredit, MapCredit } from './map-credit.model';
 import { MapFavorite } from './map-favorite.model';
 import { MapLibraryEntry } from './map-library-entry';
-import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
 import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
-import { LeaderboardRun } from '../run/leaderboard-run.model';
-import { Leaderboard } from '../run/leaderboard.model';
 import { MapSubmissionApproval } from './map-submission-approval.model';
 
 /**

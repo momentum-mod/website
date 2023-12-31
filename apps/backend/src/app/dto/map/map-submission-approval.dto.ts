@@ -5,8 +5,8 @@ import {
 } from '@momentum/constants';
 import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { EnumProperty } from '../decorators';
 import { JsonValue } from 'type-fest';
+import { EnumProperty } from '../decorators';
 
 export class MapSubmissionApprovalDto implements MapSubmissionApproval {
   [k: string]: JsonValue;

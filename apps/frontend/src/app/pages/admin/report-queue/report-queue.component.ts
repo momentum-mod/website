@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
-import { ReportType } from '@momentum/constants';
-import { Report } from '@momentum/constants';
-import { AdminService } from '../../../services';
-import { QueuedReportComponent } from './queued-report/queued-report.component';
-import { SharedModule } from '../../../shared.module';
+import { ReportType, Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
-import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { merge, of, Subject } from 'rxjs';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { SpinnerDirective } from '../../../directives';
+import { SharedModule } from '../../../shared.module';
+import { AdminService } from '../../../services';
+import { QueuedReportComponent } from './queued-report/queued-report.component';
 
 @Component({
   selector: 'm-report-queue',

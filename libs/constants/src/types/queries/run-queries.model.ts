@@ -1,7 +1,7 @@
-﻿import { PagedQuery } from './pagination.model';
-import { Gamemode } from '../../enums/gamemode.enum';
+﻿import { Gamemode } from '../../enums/gamemode.enum';
 import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
+import { PagedQuery } from './pagination.model';
 import { Order } from './order.model';
 
 export type RunsGetAllExpand = Array<'user' | 'map' | 'leaderboardRun'>;

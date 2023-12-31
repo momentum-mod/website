@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon, IconComponent } from '../../icons';
 import {
   ControlContainer,
   FormControl,
@@ -9,7 +8,6 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { AbstractFileUploadComponent } from '../file-upload/abstract-file-upload.component';
 import {
   CdkDragDrop,
   moveItemInArray,
@@ -17,9 +15,10 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import { ImageSelectionItem } from './image-selection-item.class';
-
+import { Icon, IconComponent } from '../../icons';
+import { AbstractFileUploadComponent } from '../file-upload/abstract-file-upload.component';
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
+import { ImageSelectionItem } from './image-selection-item.class';
 
 enum ImageType {
   THUMBNAIL,

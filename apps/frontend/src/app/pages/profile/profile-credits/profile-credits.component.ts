@@ -1,14 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
-import { MapCredit, User } from '@momentum/constants';
-import { MapCreditType } from '@momentum/constants';
-import { UsersService } from '../../../services';
-import { SharedModule } from '../../../shared.module';
+import { MapCredit, User, MapCreditType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { PaginatorModule } from 'primeng/paginator';
+import { UsersService } from '../../../services';
+import { SharedModule } from '../../../shared.module';
+import { SpinnerDirective } from '../../../directives';
 
 @Component({
   selector: 'm-profile-credits',

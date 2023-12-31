@@ -1,8 +1,8 @@
 import { Component, forwardRef, HostListener } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 import { NgClass } from '@angular/common';
 import { IconComponent } from '../../icons';
+import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 
 /**
  * A form control for file selection/uploading with support for drag and drop.

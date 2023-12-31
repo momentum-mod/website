@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { prismaWrapper } from './prisma-wrapper';
 import { Role } from '@momentum/constants';
+import { prismaWrapper } from './prisma-wrapper';
 
 prismaWrapper(async (prisma: PrismaClient) => {
   const users = await prisma.user.findMany();

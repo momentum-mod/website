@@ -1,9 +1,9 @@
 import { Route } from '@angular/router';
+import { Role } from '@momentum/constants';
+import { RoleGuard } from '../../guards/role.guard';
 import { ProfileEditComponent } from './profile-edit/profile-edit.component';
 import { ProfileComponent } from './profile.component';
-import { Role } from '@momentum/constants';
 import { ProfileRedirectComponent } from './profile-redirect.component';
-import { RoleGuard } from '../../guards/role.guard';
 
 export default [
   { path: '', component: ProfileRedirectComponent },

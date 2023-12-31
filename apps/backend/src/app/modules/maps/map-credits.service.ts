@@ -6,7 +6,6 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { CreateMapCreditDto, DtoFactory, MapCreditDto } from '../../dto';
 import { Prisma } from '@prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
@@ -16,11 +15,12 @@ import {
   MapCreditsGetExpand,
   MapCreditType
 } from '@momentum/constants';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import { ExtendedPrismaService } from '../database/prisma.extension';
-import { MapsService } from './maps.service';
 import { findWithIndex } from '@momentum/util-fn';
 import { ConfigService } from '@nestjs/config';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
+import { CreateMapCreditDto, DtoFactory, MapCreditDto } from '../../dto';
+import { MapsService } from './maps.service';
 
 @Injectable()
 export class MapCreditsService {

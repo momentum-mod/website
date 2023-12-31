@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { IconComponent } from '../../icons';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { IconComponent } from '../../icons';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { FullUser, LocalUserService } from '../../services';
 

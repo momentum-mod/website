@@ -14,8 +14,6 @@ export * from './map-credits-selection/sorted-map-credits.class';
 export * from './map-image-selection/image-selection-item.class';
 export * from './map-image-selection/map-image-selection.component';
 export * from './map-leaderboard-selection/map-leaderboard-selection.component';
-export * from './map-list/map-list-item.component';
-export * from './map-list/map-list.component';
 export * from './map-testing-request-selection/map-testing-request-selection.component';
 export * from './notification/notification.component';
 export * from './player-card/player-card.component';

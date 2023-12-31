@@ -1,9 +1,9 @@
+import { LeaderboardRun as PrismaLeaderboardRun } from '@prisma/client';
+import { SetOptional } from 'type-fest';
 import { User } from '../user/user.model';
 import { MMap } from '../map/map.model';
-import { LeaderboardRun as PrismaLeaderboardRun } from '@prisma/client';
 import { RunStats } from '../stats/run-stats.model';
 import { NumberifyBigInt } from '../../utils';
-import { SetOptional } from 'type-fest';
 
 export interface LeaderboardRun
   extends SetOptional<

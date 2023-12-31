@@ -4,7 +4,6 @@ import {
   FormsModule
 } from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
-import { SortedMapCredits } from './sorted-map-credits.class';
 import {
   MapCreditNames,
   MapCreditType,
@@ -18,12 +17,13 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { Enum } from '@momentum/enum';
 import { KeyValuePipe } from '@angular/common';
+import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { SortedMapCredits } from './sorted-map-credits.class';
 
 @Component({
   selector: 'm-map-credits-selection',

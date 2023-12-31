@@ -1,3 +1,4 @@
+import { TrackType } from '@momentum/constants';
 import {
   COS_XP_PARAMS,
   CosXpParams,
@@ -5,8 +6,6 @@ import {
   RankXpGain,
   RankXpParams
 } from './index';
-
-import { TrackType } from '@momentum/constants';
 
 /**
  * This class provides methods for calculating rank and cosmetic XP. It needs to

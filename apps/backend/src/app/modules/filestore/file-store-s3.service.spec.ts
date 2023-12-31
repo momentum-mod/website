@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { FileStoreS3Service } from './file-store-s3.service';
-import { ConfigService } from '@nestjs/config';
 import { createHash } from 'node:crypto';
+import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { mockDeep } from 'jest-mock-extended';
+import { FileStoreS3Service } from './file-store-s3.service';
 
 describe('FileStoreS3Service', () => {
   let service: FileStoreS3Service;

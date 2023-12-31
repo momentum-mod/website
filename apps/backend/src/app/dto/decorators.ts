@@ -22,9 +22,9 @@ import {
   Max,
   Min
 } from 'class-validator';
-import { IsBigInt } from '../validators';
 import { intersection } from '@momentum/util-fn';
 import { Enum } from '@momentum/enum';
+import { IsBigInt } from '../validators';
 
 /**
  * Well, kind of safe. This is an annoying transform we do to ensure that we

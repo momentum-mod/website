@@ -1,24 +1,10 @@
 // noinspection DuplicatedCode
 
-import { MapDto } from '../../backend/src/app/dto';
 import { Config } from '../../backend/src/app/config';
+import { MapDto } from '../../backend/src/app/dto';
 
 import { readFileSync } from 'node:fs';
-import axios from 'axios';
-import { PrismaClient } from '@prisma/client';
-import {
-  AuthUtil,
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  FileStoreUtil,
-  NULL_ID,
-  RequestUtil
-} from '@momentum/test-utils';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
+import path from 'node:path';
 import {
   ActivityType,
   Ban,
@@ -35,7 +21,17 @@ import {
   TrackType,
   MapZones
 } from '@momentum/constants';
-import path from 'node:path';
+import {
+  AuthUtil,
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  FileStoreUtil,
+  NULL_ID,
+  RequestUtil
+} from '@momentum/test-utils';
+import { PrismaClient } from '@prisma/client';
+import axios from 'axios';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
 import {
@@ -44,6 +40,10 @@ import {
   ZoneUtil
 } from '@momentum/formats/zone';
 import { from } from '@momentum/util-fn';
+import {
+  setupE2ETestEnvironment,
+  teardownE2ETestEnvironment
+} from './support/environment';
 
 describe('Maps', () => {
   let app,

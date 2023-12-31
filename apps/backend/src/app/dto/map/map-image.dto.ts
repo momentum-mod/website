@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsUrl } from 'class-validator';
 import { Expose } from 'class-transformer';
-import { Config } from '../../config';
-import { IdProperty } from '../decorators';
 import {
   imgLargePath,
   imgMediumPath,
   imgSmallPath,
   MapImage
 } from '@momentum/constants';
+import { Config } from '../../config';
+import { IdProperty } from '../decorators';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;

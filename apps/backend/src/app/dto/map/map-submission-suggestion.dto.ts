@@ -14,8 +14,8 @@ import {
   Min
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { EnumProperty } from '../decorators';
 import { JsonValue } from 'type-fest';
+import { EnumProperty } from '../decorators';
 
 export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   [k: string]: JsonValue;

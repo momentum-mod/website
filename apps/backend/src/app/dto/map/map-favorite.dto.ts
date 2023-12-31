@@ -1,4 +1,5 @@
 ﻿import { MapFavorite } from '@momentum/constants';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import {
   CreatedAtProperty,
   IdProperty,
@@ -7,7 +8,6 @@ import {
 } from '../decorators';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { Exclude, Expose, plainToInstance } from 'class-transformer';
 
 export class MapFavoriteDto implements MapFavorite {
   @IdProperty()

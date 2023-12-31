@@ -23,7 +23,7 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { RunSessionService } from './run/run-session.service';
+import { FastifyRequest } from 'fastify';
 import { GameAuthGuard } from '../auth/jwt/game.guard';
 import {
   CompletedRunDto,
@@ -33,7 +33,7 @@ import {
 } from '../../dto';
 import { LoggedInUser } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
-import { FastifyRequest } from 'fastify';
+import { RunSessionService } from './run/run-session.service';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)

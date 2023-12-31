@@ -1,5 +1,5 @@
-import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { IsString } from 'class-validator';
+import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { UserDto } from '../user/user.dto';
 
 export class MapReviewCommentDto {

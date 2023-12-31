@@ -1,8 +1,8 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { MapCreditDto } from './map-credit.dto';
 import { MapSubmissionPlaceholder } from '@momentum/constants';
 import { JsonValue } from 'type-fest';
 import { IsString, MaxLength } from 'class-validator';
+import { MapCreditDto } from './map-credit.dto';
 
 export class MapSubmissionPlaceholderDto
   extends PickType(MapCreditDto, ['type', 'description'] as const)
