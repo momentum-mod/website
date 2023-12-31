@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon, IconComponent } from '@momentum/frontend/icons';
+import { Icon, IconComponent } from '../../icons';
 import {
   ControlContainer,
   FormControl,

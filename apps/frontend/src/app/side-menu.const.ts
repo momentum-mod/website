@@ -1,4 +1,4 @@
-import { Icon, IconPack } from '@momentum/frontend/icons';
+import { Icon, IconPack } from './icons';
 
 export const SIDENAV_ITEMS: Array<{
   title: string;

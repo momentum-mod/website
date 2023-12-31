@@ -13,7 +13,6 @@ import {
   TrackType
 } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
-import { PipesModule } from '@momentum/frontend/pipes';
 import { Enum } from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
 
@@ -28,7 +27,7 @@ import { DropdownModule } from 'primeng/dropdown';
     }
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, PipesModule, DropdownModule]
+  imports: [CommonModule, FormsModule, DropdownModule]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({

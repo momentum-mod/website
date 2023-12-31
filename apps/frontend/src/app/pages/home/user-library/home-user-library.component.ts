@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../../services';
 import { MMap } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 

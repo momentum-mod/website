@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import { ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
-import { AdminService } from '@momentum/frontend/data';
+import { AdminService } from '../../../services';
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';

@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { EMPTY, merge, Subject } from 'rxjs';
-import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
-import { DeleteUserDialogComponent } from '../../../components/delete-user-dialog/delete-user-dialog.component';
+import { ConfirmDialogComponent } from '../../../components';
+import { DeleteUserDialogComponent } from '../../../components';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
@@ -16,7 +16,7 @@ import {
   AuthService,
   LocalUserService,
   UsersService
-} from '@momentum/frontend/data';
+} from '../../../services';
 import {
   Ban,
   ISOCountryCode,
@@ -25,20 +25,27 @@ import {
   SocialsData
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { Icon } from '@momentum/frontend/icons';
+import { Icon } from '../../../icons';
 import { omit } from 'lodash-es';
 import { SharedModule } from '../../../shared.module';
-import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
+import { UserSearchComponent, AvatarComponent } from '../../../components';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   standalone: true,
-  imports: [SharedModule, UserSearchComponent, DropdownModule, AvatarComponent]
+  imports: [
+    SharedModule,
+    UserSearchComponent,
+    DropdownModule,
+    AvatarComponent,
+    PluralPipe,
+    UnsortedKeyvaluePipe
+  ]
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)

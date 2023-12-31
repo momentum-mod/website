@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../services';
 
 /**
  * Redirects `/profile` to `/profile/<logged-in-ID>` if has a logged in user,

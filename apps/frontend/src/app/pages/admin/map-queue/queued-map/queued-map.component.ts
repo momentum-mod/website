@@ -7,11 +7,11 @@ import {
   ElementRef
 } from '@angular/core';
 import { MapStatus } from '@momentum/constants';
-import { AdminService, MapsService } from '@momentum/frontend/data';
+import { AdminService, MapsService } from '../../../../services';
 import { MMap } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
-import { AvatarComponent } from '../../../../components/avatar/avatar.component';
+import { AvatarComponent } from '../../../../components';
 
 @Component({
   selector: 'm-queued-map',

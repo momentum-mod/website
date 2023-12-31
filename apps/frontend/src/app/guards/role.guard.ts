@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../services';
 
 export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const userService: LocalUserService = inject(LocalUserService);

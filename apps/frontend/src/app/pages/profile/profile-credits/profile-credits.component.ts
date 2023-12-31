@@ -3,7 +3,7 @@ import { switchMap, tap } from 'rxjs/operators';
 import { Observable, Subject, merge } from 'rxjs';
 import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
-import { UsersService } from '@momentum/frontend/data';
+import { UsersService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';

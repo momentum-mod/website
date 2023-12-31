@@ -6,7 +6,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { Icon } from '@momentum/frontend/icons';
+import { Icon } from '../../icons';
 
 /**
  * Abstract class providing core implementation for FileUploadComponent and

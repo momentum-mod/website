@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { BlogService } from '@momentum/frontend/data';
+import { BlogService } from '../../../services';
 import { finalize } from 'rxjs/operators';
 import { parse, simplify } from 'txml';
 import { SharedModule } from '../../../shared.module';

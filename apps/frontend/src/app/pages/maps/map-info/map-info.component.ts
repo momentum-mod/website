@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { MMap, MapImage, MapNotify, CombinedRoles } from '@momentum/constants';
 import { ReportType } from '@momentum/constants';
-import { LocalUserService, MapsService } from '@momentum/frontend/data';
+import { LocalUserService, MapsService } from '../../../services';
 import { PartialDeep } from 'type-fest';
 import {
   Gallery,
@@ -20,14 +20,15 @@ import { MapInfoDescriptionComponent } from './map-info-description/map-info-des
 import { SharedModule } from '../../../shared.module';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { GallerizeDirective } from 'ng-gallery/lightbox';
-import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
+import { ReportButtonComponent } from '../../../components';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { CardHeaderComponent } from '../../../components/card/card-header.component';
-import { CardComponent } from '../../../components/card/card.component';
+import { CardHeaderComponent } from '../../../components';
+import { CardComponent } from '../../../components';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
-import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import { AvatarComponent } from '../../../components';
+import { PluralPipe, ThousandsSuffixPipe } from '../../../pipes';
 
 @Component({
   selector: 'm-map-info',
@@ -47,7 +48,9 @@ import { AvatarComponent } from '../../../components/avatar/avatar.component';
     CardComponent,
     TooltipDirective,
     TabViewModule,
-    AvatarComponent
+    AvatarComponent,
+    PluralPipe,
+    ThousandsSuffixPipe
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {

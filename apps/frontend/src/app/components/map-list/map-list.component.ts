@@ -8,7 +8,7 @@ import {
   tap
 } from 'rxjs/operators';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { LocalUserService, MapsService } from '@momentum/frontend/data';
+import { LocalUserService, MapsService } from '../../services';
 import {
   MapFavorite,
   MapsGetAllQuery,

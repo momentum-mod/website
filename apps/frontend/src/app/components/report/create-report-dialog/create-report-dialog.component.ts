@@ -5,7 +5,7 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { ReportService } from '@momentum/frontend/data';
+import { ReportService } from '../../../services';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { CardComponent } from '../../card/card.component';
 import { MessageService } from 'primeng/api';

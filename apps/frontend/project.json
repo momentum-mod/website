@@ -25,8 +25,8 @@
           "buildOptimizer": true,
           "fileReplacements": [
             {
-              "replace": "libs/frontend/env/src/environment.ts",
-              "with": "libs/frontend/env/src/environment.prod.ts"
+              "replace": "apps/frontend/src/app/env/environment.ts",
+              "with": "apps/frontend/src/app/env/environment.prod.ts"
             }
           ],
           "budgets": [

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MMap } from '@momentum/constants';
-import { AdminService } from '@momentum/frontend/data';
 import { MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 import { QueuedMapComponent } from './queued-map/queued-map.component';
 import { MessageService } from 'primeng/api';
 import { TabViewModule } from 'primeng/tabview';
+import { AdminService } from '../../../services';
 
 @Component({
   templateUrl: './map-queue.component.html',

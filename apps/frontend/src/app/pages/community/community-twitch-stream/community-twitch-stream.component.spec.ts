@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
-import { TwitchAPIService } from '@momentum/frontend/data';
+import { TwitchAPIService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 
 // Avast! Here be the tests for the CommunityTwitchStreamComponent

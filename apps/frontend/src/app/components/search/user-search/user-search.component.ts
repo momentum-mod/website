@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { LocalUserService, UsersService } from '@momentum/frontend/data';
+import { LocalUserService, UsersService } from '../../../services';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
 import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
-import { IconComponent } from '@momentum/frontend/icons';
+import { IconComponent } from '../../../icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AbstractSearchComponent } from './abstract-search.component';

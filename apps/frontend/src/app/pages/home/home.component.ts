@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../services';
 import { User } from '@momentum/constants';
 import { HomeUserLibraryComponent } from './user-library/home-user-library.component';
 import { HomeUserMapsComponent } from './user-maps/home-user-maps.component';
 import { HomeStatsComponent } from './stats/home-stats.component';
-import { ActivityComponent } from '../../components/activity/activity.component';
+import { ActivityComponent } from '../../components';
 
 @Component({
   selector: 'm-home',

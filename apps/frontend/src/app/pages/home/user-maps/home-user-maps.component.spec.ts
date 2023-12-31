@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeUserMapsComponent } from './home-user-maps.component';
-import { LocalUserService } from '@momentum/frontend/data';
+import { LocalUserService } from '../../../services';
 import { of } from 'rxjs';
 import { MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';

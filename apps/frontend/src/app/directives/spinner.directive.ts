@@ -8,7 +8,7 @@ import {
   HostBinding,
   Input
 } from '@angular/core';
-import { SpinnerComponent } from '../components/spinner/spinner.component';
+import { SpinnerComponent } from '../components';
 
 // Based off of Nebular directive
 // https://github.com/akveo/nebular/blob/master/src/framework/theme/components/spinner/spinner.directive.ts
