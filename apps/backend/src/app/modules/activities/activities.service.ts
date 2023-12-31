@@ -4,7 +4,7 @@ import {
   ActivitiesGetQueryDto,
   ActivityDto,
   PagedResponseDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { ActivityType } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';

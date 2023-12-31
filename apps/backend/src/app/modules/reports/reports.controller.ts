@@ -6,8 +6,8 @@ import {
   ApiOperation,
   ApiTags
 } from '@nestjs/swagger';
-import { CreateReportDto, ReportDto } from '@momentum/backend/dto';
-import { LoggedInUser } from '@momentum/backend/decorators';
+import { CreateReportDto, ReportDto } from '../../dto';
+import { LoggedInUser } from '../../decorators';
 
 @Controller('reports')
 @ApiTags('Reports')

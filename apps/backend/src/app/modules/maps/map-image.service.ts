@@ -8,7 +8,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { DtoFactory, MapImageDto } from '@momentum/backend/dto';
+import { DtoFactory, MapImageDto } from '../../dto';
 import {
   CombinedMapStatuses,
   imgLargePath,

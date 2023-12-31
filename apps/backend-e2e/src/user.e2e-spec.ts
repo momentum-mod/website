@@ -12,7 +12,8 @@ import {
   NotificationDto,
   ProfileDto,
   UserDto
-} from '@momentum/backend/dto';
+} from '../../backend/src/app/dto';
+
 import {
   AuthUtil,
   DbUtil,
@@ -20,7 +21,7 @@ import {
   NULL_ID,
   randomString,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import {
   ActivityType,
   Ban,

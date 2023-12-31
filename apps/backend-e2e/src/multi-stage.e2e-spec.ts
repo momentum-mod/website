@@ -1,12 +1,13 @@
 // noinspection DuplicatedCode
 
+import { MapDto } from '../../backend/src/app/dto';
+
 import {
   createSha1Hash,
   DbUtil,
   FILES_PATH,
   RequestUtil
-} from '@momentum/backend/test-utils';
-import { MapDto } from '@momentum/backend/dto';
+} from '@momentum/test-utils';
 import {
   Gamemode,
   MapCreditType,

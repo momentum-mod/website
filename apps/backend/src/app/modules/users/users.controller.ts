@@ -11,8 +11,8 @@ import {
   UsersGetAllQueryDto,
   UsersGetQueryDto,
   UsersGetCreditsQueryDto
-} from '@momentum/backend/dto';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+} from '../../dto';
+import { ParseIntSafePipe } from '../../pipes';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,

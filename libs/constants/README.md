@@ -5,7 +5,7 @@ These are tend to reference one-another so need to live together to avoid
 circularity. It's split up as followed:
 
 - types:
-  - models: Types for data emitted by the backend (@momentum/backend/dto
+  - models: Types for data emitted by the backend (apps/backend/src/app/dto
     contains class-validator-based implementations of these). Typically derived
     from Prisma types, but with any modifications made with backend service
     logic/transformers.

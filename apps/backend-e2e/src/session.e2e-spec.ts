@@ -1,6 +1,7 @@
 // noinspection DuplicatedCode
 
-import { CompletedRunDto, RunSessionDto } from '@momentum/backend/dto';
+import { CompletedRunDto, RunSessionDto } from '../../backend/src/app/dto';
+
 import {
   DbUtil,
   NULL_ID,
@@ -9,7 +10,7 @@ import {
   RequestUtil,
   RunTester,
   RunTesterProps
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import {
   ActivityType,
   Gamemode,

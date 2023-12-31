@@ -1,7 +1,8 @@
 // noinspection DuplicatedCode
 
-import { DbUtil, NULL_ID, RequestUtil } from '@momentum/backend/test-utils';
-import { ActivityDto } from '@momentum/backend/dto';
+import { ActivityDto } from '../../backend/src/app/dto';
+
+import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
 import { ActivityType, Role } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {

@@ -15,7 +15,7 @@ import {
   PagedResponseDto,
   LeaderboardRunDto,
   MinimalLeaderboardRunDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';

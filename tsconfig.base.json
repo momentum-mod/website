@@ -15,12 +15,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@momentum/backend/config": ["libs/backend/config/src/index.ts"],
-      "@momentum/backend/decorators": ["libs/backend/decorators/src/index.ts"],
-      "@momentum/backend/dto": ["libs/backend/dto/src/index.ts"],
-      "@momentum/backend/pipes": ["libs/backend/pipes/src/index.ts"],
-      "@momentum/backend/test-utils": ["libs/backend/test-utils/src/index.ts"],
-      "@momentum/backend/validators": ["libs/backend/validators/src/index.ts"],
       "@momentum/bitflags": ["libs/bitflags/src/index.ts"],
       "@momentum/constants": ["libs/constants/src/index.ts"],
       "@momentum/db": ["libs/db/src/index.ts"],
@@ -29,6 +23,7 @@
       "@momentum/formats/replay": ["libs/formats/replay/src/index.ts"],
       "@momentum/formats/zone": ["libs/formats/zone/src/index.ts"],
       "@momentum/random": ["libs/random/src/index.ts"],
+      "@momentum/test-utils": ["libs/test-utils/src/index.ts"],
       "@momentum/util-fn": ["libs/util-fn/src/index.ts"],
       "@momentum/xp-systems": ["libs/xp-systems/src/index.ts"]
     }

@@ -1,5 +1,8 @@
 // noinspection DuplicatedCode
 
+import { MapDto } from '../../backend/src/app/dto';
+import { Config } from '../../backend/src/app/config';
+
 import { readFileSync } from 'node:fs';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
@@ -11,12 +14,11 @@ import {
   FileStoreUtil,
   NULL_ID,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { MapDto } from '@momentum/backend/dto';
 import {
   ActivityType,
   Ban,
@@ -33,7 +35,6 @@ import {
   TrackType,
   MapZones
 } from '@momentum/constants';
-import { Config } from '@momentum/backend/config';
 import path from 'node:path';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';

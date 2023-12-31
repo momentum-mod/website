@@ -1,4 +1,4 @@
-﻿import { ROLES_KEY } from '@momentum/backend/decorators';
+﻿import { ROLES_KEY } from '../../decorators';
 import { Role } from '@momentum/constants';
 import {
   Injectable,

@@ -37,7 +37,7 @@ import {
   UpdateUserDto,
   UserDto,
   UsersGetAllQueryDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import {

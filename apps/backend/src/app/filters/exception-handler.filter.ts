@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { SentryService } from '../modules/sentry/sentry.service';
 import { SENTRY_INIT_STATE } from '../modules/sentry/sentry.const';
 import { SentryInitState } from '../modules/sentry/sentry.interface';
-import { Environment } from '@momentum/backend/config';
+import { Environment } from '../config';
 
 @Catch()
 export class ExceptionHandlerFilter implements ExceptionFilter {

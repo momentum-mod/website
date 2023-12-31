@@ -1,4 +1,4 @@
-import { LoggedInUser } from '@momentum/backend/decorators';
+import { LoggedInUser } from '../../decorators';
 import {
   ActivityDto,
   ApiOkPagedResponse,
@@ -24,8 +24,8 @@ import {
   FollowDto,
   MapsGetAllUserSubmissionQueryDto,
   MapsGetAllSubmissionQueryDto
-} from '@momentum/backend/dto';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+} from '../../dto';
+import { ParseIntSafePipe } from '../../pipes';
 import {
   Body,
   Controller,

@@ -30,9 +30,9 @@ import {
   CreateRunSessionDto,
   RunSessionDto,
   UpdateRunSessionDto
-} from '@momentum/backend/dto';
-import { LoggedInUser } from '@momentum/backend/decorators';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+} from '../../dto';
+import { LoggedInUser } from '../../decorators';
+import { ParseIntSafePipe } from '../../pipes';
 import { FastifyRequest } from 'fastify';
 
 @Controller('session')

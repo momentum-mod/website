@@ -1,7 +1,8 @@
 // noinspection DuplicatedCode
 
-import { ReportDto } from '@momentum/backend/dto';
-import { DbUtil, RequestUtil } from '@momentum/backend/test-utils';
+import { ReportDto } from '../../backend/src/app/dto';
+
+import { DbUtil, RequestUtil } from '@momentum/test-utils';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
