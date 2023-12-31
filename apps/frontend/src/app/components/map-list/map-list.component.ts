@@ -8,23 +8,23 @@ import {
   tap
 } from 'rxjs/operators';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { LocalUserService, MapsService } from '../../services';
 import {
   MapFavorite,
   MapsGetAllQuery,
-  PagedResponse
+  PagedResponse,
+  MMap
 } from '@momentum/constants';
-import { MMap } from '@momentum/constants';
-import { SharedModule } from '../../shared.module';
-import { MapListItemComponent } from './map-list-item.component';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { PaginatorModule } from 'primeng/paginator';
-import { ActivityContentComponent } from '../activity/activity-content.component';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import { SpinnerDirective } from '../../directives/spinner.directive';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { ActivityContentComponent } from '../activity/activity-content.component';
+import { SpinnerDirective } from '../../directives';
+import { SharedModule } from '../../shared.module';
+import { LocalUserService, MapsService } from '../../services';
+import { MapListItemComponent } from './map-list-item.component';
 
 // This scary looking type is just the optional query params on map gets, plus
 // a thing for deciding if we should call the favorites-only endpoint.

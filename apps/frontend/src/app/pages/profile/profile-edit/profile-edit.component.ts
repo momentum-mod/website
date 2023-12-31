@@ -3,21 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { EMPTY, merge, Subject } from 'rxjs';
-import { ConfirmDialogComponent } from '../../../components';
-import { DeleteUserDialogComponent } from '../../../components';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
   UpdateUser,
-  User
-} from '@momentum/constants';
-import {
-  AdminService,
-  AuthService,
-  LocalUserService,
-  UsersService
-} from '../../../services';
-import {
+  User,
   Ban,
   ISOCountryCode,
   Role,
@@ -25,13 +15,24 @@ import {
   SocialsData
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { Icon } from '../../../icons';
 import { omit } from 'lodash-es';
-import { SharedModule } from '../../../shared.module';
-import { UserSearchComponent, AvatarComponent } from '../../../components';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
+import {
+  UserSearchComponent,
+  AvatarComponent,
+  DeleteUserDialogComponent,
+  ConfirmDialogComponent
+} from '../../../components';
+import { SharedModule } from '../../../shared.module';
+import { Icon } from '../../../icons';
+import {
+  AdminService,
+  AuthService,
+  LocalUserService,
+  UsersService
+} from '../../../services';
 import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
 
 @Component({

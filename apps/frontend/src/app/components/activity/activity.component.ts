@@ -1,19 +1,23 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, merge, Observable, Subject } from 'rxjs';
-import { ActivityType } from '@momentum/constants';
-import { Activity, PagedResponse, User } from '@momentum/constants';
-import { CardComponent } from '../card/card.component';
+import {
+  ActivityType,
+  Activity,
+  PagedResponse,
+  User
+} from '@momentum/constants';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { filter, mergeMap, tap } from 'rxjs/operators';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { SpinnerDirective } from '../../directives';
-import { ActivityContentComponent } from './activity-content.component';
-import { MessageService } from 'primeng/api';
+import { CardComponent } from '../card/card.component';
 import { ActivityService, LocalUserService } from '../../services';
+import { ActivityContentComponent } from './activity-content.component';
 
 @Component({
   selector: 'm-activity',

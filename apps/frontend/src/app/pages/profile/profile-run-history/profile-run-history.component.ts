@@ -3,13 +3,13 @@ import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
-import { PastRunsService } from '../../../services';
-import { SharedModule } from '../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
-import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { SpinnerDirective } from '../../../directives';
+import { SharedModule } from '../../../shared.module';
+import { PastRunsService } from '../../../services';
 import { TimeAgoPipe, TimingPipe } from '../../../pipes';
 
 @Component({

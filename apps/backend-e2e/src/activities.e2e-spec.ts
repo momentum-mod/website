@@ -5,11 +5,11 @@ import { ActivityDto } from '../../backend/src/app/dto';
 import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
 import { ActivityType, Role } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
+import { Bitflags } from '@momentum/bitflags';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { Bitflags } from '@momentum/bitflags';
 
 describe('Activities', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;

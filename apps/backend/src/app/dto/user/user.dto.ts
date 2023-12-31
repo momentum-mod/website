@@ -15,12 +15,12 @@ import {
   MaxLength
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
-import { ProfileDto } from './profile.dto';
-import { UserStatsDto } from './user-stats.dto';
-import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
-import { IsSteamCommunityID } from '../../validators';
 import { Ban } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
+import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
+import { IsSteamCommunityID } from '../../validators';
+import { ProfileDto } from './profile.dto';
+import { UserStatsDto } from './user-stats.dto';
 
 import { UpdateSocialsDto } from './socials.dto';
 

@@ -1,14 +1,14 @@
 ﻿import {
+  AdminActivityType,
+  AdminGetReportsExpand,
+  AdminGetReportsQuery
+} from '@momentum/constants';
+import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
   ExpandQueryProperty
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
-import {
-  AdminActivityType,
-  AdminGetReportsExpand,
-  AdminGetReportsQuery
-} from '@momentum/constants';
 
 export class AdminGetReportsQueryDto
   extends PagedQueryDto

@@ -1,5 +1,8 @@
 // noinspection DuplicatedCode
 
+// See auth.e2e-spec.ts for justification of this sin
+import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
+import { Config } from '../../backend/src/app/config';
 import {
   LeaderboardRunDto,
   MapCreditDto,
@@ -10,7 +13,6 @@ import {
   MinimalLeaderboardRunDto,
   UserDto
 } from '../../backend/src/app/dto';
-import { Config } from '../../backend/src/app/config';
 
 import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
@@ -24,10 +26,6 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
-import {
   ActivityType,
   CombinedMapStatuses,
   Gamemode,
@@ -38,12 +36,13 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-// See auth.e2e-spec.ts for justification of this sin
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import { Enum } from '@momentum/enum';
 import { difference } from '@momentum/util-fn';
 import { ZonesStub } from '@momentum/formats/zone';
+import {
+  setupE2ETestEnvironment,
+  teardownE2ETestEnvironment
+} from './support/environment';
 
 describe('Maps Part 2', () => {
   let app,

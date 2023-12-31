@@ -3,13 +3,9 @@
 // Note that by importing and mocking these services service we're breaking a
 // major rule of E2E testing. But we need to test code that relies on Steam's
 // API, so our only sane option is to mock.
-import { SteamOpenIDService } from '../../backend/src/app/modules/auth/steam/steam-openid.service';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
+import { SteamOpenIDService } from '../../backend/src/app/modules/auth/steam/steam-openid.service';
 import { Config } from '../../backend/src/app/config';
-import {
-  JWTResponseGameDto,
-  JWTResponseWebDto
-} from '../../backend/src/app/dto';
 
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -17,6 +13,10 @@ import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { PrismaClient } from '@prisma/client';
 import { DbUtil, ParsedResponse, RequestUtil } from '@momentum/test-utils';
+import {
+  JWTResponseGameDto,
+  JWTResponseWebDto
+} from '../../backend/src/app/dto';
 import { setupE2ETestEnvironment } from './support/environment';
 
 describe('Auth', () => {

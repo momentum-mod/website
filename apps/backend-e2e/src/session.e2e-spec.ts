@@ -20,12 +20,12 @@ import {
   TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
+import { ZonesStub } from '@momentum/formats/zone';
+import { JsonValue } from 'type-fest';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { ZonesStub } from '@momentum/formats/zone';
-import { JsonValue } from 'type-fest';
 
 describe('Session', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, map;

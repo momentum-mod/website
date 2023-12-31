@@ -6,7 +6,6 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { UserDto } from '../user/user.dto';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import {
   IsHash,
@@ -17,8 +16,9 @@ import {
   IsString,
   IsUrl
 } from 'class-validator';
-import { MapDto } from '../map/map.dto';
 import { Exclude, Expose, plainToInstance } from 'class-transformer';
+import { MapDto } from '../map/map.dto';
+import { UserDto } from '../user/user.dto';
 import {
   CreatedAtProperty,
   EnumProperty,

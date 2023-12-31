@@ -18,6 +18,16 @@ import {
   UserAuth
 } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
+import {
+  ActivityType,
+  AdminActivityType,
+  Ban,
+  Role,
+  UserMapFavoritesGetExpand,
+  UserMapLibraryGetExpand
+} from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
+import { expandToIncludes, isEmpty, undefinedIfEmpty } from '@momentum/util-fn';
 import { SteamService } from '../steam/steam.service';
 import {
   ActivityDto,
@@ -40,18 +50,8 @@ import {
 } from '../../dto';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
-import {
-  ActivityType,
-  AdminActivityType,
-  Ban,
-  Role,
-  UserMapFavoritesGetExpand,
-  UserMapLibraryGetExpand
-} from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { expandToIncludes, isEmpty, undefinedIfEmpty } from '@momentum/util-fn';
 import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()

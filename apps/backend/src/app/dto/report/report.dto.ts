@@ -1,6 +1,7 @@
 ﻿import { Report } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import {
   CreatedAtProperty,
@@ -9,7 +10,6 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../decorators';
-import { ReportCategory, ReportType } from '@momentum/constants';
 
 export class ReportDto implements Report {
   @IdProperty()

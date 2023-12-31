@@ -34,12 +34,13 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { MapsService } from './maps.service';
 import {
   File,
   FileFieldsInterceptor,
   FileInterceptor
 } from '@nest-lab/fastify-multer';
+import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
+import { ConfigService } from '@nestjs/config';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 import { RolesGuard } from '../auth/roles.guard';
 import {
@@ -71,15 +72,14 @@ import {
   MinimalLeaderboardRunDto
 } from '../../dto';
 import { LoggedInUser, Roles } from '../../decorators';
-import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '../../pipes';
+import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
+import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
-import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
-import { ConfigService } from '@nestjs/config';
 import { MapTestingRequestService } from './map-testing-request.service';
-import { UserJwtAccessPayload } from '../auth/auth.interface';
+import { MapsService } from './maps.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)

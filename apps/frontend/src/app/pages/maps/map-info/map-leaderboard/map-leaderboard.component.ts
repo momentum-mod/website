@@ -9,11 +9,11 @@ import {
   PagedResponse,
   TrackType
 } from '@momentum/constants';
-import { LeaderboardsService } from '../../../../services';
 import { Observable } from 'rxjs';
-import { SharedModule } from '../../../../shared.module';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
+import { SharedModule } from '../../../../shared.module';
+import { LeaderboardsService } from '../../../../services';
 import { AvatarComponent } from '../../../../components';
 import { TimeAgoPipe, TimingPipe } from '../../../../pipes';
 

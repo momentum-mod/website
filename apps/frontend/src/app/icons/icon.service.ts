@@ -1,6 +1,6 @@
-import { DEFAULT_ICON_PACK, ICON_PACKS } from './index';
 import { Injectable } from '@angular/core';
 import { kebabCase } from '@momentum/util-fn';
+import { DEFAULT_ICON_PACK, ICON_PACKS } from './index';
 
 /**
  * This service simply provides a nested Map of SVG HTML strings containing icons

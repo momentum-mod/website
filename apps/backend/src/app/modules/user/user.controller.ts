@@ -1,3 +1,27 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags
+} from '@nestjs/swagger';
 import { LoggedInUser } from '../../decorators';
 import {
   ActivityDto,
@@ -26,30 +50,6 @@ import {
   MapsGetAllSubmissionQueryDto
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query
-} from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiBody,
-  ApiNoContentResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiTags
-} from '@nestjs/swagger';
 import { MapLibraryService } from '../maps/map-library.service';
 import { UsersService } from '../users/users.service';
 import { MapsService } from '../maps/maps.service';

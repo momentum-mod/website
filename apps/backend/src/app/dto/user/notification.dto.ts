@@ -1,14 +1,14 @@
 ﻿import { Notification, UpdateNotification } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
-import { ActivityDto } from './activity.dto';
-import { UserDto } from './user.dto';
 import {
   CreatedAtProperty,
   IdProperty,
   NestedProperty,
   UpdatedAtProperty
 } from '../decorators';
+import { ActivityDto } from './activity.dto';
+import { UserDto } from './user.dto';
 
 export class NotificationDto implements Notification {
   @IdProperty()

@@ -1,7 +1,6 @@
 import { MapReview as PrismaMapReview } from '@prisma/client';
-import { MapReviewComment, MapReviewSuggestion } from '../';
-import { MapReviewEdit } from '../';
 import { Jsonify } from 'type-fest';
+import { MapReviewComment, MapReviewSuggestion, MapReviewEdit } from '../';
 
 export interface MapReview extends PrismaMapReview {
   comments?: MapReviewComment[];

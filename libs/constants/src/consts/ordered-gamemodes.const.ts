@@ -1,5 +1,5 @@
-import { Gamemode } from '../enums/gamemode.enum';
 import { Enum } from '@momentum/enum';
+import { Gamemode } from '../enums/gamemode.enum';
 import { GamemodeName } from '../maps/gamemode-name.map';
 
 /**

@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ActivitiesGetQuery, Activity, PagedQuery } from '@momentum/constants';
-import { PagedResponse } from '@momentum/constants';
+import {
+  ActivitiesGetQuery,
+  Activity,
+  PagedQuery,
+  PagedResponse
+} from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

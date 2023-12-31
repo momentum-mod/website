@@ -1,6 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { MapCreditNames, MapCreditType } from '@momentum/constants';
-import { MMap, MapCredit } from '@momentum/constants';
+import {
+  MapCreditNames,
+  MapCreditType,
+  MMap,
+  MapCredit
+} from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import { AvatarComponent } from '../../../../components';
 

@@ -4,6 +4,9 @@
  * This script is my evil little JS monster, and I love it very much.
  */
 
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import path = require('node:path');
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as Random from '@momentum/random';
@@ -29,13 +32,10 @@ import { Bitflags } from '@momentum/bitflags';
 import { from, parallel, promiseAllSync } from '@momentum/util-fn';
 import axios from 'axios';
 import sharp from 'sharp';
+import { JsonValue } from 'type-fest';
+import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import { nuke } from '../prisma/utils';
 import { prismaWrapper } from './prisma-wrapper';
-import { createHash } from 'node:crypto';
-import { JsonValue } from 'type-fest';
-import { readFileSync } from 'node:fs';
-import path = require('node:path');
-import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M

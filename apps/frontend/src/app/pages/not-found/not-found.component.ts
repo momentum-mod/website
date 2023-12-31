@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { SharedModule } from '../../shared.module';
 import { Router } from '@angular/router';
+import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'm-not-found',

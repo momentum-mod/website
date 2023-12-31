@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '../../icons';
-import { LocalUserService } from '../../services';
 import { CombinedRoles } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '../../icons';
+import { LocalUserService } from '../../services';
 import { LayoutService, SidenavState } from '../../services/layout.service';
-import { TooltipDirective } from '../../directives/tooltip.directive';
+import { TooltipDirective } from '../../directives';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
 @Component({

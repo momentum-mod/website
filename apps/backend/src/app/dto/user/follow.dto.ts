@@ -1,6 +1,6 @@
 import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/constants';
-import { UserDto } from './user.dto';
 import { PickType } from '@nestjs/swagger';
+import { ActivityType } from '@momentum/constants';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -8,7 +8,7 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../decorators';
-import { ActivityType } from '@momentum/constants';
+import { UserDto } from './user.dto';
 
 export class FollowDto implements Follow {
   @EnumProperty(ActivityType, {

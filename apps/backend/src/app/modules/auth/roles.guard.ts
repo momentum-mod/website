@@ -1,5 +1,4 @@
-﻿import { ROLES_KEY } from '../../decorators';
-import { Role } from '@momentum/constants';
+﻿import { Role } from '@momentum/constants';
 import {
   Injectable,
   CanActivate,
@@ -8,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Bitflags } from '@momentum/bitflags';
+import { ROLES_KEY } from '../../decorators';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 

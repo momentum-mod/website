@@ -1,9 +1,9 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { AdminController } from './admin.controller';
-import { AdminService } from './admin.service';
 import { DbModule } from '../database/db.module';
 import { MapsModule } from '../maps/maps.module';
 import { UsersModule } from '../users/users.module';
+import { AdminService } from './admin.service';
+import { AdminController } from './admin.controller';
 import { AdminActivityService } from './admin-activity.service';
 
 @Module({

@@ -10,11 +10,11 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
+import { MapStatusNew, Order, RunsGetAllOrder } from '@momentum/constants';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { MapStatusNew, Order, RunsGetAllOrder } from '@momentum/constants';
 
 describe('Runs', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;

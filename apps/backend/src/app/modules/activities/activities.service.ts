@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { ActivityType } from '@momentum/constants';
 import {
   ActivitiesGetQueryDto,
   ActivityDto,
   PagedResponseDto
 } from '../../dto';
-import { ActivityType } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 

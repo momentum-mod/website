@@ -1,5 +1,4 @@
 import { AdminActivity, AdminActivityType } from '@momentum/constants';
-import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
 import {
   IsNumberString,
   IsObject,
@@ -7,6 +6,7 @@ import {
   IsString
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
 
 export class AdminActivityDto implements AdminActivity {
   @IdProperty()

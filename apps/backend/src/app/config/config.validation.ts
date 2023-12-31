@@ -1,5 +1,4 @@
-﻿import { Environment } from './config.interface';
-import {
+﻿import {
   IsDefined,
   IsEnum,
   IsOptional,
@@ -11,6 +10,7 @@ import {
 } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { IsOptionalWithEmptyString } from '../validators';
+import { Environment } from './config.interface';
 
 export function validate(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(ConfigValidation, config, {

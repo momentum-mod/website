@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { parallel } from '@momentum/util-fn';
 import {
   DtoFactory,
   JWTResponseGameDto,
@@ -19,7 +20,6 @@ import {
 } from '../auth.interface';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 import { ExtendedPrismaService } from '../../database/prisma.extension';
-import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class JwtAuthService {

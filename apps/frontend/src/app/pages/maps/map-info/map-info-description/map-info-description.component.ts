@@ -6,8 +6,8 @@ import {
   MMap,
   TrackType
 } from '@momentum/constants';
-import { SharedModule } from '../../../../shared.module';
 import { TabViewModule } from 'primeng/tabview';
+import { SharedModule } from '../../../../shared.module';
 
 @Component({
   selector: 'm-map-info-description',

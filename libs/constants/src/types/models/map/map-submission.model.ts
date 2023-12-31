@@ -1,4 +1,5 @@
 import { MapSubmission as PrismaMapSubmission } from '@prisma/client';
+import { Jsonify } from 'type-fest';
 import {
   MapSubmissionSuggestion,
   MapSubmissionType,
@@ -6,7 +7,6 @@ import {
   MapSubmissionVersion,
   MapSubmissionDate
 } from '../../../';
-import { Jsonify } from 'type-fest';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 
 export interface MapSubmission extends PrismaMapSubmission {

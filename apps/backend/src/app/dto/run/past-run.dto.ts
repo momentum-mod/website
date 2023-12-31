@@ -1,9 +1,9 @@
 import { Gamemode, PastRun, Style, TrackType } from '@momentum/constants';
-import { UserDto } from '../user/user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsNumber, IsPositive } from 'class-validator';
-import { MapDto } from '../map/map.dto';
 import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
+import { MapDto } from '../map/map.dto';
+import { UserDto } from '../user/user.dto';
 import {
   CreatedAtProperty,
   EnumProperty,

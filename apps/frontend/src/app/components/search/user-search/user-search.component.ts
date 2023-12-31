@@ -1,17 +1,16 @@
 import { Component, Input } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { LocalUserService, UsersService } from '../../../services';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
 import { NgClass, NgOptimizedImage } from '@angular/common';
-import { IconComponent } from '../../../icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { AbstractSearchComponent } from './abstract-search.component';
 import { RouterLink } from '@angular/router';
-import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { IconComponent } from '../../../icons';
+import { LocalUserService, UsersService } from '../../../services';
+import { TooltipDirective, SpinnerDirective } from '../../../directives/';
 import { RoleBadgesComponent } from '../../roles/role-badges.component';
-import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { AbstractSearchComponent } from './abstract-search.component';
 
 @Component({
   selector: 'm-user-search',

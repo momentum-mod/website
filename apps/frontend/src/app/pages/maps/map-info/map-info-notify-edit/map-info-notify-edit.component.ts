@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { SharedModule } from '../../../../shared.module';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SharedModule } from '../../../../shared.module';
 
 @Component({
   selector: 'm-map-info-notify-edit-modal',

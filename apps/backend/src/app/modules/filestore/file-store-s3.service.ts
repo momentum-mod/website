@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { FileStoreFile } from './file-store.interface';
 import {
   S3Client,
   PutObjectCommand,
@@ -9,6 +8,7 @@ import {
   DeleteObjectsCommand
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
+import { FileStoreFile } from './file-store.interface';
 import { FileStoreService } from './file-store.service';
 
 @Injectable()

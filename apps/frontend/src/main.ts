@@ -1,19 +1,19 @@
-import { AppComponent } from './app/app.component';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
-import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import {
   HTTP_INTERCEPTORS,
   withInterceptorsFromDi,
   provideHttpClient
 } from '@angular/common/http';
 import { APP_BASE_HREF } from '@angular/common';
-import { APP_ROUTES } from './app/app.routes';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { SharedModule } from './app/shared.module';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
+import { SharedModule } from './app/shared.module';
+import { APP_ROUTES } from './app/app.routes';
+import { AuthInterceptor } from './app/interceptors/auth.interceptor';
+import { AppComponent } from './app/app.component';
 
 bootstrapApplication(AppComponent, {
   providers: [

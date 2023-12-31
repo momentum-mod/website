@@ -6,11 +6,10 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
-import { MapStatus } from '@momentum/constants';
-import { AdminService, MapsService } from '../../../../services';
-import { MMap } from '@momentum/constants';
-import { SharedModule } from '../../../../shared.module';
+import { MapStatus, MMap } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
+import { AdminService, MapsService } from '../../../../services';
+import { SharedModule } from '../../../../shared.module';
 import { AvatarComponent } from '../../../../components';
 
 @Component({

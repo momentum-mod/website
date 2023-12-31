@@ -4,8 +4,8 @@ import {
   MapSubmissionSuggestion,
   TrackType as TT
 } from '@momentum/constants';
-import { validateSuggestions } from './';
 import { ZonesStub } from './zones.stub';
+import { validateSuggestions } from './';
 
 describe('validateSuggestions', () => {
   // Has a bonus

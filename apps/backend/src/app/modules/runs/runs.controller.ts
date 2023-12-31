@@ -14,9 +14,9 @@ import {
   PastRunsGetAllQueryDto,
   PastRunsGetQueryDto
 } from '../../dto';
-import { PastRunsService } from './past-runs.service';
 import { LoggedInUser } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
+import { PastRunsService } from './past-runs.service';
 
 @Controller('runs')
 @ApiTags('Runs')

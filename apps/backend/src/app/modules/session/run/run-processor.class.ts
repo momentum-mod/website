@@ -7,8 +7,8 @@ import {
   Tickrates,
   TrackType
 } from '@momentum/constants';
-import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 import { Replay, ReplayFileReader } from '@momentum/formats/replay';
+import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 
 /**
  * Class for managing the parsing of a replay file and validating it against

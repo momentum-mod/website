@@ -1,5 +1,4 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ActivitiesService } from './activities.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ActivitiesGetQueryDto,
@@ -7,6 +6,7 @@ import {
   ApiOkPagedResponse,
   PagedResponseDto
 } from '../../dto';
+import { ActivitiesService } from './activities.service';
 
 @Controller('activities')
 @ApiTags('Activities')

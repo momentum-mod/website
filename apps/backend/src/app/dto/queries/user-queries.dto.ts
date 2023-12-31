@@ -1,15 +1,6 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PagedQueryDto } from './pagination.dto';
-import {
-  BigIntQueryProperty,
-  EnumQueryProperty,
-  ExpandQueryProperty,
-  IntCsvQueryProperty,
-  IntQueryProperty
-} from '../decorators';
-import { IsBigInt } from '../../validators';
 import {
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
@@ -23,8 +14,17 @@ import {
   UsersGetExpand,
   UsersGetQuery
 } from '@momentum/constants';
-import { QueryDto } from './query.dto';
 import { ActivityType } from '@momentum/constants';
+import {
+  BigIntQueryProperty,
+  EnumQueryProperty,
+  ExpandQueryProperty,
+  IntCsvQueryProperty,
+  IntQueryProperty
+} from '../decorators';
+import { IsBigInt } from '../../validators';
+import { PagedQueryDto } from './pagination.dto';
+import { QueryDto } from './query.dto';
 
 export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])

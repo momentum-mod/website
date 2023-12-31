@@ -10,9 +10,9 @@ import {
   MapsGetAllQuery,
   MapsGetQuery,
   CreateMapWithFiles,
-  MapsGetAllSubmissionQuery
+  MapsGetAllSubmissionQuery,
+  PagedResponse
 } from '@momentum/constants';
-import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

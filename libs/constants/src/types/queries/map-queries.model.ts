@@ -1,8 +1,8 @@
-import { PagedQuery } from './pagination.model';
 import { Gamemode } from '../../enums/gamemode.enum';
 import { MapStatusNew } from '../../enums/map-status.enum';
 import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
+import { PagedQuery } from './pagination.model';
 
 //#region Get All
 

@@ -1,6 +1,6 @@
 // TODO: "empty" field here is due to not switching to MapStatusNew yet (I think!)
-import { MapStatus } from '../enums/map-status.enum';
 import { Enum } from '@momentum/enum';
+import { MapStatus } from '../enums/map-status.enum';
 import { MapStatusName } from '../maps/map-status-name.map';
 
 /**

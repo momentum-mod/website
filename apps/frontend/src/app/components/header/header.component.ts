@@ -1,19 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NotificationsService } from '../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Notification, User } from '@momentum/constants';
+import { RouterLink } from '@angular/router';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
 import { LocalUserService } from '../../services';
 import { LayoutService } from '../../services/layout.service';
 import { NotificationComponent } from '../notification/notification.component';
 import { SearchComponent } from '../search/search.component';
-import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../icons';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { CommonModule } from '@angular/common';
 import { PlayerCardComponent } from '../player-card/player-card.component';
-import { Subject } from 'rxjs';
-import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
+import { NotificationsService } from '../../services/notifications.service';
 
 @Component({
   selector: 'm-header',

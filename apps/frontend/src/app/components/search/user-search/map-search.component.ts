@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MapsService } from '../../../services';
 import { MMap } from '@momentum/constants';
 import { NgClass, NgOptimizedImage } from '@angular/common';
-import { IconComponent } from '../../../icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { AbstractSearchComponent } from './abstract-search.component';
+import { IconComponent } from '../../../icons';
+import { MapsService } from '../../../services';
 import { SpinnerDirective } from '../../../directives';
+import { AbstractSearchComponent } from './abstract-search.component';
 
 @Component({
   selector: 'm-map-search',

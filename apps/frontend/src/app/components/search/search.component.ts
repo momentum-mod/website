@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserSearchComponent } from './user-search/user-search.component';
 import { Router } from '@angular/router';
 import { MMap, User } from '@momentum/constants';
+import { UserSearchComponent } from './user-search/user-search.component';
 import { MapSearchComponent } from './user-search/map-search.component';
 
 enum SearchType {

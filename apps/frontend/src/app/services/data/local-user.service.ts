@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from './auth.service';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   Ban,
@@ -26,6 +25,7 @@ import {
   UserStats
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
+import { AuthService } from './auth.service';
 import { HttpService } from './http.service';
 
 export type FullUser = User & { profile?: Profile; userStats?: UserStats };

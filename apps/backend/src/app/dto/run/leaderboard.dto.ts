@@ -5,10 +5,10 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { EnumProperty } from '../decorators';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { EnumProperty } from '../decorators';
 
 export class LeaderboardDto implements Leaderboard {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })

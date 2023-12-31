@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 import { AdminService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'm-utilities',

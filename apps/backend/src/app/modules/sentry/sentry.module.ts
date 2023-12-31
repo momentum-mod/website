@@ -1,13 +1,13 @@
 import { DynamicModule, Logger, Module, Provider } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
+import { Environment } from '../../config';
 import { SentryService } from './sentry.service';
 import {
   SentryInitState,
   SentryModuleAsyncOptions,
   SentryModuleOptions
 } from './sentry.interface';
-import * as Sentry from '@sentry/node';
 import { SENTRY_INIT_STATE, SENTRY_MODULE_OPTIONS } from './sentry.const';
-import { Environment } from '../../config';
 
 @Module({})
 export class SentryModule {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MapImageService } from './map-image.service';
 import { mockDeep } from 'jest-mock-extended';
 import { PRISMA_MOCK_PROVIDER } from '../../../../test/prisma-mock.const';
+import { MapImageService } from './map-image.service';
 
 describe('MapImageService', () => {
   let service: MapImageService;

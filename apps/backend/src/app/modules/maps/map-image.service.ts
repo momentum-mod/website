@@ -8,21 +8,21 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { DtoFactory, MapImageDto } from '../../dto';
 import {
   CombinedMapStatuses,
   imgLargePath,
   imgMediumPath,
   imgSmallPath
 } from '@momentum/constants';
-import { FileStoreFile } from '../filestore/file-store.interface';
 import sharp from 'sharp';
-import { FileStoreService } from '../filestore/file-store.service';
 import { ConfigService } from '@nestjs/config';
+import { parallel } from '@momentum/util-fn';
+import { DtoFactory, MapImageDto } from '../../dto';
+import { FileStoreFile } from '../filestore/file-store.interface';
+import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
-import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class MapImageService {

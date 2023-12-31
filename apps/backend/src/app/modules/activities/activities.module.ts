@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
+import { DbModule } from '../database/db.module';
 import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from './activities.service';
-import { DbModule } from '../database/db.module';
 
 @Module({
   imports: [DbModule.forRoot()],

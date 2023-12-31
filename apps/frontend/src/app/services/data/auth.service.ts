@@ -3,8 +3,8 @@ import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { map } from 'rxjs/operators';
-import { HttpService } from './http.service';
 import { JWTResponseWeb } from '@momentum/constants';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

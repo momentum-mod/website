@@ -5,12 +5,12 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { ReportService } from '../../../services';
 import { ReportCategory, ReportType } from '@momentum/constants';
-import { CardComponent } from '../../card/card.component';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { CardComponent } from '../../card/card.component';
+import { ReportService } from '../../../services';
 
 @Component({
   selector: 'm-create-report-dialog',

@@ -5,9 +5,9 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../../../decorators';
 import { FastifyRequest } from 'fastify';
 import { JwtService } from '@nestjs/jwt';
+import { IS_PUBLIC_KEY } from '../../../decorators';
 
 @Injectable()
 export class JwtGuard implements CanActivate {

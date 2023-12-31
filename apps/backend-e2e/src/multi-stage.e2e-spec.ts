@@ -1,13 +1,8 @@
 // noinspection DuplicatedCode
 
-import { MapDto } from '../../backend/src/app/dto';
-
-import {
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  RequestUtil
-} from '@momentum/test-utils';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { PrismaClient } from '@prisma/client';
 import {
   Gamemode,
   MapCreditType,
@@ -18,16 +13,20 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient } from '@prisma/client';
+import {
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  RequestUtil
+} from '@momentum/test-utils';
+import axios from 'axios';
+import Zip from 'adm-zip';
+import { BabyZonesStub } from '@momentum/formats/zone';
+import { MapDto } from '../../backend/src/app/dto';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import axios from 'axios';
-import Zip from 'adm-zip';
-import { BabyZonesStub } from '@momentum/formats/zone';
 
 describe('Multi-stage E2E tests', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
