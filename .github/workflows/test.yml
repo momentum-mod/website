@@ -135,38 +135,40 @@ jobs:
           docker compose
             -f docker-compose.yml -f docker-compose.test.yml
             run backend-e2e
-  frontend-e2e:
-    name: Frontend E2E Tests
-    runs-on: ubuntu-latest
-    needs: install-deps
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          fetch-depth: 0
-          submodules: 'true'
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: modules-${{ github.run_id }}
-      - name: Check affected
-        run:
-          |
-          if npx nx show projects \
-            --affected \
-            --base=${{ github.event.pull_request.base.sha }} \
-            --head=${{ github.event.pull_request.head.sha }} |
-            grep -q frontend-e2e
-          then
-            echo "affected=true" >> $GITHUB_ENV
-          else
-            echo "affected=false" >> $GITHUB_ENV
-          fi
-      - name: Run tests in Docker
-        if: env.affected == 'true'
-        run:
-          docker compose
-            -f docker-compose.yml -f docker-compose.test.yml
-            run frontend-e2e
+# Disabled until we allow using this site without a Steam login
+# https://github.com/momentum-mod/website/issues/878
+#  frontend-e2e:
+#    name: Frontend E2E Tests
+#    runs-on: ubuntu-latest
+#    needs: install-deps
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          ref: ${{ github.event.pull_request.head.ref }}
+#          repository: ${{ github.event.pull_request.head.repo.full_name }}
+#          fetch-depth: 0
+#          submodules: 'true'
+#      - name: Cache node_modules
+#        uses: actions/cache@v3
+#        with:
+#          path: node_modules
+#          key: modules-${{ github.run_id }}
+#      - name: Check affected
+#        run:
+#          |
+#          if npx nx show projects \
+#            --affected \
+#            --base=${{ github.event.pull_request.base.sha }} \
+#            --head=${{ github.event.pull_request.head.sha }} |
+#            grep -q frontend-e2e
+#          then
+#            echo "affected=true" >> $GITHUB_ENV
+#          else
+#            echo "affected=false" >> $GITHUB_ENV
+#          fi
+#      - name: Run tests in Docker
+#        if: env.affected == 'true'
+#        run:
+#          docker compose
+#            -f docker-compose.yml -f docker-compose.test.yml
+#            run frontend-e2e
