@@ -6,11 +6,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import {
-  CreateMapCreditDto,
-  DtoFactory,
-  MapCreditDto
-} from '@momentum/backend/dto';
+import { CreateMapCreditDto, DtoFactory, MapCreditDto } from '../../dto';
 import { Prisma } from '@prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {

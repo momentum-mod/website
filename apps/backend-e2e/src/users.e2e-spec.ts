@@ -6,14 +6,15 @@ import {
   MapCreditDto,
   ProfileDto,
   UserDto
-} from '@momentum/backend/dto';
+} from '../../backend/src/app/dto';
+
 import {
   AuthUtil,
   futureDateOffset,
   DbUtil,
   NULL_ID,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import { ActivityType, MapCreditType } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {

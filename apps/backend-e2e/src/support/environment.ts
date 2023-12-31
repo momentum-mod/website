@@ -1,3 +1,13 @@
+// https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
+import { AppModule } from '../../../backend/src/app/app.module';
+import {
+  AuthUtil,
+  DbUtil,
+  FileStoreUtil,
+  RequestUtil
+} from '@momentum/test-utils';
+import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
+
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
   ClassSerializerInterceptor,
@@ -15,16 +25,6 @@ import { Server } from 'node:http';
 import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
-// https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { AppModule } from '../../../backend/src/app/app.module';
-import {
-  AuthUtil,
-  DbUtil,
-  FileStoreUtil,
-  RequestUtil
-} from '@momentum/backend/test-utils';
-import { VALIDATION_PIPE_CONFIG } from '@momentum/backend/dto';
 
 export interface E2EUtils {
   app: NestFastifyApplication;

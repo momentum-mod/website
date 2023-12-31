@@ -10,7 +10,7 @@ import {
   FileStoreUtil,
   NULL_ID,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -20,7 +20,7 @@ import {
   MapDto,
   ReportDto,
   UserDto
-} from '@momentum/backend/dto';
+} from '../../backend/src/app/dto';
 import {
   ActivityType,
   AdminActivityType,

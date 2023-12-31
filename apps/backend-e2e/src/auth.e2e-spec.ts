@@ -1,25 +1,23 @@
 ﻿// noinspection DuplicatedCode
 
-// We're committing a cardinal sin of Nx here, but I *really* want to be able to
-// do E2E tests for auth and the only way to do good ones is if we can mock the
-// Steam service stuff. I just can't see a good way of doing these tests without
-// "crossing module boundaries" like this.
-/* eslint-disable @nx/enforce-module-boundaries */
+// Note that by importing and mocking these services service we're breaking a
+// major rule of E2E testing. But we need to test code that relies on Steam's
+// API, so our only sane option is to mock.
 import { SteamOpenIDService } from '../../backend/src/app/modules/auth/steam/steam-openid.service';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
+import { Config } from '../../backend/src/app/config';
+import {
+  JWTResponseGameDto,
+  JWTResponseWebDto
+} from '../../backend/src/app/dto';
+
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { PrismaClient } from '@prisma/client';
-import {
-  DbUtil,
-  ParsedResponse,
-  RequestUtil
-} from '@momentum/backend/test-utils';
-import { Config } from '@momentum/backend/config';
+import { DbUtil, ParsedResponse, RequestUtil } from '@momentum/test-utils';
 import { setupE2ETestEnvironment } from './support/environment';
-import { JWTResponseGameDto, JWTResponseWebDto } from '@momentum/backend/dto';
 
 describe('Auth', () => {
   const testJwtService = new JwtService({

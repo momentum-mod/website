@@ -14,7 +14,7 @@ import {
   ReportDto,
   UpdateReportDto,
   UserDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { Bitflags } from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';

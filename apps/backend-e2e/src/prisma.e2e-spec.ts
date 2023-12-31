@@ -4,7 +4,7 @@ import {
   getExtendedPrismaClient,
   nuke
 } from '@momentum/db';
-import { DbUtil } from '@momentum/backend/test-utils';
+import { DbUtil } from '@momentum/test-utils';
 
 // No, these are not E2E tests, but they need a live DB so they live here. Bite me!
 describe('Prisma Client Extensions', () => {

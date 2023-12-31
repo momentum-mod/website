@@ -3,7 +3,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { Bitflags } from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
-import { AdminActivityDto, PagedResponseDto } from '@momentum/backend/dto';
+import { AdminActivityDto, PagedResponseDto } from '../../dto';
 
 @Injectable()
 export class AdminActivityService {

@@ -13,10 +13,10 @@ import {
   PastRunDto,
   PastRunsGetAllQueryDto,
   PastRunsGetQueryDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { PastRunsService } from './past-runs.service';
-import { LoggedInUser } from '@momentum/backend/decorators';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+import { LoggedInUser } from '../../decorators';
+import { ParseIntSafePipe } from '../../pipes';
 
 @Controller('runs')
 @ApiTags('Runs')

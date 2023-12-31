@@ -15,7 +15,7 @@ import {
   RunSessionDto,
   UpdateRunSessionDto,
   XpGainDto
-} from '@momentum/backend/dto';
+} from '../../../dto';
 import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 import {
   ActivityType,

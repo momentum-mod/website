@@ -69,10 +69,10 @@ import {
   LeaderboardRunDto,
   MapLeaderboardGetRunQueryDto,
   MinimalLeaderboardRunDto
-} from '@momentum/backend/dto';
-import { LoggedInUser, Roles } from '@momentum/backend/decorators';
+} from '../../dto';
+import { LoggedInUser, Roles } from '../../decorators';
 import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+import { ParseIntSafePipe } from '../../pipes';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';

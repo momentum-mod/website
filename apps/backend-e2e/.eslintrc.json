@@ -4,7 +4,13 @@
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {}
+      "rules": {
+        // E2E tests need to violate Nx boundaries so that they can import
+        // DTOs from the backend package, and occasionally specific services.
+        // It's must easier to just handle these in review than fight with this
+        // rule constantly.
+        "@nx/enforce-module-boundaries": ["off"]
+      }
     }
   ]
 }

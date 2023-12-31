@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/roles.guard';
 import { NonGameAuthGuard } from '../auth/jwt/game.guard';
-import { LoggedInUser, Roles } from '@momentum/backend/decorators';
+import { LoggedInUser, Roles } from '../../decorators';
 import { Role as RolesEnum } from '@momentum/constants';
 import { MapsService } from '../maps/maps.service';
 import { UsersService } from '../users/users.service';
@@ -45,8 +45,8 @@ import {
   UpdateMapAdminDto,
   UpdateReportDto,
   UserDto
-} from '@momentum/backend/dto';
-import { ParseIntSafePipe } from '@momentum/backend/pipes';
+} from '../../dto';
+import { ParseIntSafePipe } from '../../pipes';
 import { AdminActivityService } from './admin-activity.service';
 
 @Controller('admin')

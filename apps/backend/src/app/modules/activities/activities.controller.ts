@@ -6,7 +6,7 @@ import {
   ActivityDto,
   ApiOkPagedResponse,
   PagedResponseDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 
 @Controller('activities')
 @ApiTags('Activities')

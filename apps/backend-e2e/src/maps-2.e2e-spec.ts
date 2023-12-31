@@ -1,5 +1,17 @@
 // noinspection DuplicatedCode
 
+import {
+  LeaderboardRunDto,
+  MapCreditDto,
+  MapImageDto,
+  MapInfoDto,
+  MapReviewDto,
+  MapZonesDto,
+  MinimalLeaderboardRunDto,
+  UserDto
+} from '../../backend/src/app/dto';
+import { Config } from '../../backend/src/app/config';
+
 import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -10,21 +22,11 @@ import {
   futureDateOffset,
   NULL_ID,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import {
-  LeaderboardRunDto,
-  MapCreditDto,
-  MapImageDto,
-  MapInfoDto,
-  MapReviewDto,
-  MapZonesDto,
-  MinimalLeaderboardRunDto,
-  UserDto
-} from '@momentum/backend/dto';
 import {
   ActivityType,
   CombinedMapStatuses,
@@ -36,7 +38,6 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';

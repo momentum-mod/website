@@ -1,4 +1,4 @@
-﻿import { Environment } from '@momentum/backend/config';
+﻿import { Environment } from '../../config';
 import { ModuleMetadata } from '@nestjs/common';
 import { NodeOptions } from '@sentry/node';
 

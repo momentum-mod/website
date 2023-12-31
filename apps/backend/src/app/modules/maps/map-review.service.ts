@@ -10,7 +10,7 @@ import {
   MapReviewGetIdDto,
   MapReviewsGetQueryDto,
   PagedResponseDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import { Role, CombinedRoles } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@prisma/client';
 import { MapsService } from './maps.service';

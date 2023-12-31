@@ -6,12 +6,8 @@ import {
 } from '@nestjs/common';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import {
-  DtoFactory,
-  PastRunDto,
-  PastRunsGetAllQueryDto
-} from '@momentum/backend/dto';
-import { PagedResponseDto } from '@momentum/backend/dto';
+import { DtoFactory, PastRunDto, PastRunsGetAllQueryDto } from '../../dto';
+import { PagedResponseDto } from '../../dto';
 import { MapStatusNew, RunsGetQuery } from '@momentum/constants';
 import { PastRun, Prisma } from '@prisma/client';
 import { MapsService } from '../maps/maps.service';

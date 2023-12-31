@@ -10,7 +10,7 @@ import {
   DtoFactory,
   JWTResponseGameDto,
   JWTResponseWebDto
-} from '@momentum/backend/dto';
+} from '../../../dto';
 import {
   AuthenticatedUser,
   UserJwtAccessPayload,

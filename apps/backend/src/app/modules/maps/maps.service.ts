@@ -31,7 +31,7 @@ import {
   PagedResponseDto,
   UpdateMapAdminDto,
   UpdateMapDto
-} from '@momentum/backend/dto';
+} from '../../dto';
 import {
   ActivityType,
   AdminActivityType,

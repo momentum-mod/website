@@ -3,7 +3,7 @@ import { JwtAuthService } from './jwt-auth.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
-import { JWTResponseGameDto, JWTResponseWebDto } from '@momentum/backend/dto';
+import { JWTResponseGameDto, JWTResponseWebDto } from '../../../dto';
 import {
   UserJwtAccessPayloadVerified,
   UserJwtPayloadVerified

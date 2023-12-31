@@ -1,13 +1,14 @@
 // noinspection DuplicatedCode
 
-import { PastRunDto } from '@momentum/backend/dto';
+import { PastRunDto } from '../../backend/src/app/dto';
+
 import {
   AuthUtil,
   futureDateOffset,
   DbUtil,
   NULL_ID,
   RequestUtil
-} from '@momentum/backend/test-utils';
+} from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,

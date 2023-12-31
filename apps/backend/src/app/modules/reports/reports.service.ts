@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
-import { CreateReportDto, DtoFactory, ReportDto } from '@momentum/backend/dto';
+import { CreateReportDto, DtoFactory, ReportDto } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 
