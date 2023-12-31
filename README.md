@@ -22,9 +22,7 @@ and stats congregation/filtering.
 # Architecture
 
 The vast majority of the codebase is written in
-[Typescript](https://www.typescriptlang.org/). It's structured as an
-[integrated monorepo](https://nx.dev/concepts/integrated-vs-package-based#integrated-repos)
-using [Nx](https://nx.dev). We use npm as our package manager.
+[Typescript](https://www.typescriptlang.org/).
 
 The frontend runs on [Angular](https://angular.io) 17. We use
 [Tailwind](https://tailwindcss.com/) for most styling,
@@ -36,6 +34,14 @@ The backend runs on [NodeJS](https://nodejs.org/), with
 - [Fastify](https://www.fastify.io/): the underlying HTTP server,
 - [Prisma](https://www.prisma.io/): an ORM,
 - [Postgres](https://www.postgresql.org/): the underlying database
+
+This repo is (clearly) a monorepo, using [Nx](https://nx.dev) for organization
+and tooling - however we don't follow the overcomplicated Nx practice of
+breaking applications up into a dozen separate libraries. Application code files
+(such as front and backend) live in their respective directories in `apps/`, and
+anything shared between applications lives in `libs/`.
+
+We use npm as our package manager.
 
 # Contributing
 
