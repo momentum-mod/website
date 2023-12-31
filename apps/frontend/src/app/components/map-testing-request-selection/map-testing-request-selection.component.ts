@@ -2,7 +2,7 @@ import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
 
@@ -17,13 +17,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
     }
   ],
   standalone: true,
-  imports: [
-    NgClass,
-    UserSearchComponent,
-    NgFor,
-    TooltipDirective,
-    AvatarComponent
-  ]
+  imports: [NgClass, UserSearchComponent, TooltipDirective, AvatarComponent]
 })
 export class MapTestingRequestSelectionComponent
   implements ControlValueAccessor

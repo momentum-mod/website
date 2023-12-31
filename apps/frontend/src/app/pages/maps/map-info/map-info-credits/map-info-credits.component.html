@@ -1,16 +1,20 @@
 <div class="flex flex-wrap">
-  <div *ngFor="let type of MapCreditNames | keyvalue" class="w-1/2 pl-4 pr-4 md:w-1/4">
-    <p class="color-gray-100 text-3xl">{{ type.value }}</p>
-    <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, type.key)" class="mb-4">
-        <a class="flex" [routerLink]="'/profile/' + credit?.user.id">
-          <m-avatar class="!h-8" [url]="credit?.user.avatarURL" />
-          <div class="ml-2">
-            <span class="block text-white">{{ credit.user.alias }}</span>
-            <span class="block text-gray-300">{{ credit.description }}</span>
-          </div>
-        </a>
-      </li>
-    </ul>
-  </div>
+  @for (type of MapCreditNames | keyvalue; track type) {
+    <div class="w-1/2 pl-4 pr-4 md:w-1/4">
+      <p class="color-gray-100 text-3xl">{{ type.value }}</p>
+      <ul class="list-unstyled">
+        @for (credit of filterMapCredits(map?.credits, type.key); track credit) {
+          <li class="mb-4">
+            <a class="flex" [routerLink]="'/profile/' + credit?.user.id">
+              <m-avatar class="!h-8" [url]="credit?.user.avatarURL" />
+              <div class="ml-2">
+                <span class="block text-white">{{ credit.user.alias }}</span>
+                <span class="block text-gray-300">{{ credit.description }}</span>
+              </div>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  }
 </div>

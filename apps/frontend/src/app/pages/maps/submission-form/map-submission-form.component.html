@@ -1,5 +1,5 @@
 <p class="font-display text-8xl font-bold opacity-80">Map Submission</p>
-<ng-container *ngIf="isMapperOrPorter || !hasMapInSubmission || true; else notMapperBlock">
+@if (isMapperOrPorter || !hasMapInSubmission || true) {
   <div class="prose mb-8 max-w-none rounded border-2 border-blue-800 bg-blue-900 p-5">
     <h4>Welcome to the Momentum Mod map submission page!</h4>
     <p>
@@ -53,22 +53,28 @@
           <!-- TODO: Link to docs pages for these-->
         </p>
         <div>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['required'] && bsp.dirty">
-            <b>Error: </b>A BSP file is required.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileName']">
-            <b>Error: </b>File name must be alphanumeric + hyphens + underscores, and end in <b>.bsp</b>.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileMaxSize']">
-            <b>Error: </b>Maximum allowed file size is {{ MAX_BSP_SIZE / (1024 * 1024) }} MB.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['bspFileNotCompressed']">
-            <b>Error: </b>BSP file is not compressed. TODO: Docs link!
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['bspFileReadError']">
-            <b>Error: </b>Could not parse file, are you sure it's a valid BSP?
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          @if (bsp.errors?.['required'] && bsp.dirty) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A BSP file is required.</p>
+          }
+          @if (bsp.errors?.['fileName']) {
+            <p class="mb-1 text-right text-lg text-red-400">
+              <b>Error: </b>File name must be alphanumeric + hyphens + underscores, and end in <b>.bsp</b>.
+            </p>
+          }
+          @if (bsp.errors?.['fileMaxSize']) {
+            <p class="mb-1 text-right text-lg text-red-400">
+              <b>Error: </b>Maximum allowed file size is {{ MAX_BSP_SIZE / (1024 * 1024) }} MB.
+            </p>
+          }
+          @if (bsp.errors?.['bspFileNotCompressed']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>BSP file is not compressed. TODO: Docs link!</p>
+          }
+          @if (bsp.errors?.['bspFileReadError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, are you sure it's a valid BSP?</p>
+          }
+          @if (bsp.errors?.['fileReadError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+          }
         </div>
         <m-file-upload [formControl]="bsp" typeName="BSP" accept=".bsp" icon="land-plots" />
       </div>
@@ -79,16 +85,18 @@
         </h5>
         <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">The zones for your map</p>
         <div>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['required'] && zon.dirty">
-            <b>Error: </b>A zone file is required.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['zoneFileValidationError']">
-            <b>Error: </b> {{ zon.errors?.['zoneFileValidationError'][0].message }}.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['zonFileNotJsonError']">
-            <b>Error: </b>Could not parse file, it's not valid JSON!
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          @if (zon.errors?.['required'] && zon.dirty) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A zone file is required.</p>
+          }
+          @if (zon.errors?.['zoneFileValidationError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b> {{ zon.errors?.['zoneFileValidationError'][0].message }}.</p>
+          }
+          @if (zon.errors?.['zonFileNotJsonError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not valid JSON!</p>
+          }
+          @if (zon.errors?.['fileReadError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+          }
         </div>
         <m-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" accept=".zon.json" />
       </div>
@@ -98,16 +106,20 @@
           The VMF source files your map. Not required, but helps us archive file maps, and may be helpful for other mappers!
         </p>
         <div>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="vmfs.errors?.['fileExtension']">
-            <b>Error: </b>File extension must end in <b>.vmf</b>.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileMaxSize']">
-            <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['vdfFileValidationError']">
-            <b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!
-          </p>
-          <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          @if (vmfs.errors?.['fileExtension']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>File extension must end in <b>.vmf</b>.</p>
+          }
+          @if (zon.errors?.['fileMaxSize']) {
+            <p class="mb-1 text-right text-lg text-red-400">
+              <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
+            </p>
+          }
+          @if (zon.errors?.['vdfFileValidationError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!</p>
+          }
+          @if (zon.errors?.['fileReadError']) {
+            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+          }
         </div>
         <m-multi-file-upload [formControl]="vmfs" typeName="VMF" accept=".vmf" icon="hammer" [max]="20" />
       </div>
@@ -184,7 +196,9 @@
           <select class="!max-w-full" [formControl]="submissionType">
             <option [value]="MapSubmissionType.ORIGINAL">Original</option>
             <option [value]="MapSubmissionType.PORT">Port</option>
-            <option *ngIf="isModOrAdmin" [value]="MapSubmissionType.SPECIAL">Special</option>
+            @if (isModOrAdmin) {
+              <option [value]="MapSubmissionType.SPECIAL">Special</option>
+            }
           </select>
           <div class="flex flex-col">
             <label for="creationDate" class="my-auto text-lg leading-4">
@@ -291,20 +305,26 @@
       </p>
       <m-map-image-selection innerFormControlName="images" icon="image-multiple-outline" />
       <div>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['required'] && images.dirty">
-          <b>Error: </b>Must include at least a thumbnail image.
-        </p>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['fileExtension']">
-          <b>Error: </b>All images must be PNG or JPEG.
-        </p>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['fileMaxSize']">
-          <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
-        </p>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['imageFileDimensionsError']">
-          <b>Error: </b>All images must be 2560x1440 - TODO: Docs link!
-        </p>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="bsp.errors?.['imageFileReadError']"><b>Error: </b>Bad image file.</p>
-        <p class="mt-2 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+        @if (images.errors?.['required'] && images.dirty) {
+          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Must include at least a thumbnail image.</p>
+        }
+        @if (images.errors?.['fileExtension']) {
+          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be PNG or JPEG.</p>
+        }
+        @if (images.errors?.['fileMaxSize']) {
+          <p class="mt-2 text-right text-lg text-red-400">
+            <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
+          </p>
+        }
+        @if (images.errors?.['imageFileDimensionsError']) {
+          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be 2560x1440 - TODO: Docs link!</p>
+        }
+        @if (bsp.errors?.['imageFileReadError']) {
+          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Bad image file.</p>
+        }
+        @if (bsp.errors?.['fileReadError']) {
+          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+        }
       </div>
     </fieldset>
 
@@ -403,9 +423,9 @@
         </ng-template>
       </legend>
       <m-map-leaderboards-selection [formControl]="suggestions" />
-      <p class="mb-1 ml-auto text-right text-lg text-red-400" *ngIf="suggestions.dirty && suggestions.errors">
-        <b>Error: </b>{{ suggestions.errors['error'] }}
-      </p>
+      @if (suggestions.dirty && suggestions.errors) {
+        <p class="mb-1 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
+      }
     </fieldset>
 
     <fieldset class="card mt-10 pt-2">
@@ -458,9 +478,9 @@
               <span class="mr-4 text-lg">Enable Private Testing</span>
               <input type="checkbox" [formControl]="wantsPrivateTesting" />
             </div>
-            <p class="mt-2 text-right text-lg text-red-400" *ngIf="testInvites.dirty && privateTesting.errors">
-              <b>Error: </b>{{ privateTesting.errors['error'] }}
-            </p>
+            @if (testInvites.dirty && privateTesting.errors) {
+              <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>{{ privateTesting.errors['error'] }}</p>
+            }
           </div>
         </div>
         <span class="h-auto bg-gray-700 md:w-0 lg:w-[0.125rem]"></span>
@@ -470,10 +490,12 @@
   </form>
 
   <div class="mt-4 flex">
-    <div class="flex flex-grow flex-col" *ngIf="isUploading">
-      <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
-      <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
-    </div>
+    @if (isUploading) {
+      <div class="flex flex-grow flex-col">
+        <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
+        <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+      </div>
+    }
     <div class="ml-auto h-full">
       <button
         #submitButton
@@ -487,8 +509,7 @@
       </button>
     </div>
   </div>
-</ng-container>
-<ng-template #notMapperBlock>
+} @else {
   <div class="card prose max-w-none">
     <p>
       You currently have a map in submission. As you don't yet have any approved maps, you are only allowed to have one map in submission at
@@ -503,6 +524,6 @@
       number of submissions at once.
     </p>
   </div>
-</ng-template>
+}
 
 <!--<m-map-info *ngIf="stepper?.selectedIndex === stepper?.steps?.length - 1 && !isUploadingMap" [previewMap]="mapPreview"></m-map-info>-->

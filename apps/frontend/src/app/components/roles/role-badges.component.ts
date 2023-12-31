@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Bitfield, Role, RoleNames } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { TooltipDirective } from '../../directives';
@@ -13,7 +13,7 @@ import { TooltipDirective } from '../../directives';
 @Component({
   selector: 'm-role-badges',
   standalone: true,
-  imports: [CommonModule, TooltipDirective],
+  imports: [TooltipDirective],
   template: `@for (role of heldRoleStrings; track $index) {
     <!-- SVGs in apps/frontend/src/assets/images/badges/roles must have
          filenames corresponding to RoleNames! -->

@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CardHeaderComponent } from './card-header.component';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-card',
   standalone: true,
-  imports: [CardHeaderComponent, NgIf, NgClass],
+  imports: [CardHeaderComponent, NgClass],
   template: `
     <m-card-header [title]="title" [titleSize]="titleSize">
       <ng-content select="[header]"></ng-content>

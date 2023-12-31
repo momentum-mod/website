@@ -1,7 +1,7 @@
 import { Component, forwardRef, HostListener, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
-import { NgClass, NgIf, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { IconComponent } from '../../icons';
 
 /**
@@ -19,7 +19,7 @@ import { IconComponent } from '../../icons';
     }
   ],
   standalone: true,
-  imports: [NgClass, NgIf, NgFor, IconComponent]
+  imports: [NgClass, IconComponent]
 })
 export class MultiFileUploadComponent extends AbstractFileUploadComponent<
   File[]

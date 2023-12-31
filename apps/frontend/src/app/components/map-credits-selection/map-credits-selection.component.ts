@@ -20,7 +20,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { Enum } from '@momentum/enum';
-import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
@@ -37,13 +37,11 @@ import { AvatarComponent } from '../avatar/avatar.component';
   ],
   standalone: true,
   imports: [
-    NgFor,
     CdkDropList,
     CdkDrag,
     IconComponent,
     FormsModule,
     UserSearchComponent,
-    NgIf,
     KeyValuePipe,
     TooltipDirective,
     AvatarComponent

@@ -18,7 +18,7 @@ import {
   CdkDrag
 } from '@angular/cdk/drag-drop';
 import { ImageSelectionItem } from './image-selection-item.class';
-import { NgFor } from '@angular/common';
+
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 
 enum ImageType {
@@ -46,7 +46,6 @@ enum ImageType {
     ReactiveFormsModule,
     IconComponent,
     CdkDropList,
-    NgFor,
     CdkDrag
   ]
 })

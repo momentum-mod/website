@@ -23,64 +23,67 @@
     </tr>
   </thead>
   <tbody class="contents">
-    <tr *ngFor="let item of value; index as i" class="contents">
-      <td>
-        <p-dropdown
-          class="w-full"
-          [(ngModel)]="item.gamemode"
-          [options]="Gamemodes"
-          optionLabel="label"
-          optionValue="gamemode"
-          (blur)="onTouched()"
-          (onChange)="onChange(value)"
-        />
-      </td>
-      <td>
-        <p-dropdown
-          class="w-full"
-          [(ngModel)]="item.trackType"
-          [options]="TrackTypes"
-          optionLabel="label"
-          optionValue="type"
-          (blur)="onTouched()"
-          (onChange)="onChange(value)"
-        />
-      </td>
-      <td>
-        <p-dropdown
-          *ngIf="item.trackType === TrackType.BONUS"
-          class="w-full"
-          [(ngModel)]="item.trackNum"
-          [options]="availableBonusTrackNums"
-          (blur)="onTouched()"
-          (onChange)="onChange(value)"
-        />
-      </td>
-      <td>
-        <p-dropdown
-          class="w-full"
-          [(ngModel)]="item.tier"
-          [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-          (blur)="onTouched()"
-          (onChange)="onChange(value)"
-        />
-      </td>
-      <td class="ml-auto">
-        <input type="checkbox" [(ngModel)]="item.ranked" (blur)="onTouched()" (ngModelChange)="onChange(value)" />
-      </td>
-      <td>
-        <textarea
-          class="m-textinput w-full"
-          [(ngModel)]="item.comment"
-          rows="1"
-          [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
-          (blur)="onTouched()"
-          (change)="onChange(value)"
-        ></textarea>
-      </td>
-      <td>
-        <button class="btn bg-red-900 transition-colors hover:bg-red-800" (click)="removeItem(i)">Delete</button>
-      </td>
-    </tr>
+    @for (item of value; track item; let i = $index) {
+      <tr class="contents">
+        <td>
+          <p-dropdown
+            class="w-full"
+            [(ngModel)]="item.gamemode"
+            [options]="Gamemodes"
+            optionLabel="label"
+            optionValue="gamemode"
+            (blur)="onTouched()"
+            (onChange)="onChange(value)"
+          />
+        </td>
+        <td>
+          <p-dropdown
+            class="w-full"
+            [(ngModel)]="item.trackType"
+            [options]="TrackTypes"
+            optionLabel="label"
+            optionValue="type"
+            (blur)="onTouched()"
+            (onChange)="onChange(value)"
+          />
+        </td>
+        <td>
+          @if (item.trackType === TrackType.BONUS) {
+            <p-dropdown
+              class="w-full"
+              [(ngModel)]="item.trackNum"
+              [options]="availableBonusTrackNums"
+              (blur)="onTouched()"
+              (onChange)="onChange(value)"
+            />
+          }
+        </td>
+        <td>
+          <p-dropdown
+            class="w-full"
+            [(ngModel)]="item.tier"
+            [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+            (blur)="onTouched()"
+            (onChange)="onChange(value)"
+          />
+        </td>
+        <td class="ml-auto">
+          <input type="checkbox" [(ngModel)]="item.ranked" (blur)="onTouched()" (ngModelChange)="onChange(value)" />
+        </td>
+        <td>
+          <textarea
+            class="m-textinput w-full"
+            [(ngModel)]="item.comment"
+            rows="1"
+            [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
+            (blur)="onTouched()"
+            (change)="onChange(value)"
+          ></textarea>
+        </td>
+        <td>
+          <button class="btn bg-red-900 transition-colors hover:bg-red-800" (click)="removeItem(i)">Delete</button>
+        </td>
+      </tr>
+    }
   </tbody>
 </table>

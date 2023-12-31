@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { IconComponent } from '../../icons';
 import { ActivityContentComponent } from '../activity/activity-content.component';
 import { TimeAgoPipe } from '../../pipes';
@@ -10,14 +10,7 @@ import { TimeAgoPipe } from '../../pipes';
   selector: 'm-notifications',
   templateUrl: './notification.component.html',
   standalone: true,
-  imports: [
-    NgIf,
-    NgFor,
-    NgClass,
-    ActivityContentComponent,
-    IconComponent,
-    TimeAgoPipe
-  ]
+  imports: [NgClass, ActivityContentComponent, IconComponent, TimeAgoPipe]
 })
 export class NotificationComponent implements OnInit {
   @Input() notifications: Notification[];

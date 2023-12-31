@@ -16,7 +16,9 @@
         <m-activity-content [activity]="item" />
       } @empty {
         @if (!loading) {
-          <p class="italics m-8 h-8 text-center text-2xl text-gray-400" *ngIf="activities.length === 0 && !loading">No activities found</p>
+          @if (activities.length === 0 && !loading) {
+            <p class="italics m-8 h-8 text-center text-2xl text-gray-400">No activities found</p>
+          }
         }
       }
     </div>

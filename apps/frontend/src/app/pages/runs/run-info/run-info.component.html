@@ -1,36 +1,38 @@
-<m-card *ngIf="run">
-  <div header class="mb-2 flex flex-wrap items-center gap-2">
-    <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2 text-xl">
-      <m-avatar class="h-8" [url]="run.user.avatarURL" />
-      <p>{{ run.user.alias }}</p>
-    </a>
-    <p class="text-xl">on</p>
-    <p class="text-xl">
-      <a [routerLink]="'/maps/' + run.mapID">{{ run.map.name }}</a>
-    </p>
-  </div>
-  <div>
-    <div class="flex flex-wrap justify-around text-center">
-      <div class="base mx-1 mb-3">
-        <h5>Time</h5>
-        <h1>{{ run.time | timing }}</h1>
-      </div>
-      <ng-container *ngIf="run.leaderboardRun">
-        <div class="mx-1 mb-3 border-b-2 border-blue-500">
-          <h5>Jumps</h5>
-          <h1>{{ run.leaderboardRun?.stats?.overall?.jumps }}</h1>
-        </div>
-
-        <div class="mx-1 mb-3 border-b-2 border-blue-500">
-          <h5>Strafes</h5>
-          <h1>{{ run.leaderboardRun?.stats?.overall?.strafes }}</h1>
-        </div>
-
-        <div class="mx-1 mb-3 border-b-2 border-blue-500">
-          <h5>Rank</h5>
-          <h1>{{ run?.leaderboardRun?.rank || 'N/A' }}</h1>
-        </div>
-      </ng-container>
+@if (run) {
+  <m-card>
+    <div header class="mb-2 flex flex-wrap items-center gap-2">
+      <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2 text-xl">
+        <m-avatar class="h-8" [url]="run.user.avatarURL" />
+        <p>{{ run.user.alias }}</p>
+      </a>
+      <p class="text-xl">on</p>
+      <p class="text-xl">
+        <a [routerLink]="'/maps/' + run.mapID">{{ run.map.name }}</a>
+      </p>
     </div>
-  </div>
-</m-card>
+    <div>
+      <div class="flex flex-wrap justify-around text-center">
+        <div class="base mx-1 mb-3">
+          <h5>Time</h5>
+          <h1>{{ run.time | timing }}</h1>
+        </div>
+        @if (run.leaderboardRun) {
+          <div class="mx-1 mb-3 border-b-2 border-blue-500">
+            <h5>Jumps</h5>
+            <h1>{{ run.leaderboardRun?.stats?.overall?.jumps }}</h1>
+          </div>
+
+          <div class="mx-1 mb-3 border-b-2 border-blue-500">
+            <h5>Strafes</h5>
+            <h1>{{ run.leaderboardRun?.stats?.overall?.strafes }}</h1>
+          </div>
+
+          <div class="mx-1 mb-3 border-b-2 border-blue-500">
+            <h5>Rank</h5>
+            <h1>{{ run?.leaderboardRun?.rank || 'N/A' }}</h1>
+          </div>
+        }
+      </div>
+    </div>
+  </m-card>
+}
