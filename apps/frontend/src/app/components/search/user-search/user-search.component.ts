@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LocalUserService, UsersService } from '../../../services';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
-import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -22,10 +22,8 @@ import { SpinnerDirective } from '../../../directives/spinner.directive';
     ReactiveFormsModule,
     IconComponent,
     NgClass,
-    NgFor,
     PaginatorModule,
     OverlayPanelModule,
-    NgIf,
     NgOptimizedImage,
     RouterLink,
     TooltipDirective,

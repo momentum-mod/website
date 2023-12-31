@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MapsService } from '../../../services';
 import { MMap } from '@momentum/constants';
-import { NgClass, NgFor, NgIf, NgOptimizedImage } from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -18,10 +18,8 @@ import { SpinnerDirective } from '../../../directives';
     ReactiveFormsModule,
     IconComponent,
     NgClass,
-    NgFor,
     PaginatorModule,
     OverlayPanelModule,
-    NgIf,
     NgOptimizedImage,
     SpinnerDirective
   ]

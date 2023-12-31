@@ -26,22 +26,23 @@
         [cdkDropListConnectedTo]="[extrasList]"
         (cdkDropListDropped)="drop($event, ImageType.THUMBNAIL)"
       >
-        <div
-          cdkDrag
-          class="group relative cursor-move rounded shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
-          *ngFor="let item of items[ImageType.THUMBNAIL]"
-        >
-          <img class="aspect-video w-full" [src]="item.dataUrl" />
-          <m-icon
-            icon="cursor-move"
-            class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
-          />
-          <m-icon
-            icon="close"
-            (click)="removeItem(item.file, ImageType.THUMBNAIL)"
-            class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
-          />
-        </div>
+        @for (item of items[ImageType.THUMBNAIL]; track item) {
+          <div
+            cdkDrag
+            class="group relative cursor-move rounded shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
+          >
+            <img class="aspect-video w-full" [src]="item.dataUrl" />
+            <m-icon
+              icon="cursor-move"
+              class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
+            />
+            <m-icon
+              icon="close"
+              (click)="removeItem(item.file, ImageType.THUMBNAIL)"
+              class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
+            />
+          </div>
+        }
       </div>
     </div>
     <div class="flex h-full flex-col lg:w-2/3">
@@ -56,22 +57,23 @@
         (cdkDropListDropped)="drop($event, ImageType.EXTRA)"
         class="grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 p-3 shadow [&>.cdk-drag-placeholder]:opacity-0"
       >
-        <div
-          cdkDrag
-          class="group relative aspect-video cursor-move shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
-          *ngFor="let item of items[ImageType.EXTRA]"
-        >
-          <img class="aspect-video w-full" [src]="item.dataUrl" />
-          <m-icon
-            icon="cursor-move"
-            class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
-          />
-          <m-icon
-            icon="close"
-            (click)="removeItem(item.file, ImageType.EXTRA)"
-            class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
-          />
-        </div>
+        @for (item of items[ImageType.EXTRA]; track item) {
+          <div
+            cdkDrag
+            class="group relative aspect-video cursor-move shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
+          >
+            <img class="aspect-video w-full" [src]="item.dataUrl" />
+            <m-icon
+              icon="cursor-move"
+              class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
+            />
+            <m-icon
+              icon="close"
+              (click)="removeItem(item.file, ImageType.EXTRA)"
+              class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
+            />
+          </div>
+        }
       </div>
     </div>
   </div>

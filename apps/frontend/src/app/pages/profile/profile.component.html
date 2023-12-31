@@ -1,137 +1,167 @@
 <div class="flex flex-wrap">
   <div class="w-full pl-4 pr-4 xl:w-3/5">
-    <m-card *ngIf="user">
-      <div class="overflow-hidden">
-        <span
-          *ngIf="user.country && user.country.length === 2"
-          [title]="countryDisplayName"
-          class="rounded flg fi fi-{{ user.country.toLowerCase() }}"
-        ></span>
-        <div class="top-right-toolbar flex items-center">
-          <m-report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
-          <div *ngIf="canEdit()">
-            <button class="m-btn m-btn-blue ml-2" type="button" (click)="onEditProfile()">
-              <span class="hidden md:inline-block">Edit Profile</span>
-              <m-icon class="inline-block md:hidden" icon="note-edit" />
-            </button>
+    @if (user) {
+      <m-card>
+        <div class="overflow-hidden">
+          @if (user.country && user.country.length === 2) {
+            <span [title]="countryDisplayName" class="rounded flg fi fi-{{ user.country.toLowerCase() }}"></span>
+          }
+          <div class="top-right-toolbar flex items-center">
+            @if (!isLocal) {
+              <m-report-button [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
+            }
+            @if (canEdit()) {
+              <div>
+                <button class="m-btn m-btn-blue ml-2" type="button" (click)="onEditProfile()">
+                  <span class="hidden md:inline-block">Edit Profile</span>
+                  <m-icon class="inline-block md:hidden" icon="note-edit" />
+                </button>
+              </div>
+            }
           </div>
-        </div>
 
-        <div class="mt-4 flex flex-wrap">
-          <div class="col-auto mb-2">
-            <div *ngIf="avatarLoaded" class="user-image ml-2 md:ml-6" [ngStyle]="{ 'background-image': 'url(' + avatarUrl + ')' }"></div>
-          </div>
-          <div class="relative mb-2 max-w-full flex-1 flex-grow px-4">
-            <div class="justify-content-evenly flex h-full flex-col">
-              <div class="flex items-center">
-                <h1>{{ user.alias }}</h1>
-                <img
-                  *ngIf="hasRole(Role.VERIFIED)"
-                  class="verified h-6"
-                  src="assets/images/badges/roles/Verified.svg"
-                  mTooltip="Verified"
-                  width="49"
-                  height="49"
-                  alt="Verified Badge"
-                />
-              </div>
-              <m-role-badges class="h-8 gap-2" [roles]="user.roles" [ignored]="[Role.VERIFIED]" />
-              <div *ngIf="!hasRole(Role.DELETED)">
-                <h4 class="text">Level {{ user.userStats?.level }}</h4>
-              </div>
-              <div class="socials">
-                <div>
-                  <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam">
-                    <m-icon icon="steam" pack="si" />
-                  </a>
+          <div class="mt-4 flex flex-wrap">
+            <div class="col-auto mb-2">
+              @if (avatarLoaded) {
+                <div class="user-image ml-2 md:ml-6" [ngStyle]="{ 'background-image': 'url(' + avatarUrl + ')' }"></div>
+              }
+            </div>
+            <div class="relative mb-2 max-w-full flex-1 flex-grow px-4">
+              <div class="justify-content-evenly flex h-full flex-col">
+                <div class="flex items-center">
+                  <h1>{{ user.alias }}</h1>
+                  @if (hasRole(Role.VERIFIED)) {
+                    <img
+                      class="verified h-6"
+                      src="assets/images/badges/roles/Verified.svg"
+                      mTooltip="Verified"
+                      width="49"
+                      height="49"
+                      alt="Verified Badge"
+                    />
+                  }
                 </div>
-                <div *ngFor="let social of user.profile.socials | unsortedKeyvalue">
-                  <a
-                    *ngIf="social.value"
-                    href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
-                    target="_blank"
-                    [mTooltip]="social.key"
-                  >
-                    <m-icon [icon]="SocialsData[social.key].icon" pack="si" />
-                  </a>
-                </div>
-                <div class="ml-auto" *ngIf="!isLocal">
-                  <m-profile-follow [userSubject]="userSubject" />
+                <m-role-badges class="h-8 gap-2" [roles]="user.roles" [ignored]="[Role.VERIFIED]" />
+                @if (!hasRole(Role.DELETED)) {
+                  <div>
+                    <h4 class="text">Level {{ user.userStats?.level }}</h4>
+                  </div>
+                }
+                <div class="socials">
+                  <div>
+                    <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam">
+                      <m-icon icon="steam" pack="si" />
+                    </a>
+                  </div>
+                  @for (social of user.profile.socials | unsortedKeyvalue; track social) {
+                    <div>
+                      @if (social.value) {
+                        <a href="https://{{ SocialsData[social.key].url }}/{{ social.value }}" target="_blank" [mTooltip]="social.key">
+                          <m-icon [icon]="SocialsData[social.key].icon" pack="si" />
+                        </a>
+                      }
+                    </div>
+                  }
+                  @if (!isLocal) {
+                    <div class="ml-auto">
+                      <m-profile-follow [userSubject]="userSubject" />
+                    </div>
+                  }
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <p-tabView>
-        <p-tabPanel header="Info">
-          <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0">
-            <i>No bio found</i>
-          </h5>
-          <p class="bio" *ngIf="user.profile?.bio?.length > 0">
-            {{ user?.profile?.bio }}
-          </p>
-        </p-tabPanel>
-        <p-tabPanel header="Following ({{ followingUsers.length }})" *ngIf="!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)">
-          <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
-            <i>Not following anyone</i>
-          </h5>
-          <ul>
-            <li *ngFor="let usr of followingUsers">
-              <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
-                <m-avatar [url]="usr.followed?.avatarURL" />
-                <p>{{ usr.followed?.alias }}</p>
-              </a>
-            </li>
-          </ul>
-        </p-tabPanel>
-        <p-tabPanel header="Followers ({{ followedByUsers.length }})">
-          <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0">
-            <i>No followers</i>
-          </h5>
-          <ul>
-            <li *ngFor="let usr of followedByUsers">
-              <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
-                <m-avatar [url]="usr.followee?.avatarURL" />
-                <p>{{ usr.followee?.alias }}</p>
-              </a>
-            </li>
-          </ul>
-        </p-tabPanel>
-        <p-tabPanel header="Stats" *ngIf="user.userStats">
-          <div class="flex flex-wrap justify-around text-center">
-            <div class="base m-1">
-              <h6>Maps Completed</h6>
-              <h2>{{ user.userStats.mapsCompleted }}</h2>
-            </div>
-            <div class="base m-1">
-              <h6>Total Jumps</h6>
-              <h2>{{ user.userStats.totalJumps }}</h2>
-            </div>
-            <div class="base m-1">
-              <h6>Total Strafes</h6>
-              <h2>{{ user.userStats.totalStrafes }}</h2>
-            </div>
-            <div class="base m-1">
-              <h6>Runs Submitted</h6>
-              <h2>{{ user.userStats.runsSubmitted }}</h2>
-            </div>
-            <div class="base m-1">
-              <h6>Cosmetic XP</h6>
-              <h2>{{ user.userStats.cosXP }}</h2>
-            </div>
-          </div>
-        </p-tabPanel>
-        <p-tabPanel header="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
-          <m-profile-run-history [userSubject]="userSubject" />
-        </p-tabPanel>
-        <p-tabPanel header="Credits">
-          <m-profile-credits [userSubject]="userSubject" />
-        </p-tabPanel>
-      </p-tabView>
-    </m-card>
+        <p-tabView>
+          <p-tabPanel header="Info">
+            @if (!user.profile?.bio || user.profile?.bio?.length === 0) {
+              <h5 class="m-0 text-center">
+                <i>No bio found</i>
+              </h5>
+            }
+            @if (user.profile?.bio?.length > 0) {
+              <p class="bio">
+                {{ user?.profile?.bio }}
+              </p>
+            }
+          </p-tabPanel>
+          @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
+            <p-tabPanel header="Following ({{ followingUsers.length }})">
+              @if (followingUsers.length === 0) {
+                <h5 class="m-0 text-center">
+                  <i>Not following anyone</i>
+                </h5>
+              }
+              <ul>
+                @for (usr of followingUsers; track usr) {
+                  <li>
+                    <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
+                      <m-avatar [url]="usr.followed?.avatarURL" />
+                      <p>{{ usr.followed?.alias }}</p>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </p-tabPanel>
+          }
+          <p-tabPanel header="Followers ({{ followedByUsers.length }})">
+            @if (followedByUsers.length === 0) {
+              <h5 class="m-0 text-center">
+                <i>No followers</i>
+              </h5>
+            }
+            <ul>
+              @for (usr of followedByUsers; track usr) {
+                <li>
+                  <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
+                    <m-avatar [url]="usr.followee?.avatarURL" />
+                    <p>{{ usr.followee?.alias }}</p>
+                  </a>
+                </li>
+              }
+            </ul>
+          </p-tabPanel>
+          @if (user.userStats) {
+            <p-tabPanel header="Stats">
+              <div class="flex flex-wrap justify-around text-center">
+                <div class="base m-1">
+                  <h6>Maps Completed</h6>
+                  <h2>{{ user.userStats.mapsCompleted }}</h2>
+                </div>
+                <div class="base m-1">
+                  <h6>Total Jumps</h6>
+                  <h2>{{ user.userStats.totalJumps }}</h2>
+                </div>
+                <div class="base m-1">
+                  <h6>Total Strafes</h6>
+                  <h2>{{ user.userStats.totalStrafes }}</h2>
+                </div>
+                <div class="base m-1">
+                  <h6>Runs Submitted</h6>
+                  <h2>{{ user.userStats.runsSubmitted }}</h2>
+                </div>
+                <div class="base m-1">
+                  <h6>Cosmetic XP</h6>
+                  <h2>{{ user.userStats.cosXP }}</h2>
+                </div>
+              </div>
+            </p-tabPanel>
+          }
+          @if (!hasRole(Role.PLACEHOLDER)) {
+            <p-tabPanel header="Runs">
+              <m-profile-run-history [userSubject]="userSubject" />
+            </p-tabPanel>
+          }
+          <p-tabPanel header="Credits">
+            <m-profile-credits [userSubject]="userSubject" />
+          </p-tabPanel>
+        </p-tabView>
+      </m-card>
+    }
   </div>
   <div class="w-full pl-4 pr-4 xl:w-2/5">
-    <m-activity *ngIf="user" headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" />
+    @if (user) {
+      <m-activity headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" />
+    }
   </div>
 </div>

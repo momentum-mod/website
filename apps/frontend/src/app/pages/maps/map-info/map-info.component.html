@@ -1,16 +1,22 @@
 <m-card [title]="map.name" titleSize="8">
-  <ng-container header *ngIf="!previewMap">
-    <a routerLink="edit" class="m-btn m-btn-blue" *ngIf="isSubmitter || isModerator">Edit Map</a>
-    <m-report-button class="text-lg" *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
-    <button
-      class="m-btn"
-      type="button"
-      (click)="editNotificationSettings()"
-      mTooltip="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-    >
-      <m-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
-    </button>
-  </ng-container>
+  @if (!previewMap) {
+    <ng-container header>
+      @if (isSubmitter || isModerator) {
+        <a routerLink="edit" class="m-btn m-btn-blue">Edit Map</a>
+      }
+      @if (!isSubmitter) {
+        <m-report-button class="text-lg" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+      }
+      <button
+        class="m-btn"
+        type="button"
+        (click)="editNotificationSettings()"
+        mTooltip="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+      >
+        <m-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
+      </button>
+    </ng-container>
+  }
   <div class="flex flex-wrap">
     <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-2/5">
       <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
@@ -23,9 +29,11 @@
         <p-tabPanel header="Credits">
           <m-map-info-credits [map]="map" />
         </p-tabPanel>
-        <p-tabPanel header="Statistics" *ngIf="!previewMap">
-          <m-map-info-stats [map]="map" />
-        </p-tabPanel>
+        @if (!previewMap) {
+          <p-tabPanel header="Statistics">
+            <m-map-info-stats [map]="map" />
+          </p-tabPanel>
+        }
       </p-tabView>
       <div class="flex flex-wrap">
         <div class="relative w-full sm:flex-1 sm:flex-grow">
@@ -42,43 +50,49 @@
             </a>
           </h6>
         </div>
-        <div *ngIf="!previewMap" class="relative w-full sm:flex-1 sm:flex-grow">
-          <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
-            <div class="stat" mTooltip="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}">
-              <m-icon icon="folder"></m-icon>
-              {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
+        @if (!previewMap) {
+          <div class="relative w-full sm:flex-1 sm:flex-grow">
+            <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
+              <div class="stat" mTooltip="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}">
+                <m-icon icon="folder"></m-icon>
+                {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
+              </div>
+              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+                <m-icon icon="star"></m-icon>
+                {{ map.stats?.favorites | thousandsSuffix: 1 }}
+              </div>
+              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
+                <m-icon icon="download-outline"></m-icon>
+                {{ map.stats?.downloads | thousandsSuffix: 1 }}
+              </div>
+              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
+                <m-icon icon="play-circle-outline"></m-icon>
+                {{ map.stats?.plays | thousandsSuffix: 1 }}
+              </div>
             </div>
-            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
-              <m-icon icon="star"></m-icon>
-              {{ map.stats?.favorites | thousandsSuffix: 1 }}
-            </div>
-            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
-              <m-icon icon="download-outline"></m-icon>
-              {{ map.stats?.downloads | thousandsSuffix: 1 }}
-            </div>
-            <div class="stat sm:ml-6" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
-              <m-icon icon="play-circle-outline"></m-icon>
-              {{ map.stats?.plays | thousandsSuffix: 1 }}
+            <div class="relative inline-flex text-center align-middle sm:text-right">
+              <button type="button" class="m-btn m-btn-blue" (click)="onLibraryUpdate()">
+                <span [ngClass]="{ 'c-anim-btn': mapInLibrary }">{{ mapInLibrary ? 'In Library' : 'Add Map to Library' }}</span>
+                @if (mapInLibrary) {
+                  <span>Remove from Library</span>
+                }
+              </button>
+              <button
+                type="button"
+                class="m-btn m-btn-blue"
+                (click)="onFavoriteUpdate()"
+                mTooltip="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
+              >
+                <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
+              </button>
             </div>
           </div>
-          <div class="relative inline-flex text-center align-middle sm:text-right">
-            <button type="button" class="m-btn m-btn-blue" (click)="onLibraryUpdate()">
-              <span [ngClass]="{ 'c-anim-btn': mapInLibrary }">{{ mapInLibrary ? 'In Library' : 'Add Map to Library' }}</span>
-              <span *ngIf="mapInLibrary">Remove from Library</span>
-            </button>
-            <button
-              type="button"
-              class="m-btn m-btn-blue"
-              (click)="onFavoriteUpdate()"
-              mTooltip="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
-            >
-              <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
-            </button>
-          </div>
-        </div>
+        }
       </div>
     </div>
   </div>
 </m-card>
 
-<m-map-leaderboard *ngIf="!previewMap && map" [setMap]="map" />
+@if (!previewMap && map) {
+  <m-map-leaderboard [setMap]="map" />
+}

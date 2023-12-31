@@ -1,30 +1,38 @@
 <p class="mb-3 block p-6">{{ map.info.description }}</p>
 <!-- TODO: Styling here is terrible, needs doing properly! -->
-<p-tabView class="rounded bg-black bg-opacity-25" *ngIf="map.leaderboards.length > 0; else elseBlock">
-  <p-tabPanel *ngFor="let kv of sortedLeaderboards | keyvalue" [header]="GamemodeName.get(kv.key)">
-    <div class="flex flex-wrap">
-      <div class="w-1/2">
-        <h3>{{ kv.value.get(TrackType.MAIN)[0].linear ? 'Linear' : 'Staged' }} main track</h3>
-        <div class="flex flex-wrap p-6">
-          <h4 class="w-1/2" *ngIf="kv.value.get(TrackType.MAIN)[0].linear; else stagesBlock">
-            {{ map.zones.tracks.main.zones.segments[0].checkpoints.length }} checkpoints
-          </h4>
-          <ng-template #stagesBlock
-            ><h4>{{ map.zones.tracks.main.zones.segments.length }} stages</h4></ng-template
-          >
-          <h4 class="w-1/2 content-end">Tier {{ kv.value.get(TrackType.MAIN)[0].tier }}</h4>
-        </div>
-      </div>
-      <div class="w-1/2" *ngIf="kv.value.get(TrackType.BONUS).length > 1">
-        <h3>{{ kv.value.get(TrackType.BONUS).length }} bonuses</h3>
+@if (map.leaderboards.length > 0) {
+  <p-tabView class="rounded bg-black bg-opacity-25">
+    @for (kv of sortedLeaderboards | keyvalue; track kv) {
+      <p-tabPanel [header]="GamemodeName.get(kv.key)">
         <div class="flex flex-wrap">
-          <div class="pl-4 pl-4 pr-4 pr-4 md:w-1/5 lg:w-1/3" *ngFor="let bonusKV of kv.value.get(TrackType.BONUS).entries()">
-            <h6>Bonus {{ bonusKV[0] + 1 }}</h6>
-            <p>Tier {{ bonusKV[1].tier }}</p>
+          <div class="w-1/2">
+            <h3>{{ kv.value.get(TrackType.MAIN)[0].linear ? 'Linear' : 'Staged' }} main track</h3>
+            <div class="flex flex-wrap p-6">
+              @if (kv.value.get(TrackType.MAIN)[0].linear) {
+                <h4 class="w-1/2">{{ map.zones.tracks.main.zones.segments[0].checkpoints.length }} checkpoints</h4>
+              } @else {
+                <h4>{{ map.zones.tracks.main.zones.segments.length }} stages</h4>
+              }
+              <h4 class="w-1/2 content-end">Tier {{ kv.value.get(TrackType.MAIN)[0].tier }}</h4>
+            </div>
           </div>
+          @if (kv.value.get(TrackType.BONUS).length > 1) {
+            <div class="w-1/2">
+              <h3>{{ kv.value.get(TrackType.BONUS).length }} bonuses</h3>
+              <div class="flex flex-wrap">
+                @for (bonusKV of kv.value.get(TrackType.BONUS).entries(); track bonusKV) {
+                  <div class="pl-4 pl-4 pr-4 pr-4 md:w-1/5 lg:w-1/3">
+                    <h6>Bonus {{ bonusKV[0] + 1 }}</h6>
+                    <p>Tier {{ bonusKV[1].tier }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
-      </div>
-    </div>
-  </p-tabPanel>
-</p-tabView>
-<ng-template #elseBlock><span>No track data found.</span></ng-template>
+      </p-tabPanel>
+    }
+  </p-tabView>
+} @else {
+  <span>No track data found.</span>
+}

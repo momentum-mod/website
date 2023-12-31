@@ -2,15 +2,21 @@
   <a header href="https://www.twitch.tv/directory/game/Momentum%20Mod" target="_blank">View Momentum on Twitch</a>
   <div>
     <div class="text-center">
-      <h3 class="m-0" *ngIf="streams.length === 0 && queriedStreams">
-        <i>Nobody is currently streaming Momentum</i>
-      </h3>
-      <h3 class="m-0" *ngIf="!queriedStreams">Waiting for API response</h3>
+      @if (streams.length === 0 && queriedStreams) {
+        <h3 class="m-0">
+          <i>Nobody is currently streaming Momentum</i>
+        </h3>
+      }
+      @if (!queriedStreams) {
+        <h3 class="m-0">Waiting for API response</h3>
+      }
     </div>
     <div class="m-0 flex flex-wrap">
-      <div class="twitch-data my-3 w-full px-4 sm:w-1/2 md:w-1/3 xl:w-1/4" *ngFor="let stream of streams">
-        <m-twitch-data [stream]="stream" />
-      </div>
+      @for (stream of streams; track stream) {
+        <div class="twitch-data my-3 w-full px-4 sm:w-1/2 md:w-1/3 xl:w-1/4">
+          <m-twitch-data [stream]="stream" />
+        </div>
+      }
     </div>
   </div>
 </m-card>

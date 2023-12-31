@@ -15,38 +15,44 @@
     (click)="searchBySteam = !searchBySteam"
   />
 </div>
-<p class="p-3 text-lg text-gray-200" *ngIf="search.status === 'INVALID' && search.value.length > 0 && found.length === 0">
-  {{ getFirstError() }}
-</p>
-<div *ngFor="let user of found" class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
-  <div class="flex items-center">
-    <img class="h-12 w-12 rounded" [src]="user.avatarURL" />
-    <div class="ml-4 mt-1 w-full">
-      <div class="flex w-full leading-4">
-        <p class="mr-1 text-lg font-bold leading-4">{{ user.alias }}</p>
-        <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
-        <a
-          *ngIf="showProfileButton"
-          [routerLink]="'/profile/' + user.id"
-          (click)="$event.stopPropagation()"
-          target="_blank"
-          class="ml-auto self-center text-sm italic text-gray-200 transition-colors hover:text-blue-400"
-        >
-          View Profile
-        </a>
+@if (search.status === 'INVALID' && search.value.length > 0 && found.length === 0) {
+  <p class="p-3 text-lg text-gray-200">
+    {{ getFirstError() }}
+  </p>
+}
+@for (user of found; track user) {
+  <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
+    <div class="flex items-center">
+      <img class="h-12 w-12 rounded" [src]="user.avatarURL" />
+      <div class="ml-4 mt-1 w-full">
+        <div class="flex w-full leading-4">
+          <p class="mr-1 text-lg font-bold leading-4">{{ user.alias }}</p>
+          <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
+          @if (showProfileButton) {
+            <a
+              [routerLink]="'/profile/' + user.id"
+              (click)="$event.stopPropagation()"
+              target="_blank"
+              class="ml-auto self-center text-sm italic text-gray-200 transition-colors hover:text-blue-400"
+            >
+              View Profile
+            </a>
+          }
+        </div>
+        @if (!hasRole(Role.PLACEHOLDER, user)) {
+          <a
+            (click)="$event.stopPropagation()"
+            class="text-sm italic leading-4"
+            target="_blank"
+            href="http://steamcommunity.com/profiles/{{ user.steamID }}"
+          >
+            {{ user.steamID }}
+          </a>
+        }
       </div>
-      <a
-        *ngIf="!hasRole(Role.PLACEHOLDER, user)"
-        (click)="$event.stopPropagation()"
-        class="text-sm italic leading-4"
-        target="_blank"
-        href="http://steamcommunity.com/profiles/{{ user.steamID }}"
-      >
-        {{ user.steamID }}
-      </a>
     </div>
   </div>
-</div>
+}
 <p-paginator
   class="mt-2"
   (onPageChange)="pageChange.next($event)"

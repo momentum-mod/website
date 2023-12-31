@@ -9,30 +9,40 @@
   <div>
     <!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
     <input #fileInput (change)="onFilesSelected($event)" [accept]="accept" [multiple]="multiple" hidden type="file" />
-    <div *ngIf="showSelected && hasSelection()" class="rounded border-black border-opacity-50 bg-gray-950 px-2 py-2 shadow-inner">
-      <div *ngFor="let file of getIterableFiles()" class="flex pl-2 [&:not(:last-child)]:mb-2">
-        <p class="align-middle text-lg">{{ file.name }}</p>
-        <p class="my-auto ml-auto mr-3 pt-0.5 italic opacity-75">
-          {{ size(file) }}
-        </p>
-        <m-icon
-          (click)="removeFile(file, $event)"
-          class="my-auto mr-0.5 h-6 w-6 rounded bg-blue-700 transition-colors hover:bg-blue-600"
-          icon="close"
-        />
+    @if (showSelected && hasSelection()) {
+      <div class="rounded border-black border-opacity-50 bg-gray-950 px-2 py-2 shadow-inner">
+        @for (file of getIterableFiles(); track file) {
+          <div class="flex pl-2 [&:not(:last-child)]:mb-2">
+            <p class="align-middle text-lg">{{ file.name }}</p>
+            <p class="my-auto ml-auto mr-3 pt-0.5 italic opacity-75">
+              {{ size(file) }}
+            </p>
+            <m-icon
+              (click)="removeFile(file, $event)"
+              class="my-auto mr-0.5 h-6 w-6 rounded bg-blue-700 transition-colors hover:bg-blue-600"
+              icon="close"
+            />
+          </div>
+        }
       </div>
-    </div>
-    <ng-container *ngIf="showSelected || multiple || !value">
+    }
+    @if (showSelected || multiple || !value) {
       <m-icon
         [icon]="icon"
         [ngClass]="{ 'mt-3': showSelected && hasSelection() }"
         class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in group-hover:text-pale-50 group-[.dragging]:text-pale-100"
       ></m-icon>
-      <p *ngIf="!disabled" class="mt-1 pb-1">
-        <span *ngIf="!disabled" class="font-medium">Select {{ multiple ? '' : 'a ' }}{{ typeName }} file</span>{{ multiple ? 's' : '' }} or
-        drag here
-      </p>
-      <p *ngIf="disabledBecauseReachedMax" class="mt-1 pb-1">File limit reached</p>
-    </ng-container>
+      @if (!disabled) {
+        <p class="mt-1 pb-1">
+          @if (!disabled) {
+            <span class="font-medium">Select {{ multiple ? '' : 'a ' }}{{ typeName }} file</span>
+          }
+          {{ multiple ? 's' : '' }} or drag here
+        </p>
+      }
+      @if (disabledBecauseReachedMax) {
+        <p class="mt-1 pb-1">File limit reached</p>
+      }
+    }
   </div>
 </div>

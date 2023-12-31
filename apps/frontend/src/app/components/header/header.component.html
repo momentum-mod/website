@@ -15,9 +15,11 @@
 
   <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
   <div class="item">
-    <p *ngIf="unreadNotificationCount > 0" class="m-badge m-badge-blue absolute bottom-2 right-2">
-      {{ unreadNotificationCount.toString() }}
-    </p>
+    @if (unreadNotificationCount > 0) {
+      <p class="m-badge m-badge-blue absolute bottom-2 right-2">
+        {{ unreadNotificationCount.toString() }}
+      </p>
+    }
     <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
     </m-icon>
   </div>

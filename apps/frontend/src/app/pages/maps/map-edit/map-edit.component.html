@@ -16,9 +16,9 @@
             type="description"
             [ngClass]="{ 'form-control-danger': description.invalid }"
           ></textarea>
-          <div class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600" *ngIf="description.hasError('maxlength')">
-            Text cannot exceed 1000 characters.
-          </div>
+          @if (description.hasError('maxlength')) {
+            <div class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Text cannot exceed 1000 characters.</div>
+          }
           <span class="mr-2 mt-2 block justify-end">{{ 1000 - description.value.length | plural: 'character' }} remaining</span>
         </div>
         <button class="m-btn m-btn-blue" type="submit" [disabled]="infoForm.invalid">Save info</button>
@@ -33,15 +33,19 @@
               <div class="inline-block">Extra Images</div>
             </h5>
             <div class="inline-flex items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
-              <div class="map-image-cont mx-2" *ngFor="let img of images" cdkDrag>
-                <img class="map-image" [ngSrc]="img.small" width="192" height="108" />
-                <button class="m-btn m-btn-red" (click)="removeMapImage(img)">
-                  <m-icon class="full" icon="close"></m-icon>
-                </button>
-              </div>
-              <div class="upload-box mx-2" *ngIf="images.length < imagesLimit">
-                <m-file-upload (change)="onMapImageSelected()" accept=".jpg,.jpeg" />
-              </div>
+              @for (img of images; track img) {
+                <div class="map-image-cont mx-2" cdkDrag>
+                  <img class="map-image" [ngSrc]="img.small" width="192" height="108" />
+                  <button class="m-btn m-btn-red" (click)="removeMapImage(img)">
+                    <m-icon class="full" icon="close"></m-icon>
+                  </button>
+                </div>
+              }
+              @if (images.length < imagesLimit) {
+                <div class="upload-box mx-2">
+                  <m-file-upload (change)="onMapImageSelected()" accept=".jpg,.jpeg" />
+                </div>
+              }
             </div>
           </div>
         </div>
@@ -62,12 +66,14 @@
         </button>
       </form>
     </p-tabPanel>
-    <p-tabPanel *ngIf="(isAdmin || isModerator) && map" tabTitle="Admin Map Settings">
-      <form [formGroup]="adminForm">
-        <div class="text-right">
-          <button class="m-btn m-btn-red" (click)="showMapDeleteDialog()">Delete Map</button>
-        </div>
-      </form>
-    </p-tabPanel>
+    @if ((isAdmin || isModerator) && map) {
+      <p-tabPanel tabTitle="Admin Map Settings">
+        <form [formGroup]="adminForm">
+          <div class="text-right">
+            <button class="m-btn m-btn-red" (click)="showMapDeleteDialog()">Delete Map</button>
+          </div>
+        </form>
+      </p-tabPanel>
+    }
   </p-tabView>
 </m-card>
