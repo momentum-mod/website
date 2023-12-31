@@ -8,7 +8,7 @@ import { Pipe, PipeTransform } from '@angular/core';
  * @example
  * 122220000 | thousandsSuffix 1 // returns 122.2M
  */
-@Pipe({ name: 'thousandsSuffix' })
+@Pipe({ name: 'thousandsSuffix', standalone: true })
 export class ThousandsSuffixPipe implements PipeTransform {
   // Using 'B' instead of 'G' for billion.
   static suffixes = ['K', 'M', 'B', 'T', 'P', 'E'];
