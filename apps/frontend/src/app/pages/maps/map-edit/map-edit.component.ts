@@ -17,7 +17,9 @@ import {
   ConfirmDialogComponent,
   EditableMapCredit,
   SortedMapCredits,
-  FileUploadComponent
+  FileUploadComponent,
+  TabsComponent,
+  TabComponent
 } from '../../../components';
 import { AdminService, LocalUserService, MapsService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
@@ -38,7 +40,9 @@ const youtubeRegex = /[\w-]{11}/;
     MapCreditsComponent,
     FileUploadComponent,
     TabViewModule,
-    PluralPipe
+    PluralPipe,
+    TabsComponent,
+    TabComponent
   ]
 })
 export class MapEditComponent implements OnInit, OnDestroy {

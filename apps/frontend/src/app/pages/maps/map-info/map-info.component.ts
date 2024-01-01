@@ -25,7 +25,9 @@ import {
   ReportButtonComponent,
   CardHeaderComponent,
   CardComponent,
-  AvatarComponent
+  AvatarComponent,
+  TabViewComponent,
+  TabDirective
 } from '../../../components';
 import { TooltipDirective } from '../../../directives';
 import { SharedModule } from '../../../shared.module';
@@ -57,7 +59,9 @@ import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-e
     TabViewModule,
     AvatarComponent,
     PluralPipe,
-    ThousandsSuffixPipe
+    ThousandsSuffixPipe,
+    TabViewComponent,
+    TabDirective
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {

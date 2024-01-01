@@ -1,9 +1,9 @@
 <p class="mb-3 block p-6">{{ map.info.description }}</p>
 <!-- TODO: Styling here is terrible, needs doing properly! -->
 @if (map.leaderboards.length > 0) {
-  <p-tabView class="rounded bg-black bg-opacity-25">
+  <m-tab-view class="rounded bg-black bg-opacity-25">
     @for (kv of sortedLeaderboards | keyvalue; track kv) {
-      <p-tabPanel [header]="GamemodeName.get(kv.key)">
+      <div mTab [tabName]="GamemodeName.get(kv.key)">
         <div class="flex flex-wrap">
           <div class="w-1/2">
             <h3>{{ kv.value.get(TrackType.MAIN)[0].linear ? 'Linear' : 'Staged' }} main track</h3>
@@ -30,9 +30,9 @@
             </div>
           }
         </div>
-      </p-tabPanel>
+      </div>
     }
-  </p-tabView>
+  </m-tab-view>
 } @else {
   <span>No track data found.</span>
 }
