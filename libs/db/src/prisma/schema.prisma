@@ -63,7 +63,7 @@ model UserAuth {
 model UserStats {
   totalJumps    BigInt @default(0) @db.BigInt
   totalStrafes  BigInt @default(0) @db.BigInt
-  level         Int    @default(1) @db.SmallInt
+  level         Int    @default(0) @db.SmallInt
   cosXP         BigInt @default(0) @db.BigInt
   mapsCompleted Int    @default(0)
   runsSubmitted Int    @default(0)
