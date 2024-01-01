@@ -80,7 +80,7 @@ describe('Prisma Client Extensions', () => {
       expect(profile.userID).toBe(userID);
       expect(userStats).toMatchObject({
         userID: userID,
-        level: 1,
+        level: 0,
         cosXP: 0n,
         mapsCompleted: 0,
         runsSubmitted: 0,
