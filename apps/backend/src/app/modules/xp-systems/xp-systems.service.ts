@@ -36,7 +36,7 @@ const DEFAULT_RANK_XP: RankXpParams = {
 const DEFAULT_COS_XP: CosXpParams = {
   levels: {
     maxLevels: 500,
-    startingValue: 20000,
+    startingValue: 0,
     linearScaleBaseIncrease: 1000,
     linearScaleInterval: 10,
     linearScaleIntervalMultiplier: 1,
@@ -127,7 +127,7 @@ export class XpSystemsService implements OnModuleInit {
   getCosmeticXpInLevel(level: number): number {
     const levels = this._cosXpParams.levels;
 
-    if (!levels || level < 1 || level > levels.maxLevels) return -1;
+    if (!levels || level < 0 || level > levels.maxLevels) return -1;
 
     if (level < levels.staticScaleStart) {
       return (
@@ -159,7 +159,7 @@ export class XpSystemsService implements OnModuleInit {
   getCosmeticXpForLevel(level: number): number {
     if (
       !this._cosXpParams ||
-      level < 1 ||
+      level < 0 ||
       level > this._cosXpParams.levels.maxLevels
     )
       return -1;
@@ -299,10 +299,10 @@ export class XpSystemsService implements OnModuleInit {
     this.xpInLevels = [0];
     this.xpForLevels = [0, 0];
 
-    for (let i = 1; i < this._cosXpParams.levels.maxLevels; i++) {
+    for (let i = 0; i < this._cosXpParams.levels.maxLevels; i++) {
       this.xpInLevels[i] = this.getCosmeticXpInLevel(i);
 
-      if (i > 1)
+      if (i > 0)
         this.xpForLevels[i] = this.xpForLevels[i - 1] + this.xpInLevels[i - 1];
     }
   }
