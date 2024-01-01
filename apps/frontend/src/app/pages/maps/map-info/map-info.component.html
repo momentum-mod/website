@@ -22,19 +22,19 @@
       <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
     </div>
     <div class="w-full pl-4 pr-4 lg:w-3/5">
-      <p-tabView class="mb-4 w-full overflow-hidden shadow">
-        <p-tabPanel header="Description">
+      <m-tab-view class="mb-4 w-full overflow-hidden shadow">
+        <div mTab tabName="Description">
           <m-map-info-description [map]="map" />
-        </p-tabPanel>
-        <p-tabPanel header="Credits">
+        </div>
+        <div mTab tabName="Credits">
           <m-map-info-credits [map]="map" />
-        </p-tabPanel>
+        </div>
         @if (!previewMap) {
-          <p-tabPanel header="Statistics">
+          <div mTab tabName="Statistics">
             <m-map-info-stats [map]="map" />
-          </p-tabPanel>
+          </div>
         }
-      </p-tabView>
+      </m-tab-view>
       <div class="flex flex-wrap">
         <div class="relative w-full sm:flex-1 sm:flex-grow">
           <h6>

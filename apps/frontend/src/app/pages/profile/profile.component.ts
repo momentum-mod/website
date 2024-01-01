@@ -22,7 +22,9 @@ import {
   ReportButtonComponent,
   RoleBadgesComponent,
   AvatarComponent,
-  ActivityComponent
+  ActivityComponent,
+  TabsComponent,
+  TabComponent
 } from '../../components';
 import { UnsortedKeyvaluePipe } from '../../pipes';
 import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
@@ -45,7 +47,9 @@ import { Bitflags } from '@momentum/bitflags';
     RoleBadgesComponent,
     TabViewModule,
     AvatarComponent,
-    UnsortedKeyvaluePipe
+    UnsortedKeyvaluePipe,
+    TabsComponent,
+    TabComponent
   ]
 })
 export class ProfileComponent implements OnInit, OnDestroy {

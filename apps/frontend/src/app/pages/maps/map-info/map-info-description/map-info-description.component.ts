@@ -8,12 +8,13 @@ import {
 } from '@momentum/constants';
 import { TabViewModule } from 'primeng/tabview';
 import { SharedModule } from '../../../../shared.module';
+import { TabDirective, TabViewComponent } from '../../../../components';
 
 @Component({
   selector: 'm-map-info-description',
   templateUrl: './map-info-description.component.html',
   standalone: true,
-  imports: [SharedModule, TabViewModule]
+  imports: [SharedModule, TabViewModule, TabViewComponent, TabDirective]
 })
 export class MapInfoDescriptionComponent implements OnInit {
   protected readonly GamemodeName = GamemodeName;

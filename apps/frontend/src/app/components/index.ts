@@ -28,3 +28,5 @@ export * from './sidenav/sidenav.component';
 export * from './spinner/spinner.component';
 export * from './accordion/accordion-item.component';
 export * from './accordion/accordion.component';
+export * from './tabs/tab.component';
+export * from './tabs/tabs.component';
