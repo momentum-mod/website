@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { KeyValuePipe } from '@angular/common';
+import { KeyValue, KeyValuePipe } from '@angular/common';
 
 /**
  * `keyvalue` without sorting.
@@ -14,7 +14,11 @@ export class UnsortedKeyvaluePipe
   extends KeyValuePipe
   implements PipeTransform
 {
-  override transform(value: any): any {
-    return super.transform(value, (a: any, _: any) => a);
+  // @ts-expect-error - Too annoying to get this wrangle TypeScript into
+  // accepting this override. Yes I know it breaks OO rules. No I don't care
+  override transform<K extends string, V>(
+    value: Record<K, V> | Partial<Record<K, V>> | ReadonlyMap<K, V>
+  ): Array<KeyValue<K, V>> {
+    return super.transform(value as any, (a: any, _: any) => a);
   }
 }
