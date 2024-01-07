@@ -27,7 +27,7 @@ export class XpSystems {
     this.xpInLevels = [0];
     this.xpForLevels = [0, 0];
 
-    for (let i = 0; i < this.cosXpParams.levels.maxLevels; i++) {
+    for (let i = 1; i < this.cosXpParams.levels.maxLevels; i++) {
       this.xpInLevels[i] = this.getCosmeticXpInLevel(i);
 
       if (i > 0)
@@ -38,7 +38,7 @@ export class XpSystems {
   getCosmeticXpInLevel(level: number): number {
     const levels = this.cosXpParams.levels;
 
-    if (!levels || level < 0 || level > levels.maxLevels) return -1;
+    if (!levels || level < 1 || level > levels.maxLevels) return -1;
 
     if (level < levels.staticScaleStart) {
       return (
@@ -70,7 +70,7 @@ export class XpSystems {
   getCosmeticXpForLevel(level: number): number {
     if (
       !this.cosXpParams ||
-      level < 0 ||
+      level < 1 ||
       level > this.cosXpParams.levels.maxLevels
     )
       return -1;
