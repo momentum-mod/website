@@ -21,7 +21,7 @@ export const RANK_XP_PARAMS: RankXpParams = {
 export const COS_XP_PARAMS: CosXpParams = {
   levels: {
     maxLevels: 500,
-    startingValue: 0,
+    startingValue: 20000,
     linearScaleBaseIncrease: 1000,
     linearScaleInterval: 10,
     linearScaleIntervalMultiplier: 1,
