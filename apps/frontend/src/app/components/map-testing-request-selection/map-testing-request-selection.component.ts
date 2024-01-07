@@ -25,7 +25,6 @@ export class MapTestingRequestSelectionComponent
   protected readonly MAX_TESTING_REQUESTS = MAX_TESTING_REQUESTS;
 
   protected users: User[] = [];
-  protected readonly max = MAX_TESTING_REQUESTS;
   protected disabled = false;
 
   @ViewChild(TooltipDirective) tooltip: TooltipDirective;
@@ -35,7 +34,7 @@ export class MapTestingRequestSelectionComponent
   }
 
   addUser(user: User, searchInput: UserSearchComponent): void {
-    if (this.users.length >= this.max) {
+    if (this.users.length >= this.MAX_TESTING_REQUESTS) {
       this.tooltip.setAndShow('Maximum number of users reached!', true);
     } else if (this.users.some(({ id }) => id === user.id)) {
       this.tooltip.setAndShow('User already added!', true);
