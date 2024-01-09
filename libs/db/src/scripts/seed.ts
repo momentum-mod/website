@@ -482,24 +482,25 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
     });
 
-    await prisma.activity.createMany({
-      data: [
-        {
+    await prisma.activity.create({
+      data: {
+        userID: map.submitterID,
+        type: ActivityType.MAP_UPLOADED,
+        data: map.id,
+        ...Random.createdUpdatedDates()
+      }
+    });
+
+    if (map.status === MapStatusNew.APPROVED) {
+      await prisma.activity.create({
+        data: {
           userID: map.submitterID,
-          type: ActivityType.MAP_UPLOADED,
+          type: ActivityType.MAP_APPROVED,
           data: map.id,
           ...Random.createdUpdatedDates()
-        },
-        map.status === MapStatusNew.APPROVED
-          ? {
-              userID: map.submitterID,
-              type: ActivityType.MAP_APPROVED,
-              data: map.id,
-              ...Random.createdUpdatedDates()
-            }
-          : undefined
-      ]
-    });
+        }
+      });
+    }
 
     //#region Leaderboards
 
