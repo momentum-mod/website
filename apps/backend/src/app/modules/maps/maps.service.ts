@@ -88,6 +88,7 @@ import {
   LeaderboardHandler,
   LeaderboardProps
 } from './leaderboard-handler.util';
+import { BspHeader, BspReadError } from '@momentum/formats/bsp';
 
 @Injectable()
 export class MapsService {
@@ -538,6 +539,9 @@ export class MapsService {
     vmfFiles?: File[]
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
+
+    await this.checkMapCompression(bspFile);
+
     this.checkMapFiles(dto.fileName, bspFile, vmfFiles);
     this.checkMapFileNames(dto.name, dto.fileName);
 
@@ -633,6 +637,8 @@ export class MapsService {
     if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
       throw new ForbiddenException('Map does not allow editing');
     }
+
+    await this.checkMapCompression(bspFile);
 
     this.checkMapFiles(map.fileName, bspFile, vmfFiles);
 
@@ -1672,6 +1678,25 @@ export class MapsService {
         throw error;
       }
     }
+  }
+
+  /**
+   * Check if provided bsp file was compressed with bspzip
+   * @throws BadRequestException
+   */
+  async checkMapCompression(bspFile: File) {
+    const header = await BspHeader.fromBlob(new Blob([bspFile.buffer])).catch(
+      (error) => {
+        throw new BadRequestException(
+          error instanceof BspReadError
+            ? error.message
+            : 'Unknown error reading BSP file'
+        );
+      }
+    );
+
+    if (!header.isCompressed())
+      throw new BadRequestException('BSP is not compressed');
   }
 
   //#endregion
