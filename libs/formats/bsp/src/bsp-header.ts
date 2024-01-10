@@ -37,19 +37,17 @@ export class BspHeader {
 
     // Node/browsers will almost certainly read the 1036 bytes we need in one
     // go, but just to be safe, this can read multiple.
-    await reader.read().then(function readHeader({ done, value }) {
-      if (done && value.length < headerIndex) {
+    while (headerIndex < headerBytes.length) {
+      const { done, value } = await reader.read();
+      const leftToRead = headerBytes.length - headerIndex;
+
+      if (!value || (done && value.length < leftToRead)) {
         throw new BspReadError('Invalid BSP file');
       }
 
-      const leftToRead = headerBytes.length - headerIndex;
       headerBytes.set(value.slice(0, leftToRead), headerIndex);
-
       headerIndex = value.length;
-      if (headerIndex < headerBytes.length) {
-        reader.read().then(readHeader);
-      }
-    });
+    }
 
     // Don't need stream anymore once header is read
     void reader.cancel();
