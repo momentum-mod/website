@@ -506,6 +506,7 @@ describe('Maps', () => {
         u2,
         u3,
         bspBuffer,
+        nozipBspBuffer,
         bspHash,
         vmfBuffer,
         vmfHash;
@@ -518,6 +519,8 @@ describe('Maps', () => {
 
         bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
         bspHash = createSha1Hash(bspBuffer);
+
+        nozipBspBuffer = readFileSync(path.join(FILES_PATH, 'map_nozip.bsp'));
 
         vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
         vmfHash = createSha1Hash(vmfBuffer);
@@ -970,6 +973,36 @@ describe('Maps', () => {
                 fileName: 'surf_map.bsp'
               },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 400 if a BSP file has invalid header', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              {
+                file: Buffer.alloc(100),
+                field: 'bsp',
+                fileName: 'surf_map.bsp'
+              },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 400 if a BSP file was not compressed', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: nozipBspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
