@@ -7,12 +7,13 @@
 @import '@fontsource/roboto/700.css';
 @import '@fontsource/roboto/700-italic.css';
 
+@import './primeng-theme-nolayers.css';
+@import './primeng-nolayers.css';
+
 @import './shared_styling/fonts/BebasNeue/300.css';
 @import './shared_styling/fonts/BebasNeue/400.css';
 @import './shared_styling/fonts/BebasNeue/700.css';
-
-@import './primeng-theme-nolayers.css';
-@import './primeng-nolayers.css';
+@import './shared_styling/colors/colors-css-vars.css';
 
 @tailwind base;
 @tailwind components;
