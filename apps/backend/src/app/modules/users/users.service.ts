@@ -450,6 +450,9 @@ export class UsersService {
     if (!(await this.db.user.exists({ where: { id: targetUserID } })))
       throw new NotFoundException('Target user not found');
 
+    if (localUserID === targetUserID)
+      throw new BadRequestException('Target user cannot be logged in user');
+
     const isFollowing = await this.getFollower(localUserID, targetUserID);
     if (isFollowing)
       throw new BadRequestException(
