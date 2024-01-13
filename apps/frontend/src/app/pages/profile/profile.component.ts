@@ -96,7 +96,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
               });
             }
           }
-          this.isLocal = false;
+          this.isLocal = true;
           this.localUserService.refreshLocalUser();
           return this.localUserService.localUserSubject;
         }),
