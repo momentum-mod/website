@@ -717,6 +717,14 @@ describe('User', () => {
         });
       });
 
+      it('should 400 if the authenticated user is the target user', async () => {
+        await req.post({
+          url: `user/follow/${u1.id}`,
+          status: 400,
+          token: u1Token
+        });
+      });
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/follow/1', 'post'));
     });
