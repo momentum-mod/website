@@ -73,7 +73,7 @@ export class UsersGetAllQueryDto
   })
   @IsBigInt({ each: true })
   @IsOptional()
-  readonly steamIDs: string[];
+  readonly steamIDs?: string[];
 
   @ApiPropertyOptional({
     name: 'mapRank',
@@ -85,7 +85,7 @@ export class UsersGetAllQueryDto
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  readonly mapRank: number;
+  readonly mapRank?: number;
 }
 
 export class UsersGetActivitiesQueryDto
