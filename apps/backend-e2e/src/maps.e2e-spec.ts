@@ -20,7 +20,8 @@ import {
   Role,
   TrackType,
   MapZones,
-  LeaderboardType
+  LeaderboardType,
+  FlatMapList
 } from '@momentum/constants';
 import {
   AuthUtil,
@@ -766,12 +767,19 @@ describe('Maps', () => {
       afterAll(async () => {
         await db.cleanup('user', 'mMap');
         await fileStore.deleteDirectory('submissions');
+        await fileStore.deleteDirectory('maplist');
       });
 
       describe('should submit a map', () => {
-        let res, createdMap;
+        let res, createdMap, oldListVersion;
 
         beforeAll(async () => {
+          oldListVersion = await req.get({
+            url: 'maps/maplistversion',
+            status: 200,
+            token: token
+          });
+
           res = await req.postAttach({
             url: 'maps',
             status: 201,
@@ -804,7 +812,12 @@ describe('Maps', () => {
           });
         });
 
-        afterAll(() => db.cleanup('mMap'));
+        afterAll(() =>
+          Promise.all([
+            db.cleanup('mMap'),
+            fileStore.deleteDirectory('/maplist')
+          ])
+        );
 
         it('should respond with a MapDto', () => {
           expect(res.body).toBeValidDto(MapDto);
@@ -1772,7 +1785,9 @@ describe('Maps', () => {
         );
       });
 
-      afterEach(() => db.cleanup('mMap'));
+      afterEach(() =>
+        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
+      );
 
       it('should add a new map submission version', async () => {
         const changelog = 'Added walls, floors etc...';
@@ -1999,6 +2014,78 @@ describe('Maps', () => {
             where: { mapID: map.id, gamemode: Gamemode.CONC }
           })
         ).toHaveLength(0);
+      });
+
+      it('should not update the map list version for private submissions', async () => {
+        const oldListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'haha i am making ur thing update' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+
+        const newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions
+        );
+      });
+
+      it('should update the map list version for submissions for a public map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatus.PUBLIC_TESTING }
+        });
+        const oldListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'haha i am making ur thing update' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+
+        const newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions + 1
+        );
+
+        const submissionMapList = await fileStore.getMapListVersion(
+          FlatMapList.SUBMISSION,
+          newListVersion.body.submissions
+        );
+        expect(submissionMapList).toHaveLength(1);
+        expect(submissionMapList[0].id).toBe(map.id);
+        expect(submissionMapList[0]).not.toHaveProperty('zones');
       });
 
       it('should 400 for bad zones', () =>
@@ -2464,7 +2551,9 @@ describe('Maps', () => {
 
       afterAll(() => db.cleanup('user'));
 
-      afterEach(() => db.cleanup('mMap'));
+      afterEach(() =>
+        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
+      );
 
       for (const status of CombinedMapStatuses.IN_SUBMISSION) {
         it(`should allow the submitter to change most data during ${MapStatus[status]}`, async () => {
@@ -2842,6 +2931,74 @@ describe('Maps', () => {
             where: { mapID: map.id, gamemode: Gamemode.CONC }
           })
         ).toHaveLength(1);
+      });
+
+      it('should update the map list version for submissions', async () => {
+        const oldListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token
+        });
+
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PRIVATE_TESTING
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.CONTENT_APPROVAL },
+          token
+        });
+
+        const newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions + 1
+        );
+      });
+
+      it('should not update the map list version if the status doesnt change', async () => {
+        const oldListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token
+        });
+
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PRIVATE_TESTING
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            status: MapStatus.PRIVATE_TESTING,
+            info: {
+              youtubeID: '64X4cuAR2fI'
+            }
+          },
+          token
+        });
+
+        const newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+
+          token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions
+        );
       });
 
       it('should 400 for invalid suggestions', async () => {

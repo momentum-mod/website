@@ -45,6 +45,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { MapListVersionDto } from '../../backend/src/app/dto/map/map-list-version.dto';
 import path from 'node:path';
 import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-stats.dto';
 
@@ -67,6 +68,34 @@ describe('Maps Part 2', () => {
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
+
+  describe('maps/maplist', () => {
+    describe('GET', () => {
+      let token;
+      beforeAll(async () => (token = await db.loginNewUser()));
+      afterAll(() => db.cleanup('user'));
+
+      it('should respond with map lists', async () => {
+        // We really don't have to test much here, since these values are just
+        // stored in memory. Tests doing map submission and approval test this
+        // system more thoroughly.
+        const res = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          validate: MapListVersionDto,
+          token
+        });
+
+        expect(res.body).toMatchObject({
+          approved: expect.any(Number),
+          submissions: expect.any(Number)
+        });
+      });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/maplistversion', 'get'));
+    });
+  });
 
   describe('maps/{mapID}/info', () => {
     describe('GET', () => {

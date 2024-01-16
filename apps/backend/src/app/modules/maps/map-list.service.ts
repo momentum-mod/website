@@ -5,11 +5,10 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { DtoFactory } from '../../dto';
 import { MapListVersionDto } from '../../dto/map/map-list-version.dto';
 import {
-  CombinedMapStatuses,
   FlatMapList,
   mapListDir,
   mapListPath,
-  MapStatusNew
+  MapStatus
 } from '@momentum/constants';
 import * as zlib from 'node:zlib';
 import { promisify } from 'node:util';
