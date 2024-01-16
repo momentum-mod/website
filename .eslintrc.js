@@ -163,7 +163,9 @@ module.exports = {
         'unicorn/consistent-function-scoping': ['off'],
         // Usually for-const-of is preferred but forEach is sometimes far more
         // readable, often identical performance on V8.
-        'unicorn/no-array-for-each': ['off']
+        'unicorn/no-array-for-each': ['off'],
+        // JS switches look terrible, hurts readability.
+        'unicorn/prefer-switch': ['off']
       }
     },
     {
