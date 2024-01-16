@@ -1,3 +1,4 @@
+import { FlatMapList } from '../enums/flat-map-list.enum';
 export function approvedBspPath(key: string | number): string {
   return `maps/${key}.bsp`;
 }
@@ -28,6 +29,21 @@ export function imgLargePath(key: string | number): string {
 
 export function runPath(key: string | number | bigint): string {
   return `runs/${key}`;
+}
+
+export function mapListPath(
+  type: FlatMapList,
+  version: string | number
+): string {
+  return `maplist/${
+    type === FlatMapList.APPROVED ? 'approved' : 'submissions'
+  }/${version}.json.deflate`;
+}
+
+export function mapListDir(type: FlatMapList) {
+  return type === FlatMapList.APPROVED
+    ? 'maplist/approved/'
+    : 'maplist/submissions/';
 }
 
 export function mapReviewAssetPath(key: string): string {

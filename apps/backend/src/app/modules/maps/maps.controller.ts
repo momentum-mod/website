@@ -92,6 +92,8 @@ import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
 import { MapReviewService } from '../map-review/map-review.service';
 import { ImageType } from '@momentum/constants';
+import { MapListService } from './map-list.service';
+import { MapListVersionDto } from '../../dto/map/map-list-version.dto';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -105,7 +107,8 @@ export class MapsController {
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
     private readonly mapTestingRequestService: MapTestingRequestService,
-    private readonly runsService: LeaderboardRunsService
+    private readonly runsService: LeaderboardRunsService,
+    private readonly mapListService: MapListService
   ) {}
 
   //#region Maps
@@ -165,12 +168,20 @@ export class MapsController {
     return this.mapsService.updateAsSubmitter(mapID, userID, body);
   }
 
+  @Get('/maplistversion')
+  @ApiOperation({ summary: 'Retrieve the latest map list version number' })
+  @ApiOkResponse({ type: MapListVersionDto })
+  getMapListVersion(): MapListVersionDto {
+    return this.mapListService.getMapList();
+  }
+
   //#endregion
 
   //#region Map Submission
 
   @Get('/submissions')
   @ApiOperation({ summary: 'Retrieve a paginated list of maps in submission' })
+  @ApiOkResponse({ type: PagedResponseDto<MapDto> })
   getSubmissions(
     @Query() query: MapsGetAllSubmissionQueryDto,
     @LoggedInUser('id') userID: number

@@ -23,6 +23,7 @@ import {
   Ban,
   CombinedMapStatuses,
   CombinedRoles,
+  FlatMapList,
   MapCreditType,
   MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
@@ -58,6 +59,7 @@ import {
   validateZoneFile,
   ZoneValidationError
 } from '@momentum/formats/zone';
+import { BspHeader, BspReadError } from '@momentum/formats/bsp';
 import { AdminActivityService } from '../admin/admin-activity.service';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import {
@@ -89,7 +91,7 @@ import {
   LeaderboardHandler,
   LeaderboardProps
 } from './leaderboard-handler.util';
-import { BspHeader, BspReadError } from '@momentum/formats/bsp';
+import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 
 @Injectable()
@@ -106,7 +108,8 @@ export class MapsService {
     private readonly mapTestingRequestService: MapTestingRequestService,
     @Inject(forwardRef(() => MapReviewService))
     private readonly mapReviewService: MapReviewService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly mapListService: MapListService
   ) {}
 
   private readonly baseMapsSelect: Prisma.MMapSelect = {
@@ -554,8 +557,9 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
-    return this.db.$transaction(async (tx) => {
-      const map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
+    let map;
+    await this.db.$transaction(async (tx) => {
+      map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
 
       await tx.leaderboard.createMany({
         data: LeaderboardHandler.getMaximalLeaderboards(
@@ -602,9 +606,11 @@ export class MapsService {
       }
 
       await Promise.all(tasks);
-
-      return DtoFactory(MapDto, map);
     });
+
+    await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+
+    return DtoFactory(MapDto, map);
   }
 
   async submitMapSubmissionVersion(
@@ -700,6 +706,8 @@ export class MapsService {
         })
       );
     });
+
+    await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
 
     return DtoFactory(
       MapDto,
@@ -1005,9 +1013,11 @@ export class MapsService {
 
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
+    let statusChanged = false;
     await this.db.$transaction(async (tx) => {
       const generalUpdate = this.getGeneralMapDataUpdate(map, dto);
-      const statusUpdate = await this.mapStatusUpdateHandler(
+
+      const statusHandler = await this.mapStatusUpdateHandler(
         tx,
         map,
         dto,
@@ -1015,10 +1025,21 @@ export class MapsService {
         true
       );
 
-      await tx.mMap.update({
-        where: { id: mapID },
-        data: deepmerge()(generalUpdate, statusUpdate) as Prisma.MMapUpdateInput
-      });
+      if (statusHandler) {
+        await tx.mMap.update({
+          where: { id: mapID },
+          data: deepmerge()(
+            generalUpdate,
+            statusHandler[0]
+          ) as Prisma.MMapUpdateInput
+        });
+        statusChanged = statusHandler[1] !== statusHandler[2];
+      } else {
+        await tx.mMap.update({
+          where: { id: mapID },
+          data: generalUpdate
+        });
+      }
 
       const mapDB = await this.db.mapSubmission.findUnique({
         where: { mapID: map.id },
@@ -1075,6 +1096,9 @@ export class MapsService {
         await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
       }
     });
+
+    if (statusChanged)
+      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
   }
 
   /**
@@ -1113,6 +1137,8 @@ export class MapsService {
       }
     }
 
+    let oldStatus: MapStatusNew | undefined,
+      newStatus: MapStatusNew | undefined;
     await this.db.$transaction(async (tx) => {
       const update: Prisma.MMapUpdateInput = {};
 
@@ -1134,7 +1160,8 @@ export class MapsService {
       }
 
       const generalChanges = this.getGeneralMapDataUpdate(map, dto);
-      const statusChanges = await this.mapStatusUpdateHandler(
+
+      const statusHandler = await this.mapStatusUpdateHandler(
         tx,
         map,
         dto,
@@ -1142,14 +1169,28 @@ export class MapsService {
         false
       );
 
-      const updatedMap = await tx.mMap.update({
-        where: { id: mapID },
-        data: deepmerge({ all: true })(
-          update,
-          generalChanges,
-          statusChanges
-        ) as Prisma.MMapUpdateInput
-      });
+      let updatedMap: MMap;
+      if (statusHandler) {
+        updatedMap = await tx.mMap.update({
+          where: { id: mapID },
+          data: deepmerge({ all: true })(
+            update,
+            generalChanges,
+            statusHandler[0]
+          ) as Prisma.MMapUpdateInput
+        });
+
+        oldStatus = statusHandler[1];
+        newStatus = statusHandler[2];
+      } else {
+        updatedMap = await tx.mMap.update({
+          where: { id: mapID },
+          data: deepmerge({ all: true })(
+            update,
+            generalChanges
+          ) as Prisma.MMapUpdateInput
+        });
+      }
 
       await this.adminActivityService.create(
         userID,
@@ -1159,6 +1200,25 @@ export class MapsService {
         map
       );
     });
+
+    if (newStatus === undefined || oldStatus === undefined) return;
+
+    const numInSubmissionStatuses = intersection(
+      [newStatus, oldStatus],
+      CombinedMapStatuses.IN_SUBMISSION
+    ).length;
+
+    // If going from submission -> submission just update submission list,
+    // If submission -> approved or reverse, update both
+    // If no submission (e.g. approved -> disabled), just update approved list
+    if (numInSubmissionStatuses === 2) {
+      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+    } else if (numInSubmissionStatuses === 1) {
+      await this.mapListService.updateMapList(FlatMapList.APPROVED);
+      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+    } else {
+      await this.mapListService.updateMapList(FlatMapList.APPROVED);
+    }
   }
 
   private getGeneralMapDataUpdate(
@@ -1205,12 +1265,12 @@ export class MapsService {
     dto: UpdateMapDto | UpdateMapAdminDto,
     roles: number,
     isSubmitter: boolean
-  ): Promise<Prisma.MMapUpdateInput> {
+  ): Promise<[Prisma.MMapUpdateInput, MapStatusNew, MapStatusNew] | undefined> {
     const oldStatus = map.status;
     const newStatus = dto.status;
 
     if (oldStatus === newStatus || newStatus === undefined) {
-      return {};
+      return;
     }
 
     // Check roles against allowed status changes
@@ -1241,17 +1301,21 @@ export class MapsService {
       await this.updateStatusFromFAToApproved(tx, map, dto);
     }
 
-    return {
-      status: newStatus,
-      submission: {
-        update: {
-          dates: [
-            ...map.submission.dates,
-            { status: newStatus, date: new Date().toJSON() }
-          ]
+    return [
+      {
+        status: newStatus,
+        submission: {
+          update: {
+            dates: [
+              ...map.submission.dates,
+              { status: newStatus, date: new Date().toJSON() }
+            ]
+          }
         }
-      }
-    };
+      },
+      oldStatus,
+      newStatus
+    ];
   }
 
   /**
@@ -1493,6 +1557,12 @@ export class MapsService {
         map
       );
     }
+
+    await this.mapListService.updateMapList(
+      CombinedMapStatuses.IN_SUBMISSION.includes(map.status)
+        ? FlatMapList.SUBMISSION
+        : FlatMapList.APPROVED
+    );
   }
 
   //#endregion

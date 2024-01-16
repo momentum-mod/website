@@ -11,6 +11,7 @@ import { MapLibraryService } from './map-library.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
+import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 
 @Module({
@@ -29,7 +30,8 @@ import { MapReviewModule } from '../map-review/map-review.module';
     MapLibraryService,
     MapCreditsService,
     MapImageService,
-    MapTestingRequestService
+    MapTestingRequestService,
+    MapListService
   ],
   exports: [MapsService, MapLibraryService]
 })
