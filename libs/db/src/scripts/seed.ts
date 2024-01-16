@@ -28,6 +28,8 @@ import {
   ReportType,
   Role,
   TrackType,
+  FlatMapList,
+  mapListPath,
   AdminActivityType
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -41,6 +43,8 @@ import { nuke } from '../prisma/utils';
 import { prismaWrapper } from './prisma-wrapper';
 import path = require('node:path');
 import { v4 as uuidv4 } from 'uuid';
+import { promisify } from 'node:util';
+import zlib from 'node:zlib';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M
@@ -968,6 +972,40 @@ prismaWrapper(async (prisma: PrismaClient) => {
   }
 
   //#endregion
+
+  // Now that we FINALLY have every map added, generate the static map lists
+  // Code here is derived from map-list.service.ts
+  if (doFileUploads)
+    for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
+      const maps = await prisma.mMap.findMany({
+        where: {
+          status:
+            type === FlatMapList.APPROVED
+              ? MapStatusNew.APPROVED
+              : { in: CombinedMapStatuses.IN_SUBMISSION }
+        },
+        select: {
+          id: true,
+          name: true,
+          fileName: true,
+          hash: true,
+          createdAt: true,
+          thumbnail: true,
+          leaderboards: true,
+          info: true
+        }
+      });
+
+      const mapListJson = JSON.stringify(maps);
+      const compressed = await promisify(zlib.deflate)(mapListJson);
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: process.env['STORAGE_BUCKET_NAME'],
+          Key: mapListPath(type, 1),
+          Body: compressed
+        })
+      );
+    }
 
   //#region Make me admin
 
