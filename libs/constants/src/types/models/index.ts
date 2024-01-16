@@ -19,6 +19,7 @@ export * from './map/map-review-suggestion.model';
 export * from './map/map-tags.model';
 export * from './map/map-test-invite.model';
 export * from './map/map-zones.model';
+export * from './map/map-list-version.model';
 export * from './run/leaderboard.model';
 export * from './run/leaderboard-run.model';
 export * from './run/past-run.model';
