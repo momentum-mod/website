@@ -46,6 +46,12 @@ export abstract class FileStoreService {
   abstract getFile(fileKey: string): Promise<Uint8Array | null>;
 
   /**
+   * Get the keys of all objects in a bucket (usually with some prefix so like a
+   * directory
+   */
+  abstract listFileKeys(prefix: string): Promise<string[]>;
+
+  /**
    * Get a SHA1 hash for a buffer.
    */
   static getHashForBuffer(buffer: Buffer): string {

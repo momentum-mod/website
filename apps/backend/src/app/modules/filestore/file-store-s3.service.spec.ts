@@ -166,8 +166,27 @@ describe('FileStoreS3Service', () => {
     });
   });
 
+  describe('listFileKeys', () => {
+    it('listFileKeys should list file keys', async () => {
+      jest.spyOn(service['s3Client'], 'send').mockImplementation(() =>
+        Promise.resolve({
+          KeyCount: 2,
+          Contents: [{ Key: 'key1' }, { Key: 'key2' }]
+        })
+      );
 
+      const result = await service.listFileKeys('prefix');
+      expect(result).toEqual(['key1', 'key2']);
+    });
 
+    it('listFileKeys should return an empty array for an empty bucket', async () => {
+      jest
+        .spyOn(service['s3Client'], 'send')
+        .mockImplementation(() => Promise.resolve({ KeyCount: 0 }));
 
+      const result = await service.listFileKeys('prefix');
+
+      expect(result).toEqual([]);
+    });
   });
 });
