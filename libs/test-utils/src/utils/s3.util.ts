@@ -8,6 +8,8 @@
 } from '@aws-sdk/client-s3';
 import { createSha1Hash } from './crypto.util';
 import axios from 'axios';
+import { FlatMapList } from '@momentum/constants';
+import zlib from 'node:zlib';
 
 /**
  * Simple handler class wrapped over the AWS S3 client for use in tests.
@@ -128,5 +130,14 @@ export class FileStoreUtil {
     return axios
       .get(url, { responseType: 'arraybuffer' })
       .then((res) => Buffer.from(res.data, 'binary'));
+  }
+
+  async getMapListVersion(type: FlatMapList, version: number) {
+    const file = await this.get(
+      `maplist/${
+        type === FlatMapList.APPROVED ? 'approved' : 'submissions'
+      }/${version}.json.deflate`
+    );
+    return JSON.parse(zlib.inflateSync(file).toString());
   }
 }
