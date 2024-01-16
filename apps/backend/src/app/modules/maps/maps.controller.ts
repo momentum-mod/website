@@ -63,6 +63,7 @@ import {
   MapInfoDto,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
+  MapListVersionDto,
   MapReviewDto,
   MapReviewsGetQueryDto,
   MapsGetAllQueryDto,
@@ -89,6 +90,7 @@ import { MapReviewService } from '../map-review/map-review.service';
 import { ImageType } from '@momentum/constants';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
 import { LeaderboardService } from '../runs/leaderboard.service';
+import { MapListService } from './map-list.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -103,7 +105,8 @@ export class MapsController {
     private readonly mapImageService: MapImageService,
     private readonly mapTestInviteService: MapTestInviteService,
     private readonly runsService: LeaderboardRunsService,
-    private readonly leaderboardService: LeaderboardService
+    private readonly leaderboardService: LeaderboardService,
+    private readonly mapListService: MapListService
   ) {}
 
   //#region Maps
@@ -161,12 +164,20 @@ export class MapsController {
     return this.mapsService.updateAsSubmitter(mapID, userID, body);
   }
 
+  @Get('/maplistversion')
+  @ApiOperation({ summary: 'Retrieve the latest map list version number' })
+  @ApiOkResponse({ type: MapListVersionDto })
+  getMapListVersion(): MapListVersionDto {
+    return this.mapListService.getMapList();
+  }
+
   //#endregion
 
   //#region Map Submission
 
   @Get('/submissions')
   @ApiOperation({ summary: 'Retrieve a paginated list of maps in submission' })
+  @ApiOkResponse({ type: PagedResponseDto<MapDto> })
   getSubmissions(
     @Query() query: MapsGetAllSubmissionQueryDto,
     @LoggedInUser('id') userID: number
