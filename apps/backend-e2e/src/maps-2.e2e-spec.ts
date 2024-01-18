@@ -1621,13 +1621,13 @@ describe('Maps Part 2', () => {
           expect(mockSteamIDs).toContain(BigInt(run.user.steamID));
       });
 
-      it('should 418 if the user has no Steam friends', async () => {
+      it('should 410 if the user has no Steam friends', async () => {
         jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
 
         return req.get({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
-          status: 418,
+          status: 410,
           token
         });
       });
