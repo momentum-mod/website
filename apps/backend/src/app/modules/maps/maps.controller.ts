@@ -27,11 +27,13 @@ import {
   ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiGoneResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiServiceUnavailableResponse,
   ApiTags
 } from '@nestjs/swagger';
 import {
@@ -649,6 +651,18 @@ export class MapsController {
     required: true
   })
   @ApiOkResponse({ description: "The found leaderboard's runs" })
+  @ApiNotFoundResponse({ description: "When the map doesn't exist" })
+  @ApiGoneResponse({
+    description:
+      "When the filtering by 'around', and the user doesn't have a PB"
+  })
+  @ApiGoneResponse({
+    description:
+      "When the filtering by 'friends', and the user doesn't have any Steam friends"
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Steam fails to return the user's friends list (Tuesdays lol)"
+  })
   getLeaderboards(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser() { id, steamID }: UserJwtAccessPayload,
@@ -666,7 +680,8 @@ export class MapsController {
     required: true
   })
   @ApiOkResponse({ description: 'The found run' })
-  @ApiNotFoundResponse({ description: 'Either map or run not found' })
+  @ApiNotFoundResponse({ description: 'Map not found' })
+  @ApiNotFoundResponse({ description: 'Run not found' })
   getLeaderboardRun(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser('id') userID: number,

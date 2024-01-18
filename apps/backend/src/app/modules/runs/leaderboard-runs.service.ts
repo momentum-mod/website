@@ -1,10 +1,11 @@
 import {
   BadRequestException,
   forwardRef,
-  ImATeapotException,
+  GoneException,
   Inject,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  ServiceUnavailableException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { runPath } from '@momentum/constants';
@@ -113,7 +114,7 @@ export class LeaderboardRunsService {
       });
 
       if (!userRun)
-        throw new NotFoundException('User has no runs on this leaderboard');
+        throw new GoneException('User has no runs on this leaderboard');
 
       // Start at your rank, then backtrack by half of `take`, then 1 for your rank
       skip = Math.max(userRun.rank - Math.floor(take / 2) - 1, 0);
@@ -122,11 +123,14 @@ export class LeaderboardRunsService {
     } else if (query.filter?.[0] === 'friends') {
       // Regular skip/take should work fine here.
 
-      const steamFriends =
-        await this.steamService.getSteamFriends(loggedInUserSteamID);
+      const steamFriends = await this.steamService
+        .getSteamFriends(loggedInUserSteamID)
+        .catch(() => {
+          throw new ServiceUnavailableException();
+        });
 
       if (steamFriends.length === 0)
-        throw new ImATeapotException('No friends detected :(');
+        throw new GoneException('No friends detected :(');
 
       // Doing this with a window function is gonna be fun...
       where.user = {
