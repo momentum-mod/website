@@ -10,3 +10,4 @@ export * from './parallel';
 export * from './from';
 export * from './kebab-case';
 export * from './deep-equal';
+export * from './rxjs/map-http-error';
