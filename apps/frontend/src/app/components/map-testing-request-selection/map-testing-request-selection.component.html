@@ -11,13 +11,12 @@
   <div class="flex flex-col overflow-y-auto rounded bg-black bg-opacity-25 py-2 md:w-full lg:w-1/2">
     @for (user of users; track user) {
       <div class="flex items-center bg-white bg-opacity-0 p-2 px-4 transition-colors hover:bg-opacity-5">
-        <m-avatar class="h-6" [url]="user.avatarURL" />
-        <span class="mr-3 flex-grow">{{ user.alias }}</span>
-        <button class="btn bg-red-900 transition-colors hover:bg-red-800" (click)="removeUser(user.id)">Delete</button>
+        <m-user [user]="user" aliasClass="text-base ml-1" />
+        <button class="m-btn m-btn-red ml-auto py-1" (click)="removeUser(user.id)">Delete</button>
       </div>
     }
     <p class="mr-3 mt-auto self-end text-sm italic text-gray-200">
-      {{ users.length }}/
+      {{ users.length }} /
       {{ MAX_TESTING_REQUESTS.toString() }}
       invites used
     </p>

@@ -1,6 +1,6 @@
 <div class="flex">
   <m-multi-file-upload
-    class="mr-4 flex h-auto w-[12rem] flex-shrink-0 flex-col"
+    class="mr-4 flex h-auto w-[14rem] flex-shrink-0 flex-col"
     icon="image-multiple-outline"
     [formControlName]="innerFormControlName"
     typeName="image"
@@ -19,7 +19,7 @@
         aspect ratio at all times, so we use a hacky 1/1 grid to stack each item, so an item being
         dragged over existing thumbnail gets plonked on top of it.  -->
       <div
-        class="grid aspect-video w-full place-items-center rounded bg-black bg-opacity-25 p-3 [grid-template:1fr/1fr] [&>*]:[grid-column:1/1] [&>*]:[grid-row:1/1] [&>.cdk-drag-placeholder]:opacity-100 [&>.cdk-drag-placeholder]:[z-index:2]"
+        class="m-inputlike grid aspect-video w-full place-items-center bg-black bg-opacity-25 [grid-template:1fr/1fr] hover:!bg-opacity-25 [&>*]:[grid-column:1/1] [&>*]:[grid-row:1/1] [&>.cdk-drag-placeholder]:opacity-100 [&>.cdk-drag-placeholder]:[z-index:2]"
         cdkDropList
         cdkDropListOrientation="horizontal"
         #thumbnailList="cdkDropList"
@@ -33,10 +33,6 @@
             class="group relative cursor-move rounded shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
           >
             <img class="aspect-video w-full" [src]="item.dataUrl" />
-            <m-icon
-              icon="cursor-move"
-              class="[>.cdk-drag-preview>&]-hover:opacity-30 absolute left-1/2 top-1/2 h-[4rem] w-[4rem] text-white opacity-0 transition-opacity [transform:translateX(-50%)_translateY(-50%)] group-hover:opacity-30 [.cdk-drag-preview>&]:opacity-30"
-            />
             <m-icon
               icon="close"
               (click)="removeItem(item.file, ImageType.THUMBNAIL)"
@@ -56,7 +52,7 @@
         [cdkDropListData]="items[ImageType.EXTRA]"
         [cdkDropListConnectedTo]="[thumbnailList]"
         (cdkDropListDropped)="drop($event, ImageType.EXTRA)"
-        class="grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 p-3 shadow [&>.cdk-drag-placeholder]:opacity-0"
+        class="m-inputlike grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 [&>.cdk-drag-placeholder]:opacity-0"
       >
         @for (item of items[ImageType.EXTRA]; track item) {
           <div

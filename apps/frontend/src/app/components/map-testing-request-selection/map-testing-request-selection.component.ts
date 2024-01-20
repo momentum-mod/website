@@ -5,6 +5,7 @@ import { NgClass } from '@angular/common';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { UserComponent } from '../user/user.component';
 
 @Component({
   selector: 'm-map-testing-request-selection',
@@ -17,7 +18,13 @@ import { AvatarComponent } from '../avatar/avatar.component';
     }
   ],
   standalone: true,
-  imports: [NgClass, UserSearchComponent, TooltipDirective, AvatarComponent]
+  imports: [
+    NgClass,
+    UserSearchComponent,
+    TooltipDirective,
+    AvatarComponent,
+    UserComponent
+  ]
 })
 export class MapTestingRequestSelectionComponent
   implements ControlValueAccessor

@@ -21,7 +21,7 @@
   </p>
 }
 @for (user of found; track user) {
-  <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
+  <div class="mt-2 rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
     <div class="flex items-center">
       <img class="h-12 w-12 rounded" [src]="user.avatarURL" />
       <div class="ml-4 mt-1 w-full">
@@ -54,7 +54,7 @@
   </div>
 }
 <p-paginator
-  class="mt-2"
+  class="[&>*]:mt-2"
   (onPageChange)="pageChange.next($event)"
   [first]="first"
   [rows]="rows"
