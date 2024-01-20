@@ -1,12 +1,11 @@
 <p class="font-display text-8xl font-bold opacity-80">Map Submission</p>
 @if (isMapperOrPorter || !hasMapInSubmission || true) {
-  <div class="prose mb-8 max-w-none rounded border-2 border-blue-800 bg-blue-900 p-5">
+  <div class="prose mb-8 mt-2 max-w-none rounded border border-white border-opacity-10 bg-blue-900 p-5">
     <h4>Welcome to the Momentum Mod map submission page!</h4>
     <p>
-      This is where you can submit maps to the game, and if your submission is approved, it'll be hosted by us and will appear in the
-      in-game map selector and leaderboards. We want to keep the maps in Momentum to high standard (higher than, say, some of the stuff on
-      Steam Workshop), so all maps go through a short review pipeline where community members and official testers can test you map and
-      bring up any issues.
+      This is where you can submit maps to the game, where it'll be hosted by us and appear in the in-game map selector and leaderboards. To
+      keep maps in Momentum to high standard (higher than e.g. Steam Workshop for some games), maps go through a short review pipeline where
+      community members and official testers test your map and report any issues.
     </p>
     <p>
       If this is your first time using the system, please check out our docs page (TODO: LINK!) to get a basic understanding of the
@@ -17,11 +16,9 @@
     </p>
   </div>
   <form [formGroup]="form">
-    <fieldset class="card grid gap-4 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <fieldset class="m-card grid gap-4 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
+      <legend class="ml-16 flex items-center">
+        <div class="stack absolute -translate-x-16 rounded border border-white border-opacity-10 bg-gray-800 p-2 shadow">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -41,7 +38,7 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Files</span>
+        <p class="mx-3 font-display text-5xl">Files</p>
       </legend>
       <div class="flex flex-col">
         <h5 class="mb-1 text-center">
@@ -76,7 +73,7 @@
             <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
           }
         </div>
-        <m-file-upload [formControl]="bsp" typeName="BSP" accept=".bsp" icon="land-plots" />
+        <m-file-upload [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
       </div>
       <div class="flex flex-col">
         <h5 class="mb-1 text-center">
@@ -98,7 +95,7 @@
             <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
           }
         </div>
-        <m-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" accept=".zon.json" />
+        <m-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" acceptExtensions=".zon.json" />
       </div>
       <div class="flex flex-col">
         <h5 class="mb-1 text-center">VMF File(s)</h5>
@@ -121,15 +118,13 @@
             <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
           }
         </div>
-        <m-multi-file-upload [formControl]="vmfs" typeName="VMF" accept=".vmf" icon="hammer" [max]="20" />
+        <m-multi-file-upload [formControl]="vmfs" typeName="VMF" acceptExtensions=".vmf" icon="hammer" [max]="20" />
       </div>
     </fieldset>
 
-    <fieldset class="card mt-10 pt-6" [formGroup]="info">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <fieldset class="m-card mt-10 pt-6" [formGroup]="info">
+      <legend class="ml-16 flex items-center">
+        <div class="stack absolute -translate-x-16 rounded border border-white border-opacity-10 bg-gray-800 p-2 shadow">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -149,7 +144,7 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Details</span>
+        <p class="mx-3 font-display text-5xl">Details</p>
       </legend>
       <div class="flex gap-4 md:flex-wrap">
         <div class="grid h-fit flex-grow gap-4 [grid-template-columns:auto_1fr]">
@@ -270,11 +265,9 @@
       </div>
     </fieldset>
 
-    <fieldset class="card mt-10 pt-6">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <fieldset class="m-card mt-10 pt-6">
+      <legend class="ml-16 flex items-center">
+        <div class="stack absolute -translate-x-16 rounded border border-white border-opacity-10 bg-gray-800 p-2 shadow">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -294,7 +287,7 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Images</span>
+        <span class="mx-3 font-display text-5xl">Images</span>
       </legend>
       <p class="mb-4">
         A thumbnail, and up to four additional images. You can drag slected images around to change their order, make sure the image in the
@@ -325,11 +318,9 @@
       </div>
     </fieldset>
 
-    <fieldset class="card mt-10 pt-6">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <fieldset class="m-card mt-10 pt-6">
+      <legend class="ml-16 flex items-center">
+        <div class="stack absolute -translate-x-16 rounded border border-white border-opacity-10 bg-gray-800 p-2 shadow">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -349,7 +340,7 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Credits</span>
+        <span class="mx-3 font-display text-5xl">Credits</span>
         <m-icon icon="tooltip-question-outline" class="mr-3 align-middle" [mTooltip]="creditsInfo" />
         <ng-template #creditsInfo>
           <div class="prose p-3">
@@ -381,11 +372,9 @@
       <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
     </fieldset>
 
-    <fieldset class="card mt-10 pt-2">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <fieldset class="m-card mt-10 pt-2">
+      <legend class="ml-16 flex items-center">
+        <div class="stack absolute -translate-x-16 rounded border border-white border-opacity-10 bg-gray-800 p-2 shadow">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -411,7 +400,7 @@
             mTooltip="Add a zones file to enable leaderboard editing!"
           />
         </div>
-        <span class="mx-3 text-3xl">Leaderboards</span>
+        <span class="mx-3 font-display text-5xl">Leaderboards</span>
         <m-icon icon="tooltip-question-outline" class="mr-2 align-middle" [mTooltip]="leaderboardsInfo" />
         <ng-template #leaderboardsInfo>
           <div class="prose p-3">
@@ -425,10 +414,8 @@
       }
     </fieldset>
 
-    <fieldset class="card mt-10 pt-2">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
+    <fieldset class="m-card mt-10 pt-2">
+      <legend class="ml-16 flex items-center">
         <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
@@ -449,7 +436,7 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Private Testing</span>
+        <span class="mx-3 font-display text-5xl">Private Testing</span>
       </legend>
       <div class="flex gap-4" [formGroup]="privateTesting">
         <div class="flex flex-col md:w-full lg:flex-grow">
@@ -473,7 +460,7 @@
           <div class="ml-auto">
             <div class="flex items-center justify-end">
               <span class="mr-4 text-lg">Enable Private Testing</span>
-              <input type="checkbox" [formControl]="wantsPrivateTesting" />
+              <input type="checkbox" class="m-checkbox" [formControl]="wantsPrivateTesting" />
             </div>
             @if (testInvites.dirty && privateTesting.errors) {
               <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>{{ privateTesting.errors['error'] }}</p>

@@ -1,5 +1,5 @@
 @if (value && value.length > 0 && !disabled) {
-  <table class="mb-2 grid border-collapse [grid-template-columns:repeat(5,1fr)_auto]">
+  <table class="mb-2 grid border-collapse gap-0.5 [grid-template-columns:repeat(5,1fr)_auto]">
     <thead class="contents bg-gray-950">
       <tr class="contents">
         <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Gamemode</th>
@@ -72,7 +72,7 @@
             />
           </td>
           <td>
-            <button class="m-btn ml-1 rounded p-1.5" (click)="removeItem(i)">
+            <button class="m-btn rounded p-1.5" (click)="removeItem(i)">
               <m-icon icon="delete" />
             </button>
           </td>

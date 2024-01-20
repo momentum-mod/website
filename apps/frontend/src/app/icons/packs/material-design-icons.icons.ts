@@ -33,6 +33,7 @@ export {
   mdiPlayCircle,
   mdiPlayCircleOutline,
   mdiArrowRightThick,
+  mdiTooltipQuestion,
   mdiTooltipQuestionOutline,
   mdiHelpCircle,
   mdiChevronLeftCircleOutline,

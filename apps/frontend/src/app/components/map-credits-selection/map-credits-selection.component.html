@@ -1,8 +1,10 @@
 @for (type of MapCreditNames | keyvalue; track type) {
   <div class="flex h-full flex-col">
-    <p class="mb-2 ml-2 text-3xl">{{ type.value }}</p>
+    <p class="mb-1 ml-2 flex items-center text-2xl font-medium">
+      {{ type.value }} <m-icon class="ml-1 p-1" *ngIf="type.key === MapCreditType.AUTHOR" icon="asterisk" mTooltip="At least 1 required" />
+    </p>
     <div
-      class="flex-grow rounded bg-black bg-opacity-25"
+      class="m-inputlike flex-grow border-opacity-0"
       id="{{ type.key }}"
       cdkDropList
       [cdkDropListData]="value[type.key]"
@@ -15,7 +17,7 @@
     >
       @for (credit of value[type.key]; track credit) {
         <div class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5" cdkDrag>
-          <m-avatar class="mr-2" [url]="credit.user.avatarURL" />
+          <m-avatar class="mr-2 aspect-square h-[3.25rem]" [url]="credit.user.avatarURL" />
           <div class="flex flex-grow flex-col">
             <div class="flex">
               <span class="mr-3 flex-grow">{{ credit.user.alias }}</span>
@@ -28,16 +30,14 @@
         </div>
       }
     </div>
-    <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
-    <div class="flex">
-      <input #placeHolderInput class="m-textinput flex-grow" placeholder="Create placeholder..." />
-      @if (placeHolderInput.value.length > 0) {
-        <button class="btn ml-3 bg-green-600 transition-colors hover:bg-green-500" (click)="addPlaceholder(type.key, placeHolderInput)">
-          Add
-        </button>
+    <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mr-2 mt-4" />
+    <div class="mr-2 mt-2 flex">
+      <input [formControl]="placeholderInputs.get(type.key)" class="m-textinput flex-grow" placeholder="Create placeholder..." />
+      @if (placeholderInputs.get(type.key).valid) {
+        <button class="m-btn m-btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
       }
       <m-icon
-        class="my-auto ml-3 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
+        class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
         [mTooltip]="creditsInfo"
         icon="tooltip-question-outline"
       />
