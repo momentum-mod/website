@@ -33,11 +33,6 @@ export const APP_ROUTES: Route[] = [
     data: { roles: [Role.ADMIN, Role.MODERATOR] }
   },
   {
-    path: 'runs',
-    loadChildren: () => import('./pages/runs/routes'),
-    canActivate: [AuthGuard]
-  },
-  {
     path: '**',
     component: NotFoundComponent
   }
