@@ -1,12 +1,19 @@
 import {
   GamemodeName,
   IncompatibleGamemodes,
+  MapReviewSuggestion,
   MapSubmissionSuggestion,
   MapZones,
   TrackType as TT,
   TrackType,
   TrackTypeName as TTName
 } from '@momentum/constants';
+import { deepEquals } from '@momentum/util-fn';
+
+export enum SuggestionType {
+  SUBMISSION,
+  REVIEW
+}
 
 export class SuggestionValidationError extends Error {
   constructor(message: string) {
@@ -16,30 +23,19 @@ export class SuggestionValidationError extends Error {
 }
 
 export function validateSuggestions(
-  suggestions: MapSubmissionSuggestion[],
-  zoneData: MapZones
+  suggestions: MapSubmissionSuggestion[] | MapReviewSuggestion[],
+  zoneData: MapZones,
+  type: SuggestionType
 ) {
   let hasMainTrack = false;
-  for (const {
-    trackType: tt,
-    trackNum: tn,
-    gamemode: gm,
-    tier,
-    comment,
-    ranked
-  } of suggestions) {
-    for (const {
-      trackType: tt2,
-      trackNum: tn2,
-      gamemode: gm2,
-      tier: tier2,
-      comment: comment2,
-      ranked: ranked2
-    } of suggestions) {
+  for (const sugg of suggestions) {
+    const { trackType: tt, trackNum: tn, gamemode: gm } = sugg;
+    for (const sugg2 of suggestions) {
+      const { trackType: tt2, trackNum: tn2, gamemode: gm2 } = sugg2;
       if (tt === tt2 && tn === tn2) {
         if (gm === gm2) {
           // Don't allow anything with same TT, TN and GM
-          if (tier === tier2 && comment === comment2 && ranked === ranked2) {
+          if (deepEquals(sugg, sugg2)) {
             continue;
           } else {
             throw new SuggestionValidationError(
@@ -89,22 +85,26 @@ export function validateSuggestions(
     }
   }
 
-  if (!hasMainTrack) throw new SuggestionValidationError('Missing main track');
+  if (type === SuggestionType.SUBMISSION) {
+    if (!hasMainTrack)
+      throw new SuggestionValidationError('Missing main track');
 
-  // Zone and suggestions must have main tracks per their respective validators,
-  // and we don't do suggestions for stages, so all that's left is to check that
-  // all bonus tracks have suggestions:
-  for (let i = 0; i < zoneData.tracks.bonuses.length; i++) {
-    if (
-      !suggestions.some(
-        ({ trackType, trackNum }) => trackType === TT.BONUS && trackNum === i
-      )
-    ) {
-      throw new SuggestionValidationError(
-        `Bonus track ${i + 1} has no suggestions`
-      );
+    // Zone and suggestions must have main tracks per their respective validators,
+    // and we don't do suggestions for stages, so all that's left is to check that
+    // all bonus tracks have suggestions:
+    for (let i = 0; i < zoneData.tracks.bonuses.length; i++) {
+      if (
+        !suggestions.some(
+          ({ trackType, trackNum }) => trackType === TT.BONUS && trackNum === i
+        )
+      ) {
+        throw new SuggestionValidationError(
+          `Bonus track ${i + 1} has no suggestions`
+        );
+      }
     }
   }
+
   suggestions
     .filter(({ trackType }) => trackType === TrackType.BONUS)
     .forEach(({ trackNum }, i) => {
