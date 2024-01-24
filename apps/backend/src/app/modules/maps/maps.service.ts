@@ -52,6 +52,7 @@ import { ConfigService } from '@nestjs/config';
 import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
+  SuggestionType,
   SuggestionValidationError,
   validateSuggestions,
   validateZoneFile,
@@ -1022,7 +1023,11 @@ export class MapsService {
       if (dto.suggestions) {
         const zones = mapDB.currentVersion.zones as unknown as MapZones; // TODO: #855
         try {
-          validateSuggestions(dto.suggestions, zones);
+          validateSuggestions(
+            dto.suggestions,
+            zones,
+            SuggestionType.SUBMISSION
+          );
         } catch (error) {
           if (error instanceof SuggestionValidationError) {
             throw new BadRequestException(
