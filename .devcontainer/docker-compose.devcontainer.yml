@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/typescript-node
+    volumes:
+      - ../:/workspaces:cached
+    command: sleep infinity
+    env_file:
+      - .env
+    depends_on:
+      - minio
+      - db
+      - createbuckets
+      - api
+  api:
+    image: mcr.microsoft.com/devcontainers/typescript-node
+    volumes:
+      - ../:/workspaces:cached
+    command: sleep infinity
+    environment:
+      IS_DOCKERIZED_API: 'true'
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
+    depends_on:
+      - minio
+      - db
+      - createbuckets

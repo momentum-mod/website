@@ -1,0 +1,28 @@
+{
+  "name": "Momentum Mod API",
+  "dockerComposeFile": [
+    "../../docker-compose.yml",
+    "../../docker-compose.override.yml",
+    "../docker-compose.devcontainer.yml"
+  ],
+  "service": "api",
+  "shutdownAction": "none",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/nx-npm:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "nrwl.angular-console",
+        "esbenp.prettier-vscode",
+        "firsttris.vscode-jest-runner",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "initializeCommand": [".devcontainer/init"],
+  "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && git config --global --add safe.directory ${containerWorkspaceFolder}/apps/frontend/src/app/theme/shared_styling && git submodule update --init",
+  "postStartCommand": "npm install && nx run db:push && nx run db:seed && npm run serve:backend"
+}
