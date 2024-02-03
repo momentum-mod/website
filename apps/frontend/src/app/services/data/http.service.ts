@@ -32,14 +32,11 @@ export class HttpService {
     url: string,
     options: { observe: 'response' } & BackendRequestOptions
   ): Observable<HttpResponse<T>>;
-
   post(
     url: string,
     options: { observe: 'events'; responseType: 'text' } & BackendRequestOptions
   ): Observable<HttpResponse<string>>;
-
   post<T>(url: string, options?: BackendRequestOptions): Observable<T>;
-
   post(url: string, options?: BackendRequestOptions): Observable<any> {
     return this.request('POST', url, options);
   }
@@ -50,7 +47,6 @@ export class HttpService {
   }
 
   put<T>(url: string, options?: BackendRequestOptions): Observable<T>;
-
   put(url: string, options?: BackendRequestOptions): Observable<void> {
     return this.request('PUT', url, options);
   }
