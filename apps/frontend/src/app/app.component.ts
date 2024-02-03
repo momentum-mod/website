@@ -7,6 +7,7 @@ import { NotificationsService } from './services/notifications.service';
 import { IconComponent } from './icons';
 import { HeaderComponent, SidenavComponent } from './components';
 import { LayoutService, SidenavState } from './services/layout.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'm-app',
@@ -18,7 +19,8 @@ import { LayoutService, SidenavState } from './services/layout.service';
     IconComponent,
     RouterOutlet,
     SidenavComponent,
-    ToastModule
+    ToastModule,
+    ConfirmDialogModule
   ]
 })
 export class AppComponent {
