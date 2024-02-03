@@ -19,7 +19,7 @@ export * from './notification/notification.component';
 export * from './player-card/player-card.component';
 export * from './report/create-report-dialog/create-report-dialog.component';
 export * from './report/report-button/report-button.component';
-export * from './roles/role-badges.component';
+export * from './role-badges/role-badges.component';
 export * from './search/search.component';
 export * from './search/user-search/abstract-search.component';
 export * from './search/user-search/map-search.component';

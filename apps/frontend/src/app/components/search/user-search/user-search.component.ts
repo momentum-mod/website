@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../../icons';
 import { LocalUserService, UsersService } from '../../../services';
 import { TooltipDirective, SpinnerDirective } from '../../../directives/';
-import { RoleBadgesComponent } from '../../roles/role-badges.component';
+import { RoleBadgesComponent } from '../../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
 
 @Component({
