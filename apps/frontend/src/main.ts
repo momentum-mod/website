@@ -8,7 +8,7 @@ import {
 import { APP_BASE_HREF } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { SharedModule } from './app/shared.module';
 import { APP_ROUTES } from './app/app.routes';
@@ -30,6 +30,7 @@ bootstrapApplication(AppComponent, {
     // These PrimeNg services don't have `providedIn: root` so need providing
     // global here.
     MessageService,
-    DialogService
+    DialogService,
+    ConfirmationService
   ]
 }).catch((error) => console.error(error));
