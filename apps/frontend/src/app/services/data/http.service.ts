@@ -44,6 +44,7 @@ export class HttpService {
     return this.request('POST', url, options);
   }
 
+  patch<T>(url: string, options?: BackendRequestOptions): Observable<T>;
   patch(url: string, options?: BackendRequestOptions): Observable<void> {
     return this.request('PATCH', url, options);
   }
