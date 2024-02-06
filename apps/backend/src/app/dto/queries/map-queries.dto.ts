@@ -36,6 +36,7 @@ import {
   EnumQueryProperty,
   ExpandQueryProperty,
   FilterQueryProperty,
+  IntCsvQueryProperty,
   IntQueryProperty,
   SingleExpandQueryProperty,
   SkipQueryProperty,
@@ -265,6 +266,9 @@ export class MapLeaderboardGetQueryDto
       "If around is used, 'skip' and 'take' are ignored."
   })
   readonly filter?: MapRunsGetFilter;
+
+  @IntCsvQueryProperty({ description: 'List of users to limit results to' })
+  readonly filterUserIDs?: number[];
 
   @BooleanQueryProperty({
     description: 'Whether to order by date or not (false for reverse)'
