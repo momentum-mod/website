@@ -74,6 +74,10 @@ export class LeaderboardRunsService {
       style: query.style
     };
 
+    if (query.filterUserIDs) {
+      where.userID = { in: query.filterUserIDs };
+    }
+
     const select = {
       ...this.minimalRunsSelect,
       stats: Boolean(query.expand)
@@ -89,17 +93,23 @@ export class LeaderboardRunsService {
     // Potentially a faster way of doing this in one query in raw SQL, something
     // to investigate when we move to that/query builder.
     if (query.filter?.[0] === 'around') {
-      const userRun = await this.db.leaderboardRun.findUnique({
-        where: {
-          userID_gamemode_style_mapID_trackType_trackNum: {
-            mapID,
-            userID: loggedInUserID,
-            gamemode: query.gamemode,
-            trackType: query.trackType,
-            trackNum: query.trackNum,
-            style: query.style
-          }
+      const whereAround: Prisma.LeaderboardRunWhereUniqueInput = {
+        userID_gamemode_style_mapID_trackType_trackNum: {
+          mapID,
+          userID: loggedInUserID,
+          gamemode: query.gamemode,
+          trackType: query.trackType,
+          trackNum: query.trackNum,
+          style: query.style
         }
+      };
+
+      // if (query.filterUserIDs) {
+      //   where.userID = { in: query.filterUserIDs };
+      // }
+
+      const userRun = await this.db.leaderboardRun.findUnique({
+        where: whereAround
       });
 
       if (!userRun)

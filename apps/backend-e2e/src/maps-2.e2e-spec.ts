@@ -1461,6 +1461,21 @@ describe('Maps Part 2', () => {
           token
         }));
 
+      it('should respond with filtered runs given using the filterUserID param', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: {
+            gamemode: Gamemode.AHOP,
+            filterUserIDs: `${u1.id},${u3.id}`
+          },
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
+          token
+        });
+
+        expect(res.body.data[0].userID).toBe(u1.id);
+        expect(res.body.data[1].userID).toBe(u3.id);
+      });
+
       // Test that permissions checks are getting called
       // Yes, u1 has runs on the map, but we don't actually test for that
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -1495,7 +1510,7 @@ describe('Maps Part 2', () => {
     });
 
     describe("GET - 'around' filter", () => {
-      let map, user7Token, runs;
+      let map, u7, u7Token, runs;
 
       beforeAll(async () => {
         map = await db.createMap();
@@ -1508,7 +1523,8 @@ describe('Maps Part 2', () => {
             })
           )
         );
-        user7Token = auth.login(runs[6].user);
+        u7 = runs[6].user;
+        u7Token = auth.login(u7);
       });
 
       afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
@@ -1518,7 +1534,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
           status: 200,
-          token: user7Token,
+          token: u7Token,
           validatePaged: { type: MinimalLeaderboardRunDto, count: 9 }
         });
 
@@ -1533,6 +1549,22 @@ describe('Maps Part 2', () => {
         // Last tested was 11, then incremented once more, should be sitting on
         // 12.
         expect(rankIndex).toBe(12);
+      });
+
+      it('should return a list of ranks around your rank filter by userID if given', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: {
+            gamemode: Gamemode.AHOP,
+            filter: 'around',
+            filterUserIDs: u7.id
+          },
+          status: 200,
+          token: u7Token,
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 1 }
+        });
+
+        expect(res.body.data[0].userID).toBe(u7.id);
       });
     });
 
