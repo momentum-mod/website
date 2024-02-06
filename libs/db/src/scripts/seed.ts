@@ -602,6 +602,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
                       user: { connect: { id: userID } },
                       time,
                       rank: rank++,
+                      // Just any SHA1 hash is fine so long as unique, so game
+                      // can use for unique compator on these
+                      replayHash: createHash('sha1')
+                        .update(Math.random().toString())
+                        .digest('hex'),
                       stats: {}, // TODO: Add proper stats here when we actually do stats seriously
                       leaderboard: {
                         connect: {
