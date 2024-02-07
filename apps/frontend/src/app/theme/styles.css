@@ -19,14 +19,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --sidenav-width-wide: 15rem;
-    --sidenav-width-smol: 4rem;
-  }
+:root {
+  --sidenav-width-wide: 15rem;
+  --sidenav-width-smol: 3.75rem;
+}
 
+@layer base {
   html {
     scroll-behavior: smooth;
+    height: 100vh;
+    width: 100vw;
   }
 
   /* If the user prefers dark mode, we of course apply color-scheme: dark, as usual */
