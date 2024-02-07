@@ -86,14 +86,13 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
     debug?: boolean,
     eventID?: string
   ) {
-    // Look, I like pretty formatting, ok??
-    const indent = Math.max(eventID ? 8 : 0, exception.stack ? 5 : 0, 4) + 2;
-    let str = `\n  ${exception.name ?? 'Error'}\n  Path:${' '.repeat(
-      indent - 4
-    )}${path}\n`;
-    if (eventID) str += `  Event ID:${' '.repeat(indent - 8)}${eventID}\n`;
-    if (exception.stack)
-      str += `  Stack:${' '.repeat(indent - 5)}${exception.stack}\n`;
+    let str =
+      `\n${exception.name ?? 'Error'}\n` +
+      `\tPath:\t${path}\n` +
+      `\tMessage:\t${exception.message}\n` +
+      `\tStack:\t${exception.stack}\n`;
+
+    if (eventID) str += `\tEvent ID:\t${eventID}\n`;
 
     !debug ?? true ? this.logger.debug(str) : this.logger.error(str);
   }
