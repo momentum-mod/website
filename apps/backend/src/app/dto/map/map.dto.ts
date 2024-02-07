@@ -231,7 +231,7 @@ export class CreateMapDto
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
   @ApiProperty({
-    type: 'string',
+    type: 'file',
     format: 'binary',
     description: 'BSP for the map. MUST be run through bspzip!'
   })
@@ -239,7 +239,7 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
   readonly bsp: any;
 
   @ApiProperty({
-    type: 'string',
+    type: 'file array',
     format: 'binary',
     description:
       'VMFs for the map. Usually a single file, but takes an array to allow instances.'
