@@ -148,14 +148,6 @@ export class AdminController {
     return this.usersService.delete(userID, adminID);
   }
 
-  // This seems to only be used to reset all cosmetic or ranked XP.
-  // Such a thing terrifies me, so lets leave it for now.
-  @Patch('/user-stats')
-  @ApiOperation({ summary: "Update every user's stats" })
-  updateUserStats() {
-    return;
-  }
-
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @Get('/maps')
   @ApiOperation({
