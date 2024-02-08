@@ -148,7 +148,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   if (args.has('-h') || args.has('--help')) {
     console.log(
-      'usage: seed.js [-h] [--s3files] [--reset]\n\t' +
+      'usage: seed.js [-h] [--reset]\n\t' +
         Object.keys(defaultVars)
           .map((v) => `--${v}=N (or N-M for min-max)`)
           .join('\n\t')
@@ -161,19 +161,16 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const mapBuffer = readFileSync(path.join(dir, '/flat_devgrid.bsp'));
   const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
 
-  const doFileUploads = args.has('--s3files');
   let imageBuffers: { small: Buffer; medium: Buffer; large: Buffer }[];
-  const s3 = doFileUploads
-    ? new S3Client({
-        region: process.env['STORAGE_REGION'],
-        endpoint: process.env['STORAGE_ENDPOINT_URL'],
-        credentials: {
-          accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'],
-          secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY']
-        },
-        forcePathStyle: true
-      })
-    : undefined;
+  const s3 = new S3Client({
+    region: process.env['STORAGE_REGION'],
+    endpoint: process.env['STORAGE_ENDPOINT_URL'],
+    credentials: {
+      accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'],
+      secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY']
+    },
+    forcePathStyle: true
+  });
 
   if (args.has('--reset')) {
     console.log('Resetting DB');
@@ -231,30 +228,28 @@ prismaWrapper(async (prisma: PrismaClient) => {
       )
     ),
 
-    doFileUploads
-      ? async () => {
-          imageBuffers = await Promise.all(
-            from(randRange(vars.imageFetches), () =>
-              axios
-                .get('https://picsum.photos/1920/1080', {
-                  responseType: 'arraybuffer'
-                })
-                .then(async (res) => ({
-                  small: await sharp(res.data)
-                    .resize(480, 360, { fit: 'inside' })
-                    .jpeg({ mozjpeg: true })
-                    .toBuffer(),
-                  medium: await sharp(res.data)
-                    .resize(1280, 720, { fit: 'inside' })
-                    .jpeg({ mozjpeg: true })
-                    .toBuffer(),
-                  large: res.data
-                }))
-            )
-          );
-          console.log('Fetched map images');
-        }
-      : undefined
+    async () => {
+      imageBuffers = await Promise.all(
+        from(randRange(vars.imageFetches), () =>
+          axios
+            .get('https://picsum.photos/1920/1080', {
+              responseType: 'arraybuffer'
+            })
+            .then(async (res) => ({
+              small: await sharp(res.data)
+                .resize(480, 360, { fit: 'inside' })
+                .jpeg({ mozjpeg: true })
+                .toBuffer(),
+              medium: await sharp(res.data)
+                .resize(1280, 720, { fit: 'inside' })
+                .jpeg({ mozjpeg: true })
+                .toBuffer(),
+              large: res.data
+            }))
+        )
+      );
+      console.log('Fetched map images');
+    }
   );
 
   const users = Random.shuffle(
@@ -714,8 +709,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const image = await prisma.mapImage.create({
           data: { mapID: map.id }
         });
-
-        if (!doFileUploads) return image;
 
         const buffer = Random.element(imageBuffers);
 
