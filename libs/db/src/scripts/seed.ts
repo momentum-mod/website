@@ -15,6 +15,7 @@ import {
   Ban,
   CombinedMapStatuses,
   Gamemode,
+  GamemodePrefix,
   MapCreditType,
   mapReviewAssetPath,
   MapStatusNew,
@@ -326,7 +327,13 @@ prismaWrapper(async (prisma: PrismaClient) => {
       console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
       let name = faker.lorem.word();
       while (usedNames.includes(name)) {
+        // Most maps have a gamemode prefix, some don't, want to be able to test
+        // with both.
+        const prefix = Random.element([...new Set(GamemodePrefix.values())]);
         name = faker.lorem.word();
+        if (Random.chance(0.75)) {
+          name = `${prefix}_${name}`;
+        }
       }
 
       usedNames.push(name);
