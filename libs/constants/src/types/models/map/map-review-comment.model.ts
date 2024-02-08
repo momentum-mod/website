@@ -4,3 +4,5 @@ import { User } from '../';
 export interface MapReviewComment extends PrismaMapReviewComment {
   user?: User;
 }
+
+export type CreateMapReviewComment = Pick<MapReviewComment, 'text'>;

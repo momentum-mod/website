@@ -45,6 +45,25 @@ export class MapReviewCommentService {
     return new PagedResponseDto(MapReviewCommentDto, comments);
   }
 
+  async postComment(
+    reviewID: number,
+    userID: number,
+    body: CreateMapReviewCommentDto
+  ): Promise<MapReviewCommentDto> {
+    if (isEmpty(body)) {
+      throw new BadRequestException('Empty body');
+    }
+
+    await this.checkReviewPerms(reviewID, userID);
+
+    return DtoFactory(
+      MapReviewCommentDto,
+      await this.db.mapReviewComment.create({
+        data: { text: body.text, reviewID, userID },
+        include: { user: true }
+      })
+    );
+  }
 
   private async checkReviewPerms(
     reviewID: number,

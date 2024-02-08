@@ -7,6 +7,7 @@ export const MAX_MAP_IMAGE_SIZE = 10_000_000;
 export const MAX_CREDIT_DESCRIPTION_LENGTH = 64;
 export const MAX_REVIEW_LENGTH = 5000;
 export const MAX_REVIEW_IMAGES = 20;
+export const MAX_REVIEW_COMMENT_LENGTH = 1000;
 export const MAX_TESTING_REQUESTS = 20;
 export const MIN_PUBLIC_TESTING_DURATION = 7 * 24 * 60 * 60 * 1000;
 export const MAX_CREDITS_EXCEPT_TESTERS = 20;
