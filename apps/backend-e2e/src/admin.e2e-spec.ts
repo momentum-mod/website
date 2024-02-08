@@ -2299,6 +2299,50 @@ describe('Admin', () => {
 
           expect(await fileStore.exists(assetPath)).toBe(false);
         });
+
+        it('should 400 if map has unresolved reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: false,
+              mainText:
+                'I hated this map. ' +
+                'Hated hated hated hated hated this map. Hated it. ' +
+                'Hated every simpering stupid vacant player-insulting stage of it',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+        });
+
+        it('should succeed if map has resolved=null reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: null,
+              mainText:
+                'Was there no one connected with this project who read the ' +
+                'screenplay, considered the story, evaluated the proposed map and vomited?',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+        });
+
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
