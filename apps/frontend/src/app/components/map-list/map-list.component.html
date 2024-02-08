@@ -4,7 +4,7 @@
   } @empty {
     @if (!loading) {
       @if (isUpload && !hasFilters()) {
-        <p class="italics m-8 h-8 text-center text-2xl text-gray-400">
+        <p class="m-8 h-8 text-center text-xl italic text-gray-400">
           You have not uploaded any maps. Try <a routerLink="/maps/uploads/new" class="text-blue-300">uploading a new one!</a>
         </p>
       } @else {

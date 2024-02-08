@@ -1,4 +1,4 @@
-<div class="mb-2 flex w-full items-center gap-4">
+<div class="flex w-full items-center gap-4">
   <input
     class="m-textinput flex-grow"
     [mSpinner]="search.status === 'PENDING'"
@@ -33,7 +33,7 @@
               [routerLink]="'/profile/' + user.id"
               (click)="$event.stopPropagation()"
               target="_blank"
-              class="ml-auto self-center text-sm italic text-gray-200 transition-colors hover:text-blue-400"
+              class="m-link ml-auto self-center text-sm italic text-gray-200"
             >
               View Profile
             </a>

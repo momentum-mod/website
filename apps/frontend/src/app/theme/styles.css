@@ -316,9 +316,38 @@
     }
   }
 
+  .hover-white-overlay {
+    display: flex;
+    position: relative;
+
+    &::after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      height: 100%;
+      width: 100%;
+      background-color: rgb(255 255 255 / 0);
+      content: '';
+      transition: 0.1s ease-in-out;
+    }
+
+    &:hover::after {
+      background-color: rgb(255 255 255 / 0.1);
+    }
+  }
+
   /*TODO: Tailwind almost supports this, remove me once we're on a release with it has it!*/
   .text-balance {
     text-wrap: balance;
+  }
+
+  .small-caps {
+    font-variant: small-caps;
+  }
+
+  .all-small-caps {
+    font-variant: all-small-caps;
   }
 
   /**
@@ -338,5 +367,15 @@
   .scroll-thin::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.3);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .text-shadow-strong {
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.15),
+      0 2px 1px rgba(0, 0, 0, 0.3);
   }
 }
