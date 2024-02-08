@@ -9,7 +9,9 @@ import {
   UpdateMap,
   UpdateReport,
   User,
-  PagedResponse
+  PagedResponse,
+  MapReview,
+  AdminUpdateMapReview
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -61,5 +63,18 @@ export class AdminService {
         realID: realUser.id
       }
     });
+  }
+
+  updateMapReview(
+    reviewID: number,
+    resolved: boolean | null
+  ): Observable<MapReview> {
+    return this.http.patch<MapReview>(`admin/map-review/${reviewID}`, {
+      body: { resolved } as AdminUpdateMapReview
+    });
+  }
+
+  deleteMapReview(reviewID: number): Observable<void> {
+    return this.http.delete(`admin/map-review/${reviewID}`);
   }
 }
