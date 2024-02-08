@@ -90,6 +90,7 @@ import {
   LeaderboardProps
 } from './leaderboard-handler.util';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Injectable()
 export class MapsService {
@@ -103,6 +104,8 @@ export class MapsService {
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
     private readonly mapTestingRequestService: MapTestingRequestService,
+    @Inject(forwardRef(() => MapReviewService))
+    private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService
   ) {}
 
@@ -1380,17 +1383,25 @@ export class MapsService {
     });
 
     // Delete all the submission files - these would take up a LOT of space otherwise
-    try {
-      await this.fileStoreService.deleteFiles(
-        versions.flatMap((v) => [
-          submissionBspPath(v.id),
-          submissionVmfsPath(v.id)
-        ])
-      );
-    } catch (error) {
-      error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
-      throw new InternalServerErrorException(error);
-    }
+    await parallel(
+      this.fileStoreService
+        .deleteFiles(
+          versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        )
+        .catch((error) => {
+          error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        }),
+      this.mapReviewService
+        .deleteAllReviewAssetsForMap(map.id)
+        .catch((error) => {
+          error.message = `Failed to delete map review files for ${map.fileName}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        })
+    );
 
     // Is it getting approved for first time?
     if (
