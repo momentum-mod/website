@@ -12,6 +12,7 @@ export * from './map/map-submission-dates.model';
 export * from './map/map-submission-placeholder.model';
 export * from './map/map-submission-suggestion.model';
 export * from './map/map-submission-version.model';
+export * from './map/map-review.model';
 export * from './map/map-review-edit.model';
 export * from './map/map-review-comment.model';
 export * from './map/map-review-suggestion.model';

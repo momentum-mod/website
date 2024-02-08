@@ -1,9 +1,9 @@
-import { Gamemode } from '../../../';
+import { Gamemode, TrackType } from '../../../';
 
 export interface MapReviewSuggestion {
-  track: number;
   gamemode: Gamemode;
-  tier: number;
-  comment: string;
-  gameplayRating: number;
+  trackType: TrackType;
+  trackNum: number;
+  tier?: number;
+  gameplayRating?: number;
 }

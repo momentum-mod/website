@@ -347,8 +347,8 @@ model MapReview {
 
   mainText    String
   comments    MapReviewComment[]
-  suggestions Json               @default("{}") // map-submission-suggestions.model.ts
-  editHistory Json? // Array of map-review-edit-history.model.ts
+  suggestions Json               @default("[]") // Array of map-submission-suggestions.model.ts
+  editHistory Json               @default("[]") // Array of map-review-edit-history.model.ts
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -356,8 +356,8 @@ model MapReview {
   reviewer   User @relation(name: "mapreview_reviewer", fields: [reviewerID], references: [id], onDelete: Cascade)
   reviewerID Int
 
-  resolved   Boolean @default(false)
-  resolver   User?   @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
+  resolved   Boolean? /// If NULL, the review does not need resolving to pass to FINAL_APPROVAL
+  resolver   User?    @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
   resolverID Int?
 
   createdAt DateTime @default(now())
@@ -378,8 +378,9 @@ model MapReviewComment {
   reviewID Int
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([reviewID])
+  @@index([reviewID, createdAt])
 }
 
 /// This table stores what a tracks on a map a run can be submitted to, in what
