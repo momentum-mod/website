@@ -80,7 +80,8 @@ import { GroupedMapCredits } from '../../../util';
     TooltipDirective,
     ProgressBarModule,
     CalendarModule,
-    PluralPipe
+    PluralPipe,
+    MapSubmissionTypeInfoComponent
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {
