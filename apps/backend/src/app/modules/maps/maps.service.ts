@@ -1524,6 +1524,9 @@ export class MapsService {
    * can do the desired fetch for you - hence the types having to be a little
    * insane.
    *
+   * If `submissionOnly: true` is given, throws if map is not in submission,
+   * except for mods and admins
+   *
    * @throws ForbiddenException
    */
   async getMapAndCheckReadAccess<
@@ -1531,7 +1534,7 @@ export class MapsService {
     S extends Prisma.MMapSelect,
     I extends Prisma.MMapInclude
   >(
-    args: { userID: number } & MergeExclusive<
+    args: { userID: number; submissionOnly?: boolean } & MergeExclusive<
       { map: M },
       { mapID: number | string } & MergeExclusive<
         { select?: S },
@@ -1562,7 +1565,7 @@ export class MapsService {
 
     // If APPROVED/PUBLIC_TESTING, anyone can access.
     if (
-      map.status === MapStatusNew.APPROVED ||
+      (map.status === MapStatusNew.APPROVED && !args?.submissionOnly) ||
       map.status === MapStatusNew.PUBLIC_TESTING
     ) {
       return map as GetMMapUnique<S, I>;
@@ -1572,6 +1575,17 @@ export class MapsService {
     const user = await this.db.user.findUnique({ where: { id: args.userID } });
 
     switch (map.status) {
+      // APPROVED, always allow unless:
+      // - submissionOnly is true, and not mod/admin
+      case MapStatusNew.APPROVED: {
+        if (
+          !args?.submissionOnly ||
+          Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+        )
+          return map as GetMMapUnique<S, I>;
+
+        break;
+      }
       // PRIVATE_TESTING, only allow:
       // - The submitter
       // - Moderator/Admin
@@ -1673,7 +1687,7 @@ export class MapsService {
   ) {
     try {
       validateZoneFile(zones);
-      validateSuggestions(suggestions, zones);
+      validateSuggestions(suggestions, zones, SuggestionType.SUBMISSION);
     } catch (error) {
       if (error instanceof ZoneValidationError) {
         throw new BadRequestException(`Invalid zone files: ${error.message}`);
