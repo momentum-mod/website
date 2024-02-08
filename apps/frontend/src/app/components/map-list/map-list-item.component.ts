@@ -1,16 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {
-  Gamemode,
-  GamemodeName,
-  MMap,
-  TrackType,
-  MapStatusName
-} from '@momentum/constants';
+import { Gamemode, MMap, MapStatusName } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { CarouselModule } from 'primeng/carousel';
 import { LocalUserService } from '../../services';
 import { SharedModule } from '../../shared.module';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { groupMapLeaderboards, GroupedMapLeaderboards } from '../../util';
 
 @Component({
   selector: 'm-map-list-item',
@@ -29,12 +24,7 @@ export class MapListItemComponent implements OnInit {
 
   inFavorites: boolean;
   status = '';
-  modes: Array<{
-    gamemodeName: string;
-    tier?: number;
-    ranked?: boolean;
-    bonuses: number;
-  }> = [];
+  modes: GroupedMapLeaderboards;
 
   constructor(
     private readonly localUserService: LocalUserService,
@@ -48,36 +38,10 @@ export class MapListItemComponent implements OnInit {
     this.inFavorites = this.map.favorites.length > 0;
     this.status = MapStatusName.get(this.map.status as any);
 
-    for (const { gamemode, tier, trackType, ranked } of this.map.leaderboards) {
-      if (this.filterGamemode && gamemode !== this.filterGamemode) continue;
-
-      const gamemodeName = GamemodeName.get(gamemode);
-      let entry = this.modes.find((e) => e.gamemodeName === gamemodeName);
-
-      if (!entry) {
-        entry = { gamemodeName, bonuses: 0 };
-        this.modes.push(entry);
-      }
-
-      if (trackType === TrackType.MAIN) {
-        entry.tier = tier;
-        entry.ranked = ranked;
-      } else if (trackType === TrackType.BONUS) {
-        entry.bonuses++;
-      }
-    }
-
-    // Try to guess at what mode the map is primarily intended for: if no tier,
-    // it has no main track, only bonuses (impossible to have stages but no main
-    // track), so rank stuff with main track higher. Then rank higher if it's
-    // ranked, or has more bonuses.
-    this.modes.sort((a, b) =>
-      (a.tier !== undefined && b.tier === undefined) ||
-      (a.ranked && !b.ranked) ||
-      a.bonuses > b.bonuses
-        ? -1
-        : 0
-    );
+    const grouped = groupMapLeaderboards(this.map.leaderboards);
+    this.modes = this.filterGamemode
+      ? grouped.filter(({ gamemode }) => gamemode === this.filterGamemode)
+      : grouped;
   }
 
   toggleMapInFavorites() {
