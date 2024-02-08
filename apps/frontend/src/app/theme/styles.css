@@ -63,10 +63,37 @@
   .m-card {
     border-radius: 0.25rem;
     padding: 1rem;
-    background-color: rgb(20, 20, 20, 0.75);
-    border: 1px solid #252525;
-    box-shadow: 4px 4px 24px rgb(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    border: 1px solid rgb(255 255 255 / 0.05);
+    box-shadow: 1px 2px 16px rgb(0 0 0 / 0.4);
+    backdrop-filter: none;
+
+    background-color: rgb(var(--gray-600) / 0.8);
+  }
+
+  .m-card--fancy {
+    background-color: rgb(255 255 255 / 0.05);
+    backdrop-filter: blur(48px) brightness(0.9);
+  }
+
+  .m-card-title {
+    @apply font-display;
+    font-weight: 700;
+    opacity: 0.875;
+    line-height: 1;
+    filter: drop-shadow(1px 2px 4px rgb(0 0 0 / 0.3))
+      drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
+  }
+
+  .m-card-inset {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0 0 0 / 0.15);
+    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+    border: 1px solid rgba(255 255 255 / 0.1);
+
+    &:is(fieldset) {
+      padding: 0.25rem 1rem 0.75rem 1rem;
+    }
   }
 
   .m-btn {
