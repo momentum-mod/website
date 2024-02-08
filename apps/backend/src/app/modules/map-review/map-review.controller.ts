@@ -159,4 +159,25 @@ export class MapReviewController {
   ): Promise<MapReviewCommentDto> {
     return this.commentService.postComment(reviewID, userID, body);
   }
+
+  @Patch('/comments/:commentID')
+  @ApiOperation({ summary: 'Update an existing commment' })
+  @ApiOkResponse({ type: MapReviewCommentDto })
+  @ApiNotFoundResponse({ description: 'Comment not found' })
+  @ApiForbiddenResponse({ description: 'Map is not in submission' })
+  @ApiForbiddenResponse({ description: 'User is not comment author' })
+  @ApiBody({ type: UpdateMapReviewCommentDto })
+  @ApiParam({
+    name: 'commentID',
+    type: Number,
+    description: 'Target Comment ID',
+    required: true
+  })
+  updateComment(
+    @Param('commentID', ParseIntSafePipe) commentID: number,
+    @Body() body: UpdateMapReviewCommentDto,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewCommentDto> {
+    return this.commentService.updateComment(commentID, userID, body);
+  }
 }

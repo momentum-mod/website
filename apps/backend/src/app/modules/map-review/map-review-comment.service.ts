@@ -65,6 +65,36 @@ export class MapReviewCommentService {
     );
   }
 
+  async updateComment(
+    commentID: number,
+    userID: number,
+    body: UpdateMapReviewCommentDto
+  ): Promise<MapReviewCommentDto> {
+    if (isEmpty(body)) {
+      throw new BadRequestException('Empty body');
+    }
+
+    const comment = await this.db.mapReviewComment.findUnique({
+      where: { id: commentID },
+      include: { review: { include: { mmap: true } } }
+    });
+
+    if (comment.userID !== userID) throw new ForbiddenException();
+
+    await this.mapsService.getMapAndCheckReadAccess({
+      userID,
+      map: comment.review.mmap,
+      submissionOnly: true
+    });
+
+    return DtoFactory(
+      MapReviewCommentDto,
+      await this.db.mapReviewComment.update({
+        where: { id: commentID },
+        data: { text: body.text }
+      })
+    );
+  }
   private async checkReviewPerms(
     reviewID: number,
     userID: number
