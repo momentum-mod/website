@@ -1,8 +1,127 @@
+<div [mSpinner]="!map">
+  <div class="flex flex-wrap gap-x-8 gap-y-2">
+    @for (groupedLeaderboard of leaderboards; track $index) {
+      <button
+        class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
+        (click)="selectMode($index)"
+        [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
+      >
+        <img class="aspect-square h-11" [src]="'assets/images/gamemodes/' + GamemodeIcon.get(groupedLeaderboard.gamemode)" />
+        <p class="font-display text-5xl font-bold leading-none">
+          {{ groupedLeaderboard.gamemodeName }}
+        </p>
+      </button>
+    }
+  </div>
+
+  <div class="my-4 flex w-full max-w-full flex-wrap gap-4 [&>*]:box-border">
+    <button
+      class="flex flex-initial items-center overflow-hidden rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+      (click)="selectTrack(TrackType.MAIN, 0)"
+      [ngClass]="{
+        selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 0
+      }"
+    >
+      <p
+        class="text-shadow flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-3xl leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+      >
+        Map
+      </p>
+      @if (activeMode.tier) {
+        <p
+          class="text-shadow h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-3xl leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+          [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + activeMode.tier + ') / 0.7)' }"
+        >
+          T{{ activeMode.tier }}
+        </p>
+      }
+    </button>
+
+    @if (activeMode.stages > 0) {
+      <div
+        class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
+      >
+        <p
+          class="text-shadow flex h-full cursor-default items-center px-3 py-2 font-display text-3xl leading-none text-white text-opacity-90 transition-all"
+        >
+          Stage
+        </p>
+        <div class="flex max-w-[60rem] flex-wrap">
+          @for (stage of activeMode.stages | range; track $index) {
+            <button
+              class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-3xl leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+              [ngClass]="{
+                '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
+                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage,
+                '!border-b': activeMode.stages > 20
+              }"
+              (click)="selectTrack(TrackType.STAGE, stage)"
+            >
+              {{ stage + 1 }}
+            </button>
+          }
         </div>
       </div>
+    }
+
+    @for (bonus of activeMode.bonuses; track $index) {
+      <button
+        (click)="selectTrack(TrackType.BONUS, $index)"
+        class="flex flex-initial items-center overflow-hidden rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+        [ngClass]="{
+          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === $index
+        }"
+      >
+        <p
+          class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-3xl leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+        >
+          Bonus {{ bonus.num }}
+        </p>
+        @if (bonus.tier) {
+          <p
+            class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-3xl leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+            [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + bonus.tier + ') / 0.7)' }"
+          >
+            T{{ bonus.tier }}
+          </p>
+        }
+      </button>
+    }
+
+    <p-dropdown
+      class="ml-auto self-center"
+      [(ngModel)]="activeType"
+      [options]="LeaderboardTypeDropdown"
+      optionLabel="label"
+      optionValue="type"
+      (onChange)="load.next()"
+    />
   </div>
+
+  @if (loading) {
+    <m-spinner />
   }
+  @if (!loading && runs.length === 0) {
     <h4 class="text-center">No runs found</h4>
   }
+  @if (!loading && runs.length > 0) {
+    <div class="mt-4 w-full">
+      <div class="flex px-4">
+        <p class="basis-1/10 text-left">Rank</p>
+        <p class="grow basis-auto">User</p>
+        <p class="basis-1/10">Time</p>
+        <p class="basis-3/20 text-right">Achieved</p>
+      </div>
+      @for (run of runs; track $index) {
+        <div class="leaderboard-entry">
+          <p class="text-shadow pointer-events-none basis-1/10 text-left font-display text-2xl">{{ run.rank }}</p>
+          <div class="flex grow basis-auto gap-2">
+            <m-user class="contents" [user]="run.user" avatarClass="h-7" />
+          </div>
+          <p class="text-shadow pointer-events-none basis-1/10 text-lg">{{ run.time | timing }}</p>
+          <p class="text-shadow pointer-events-none basis-3/20 text-right">{{ run.createdAt | timeAgo }}</p>
+        </div>
+      }
     </div>
   }
+</div>

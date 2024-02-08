@@ -1,13 +1,176 @@
+@if (map) {
+  <div class="grid gap-x-4 gap-y-2 [grid-template-columns:3fr_7fr]">
+    <div class="flex">
+      <div class="flex flex-col">
+        <p class="-mb-2 font-display text-4xl font-bold leading-none text-gray-300">surf</p>
+        <p class="m-card-title ml-0 text-7xl">{{ map.name }}</p>
+      </div>
+      <button type="button" class="ml-auto mt-auto flex" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
+        <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
       </button>
     </div>
+    @if (currentSection != null && inSubmission) {
+      <div class="ml-2 flex items-end gap-4">
+        @for (section of sections(); track $index) {
+          <button
+            class="font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
+            [ngClass]="{ '!text-white': currentSection === section }"
+            (click)="currentSection = section"
+          >
+            {{ MapInfoSection[section] }}
+          </button>
+        }
+      </div>
+    } @else {
+      <!-- Silly thing to take up a grid space. Trust me it's simplest -->
+      <span></span>
+    }
+    <div>
+      <m-card-body [mSpinner]="loading" class="m-card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none p-0">
+        <p-galleria
+          [showItemNavigatorsOnHover]="true"
+          [showThumbnails]="map.images.length > 1"
+          [showThumbnailNavigators]="false"
+          [value]="images"
+          [numVisible]="5"
+        >
+          <ng-template pTemplate="item" let-item>
+            <div (click)="displayFullscreenGallery = true">
+              <img [src]="item.full" />
+            </div>
+          </ng-template>
+          <ng-template pTemplate="thumbnail" let-item>
+            <img [src]="item.thumb" />
+          </ng-template>
+        </p-galleria>
+        <div
+          class="flex flex-wrap justify-between gap-4 bg-black bg-opacity-10 px-3.5 py-2 [border-bottom:1px_solid_rgb(0_0_0/0.1)] [border-inline:1px_solid_rgb(255_255_255/0.05)] [border-top:1px_solid_rgb(255_255_255/0.1)]"
+        >
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
+            <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
+            <m-icon class="text-24 leading-4 drop-shadow-md" icon="download-outline"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.downloads | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+            <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.favorites | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.uniqueCompletions | plural: 'Unique Completion' }}">
+            <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="ml-auto flex items-center gap-1" [mTooltip]="dateTooltip">
+            <p class="font-display text-24 drop-shadow-md">{{ map.info?.creationDate | date }}</p>
+            <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
+          </div>
+          <ng-template #dateTooltip>
+            <p class="text-right"><b>First Released - </b>{{ map.info?.creationDate | date }}</p>
+            @if (map.status === MapStatusNew.APPROVED) {
+              <p><b>Added to Momentum - </b>{{ getLatestStatusChangeDate(MapStatusNew.APPROVED) | date }}</p>
+            }
+          </ng-template>
         </div>
+
+        @if (inSubmission) {
+          <div
+            class="flex justify-center gap-2 bg-red-500 bg-opacity-25 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
+          >
+            <p>In Submission -</p>
+            <i>{{ MapStatusName.get(map.status) }}</i
+            ><m-icon
+              class="my-auto text-lg"
+              mTooltip="This map is currently in submission, and hasn't been approved yet. All runs submitted during review are wiped upon approval!"
+              icon="help-circle"
+            />
           </div>
         }
+
+        <div class="flex justify-center gap-2 border-x border-t border-white border-opacity-5 p-3">
+          @if (isSubmitter || isModerator) {
+            <a routerLink="edit" class="m-btn m-btn-green grow">Edit Map</a>
+          }
+          <button class="m-btn m-btn-blue grow" type="button" mTooltip="Play map - I don't actually work yet!!!">
+            <m-icon class="mr-2 pb-0.5" icon="play-circle" />
+            Play
+          </button>
+          <button
+            class="m-btn m-btn-yellow"
+            type="button"
+            (click)="toggleFavorite()"
+            mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
+          >
+            <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+          </button>
+          <button
+            class="m-btn m-btn-orange"
+            type="button"
+            (click)="editNotificationSettings()"
+            mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+          >
+            <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
+          </button>
+          @if (!isSubmitter && !isModerator) {
+            <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+          }
         </div>
+
+        <div class="flex flex-col gap-2 border-x border-white border-opacity-5 px-5 pb-4">
+          <p class="mb-2 text-shadow whitespace-pre-wrap">{{ map.info.description }}</p>
+          <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
+            <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
+               if we ever decide to change layout (see #website Jan 3rd 24) -->
+            <ng-template #creditBlock let-type="type">
+              @if (credits?.get(type).length > 1) {
+                <div>
+                  <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                    {{ MapCreditNames.get(type) }}
+                  </p>
+                  <div class="grid grid-cols-2 gap-1">
+                    @for (credit of credits.get(type); track $index) {
+                      <a routerLink="/profile/{{ credit.user.id }}" class="flex items-center">
+                        <m-avatar class="mr-4 h-8 w-8" [url]="credit.user.avatarURL" />
+                        <div class="flex flex-col justify-center">
+                          <p class="col-start-2 font-medium leading-none text-shadow">{{ credit.user.alias }}</p>
+                          <p class="font-gray-100 col-start-2 text-sm italic text-shadow">{{ credit.description }}</p>
+                        </div>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+            </ng-template>
+            <div class="flex flex-col gap-4">
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.AUTHOR }" />
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.TESTER }" />
             </div>
+            <div class="flex flex-col gap-4">
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.CONTRIBUTOR }" />
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.SPECIAL_THANKS }" />
             </div>
           </div>
+        </div>
+      </m-card-body>
+    </div>
+    <div>
+      <m-card-body class="stack m-card--fancy">
+        <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
+        <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
+      </m-card-body>
     </div>
   </div>
 
+  <!-- Fullscreen gallery - if nested deeper in DOM it renders weirdly for some reason -->
+  <p-galleria [(visible)]="displayFullscreenGallery" [fullScreen]="true" [value]="images" [numVisible]="5">
+    <ng-template pTemplate="item" let-item>
+      <img [src]="item.full" />
+    </ng-template>
+    <ng-template pTemplate="thumbnail" let-item>
+      <img [src]="item.thumb" />
+    </ng-template>
+  </p-galleria>
+} @else {
+  <m-spinner />
 }
