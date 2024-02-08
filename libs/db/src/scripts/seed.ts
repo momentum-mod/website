@@ -6,7 +6,6 @@
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import path = require('node:path');
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import * as Random from '@momentum/random';
@@ -14,18 +13,19 @@ import { ZoneUtil } from '@momentum/formats/zone';
 import {
   ActivityType,
   Ban,
+  CombinedMapStatuses,
   Gamemode,
   MapCreditType,
+  mapReviewAssetPath,
   MapStatusNew,
-  MapSubmissionSuggestion,
   MapSubmissionDate,
   MapSubmissionType,
+  MapZones,
   MAX_BIO_LENGTH,
   ReportCategory,
   ReportType,
   Role,
   TrackType,
-  MapZones,
   AdminActivityType
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -37,6 +37,8 @@ import { JsonValue } from 'type-fest';
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import { nuke } from '../prisma/utils';
 import { prismaWrapper } from './prisma-wrapper';
+import path = require('node:path');
+import { v4 as uuidv4 } from 'uuid';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M
@@ -59,9 +61,8 @@ const defaultVars = {
   commentsPerReview: { min: 0, max: 5 },
   submissionPlaceholders: { min: 0, max: 2 },
   submissionVersions: { min: 1, max: 5 },
-  suggestions: { min: 1, max: 5 },
-  runsPerMap: { min: 1, max: 30 },
-  pastRunsPerMap: { min: 1, max: 100 },
+  runsPerLeaderboard: { min: 1, max: 30 },
+  pastRunsPerLeaderboard: { min: 1, max: 100 },
   userReportChance: { min: 0.05, max: 0.05 }, // Chance that u1 reports u2 (this game is TOXIC)
   userFollowChance: { min: 0.01, max: 0.01 },
   mapReportChance: { min: 0.005, max: 0.005 },
@@ -268,7 +269,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     userIDs.flatMap((id1) =>
       userIDs.map((id2) => async () => {
         if (id1 === id2) return;
-        if (Random.chance(randRange(vars.userReportChance)))
+        if (Random.chance(randRange(vars.userFollowChance)))
           await prisma.follow.create({
             data: {
               followeeID: id1,
@@ -278,7 +279,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             }
           });
 
-        if (Random.chance(randRange(vars.userFollowChance)))
+        if (Random.chance(randRange(vars.userReportChance)))
           await prisma.report.create({
             data: {
               type: ReportType.USER_PROFILE_REPORT,
@@ -355,7 +356,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         });
 
         currDate = new Date(
-          new Date(currDate).getTime() + Random.int(1e4)
+          new Date(currDate).getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
         ).toDateString();
         currStatus = Random.weighted(
           weights.submissionGraphWeights[currStatus]
@@ -625,7 +626,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       });
     }
 
-
     //#endregion
     //#region Runs
 
@@ -639,8 +639,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
     } of await prisma.leaderboard.findMany({
       where: { mapID: map.id }
     })) {
-      const numRuns = randRange(vars.runsPerMap);
-      const numPastRuns = Math.max(randRange(vars.pastRunsPerMap), numRuns);
+      const numRuns = randRange(vars.runsPerLeaderboard);
+      const numPastRuns = Math.max(
+        randRange(vars.pastRunsPerLeaderboard),
+        numRuns
+      );
 
       const possibleUserIDs = Random.shuffle(userIDs);
       const usedUserIDs = [];
