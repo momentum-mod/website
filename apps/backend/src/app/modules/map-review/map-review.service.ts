@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException
@@ -52,6 +53,7 @@ import { AdminActivityService } from '../admin/admin-activity.service';
 export class MapReviewService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    @Inject(forwardRef(() => MapsService))
     private readonly mapsService: MapsService,
     private readonly fileStoreService: FileStoreService,
     private readonly adminActivityService: AdminActivityService
@@ -411,6 +413,7 @@ export class MapReviewService {
       })
     );
   }
+
   async deleteReview(
     reviewID: number,
     userID: number,
@@ -450,5 +453,18 @@ export class MapReviewService {
         review.imageIDs.map((id) => mapReviewAssetPath(id))
       )
     );
+  }
+
+  /** Remove every stored file for every map review */
+  async deleteAllReviewAssetsForMap(mapID: number): Promise<void> {
+    const imagePaths = await this.db.mapReview
+      .findMany({ where: { mapID }, select: { imageIDs: true } })
+      .then((reviews) =>
+        reviews.flatMap(({ imageIDs }) =>
+          imageIDs.map((imageID) => mapReviewAssetPath(imageID))
+        )
+      );
+
+    await this.fileStoreService.deleteFiles(imagePaths);
   }
 }
