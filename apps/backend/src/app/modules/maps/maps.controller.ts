@@ -146,19 +146,17 @@ export class MapsController {
 
   @Patch('/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Updates a single map's status flag" })
+  @ApiOperation({ summary: 'Updates a submitted map' })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'Target Map ID',
     required: true
   })
-  @ApiNoContentResponse({ description: 'Map status updated successfully' })
+  @ApiNoContentResponse({ description: 'Map updated successfully' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiBadRequestResponse({
-    description: "Map's status does not allow updating"
-  })
+  @ApiForbiddenResponse({ description: 'The map is not accepting revisions' })
   updateMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
