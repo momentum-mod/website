@@ -275,6 +275,20 @@ export class AdminController {
   ): Promise<MapReviewDto> {
     return this.mapReviewService.updateReviewAsReviewer(reviewID, userID, body);
   }
+
+  @Delete('/map-review/:reviewID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a map review' })
+  @ApiNoContentResponse({ description: 'Review deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  deleteMapReview(
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<void> {
+    return this.mapReviewService.deleteReview(reviewID, userID, true);
+  }
+
   @Get('/activities')
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @ApiOperation({

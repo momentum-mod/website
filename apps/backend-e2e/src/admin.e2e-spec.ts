@@ -2510,6 +2510,113 @@ describe('Admin', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/map-review/1', 'patch'));
     });
+
+    describe('DELETE', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+      const assetPath = mapReviewAssetPath('1');
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'auuaghauguhhh!!',
+            imageIDs: ['1'],
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+
+        await fileStore.add(assetPath, Buffer.alloc(1024));
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow an admin to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should delete any stored assets', async () => {
+        expect(await fileStore.exists(assetPath)).toBe(true);
+
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(await fileStore.exists(assetPath)).toBe(false);
+      });
+
+      it('should allow a mod to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: modToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should not allow a reviewer to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: reviewerToken
+        });
+      });
+
+      it('should not allow review author to delete a map review (via this endpoint)', () =>
+        req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.del({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'del'));
+    });
+  });
+
   describe('admin/reports', () => {
     describe('GET', () => {
       let adminToken, u1, u1Token, r1, _r2;
