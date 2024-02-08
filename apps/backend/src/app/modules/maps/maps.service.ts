@@ -1310,6 +1310,13 @@ export class MapsService {
     map: MapWithSubmission,
     dto: UpdateMapAdminDto
   ) {
+    // Check we don't have any unresolved reviews. Even admins shouldn't be able
+    // to bypass this, if needed they can just go in and resolve those reviews!
+    const reviews = await tx.mapReview.findMany({ where: { mapID: map.id } });
+    if (reviews.some((review) => review.resolved === false)) {
+      throw new BadRequestException('Map has unresolved reviews!');
+    }
+
     // Create placeholder users for all the users the submitter requested
     // Can't use createMany due to nesting (thanks Prisma!!)
     for (const placeholder of map.submission.placeholders ?? []) {
