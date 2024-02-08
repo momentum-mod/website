@@ -55,6 +55,8 @@ const defaultVars = {
   bonusesPerMap: { min: 0, max: 3 },
   testingRequestsPerMap: { min: 0, max: 10 },
   reviewsPerMap: { min: 0, max: 5 },
+  imagesPerReview: { min: 1, max: 20 }, // 50% chance for no images
+  commentsPerReview: { min: 0, max: 5 },
   submissionPlaceholders: { min: 0, max: 2 },
   submissionVersions: { min: 1, max: 5 },
   suggestions: { min: 1, max: 5 },
@@ -338,15 +340,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
         512
       );
 
-    const randomSuggestion = (): MapSubmissionSuggestion => ({
-      trackType: TrackType.MAIN, // Not bothering with bonuses
-      trackNum: 0,
-      gamemode: Random.enumValue(Gamemode),
-      ranked: Random.chance(),
-      tier: Random.int(10, 1),
-      comment: faker.lorem.sentence()
-    });
-
     const submissionsDates = () => {
       const dates: MapSubmissionDate[] = [];
 
@@ -372,11 +365,146 @@ prismaWrapper(async (prisma: PrismaClient) => {
       return dates;
     };
 
+    const versions = from(randRange(vars.submissionVersions), (_, i) => ({
+      // TODO: We'd have to upload the same BSP 50 or so times
+      // for submissions here, since submissions use the UUID
+      // of this entry. If we really want to test BSP downloads
+      // for map submission ingame, copy 'maps/dev_flatgrid' to
+      // `submissions/${uuid of each submission version}.bsp`
+      versionNum: i + 1,
+      hash: mapHash,
+      hasVmf: false, // Could add a VMF if we really want but leaving for now
+      zones: randomZones() as unknown as JsonValue, // TODO: #855,
+      changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
+    }));
+
+    const status = Random.weighted(weights.mapStatusWeights);
+    const inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+
+    //#region Leaderboards, suggestions, etc...
+
+    const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
+    const numModes = randRange(vars.modesPerLeaderboard);
+    const modesSet = new Set<Gamemode>();
+    while (modesSet.size < numModes) {
+      modesSet.add(Random.enumValue(Gamemode));
+    }
+    const modes = [...modesSet.values()];
+
+    // Keep main track and stage ranked-ness synced up
+    const rankedMainTracks = new Map(modes.map((m) => [m, Random.chance()]));
+
+    const leaderboards = modes.flatMap((m) =>
+      [
+        {
+          trackType: TrackType.MAIN,
+          trackNum: 0
+        },
+        ...from(zones.tracks.stages.length, (_, i) => ({
+          trackType: TrackType.STAGE,
+          trackNum: i
+        })),
+        ...from(zones.tracks.bonuses.length, (_, i) => ({
+          trackType: TrackType.BONUS,
+          trackNum: i
+        }))
+      ].map(({ trackType, trackNum }) => {
+        const leaderboard = {
+          trackType,
+          trackNum,
+          gamemode: m,
+          style: 0,
+          linear:
+            trackType === TrackType.MAIN
+              ? ZoneUtil.isLinearMainTrack(zones)
+              : undefined,
+          tier:
+            trackType !== TrackType.STAGE && !inSubmission
+              ? Random.int(10, 1)
+              : undefined,
+          ranked:
+            trackType === TrackType.BONUS
+              ? Random.chance()
+              : rankedMainTracks.get(m)
+        };
+
+        if (trackType === TrackType.MAIN) {
+          leaderboard.linear = ZoneUtil.isLinearMainTrack(zones);
+        }
+
+        if (trackType !== TrackType.STAGE && !inSubmission) {
+          leaderboard.tier = Random.int(10, 1);
+        }
+
+        if (!inSubmission) {
+          leaderboard.ranked =
+            trackType === TrackType.BONUS
+              ? Random.chance()
+              : rankedMainTracks.get(m);
+        }
+
+        return leaderboard;
+      })
+    );
+
+    const submissionSuggestions = () =>
+      leaderboards
+        .filter(({ trackType }) => trackType !== TrackType.STAGE)
+        .map(({ gamemode, trackType, trackNum }) => ({
+          gamemode,
+          trackType,
+          trackNum,
+          tier: Random.int(10, 1),
+          comment: faker.lorem.sentence(),
+          ranked: Random.chance()
+        }));
+
+    const review = async () => ({
+      reviewerID: Random.element(userIDs),
+      mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
+      imageIDs: Random.chance()
+        ? await Promise.all(
+            from(randRange(vars.imagesPerReview), async () => {
+              const id = `${uuidv4()}.jpeg`;
+              await s3.send(
+                new PutObjectCommand({
+                  Bucket: process.env['STORAGE_BUCKET_NAME'],
+                  Key: mapReviewAssetPath(id),
+                  Body: Random.element(imageBuffers).medium
+                })
+              );
+              return id;
+            })
+          )
+        : undefined,
+      suggestions: leaderboards
+        .filter(({ trackType }) => trackType !== TrackType.STAGE)
+        .filter(() => Random.chance())
+        .map(({ gamemode, trackType, trackNum }) => ({
+          gamemode,
+          trackType,
+          trackNum,
+          tier: Random.int(10, 1),
+          gameplayRating: Random.int(10, 1)
+        })),
+      editHistory: Random.chance()
+        ? from(Random.int(5), () => ({
+            mainText: faker.lorem.paragraph(),
+            date: Random.pastDateInYears()
+          }))
+        : null,
+      ...(Random.chance()
+        ? { resolved: true, resolverID: Random.element(userIDs) }
+        : {})
+    });
+
+    //#endregion
+
     const [map] = await parallel(
       prisma.mMap.create({
         data: {
           name,
-          status: Random.weighted(weights.mapStatusWeights),
+          status,
           fileName: 'flat_devgrid',
           submitterID: Random.element(potentialMappers).id,
           ...Random.createdUpdatedDates(),
@@ -399,16 +527,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
               timePlayed: Random.int(10000)
             }
           },
-
           reviews: {
             createMany: {
-              data: from(randRange(vars.reviewsPerMap), () => ({
-                reviewerID: Random.element(userIDs),
-                mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
-                ...(Random.chance()
-                  ? { resolved: true, resolverID: Random.element(userIDs) }
-                  : {})
-              }))
+              data: await Promise.all(
+                from(randRange(vars.reviewsPerMap), review)
+              )
             }
           },
           submission: {
@@ -426,30 +549,16 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 }
               ]),
               dates: submissionsDates(),
-              versions: {
-                createMany: {
-                  data: from(randRange(vars.submissionVersions), (_, i) => ({
-                    // TODO: We'd have to upload the same BSP 50 or so times
-                    // for submissions here, since submissions use the UUID
-                    // of this entry. If we really want to test BSP downloads
-                    // for map submission ingame, copy 'maps/dev_flatgrid' to
-                    // `submissions/${uuid of each submission version}.bsp`
-                    versionNum: i + 1,
-                    hash: mapHash,
-                    hasVmf: false, // Could add a VMF if we really want but leaving for now
-                    zones: randomZones() as unknown as JsonValue, // TODO: #855,
-                    changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
-                  }))
-                }
-              },
-              suggestions: from(
-                randRange(vars.suggestions),
-                () => randomSuggestion() as unknown as JsonValue
-              )
+              versions: { createMany: { data: versions } },
+              suggestions: submissionSuggestions()
             }
-          }
+          },
+          leaderboards: { createMany: { data: leaderboards } }
         },
-        include: { submission: { include: { versions: true } } }
+        include: {
+          submission: { include: { versions: true } },
+          reviews: { include: { comments: true } }
+        }
       })
     );
 
@@ -468,6 +577,16 @@ prismaWrapper(async (prisma: PrismaClient) => {
           hasVmf: false
         }
       });
+
+    for (const review of map.reviews) {
+      await prisma.mapReviewComment.createMany({
+        data: from(randRange(vars.commentsPerReview), () => ({
+          userID: Random.element(users).id,
+          text: faker.lorem.sentence(),
+          reviewID: review.id
+        }))
+      });
+    }
 
     const { roles } = await prisma.user.findUnique({
       where: { id: map.submitterID },
@@ -506,54 +625,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       });
     }
 
-    //#region Leaderboards
-
-    console.log('Creating leaderboards');
-    const zones = lastVersion.zones as unknown as MapZones; // TODO: #855
-
-    const numModes = randRange(vars.modesPerLeaderboard);
-    const modesSet = new Set<Gamemode>();
-    while (modesSet.size < numModes) {
-      modesSet.add(Random.enumValue(Gamemode));
-    }
-    const modes = [...modesSet.values()];
-
-    // Keep main track and stage ranked-ness synced up
-    const rankedMainTracks = new Map(modes.map((m) => [m, Random.chance()]));
-
-    await prisma.leaderboard.createMany({
-      data: modes.flatMap((m) =>
-        [
-          {
-            trackType: TrackType.MAIN,
-            trackNum: 0
-          },
-          ...from(zones.tracks.stages.length, (_, i) => ({
-            trackType: TrackType.STAGE,
-            trackNum: i
-          })),
-          ...from(zones.tracks.bonuses.length, (_, i) => ({
-            trackType: TrackType.BONUS,
-            trackNum: i
-          }))
-        ].map(({ trackType, trackNum }) => ({
-          trackType,
-          trackNum,
-          mapID: map.id,
-          gamemode: m,
-          style: 0,
-          linear:
-            trackType === TrackType.MAIN
-              ? ZoneUtil.isLinearMainTrack(zones)
-              : undefined,
-          tier: trackType === TrackType.STAGE ? undefined : Random.int(10, 1),
-          ranked:
-            trackType === TrackType.BONUS
-              ? Random.chance()
-              : rankedMainTracks.get(m)
-        }))
-      )
-    });
 
     //#endregion
     //#region Runs
