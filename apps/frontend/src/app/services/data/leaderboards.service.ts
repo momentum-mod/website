@@ -30,24 +30,4 @@ export class LeaderboardsService {
       query
     });
   }
-
-  getFriendRuns(
-    mapID: number,
-    query: Omit<MapLeaderboardGetQuery, 'filter'>
-  ): Observable<PagedResponse<LeaderboardRun>> {
-    return this.http.get<PagedResponse<LeaderboardRun>>(
-      `maps/${mapID}/leaderboards`,
-      { query: { ...query, filter: 'friends' } }
-    );
-  }
-
-  getAroundFriends(
-    mapID: number,
-    query: Omit<MapLeaderboardGetQuery, 'filter'>
-  ): Observable<PagedResponse<LeaderboardRun>> {
-    return this.http.get<PagedResponse<LeaderboardRun>>(
-      `maps/${mapID}/leaderboards`,
-      { query: { ...query, filter: 'around' } }
-    );
-  }
 }
