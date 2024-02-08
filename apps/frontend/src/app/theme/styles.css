@@ -132,27 +132,40 @@
     @apply bg-orange-400 hover:bg-orange-500;
   }
 
-  .m-textinput {
-    padding: 0.5rem 1rem;
-    /*line-height: 1.25rem;*/
-    border-radius: 0.25rem;
 
     @apply border border-white border-opacity-[0.025];
+
+  .m-inputlike,
+  .m-textinput,
+  .m-radio,
+  .m-checkbox,
+  m-file-upload,
+  m-multi-file-upload {
+    border-radius: 0.25rem;
 
     transition-duration: 0.1s;
     transition-property: border, background-color, color, box-shadow;
     transition-timing-function: ease-out;
 
-    @apply bg-gray-700 bg-opacity-50;
+    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
 
-    &:hover {
-      @apply bg-opacity-100 border-opacity-[0.05];
+    /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+    @apply border border-white border-opacity-10 bg-black bg-opacity-25;
+
+    &:not(:disabled):hover,
+    &.dragging:not(:disabled) {
+      @apply bg-opacity-30 border-opacity-[0.15];
     }
 
-    &:focus {
+    &:not(:disabled):focus {
+      @apply bg-opacity-[0.35] border-opacity-[0.15];
       outline: none !important;
-      @apply bg-opacity-100 border-opacity-[0.1];
     }
+  }
+
+  .m-textinput {
+    padding: 0.5rem 1rem;
   }
 
   .m-textinput-validated {
@@ -188,19 +201,6 @@
     position: relative;
     float: left;
 
-    @apply border border-white border-opacity-[0.05];
-    @apply bg-gray-800;
-
-    &:hover {
-      @apply bg-gray-700;
-      @apply border-opacity-[0.05];
-    }
-
-    &:focus {
-      outline: none !important;
-      @apply border-opacity-[0.1];
-    }
-
     &::before {
       position: absolute;
       content: ' ';
@@ -231,19 +231,6 @@
     border-radius: 50%;
     position: relative;
     float: left;
-
-    @apply border border-gray-300 border-opacity-[0.15];
-    @apply bg-gray-800;
-
-    &:hover {
-      @apply bg-gray-700;
-      @apply border-opacity-[0.2];
-    }
-
-    &:focus {
-      outline: none !important;
-      @apply border-opacity-[0.225];
-    }
 
     &::before {
       position: absolute;
@@ -302,6 +289,43 @@
 
   .m-spinner-container--active > *:not(m-spinner) {
     opacity: 0.8;
+  }
+
+  m-file-upload,
+  m-multi-file-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    text-align: center;
+
+    border: 2px dashed rgb(255 255 255 / 0.15);
+
+    transition-property: color, border-color;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+
+    &:not(:disabled) {
+      cursor: pointer;
+
+      &:hover {
+        border-color: rgb(255 255 255 / 0.15);
+      }
+    }
+
+    &.dragging:not(:disabled) {
+      border-color: rgb(255 255 255 / 0.5);
+    }
+
+    &:disabled {
+      filter: contrast(0.5) brightness(0.5);
+    }
+
+    .ng-invalid.ng-dirty > &.hasSelection {
+      @apply border-red-500;
+    }
   }
 }
 
