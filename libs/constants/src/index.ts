@@ -25,6 +25,7 @@ export * from './enums/admin-activity-type.enum';
 export * from './enums/image-type.enum';
 export * from './maps/gamemode-name.map';
 export * from './maps/gamemode-prefix.map';
+export * from './maps/gamemode-icon.map';
 export * from './maps/map-credit-name.map';
 export * from './maps/tickrates.map';
 export * from './maps/map-status-name.map';
