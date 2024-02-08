@@ -32,10 +32,12 @@ import {
   AdminActivityDto,
   AdminGetAdminActivitiesQueryDto,
   AdminGetReportsQueryDto,
+  AdminUpdateMapReviewDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
   CreateUserDto,
   MapDto,
+  MapReviewDto,
   MapsGetAllAdminQueryDto,
   MapsGetAllSubmissionAdminQueryDto,
   MergeUserDto,
@@ -48,6 +50,7 @@ import {
 import { ParseIntSafePipe } from '../../pipes';
 import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -59,6 +62,7 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly mapsService: MapsService,
+    private readonly mapReviewService: MapReviewService,
     private readonly usersService: UsersService,
     private readonly adminActivityService: AdminActivityService
   ) {}
@@ -257,6 +261,20 @@ export class AdminController {
     return this.adminService.updateReport(userID, reportID, body);
   }
 
+  @Patch('/map-review/:reviewID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR, RolesEnum.REVIEWER)
+  @ApiOperation({ summary: 'Resolve or unresolve a map review' })
+  @ApiOkResponse({ type: MapReviewDto, description: 'The updated review' })
+  @ApiNotFoundResponse({ description: 'Map not found' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiBody({ type: AdminUpdateMapReviewDto, required: true })
+  updateMapReview(
+    @Body() body: AdminUpdateMapReviewDto,
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewDto> {
+    return this.mapReviewService.updateReviewAsReviewer(reviewID, userID, body);
+  }
   @Get('/activities')
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @ApiOperation({

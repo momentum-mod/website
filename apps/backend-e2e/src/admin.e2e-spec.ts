@@ -3,6 +3,7 @@
 import {
   AdminActivityDto,
   MapDto,
+  MapReviewDto,
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
@@ -15,6 +16,7 @@ import {
   Ban,
   Gamemode,
   MapCreditType,
+  mapReviewAssetPath,
   MapStatus,
   MapStatusNew,
   MapSubmissionType,
@@ -2405,6 +2407,109 @@ describe('Admin', () => {
     });
   });
 
+  describe('admin/map-review/{reviewID}', () => {
+    describe('PATCH', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'im sick today so cba to think of silly messages',
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow admin to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: adminToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow mod to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: modToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow reviewer to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should not allow review author to access', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          body: { resolved: true },
+          token: u1Token
+        }));
+
+      it('should 400 for bad update data', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 400,
+          body: { mainText: "admins cant rewrite people's reviews" },
+          token: adminToken
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.patch({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          body: { resolved: true },
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'patch'));
+    });
   describe('admin/reports', () => {
     describe('GET', () => {
       let adminToken, u1, u1Token, r1, _r2;

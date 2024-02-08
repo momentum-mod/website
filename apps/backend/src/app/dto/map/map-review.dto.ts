@@ -13,6 +13,7 @@ import { MapReviewCommentDto } from './map-review-comment.dto';
 import { MapReviewSuggestionDto } from './map-review-suggestions.dto';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
+  AdminUpdateMapReview,
   CreateMapReview,
   CreateMapReviewWithFiles,
   MapReview,
@@ -135,3 +136,7 @@ export class UpdateMapReviewDto
   @IsOptional()
   readonly resolved?: boolean | null;
 }
+
+export class AdminUpdateMapReviewDto
+  extends PickType(UpdateMapReviewDto, ['resolved'] as const)
+  implements AdminUpdateMapReview {}
