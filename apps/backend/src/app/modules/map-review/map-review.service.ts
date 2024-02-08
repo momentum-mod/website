@@ -263,6 +263,103 @@ export class MapReviewService {
 
     return DtoFactory(MapReviewDto, dbResponse);
   }
+
+  /**
+   * Update a review submitted by the logged-in-user
+   *
+   * This endpoint doesn't support updating images yet. It's very that someone
+   * will do this, and quite a bit of hassle on both front and backend.
+   */
+  async updateReview(
+    reviewID: number,
+    userID: number,
+    body: UpdateMapReviewDto
+  ): Promise<MapReviewDto> {
+    if (isEmpty(body)) {
+      throw new BadRequestException('Empty body');
+    }
+
+    const review = await this.db.mapReview.findUnique({
+      where: { id: reviewID },
+      include: { reviewer: true }
+    });
+
+    if (!review) throw new NotFoundException('Review not found');
+
+    // Check both that user can view the map, and map is in submission
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID: review.mapID,
+      userID,
+      submissionOnly: true,
+      include: {
+        submission: { select: { currentVersion: { select: { zones: true } } } }
+      }
+    });
+
+    if (body.suggestions) {
+      try {
+        validateSuggestions(
+          body.suggestions,
+          (
+            map.submission as MapSubmission & {
+              currentVersion: MapSubmissionVersion;
+            }
+          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          SuggestionType.REVIEW
+        );
+      } catch (error) {
+        throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      }
+    }
+
+    // Need to use admin endpoint and updateAsReviewer method for admin stuff,
+    // cleaner code that way.
+    if (review.reviewerID !== userID)
+      throw new ForbiddenException('Not the review author');
+
+    const isReviewer = Bitflags.has(
+      review.reviewer.roles,
+      CombinedRoles.REVIEWER_AND_ABOVE
+    );
+
+    if (
+      !isReviewer &&
+      review.resolved === null &&
+      body.resolved !== undefined
+    ) {
+      // Don't allow making a review that needs resolving. But allow cases
+      // with a review made by a normal user, that an admin sets to
+      // needs resolving (i.e. false) - submitter of the review can
+      // resolve/unresolved from then on.
+      throw new ForbiddenException();
+    }
+
+    return DtoFactory(
+      MapReviewDto,
+      await this.db.mapReview.update({
+        where: { id: reviewID },
+        include: { resolver: true },
+        data: {
+          mainText: body.mainText,
+          suggestions: body.suggestions,
+          resolved: body.resolved,
+          resolverID: body.resolved ? userID : null,
+          editHistory: [
+            ...((review.editHistory ?? []) as unknown as MapReviewEdit[]), // TODO: #855
+            {
+              // We only want to log actual changes, so anything here being
+              // undefined is fine.
+              mainText: body.mainText,
+              suggestions: body.suggestions,
+              resolved: body.resolved,
+              editorID: userID,
+              date: new Date()
+            }
+          ]
+        }
+      })
+    );
+  }
   async deleteReview(
     reviewID: number,
     userID: number,

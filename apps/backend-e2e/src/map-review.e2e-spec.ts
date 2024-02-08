@@ -134,6 +134,150 @@ describe('Map Reviews', () => {
         req.unauthorizedTest('map-review/1', 'get'));
     });
 
+    describe('PATCH', () => {
+      let u1, u1Token, u2, u2Token, map, review1, review2;
+
+      beforeAll(async () => {
+        [[u1, u1Token], [u2, u2Token]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
+        ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review1 = await prisma.mapReview.create({
+          data: {
+            mainText: 'delete this stage or i will have you killed',
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+
+        review2 = await prisma.mapReview.create({
+          data: {
+            mainText: 'what is this!!!!',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u2.id } },
+            resolved: false
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should successfully update a review', async () => {
+        const res = await req.patch({
+          url: `map-review/${review1.id}`,
+          status: 200,
+          body: {
+            mainText: 'actually i like this stage',
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 1,
+                gameplayRating: 10
+              }
+            ]
+          },
+          validate: MapReviewDto,
+          token: u1Token
+        });
+
+        expect(res.body.mainText).toBe('actually i like this stage');
+      });
+
+      it('should 400 for bad update data', () =>
+        req.patch({
+          url: `map-review/${review1.id}`,
+          status: 400,
+          body: {
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 1,
+                gameplayRating: 10
+              }
+            ]
+          },
+          token: u1Token
+        }));
+
+      it('should 403 if not the reviewer', async () =>
+        req.patch({
+          url: `map-review/${review1.id}`,
+          status: 403,
+          body: { mainText: 'i dont like this review' },
+          token: u2Token
+        }));
+
+      it('should allow official reviewer to resolve their review', async () =>
+        req.patch({
+          url: `map-review/${review2.id}`,
+          status: 200,
+          body: { resolved: true },
+          token: u2Token
+        }));
+
+      it('should not allow unofficial reviewer to resolve their review', async () =>
+        req.patch({
+          url: `map-review/${review1.id}`,
+          status: 200,
+          body: { resolved: true },
+          token: u1Token
+        }));
+
+      it('should return 403 if map not in submission', async () => {
+        const approvedMap = await db.createMap({
+          status: MapStatusNew.APPROVED,
+          submitter: { connect: { id: u2.id } }
+        });
+
+        const rev = await prisma.mapReview.create({
+          data: {
+            mainText: 'what is this!!!!',
+            mmap: { connect: { id: approvedMap.id } },
+            reviewer: { connect: { id: u2.id } },
+            resolved: false
+          }
+        });
+
+        await req.patch({
+          url: `map-review/${rev.id}`,
+          status: 403,
+          body: { mainText: 'how' },
+          token: u2Token
+        });
+      });
+
+      it('should return 404 for missing review', () =>
+        req.patch({
+          url: `map-review/${NULL_ID}`,
+          status: 404,
+          body: { mainText: 'what' },
+          token: u1Token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('map-review/1', 'patch'));
+    });
     describe('DELETE', () => {
       let user, token, u2Token, modToken, map, review;
       const assetPath = mapReviewAssetPath('1');

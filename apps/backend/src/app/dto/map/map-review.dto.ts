@@ -17,6 +17,7 @@ import {
   CreateMapReviewWithFiles,
   MapReview,
   mapReviewAssetPath,
+  UpdateMapReview
 } from '@momentum/constants';
 import { Config } from '../../config';
 
@@ -123,4 +124,14 @@ export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {
     description: 'The JSON part of the body'
   })
   readonly data: CreateMapReviewDto;
+}
+
+export class UpdateMapReviewDto
+  extends PartialType(CreateMapReviewDto)
+  implements UpdateMapReview
+{
+  @ApiProperty({ description: 'Update the resolved state' })
+  @IsBoolean()
+  @IsOptional()
+  readonly resolved?: boolean | null;
 }

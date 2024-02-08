@@ -69,6 +69,30 @@ export class MapReviewController {
   ): Promise<MapReviewDto> {
     return this.reviewService.getReview(reviewID, userID, query);
   }
+
+  @Patch('/:reviewID')
+  @ApiOperation({
+    summary: "Update a review for a map. Doesn't yet support updating images."
+  })
+  @ApiOkResponse({ type: MapReviewDto, description: 'The updated review' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiForbiddenResponse({
+    description: 'User is not the submitter of the review'
+  })
+  @ApiBody({ type: UpdateMapReviewDto, required: true })
+  @ApiParam({
+    name: 'reviewID',
+    type: Number,
+    description: 'Target Review ID',
+    required: true
+  })
+  updateReview(
+    @Body() body: UpdateMapReviewDto,
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewDto> {
+    return this.reviewService.updateReview(reviewID, userID, body);
+  }
   
   @Delete('/:reviewID')
   @HttpCode(HttpStatus.NO_CONTENT)
