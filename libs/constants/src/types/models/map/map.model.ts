@@ -14,6 +14,7 @@ import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
 import { MapSubmissionApproval } from './map-submission-approval.model';
+import { MapSubmission } from './map-submission.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
@@ -27,6 +28,7 @@ export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'zones'> {
   // Omit then redefine zones so can be nullable - even though it's a regular
   // field, we shouldn't SELECT for it unless requested with an expand param.
   zones?: MapZones;
+  submission?: MapSubmission;
   leaderboards?: Leaderboard[];
   submitter?: User;
   images?: MapImage[];
