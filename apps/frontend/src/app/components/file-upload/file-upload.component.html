@@ -1,48 +1,38 @@
-<div
-  [ngClass]="{
-    'dragging !border-blue-400': dragOverCounter > 0,
-    'disabled saturate-50': disabled,
-    '[&.ng-valid.ng-dirty]:border-green-500': hasSelection()
-  }"
-  class="group flex flex-grow flex-col justify-around rounded border-2 border-dashed border-pale-700 bg-pale-900 p-3 text-center shadow-md transition-colors [&:not(.disabled)]:cursor-pointer [&:not(.disabled)]:hover:border-pale-400 [&:not(.disabled)]:hover:bg-pale-800 [.ng-invalid.ng-dirty>&]:border-red-500 [.ng-valid.ng-dirty>&]:border-green-500"
->
-  <div>
-    <!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
-    <input #fileInput (change)="onFilesSelected($event)" [accept]="accept" [multiple]="multiple" hidden type="file" />
-    @if (showSelected && hasSelection()) {
-      <div class="rounded border-black border-opacity-50 bg-gray-950 px-2 py-2 shadow-inner">
-        @for (file of getIterableFiles(); track file) {
-          <div class="flex pl-2 [&:not(:last-child)]:mb-2">
-            <p class="align-middle text-lg">{{ file.name }}</p>
-            <p class="my-auto ml-auto mr-3 pt-0.5 italic opacity-75">
-              {{ size(file) }}
-            </p>
-            <m-icon
-              (click)="removeFile(file, $event)"
-              class="my-auto mr-0.5 h-6 w-6 rounded bg-blue-700 transition-colors hover:bg-blue-600"
-              icon="close"
-            />
-          </div>
-        }
+<!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
+<input #fileInput (change)="onFilesSelected($event)" [accept]="acceptExtensions" [multiple]="multiple" hidden type="file" />
+@if (showSelected && hasSelection()) {
+  <div class="flex w-full flex-col rounded border-white border-opacity-5 bg-black bg-opacity-50 p-2 shadow-inner">
+    @for (file of getIterableFiles(); track file) {
+      <div class="flex items-center gap-2 [&:not(:last-child)]:mb-2">
+        <p class="shrink text-sm">{{ file.name }}</p>
+        <p class="ml-auto basis-auto pt-0.5 text-sm italic opacity-75">
+          {{ size(file) }}
+        </p>
+        <m-icon
+          (click)="removeFile(file, $event)"
+          class="flex h-6 w-6 basis-auto rounded-sm bg-blue-500 bg-opacity-30 transition-colors hover:bg-opacity-50"
+          icon="close"
+        />
       </div>
     }
-    @if (showSelected || multiple || !value) {
-      <m-icon
-        [icon]="icon"
-        [ngClass]="{ 'mt-3': showSelected && hasSelection() }"
-        class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in group-hover:text-pale-50 group-[.dragging]:text-pale-100"
-      ></m-icon>
-      @if (!disabled) {
-        <p class="mt-1 pb-1">
-          @if (!disabled) {
-            <span class="font-medium">Select {{ multiple ? '' : 'a ' }}{{ typeName }} file</span>
-          }
-          {{ multiple ? 's' : '' }} or drag here
-        </p>
-      }
-      @if (disabledBecauseReachedMax) {
-        <p class="mt-1 pb-1">File limit reached</p>
-      }
-    }
   </div>
-</div>
+}
+@if (showSelected || multiple || !value) {
+  <m-icon
+    [icon]="icon"
+    class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in [.dragging_&]:text-blue-100 [:hover_&]:text-blue-100"
+  ></m-icon>
+  @if (!disabled) {
+    <p class="text-balance px-2 font-medium">
+      @if (enableClipboard) {
+        Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }}, drag here, or
+        <a class="m-link" (click)="addFromClipboard($event)">add from clipboard</a>
+      } @else {
+        Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }} or drag here
+      }
+    </p>
+  }
+  @if (disabledBecauseReachedMax) {
+    <p>File limit reached</p>
+  }
+}

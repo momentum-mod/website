@@ -6,7 +6,7 @@ import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 
 /**
  * A form control for multiple file selection/uploading with support for drag
- * and drop.
+ * and drop and fetching from clipboard
  */
 @Component({
   selector: 'm-multi-file-upload',
@@ -54,6 +54,12 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
         ? (item as DataTransferItem).getAsFile()
         : (item as File);
 
+      if (
+        this.acceptMimeTypes?.length > 0 &&
+        !this.acceptMimeTypes.includes(file.type)
+      )
+        continue;
+
       this.value.push(file);
 
       if (this.value.length === this.max) {
@@ -94,6 +100,35 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
     this.onTouched();
 
     (event.target as HTMLInputElement).value = '';
+  }
+
+  async addFromClipboard(event: Event) {
+    event.stopPropagation();
+
+    if (!this.enableClipboard) return;
+
+    this.onTouched();
+
+    const items = await navigator.clipboard.read();
+
+    let added = false;
+    for (const clipboardItem of items) {
+      const matchingType = clipboardItem.types.find(
+        (type) => this.acceptMimeTypes?.includes(type)
+      );
+
+      if (!matchingType) continue;
+
+      const blob = await clipboardItem.getType(matchingType);
+      this.value.push(
+        new File([blob], `ClipboardItem.${matchingType.split('/').at(-1)}`)
+      );
+      added = true;
+    }
+
+    if (added) {
+      this.onChange(this.value);
+    }
   }
 
   writeValue(value: File[]): void {
