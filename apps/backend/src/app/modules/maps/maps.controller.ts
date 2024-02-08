@@ -250,6 +250,9 @@ export class MapsController {
     // https://github.com/dmitriy-nz/nestjs-form-data/tree/master/src/decorators/validation
     // if we wanted, but given the likelihood of us moving off class-validator,
     // it doesn't seem worth the effort.
+    //   spooky note from the future : We could figure out a way to do the above
+    //   this using new ParseFilesPipe.
+
     const maxBspSize = this.config.getOrThrow('limits.bspSize');
     if (bspFile.size > maxBspSize) {
       throw new BadRequestException(`BSP file too large (> ${maxBspSize})`);
