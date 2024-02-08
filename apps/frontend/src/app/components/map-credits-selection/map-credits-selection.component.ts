@@ -23,7 +23,7 @@ import { UserSearchComponent } from '../search/user-search/user-search.component
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives';
 import { AvatarComponent } from '../avatar/avatar.component';
-import { SortedMapCredits } from './sorted-map-credits.class';
+import { GroupedMapCredits } from '../../util';
 
 @Component({
   selector: 'm-map-credits-selection',
@@ -48,7 +48,7 @@ import { SortedMapCredits } from './sorted-map-credits.class';
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {
-  protected value: SortedMapCredits;
+  protected value: GroupedMapCredits;
 
   protected readonly MapCreditType = MapCreditType;
   protected readonly MapCreditNames = MapCreditNames;
@@ -118,11 +118,11 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     this.onChange(this.value);
   }
 
-  writeValue(value: SortedMapCredits | null): void {
-    this.value = value ?? new SortedMapCredits();
+  writeValue(value: GroupedMapCredits | null): void {
+    this.value = value ?? new GroupedMapCredits();
   }
 
-  onChange: (value: SortedMapCredits) => void = () => void 0;
+  onChange: (value: GroupedMapCredits) => void = () => void 0;
   registerOnChange(fn: () => void): void {
     this.onChange = fn;
   }

@@ -10,7 +10,6 @@ export * from './file-upload/file-upload.component';
 export * from './file-upload/multi-file-upload.component';
 export * from './header/header.component';
 export * from './map-credits-selection/map-credits-selection.component';
-export * from './map-credits-selection/sorted-map-credits.class';
 export * from './map-image-selection/image-selection-item.class';
 export * from './map-image-selection/map-image-selection.component';
 export * from './map-leaderboard-selection/map-leaderboard-selection.component';
