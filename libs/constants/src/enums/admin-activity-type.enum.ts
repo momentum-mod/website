@@ -11,4 +11,5 @@ export enum AdminActivityType {
   REPORT_UPDATE = 9,
   REPORT_RESOLVE = 10,
   REVIEW_DELETED = 11,
+  REVIEW_COMMENT_DELETED = 12
 }
