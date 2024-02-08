@@ -616,7 +616,9 @@ export class MapsService {
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: { include: { currentVersion: true } } }
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
     });
 
     if (!map) {
@@ -838,7 +840,7 @@ export class MapsService {
       include: {
         info: true,
         stats: true,
-        submission: { include: { currentVersion: true } },
+        submission: { include: { currentVersion: true, versions: true } },
         submitter: true,
         images: true,
         thumbnail: true,

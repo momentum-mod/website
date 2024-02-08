@@ -1641,7 +1641,10 @@ describe('Maps', () => {
             versionNum: 2,
             changelog
           },
-          versions: [{ versionNum: 1 }, { versionNum: 2, changelog }]
+          versions: expect.arrayContaining([
+            expect.objectContaining({ versionNum: 1 }),
+            expect.objectContaining({ versionNum: 2, changelog })
+          ])
         });
 
         const submissionDB = await prisma.mapSubmission.findUnique({
