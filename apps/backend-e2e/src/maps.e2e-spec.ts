@@ -31,7 +31,6 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
-import axios from 'axios';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
 import {
@@ -698,9 +697,9 @@ describe('Maps', () => {
             `${currentVersion.id}.bsp`
           ]);
 
-          const downloadBuffer = await axios
-            .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
-            .then((res) => Buffer.from(res.data, 'binary'));
+          const downloadBuffer = await fileStore.downloadHttp(
+            currentVersion.downloadURL
+          );
           const downloadHash = createSha1Hash(downloadBuffer);
 
           expect(bspHash).toBe(currentVersion.hash);
@@ -715,9 +714,9 @@ describe('Maps', () => {
             `${currentVersion.id}_VMFs.zip`
           ]);
 
-          const downloadBuffer = await axios
-            .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
-            .then((res) => Buffer.from(res.data, 'binary'));
+          const downloadBuffer = await fileStore.downloadHttp(
+            currentVersion.vmfDownloadURL
+          );
 
           const zip = new Zip(downloadBuffer);
 
@@ -1676,9 +1675,9 @@ describe('Maps', () => {
           `${currentVersion.id}.bsp`
         ]);
 
-        const bspDownloadBuffer = await axios
-          .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
-          .then((res) => Buffer.from(res.data, 'binary'));
+        const bspDownloadBuffer = await fileStore.downloadHttp(
+          currentVersion.downloadURL
+        );
         const bspDownloadHash = createSha1Hash(bspDownloadBuffer);
 
         expect(bspHash).toBe(currentVersion.hash);
@@ -1689,9 +1688,9 @@ describe('Maps', () => {
           `${currentVersion.id}_VMFs.zip`
         ]);
 
-        const vmfDownloadBuffer = await axios
-          .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
-          .then((res) => Buffer.from(res.data, 'binary'));
+        const vmfDownloadBuffer = await fileStore.downloadHttp(
+          currentVersion.vmfDownloadURL
+        );
 
         const zip = new Zip(vmfDownloadBuffer);
 
