@@ -24,7 +24,7 @@ import { TooltipDirective } from '../../directives';
       class="h-full aspect-square"
     />
   }`,
-  styles: ':host { display: flex; }'
+  styles: ':host { display: flex; gap: 0.25rem; }'
 })
 export class RoleBadgesComponent implements OnChanges {
   @Input({ required: true }) roles!: Bitfield<Role>;
