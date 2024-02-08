@@ -82,6 +82,8 @@ import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { MapsService } from './maps.service';
+import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
+import { ImageFileValidator } from '../../validators/image-file.validator';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -520,7 +522,16 @@ export class MapsController {
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: MAX_IMAGE_SIZE })]
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
       })
     )
     file: File
@@ -562,7 +573,21 @@ export class MapsController {
   updateImage(
     @LoggedInUser('id') userID: number,
     @Param('imgID', ParseIntSafePipe) imgID: number,
-    @UploadedFile() file
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
+      })
+    )
+    file: File
   ): Promise<void> {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
@@ -627,7 +652,21 @@ export class MapsController {
   updateThumbnail(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile() file
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
+      })
+    )
+    file: File
   ): Promise<void> {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');

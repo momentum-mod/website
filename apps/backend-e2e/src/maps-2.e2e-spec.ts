@@ -759,7 +759,7 @@ describe('Maps Part 2', () => {
         req.putAttach({
           url: `maps/${map.id}/thumbnail`,
           status: 204,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         }));
 
@@ -772,7 +772,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/thumbnail`,
           status: 204,
-          file: 'image_png.png',
+          file: '2560_1440.png',
           token
         });
 
@@ -792,6 +792,30 @@ describe('Maps Part 2', () => {
           token
         }));
 
+      it('should 400 if the map image has bad extension', () =>
+        req.putAttach({
+          url: `maps/${map.id}/thumbnail`,
+          status: 400,
+          file: 'map.zon',
+          token
+        }));
+
+      it('should 400 for PNG with wrong dimensions', () =>
+        req.putAttach({
+          url: `maps/${map.id}/thumbnail`,
+          status: 400,
+          file: '1920_1080.png',
+          token
+        }));
+
+      it('should 400 for JPG with correct dimensions', () =>
+        req.putAttach({
+          url: `maps/${map.id}/thumbnail`,
+          status: 400,
+          file: '2560_1440.jpg',
+          token
+        }));
+
       it('should 403 if the user is not the submitter of the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
@@ -801,7 +825,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/thumbnail`,
           status: 403,
-          file: 'image_png.png',
+          file: '2560_1440.png',
           token
         });
 
@@ -820,7 +844,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/thumbnail`,
           status: 403,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         });
 
@@ -843,7 +867,7 @@ describe('Maps Part 2', () => {
           await req.putAttach({
             url: `maps/${map.id}/thumbnail`,
             status: expectedStatus,
-            file: 'image_jpg.jpg',
+            file: '2560_1440.png',
             token
           });
 
@@ -931,7 +955,7 @@ describe('Maps Part 2', () => {
         const res = await req.postAttach({
           url: `maps/${map.id}/images`,
           status: 201,
-          file: 'image_png.png',
+          file: '2560_1440.png',
           validate: MapImageDto,
           token
         });
@@ -955,16 +979,32 @@ describe('Maps Part 2', () => {
         await req.postAttach({
           url: `maps/${map.id}/images`,
           status: 409,
-          file: 'image_png.png',
+          file: '2560_1440.png',
           token
         });
       });
 
-      it('should 400 if the map image is invalid', () =>
+      it('should 400 if the map image has bad extension', () =>
         req.postAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           file: 'map.zon',
+          token
+        }));
+
+      it('should 400 for PNG with wrong dimensions', () =>
+        req.postAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          file: '1920_1080.png',
+          token
+        }));
+
+      it('should 400 for JPG with correct dimensions', () =>
+        req.postAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          file: '2560_1440.jpg',
           token
         }));
 
@@ -988,7 +1028,7 @@ describe('Maps Part 2', () => {
         await req.postAttach({
           url: `maps/${map.id}/images`,
           status: 403,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         });
 
@@ -1007,7 +1047,7 @@ describe('Maps Part 2', () => {
         await req.postAttach({
           url: `maps/${map.id}/images`,
           status: 403,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         });
 
@@ -1030,7 +1070,7 @@ describe('Maps Part 2', () => {
           await req.postAttach({
             url: `maps/${map.id}/images`,
             status: expectedStatus,
-            file: 'image_jpg.jpg',
+            file: '2560_1440.png',
             token
           });
 
@@ -1100,16 +1140,18 @@ describe('Maps Part 2', () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.MAPPER }
         });
+
         map = await db.createMap({
           status: MapStatusNew.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } },
           images: { create: {} }
         });
+
         image = map.images[0];
 
-        const fileBuffer = readFileSync(__dirname + '/../files/image_jpg.jpg');
+        // Don't care what this data is, just want to check that it gets changed
+        const fileBuffer = Buffer.alloc(1);
         hash = createSha1Hash(fileBuffer);
-
         for (const size of ['small', 'medium', 'large'])
           await fileStore.add(`img/${image.id}-${size}.jpg`, fileBuffer);
       });
@@ -1125,7 +1167,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/images/${image.id}`,
           status: 204,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         });
 
@@ -1143,12 +1185,36 @@ describe('Maps Part 2', () => {
         req.putAttach({
           url: `maps/images/${NULL_ID}`,
           status: 404,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         }));
 
       it('should 400 when no map image is provided', () =>
         req.put({ url: `maps/images/${image.id}`, status: 400, token }));
+
+      it('should 400 if the map image has bad extension', () =>
+        req.putAttach({
+          url: `maps/images/${image.id}`,
+          status: 400,
+          file: 'map.zon',
+          token
+        }));
+
+      it('should 400 for PNG with wrong dimensions', () =>
+        req.putAttach({
+          url: `maps/images/${image.id}`,
+          status: 400,
+          file: '1920_1080.png',
+          token
+        }));
+
+      it('should 400 for JPG with correct dimensions', () =>
+        req.putAttach({
+          url: `maps/images/${image.id}`,
+          status: 400,
+          file: '2560_1440.jpg',
+          token
+        }));
 
       it('should 400 if the map image is invalid', () =>
         req.putAttach({
@@ -1167,7 +1233,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/images/${image.id}`,
           status: 403,
-          file: 'image_jpg.jpg',
+          file: '2560_1440.png',
           token
         });
 
@@ -1186,7 +1252,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/images/${image.id}`,
           status: 403,
-          file: 'image_png.png',
+          file: '2560_1440.png',
           token
         });
 
@@ -1209,7 +1275,7 @@ describe('Maps Part 2', () => {
           await req.putAttach({
             url: `maps/images/${image.id}`,
             status: expectedStatus,
-            file: 'image_png.png',
+            file: '2560_1440.png',
             token
           });
 
@@ -1238,9 +1304,8 @@ describe('Maps Part 2', () => {
         });
         image = map.images[0];
 
-        const fileBuffer = readFileSync(__dirname + '/../files/image_jpg.jpg');
         for (const size of ['small', 'medium', 'large'])
-          await fileStore.add(`img/${image.id}-${size}.jpg`, fileBuffer);
+          await fileStore.add(`img/${image.id}-${size}.jpg`, Buffer.alloc(1));
       });
 
       afterEach(async () => {

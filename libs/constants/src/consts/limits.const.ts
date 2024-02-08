@@ -15,3 +15,5 @@ export const MAX_MAP_DESCRIPTION_LENGTH = 1500;
 export const MIN_MAP_NAME_LENGTH = 3;
 export const MAX_MAP_NAME_LENGTH = 64; // Seems high but this is actually a constant in engine.
 export const MAX_MAP_SUGGESTION_COMMENT_LENGTH = 500;
+export const MAP_IMAGE_WIDTH = 2560;
+export const MAP_IMAGE_HEIGHT = 1440;
