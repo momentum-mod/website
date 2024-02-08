@@ -16,3 +16,15 @@ export interface MapReview
   reviewer?: User;
   resolver?: User;
 }
+
+type PickMapReview = Pick<MapReview, 'mainText'> &
+  Partial<Pick<MapReview, 'suggestions'>>;
+
+export interface CreateMapReview extends PickMapReview {
+  needsResolving?: boolean;
+}
+
+export interface CreateMapReviewWithFiles {
+  images?: File[];
+  data: CreateMapReview;
+}

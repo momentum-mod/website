@@ -349,6 +349,7 @@ model MapReview {
   comments    MapReviewComment[]
   suggestions Json               @default("[]") // Array of map-submission-suggestions.model.ts
   editHistory Json               @default("[]") // Array of map-review-edit-history.model.ts
+  imageIDs    String[]
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int

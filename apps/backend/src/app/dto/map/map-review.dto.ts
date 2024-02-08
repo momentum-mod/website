@@ -13,7 +13,10 @@ import { MapReviewCommentDto } from './map-review-comment.dto';
 import { MapReviewSuggestionDto } from './map-review-suggestions.dto';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
+  CreateMapReview,
+  CreateMapReviewWithFiles,
   MapReview,
+  mapReviewAssetPath,
 } from '@momentum/constants';
 import { Config } from '../../config';
 
@@ -92,4 +95,32 @@ export class MapReviewDto implements MapReview {
 
   @UpdatedAtProperty()
   readonly updatedAt: Date;
+}
+
+export class CreateMapReviewDto
+  extends PickType(MapReviewDto, ['mainText', 'suggestions'] as const)
+  implements CreateMapReview
+{
+  @ApiProperty({
+    description:
+      'Whether the review needs resolving to pass to FINAL_APPROVAL. Only accessible to Reviewers, Mods and Admins'
+  })
+  @IsBoolean()
+  @IsOptional()
+  readonly needsResolving?: boolean;
+}
+
+export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {
+  @ApiProperty({
+    type: 'file array',
+    format: 'binary',
+    description: 'Array of image files'
+  })
+  @IsOptional()
+  readonly images: any[];
+
+  @NestedProperty(CreateMapReviewDto, {
+    description: 'The JSON part of the body'
+  })
+  readonly data: CreateMapReviewDto;
 }

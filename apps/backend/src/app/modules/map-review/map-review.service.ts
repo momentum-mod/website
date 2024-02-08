@@ -157,6 +157,112 @@ export class MapReviewService {
     return DtoFactory(MapReviewDto, review);
   }
 
+  async createReview(
+    userID: number,
+    mapID: number,
+    body: CreateMapReviewDto,
+    imageFiles: File[] = []
+  ): Promise<MapReviewDto> {
+    // TODO: Ban from this when we do community-wide bans in future
+
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      select: {
+        status: true,
+        submission: { select: { currentVersion: { select: { zones: true } } } }
+      },
+      submissionOnly: true
+    });
+
+    if (map.submitterID === userID) {
+      throw new ConflictException('You cannot review your own submission');
+    }
+
+    if (body.suggestions) {
+      try {
+        validateSuggestions(
+          body.suggestions,
+          (
+            map.submission as MapSubmission & {
+              currentVersion: MapSubmissionVersion;
+            }
+          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          SuggestionType.REVIEW
+        );
+      } catch (error) {
+        throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      }
+
+      const existingUserReviews = await this.db.mapReview.findMany({
+        where: { reviewerID: userID, mapID }
+      });
+
+      // Not bothering put this in limits.const, so obscure.
+      if (existingUserReviews?.length > 10) {
+        throw new ConflictException(
+          'You cannot post any more reviews for this map'
+        );
+      }
+
+      if (
+        existingUserReviews.some(
+          ({ suggestions }) =>
+            (suggestions as unknown as MapReviewSuggestion[])?.length > 0 // TODO: #855
+        )
+      ) {
+        throw new ConflictException(
+          'You cannot submit multiple suggestions. Edit your existing review!'
+        );
+      }
+    }
+
+    if (body.needsResolving) {
+      const user = await this.db.user.findUnique({ where: { id: userID } });
+      if (!Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE))
+        throw new ForbiddenException(
+          'You cannot submit reviews that need resolving'
+        );
+    }
+
+    const images: [string, File][] = imageFiles.map((file) => [
+      `${uuidv4()}.${file.originalname.split('.').at(-1)}`,
+      file
+    ]);
+
+    const newData: Partial<Prisma.MapReviewCreateInput> = {
+      mainText: body.mainText,
+      // If it needs resolving, set `resolved` to `false`. Otherwise it'll
+      // be null, and it doesn't need resolving.
+      resolved: body.needsResolving ? false : null
+    };
+
+    if (body.suggestions) {
+      // Ignore that suggestions that had neither tier nor gameplay rating -
+      // frontend may allow it but this is meaningless data.
+      newData.suggestions = body.suggestions.filter(
+        ({ tier, gameplayRating }) => tier != null || gameplayRating != null
+      ) as object; // Fuck you typescript
+    }
+
+    const [dbResponse] = await parallel(
+      this.db.mapReview.create({
+        data: {
+          reviewer: { connect: { id: userID } },
+          mmap: { connect: { id: mapID } },
+          imageIDs: images.map(([id]) => id),
+          mainText: body.mainText,
+          ...newData,
+          editHistory: [{ ...newData, editorID: userID, date: new Date() }]
+        }
+      }),
+      ...images.map(([id, file]) =>
+        this.fileStoreService.storeFile(file.buffer, mapReviewAssetPath(id))
+      )
+    );
+
+    return DtoFactory(MapReviewDto, dbResponse);
+  }
   async deleteReview(
     reviewID: number,
     userID: number,

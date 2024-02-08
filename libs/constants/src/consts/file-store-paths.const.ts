@@ -29,3 +29,7 @@ export function imgLargePath(key: string | number): string {
 export function runPath(key: string | number | bigint): string {
   return `runs/${key}`;
 }
+
+export function mapReviewAssetPath(key: string): string {
+  return `mapreview/${key}`;
+}
