@@ -45,6 +45,7 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
+import { Max } from 'class-validator';
 
 //#region Get All
 
@@ -321,8 +322,14 @@ export class MapReviewsGetQueryDto
   })
   readonly official?: boolean;
 
-  @ExpandQueryProperty(['map', 'reviewer'])
+  @ExpandQueryProperty(['map', 'reviewer', 'resolver'])
   readonly expand?: MapReviewsGetExpand;
+
+  @IntQueryProperty({
+    description: 'Number of comments to fetch (latest first)'
+  })
+  @Max(50)
+  readonly comments?: number;
 }
 
 export class MapReviewGetIdDto implements MapReviewGetIdQuery {
