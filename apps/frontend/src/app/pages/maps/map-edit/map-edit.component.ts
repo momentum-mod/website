@@ -23,6 +23,7 @@ import { AdminService, LocalUserService, MapsService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { PluralPipe } from '../../../pipes';
+import { EditableMapCredit, GroupedMapCredits } from '../../../util';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -48,7 +49,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   map: MMap;
   images: MapImage[] = [];
   readonly imagesLimit = 6; // TODO: use @momentum/constants
-  credits = new GroupedMapCredits();
+  credits: GroupedMapCredits;
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
@@ -112,7 +113,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
             this.infoForm.patchValue(map.info);
             this.images = map.images;
 
-            this.credits.set(map.credits as EditableMapCredit[]);
+            this.credits = new GroupedMapCredits(map.credits);
 
             this.creditsForm
               .get('authors')
@@ -211,7 +212,6 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   onCreditChanged() {
-    console.log('credits changed!', { credits: this.credits });
     this.creditsForm
       .get('authors')
       .patchValue(this.credits[MapCreditType.AUTHOR]);
