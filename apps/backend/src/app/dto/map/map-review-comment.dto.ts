@@ -1,7 +1,8 @@
 import { IsString } from 'class-validator';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { UserDto } from '../user/user.dto';
-import { MapReviewComment } from '@momentum/constants';
+import { CreateMapReviewComment, MapReviewComment } from '@momentum/constants';
+import { PickType } from '@nestjs/swagger';
 
 export class MapReviewCommentDto implements MapReviewComment {
   @IdProperty()
@@ -25,3 +26,7 @@ export class MapReviewCommentDto implements MapReviewComment {
   @CreatedAtProperty()
   readonly updatedAt: Date;
 }
+
+export class CreateMapReviewCommentDto
+  extends PickType(MapReviewCommentDto, ['text'] as const)
+  implements CreateMapReviewComment {}

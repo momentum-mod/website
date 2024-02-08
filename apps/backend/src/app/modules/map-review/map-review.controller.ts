@@ -140,4 +140,23 @@ export class MapReviewController {
 
   // Not bothered with single comment GET, can't imagine every needing it.
 
+  @Post('/:reviewID/comments')
+  @ApiOperation({ summary: 'Post a comment on a review' })
+  @ApiOkResponse({ type: MapReviewCommentDto })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiForbiddenResponse({ description: 'Map is not in submission' })
+  @ApiBody({ type: CreateMapReviewCommentDto })
+  @ApiParam({
+    name: 'reviewID',
+    type: Number,
+    description: 'Target Review ID',
+    required: true
+  })
+  postComment(
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Body() body: CreateMapReviewCommentDto,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewCommentDto> {
+    return this.commentService.postComment(reviewID, userID, body);
+  }
 }
