@@ -30,10 +30,10 @@ export interface EditableMapCredit {
 export class GroupedMapCredits
   implements Record<MapCreditType, EditableMapCredit[]>
 {
-  [MapCreditType.AUTHOR]: EditableMapCredit[];
-  [MapCreditType.CONTRIBUTOR]: EditableMapCredit[];
-  [MapCreditType.TESTER]: EditableMapCredit[];
-  [MapCreditType.SPECIAL_THANKS]: EditableMapCredit[];
+  [MapCreditType.AUTHOR]: EditableMapCredit[] = [];
+  [MapCreditType.CONTRIBUTOR]: EditableMapCredit[] = [];
+  [MapCreditType.SPECIAL_THANKS]: EditableMapCredit[] = [];
+  [MapCreditType.TESTER]: EditableMapCredit[] = [];
 
   constructor() {
     this.clear();
@@ -48,6 +48,10 @@ export class GroupedMapCredits
     } else {
       this[type] = credits;
     }
+  }
+
+  get(type: MapCreditType): EditableMapCredit[] {
+    return this[type];
   }
 
   getAll(): EditableMapCredit[] {
