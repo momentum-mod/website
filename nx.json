@@ -57,7 +57,10 @@
       "unitTestRunner": "jest"
     },
     "@nx/angular:component": {
-      "style": "css"
+      "style": "none",
+      "skipTests": true,
+      "standalone": true,
+      "prefix": "m"
     }
   }
 }
