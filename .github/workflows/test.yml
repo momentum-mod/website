@@ -39,6 +39,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
+          submodules: 'true'
       - uses: actions/cache@v3
         with:
           path: node_modules
