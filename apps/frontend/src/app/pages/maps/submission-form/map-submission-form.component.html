@@ -185,11 +185,8 @@
           <div class="flex flex-col">
             <label class="my-auto text-lg leading-4">
               Submission Type
-              <m-icon
-                icon="tooltip-question-outline"
-                class="mb-[1px] ml-0.5 align-middle"
-                mTooltip="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
-              />
+              <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="subType" />
+              <ng-template #subType><m-map-submission-type-info /></ng-template>
             </label>
             <span class="text-sm italic leading-4 text-gray-500">Required</span>
           </div>
