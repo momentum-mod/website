@@ -1,5 +1,6 @@
 import {
   CreateMapCredit,
+  MapCredit,
   MapCreditType,
   MapSubmissionPlaceholder,
   User
@@ -35,8 +36,14 @@ export class GroupedMapCredits
   [MapCreditType.SPECIAL_THANKS]: EditableMapCredit[] = [];
   [MapCreditType.TESTER]: EditableMapCredit[] = [];
 
-  constructor() {
-    this.clear();
+  constructor(credits?: MapCredit[]) {
+    if (!credits) return;
+
+    if (!credits[0]?.user) {
+      console.warn('Missing user on MapCredit!');
+    }
+
+    this.set(credits as EditableMapCredit[]);
   }
 
   set(credits: EditableMapCredit[], type?: MapCreditType): void {
