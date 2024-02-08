@@ -1,4 +1,6 @@
-<m-map-review-form [map]="map" (reviewPosted)="load.next()" />
+@if (!isSubmitter) {
+  <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
+}
 <p-dropdown class="self-end" [(ngModel)]="filter" [options]="Filters" optionLabel="label" optionValue="type" (onChange)="load.next()" />
 <div [mSpinner]="loading" class="flex flex-col gap-4">
   @for (review of reviews; track $index) {

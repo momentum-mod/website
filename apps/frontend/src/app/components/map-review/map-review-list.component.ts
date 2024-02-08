@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
 import { merge, Subject } from 'rxjs';
-import { MapsService } from '../../services';
+import { LocalUserService, MapsService } from '../../services';
 import { switchMap, tap } from 'rxjs/operators';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 import { MessageService } from 'primeng/api';
@@ -40,6 +40,7 @@ export class MapReviewListComponent implements OnChanges {
 
   @Input({ required: true }) map: MMap;
   protected reviews: MapReview[] = [];
+  protected isSubmitter = false;
 
   public readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
@@ -52,7 +53,8 @@ export class MapReviewListComponent implements OnChanges {
 
   constructor(
     private readonly mapsService: MapsService,
-    private readonly messageService: MessageService
+    private readonly messageService: MessageService,
+    private readonly localUserService: LocalUserService
   ) {
     merge(
       this.pageChange.pipe(
@@ -102,5 +104,7 @@ export class MapReviewListComponent implements OnChanges {
 
   ngOnChanges(): void {
     this.load.next();
+    this.isSubmitter =
+      this.localUserService.localUser.id === this.map.submitterID;
   }
 }
