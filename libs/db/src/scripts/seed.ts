@@ -265,30 +265,34 @@ prismaWrapper(async (prisma: PrismaClient) => {
       userIDs.map((id2) => async () => {
         if (id1 === id2) return;
         if (Random.chance(randRange(vars.userFollowChance)))
-          await prisma.follow.create({
-            data: {
-              followeeID: id1,
-              followedID: id2,
-              notifyOn: Random.int(0, 127),
-              ...Random.createdUpdatedDates()
-            }
-          });
+          await prisma.follow
+            .create({
+              data: {
+                followeeID: id1,
+                followedID: id2,
+                notifyOn: Random.int(0, 127),
+                ...Random.createdUpdatedDates()
+              }
+            })
+            .catch(() => {});
 
         if (Random.chance(randRange(vars.userReportChance)))
-          await prisma.report.create({
-            data: {
-              type: ReportType.USER_PROFILE_REPORT,
-              data: id2,
-              category: Random.enumValue(ReportCategory),
-              message: faker.lorem.paragraph(),
-              resolved: faker.datatype.boolean(),
-              resolutionMessage: faker.lorem.sentence(),
-              submitterID: id1,
-              resolverID: Random.element(
-                userIDs.filter((u) => u !== id1 && u !== id2)
-              )
-            }
-          });
+          await prisma.report
+            .create({
+              data: {
+                type: ReportType.USER_PROFILE_REPORT,
+                data: id2,
+                category: Random.enumValue(ReportCategory),
+                message: faker.lorem.paragraph(),
+                resolved: faker.datatype.boolean(),
+                resolutionMessage: faker.lorem.sentence(),
+                submitterID: id1,
+                resolverID: Random.element(
+                  userIDs.filter((u) => u !== id1 && u !== id2)
+                )
+              }
+            })
+            .catch(() => {});
       })
     )
   );
@@ -315,490 +319,498 @@ prismaWrapper(async (prisma: PrismaClient) => {
   //   )();
 
   const mapsToCreate = randRange(vars.maps);
-  const usedNames = [];
-  for (let i = 0; i < mapsToCreate; i++) {
-    console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
-    let name = faker.lorem.word();
-    while (usedNames.includes(name)) {
-      name = faker.lorem.word();
-    }
+  const existingMaps = await prisma.mMap.findMany();
+  const usedNames = (existingMaps ?? []).map(({ name }) => name);
+  try {
+    for (let i = 0; i < mapsToCreate; i++) {
+      console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
+      let name = faker.lorem.word();
+      while (usedNames.includes(name)) {
+        name = faker.lorem.word();
+      }
 
-    usedNames.push(name);
+      usedNames.push(name);
 
-    const majCps = randRange(vars.majorCPs);
-    const randomZones = () =>
-      ZoneUtil.generateRandomMapZones(
-        majCps,
-        from(majCps, () => randRange(vars.minorCPs)),
-        randRange(vars.bonusesPerMap),
-        2 ** 16 - 64,
-        1024,
-        512
+      const majCps = randRange(vars.majorCPs);
+      const randomZones = () =>
+        ZoneUtil.generateRandomMapZones(
+          majCps,
+          from(majCps, () => randRange(vars.minorCPs)),
+          randRange(vars.bonusesPerMap),
+          2 ** 16 - 64,
+          1024,
+          512
+        );
+
+      const submissionsDates = () => {
+        const dates: MapSubmissionDate[] = [];
+
+        let currStatus: MapStatusNew = Random.chance()
+          ? MapStatusNew.PRIVATE_TESTING
+          : MapStatusNew.CONTENT_APPROVAL;
+        let currDate = Random.pastDateSince(1e6).toDateString();
+
+        while (currStatus !== null) {
+          dates.push({
+            status: currStatus,
+            date: currDate
+          });
+
+          currDate = new Date(
+            new Date(currDate).getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
+          ).toDateString();
+          currStatus = Random.weighted(
+            weights.submissionGraphWeights[currStatus]
+          );
+        }
+
+        return dates;
+      };
+
+      const versions = from(randRange(vars.submissionVersions), (_, i) => ({
+        // TODO: We'd have to upload the same BSP 50 or so times
+        // for submissions here, since submissions use the UUID
+        // of this entry. If we really want to test BSP downloads
+        // for map submission ingame, copy 'maps/dev_flatgrid' to
+        // `submissions/${uuid of each submission version}.bsp`
+        versionNum: i + 1,
+        hash: mapHash,
+        hasVmf: false, // Could add a VMF if we really want but leaving for now
+        zones: randomZones() as unknown as JsonValue, // TODO: #855,
+        changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
+      }));
+
+      const status = Random.weighted(weights.mapStatusWeights);
+      const inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+
+      //#region Leaderboards, suggestions, etc...
+
+      const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
+      const numModes = randRange(vars.modesPerLeaderboard);
+      const modesSet = new Set<Gamemode>();
+      while (modesSet.size < numModes) {
+        modesSet.add(Random.enumValue(Gamemode));
+      }
+      const modes = [...modesSet.values()];
+
+      // Keep main track and stage ranked-ness synced up
+      const rankedMainTracks = new Map(modes.map((m) => [m, Random.chance()]));
+
+      const leaderboards = modes.flatMap((m) =>
+        [
+          {
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          },
+          ...from(zones.tracks.stages.length, (_, i) => ({
+            trackType: TrackType.STAGE,
+            trackNum: i
+          })),
+          ...from(zones.tracks.bonuses.length, (_, i) => ({
+            trackType: TrackType.BONUS,
+            trackNum: i
+          }))
+        ].map(({ trackType, trackNum }) => {
+          const leaderboard = {
+            trackType,
+            trackNum,
+            gamemode: m,
+            style: 0,
+            linear:
+              trackType === TrackType.MAIN
+                ? ZoneUtil.isLinearMainTrack(zones)
+                : undefined,
+            tier:
+              trackType !== TrackType.STAGE && !inSubmission
+                ? Random.int(10, 1)
+                : undefined,
+            ranked:
+              trackType === TrackType.BONUS
+                ? Random.chance()
+                : rankedMainTracks.get(m)
+          };
+
+          if (trackType === TrackType.MAIN) {
+            leaderboard.linear = ZoneUtil.isLinearMainTrack(zones);
+          }
+
+          if (trackType !== TrackType.STAGE && !inSubmission) {
+            leaderboard.tier = Random.int(10, 1);
+          }
+
+          if (!inSubmission) {
+            leaderboard.ranked =
+              trackType === TrackType.BONUS
+                ? Random.chance()
+                : rankedMainTracks.get(m);
+          }
+
+          return leaderboard;
+        })
       );
 
-    const submissionsDates = () => {
-      const dates: MapSubmissionDate[] = [];
+      const submissionSuggestions = () =>
+        leaderboards
+          .filter(({ trackType }) => trackType !== TrackType.STAGE)
+          .map(({ gamemode, trackType, trackNum }) => ({
+            gamemode,
+            trackType,
+            trackNum,
+            tier: Random.int(10, 1),
+            comment: faker.lorem.sentence(),
+            ranked: Random.chance()
+          }));
 
-      let currStatus: MapStatusNew = Random.chance()
-        ? MapStatusNew.PRIVATE_TESTING
-        : MapStatusNew.CONTENT_APPROVAL;
-      let currDate = Random.pastDateSince(1e6).toDateString();
+      const review = async () => ({
+        reviewerID: Random.element(userIDs),
+        mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
+        imageIDs: Random.chance()
+          ? await Promise.all(
+              from(randRange(vars.imagesPerReview), async () => {
+                const id = `${uuidv4()}.jpeg`;
+                await s3.send(
+                  new PutObjectCommand({
+                    Bucket: process.env['STORAGE_BUCKET_NAME'],
+                    Key: mapReviewAssetPath(id),
+                    Body: Random.element(imageBuffers).medium
+                  })
+                );
+                return id;
+              })
+            )
+          : undefined,
+        suggestions: leaderboards
+          .filter(({ trackType }) => trackType !== TrackType.STAGE)
+          .filter(() => Random.chance())
+          .map(({ gamemode, trackType, trackNum }) => ({
+            gamemode,
+            trackType,
+            trackNum,
+            tier: Random.int(10, 1),
+            gameplayRating: Random.int(10, 1)
+          })),
+        editHistory: Random.chance()
+          ? from(Random.int(5), () => ({
+              mainText: faker.lorem.paragraph(),
+              date: Random.pastDateInYears()
+            }))
+          : null,
+        ...(Random.chance()
+          ? { resolved: true, resolverID: Random.element(userIDs) }
+          : {})
+      });
 
-      while (currStatus !== null) {
-        dates.push({
-          status: currStatus,
-          date: currDate
+      //#endregion
+
+      const [map] = await parallel(
+        prisma.mMap.create({
+          data: {
+            name,
+            status,
+            fileName: 'flat_devgrid',
+            submitterID: Random.element(potentialMappers).id,
+            ...Random.createdUpdatedDates(),
+            info: {
+              create: {
+                description: faker.lorem.paragraphs().slice(0, 999),
+                creationDate: Random.pastDateInYears(),
+                youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
+              }
+            },
+            stats: {
+              create: {
+                reviews: Random.int(10000),
+                downloads: Random.int(10000),
+                subscriptions: Random.int(10000),
+                plays: Random.int(10000),
+                favorites: Random.int(10000),
+                completions: Random.int(10000),
+                uniqueCompletions: Random.int(10000),
+                timePlayed: Random.int(10000)
+              }
+            },
+            reviews: {
+              createMany: {
+                data: await Promise.all(
+                  from(randRange(vars.reviewsPerMap), review)
+                )
+              }
+            },
+            submission: {
+              create: {
+                type: Random.weighted([
+                  [MapSubmissionType.ORIGINAL, 1],
+                  [MapSubmissionType.PORT, 1],
+                  [MapSubmissionType.SPECIAL, 0.2]
+                ]),
+                placeholders: from(
+                  randRange(vars.submissionPlaceholders),
+                  () => [
+                    {
+                      alias: faker.internet.userName(),
+                      type: Random.enumValue(MapCreditType),
+                      description: faker.lorem.sentence()
+                    }
+                  ]
+                ),
+                dates: submissionsDates(),
+                versions: { createMany: { data: versions } },
+                suggestions: submissionSuggestions()
+              }
+            },
+            leaderboards: { createMany: { data: leaderboards } }
+          },
+          include: {
+            submission: { include: { versions: true } },
+            reviews: { include: { comments: true } }
+          }
+        })
+      );
+
+      const lastVersion = map.submission.versions.at(-1);
+      await prisma.mapSubmission.update({
+        where: { mapID: map.id },
+        data: { currentVersion: { connect: { id: lastVersion.id } } }
+      });
+
+      if ([MapStatusNew.APPROVED, MapStatusNew.DISABLED].includes(map.status))
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            hash: lastVersion.hash,
+            zones: lastVersion.zones,
+            hasVmf: false
+          }
         });
 
-        currDate = new Date(
-          new Date(currDate).getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
-        ).toDateString();
-        currStatus = Random.weighted(
-          weights.submissionGraphWeights[currStatus]
-        );
-      }
-
-      return dates;
-    };
-
-    const versions = from(randRange(vars.submissionVersions), (_, i) => ({
-      // TODO: We'd have to upload the same BSP 50 or so times
-      // for submissions here, since submissions use the UUID
-      // of this entry. If we really want to test BSP downloads
-      // for map submission ingame, copy 'maps/dev_flatgrid' to
-      // `submissions/${uuid of each submission version}.bsp`
-      versionNum: i + 1,
-      hash: mapHash,
-      hasVmf: false, // Could add a VMF if we really want but leaving for now
-      zones: randomZones() as unknown as JsonValue, // TODO: #855,
-      changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
-    }));
-
-    const status = Random.weighted(weights.mapStatusWeights);
-    const inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(status);
-
-    //#region Leaderboards, suggestions, etc...
-
-    const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
-    const numModes = randRange(vars.modesPerLeaderboard);
-    const modesSet = new Set<Gamemode>();
-    while (modesSet.size < numModes) {
-      modesSet.add(Random.enumValue(Gamemode));
-    }
-    const modes = [...modesSet.values()];
-
-    // Keep main track and stage ranked-ness synced up
-    const rankedMainTracks = new Map(modes.map((m) => [m, Random.chance()]));
-
-    const leaderboards = modes.flatMap((m) =>
-      [
-        {
-          trackType: TrackType.MAIN,
-          trackNum: 0
-        },
-        ...from(zones.tracks.stages.length, (_, i) => ({
-          trackType: TrackType.STAGE,
-          trackNum: i
-        })),
-        ...from(zones.tracks.bonuses.length, (_, i) => ({
-          trackType: TrackType.BONUS,
-          trackNum: i
-        }))
-      ].map(({ trackType, trackNum }) => {
-        const leaderboard = {
-          trackType,
-          trackNum,
-          gamemode: m,
-          style: 0,
-          linear:
-            trackType === TrackType.MAIN
-              ? ZoneUtil.isLinearMainTrack(zones)
-              : undefined,
-          tier:
-            trackType !== TrackType.STAGE && !inSubmission
-              ? Random.int(10, 1)
-              : undefined,
-          ranked:
-            trackType === TrackType.BONUS
-              ? Random.chance()
-              : rankedMainTracks.get(m)
-        };
-
-        if (trackType === TrackType.MAIN) {
-          leaderboard.linear = ZoneUtil.isLinearMainTrack(zones);
-        }
-
-        if (trackType !== TrackType.STAGE && !inSubmission) {
-          leaderboard.tier = Random.int(10, 1);
-        }
-
-        if (!inSubmission) {
-          leaderboard.ranked =
-            trackType === TrackType.BONUS
-              ? Random.chance()
-              : rankedMainTracks.get(m);
-        }
-
-        return leaderboard;
-      })
-    );
-
-    const submissionSuggestions = () =>
-      leaderboards
-        .filter(({ trackType }) => trackType !== TrackType.STAGE)
-        .map(({ gamemode, trackType, trackNum }) => ({
-          gamemode,
-          trackType,
-          trackNum,
-          tier: Random.int(10, 1),
-          comment: faker.lorem.sentence(),
-          ranked: Random.chance()
-        }));
-
-    const review = async () => ({
-      reviewerID: Random.element(userIDs),
-      mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
-      imageIDs: Random.chance()
-        ? await Promise.all(
-            from(randRange(vars.imagesPerReview), async () => {
-              const id = `${uuidv4()}.jpeg`;
-              await s3.send(
-                new PutObjectCommand({
-                  Bucket: process.env['STORAGE_BUCKET_NAME'],
-                  Key: mapReviewAssetPath(id),
-                  Body: Random.element(imageBuffers).medium
-                })
-              );
-              return id;
-            })
-          )
-        : undefined,
-      suggestions: leaderboards
-        .filter(({ trackType }) => trackType !== TrackType.STAGE)
-        .filter(() => Random.chance())
-        .map(({ gamemode, trackType, trackNum }) => ({
-          gamemode,
-          trackType,
-          trackNum,
-          tier: Random.int(10, 1),
-          gameplayRating: Random.int(10, 1)
-        })),
-      editHistory: Random.chance()
-        ? from(Random.int(5), () => ({
-            mainText: faker.lorem.paragraph(),
-            date: Random.pastDateInYears()
+      for (const review of map.reviews) {
+        await prisma.mapReviewComment.createMany({
+          data: from(randRange(vars.commentsPerReview), () => ({
+            userID: Random.element(users).id,
+            text: faker.lorem.sentence(),
+            reviewID: review.id
           }))
-        : null,
-      ...(Random.chance()
-        ? { resolved: true, resolverID: Random.element(userIDs) }
-        : {})
-    });
+        });
+      }
 
-    //#endregion
+      const { roles } = await prisma.user.findUnique({
+        where: { id: map.submitterID },
+        select: { roles: true }
+      });
 
-    const [map] = await parallel(
-      prisma.mMap.create({
+      await prisma.user.update({
+        where: { id: map.submitterID },
         data: {
-          name,
-          status,
-          fileName: 'flat_devgrid',
-          submitterID: Random.element(potentialMappers).id,
-          ...Random.createdUpdatedDates(),
-          info: {
-            create: {
-              description: faker.lorem.paragraphs().slice(0, 999),
-              creationDate: Random.pastDateInYears(),
-              youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
-            }
-          },
-          stats: {
-            create: {
-              reviews: Random.int(10000),
-              downloads: Random.int(10000),
-              subscriptions: Random.int(10000),
-              plays: Random.int(10000),
-              favorites: Random.int(10000),
-              completions: Random.int(10000),
-              uniqueCompletions: Random.int(10000),
-              timePlayed: Random.int(10000)
-            }
-          },
-          reviews: {
-            createMany: {
-              data: await Promise.all(
-                from(randRange(vars.reviewsPerMap), review)
-              )
-            }
-          },
-          submission: {
-            create: {
-              type: Random.weighted([
-                [MapSubmissionType.ORIGINAL, 1],
-                [MapSubmissionType.PORT, 1],
-                [MapSubmissionType.SPECIAL, 0.2]
-              ]),
-              placeholders: from(randRange(vars.submissionPlaceholders), () => [
-                {
-                  alias: faker.internet.userName(),
-                  type: Random.enumValue(MapCreditType),
-                  description: faker.lorem.sentence()
-                }
-              ]),
-              dates: submissionsDates(),
-              versions: { createMany: { data: versions } },
-              suggestions: submissionSuggestions()
-            }
-          },
-          leaderboards: { createMany: { data: leaderboards } }
-        },
-        include: {
-          submission: { include: { versions: true } },
-          reviews: { include: { comments: true } }
-        }
-      })
-    );
-
-    const lastVersion = map.submission.versions.at(-1);
-    await prisma.mapSubmission.update({
-      where: { mapID: map.id },
-      data: { currentVersion: { connect: { id: lastVersion.id } } }
-    });
-
-    if ([MapStatusNew.APPROVED, MapStatusNew.DISABLED].includes(map.status))
-      await prisma.mMap.update({
-        where: { id: map.id },
-        data: {
-          hash: lastVersion.hash,
-          zones: lastVersion.zones,
-          hasVmf: false
+          roles: Bitflags.add(
+            roles,
+            map.submission.type === MapSubmissionType.PORT
+              ? Role.PORTER
+              : Role.MAPPER
+          )
         }
       });
 
-    for (const review of map.reviews) {
-      await prisma.mapReviewComment.createMany({
-        data: from(randRange(vars.commentsPerReview), () => ({
-          userID: Random.element(users).id,
-          text: faker.lorem.sentence(),
-          reviewID: review.id
-        }))
-      });
-    }
-
-    const { roles } = await prisma.user.findUnique({
-      where: { id: map.submitterID },
-      select: { roles: true }
-    });
-
-    await prisma.user.update({
-      where: { id: map.submitterID },
-      data: {
-        roles: Bitflags.add(
-          roles,
-          map.submission.type === MapSubmissionType.PORT
-            ? Role.PORTER
-            : Role.MAPPER
-        )
-      }
-    });
-
-    await prisma.activity.create({
-      data: {
-        userID: map.submitterID,
-        type: ActivityType.MAP_UPLOADED,
-        data: map.id,
-        ...Random.createdUpdatedDates()
-      }
-    });
-
-    if (map.status === MapStatusNew.APPROVED) {
       await prisma.activity.create({
         data: {
           userID: map.submitterID,
-          type: ActivityType.MAP_APPROVED,
+          type: ActivityType.MAP_UPLOADED,
           data: map.id,
           ...Random.createdUpdatedDates()
         }
       });
-    }
 
-    //#endregion
-    //#region Runs
-
-    console.log('Creating runs');
-    for (const {
-      mapID,
-      gamemode,
-      trackType,
-      trackNum,
-      style
-    } of await prisma.leaderboard.findMany({
-      where: { mapID: map.id }
-    })) {
-      const numRuns = randRange(vars.runsPerLeaderboard);
-      const numPastRuns = Math.max(
-        randRange(vars.pastRunsPerLeaderboard),
-        numRuns
-      );
-
-      const possibleUserIDs = Random.shuffle(userIDs);
-      const usedUserIDs = [];
-
-      let rank = 1;
-      let time = Random.int(0, 1000);
-
-      await Promise.all(
-        from(numPastRuns, (_, i) => {
-          time += Random.int(100);
-
-          const createLbRun = i < numRuns;
-          let userID: number;
-          if (createLbRun) {
-            userID = possibleUserIDs.pop();
-            usedUserIDs.push(userID);
-          } else {
-            userID = Random.element(usedUserIDs);
+      if (map.status === MapStatusNew.APPROVED) {
+        await prisma.activity.create({
+          data: {
+            userID: map.submitterID,
+            type: ActivityType.MAP_APPROVED,
+            data: map.id,
+            ...Random.createdUpdatedDates()
           }
+        });
+      }
 
-          return prisma.pastRun.create({
-            data: {
-              mmap: { connect: { id: mapID } },
-              user: { connect: { id: userID } },
-              gamemode,
-              trackType,
-              trackNum,
-              style,
-              time,
-              leaderboardRun: createLbRun
-                ? {
-                    create: {
-                      mmap: { connect: { id: mapID } },
-                      user: { connect: { id: userID } },
-                      time,
-                      rank: rank++,
-                      // Just any SHA1 hash is fine so long as unique, so game
-                      // can use for unique compator on these
-                      replayHash: createHash('sha1')
-                        .update(Math.random().toString())
-                        .digest('hex'),
-                      stats: {}, // TODO: Add proper stats here when we actually do stats seriously
-                      leaderboard: {
-                        connect: {
-                          mapID_gamemode_trackType_trackNum_style: {
-                            mapID,
-                            trackType,
-                            trackNum,
-                            gamemode,
-                            style
+      //#endregion
+      //#region Runs
+
+      console.log('Creating runs');
+      for (const {
+        mapID,
+        gamemode,
+        trackType,
+        trackNum,
+        style
+      } of await prisma.leaderboard.findMany({
+        where: { mapID: map.id }
+      })) {
+        const numRuns = randRange(vars.runsPerLeaderboard);
+        const numPastRuns = Math.max(
+          randRange(vars.pastRunsPerLeaderboard),
+          numRuns
+        );
+
+        const possibleUserIDs = Random.shuffle(userIDs);
+        const usedUserIDs = [];
+
+        let rank = 1;
+        let time = Random.int(0, 1000);
+
+        await Promise.all(
+          from(numPastRuns, (_, i) => {
+            time += Random.int(100);
+
+            const createLbRun = i < numRuns;
+            let userID: number;
+            if (createLbRun) {
+              userID = possibleUserIDs.pop();
+              usedUserIDs.push(userID);
+            } else {
+              userID = Random.element(usedUserIDs);
+            }
+
+            return prisma.pastRun.create({
+              data: {
+                mmap: { connect: { id: mapID } },
+                user: { connect: { id: userID } },
+                gamemode,
+                trackType,
+                trackNum,
+                style,
+                time,
+                leaderboardRun: createLbRun
+                  ? {
+                      create: {
+                        mmap: { connect: { id: mapID } },
+                        user: { connect: { id: userID } },
+                        time,
+                        rank: rank++,
+                        // Just any SHA1 hash is fine so long as unique, so game
+                        // can use for unique compator on these
+                        replayHash: createHash('sha1')
+                          .update(Math.random().toString())
+                          .digest('hex'),
+                        stats: {}, // TODO: Add proper stats here when we actually do stats seriously
+                        leaderboard: {
+                          connect: {
+                            mapID_gamemode_trackType_trackNum_style: {
+                              mapID,
+                              trackType,
+                              trackNum,
+                              gamemode,
+                              style
+                            }
                           }
                         }
                       }
                     }
-                  }
-                : undefined
-            }
+                  : undefined
+              }
+            });
+          })
+        );
+      }
+
+      //#endregion
+      //#region Images
+
+      const images = await Promise.all(
+        from(randRange(vars.images), async () => {
+          const image = await prisma.mapImage.create({
+            data: { mapID: map.id }
           });
+
+          const buffer = Random.element(imageBuffers);
+
+          // Could be fancy and bubble up all the promises here to do in parallel
+          // but not worth the insane code
+          await Promise.all(
+            ['small', 'medium', 'large'].map((size) =>
+              s3.send(
+                new PutObjectCommand({
+                  Bucket: process.env['STORAGE_BUCKET_NAME'],
+                  Key: `img/${image.id}-${size}.jpg`,
+                  Body: buffer[size]
+                })
+              )
+            )
+          );
+
+          return image;
         })
       );
-    }
 
-    //#endregion
-    //#region Images
+      await prisma.mMap.update({
+        where: { id: map.id },
+        data: { thumbnailID: images[0].id }
+      });
 
-    const images = await Promise.all(
-      from(randRange(vars.images), async () => {
-        const image = await prisma.mapImage.create({
-          data: { mapID: map.id }
-        });
+      //#endregion
+      //#region Credits
 
-        const buffer = Random.element(imageBuffers);
+      const createCredit = (
+        mapID: number,
+        userID: number,
+        type?: MapCreditType
+      ) =>
+        prisma.mapCredit
+          .create({
+            data: {
+              type: type ?? Random.enumValue(MapCreditType),
+              mapID,
+              userID,
+              description: faker.lorem.words({ min: 1, max: 2 })
+            }
+          })
+          .catch(); // Ignore any creates that violate uniqueness
 
-        // Could be fancy and bubble up all the promises here to do in parallel
-        // but not worth the insane code
-        await Promise.all(
-          ['small', 'medium', 'large'].map((size) =>
-            s3.send(
-              new PutObjectCommand({
-                Bucket: process.env['STORAGE_BUCKET_NAME'],
-                Key: `img/${image.id}-${size}.jpg`,
-                Body: buffer[size]
-              })
-            )
-          )
-        );
+      const unusedUserIDs = Random.shuffle(userIDs);
+      await parallel(
+        // A map should always have at least one author
+        () => createCredit(map.id, unusedUserIDs.pop(), MapCreditType.AUTHOR),
+        ...from(randRange(vars.credits) - 1, () =>
+          createCredit(map.id, unusedUserIDs.pop())
+        )
+      );
 
-        return image;
-      })
-    );
+      //#endregion
+      //#region User Interactions
 
-    await prisma.mMap.update({
-      where: { id: map.id },
-      data: { thumbnailID: images[0].id }
-    });
+      for (const userID of userIDs) {
+        if (Random.chance(randRange(vars.mapFavoriteChance)))
+          await prisma.mapFavorite.create({
+            data: {
+              userID,
+              mapID: map.id,
+              ...Random.createdUpdatedDates()
+            }
+          });
 
-    //#endregion
-    //#region Credits
-
-    const createCredit = (
-      mapID: number,
-      userID: number,
-      type?: MapCreditType
-    ) =>
-      prisma.mapCredit
-        .create({
-          data: {
-            type: type ?? Random.enumValue(MapCreditType),
-            mapID,
-            userID,
-            description: faker.lorem.words({ min: 1, max: 2 })
-          }
-        })
-        .catch(); // Ignore any creates that violate uniqueness
-
-    const unusedUserIDs = Random.shuffle(userIDs);
-    await parallel(
-      // A map should always have at least one author
-      () => createCredit(map.id, unusedUserIDs.pop(), MapCreditType.AUTHOR),
-      ...from(randRange(vars.credits) - 1, () =>
-        createCredit(map.id, unusedUserIDs.pop())
-      )
-    );
-
-    //#endregion
-    //#region User Interactions
-
-    for (const userID of userIDs) {
-      if (Random.chance(randRange(vars.mapFavoriteChance)))
-        await prisma.mapFavorite.create({
-          data: {
-            userID,
-            mapID: map.id,
-            ...Random.createdUpdatedDates()
-          }
-        });
-
-      if (Random.chance(randRange(vars.mapReportChance))) {
-        await prisma.report.create({
-          data: {
-            data: map.id,
-            category: Random.enumValue(ReportCategory),
-            type: ReportType.MAP_REPORT,
-            message: faker.lorem.paragraph(),
-            submitterID: userID,
-            ...(Random.chance()
-              ? {
-                  resolved: true,
-                  resolverID: Random.element(
-                    userIDs.filter((u) => u !== userID)
-                  ),
-                  resolutionMessage: faker.lorem.paragraph()
-                }
-              : { resolved: false })
-          }
-        });
+        if (Random.chance(randRange(vars.mapReportChance))) {
+          await prisma.report.create({
+            data: {
+              data: map.id,
+              category: Random.enumValue(ReportCategory),
+              type: ReportType.MAP_REPORT,
+              message: faker.lorem.paragraph(),
+              submitterID: userID,
+              ...(Random.chance()
+                ? {
+                    resolved: true,
+                    resolverID: Random.element(
+                      userIDs.filter((u) => u !== userID)
+                    ),
+                    resolutionMessage: faker.lorem.paragraph()
+                  }
+                : { resolved: false })
+            }
+          });
+        }
       }
-    }
 
-    //#endregion
+      //#endregion
+    }
+  } catch (error) {
+    console.warn(`Failed creating a map: ${error.message}`);
   }
 
   //#region Admin Activity
@@ -963,25 +975,27 @@ prismaWrapper(async (prisma: PrismaClient) => {
   for (const [i, steamID] of steamIDs.entries()) {
     console.log(`Making user ${steamID} an admin`);
     const level = Random.int(COS_XP_PARAMS.levels.maxLevels, 1);
-    await prisma.user.create({
-      data: {
-        steamID: BigInt(steamID),
-        roles: Role.ADMIN,
-        alias: `Admin User ${i + 1}`,
-        profile: { create: {} },
-        userStats: {
-          create: {
-            level,
-            cosXP: Math.floor(
-              xp.getCosmeticXpForLevel(level) +
-                Math.random() *
-                  (xp.getCosmeticXpForLevel(level + 1) -
-                    xp.getCosmeticXpForLevel(level))
-            )
+    await prisma.user
+      .create({
+        data: {
+          steamID: BigInt(steamID),
+          roles: Role.ADMIN,
+          alias: `Admin User ${i + 1}`,
+          profile: { create: {} },
+          userStats: {
+            create: {
+              level,
+              cosXP: Math.floor(
+                xp.getCosmeticXpForLevel(level) +
+                  Math.random() *
+                    (xp.getCosmeticXpForLevel(level + 1) -
+                      xp.getCosmeticXpForLevel(level))
+              )
+            }
           }
         }
-      }
-    });
+      })
+      .catch(() => {});
   }
 
   //#endregion
