@@ -78,12 +78,12 @@ import { ParseIntSafePipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
-import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { MapsService } from './maps.service';
 import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -754,53 +754,12 @@ export class MapsController {
     return this.mapReviewService.getAllReviews(mapID, userID, query);
   }
 
-  @Get('/:mapID/reviews/:reviewID')
-  @ApiOperation({ summary: 'Returns the requested review' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiParam({
-    name: 'reviewID',
-    type: Number,
-    description: 'Target Review ID',
-    required: true
-  })
-  @ApiOkResponse({ description: 'The requested review of the map' })
-  @ApiNotFoundResponse({
-    description: 'Either the map or review was not found'
-  })
-  getReview(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
-    @LoggedInUser('id') userID: number,
-    @Query() query?: MapReviewGetIdDto
-  ): Promise<MapReviewDto> {
-    return this.mapReviewService.getReview(mapID, reviewID, userID, query);
-  }
-
-  @Delete('/:mapID/reviews/:reviewID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletes a map review' })
-  @ApiNoContentResponse({ description: 'Review deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Review not found' })
   @ApiForbiddenResponse({
-    description: 'User is not the submitter of the map review'
   })
-  @ApiParam({
-    name: 'reviewID',
-    type: Number,
-    description: 'Target Review ID',
     required: true
   })
-  deleteReview(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
     @LoggedInUser('id') userID: number
-  ): Promise<void> {
-    return this.mapReviewService.deleteReview(mapID, reviewID, userID);
   }
   //endregion
 }

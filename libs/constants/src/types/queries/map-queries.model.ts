@@ -139,11 +139,12 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
 //#endregion
 //#region Reviews
 
-export type MapReviewsGetExpand = ('map' | 'reviewer')[];
+export type MapReviewsGetExpand = ('map' | 'reviewer' | 'resolver')[];
 
-export type MapReviewsGetQuery = {
+export type MapReviewsGetQuery = PagedQuery & {
   official?: boolean;
   expand?: MapReviewsGetExpand;
+  comments?: number;
 };
 
 export type MapReviewGetIdQuery = {

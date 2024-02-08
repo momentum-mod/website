@@ -20,6 +20,7 @@ import {
   AuthUtil,
   createSha1Hash,
   DbUtil,
+  FILES_PATH,
   FileStoreUtil,
   futureDateOffset,
   NULL_ID,
@@ -43,6 +44,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import path from 'node:path';
 
 describe('Maps Part 2', () => {
   let app,
@@ -1865,7 +1867,8 @@ describe('Maps Part 2', () => {
             mainText: 'Great map!',
             suggestions: [
               {
-                track: 1,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
                 gamemode: Gamemode.SURF,
                 tier: 2,
                 comment: 'What',
@@ -1874,6 +1877,7 @@ describe('Maps Part 2', () => {
             ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u2.id } },
+            resolver: { connect: { id: u1.id } },
             resolved: true
           }
         });
@@ -1884,7 +1888,8 @@ describe('Maps Part 2', () => {
             mainText: 'Wow, what a shit map.',
             suggestions: [
               {
-                track: 1,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
                 gamemode: Gamemode.SURF,
                 tier: 9,
                 comment: 'The second ramp gave me cholera',
@@ -1893,7 +1898,19 @@ describe('Maps Part 2', () => {
             ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u1.id } },
-            resolved: true
+            resolved: true,
+            createdAt: futureDateOffset(1000),
+            comments: {
+              createMany: {
+                data: [
+                  { text: 'idiot', userID: u2.id },
+                  { text: 'why would you write this', userID: u2.id },
+                  { text: 'get off your computer', userID: u2.id },
+                  { text: 'people like you make me sick', userID: u2.id },
+                  { text: 'sorry just kidding', userID: u2.id }
+                ]
+              }
+            }
           }
         });
       });
@@ -1908,9 +1925,38 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
         expect(response.body.data[0]).toMatchObject({
-          mainText: 'Great map!',
+          mainText: 'Wow, what a shit map.',
           mapID: map.id
         });
+      });
+
+      it('should include a given number of comments', async () => {
+        const response = await req.get({
+          url: `maps/${map.id}/reviews`,
+          query: { comments: 5 },
+          status: 200,
+          validatePaged: { type: MapReviewDto, count: 2 },
+          token: u1Token
+        });
+
+        expect(response.body.data).toMatchObject([
+          {
+            mainText: 'Wow, what a shit map.',
+            numComments: 5,
+            comments: [
+              { userID: u2.id },
+              { userID: u2.id },
+              { userID: u2.id },
+              { userID: u2.id },
+              { userID: u2.id }
+            ]
+          },
+          {
+            mainText: 'Great map!',
+            mapID: map.id,
+            numComments: 0
+          }
+        ]);
       });
 
       it('should return the reviews associated to the given map expanding the map information', async () => {
@@ -1932,6 +1978,18 @@ describe('Maps Part 2', () => {
           validate: MapReviewDto,
           paged: true,
           expectedPropertyName: 'reviewer'
+        });
+      });
+
+      it('should return the reviews associated to the given map expanding the resolver information', async () => {
+        await req.expandTest({
+          url: `maps/${map.id}/reviews`,
+          token: u1Token,
+          expand: 'resolver',
+          validate: MapReviewDto,
+          paged: true,
+          some: true,
+          expectedPropertyName: 'resolver'
         });
       });
 
@@ -2007,184 +2065,41 @@ describe('Maps Part 2', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/reviews', 'get'));
     });
-  });
 
-  describe('maps/{mapID}/reviews/{reviewID}', () => {
-    describe('GET', () => {
-      let u1, u2, u2Token, map, review;
       beforeAll(async () => {
-        [u1, [u2, u2Token]] = await Promise.all([
-          db.createUser({ data: { roles: Role.MAPPER } }),
-          db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
         ]);
 
-        map = await db.createMap({
           status: MapStatusNew.PUBLIC_TESTING,
-          submitter: { connect: { id: u1.id } }
         });
 
-        review = await prisma.mapReview.create({
-          data: {
-            mainText:
-              'Sync speedshot into sync speedshot, what substance did you take mapper?!?!',
-            suggestions: [
-              {
-                track: 1,
-                gamemode: Gamemode.RJ,
-                tier: 2,
-                comment: 'True',
-                gameplayRating: 1
-              }
-            ],
-            mmap: { connect: { id: map.id } },
-            reviewer: { connect: { id: u2.id } },
-            resolved: false
-          }
+        });
+
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
 
-      it('should return the requested review', async () => {
-        const response = await req.get({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 200,
-          validate: MapReviewDto,
-          token: u2Token
+
         });
-        expect(response.body).toMatchObject({
-          mainText: review.mainText,
-          mapID: map.id,
-          id: review.id
-        });
+
       });
 
-      it('should return the requested review including author information', async () => {
-        await req.expandTest({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          token: u2Token,
-          expand: 'reviewer',
-          validate: MapReviewDto
-        });
-      });
-
-      it('should return the requested review including map information', async () => {
-        await req.expandTest({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          token: u2Token,
-          expand: 'map',
-          validate: MapReviewDto
-        });
-      });
-
-      // Test that permissions checks are getting called
-      it('should 403 if the user does not have permission to access to the map', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
-        });
-
-        await req.get({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 403,
-          token: u2Token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
-        });
-      });
-
-      it('should return 404 for a nonexistent map', () =>
-        req.get({
-          url: `maps/${NULL_ID}/reviews/${review.id}`,
-          status: 404,
-          token: u2Token
         }));
 
-      it('should return 404 for a nonexistent review', () =>
-        req.get({
-          url: `maps/${map.id}/reviews/${NULL_ID}`,
-          status: 404,
-          token: u2Token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/reviews/1', 'get'));
-    });
-
-    describe('DELETE', () => {
-      let u1, u1Token, u2, u2Token, modToken, adminToken, map, review;
-
-      beforeEach(async () => {
-        [[u1, u1Token], [u2, u2Token], modToken, adminToken] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.createAndLoginUser(),
-            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
-            db.loginNewUser({ data: { roles: Role.ADMIN } })
-          ]);
-
-        map = await db.createMap({
-          status: MapStatusNew.APPROVED,
-          submitter: { connect: { id: u1.id } }
-        });
-
-        review = await prisma.mapReview.create({
           data: {
-            mainText: 'This map was E Z',
             suggestions: [
               {
-                track: 1,
-                gamemode: Gamemode.SURF,
                 tier: 1,
-                comment: 'I surfed this backwards',
-                gameplayRating: 10
               }
-            ],
-            mmap: { connect: { id: map.id } },
-            reviewer: { connect: { id: u2.id } },
-            resolved: true
-          }
-        });
-      });
 
-      afterEach(() => db.cleanup('mMap', 'user'));
 
-      it('should return 404 for trying to delete a nonexistent review for a map', () =>
-        req.del({
-          url: `maps/${map.id}/reviews/${NULL_ID}`,
-          status: 404,
-          token: u2Token
         }));
 
-      it('should return 403 for when the user is not the author of the review', () =>
-        req.del({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 403,
-          token: u1Token
         }));
 
-      it('should return 204 when a user deletes their review', async () =>
-        await req.del({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 204,
-          token: u2Token
         }));
 
-      it('should return 204 when a mod deletes a review', async () =>
-        await req.del({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 204,
-          token: modToken
         }));
 
-      it('should return 204 when an admin deletes a review', async () =>
-        await req.del({
-          url: `maps/${map.id}/reviews/${review.id}`,
-          status: 204,
-          token: adminToken
         }));
     });
   });
