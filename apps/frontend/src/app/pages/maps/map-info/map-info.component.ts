@@ -46,6 +46,7 @@ import { GalleriaModule } from 'primeng/galleria';
 import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
 import { Enum } from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
+import { extractPrefixFromMapName } from '@momentum/util-fn';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -95,6 +96,8 @@ export class MapInfoComponent implements OnInit {
 
   map: MMap;
 
+  name: string;
+  prefix: string | null;
   leaderboards: GroupedMapLeaderboards;
   credits: GroupedMapCredits;
   images: Array<{ full: string; thumb: string }>;
@@ -151,6 +154,9 @@ export class MapInfoComponent implements OnInit {
 
   setMap(map: MMap) {
     this.map = map;
+    const [name, prefix] = extractPrefixFromMapName(map.name);
+    this.name = name;
+    this.prefix = prefix;
     this.credits = new GroupedMapCredits(this.map.credits);
     this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(map.status);
     // Show Review section first if in review, otherwise leaderboards (and the

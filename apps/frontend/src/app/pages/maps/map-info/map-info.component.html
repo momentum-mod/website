@@ -1,9 +1,13 @@
 @if (map) {
   <div class="grid gap-x-4 gap-y-2 [grid-template-columns:3fr_7fr]">
     <div class="flex">
-      <div class="flex flex-col">
-        <p class="-mb-2 font-display text-4xl font-bold leading-none text-gray-300">surf</p>
-        <p class="m-card-title ml-0 text-7xl">{{ map.name }}</p>
+      <!-- This negative margin is pretty evil, breaking the standard <main>
+           padding. But vertical space is so precious here! -->
+      <div class="relative -mt-2 flex h-[6.5rem] flex-col">
+        @if (prefix) {
+          <p class="m-card-title absolute top-0 text-[2rem] text-gray-200">{{ prefix ?? '' }}</p>
+        }
+        <p class="m-card-title absolute bottom-0 text-[5rem]">{{ name }}</p>
       </div>
       <button type="button" class="ml-auto mt-auto flex" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
         <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
@@ -118,7 +122,7 @@
         </div>
 
         <div class="flex flex-col gap-2 border-x border-white border-opacity-5 px-5 pb-4">
-          <p class="mb-2 text-shadow whitespace-pre-wrap">{{ map.info.description }}</p>
+          <p class="text-shadow mb-2 whitespace-pre-wrap">{{ map.info.description }}</p>
           <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
                if we ever decide to change layout (see #website Jan 3rd 24) -->
@@ -133,8 +137,8 @@
                       <a routerLink="/profile/{{ credit.user.id }}" class="flex items-center">
                         <m-avatar class="mr-4 h-8 w-8" [url]="credit.user.avatarURL" />
                         <div class="flex flex-col justify-center">
-                          <p class="col-start-2 font-medium leading-none text-shadow">{{ credit.user.alias }}</p>
-                          <p class="font-gray-100 col-start-2 text-sm italic text-shadow">{{ credit.description }}</p>
+                          <p class="text-shadow col-start-2 font-medium leading-none">{{ credit.user.alias }}</p>
+                          <p class="font-gray-100 text-shadow col-start-2 text-sm italic">{{ credit.description }}</p>
                         </div>
                       </a>
                     }
