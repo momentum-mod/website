@@ -100,6 +100,12 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
+  setComment(item: MapSubmissionSuggestion, event: string) {
+    if (event?.length > 0) {
+      item.comment = event;
+    }
+  }
+
   removeItem(index: number) {
     if (this.disabled) return;
 
