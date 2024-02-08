@@ -9,7 +9,7 @@ import { NgClass } from '@angular/common';
     <div class="flex items-end gap-2 mb-2" [ngClass]="{ 'items-end': !!title }">
       @if (title) {
         <p
-          class="flex-grow font-display font-bold opacity-80 leading-none ml-2"
+          class="flex-grow m-card-title"
           [style]="'font-size: ' + titleSize + 'rem;'"
         >
           {{ title }}

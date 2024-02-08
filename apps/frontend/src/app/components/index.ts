@@ -3,6 +3,7 @@ export * from './activity/activity.component';
 export * from './avatar/avatar.component';
 export * from './card/card-header.component';
 export * from './card/card.component';
+export * from './card/card-body.component';
 export * from './confirm-dialog/confirm-dialog.component';
 export * from './delete-user-dialog/delete-user-dialog.component';
 export * from './file-upload/abstract-file-upload.component';
