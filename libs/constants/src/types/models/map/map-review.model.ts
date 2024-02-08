@@ -28,3 +28,7 @@ export interface CreateMapReviewWithFiles {
   images?: File[];
   data: CreateMapReview;
 }
+
+export interface UpdateMapReview extends Partial<CreateMapReview> {
+  resolved?: boolean | null;
+}
