@@ -19,11 +19,13 @@ import { randomHash, randomSteamID } from './random.util';
 import {
   Gamemode,
   MapStatus,
+  MapSubmissionType,
   RunStats,
   Style,
   TrackType
 } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
+import { createSha1Hash } from './crypto.util';
 
 export const NULL_ID = 999999999;
 
@@ -139,6 +141,29 @@ export class DbUtil {
             info: { create: { creationDate: new Date() } },
             images: mmap?.images ?? { create: {} },
             stats: mmap?.stats ?? { create: {} },
+            submission: mmap?.submission ?? {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                suggestions: [
+                  {
+                    gamemode: Gamemode.AHOP,
+                    trackType: TrackType.MAIN,
+                    trackNum: 0,
+                    tier: 1,
+                    ranked: true
+                  }
+                ],
+                versions: {
+                  create: {
+                    versionNum: 1,
+                    changelog: 'hello',
+                    hash: createSha1Hash(Math.random().toString()),
+                    zones: ZonesStub
+                  }
+                }
+              }
+            },
+            submitter: mmap?.submitter ?? { create: this.createUserData() },
             // Just creating the one leaderboard here, most maps will have more,
             // but isn't needed or worth the test perf hit
             leaderboards:
