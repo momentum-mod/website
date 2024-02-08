@@ -22,6 +22,7 @@ export * from './enums/map-submission-type.enum';
 export * from './enums/track-type.enum';
 export * from './enums/style.enum';
 export * from './enums/admin-activity-type.enum';
+export * from './enums/image-type.enum';
 export * from './maps/gamemode-name.map';
 export * from './maps/gamemode-prefix.map';
 export * from './maps/map-credit-name.map';
