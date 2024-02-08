@@ -9,6 +9,7 @@
 
 @import './primeng-theme-nolayers.css';
 @import './primeng-nolayers.css';
+@import './primeng-overrides.css';
 
 @import './shared_styling/fonts/BebasNeue/300.css';
 @import './shared_styling/fonts/BebasNeue/400.css';
