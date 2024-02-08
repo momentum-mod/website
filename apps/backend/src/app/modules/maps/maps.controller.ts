@@ -41,7 +41,13 @@ import {
   FileFieldsInterceptor,
   FileInterceptor
 } from '@nest-lab/fastify-multer';
-import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
+import {
+  MAP_IMAGE_HEIGHT,
+  MAP_IMAGE_WIDTH,
+  MAX_MAP_IMAGE_SIZE,
+  MAX_REVIEW_IMAGES,
+  Role
+} from '@momentum/constants';
 import { ConfigService } from '@nestjs/config';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 import { RolesGuard } from '../auth/roles.guard';
@@ -49,8 +55,12 @@ import {
   ApiOkPagedResponse,
   CreateMapCreditDto,
   CreateMapDto,
+  CreateMapReviewDto,
+  CreateMapReviewWithFilesDto,
   CreateMapSubmissionVersionDto,
   CreateMapTestingRequestDto,
+  CreateMapWithFilesDto,
+  LeaderboardRunDto,
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
@@ -58,20 +68,17 @@ import {
   MapImageDto,
   MapInfoDto,
   MapLeaderboardGetQueryDto,
+  MapLeaderboardGetRunQueryDto,
   MapReviewDto,
-  MapReviewGetIdDto,
   MapReviewsGetQueryDto,
   MapsGetAllQueryDto,
   MapsGetQueryDto,
+  MapZonesDto,
+  MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
   UpdateMapTestingRequestDto,
-  VALIDATION_PIPE_CONFIG,
-  CreateMapWithFilesDto,
-  MapZonesDto,
-  LeaderboardRunDto,
-  MapLeaderboardGetRunQueryDto,
-  MinimalLeaderboardRunDto
+  VALIDATION_PIPE_CONFIG
 } from '../../dto';
 import { LoggedInUser, Roles } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
@@ -84,6 +91,7 @@ import { MapsService } from './maps.service';
 import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
 import { MapReviewService } from '../map-review/map-review.service';
+import { ImageType } from '@momentum/constants';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -754,12 +762,51 @@ export class MapsController {
     return this.mapReviewService.getAllReviews(mapID, userID, query);
   }
 
+  @Post('/:mapID/reviews')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_REVIEW_IMAGES }]),
+    FormDataJsonInterceptor('data')
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Creates a review for a map' })
+  @ApiOkResponse({ type: MapReviewDto, description: 'The created review' })
   @ApiForbiddenResponse({
+    description: 'User does not have the required role to review'
   })
+  @ApiBadRequestResponse({ description: 'Invalid map' })
+  @ApiBody({
+    type: CreateMapReviewWithFilesDto,
+    description: 'The create map review data transfer object',
     required: true
   })
+  createReview(
+    @Body('data') data: CreateMapReviewDto,
     @Param('mapID', ParseIntSafePipe) mapID: number,
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new ImageFileValidator({
+              minHeight: 100,
+              minWidth: 100,
+              maxWidth: 4000,
+              maxHeight: 4000
+            }),
+            new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+          ]
+        })
+      )
+    )
+    files: { images?: File[] },
     @LoggedInUser('id') userID: number
+  ): Promise<MapReviewDto> {
+    return this.mapReviewService.createReview(
+      userID,
+      mapID,
+      data,
+      files?.images
+    );
   }
+
   //endregion
 }

@@ -2066,41 +2066,172 @@ describe('Maps Part 2', () => {
         req.unauthorizedTest('maps/1/reviews', 'get'));
     });
 
+    describe('POST', () => {
+      let normalToken,
+        reviewerToken,
+        miscUser,
+        approvedMap,
+        pubTestMap,
+        privTestMap;
+
       beforeAll(async () => {
+        [normalToken, reviewerToken, miscUser] = await Promise.all([
+          db.loginNewUser(),
+          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+          db.createUser()
         ]);
 
+        pubTestMap = await db.createMap({
           status: MapStatusNew.PUBLIC_TESTING,
+          submitter: { connect: { id: miscUser.id } }
         });
 
+        approvedMap = await db.createMap({
+          status: MapStatusNew.APPROVED,
+          submitter: { connect: { id: miscUser.id } }
         });
 
+        privTestMap = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING,
+          submitter: { connect: { id: miscUser.id } }
         });
       });
 
+      afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
 
+      afterEach(() => db.cleanup('mapReview'));
 
-        });
+      it('should successfully create a review', async () => {
+        const imageBuffer = readFileSync(
+          path.join(FILES_PATH, 'image_jpg.jpg')
+        );
+        const imageHash = createSha1Hash(imageBuffer);
 
-      });
-
-        }));
-
+        const res = await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.jpg' }
+          ],
           data: {
+            mainText: 'Please add conc',
             suggestions: [
               {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 0,
                 tier: 1,
+                gameplayRating: 1
               }
+            ]
+          },
+          validate: MapReviewDto,
+          token: normalToken
+        });
 
+        const imageUrl = res.body.images[0];
+        const image = await fileStore.downloadHttp(imageUrl);
+        expect(createSha1Hash(image)).toBe(imageHash);
+      });
 
+      it('should succeed with no images', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: {
+            mainText: 'Please add conc',
+            suggestions: [
+              {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 0,
+                tier: 1,
+                gameplayRating: 1
+              }
+            ]
+          },
+          validate: MapReviewDto,
+          token: normalToken
         }));
 
+      it('should 400 for bad suggestions', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 400,
+          data: {
+            mainText: 'Please add conc',
+            suggestions: [
+              {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 10000,
+                tier: 1,
+                gameplayRating: 1
+              }
+            ]
+          },
+          token: normalToken
         }));
 
+      it('should not allow a regular user to set needsResolving', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 403,
+          data: { mainText: 'Please add conc', needsResolving: true },
+          token: normalToken
         }));
 
+      it('should allow a reviewer user to set needsResolving', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'Please add conc', needsResolving: true },
+          validate: MapReviewDto,
+          token: reviewerToken
         }));
 
+      it('should 400 if image is too large', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 400,
+          files: [
+            {
+              file: readFileSync(path.join(FILES_PATH, 'very_large_image.jpg')),
+              field: 'images',
+              fileName: 'hello.jpg'
+            }
+          ],
+          data: { mainText: 'Please add conc' },
+          token: normalToken
         }));
+
+      it('should return 404 for trying to post a review for a nonexistent map', () =>
+        req.postAttach({
+          url: `maps/${NULL_ID}/reviews`,
+          status: 404,
+          data: { mainText: 'let me iiiiiin' },
+          token: normalToken
+        }));
+
+      it('should return 403 for a map that has been approved', () =>
+        req.postAttach({
+          url: `maps/${approvedMap.id}/reviews`,
+          status: 403,
+          data: { mainText: 'LET ME INNN' },
+          token: normalToken
+        }));
+
+      // Sufficient to test getMapAndCheckReadAccess is being called
+      it('should return 403 for a review on a map in private testing without an invite', () =>
+        req.postAttach({
+          url: `maps/${privTestMap.id}/reviews`,
+          status: 403,
+          data: { mainText: 'PLEAAAASE LET ME INNN' },
+          token: normalToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/reviews', 'post'));
     });
   });
 
