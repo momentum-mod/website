@@ -9,5 +9,6 @@ export enum AdminActivityType {
   MAP_UPDATE = 7,
   MAP_DELETE = 8,
   REPORT_UPDATE = 9,
-  REPORT_RESOLVE = 10
+  REPORT_RESOLVE = 10,
+  REVIEW_DELETED = 11,
 }
