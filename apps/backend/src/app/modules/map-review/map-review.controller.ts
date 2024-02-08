@@ -180,4 +180,23 @@ export class MapReviewController {
   ): Promise<MapReviewCommentDto> {
     return this.commentService.updateComment(commentID, userID, body);
   }
+
+  @Delete('/comments/:commentID')
+  @ApiOperation({ summary: 'Delete an existing commment' })
+  @ApiNoContentResponse({ description: 'Comment deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Comment not found' })
+  @ApiForbiddenResponse({ description: 'Map is not in submission' })
+  @ApiForbiddenResponse({ description: 'User is not comment author' })
+  @ApiParam({
+    name: 'commentID',
+    type: Number,
+    description: 'Target Comment ID',
+    required: true
+  })
+  deleteComment(
+    @Param('commentID', ParseIntSafePipe) commentID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<void> {
+    return this.commentService.deleteComment(commentID, userID);
+  }
 }

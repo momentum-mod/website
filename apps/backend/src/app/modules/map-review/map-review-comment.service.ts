@@ -17,13 +17,15 @@ import {
 import { MapsService } from '../maps/maps.service';
 import { isEmpty, parallel } from '@momentum/util-fn';
 import { Bitflags } from '@momentum/bitflags';
-import { CombinedRoles } from '@momentum/constants';
+import { AdminActivityType, CombinedRoles } from '@momentum/constants';
+import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
 export class MapReviewCommentService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly mapsService: MapsService
+    private readonly mapsService: MapsService,
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
   async getComments(
@@ -95,6 +97,37 @@ export class MapReviewCommentService {
       })
     );
   }
+
+  async deleteComment(commentID: number, userID: number): Promise<void> {
+    const comment = await this.db.mapReviewComment.findUnique({
+      where: { id: commentID },
+      include: { review: { include: { mmap: true } } }
+    });
+
+    if (comment.userID !== userID) {
+      const user = await this.db.user.findUnique({ where: { id: userID } });
+
+      if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
+        await this.adminActivityService.create(
+          userID,
+          AdminActivityType.REVIEW_COMMENT_DELETED,
+          commentID,
+          comment
+        );
+      } else {
+        throw new ForbiddenException();
+      }
+    }
+
+    await this.mapsService.getMapAndCheckReadAccess({
+      userID,
+      map: comment.review.mmap,
+      submissionOnly: true
+    });
+
+    await this.db.mapReviewComment.delete({ where: { id: commentID } });
+  }
+
   private async checkReviewPerms(
     reviewID: number,
     userID: number
