@@ -1,86 +1,8 @@
-<m-card title="Leaderboards">
-  <button header class="m-btn m-btn-blue" type="button" (click)="filterActive = !filterActive">Filter</button>
-  <div
-    class="filter-content"
-    [ngClass]="{ 'filter-active': filterActive }"
-    [ngStyle]="{
-      'max-height': filterActive ? filterContent.scrollHeight + 'px' : null
-    }"
-    #filterContent
-  >
-    <div class="p-6">
-      <div class="mb-3 flex flex-wrap">
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <p-dropdown [(ngModel)]="selectedMode" [options]="availableModes" optionLabel="label" optionValue="gamemode" />
-        </div>
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <input type="text" class="m-textinput mb-1" placeholder="Rank" />
-        </div>
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <input type="text" class="m-textinput mb-1" placeholder="Name" />
-        </div>
-        <div class="relative flex gap-4 md:flex-1 md:flex-grow">
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.TOP10" [(ngModel)]="filterLeaderboardType" />
-            Show top 10 times
-          </label>
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.AROUND" [(ngModel)]="filterLeaderboardType" />
-            Show ranks around me
-          </label>
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.FRIENDS" [(ngModel)]="filterLeaderboardType" />
-            Show friend's time
-          </label>
         </div>
       </div>
-      <div class="flex flex-wrap">
-        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
-          <button class="m-btn m-btn-blue w-full" (click)="loadLeaderboardRuns()">Update</button>
-        </div>
-        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
-          <button class="m-btn m-btn-orange w-full">Clear</button>
-        </div>
-      </div>
-    </div>
   </div>
-  @if (!searchedRanks) {
-    <h4 class="text-center">Waiting for API response</h4>
   }
-  @if (searchedRanks && leaderboardRuns.length === 0) {
     <h4 class="text-center">No runs found</h4>
   }
-  @if (searchedRanks && leaderboardRuns.length > 0) {
-    <div class="scrolling-touch block w-full overflow-auto">
-      <table>
-        <tr>
-          <th>Rank</th>
-          <th>User</th>
-          <th>Time</th>
-          <th>Flags</th>
-          <th>Achieved</th>
-          <th>View</th>
-        </tr>
-        @for (run of leaderboardRuns; track run) {
-          <tr>
-            <td>{{ run.rank }}</td>
-            <td>
-              <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2">
-                <m-avatar class="h-6" [url]="run.user.avatarURL" />
-                <p>{{ run.user }}</p>
-              </a>
-            </td>
-            <td>{{ run.time | timing }}</td>
-            <td></td>
-            <td>{{ run.createdAt | timeAgo }}</td>
-            <td>
-              <button class="m-btn m-btn-blue" type="button" (click)="viewRun(run)">
-                <m-icon icon="arrow-right-thick"></m-icon>
-              </button>
-            </td>
-          </tr>
-        }
-      </table>
     </div>
   }
-</m-card>
