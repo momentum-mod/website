@@ -27,7 +27,7 @@ export interface EditableMapCredit {
  *
  * Using an Object rather than a Map for easier change detection
  */
-export class SortedMapCredits
+export class GroupedMapCredits
   implements Record<MapCreditType, EditableMapCredit[]>
 {
   [MapCreditType.AUTHOR]: EditableMapCredit[];

@@ -15,8 +15,6 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
 import {
   ConfirmDialogComponent,
-  EditableMapCredit,
-  SortedMapCredits,
   FileUploadComponent,
   TabsComponent,
   TabComponent
@@ -50,7 +48,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   map: MMap;
   images: MapImage[] = [];
   readonly imagesLimit = 6; // TODO: use @momentum/constants
-  credits = new SortedMapCredits();
+  credits = new GroupedMapCredits();
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;

@@ -50,7 +50,6 @@ import {
 } from '../../../validators';
 import {
   MapLeaderboardSelectionComponent,
-  SortedMapCredits,
   MapTestingRequestSelectionComponent,
   MapCreditsSelectionComponent,
   MapImageSelectionComponent,
@@ -61,6 +60,8 @@ import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
 import { PluralPipe } from '../../../pipes';
 import { SuggestionType } from '@momentum/formats/zone';
+import { MapSubmissionTypeInfoComponent } from '../../../components/tooltips/map-submission-type-tooltip.component';
+import { GroupedMapCredits } from '../../../util';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -121,6 +122,7 @@ export class MapSubmissionFormComponent implements OnInit {
   isModOrAdmin: boolean;
   hasMapInSubmission: boolean;
 
+  // TODO: Why generic?
   form: FormGroup = this.fb.group({
     files: this.fb.group({
       bsp: [
@@ -238,7 +240,7 @@ export class MapSubmissionFormComponent implements OnInit {
   }
 
   get credits() {
-    return this.form.get('credits') as FormControl<SortedMapCredits>;
+    return this.form.get('credits') as FormControl<GroupedMapCredits>;
   }
 
   get suggestions() {

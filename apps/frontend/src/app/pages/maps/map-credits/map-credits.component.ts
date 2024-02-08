@@ -6,13 +6,10 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import {
-  SortedMapCredits,
-  UserSearchComponent,
-  AvatarComponent
-} from '../../../components';
+import { UserSearchComponent, AvatarComponent } from '../../../components';
 
 import { SharedModule } from '../../../shared.module';
+import { GroupedMapCredits } from '../../../util';
 
 enum SearchState {
   HIDDEN,
@@ -51,7 +48,7 @@ export class MapCreditsComponent {
   };
 
   @Input() editable = false;
-  @Input() credits: SortedMapCredits;
+  @Input() credits: GroupedMapCredits;
 
   /**
    * This is used to alert the parent component that the credits have changed.
