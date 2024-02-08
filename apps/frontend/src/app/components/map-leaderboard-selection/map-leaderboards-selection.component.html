@@ -73,7 +73,8 @@
         <td>
           <textarea
             class="m-textinput w-full"
-            [(ngModel)]="item.comment"
+            [ngModel]="item.comment"
+            (ngModelChange)="setComment(item, $event)"
             rows="1"
             [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
             (blur)="onTouched()"
