@@ -19,6 +19,8 @@ import {
   CombinedRoles,
   Gamemode,
   GamemodePrefix,
+  MAP_IMAGE_HEIGHT,
+  MAP_IMAGE_WIDTH,
   MapSubmissionSuggestion,
   MapSubmissionType,
   MapZones,
@@ -164,13 +166,17 @@ export class MapSubmissionFormComponent implements OnInit {
       youtubeID: ['', [Validators.pattern(/[\w-]{11}/)]]
     }),
     images: [
-      '',
+      null,
       [
         Validators.required,
         FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
-        FileValidators.extension(['png', 'jpg', 'jpeg'])
+        FileValidators.extension(['png'])
       ],
-      [FileValidators.imageDimensions([{ width: 2560, height: 1440 }])]
+      [
+        FileValidators.imageDimensions([
+          { width: MAP_IMAGE_WIDTH, height: MAP_IMAGE_HEIGHT }
+        ])
+      ]
     ],
     credits: [null, [creditsValidator]],
     suggestions: new FormControl(
