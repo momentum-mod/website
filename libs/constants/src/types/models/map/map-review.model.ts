@@ -32,3 +32,6 @@ export interface CreateMapReviewWithFiles {
 export interface UpdateMapReview extends Partial<CreateMapReview> {
   resolved?: boolean | null;
 }
+
+export interface AdminUpdateMapReview
+  extends Pick<UpdateMapReview, 'resolved'> {}

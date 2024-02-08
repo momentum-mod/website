@@ -360,6 +360,57 @@ export class MapReviewService {
       })
     );
   }
+
+  /**
+   * Update a review as a Reviewer/Moderator/Admin
+   */
+  async updateReviewAsReviewer(
+    reviewID: number,
+    userID: number,
+    data: AdminUpdateMapReviewDto
+  ): Promise<MapReviewDto> {
+    if (isEmpty(data)) {
+      throw new BadRequestException('Empty body');
+    }
+
+    const review = await this.db.mapReview.findUnique({
+      where: { id: reviewID },
+      include: { reviewer: true }
+    });
+
+    if (!review) throw new NotFoundException('Review not found');
+
+    // RoleGuard does most auth, but some maps are still restricted, e.g. in
+    // PRIVATE_TESTING
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID: review.mapID,
+      userID,
+      submissionOnly: true
+    });
+
+    // Not creating admin activities here, since review resolution is very
+    // 'normal' behaviour, and gets tracked in the edit history.
+
+    return DtoFactory(
+      MapReviewDto,
+      await this.db.mapReview.update({
+        where: { id: reviewID },
+        include: { resolver: true },
+        data: {
+          resolved: data.resolved,
+          resolverID: data.resolved ? userID : null,
+          editHistory: [
+            ...((review.editHistory ?? []) as unknown as MapReviewEdit[]), // TODO: #855
+            {
+              resolved: data.resolved,
+              editorID: userID,
+              date: new Date()
+            }
+          ]
+        }
+      })
+    );
+  }
   async deleteReview(
     reviewID: number,
     userID: number,

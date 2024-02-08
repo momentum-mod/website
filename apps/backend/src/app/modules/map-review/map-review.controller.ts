@@ -93,7 +93,7 @@ export class MapReviewController {
   ): Promise<MapReviewDto> {
     return this.reviewService.updateReview(reviewID, userID, body);
   }
-  
+
   @Delete('/:reviewID')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
