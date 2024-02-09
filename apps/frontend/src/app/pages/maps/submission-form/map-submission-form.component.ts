@@ -51,12 +51,12 @@ import {
   testInvitesValidator
 } from '../../../validators';
 import {
-  MapLeaderboardSelectionComponent,
-  MapTestingRequestSelectionComponent,
+  FileUploadComponent,
   MapCreditsSelectionComponent,
   MapImageSelectionComponent,
-  MultiFileUploadComponent,
-  FileUploadComponent
+  MapLeaderboardSelectionComponent,
+  MapTestingRequestSelectionComponent,
+  MultiFileUploadComponent
 } from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
@@ -64,6 +64,8 @@ import { PluralPipe } from '../../../pipes';
 import { SuggestionType } from '@momentum/formats/zone';
 import { MapSubmissionTypeInfoComponent } from '../../../components/tooltips/map-submission-type-tooltip.component';
 import { GroupedMapCredits } from '../../../util';
+import { AlertComponent } from '../../../components/alert/alert.component';
+import { DropdownModule } from 'primeng/dropdown';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -83,11 +85,17 @@ import { GroupedMapCredits } from '../../../util';
     ProgressBarModule,
     CalendarModule,
     PluralPipe,
-    MapSubmissionTypeInfoComponent
+    MapSubmissionTypeInfoComponent,
+    AlertComponent,
+    DropdownModule
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {
   protected readonly MapSubmissionType = MapSubmissionType;
+  protected readonly MapSubmissionTypeOptions = [
+    { type: MapSubmissionType.ORIGINAL, label: 'Original' },
+    { type: MapSubmissionType.PORT, label: 'Port' }
+  ];
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
@@ -115,11 +123,6 @@ export class MapSubmissionFormComponent implements OnInit {
   uploadStatusDescription = 'TODO: MAKE ME EMPTY STRING';
 
   protected zones: MapZones | null = null;
-
-  // mapPreview: PartialDeep<
-  //   { map: MMap; images: MapImage[] },
-  //   { recurseIntoArrays: true }
-  // >;
 
   isMapperOrPorter: boolean;
   isModOrAdmin: boolean;
@@ -267,14 +270,6 @@ export class MapSubmissionFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
-    this.form
-      .get('credits')
-      .valueChanges.subscribe(() => this.generatePreviewMap());
-    this.form
-      .get('info')
-      .valueChanges.subscribe(this.generatePreviewMap.bind(this));
-
     this.zon.statusChanges.pipe(distinctUntilChanged()).subscribe((status) => {
       if (status === 'VALID') {
         this.onValidZoneFileSelected();
@@ -298,6 +293,12 @@ export class MapSubmissionFormComponent implements OnInit {
     this.isModOrAdmin = this.localUserService.hasRole(
       CombinedRoles.MOD_OR_ADMIN
     );
+    if (this.isModOrAdmin) {
+      this.MapSubmissionTypeOptions.push({
+        type: MapSubmissionType.SPECIAL,
+        label: 'Special (Moderator only)'
+      });
+    }
 
     this.mapsService
       .getMapSubmissions()
@@ -501,53 +502,6 @@ export class MapSubmissionFormComponent implements OnInit {
     this.isUploading = false;
     this.uploadStatusDescription = '';
     this.uploadPercentage = 0;
-  }
-
-  generatePreviewMap(): void {
-    // const youtubeIDMatch = this.youtubeURL.value.match(this.youtubeRegex);
-    // this.mapPreview = {
-    //   map: {
-    //     id: 0,
-    //     name: this.name.value,
-    //     type: this.type.value as any, // TODO
-    //     hash: 'not-important-yet',
-    //     status: 0,
-    //     info: {
-    //       id: 0,
-    //       description: this.description.value,
-    //       youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : undefined,
-    //       numTracks: this.tracks.length,
-    //       creationDate: this.creationDate.value
-    //     },
-    //     mainTrack: this.tracks.length > 0 ? this.tracks[0] : undefined,
-    //     tracks: this.tracks,
-    //     credits: Object.entries(this.credits).flatMap(([type, users]) =>
-    //       users.map((credit) => ({
-    //         type: +type,
-    //         user: credit.user
-    //       }))
-    //     ),
-    //     submitter: this.localUserService.localUser
-    //   },
-    //   images: []
-    // };
-    // if (this.avatarFilePreview) {
-    //   this.mapPreview.images.push({
-    //     id: 0,
-    //     mapID: 0,
-    //     small: this.avatarFilePreview.dataBlobUrl,
-    //     medium: this.avatarFilePreview.dataBlobUrl,
-    //     large: this.avatarFilePreview.dataBlobUrl
-    //   });
-    // }
-    // for (const image of this.extraImages)
-    //   this.mapPreview.images.push({
-    //     id: 0,
-    //     mapID: 0,
-    //     small: image.dataBlobUrl,
-    //     medium: image.dataBlobUrl,//
-    //     large: image.dataBlobUrl
-    //   });
   }
 
   /**
