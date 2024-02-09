@@ -1,7 +1,10 @@
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
-  FormsModule
+  FormsModule,
+  FormControl,
+  Validators,
+  ReactiveFormsModule
 } from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
 import {
@@ -18,7 +21,7 @@ import {
   CdkDrag
 } from '@angular/cdk/drag-drop';
 import { Enum } from '@momentum/enum';
-import { KeyValuePipe } from '@angular/common';
+import { KeyValuePipe, NgIf } from '@angular/common';
 import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives';
@@ -44,7 +47,9 @@ import { GroupedMapCredits } from '../../util';
     UserSearchComponent,
     KeyValuePipe,
     TooltipDirective,
-    AvatarComponent
+    AvatarComponent,
+    NgIf,
+    ReactiveFormsModule
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {
@@ -54,6 +59,19 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
   protected readonly MapCreditNames = MapCreditNames;
 
   protected readonly connectedTo = Enum.values(MapCreditType).map(String);
+
+  protected readonly placeholderInputs = new Map(
+    Enum.values(MapCreditType).map((type) => [
+      type,
+      new FormControl<string>('', {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(32)
+        ]
+      })
+    ])
+  );
 
   @ViewChildren(TooltipDirective)
   tooltips: QueryList<TooltipDirective>;
@@ -89,14 +107,13 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     this.onChange(this.value);
   }
 
-  addPlaceholder(type: MapCreditType, input: HTMLInputElement) {
-    const alias = input.value;
-    input.value = '';
+  addPlaceholder(type: MapCreditType, input: string) {
     this.value[type].push({
-      user: { alias, avatarURL: STEAM_MISSING_AVATAR_URL },
+      user: { alias: input, avatarURL: STEAM_MISSING_AVATAR_URL },
       type,
       placeholder: true
     });
+    this.placeholderInputs.get(type).reset();
     this.onChange(this.value);
   }
 
