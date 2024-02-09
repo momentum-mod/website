@@ -336,6 +336,10 @@ export class MapReviewService {
       throw new ForbiddenException();
     }
 
+    if (review.resolved && body.needsResolving === false) {
+      throw new BadRequestException();
+    }
+
     return DtoFactory(
       MapReviewDto,
       await this.db.mapReview.update({
