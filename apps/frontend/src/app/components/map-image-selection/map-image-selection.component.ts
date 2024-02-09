@@ -4,21 +4,22 @@ import {
   FormControl,
   FormGroup,
   FormGroupDirective,
-  NG_VALUE_ACCESSOR,
   FormsModule,
+  NG_VALUE_ACCESSOR,
   ReactiveFormsModule
 } from '@angular/forms';
 import {
+  CdkDrag,
   CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem,
   CdkDropList,
-  CdkDrag
+  moveItemInArray,
+  transferArrayItem
 } from '@angular/cdk/drag-drop';
 import { Icon, IconComponent } from '../../icons';
 import { AbstractFileUploadComponent } from '../file-upload/abstract-file-upload.component';
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 import { ImageSelectionItem } from './image-selection-item.class';
+import { BackgroundState, LayoutService } from '../../services';
 
 enum ImageType {
   THUMBNAIL,
@@ -55,11 +56,15 @@ export class MapImageSelectionComponent implements OnInit {
   @Input({ required: true }) innerFormControlName!: string;
   @Input() icon: Icon;
   @Input() disabled = false;
+  @Input() previewFullscreenBackground = false;
 
   protected readonly ImageType = ImageType;
   protected readonly max = 5;
 
-  constructor(private controlContainer: ControlContainer) {}
+  constructor(
+    private readonly controlContainer: ControlContainer,
+    private readonly layoutService: LayoutService
+  ) {}
 
   ngOnInit() {
     this.form = <FormGroup>this.controlContainer.control;
@@ -76,13 +81,21 @@ export class MapImageSelectionComponent implements OnInit {
     const newFiles = structuredClone(this.control.value) as File[];
 
     if (this.items[ImageType.THUMBNAIL].length === 0) {
-      this.items[ImageType.THUMBNAIL].push(
-        await ImageSelectionItem.create(newFiles.shift())
-      );
-      // extras must be empty so just reassign
+      let file: File;
+      while ((file = newFiles.shift())) {
+        const item = await ImageSelectionItem.create(file);
+        if (!item) continue;
+
+        this.items[ImageType.THUMBNAIL].push(item);
+        break;
+      }
+
+      // Extras must be empty so just reassign
       this.items[ImageType.EXTRA] = await Promise.all(
-        newFiles.map((file) => ImageSelectionItem.create(file))
+        newFiles.map((file) => ImageSelectionItem.create(file)).filter(Boolean)
       );
+
+      this.onThumbnailChanged();
     } else {
       this.items[ImageType.EXTRA] = [
         ...this.items[ImageType.EXTRA],
@@ -98,9 +111,28 @@ export class MapImageSelectionComponent implements OnInit {
                 )
             )
             .map((file) => ImageSelectionItem.create(file))
+            .filter(Boolean)
         ))
       ];
     }
+  }
+
+  onThumbnailChanged() {
+    // This image could actually be invalid according to outer form, but
+    // going to still update the image anyway. Refactoring this to expose the
+    // ImageSelectionItems in outer form (so we can access dataUrls) would be
+    // a huge pain.
+    if (!this.previewFullscreenBackground) return;
+
+    if (this.items[ImageType.THUMBNAIL].length === 0) {
+      this.layoutService.setBackgroundState(BackgroundState.DISABLED);
+      return;
+    }
+
+    this.layoutService.setBackgroundState(BackgroundState.ENABLED);
+    this.layoutService.setBackgroundImage(
+      this.items[ImageType.THUMBNAIL][0].dataUrl
+    );
   }
 
   drop(event: CdkDragDrop<ImageSelectionItem[]>, newType: ImageType) {
@@ -135,6 +167,8 @@ export class MapImageSelectionComponent implements OnInit {
         transferArrayItem(previousData, targetData, event.previousIndex, 0);
         transferArrayItem(targetData, previousData, 1, event.previousIndex);
       }
+
+      this.onThumbnailChanged();
     }
 
     this.updateFormValue();
@@ -149,16 +183,17 @@ export class MapImageSelectionComponent implements OnInit {
       1
     );
 
-    if (
-      type === ImageType.THUMBNAIL &&
-      this.items[ImageType.EXTRA].length > 0
-    ) {
-      transferArrayItem(
-        this.items[ImageType.EXTRA],
-        this.items[ImageType.THUMBNAIL],
-        0,
-        0
-      );
+    if (type === ImageType.THUMBNAIL) {
+      if (this.items[ImageType.EXTRA].length > 0) {
+        transferArrayItem(
+          this.items[ImageType.EXTRA],
+          this.items[ImageType.THUMBNAIL],
+          0,
+          0
+        );
+      }
+
+      this.onThumbnailChanged();
     }
 
     this.updateFormValue();

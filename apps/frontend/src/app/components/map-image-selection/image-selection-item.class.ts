@@ -4,11 +4,15 @@ export class ImageSelectionItem {
 
   private constructor() {}
 
-  static async create(file: File): Promise<ImageSelectionItem> {
+  static async create(file: File): Promise<ImageSelectionItem | null> {
     const instance = new ImageSelectionItem();
     instance.file = file;
-    instance.dataUrl = await ImageSelectionItem.readAsDataUrl(file);
-    return instance;
+    try {
+      instance.dataUrl = await ImageSelectionItem.readAsDataUrl(file);
+      return instance;
+    } catch {
+      return null;
+    }
   }
 
   private static async readAsDataUrl(image: Blob): Promise<string> {
@@ -17,9 +21,7 @@ export class ImageSelectionItem {
       reader.addEventListener('loadend', () =>
         resolve(reader.result as string)
       );
-      reader.addEventListener('error', () =>
-        reject(new Error('Error parsing file'))
-      );
+      reader.addEventListener('error', reject);
       reader.readAsDataURL(image);
     });
   }
