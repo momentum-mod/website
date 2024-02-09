@@ -20,11 +20,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --sidenav-width-wide: 15rem;
-  --sidenav-width-smol: 3.75rem;
-}
-
 @layer base {
   html {
     scroll-behavior: smooth;

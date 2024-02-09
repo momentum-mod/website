@@ -3,8 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CombinedRoles } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icons';
-import { LocalUserService } from '../../services';
-import { LayoutService, SidenavState } from '../../services/layout.service';
+import { LocalUserService, LayoutService, SidenavState } from '../../services';
 import { TooltipDirective } from '../../directives';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
@@ -16,7 +15,7 @@ import { SIDENAV_ITEMS } from '../../side-menu.const';
   imports: [IconComponent, RouterLink, CommonModule, TooltipDirective]
 })
 export class SidenavComponent implements OnInit {
-  protected state: SidenavState;
+  protected collapsed = false;
   protected isLoggedIn = false;
   protected isMod = false;
 
@@ -29,7 +28,7 @@ export class SidenavComponent implements OnInit {
     this.handleLoggedInState();
 
     this.layoutService.sidenavToggled.subscribe((state) => {
-      this.state = state;
+      this.collapsed = state === SidenavState.CLOSED;
     });
 
     this.localUserService.localUserSubject.subscribe(
@@ -44,9 +43,5 @@ export class SidenavComponent implements OnInit {
 
   getMenuItems(): typeof SIDENAV_ITEMS {
     return SIDENAV_ITEMS.filter(({ needsMod }) => !needsMod || this.isMod);
-  }
-
-  isCollapsed(): boolean {
-    return this.state === SidenavState.CLOSED;
   }
 }

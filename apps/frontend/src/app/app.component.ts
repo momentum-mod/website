@@ -35,7 +35,7 @@ export class AppComponent {
     this.notificationService.inject();
 
     this.layoutService.sidenavToggled.subscribe(
-      (state) => (this.state = state)
+      (state) => (this.sideNavState = state)
     );
 
     this.layoutService.backgroundChange.subscribe((url: string | null) => {

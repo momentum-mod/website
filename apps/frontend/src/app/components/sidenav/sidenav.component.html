@@ -1,14 +1,14 @@
-<nav class="scroll-thin" [ngClass]="{ smol: isCollapsed() }">
+<nav class="scroll-thin" [ngClass]="{ smol: collapsed }">
   @for (category of getMenuItems(); track category.title) {
     <p class="category">{{ category.title }}</p>
     @for (item of category.items; track item.title) {
       @if (item.external) {
-        <a [href]="item.link" class="item" target="_blank" [mTooltip]="item.title" [tooltipDisabled]="!isCollapsed()">
+        <a [href]="item.link" class="item" target="_blank" [mTooltip]="item.title" [tooltipDisabled]="collapsed">
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>
         </a>
       } @else {
-        <a [routerLink]="[item.link]" class="item" [mTooltip]="category.title + ' - ' + item.title" [tooltipDisabled]="!isCollapsed()">
+        <a [routerLink]="[item.link]" class="item" [mTooltip]="category.title + ' - ' + item.title" [tooltipDisabled]="collapsed">
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>
         </a>
