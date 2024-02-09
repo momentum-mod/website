@@ -63,18 +63,22 @@
     }
   }
 
-  .m-card {
+  .m-card,
+  .m-alert {
     border-radius: 0.25rem;
     padding: 1rem;
     border: 1px solid rgb(255 255 255 / 0.05);
-    box-shadow: 1px 2px 16px rgb(0 0 0 / 0.4);
+    box-shadow:
+      1px 3px 4px rgb(0 0 0 / 0.2),
+      2px 4px 24px rgb(0 0 0 / 0.2);
     backdrop-filter: none;
 
     background-color: rgb(var(--gray-600) / 0.8);
   }
 
-  .m-card--fancy {
-    background-color: rgb(255 255 255 / 0.05);
+  .m-card--fancy,
+  .m-alert--fancy {
+    background-color: rgb(255 255 255 / 0.0625);
     backdrop-filter: blur(48px) brightness(0.9);
   }
 
@@ -83,7 +87,8 @@
     font-weight: 700;
     opacity: 0.875;
     line-height: 1;
-    filter: drop-shadow(1px 2px 4px rgb(0 0 0 / 0.3))
+    filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
+      drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
       drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
   }
 
@@ -97,6 +102,12 @@
     &:is(fieldset) {
       padding: 0.25rem 1rem 0.75rem 1rem;
     }
+  }
+
+  .m-alert {
+    display: block;
+    position: relative;
+    padding: 1.5rem;
   }
 
   .m-link {
