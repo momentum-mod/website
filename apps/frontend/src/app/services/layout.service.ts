@@ -58,10 +58,7 @@ export class LayoutService {
 
   setSidenavState(state: SidenavState): void {
     localStorage.setItem(SIDENAV_LS_KEY, state);
-    document.documentElement.style.setProperty(
-      '--sidenav-width',
-      `var(--sidenav-width-${state === SidenavState.OPEN ? 'wide' : 'smol'})`
-    );
+
     this.sidenavToggled.next(state);
   }
 
