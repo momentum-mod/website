@@ -289,30 +289,28 @@ export class MapSubmissionFormComponent implements OnInit {
       value ? this.testInvites.enable() : this.testInvites.disable()
     );
 
-    this.isMapperOrPorter = this.localUserService.hasRole(
-      CombinedRoles.MAPPER_AND_ABOVE
-    );
-    this.isModOrAdmin = this.localUserService.hasRole(
-      CombinedRoles.MOD_OR_ADMIN
-    );
-    if (this.isModOrAdmin) {
-      this.MapSubmissionTypeOptions.push({
-        type: MapSubmissionType.SPECIAL,
-        label: 'Special (Moderator only)'
+    this.localUserService.localUserSubject
+      .pipe(takeUntil(this.unsub))
+      .subscribe(() => {
+        this.isMapperOrPorter = this.localUserService.hasRole(
+          CombinedRoles.MAPPER_AND_ABOVE
+        );
+        this.isModOrAdmin = this.localUserService.hasRole(
+          CombinedRoles.MOD_OR_ADMIN
+        );
+
+        if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
+          this.router.navigate(['/']);
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'You are banned from map submission'
+          });
+        }
       });
-    }
 
     this.mapsService
       .getMapSubmissions()
       .subscribe((value) => (this.hasMapInSubmission = value.totalCount > 0));
-
-    if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
-      this.router.navigate(['/']);
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'You are banned from map submission'
-      });
-    }
   }
 
   async onBspFileSelected() {
