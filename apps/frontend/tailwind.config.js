@@ -97,24 +97,24 @@ module.exports = {
     // prettier-ignore
     boxShadow: ((strength) => ({
       sm: `0 1px 2px 0 rgb(0 0 0 / ${strength * 0.5})`,
-      DEFAULT: `0 1px 3px 0 rgb(0 0 0 /${strength}), 0 1px 2px -1px rgb(0 0 0 / ${strength})`,
-      md: `0 1px 3px 0 rgb(0 0 0 /${strength}), 0 1px 2px -1px rgb(0 0 0 / ${strength})`,
+      DEFAULT: `0 1px 3px 0 rgb(0 0 0 / ${strength}), 0 1px 2px -1px rgb(0 0 0 / ${strength})`,
+      md: `0 1px 3px 0 rgb(0 0 0 / ${strength}), 0 1px 2px -1px rgb(0 0 0 / ${strength})`,
       lg: `0 10px 15px -3px rgb(0 0 0 / ${strength}), 0 4px 6px -4px rgb(0 0 0 / ${strength})`,
       xl: `0 20px 25px -5px rgb(0 0 0 / ${strength}), 0 8px 10px -6px rgb(0 0 0 / ${strength})`,
       '2xl': `0 25px 50px -12px rgb(0 0 0 / ${strength * 2})`,
-      inner: `inset 0 2px 4px 0 rgb(0 0 0 / ${strength * 0.5})`
+      inner: `inset 0 0 12px 0 rgb(0 0 0 / ${strength * 0.5})`
     }))(0.25),
     // Same as above.
     // https://tailwindcss.com/docs/drop-shadow
     // prettier-ignore
     dropShadow: ((strength) => ({
       sm: `0 1px 1px rgb(0 0 0 / ${strength * 0.5})`,
-      DEFAULT: `0 1px 2px rgb(0 0 0 /${strength}), 0 1px 1px rgb(0 0 0 / ${strength * 0.6})`,
-      md: `0 4px 3px rgb(0 0 0 /${strength * 0.7}), 0 2px 2px rgb(0 0 0 / ${strength * 0.6})`,
-      lg: `0 10px 8px rgb(0 0 0 / ${strength * 0.4}), 0 4px 3px rgb(0 0 0 / ${strength})`,
-      xl: `0 20px 13px rgb(0 0 0 / ${strength * 0.3}), 0 8px 5px rgb(0 0 0 / ${strength * 0.8})`,
+      DEFAULT: [`0 1px 2px rgb(0 0 0 / ${strength})`,`0 1px 1px rgb(0 0 0 / ${strength * 0.6})`],
+      md: [`0 4px 3px rgb(0 0 0 / ${strength * 0.7})`, `0 2px 2px rgb(0 0 0 / ${strength * 0.6})`],
+      lg: [`0 10px 8px rgb(0 0 0 / ${strength * 0.4})`, `0 4px 3px rgb(0 0 0 / ${strength})`],
+      xl: [`0 20px 13px rgb(0 0 0 / ${strength * 0.3})`, `0 8px 5px rgb(0 0 0 / ${strength * 0.8})`],
       '2xl': `0 25px 25px rgb(0 0 0 / ${strength * 1.5})`,
-    }))(1)
+    }))(0.325)
   },
   corePlugins: {
     preflight: true
