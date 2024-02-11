@@ -53,10 +53,12 @@ import {
   testInvitesValidator
 } from '../../../validators';
 import {
+  AlertComponent,
   FileUploadComponent,
   MapCreditsSelectionComponent,
   MapImageSelectionComponent,
   MapLeaderboardSelectionComponent,
+  MapSubmissionTypeInfoComponent,
   MapTestingRequestSelectionComponent,
   MultiFileUploadComponent
 } from '../../../components';
@@ -64,9 +66,7 @@ import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
 import { PluralPipe } from '../../../pipes';
 import { SuggestionType } from '@momentum/formats/zone';
-import { MapSubmissionTypeInfoComponent } from '../../../components/tooltips/map-submission-type-tooltip.component';
 import { GroupedMapCredits } from '../../../util';
-import { AlertComponent } from '../../../components/alert/alert.component';
 import { DropdownModule } from 'primeng/dropdown';
 
 // TODO: "are you sure you wnat to leave this page" thingy!

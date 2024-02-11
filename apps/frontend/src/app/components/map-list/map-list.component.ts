@@ -20,11 +20,11 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { PaginatorModule } from 'primeng/paginator';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { ActivityContentComponent } from '../activity/activity-content.component';
 import { SpinnerDirective } from '../../directives';
 import { SharedModule } from '../../shared.module';
 import { LocalUserService, MapsService } from '../../services';
 import { MapListItemComponent } from './map-list-item.component';
+import { ActivityContentComponent } from '../activity/activity-content.component';
 
 // This scary looking type is just the optional query params on map gets, plus
 // a thing for deciding if we should call the favorites-only endpoint.

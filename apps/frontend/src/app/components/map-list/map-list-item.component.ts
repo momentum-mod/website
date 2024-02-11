@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { CarouselModule } from 'primeng/carousel';
 import { LocalUserService } from '../../services';
 import { SharedModule } from '../../shared.module';
-import { AvatarComponent } from '../avatar/avatar.component';
+import { AvatarComponent } from '../';
 import { groupMapLeaderboards, GroupedMapLeaderboards } from '../../util';
 
 @Component({
