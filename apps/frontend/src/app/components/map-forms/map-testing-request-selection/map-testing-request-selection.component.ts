@@ -1,11 +1,14 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
+import {
+  MAX_TESTING_REQUESTS,
+  User
+} from '../../../../../../../libs/constants/src';
 import { NgClass } from '@angular/common';
-import { UserSearchComponent } from '../search/user-search/user-search.component';
-import { TooltipDirective } from '../../directives';
-import { AvatarComponent } from '../avatar/avatar.component';
-import { UserComponent } from '../user/user.component';
+import { UserSearchComponent } from '../../search/user-search/user-search.component';
+import { TooltipDirective } from '../../../directives';
+import { AvatarComponent } from '../../avatar/avatar.component';
+import { UserComponent } from '../../user/user.component';
 
 @Component({
   selector: 'm-map-testing-request-selection',

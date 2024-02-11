@@ -11,9 +11,9 @@ import {
   MapZones,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
-} from '@momentum/constants';
+} from '../../../../../../../libs/constants/src';
 import { CommonModule } from '@angular/common';
-import { Enum } from '@momentum/enum';
+import { Enum } from '../../../../../../../libs/enum/src';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({

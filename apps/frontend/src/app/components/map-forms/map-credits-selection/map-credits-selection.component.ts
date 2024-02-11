@@ -22,11 +22,11 @@ import {
 } from '@angular/cdk/drag-drop';
 import { Enum } from '@momentum/enum';
 import { KeyValuePipe, NgIf } from '@angular/common';
-import { UserSearchComponent } from '../search/user-search/user-search.component';
-import { IconComponent } from '../../icons';
-import { TooltipDirective } from '../../directives';
-import { AvatarComponent } from '../avatar/avatar.component';
-import { GroupedMapCredits } from '../../util';
+import { UserSearchComponent } from '../../search/user-search/user-search.component';
+import { IconComponent } from '../../../icons';
+import { TooltipDirective } from '../../../directives';
+import { AvatarComponent } from '../../avatar/avatar.component';
+import { GroupedMapCredits } from '../../../util';
 
 @Component({
   selector: 'm-map-credits-selection',
