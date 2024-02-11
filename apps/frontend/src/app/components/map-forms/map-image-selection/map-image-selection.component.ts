@@ -15,11 +15,11 @@ import {
   moveItemInArray,
   transferArrayItem
 } from '@angular/cdk/drag-drop';
-import { Icon, IconComponent } from '../../icons';
-import { AbstractFileUploadComponent } from '../file-upload/abstract-file-upload.component';
-import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
+import { Icon, IconComponent } from '../../../icons';
+import { AbstractFileUploadComponent } from '../../file-upload/abstract-file-upload.component';
+import { MultiFileUploadComponent } from '../../file-upload/multi-file-upload.component';
 import { ImageSelectionItem } from './image-selection-item.class';
-import { BackgroundState, LayoutService } from '../../services';
+import { BackgroundState, LayoutService } from '../../../services';
 
 enum ImageType {
   THUMBNAIL,
