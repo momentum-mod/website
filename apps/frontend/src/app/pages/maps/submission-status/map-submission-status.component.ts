@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Ban } from '@momentum/constants';
 import { LocalUserService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
-import { MapListComponent } from '../../../components/map-list/map-list.component';
+import { MapListComponent } from '../../../components';
 
 @Component({
   selector: 'm-map-submission-status',

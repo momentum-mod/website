@@ -13,13 +13,16 @@ import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { SharedModule } from '../../../../shared.module';
 import { LeaderboardsService } from '../../../../services';
-import { AvatarComponent, SpinnerComponent } from '../../../../components';
+import {
+  AvatarComponent,
+  SpinnerComponent,
+  UserComponent
+} from '../../../../components';
 import { TimeAgoPipe, TimingPipe } from '../../../../pipes';
 import { GroupedMapLeaderboards, groupMapLeaderboards } from '../../../../util';
 import { RangePipe } from '../../../../pipes/range.pipe';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { SpinnerDirective } from '../../../../directives';
-import { UserComponent } from '../../../../components/user/user.component';
 
 enum LeaderboardType {
   TOP10 = 1,

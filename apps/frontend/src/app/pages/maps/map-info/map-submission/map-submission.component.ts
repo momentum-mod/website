@@ -10,15 +10,17 @@ import {
   MapSubmissionVersion
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
-import { AvatarComponent } from '../../../../components';
-import { MapSubmissionTypeInfoComponent } from '../../../../components/tooltips/map-submission-type-tooltip.component';
+import {
+  AvatarComponent,
+  UserComponent,
+  MapSubmissionTypeInfoComponent,
+  MapReviewListComponent
+} from '../../../../components';
 import {
   GroupedMapSubmissionSuggestions,
   groupMapSuggestions
 } from '../../../../util/grouped-map-suggestions.util';
 import { PluralPipe, UnsortedKeyvaluePipe } from '../../../../pipes';
-import { UserComponent } from '../../../../components/user/user.component';
-import { MapReviewListComponent } from '../../../../components/map-review/map-review-list.component';
 
 @Component({
   selector: 'm-map-submission',
