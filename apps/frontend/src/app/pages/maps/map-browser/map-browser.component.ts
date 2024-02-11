@@ -5,10 +5,10 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { SharedModule } from '../../../shared.module';
 import {
+  CardHeaderComponent,
   MapListComponent,
   MapListFiltersForm
-} from '../../../components/map-list/map-list.component';
-import { CardHeaderComponent } from '../../../components/card/card-header.component';
+} from '../../../components';
 
 @Component({
   templateUrl: 'map-browser.component.html',
