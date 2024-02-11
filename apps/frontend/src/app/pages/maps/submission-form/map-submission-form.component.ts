@@ -1,16 +1,8 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   FormBuilder,
   FormControl,
-  FormControlStatus,
   FormGroup,
   Validators
 } from '@angular/forms';
@@ -43,7 +35,6 @@ import {
 import { forkJoin } from 'rxjs';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
-import { CalendarModule } from 'primeng/calendar';
 import { LocalUserService, MapsService } from '../../../services';
 import {
   BackendValidators,
@@ -59,14 +50,13 @@ import {
   MapImageSelectionComponent,
   MapLeaderboardSelectionComponent,
   MapTestInviteSelectionComponent,
-  MultiFileUploadComponent
+  MultiFileUploadComponent,
+  MapDetailsFormComponent
 } from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
-import { PluralPipe } from '../../../pipes';
 import { SuggestionType } from '@momentum/formats/zone';
-import { GroupedMapCredits } from '../../../util';
-import { DropdownModule } from 'primeng/dropdown';
+import { GroupedMapCredits, Unsub } from '../../../util';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -84,23 +74,16 @@ import { DropdownModule } from 'primeng/dropdown';
     MapTestInviteSelectionComponent,
     TooltipDirective,
     ProgressBarModule,
-    CalendarModule,
-    PluralPipe,
-    MapSubmissionTypeInfoComponent,
     AlertComponent,
-    DropdownModule
+    MapDetailsFormComponent,
+    LeaderboardsInfoComponent,
+    CreditsInfoComponent
   ]
 })
-export class MapSubmissionFormComponent implements OnInit {
-  protected readonly MapSubmissionType = MapSubmissionType;
-  protected readonly MapSubmissionTypeOptions = [
-    { type: MapSubmissionType.ORIGINAL, label: 'Original' },
-    { type: MapSubmissionType.PORT, label: 'Port' }
-  ];
+export class MapSubmissionFormComponent extends Unsub implements OnInit {
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
-  protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
 
   constructor(
     private readonly mapsService: MapsService,
@@ -116,9 +99,6 @@ export class MapSubmissionFormComponent implements OnInit {
   @ViewChild('submitButton', { static: true })
   submitButton: ElementRef<HTMLButtonElement>;
 
-  @ViewChildren(TooltipDirective)
-  tooltips: QueryList<TooltipDirective>;
-
   isUploading = false;
   uploadPercentage = 0;
   uploadStatusDescription = 'TODO: MAKE ME EMPTY STRING';
@@ -129,8 +109,7 @@ export class MapSubmissionFormComponent implements OnInit {
   isModOrAdmin: boolean;
   hasMapInSubmission: boolean;
 
-  // TODO: Why generic?
-  form: FormGroup = this.fb.group({
+  form = this.fb.group({
     files: this.fb.group({
       bsp: [
         null,
@@ -167,7 +146,7 @@ export class MapSubmissionFormComponent implements OnInit {
         new Date(),
         [Validators.required, Validators.max(Date.now())]
       ],
-      submissionType: [null, [Validators.required]],
+      submissionType: [null as MapSubmissionType, [Validators.required]],
       youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]]
     }),
     images: [
@@ -283,8 +262,6 @@ export class MapSubmissionFormComponent implements OnInit {
 
     this.bsp.valueChanges.subscribe(this.onBspFileSelected.bind(this));
 
-    this.name.statusChanges.subscribe(this.onNameStatusChange.bind(this));
-
     this.wantsPrivateTesting.valueChanges.subscribe((value) =>
       value ? this.testInvites.enable() : this.testInvites.disable()
     );
@@ -354,30 +331,6 @@ export class MapSubmissionFormComponent implements OnInit {
         }))
       ])
     );
-  }
-
-  /**
-   * Show error tooltip for any map name errors
-   */
-  onNameStatusChange(status: FormControlStatus) {
-    const tooltip = TooltipDirective.findByContext(
-      this.tooltips,
-      'mapNameError'
-    );
-    if (status !== 'INVALID') {
-      tooltip.hide();
-      return;
-    }
-
-    if (this.name.errors['uniqueMapName']) {
-      tooltip.setAndShow('Map name is in use!');
-    } else if (this.name.errors['maxlength'] || this.name.errors['minlength']) {
-      tooltip.setAndShow(
-        `Map name must be between ${MIN_MAP_NAME_LENGTH} and ${MAX_MAP_NAME_LENGTH} characters.`
-      );
-    } else {
-      tooltip.hide();
-    }
   }
 
   /**
@@ -502,19 +455,6 @@ export class MapSubmissionFormComponent implements OnInit {
     this.isUploading = false;
     this.uploadStatusDescription = '';
     this.uploadPercentage = 0;
-  }
-
-  /**
-   * Remove any extra crap from Youtube ID field if a full URL is pasted in,
-   * e.g. https://youtu.be/JhPPHchfhQY?t=5 becomes JhPPHchfhQY
-   */
-  stripYoutubeUrl() {
-    const url = this.youtubeID.value;
-    if (/.*youtube\.com\/watch\?v=[\w-]{11}.*/.test(url)) {
-      this.youtubeID.setValue(/(?<=v=)[\w-]{11}/.exec(url)[0]);
-    } else if (/youtu\.be\/[\w-]{11}.*/.test(url)) {
-      this.youtubeID.setValue(/(?<=youtu\.be\/)[\w-]{11}/.exec(url)[0]);
-    }
   }
 
   /**
