@@ -24,19 +24,19 @@
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
-            [ngClass]="{ 'scale-100': isGroupValid(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsComplete(files) }"
             mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
-            [ngClass]="{ 'scale-100': isGroupInvalid(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsActuallyInvalid(files) }"
             mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
-            [ngClass]="{ 'scale-100': isGroupAwaitingEditing(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsIncomplete(files) }"
             mTooltip="Section is incomplete!"
           />
         </div>
@@ -132,19 +132,19 @@
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
-            [ngClass]="{ 'scale-100': isGroupValid(info) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsComplete(details) }"
             mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
-            [ngClass]="{ 'scale-100': isGroupInvalid(info) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsActuallyInvalid(details) }"
             mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
-            [ngClass]="{ 'scale-100': isGroupAwaitingEditing(info) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsIncomplete(details) }"
             mTooltip="Section is incomplete!"
           />
         </div>

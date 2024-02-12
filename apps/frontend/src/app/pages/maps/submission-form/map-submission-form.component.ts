@@ -56,7 +56,7 @@ import {
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
 import { SuggestionType } from '@momentum/formats/zone';
-import { GroupedMapCredits, Unsub } from '../../../util';
+import { GroupedMapCredits, FormUtils } from '../../../util';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -81,6 +81,7 @@ import { GroupedMapCredits, Unsub } from '../../../util';
   ]
 })
 export class MapSubmissionFormComponent extends Unsub implements OnInit {
+  protected readonly FormUtils = FormUtils;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
@@ -455,28 +456,5 @@ export class MapSubmissionFormComponent extends Unsub implements OnInit {
     this.isUploading = false;
     this.uploadStatusDescription = '';
     this.uploadPercentage = 0;
-  }
-
-  /**
-   * Returns true if a group is valid and dirty.
-   * @param group
-   */
-  isGroupValid(group: FormGroup): boolean {
-    return group.dirty && group.valid;
-  }
-
-  /**
-   * Returns true if group has a dirty invalid control.
-   */
-  isGroupInvalid(group: FormGroup): boolean {
-    return Object.values(group.controls).some((c) => c.dirty && c.invalid);
-  }
-
-  /*
-   * Return true if group is invalid but doesn't have any dirty invalid
-   * controls, so we don't want to yell at the user yet
-   */
-  isGroupAwaitingEditing(group: FormGroup): boolean {
-    return !this.isGroupInvalid(group) && !group.valid;
   }
 }
