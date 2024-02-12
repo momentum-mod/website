@@ -133,7 +133,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 
   writeValue(value: File[]): void {
     this.value = value == null || (value as any) === '' ? [] : value;
-    if (this.disabledBecauseReachedMax && value.length < this.max) {
+    if (this.disabledBecauseReachedMax && value?.length < this.max) {
       this.disabledBecauseReachedMax = false;
       this.disabled = false;
     }

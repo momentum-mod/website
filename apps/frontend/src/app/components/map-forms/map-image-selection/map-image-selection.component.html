@@ -2,7 +2,7 @@
   <m-multi-file-upload
     class="mr-4 flex h-auto w-[14rem] flex-shrink-0 flex-col"
     icon="image-multiple-outline"
-    [formControlName]="innerFormControlName"
+    [formControl]="formControlPassthrough"
     typeName="image"
     [showSelected]="false"
     acceptExtensions=".png"
@@ -23,11 +23,11 @@
         cdkDropList
         cdkDropListOrientation="horizontal"
         #thumbnailList="cdkDropList"
-        [cdkDropListData]="items[ImageType.THUMBNAIL]"
+        [cdkDropListData]="items[ImageSelectionType.THUMBNAIL]"
         [cdkDropListConnectedTo]="[extrasList]"
-        (cdkDropListDropped)="drop($event, ImageType.THUMBNAIL)"
+        (cdkDropListDropped)="drop($event, ImageSelectionType.THUMBNAIL)"
       >
-        @for (item of items[ImageType.THUMBNAIL]; track item) {
+        @for (item of items[ImageSelectionType.THUMBNAIL]; track item) {
           <div
             cdkDrag
             class="group relative cursor-move rounded shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
@@ -35,7 +35,7 @@
             <img class="aspect-video w-full" [src]="item.dataUrl" />
             <m-icon
               icon="close"
-              (click)="removeItem(item.file, ImageType.THUMBNAIL)"
+              (click)="removeItem(item, ImageSelectionType.THUMBNAIL)"
               class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
             />
           </div>
@@ -49,12 +49,12 @@
         cdkDropList
         cdkDropListOrientation="horizontal"
         #extrasList="cdkDropList"
-        [cdkDropListData]="items[ImageType.EXTRA]"
+        [cdkDropListData]="items[ImageSelectionType.EXTRA]"
         [cdkDropListConnectedTo]="[thumbnailList]"
-        (cdkDropListDropped)="drop($event, ImageType.EXTRA)"
+        (cdkDropListDropped)="drop($event, ImageSelectionType.EXTRA)"
         class="m-inputlike grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 [&>.cdk-drag-placeholder]:opacity-0"
       >
-        @for (item of items[ImageType.EXTRA]; track item) {
+        @for (item of items[ImageSelectionType.EXTRA]; track item) {
           <div
             cdkDrag
             class="group relative aspect-video cursor-move shadow transition-opacity [transition-property:filter] hover:contrast-75 [&.cdk-drag-preview]:opacity-75 [&.cdk-drag-preview]:contrast-75"
@@ -66,7 +66,7 @@
             />
             <m-icon
               icon="close"
-              (click)="removeItem(item.file, ImageType.EXTRA)"
+              (click)="removeItem(item, ImageSelectionType.EXTRA)"
               class="absolute right-0 top-0 mr-2 mt-2 h-6 w-6 rounded bg-gray-900 bg-opacity-50 transition-colors hover:bg-opacity-70"
             />
           </div>
