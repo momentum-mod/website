@@ -1,18 +1,24 @@
 export class ImageSelectionItem {
-  file: File;
+  file?: File;
   dataUrl: string;
 
   private constructor() {}
 
-  static async create(file: File): Promise<ImageSelectionItem | null> {
+  static async create(
+    input: File | string
+  ): Promise<ImageSelectionItem | null> {
     const instance = new ImageSelectionItem();
-    instance.file = file;
-    try {
-      instance.dataUrl = await ImageSelectionItem.readAsDataUrl(file);
-      return instance;
-    } catch {
-      return null;
+    if (typeof input == 'string') {
+      instance.dataUrl = input;
+    } else {
+      instance.file = input;
+      try {
+        instance.dataUrl = await ImageSelectionItem.readAsDataUrl(input);
+      } catch {
+        return null;
+      }
     }
+    return instance;
   }
 
   private static async readAsDataUrl(image: Blob): Promise<string> {

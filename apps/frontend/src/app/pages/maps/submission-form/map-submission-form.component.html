@@ -189,7 +189,7 @@
           Drag selected images around to change their order, make sure the image in the thumbnail slot is your favorite, as it gets used
           very frequently in our UI.
         </p>
-        <m-map-image-selection innerFormControlName="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
+        <m-map-image-selection [formControlPassthrough]="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
         <div>
           @if (images.errors?.['required'] && images.dirty) {
             <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Must include at least a thumbnail image.</p>

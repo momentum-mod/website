@@ -50,7 +50,9 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
   @Input() typeName = '';
 
   protected disabled = false;
-  protected disabledBecauseReachedMax = false;
+
+  // Shouldn't really be public but I wanna set it from MapImageSelection :)
+  public disabledBecauseReachedMax = false;
 
   /**
    * Whether to show a list of selected files within the component. If false,
