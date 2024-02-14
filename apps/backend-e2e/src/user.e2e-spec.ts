@@ -1291,17 +1291,6 @@ describe('User', () => {
         });
       });
 
-      it('should respond with expanded submitter data using the thumbnail expand parameter', async () => {
-        await req.expandTest({
-          url: 'user/maps/library',
-          expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail',
-          paged: true,
-          validate: MapLibraryEntryDto,
-          token
-        });
-      });
-
       it('should respond with expanded mapfavorite data for maps the logged in user has favorited when using the inFavorite expansion', async () => {
         await Promise.all(
           maps.map((m) =>
@@ -1538,16 +1527,6 @@ describe('User', () => {
           validate: MapFavoriteDto,
           token,
           some: true
-        }));
-
-      it('should retrieve a list of maps in the local users favorites with expanded thumbnail', () =>
-        req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail.small',
-          paged: true,
-          validate: MapFavoriteDto,
-          token
         }));
 
       it('should retrieve a list of maps in the local users favorites with expanded submitter', () =>

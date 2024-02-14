@@ -960,24 +960,6 @@ describe('Admin', () => {
         });
       });
 
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
           url: 'admin/maps',
@@ -1288,24 +1270,6 @@ describe('Admin', () => {
           data: { submitterID: null }
         });
       });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
@@ -2373,7 +2337,7 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, admin, adminToken, u1, u1Token, m1;
+      let modToken, admin, adminToken, u1, u1Token, m1, imgID;
 
       beforeAll(async () => {
         [modToken, [admin, adminToken], [u1, u1Token]] = await Promise.all([
@@ -2388,9 +2352,10 @@ describe('Admin', () => {
       );
 
       beforeEach(async () => {
+        imgID = db.uuid();
         m1 = await db.createMap({
           submitter: { connect: { id: u1.id } },
-          images: { create: {} }
+          images: [imgID]
         });
         await db.createLbRun({ map: m1, user: u1, time: 1, rank: 1 });
       });
@@ -2406,14 +2371,17 @@ describe('Admin', () => {
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
-        const img = await prisma.mapImage.findFirst({
-          where: { mapID: m1.id }
-        });
         for (const size of ['small', 'medium', 'large']) {
           await fileStore.add(
-            `img/${img.id}-${size}.jpg`,
+            `img/${imgID}-${size}.jpg`,
             readFileSync(__dirname + '/../files/image_jpg.jpg')
           );
+        }
+
+        for (const size of ['small', 'medium', 'large']) {
+          expect(
+            await fileStore.exists(`img/${imgID}-${size}.jpg`)
+          ).toBeTruthy();
         }
 
         const run = await prisma.leaderboardRun.findFirst({
@@ -2438,15 +2406,12 @@ describe('Admin', () => {
         expect(relatedRuns).toHaveLength(0);
         expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
 
-        const relatedImages = await prisma.mapImage.findMany({
-          where: { mapID: m1.id }
-        });
-        expect(relatedImages).toHaveLength(0);
         for (const size of ['small', 'medium', 'large']) {
           expect(
-            await fileStore.exists(`img/${img.id}-${size}.jpg`)
+            await fileStore.exists(`img/${imgID}-${size}.jpg`)
           ).toBeFalsy();
         }
+
         expect(
           await adminActivityWasCreated(admin.id, [
             AdminActivityType.MAP_DELETE

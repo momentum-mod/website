@@ -12,9 +12,7 @@ type BaseMapsGetAllExpand =
   | 'info'
   | 'stats'
   | 'submitter'
-  | 'credits'
-  | 'thumbnail'
-  | 'images';
+  | 'credits';
 
 export type MapsGetAllExpand = (
   | BaseMapsGetAllExpand

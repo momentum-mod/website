@@ -110,7 +110,7 @@ export class UsersGetCreditsQueryDto
   extends PagedQueryDto
   implements UsersGetCreditsQuery
 {
-  @ExpandQueryProperty(['map', 'info', 'thumbnail'])
+  @ExpandQueryProperty(['map', 'info'])
   expand: UsersGetCreditsExpand;
 }
 
@@ -130,7 +130,7 @@ export class UserMapLibraryGetQueryDto
   extends UserMapsBaseGetQuery
   implements UserMapLibraryGetQuery
 {
-  @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
+  @ExpandQueryProperty(['submitter', 'inFavorites'])
   readonly expand: UserMapLibraryGetExpand;
 }
 
