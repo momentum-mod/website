@@ -115,7 +115,6 @@ describe('Maps', () => {
           for (const prop of [
             'id',
             'name',
-            'fileName',
             'status',
             'hash',
             'downloadURL',
@@ -174,10 +173,10 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered map data using the fileName parameter', async () => {
+      it('should respond with filtered map data using the searchStartsWith parameter', async () => {
         m1 = await prisma.mMap.update({
           where: { id: m1.id },
-          data: { fileName: 'surf_bbbbb' }
+          data: { name: 'surf_bbbbb' }
         });
 
         await req.searchTest({
@@ -185,8 +184,8 @@ describe('Maps', () => {
           token: u1Token,
           searchMethod: 'startsWith',
           searchString: 'surf_bb',
-          searchPropertyName: 'fileName',
-          searchQueryName: 'fileName',
+          searchPropertyName: 'name',
+          searchQueryName: 'searchStartsWith',
           validate: { type: MapDto, count: 1 }
         });
       });
@@ -529,8 +528,7 @@ describe('Maps', () => {
         vmfHash = createSha1Hash(vmfBuffer);
 
         createMapObject = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           info: {
             description: 'mamp',
             creationDate: '2022-07-07T18:33:33.000Z'
@@ -617,8 +615,7 @@ describe('Maps', () => {
 
         it('should create a map within the database', () => {
           expect(createdMap).toMatchObject({
-            name: 'map',
-            fileName: 'surf_map',
+            name: 'surf_map',
             status: MapStatusNew.PRIVATE_TESTING,
             submission: {
               type: MapSubmissionType.ORIGINAL,
@@ -906,32 +903,6 @@ describe('Maps', () => {
           });
         });
 
-        it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'bhop_map.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
-        it('should succeed if BSP filename starts with but does not equal the fileName on the DTO', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 201,
-            data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map_a1.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
         it('should 400 if a BSP filename does not end in .BSP', async () => {
           await req.postAttach({
             url: 'maps',
@@ -1173,31 +1144,14 @@ describe('Maps', () => {
         });
 
         it('should 409 if a map with the same name exists', async () => {
-          const fileName = 'ron_weasley';
+          const name = 'ron_weasley';
 
-          await db.createMap({ fileName });
+          await db.createMap({ name });
 
           await req.postAttach({
             url: 'maps',
             status: 409,
-            data: { ...createMapObject, fileName },
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
-        it('should 400 if the name does not contain the fileName', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: {
-              ...createMapObject,
-              fileName: 'ron_weasley',
-              name: 'hagrid'
-            },
+            data: { ...createMapObject, name },
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
@@ -1572,8 +1526,7 @@ describe('Maps', () => {
       beforeEach(async () => {
         map = await db.createMap(
           {
-            name: 'map',
-            fileName: 'surf_map', // This is actually RJ now. deal with it lol
+            name: 'surf_map', // This is actually RJ now. deal with it lol
             submitter: { connect: { id: u1.id } },
             status: MapStatusNew.PRIVATE_TESTING,
             submission: {
@@ -2094,8 +2047,7 @@ describe('Maps', () => {
         ]);
 
         createMapData = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           submitter: { connect: { id: user.id } },
           submission: {
             create: {
@@ -2146,8 +2098,7 @@ describe('Maps', () => {
             url: `maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_ostrich',
-              name: 'ostrich',
+              name: 'surf_ostrich',
               submissionType: MapSubmissionType.PORT,
               info: {
                 description:
@@ -2181,8 +2132,7 @@ describe('Maps', () => {
           });
 
           expect(updatedMap).toMatchObject({
-            name: 'ostrich',
-            fileName: 'surf_ostrich',
+            name: 'surf_ostrich',
             info: {
               description:
                 'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -2784,7 +2734,6 @@ describe('Maps', () => {
             'submission',
             'id',
             'name',
-            'fileName',
             'status',
             'hash',
             'submitterID',
@@ -2834,19 +2783,19 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered map data using the fileName parameter', async () => {
+      it('should respond with filtered map data using the searchStartsWith parameter', async () => {
         await prisma.mMap.update({
           where: { id: pubMap1.id },
-          data: { fileName: 'Bingus' }
+          data: { name: 'bingus' }
         });
 
         await req.searchTest({
           url: 'maps/submissions',
           token: u1Token,
           searchMethod: 'startsWith',
-          searchString: 'Bingu',
-          searchPropertyName: 'fileName',
-          searchQueryName: 'fileName',
+          searchString: 'bingu',
+          searchPropertyName: 'name',
+          searchQueryName: 'searchStartsWith',
           validate: { type: MapDto, count: 1 }
         });
       });

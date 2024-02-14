@@ -838,7 +838,7 @@ describe('Maps Part 2', () => {
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           validateArray: { type: MapImageDto, length: 1 },
           token
         });
@@ -876,7 +876,7 @@ describe('Maps Part 2', () => {
             { file: imageBuffer, field: 'images', fileName: 'hello.png' },
             { file: imageBuffer, field: 'images', fileName: 'hello2.png' }
           ],
-          data: { imageIDs: ['1', id1, '2'] },
+          data: { imageIDs: ['0', id1, '1'] },
           validateArray: { type: MapImageDto, length: 3 },
           token
         });
@@ -937,7 +937,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
-          data: { imageIDs: [...map.images, '1'] },
+          data: { imageIDs: [...map.images, '0'] },
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
@@ -950,7 +950,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: 'map.zon', field: 'images' }],
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           token
         }));
 
@@ -959,7 +959,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: '1920_1080.png', field: 'images' }],
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           token
         }));
 
@@ -968,7 +968,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: '2560_1440.jpg', field: 'images' }],
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           token
         }));
 
@@ -976,7 +976,7 @@ describe('Maps Part 2', () => {
         req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           files: [
             { file: Buffer.alloc(Config.limits.imageSize + 1), field: 'images' }
           ],
@@ -992,7 +992,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 403,
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
@@ -1018,7 +1018,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 200,
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
@@ -1034,7 +1034,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 200,
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
@@ -1056,7 +1056,7 @@ describe('Maps Part 2', () => {
         await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 200,
-          data: { imageIDs: ['1'] },
+          data: { imageIDs: ['0'] },
           files: [
             { file: imageBuffer, field: 'images', fileName: 'hello.png' }
           ],
@@ -1077,7 +1077,7 @@ describe('Maps Part 2', () => {
           await req.putAttach({
             url: `maps/${map.id}/images`,
             status: expectedStatus,
-            data: { imageIDs: ['1'] },
+            data: { imageIDs: ['0'] },
             files: [
               { file: imageBuffer, field: 'images', fileName: 'hello.png' }
             ],

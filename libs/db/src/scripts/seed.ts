@@ -514,7 +514,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
           data: {
             name,
             status,
-            fileName: 'flat_devgrid',
             submitterID: Random.element(potentialMappers).id,
             ...Random.createdUpdatedDates(),
             info: {

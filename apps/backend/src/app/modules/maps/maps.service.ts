@@ -112,7 +112,6 @@ export class MapsService {
   private readonly baseMapsSelect: Prisma.MMapSelect = {
     id: true,
     name: true,
-    fileName: true,
     status: true,
     hash: true,
     hasVmf: true,
@@ -136,7 +135,8 @@ export class MapsService {
     // Where
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
-    if (query.fileName) where.fileName = { startsWith: query.fileName };
+    if (query.searchStartsWith)
+      where.name = { startsWith: query.searchStartsWith };
     if (query.submitterID) where.submitterID = query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
@@ -546,8 +546,7 @@ export class MapsService {
 
     await this.checkMapCompression(bspFile);
 
-    this.checkMapFiles(dto.fileName, bspFile, vmfFiles);
-    this.checkMapFileNames(dto.name, dto.fileName);
+    this.checkMapFiles(bspFile, vmfFiles);
 
     this.checkSuggestionsAndZones(dto.suggestions, dto.zones);
 
@@ -578,7 +577,7 @@ export class MapsService {
       const tasks: Promise<unknown>[] = [
         (async () => {
           const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(dto.fileName, 1, vmfFiles)
+            ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
             : undefined;
 
           return this.uploadMapSubmissionVersionFiles(
@@ -646,7 +645,7 @@ export class MapsService {
 
     await this.checkMapCompression(bspFile);
 
-    this.checkMapFiles(map.fileName, bspFile, vmfFiles);
+    this.checkMapFiles(bspFile, vmfFiles);
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -684,7 +683,7 @@ export class MapsService {
       await parallel(
         async () => {
           const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
+            ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
             : undefined;
 
           await this.uploadMapSubmissionVersionFiles(
@@ -737,15 +736,8 @@ export class MapsService {
       );
     }
 
-    // Don't allow maps with same filename unless existing one is disabled.
-    if (
-      await this.db.mMap.exists({
-        where: {
-          fileName: dto.fileName,
-          NOT: { status: MapStatusNew.DISABLED }
-        }
-      })
-    )
+    // Don't allow maps with same name, ever.
+    if (await this.db.mMap.exists({ where: { name: dto.name } }))
       throw new ConflictException('Map with this file name already exists');
 
     if (!(dto.credits?.length > 0 || dto.placeholders?.length > 0)) {
@@ -772,7 +764,6 @@ export class MapsService {
       data: {
         submitter: { connect: { id: submitterID } },
         name: createMapDto.name,
-        fileName: createMapDto.fileName,
         submission: {
           create: {
             type: createMapDto.submissionType,
@@ -925,11 +916,8 @@ export class MapsService {
     });
   }
 
-  private checkMapFiles(fileName: string, bspFile: File, vmfFiles: File[]) {
-    if (
-      !bspFile.originalname.startsWith(fileName) ||
-      !bspFile.originalname.endsWith('.bsp')
-    )
+  private checkMapFiles(bspFile: File, vmfFiles: File[]) {
+    if (!bspFile.originalname.endsWith('.bsp'))
       throw new BadRequestException('Bad BSP name');
 
     for (const file of vmfFiles ?? []) {
@@ -1004,7 +992,7 @@ export class MapsService {
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
     await this.db.$transaction(async (tx) => {
-      const generalUpdate = this.getGeneralMapDataUpdate(map, dto);
+      const generalUpdate = this.getGeneralMapDataUpdate(dto);
       const statusUpdate = await this.mapStatusUpdateHandler(
         tx,
         map,
@@ -1131,7 +1119,7 @@ export class MapsService {
         update.submitter = { connect: { id: dto.submitterID } };
       }
 
-      const generalChanges = this.getGeneralMapDataUpdate(map, dto);
+      const generalChanges = this.getGeneralMapDataUpdate(dto);
       const statusChanges = await this.mapStatusUpdateHandler(
         tx,
         map,
@@ -1160,18 +1148,11 @@ export class MapsService {
   }
 
   private getGeneralMapDataUpdate(
-    map: MapWithSubmission,
     dto: UpdateMapDto | UpdateMapAdminDto
   ): Prisma.MMapUpdateInput {
     const update: Prisma.MMapUpdateInput = {};
 
-    if (dto.name || dto.fileName) {
-      this.checkMapFileNames(
-        dto.name ?? dto.fileName,
-        dto.fileName ?? map.fileName
-      );
-
-      update.fileName = dto.fileName;
+    if (dto.name) {
       update.name = dto.name;
     }
 
@@ -1191,12 +1172,8 @@ export class MapsService {
 
     if (dto.placeholders || dto.suggestions) {
       update.submission ??= { update: {} };
-      update.submission = {
-        update: {
-          placeholders: dto.placeholders,
-          suggestions: dto.suggestions
-        }
-      };
+      update.submission.update.placeholders = dto.placeholders;
+      update.submission.update.suggestions = dto.suggestions;
     }
 
     return update;
@@ -1368,12 +1345,12 @@ export class MapsService {
     const [bspSuccess, vmfSuccess] = await parallel(
       this.fileStoreService.copyFile(
         submissionBspPath(currentVersionID),
-        approvedBspPath(map.fileName)
+        approvedBspPath(map.name)
       ),
       hasVmf
         ? this.fileStoreService.copyFile(
             submissionVmfsPath(currentVersionID),
-            approvedVmfsPath(map.fileName)
+            approvedVmfsPath(map.name)
           )
         : () => Promise.resolve(true)
     );
@@ -1404,13 +1381,13 @@ export class MapsService {
           ])
         )
         .catch((error) => {
-          error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
+          error.message = `Failed to delete map submission version file for ${map.name}: ${error.message}`;
           throw new InternalServerErrorException(error);
         }),
       this.mapReviewService
         .deleteAllReviewAssetsForMap(map.id)
         .catch((error) => {
-          error.message = `Failed to delete map review files for ${map.fileName}: ${error.message}`;
+          error.message = `Failed to delete map review files for ${map.name}: ${error.message}`;
           throw new InternalServerErrorException(error);
         })
     );
@@ -1484,7 +1461,7 @@ export class MapsService {
     await this.leaderboardRunService.deleteStoredMapRuns(mapID);
 
     // Delete stored map file
-    await this.fileStoreService.deleteFile(approvedBspPath(map.fileName));
+    await this.fileStoreService.deleteFile(approvedBspPath(map.name));
 
     await this.db.mMap.delete({ where: { id: mapID } });
 
@@ -1666,23 +1643,6 @@ export class MapsService {
     }
 
     throw new ForbiddenException('User not authorized to access map data');
-  }
-
-  /**
-   *  Simple checks that the name on the DTO and the uploaded File match up,
-   *  and a length check. All instances of `fileName` will have already passed
-   *  an IsMapName validator so is only be alphanumeric, dashes and underscores.
-   *  @throws BadRequestException
-   */
-  checkMapFileNames(name: string, fileName: string) {
-    // Simple checks that the name on the DTO and the uploaded File match up,
-    // and a length check. All instances of `fileName` will have passed an
-    // IsMapName validator so is only be alphanumeric, dashes and underscores.
-    if (name.length < 3 || fileName.length < 3)
-      throw new BadRequestException('Name/Filename is too short (< 3)');
-
-    if (!fileName.includes(name))
-      throw new BadRequestException("Filename must contain the map's name");
   }
 
   /**

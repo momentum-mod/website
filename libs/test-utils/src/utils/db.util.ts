@@ -135,9 +135,8 @@ export class DbUtil {
       data: {
         ...merge(
           {
-            name: `map${++this.maps}`,
+            name: `ahop_map${++this.maps}`,
             zones: ZonesStub,
-            fileName: `ahop_map${this.maps}`,
             status: MapStatus.APPROVED,
             hash: randomHash(),
             info: { create: { creationDate: new Date() } },
