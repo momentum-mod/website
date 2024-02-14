@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -25,7 +24,6 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiConsumes,
-  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiGoneResponse,
   ApiNoContentResponse,
@@ -491,173 +489,12 @@ export class MapsController {
     required: true
   })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
-  createImage(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new ImageFileValidator({
-            format: ImageType.PNG,
-            minWidth: MAP_IMAGE_WIDTH,
-            maxWidth: MAP_IMAGE_WIDTH,
-            minHeight: MAP_IMAGE_HEIGHT,
-            maxHeight: MAP_IMAGE_HEIGHT
-          }),
-          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
-        ]
-      })
     )
-    file: File
-  ): Promise<MapImageDto> {
-    if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
-      throw new BadRequestException('Invalid image data');
-
-    return this.mapImageService.createImage(userID, mapID, file.buffer);
-  }
-
-  @Put('/images/:imgID')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Updates a map image' })
-  @ApiNoContentResponse({ description: 'Image updated successfully' })
-  @ApiNotFoundResponse({ description: 'Image not found' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiBadRequestResponse({ description: 'Invalid image data' })
-  @ApiParam({
-    name: 'imgID',
-    type: Number,
-    description: 'Target Image ID',
-    required: true
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
-  updateImage(
-    @LoggedInUser('id') userID: number,
-    @Param('imgID', ParseIntSafePipe) imgID: number,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new ImageFileValidator({
-            format: ImageType.PNG,
-            minWidth: MAP_IMAGE_WIDTH,
-            maxWidth: MAP_IMAGE_WIDTH,
-            minHeight: MAP_IMAGE_HEIGHT,
-            maxHeight: MAP_IMAGE_HEIGHT
-          }),
-          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
-        ]
-      })
-    )
-    file: File
-  ): Promise<void> {
-    if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
-      throw new BadRequestException('Invalid image data');
-
-    return this.mapImageService.updateImage(userID, imgID, file.buffer);
-  }
-
-  @Delete('/images/:imgID')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletes a map image' })
-  @ApiNoContentResponse({ description: 'Image deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Image not found' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiParam({
-    name: 'imgID',
-    type: Number,
-    description: 'Target Image ID',
-    required: true
-  })
-  deleteImage(
-    @LoggedInUser('id') userID: number,
-    @Param('imgID', ParseIntSafePipe) imgID: number
-  ): Promise<void> {
-    return this.mapImageService.deleteImage(userID, imgID);
   }
 
   //#endregion
-
-  //#region Thumbnail
-
-  @Put('/:mapID/thumbnail')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: "Updates a map's thumbnail" })
-  @ApiNoContentResponse({ description: 'Thumbnail updated successfully' })
-  @ApiNotFoundResponse({ description: 'Map not found' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiBadRequestResponse({ description: 'Invalid image data' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
-  updateThumbnail(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new ImageFileValidator({
-            format: ImageType.PNG,
-            minWidth: MAP_IMAGE_WIDTH,
-            maxWidth: MAP_IMAGE_WIDTH,
-            minHeight: MAP_IMAGE_HEIGHT,
-            maxHeight: MAP_IMAGE_HEIGHT
-          }),
-          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
-        ]
-      })
-    )
-    file: File
-  ): Promise<void> {
-    if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
-      throw new BadRequestException('Invalid image data');
-
-    return this.mapImageService.updateThumbnail(userID, mapID, file.buffer);
-  }
 
   //#endregion
 
