@@ -1,27 +1,31 @@
 import {
   BadGatewayException,
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   forwardRef,
   Inject,
-  Injectable,
-  NotFoundException
+  Injectable
 } from '@nestjs/common';
 import {
+  AdminActivityType,
   CombinedMapStatuses,
+  CombinedRoles,
   imgLargePath,
   imgMediumPath,
   imgSmallPath
 } from '@momentum/constants';
+import { File } from '@nest-lab/fastify-multer';
 import sharp from 'sharp';
 import { parallel } from '@momentum/util-fn';
+import { v4 as uuidv4 } from 'uuid';
 import { DtoFactory, MapImageDto } from '../../dto';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
+import { Bitflags } from '@momentum/bitflags';
+import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
 export class MapImageService {
@@ -51,28 +55,107 @@ export class MapImageService {
 
   }
 
+  async updateImages(
     userID: number,
     mapID: number,
+    imageIDs: string[],
+    files: File[]
+  ): Promise<MapImageDto[]> {
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID
+    });
 
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
+    const isMod = Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN);
+    const isSubmitter = map.submitterID === userID;
+    const isInSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(
+      map.status
+    );
 
+    if (!isMod) {
+      if (!isSubmitter)
+        throw new ForbiddenException('User is not the submitter of the map');
 
+      if (!isInSubmission)
+        throw new ForbiddenException(
+          'Map can only be edited during submission'
+        );
     }
 
+    // imageIDs is something like [0, 1, 87as6df98-dfsg-asdf6asf-safdadaf, 2, 3]
+    const newIDs = imageIDs.filter((id) => !Number.isNaN(Number(id)));
+    if (newIDs.length !== (files?.length ?? 0)) {
+      throw new BadRequestException(
+        'Must have same number of new image places as files!'
+      );
+    }
 
+    // Buffer fs tasks in case validation fails
+    const fsTasks: Array<() => Promise<any>> = [];
+    const newArray = [];
+    for (const id of imageIDs) {
+      const numberified = Number(id);
+      if (Number.isNaN(numberified)) {
+        // Was a UUID, so it's an existing image
+        newArray.push(id);
+        continue;
+      }
 
+      const newID = uuidv4();
+      const file = files[numberified];
+      if (!(file && file.size > 0 && Buffer.isBuffer(file.buffer)))
+        throw new BadRequestException(
+          'Image place does not refer to valid file'
+        );
 
+      fsTasks.push(() => this.storeMapImage(file.buffer, newID));
+      newArray.push(newID);
+    }
 
+    try {
+      await parallel(
+        // Store new files
+        ...fsTasks.map((task) => task()),
+        // Delete old files
+        ...map.images
+          .filter((id) => !newArray.includes(id))
+          .map((id) => this.deleteStoredMapImage(id))
+      );
+    } catch {
+      throw new BadGatewayException('Failed to upload to file store');
+    }
 
+    // Once S3 upload succeeds, update array in DB, ordered correctly!
+    const { images } = await this.db.mMap.update({
+      where: { id: mapID },
+      data: { images: newArray },
+      select: { images: true }
+    });
+
+    if (isMod && !(isSubmitter && isInSubmission)) {
+      await this.adminActivityService.create(
+        userID,
+        AdminActivityType.MAP_UPDATE,
+        mapID,
+        { images: newArray },
+        { images: map.images }
+      );
+    }
+
+    return images.map((id) => DtoFactory(MapImageDto, { id }));
   }
 
+  private async jpegEncodeImageFile(
+    buffer: Buffer,
     fileName: string,
     width: number,
     height: number
   ): Promise<FileStoreFile> {
     try {
       return this.fileStoreService.storeFile(
-        await sharp(imgBuffer)
+        await sharp(buffer)
           .resize(width, height, { fit: 'inside' })
           .jpeg({ mozjpeg: true })
           .toBuffer(),
@@ -85,21 +168,21 @@ export class MapImageService {
   }
 
   async storeMapImage(
-    imgBuffer: Buffer,
-    imgID: number
+    buffer: Buffer,
+    imageID: string
   ): Promise<FileStoreFile[]> {
     return parallel(
-      this.editSaveMapImageFile(imgBuffer, imgSmallPath(imgID), 480, 360),
-      this.editSaveMapImageFile(imgBuffer, imgMediumPath(imgID), 1280, 720),
-      this.editSaveMapImageFile(imgBuffer, imgLargePath(imgID), 1920, 1080)
+      this.jpegEncodeImageFile(buffer, imgSmallPath(imageID), 480, 360),
+      this.jpegEncodeImageFile(buffer, imgMediumPath(imageID), 1280, 720),
+      this.jpegEncodeImageFile(buffer, imgLargePath(imageID), 1920, 1080)
     );
   }
 
-  async deleteStoredMapImage(imgID: number): Promise<void> {
+  async deleteStoredMapImage(imageID: string): Promise<void> {
     await parallel(
-      this.fileStoreService.deleteFile(imgSmallPath(imgID)),
-      this.fileStoreService.deleteFile(imgMediumPath(imgID)),
-      this.fileStoreService.deleteFile(imgLargePath(imgID))
+      this.fileStoreService.deleteFile(imgSmallPath(imageID)),
+      this.fileStoreService.deleteFile(imgMediumPath(imageID)),
+      this.fileStoreService.deleteFile(imgLargePath(imageID))
     );
   }
 

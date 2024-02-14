@@ -13,7 +13,6 @@ import {
   Post,
   Put,
   Query,
-  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -34,15 +33,12 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags
 } from '@nestjs/swagger';
-import {
-  File,
-  FileFieldsInterceptor,
-  FileInterceptor
-} from '@nest-lab/fastify-multer';
+import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
 import {
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
   MAX_MAP_IMAGE_SIZE,
+  MAX_MAP_IMAGES,
   MAX_REVIEW_IMAGES,
   Role
 } from '@momentum/constants';
@@ -76,7 +72,8 @@ import {
   PagedResponseDto,
   UpdateMapDto,
   UpdateMapTestingRequestDto,
-  VALIDATION_PIPE_CONFIG
+  VALIDATION_PIPE_CONFIG,
+  UpdateMapImagesDto
 } from '../../dto';
 import { LoggedInUser, Roles } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
@@ -457,6 +454,7 @@ export class MapsController {
   //#endregion
 
   //#region Images
+
   @Get('/:mapID/images')
   @ApiOperation({ summary: "Gets a map's images" })
   @ApiOkResponse({ description: "The found map's images" })
@@ -474,8 +472,30 @@ export class MapsController {
     return this.mapImageService.getImages(mapID, userID);
   }
 
+  @Put('/:mapID/images')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_MAP_IMAGES }]),
+    FormDataJsonInterceptor('data')
+  )
+  @ApiOperation({
+    summary: `
+      Sets the images for a map, given an 'imageIDs' array.
+      
+      For new images, give an stringified integer between one-five for each place, 
+      which will be used to index into the array of files on the multipart form.
+      
+      For existing images, give its ID (uuid). Any IDs *not* included will be deleted.
+      Say a map has two existing images (shortened here), abcdefgh-1234, stuvwxyz-6789.
+      
+      For example, calling this endpoint two image files and imageIDs = [1, abcdefgh-1234, 0],
+      and we would order the second file first, then abcdefgh-1234, then the first file,
+      deleting stuvwxyz-6789. The two new images would be issued new uuids, and stored 
+      relative to that ID.
+      `
   })
+  @ApiOkResponse({
     description: 'The newly created map image',
+    type: Array<MapImageDto>
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
@@ -489,9 +509,34 @@ export class MapsController {
     required: true
   })
   @ApiConsumes('multipart/form-data')
+  updateImages(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body('data') data: UpdateMapImagesDto,
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new ImageFileValidator({
+              format: ImageType.PNG,
+              minWidth: MAP_IMAGE_WIDTH,
+              maxWidth: MAP_IMAGE_WIDTH,
+              minHeight: MAP_IMAGE_HEIGHT,
+              maxHeight: MAP_IMAGE_HEIGHT
+            }),
+            new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+          ]
+        })
+      )
     )
+    files: { images?: File[] }
+  ): Promise<MapImageDto[]> {
+    return this.mapImageService.updateImages(
+      userID,
+      mapID,
+      data.imageIDs,
+      files.images
+    );
   }
 
   //#endregion
