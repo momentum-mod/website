@@ -524,6 +524,29 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
               }
             },
+            images: await Promise.all(
+              from(randRange(vars.images), async () => {
+                const id = uuidv4();
+
+                const buffer = Random.element(imageBuffers);
+
+                // Could be fancy and bubble up all the promises here to do in parallel
+                // but not worth the insane code
+                await Promise.all(
+                  ['small', 'medium', 'large'].map((size) =>
+                    s3.send(
+                      new PutObjectCommand({
+                        Bucket: process.env['STORAGE_BUCKET_NAME'],
+                        Key: `img/${id}-${size}.jpg`,
+                        Body: buffer[size]
+                      })
+                    )
+                  )
+                );
+
+                return id;
+              })
+            ),
             stats: {
               create: {
                 reviews: Random.int(10000),
@@ -638,6 +661,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
 
       //#endregion
+
       //#region Runs
 
       console.log('Creating runs');
@@ -718,40 +742,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
 
       //#endregion
-      //#region Images
 
-      const images = await Promise.all(
-        from(randRange(vars.images), async () => {
-          const image = await prisma.mapImage.create({
-            data: { mapID: map.id }
-          });
-
-          const buffer = Random.element(imageBuffers);
-
-          // Could be fancy and bubble up all the promises here to do in parallel
-          // but not worth the insane code
-          await Promise.all(
-            ['small', 'medium', 'large'].map((size) =>
-              s3.send(
-                new PutObjectCommand({
-                  Bucket: process.env['STORAGE_BUCKET_NAME'],
-                  Key: `img/${image.id}-${size}.jpg`,
-                  Body: buffer[size]
-                })
-              )
-            )
-          );
-
-          return image;
-        })
-      );
-
-      await prisma.mMap.update({
-        where: { id: map.id },
-        data: { thumbnailID: images[0].id }
-      });
-
-      //#endregion
       //#region Credits
 
       const createCredit = (
