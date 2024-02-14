@@ -47,17 +47,9 @@ export class MapImageService {
     return images.map((x) => DtoFactory(MapImageDto, x));
   }
 
-  async getImage(imgID: number, loggedInUserID: number): Promise<MapImageDto> {
-    const img = await this.db.mapImage.findUnique({ where: { id: imgID } });
-
-    if (!img) throw new NotFoundException('Map image not found');
-
-    await this.mapsService.getMapAndCheckReadAccess({
-      mapID: img.mapID,
       userID: loggedInUserID
     });
 
-    return DtoFactory(MapImageDto, img);
   }
 
   async createImage(

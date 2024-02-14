@@ -1087,54 +1087,14 @@ describe('Maps Part 2', () => {
         req.unauthorizedTest('maps/1/images', 'post'));
     });
   });
-
-  describe('maps/images/{imgID}', () => {
-    describe('GET', () => {
-      let token, map;
-
-      beforeAll(
-        async () =>
-          ([token, map] = await Promise.all([
-            db.loginNewUser(),
-            db.createMap()
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      it('should respond with image info', () =>
-        req.get({
-          url: `maps/images/${map.images[0].id}`,
           status: 200,
-          validate: MapImageDto,
-          token
-        }));
-
-      // Test that permissions checks are getting called
-      it('should 403 if the user does not have permission to access to the map', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
-        });
-
-        await req.get({
-          url: `maps/images/${map.images[0].id}`,
-          status: 403,
           token
         });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+
         });
       });
 
-      it('should 404 when the image is not found', () =>
-        req.get({ url: `maps/images/${NULL_ID}`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/images/1', 'get'));
-    });
 
     describe('PUT', () => {
       let user, token, map, image, hash;

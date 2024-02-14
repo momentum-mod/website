@@ -476,29 +476,8 @@ export class MapsController {
     return this.mapImageService.getImages(mapID, userID);
   }
 
-  @Get('/images/:imgID')
-  @ApiOperation({ summary: 'Gets a single map image' })
-  @ApiOkResponse({ description: 'The found map image' })
-  @ApiNotFoundResponse({ description: 'Map image not found' })
-  @ApiParam({
-    name: 'imgID',
-    type: Number,
-    description: 'Target map image'
   })
-  getImage(
-    @Param('imgID', ParseIntSafePipe) imgID: number,
-    @LoggedInUser('id') userID: number
-  ): Promise<MapImageDto> {
-    return this.mapImageService.getImage(imgID, userID);
-  }
-
-  @Post('/:mapID/images')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Uploads an image for the map' })
-  @ApiCreatedResponse({
     description: 'The newly created map image',
-    type: MapImageDto
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
