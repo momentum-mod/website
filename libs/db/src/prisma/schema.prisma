@@ -172,13 +172,12 @@ model MapNotify {
 model MMap {
   id Int @id @default(autoincrement())
 
-  name     String   @unique
-  fileName String? // Optional as isn't set until map is approved
-  status   Int      @db.SmallInt /// map-status.enum.ts
-  hash     String?  @db.Char(40)
-  hasVmf   Boolean  @default(false)
-  zones    Json? /// map-zones.model.ts
-  images   String[]
+  name   String   @unique
+  status Int      @db.SmallInt /// map-status.enum.ts
+  hash   String?  @db.Char(40)
+  hasVmf Boolean  @default(false)
+  zones  Json? /// map-zones.model.ts
+  images String[]
 
   submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
   submitterID Int?

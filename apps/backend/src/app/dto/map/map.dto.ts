@@ -61,24 +61,14 @@ export class MapDto implements MMap {
 
   @ApiProperty({
     type: String,
-    description:
-      'The name of the map without any extra embellishments e.g. "_final"',
+    description: 'The name of the map',
     example: 'arcane'
-  })
-  @MinLength(MIN_MAP_NAME_LENGTH)
-  @MaxLength(MAX_MAP_NAME_LENGTH)
-  @IsLowercase()
-  readonly name: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'The full filename of the map',
-    example: 'bhop_arcane'
   })
   @IsMapName()
   @MinLength(MIN_MAP_NAME_LENGTH)
   @MaxLength(MAX_MAP_NAME_LENGTH)
-  readonly fileName: string;
+  @IsLowercase()
+  readonly name: string;
 
   @EnumProperty(MapStatusNew)
   readonly status: MapStatusNew;
@@ -96,7 +86,7 @@ export class MapDto implements MMap {
   @IsUrl({ require_tld: false })
   get downloadURL() {
     return this.status === MapStatusNew.APPROVED
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.name)}`
       : undefined;
   }
 
@@ -112,7 +102,7 @@ export class MapDto implements MMap {
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
     return this.status === MapStatusNew.APPROVED && this.hasVmf
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.fileName)}`
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.name)}`
       : undefined;
   }
 
@@ -189,7 +179,7 @@ export class MapDto implements MMap {
 }
 
 export class CreateMapDto
-  extends PickType(MapDto, ['name', 'fileName'] as const)
+  extends PickType(MapDto, ['name'] as const)
   implements CreateMap
 {
   @EnumProperty(MapSubmissionType, {
@@ -269,9 +259,7 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
 }
 
 export class UpdateMapDto
-  extends PartialType(
-    PickType(CreateMapDto, ['name', 'fileName', 'suggestions'] as const)
-  )
+  extends PartialType(PickType(CreateMapDto, ['name', 'suggestions'] as const))
   implements UpdateMap
 {
   @NestedProperty(MapSubmissionPlaceholderDto)

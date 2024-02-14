@@ -63,10 +63,10 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   readonly search?: string;
 
   @StringQueryProperty({
-    description: 'Filter by partial map file name match (startsWith)',
+    description: 'Filter by partial map name match (startsWith)',
     example: 'de_dust2'
   })
-  readonly fileName?: string;
+  readonly searchStartsWith?: string;
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
