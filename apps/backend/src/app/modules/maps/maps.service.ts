@@ -1185,7 +1185,12 @@ export class MapsService {
       };
     }
 
+    if (dto.submissionType != null) {
+      update.submission = { update: { type: dto.submissionType } };
+    }
+
     if (dto.placeholders || dto.suggestions) {
+      update.submission ??= { update: {} };
       update.submission = {
         update: {
           placeholders: dto.placeholders,

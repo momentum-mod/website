@@ -159,6 +159,7 @@ export class MapDto implements MMap {
   get thumbnail(): MapImageDto {
     return plainToInstance(MapImageDto, this.images?.[0]);
   }
+
   @NestedProperty(MapStatsDto)
   readonly stats: MapStatsDto;
 
@@ -288,6 +289,13 @@ export class UpdateMapDto
   @IsBoolean()
   @IsOptional()
   readonly resetLeaderboards?: boolean;
+
+  @EnumProperty(MapSubmissionType, {
+    description:
+      'Whether the submission is an original map, a port, or something unusual',
+    required: false
+  })
+  readonly submissionType: MapSubmissionType;
 }
 
 export class UpdateMapAdminDto

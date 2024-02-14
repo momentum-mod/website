@@ -2148,6 +2148,7 @@ describe('Maps', () => {
             body: {
               fileName: 'surf_ostrich',
               name: 'ostrich',
+              submissionType: MapSubmissionType.PORT,
               info: {
                 description:
                   'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -2188,6 +2189,7 @@ describe('Maps', () => {
               youtubeID: '8k-zNGuiatA'
             },
             submission: {
+              type: MapSubmissionType.PORT,
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
