@@ -67,6 +67,7 @@ export interface UpdateMap
       | 'placeholders'
       | 'testInvites'
       | 'credits'
+      | 'submissionType'
     >
   > {
   status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
