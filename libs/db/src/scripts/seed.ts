@@ -325,8 +325,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
   try {
     for (let i = 0; i < mapsToCreate; i++) {
       console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
-      let name = faker.lorem.word();
-      while (usedNames.includes(name)) {
+      let name: string;
+      while (!name || usedNames.includes(name)) {
         // Most maps have a gamemode prefix, some don't, want to be able to test
         // with both.
         const prefix = Random.element([...new Set(GamemodePrefix.values())]);
