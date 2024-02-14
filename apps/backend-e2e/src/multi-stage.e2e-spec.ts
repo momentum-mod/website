@@ -69,8 +69,7 @@ describe('Multi-stage E2E tests', () => {
       url: 'maps',
       status: 201,
       data: {
-        name: 'todd_howard',
-        fileName: 'surf_todd_howard',
+        name: 'surf_todd_howard',
         info: {
           description: 'fallout',
           creationDate: '2023-02-01T12:43:33.410Z'
@@ -218,8 +217,7 @@ describe('Multi-stage E2E tests', () => {
 
     expect(mapRes).toMatchObject({
       status: MapStatusNew.APPROVED,
-      name: 'todd_howard',
-      fileName: 'surf_todd_howard',
+      name: 'surf_todd_howard',
       credits: [
         {
           user: { alias: user.alias },

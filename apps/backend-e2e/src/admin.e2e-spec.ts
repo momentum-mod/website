@@ -1632,8 +1632,7 @@ describe('Admin', () => {
           ]);
 
         createMapData = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           submitter: { connect: { id: u1.id } },
           submission: {
             create: {
@@ -1685,8 +1684,7 @@ describe('Admin', () => {
             url: `admin/maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_dogs',
-              name: 'dogs',
+              name: 'surf_dogs',
               info: {
                 description:
                   'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -1712,8 +1710,7 @@ describe('Admin', () => {
           });
 
           expect(changedMap).toMatchObject({
-            name: 'dogs',
-            fileName: 'surf_dogs',
+            name: 'surf_dogs',
             info: {
               description:
                 'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -1746,8 +1743,7 @@ describe('Admin', () => {
             url: `admin/maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_whelks',
-              name: 'whelks',
+              name: 'surf_whelks',
               info: {
                 description:
                   'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
@@ -1773,8 +1769,7 @@ describe('Admin', () => {
           });
 
           expect(changedMap).toMatchObject({
-            name: 'whelks',
-            fileName: 'surf_whelks',
+            name: 'surf_whelks',
             info: {
               description:
                 'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
@@ -1808,7 +1803,7 @@ describe('Admin', () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
             status: 403,
-            body: { fileName: 'surf_albatross' },
+            body: { name: 'surf_albatross' },
             token: reviewerToken
           });
         });
@@ -2091,12 +2086,12 @@ describe('Admin', () => {
           ).toBeFalsy();
 
           expect(
-            createSha1Hash(await fileStore.get(`maps/${map.fileName}.bsp`))
+            createSha1Hash(await fileStore.get(`maps/${map.name}.bsp`))
           ).toBe(bspHash);
 
           expect(
             createSha1Hash(
-              new Zip(await fileStore.get(`maps/${map.fileName}_VMFs.zip`))
+              new Zip(await fileStore.get(`maps/${map.name}_VMFs.zip`))
                 .getEntry('map.vmf')
                 .getData()
             )
@@ -2364,7 +2359,10 @@ describe('Admin', () => {
 
       it('should successfully delete the map and related stored data', async () => {
         const fileName = 'my_cool_map';
-        await prisma.mMap.update({ where: { id: m1.id }, data: { fileName } });
+        await prisma.mMap.update({
+          where: { id: m1.id },
+          data: { name: fileName }
+        });
 
         await fileStore.add(
           `maps/${fileName}.bsp`,

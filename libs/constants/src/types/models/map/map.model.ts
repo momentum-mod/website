@@ -46,7 +46,7 @@ export interface CreateMapWithFiles {
   data: CreateMap;
 }
 
-export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
+export interface CreateMap extends Pick<MMap, 'name'> {
   submissionType: MapSubmissionType;
   suggestions: MapSubmissionSuggestion[];
   wantsPrivateTesting: boolean;
@@ -62,7 +62,6 @@ export interface UpdateMap
     Pick<
       CreateMap,
       | 'name'
-      | 'fileName'
       | 'suggestions'
       | 'placeholders'
       | 'testInvites'

@@ -41,7 +41,7 @@ type MapsGetAllBaseQuery = {
   skip?: number;
   take?: number;
   search?: string;
-  fileName?: string;
+  searchStartsWith?: string;
   submitterID?: number;
 };
 
