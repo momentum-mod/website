@@ -20,7 +20,7 @@ import { MapSubmission } from './map-submission.model';
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
  * "Map" to avoid collision with the "Map" data structure.
  */
-export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'zones'> {
+export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
   status: MapStatusNew;
   downloadURL: string;
   thumbnail?: MapImage;
