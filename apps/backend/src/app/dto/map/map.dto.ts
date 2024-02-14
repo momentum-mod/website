@@ -27,7 +27,7 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance, Transform } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
 import { Config } from '../../config';
 import {
@@ -119,12 +119,6 @@ export class MapDto implements MMap {
   @Exclude()
   readonly hasVmf: boolean;
 
-  @Exclude()
-  readonly thumbnailID: number;
-
-  @NestedProperty(MapImageDto)
-  readonly thumbnail: MapImageDto;
-
   @ApiProperty()
   @IsPositive()
   @IsOptional()
@@ -142,9 +136,29 @@ export class MapDto implements MMap {
   @NestedProperty(MapSubmissionDto)
   readonly submission: MapSubmissionDto;
 
-  @NestedProperty(MapImageDto, { isArray: true })
+  @ApiProperty({
+    description: 'Array of urls to map images',
+    type: MapImageDto,
+    isArray: true
+  })
+  @Transform(({ value }) =>
+    // HACK: This is a stupid hack to get class-transformer to transform
+    // correctly. It only works because my DtoFactory setup is ridiculous and
+    // seems to transform TWICE. We're going to rework/replace CT/CV in future
+    // anyway so leaving for now. UUUUGH
+    value.map((image) =>
+      typeof image == 'string'
+        ? { id: image }
+        : plainToInstance(MapImageDto, image)
+    )
+  )
   readonly images: MapImageDto[];
 
+  @ApiProperty({ description: 'Primary image for the map', type: MapImageDto })
+  @Expose()
+  get thumbnail(): MapImageDto {
+    return plainToInstance(MapImageDto, this.images?.[0]);
+  }
   @NestedProperty(MapStatsDto)
   readonly stats: MapStatsDto;
 
