@@ -66,9 +66,11 @@ describe('Maps', () => {
 
   describe('maps', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, m1, m2, m3, m4;
+      let u1, u1Token, u2, m1, m2, m3, m4, imageID;
 
       beforeAll(async () => {
+        imageID = db.uuid(); // Gonna use this for *every* image
+
         [[u1, u1Token], [u2]] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser()
@@ -76,13 +78,26 @@ describe('Maps', () => {
 
         [[m1, m2, m3, m4]] = await Promise.all([
           db.createMaps(4, {
-            credits: { create: { type: 0, userID: u1.id } }
+            credits: { create: { type: 0, userID: u1.id } },
+            images: [imageID]
           }),
-          db.createMap({ status: MapStatusNew.PRIVATE_TESTING }),
-          db.createMap({ status: MapStatusNew.DISABLED }),
-          db.createMap({ status: MapStatusNew.FINAL_APPROVAL }),
-          db.createMap({ status: MapStatusNew.CONTENT_APPROVAL }),
-          db.createMap({ status: MapStatusNew.PUBLIC_TESTING })
+          db.createMap({
+            status: MapStatusNew.PRIVATE_TESTING,
+            images: [imageID]
+          }),
+          db.createMap({ images: [imageID], status: MapStatusNew.DISABLED }),
+          db.createMap({
+            status: MapStatusNew.FINAL_APPROVAL,
+            images: [imageID]
+          }),
+          db.createMap({
+            status: MapStatusNew.CONTENT_APPROVAL,
+            images: [imageID]
+          }),
+          db.createMap({
+            status: MapStatusNew.PUBLIC_TESTING,
+            images: [imageID]
+          })
         ]);
       });
 
@@ -108,7 +123,14 @@ describe('Maps', () => {
             'createdAt',
             'updatedAt'
           ]) {
+            const match = {
+              small: expect.stringContaining(`${imageID}-small.jpg`),
+              medium: expect.stringContaining(`${imageID}-medium.jpg`),
+              large: expect.stringContaining(`${imageID}-large.jpg`)
+            };
             expect(item).toHaveProperty(prop);
+            expect(item.images).toMatchObject([match]);
+            expect(item.thumbnail).toMatchObject(match);
           }
           expect(item).not.toHaveProperty('zones');
         }
@@ -269,24 +291,6 @@ describe('Maps', () => {
           token: u1Token
         });
       });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'maps',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'maps',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
@@ -1363,22 +1367,6 @@ describe('Maps', () => {
           token: u1Token
         });
       });
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'images',
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'thumbnail',
-          token: u1Token
-        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
@@ -2968,24 +2956,6 @@ describe('Maps', () => {
           data: { submitterID: null }
         });
       });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'maps/submissions',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'maps/submissions',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({

@@ -1,7 +1,6 @@
 ﻿import {
   Leaderboard,
   LeaderboardRun,
-  MapImage,
   MapInfo,
   MapStats,
   MapSubmission,
@@ -55,6 +54,7 @@ export class DbUtil {
   uuid(): string {
     return uuid4();
   }
+
   cleanup(...models: CamelCase<Prisma.ModelName>[]) {
     return this.prisma.$transaction(
       models.map((name) =>
@@ -127,8 +127,6 @@ export class DbUtil {
     MMap & {
       info: MapInfo;
       stats: MapStats;
-      images: MapImage[];
-      thumbnail: MapImage;
       leaderboards: Leaderboard[];
       submission: MapSubmission & { versions: MapSubmissionVersion[] };
     }
@@ -194,9 +192,6 @@ export class DbUtil {
     return this.prisma.mMap.update({
       where: { id: createdMap.id },
       data: {
-        thumbnail: createdMap.images[0]
-          ? { connect: { id: createdMap.images[0].id } }
-          : undefined,
         submission: createdMap?.submission?.versions?.[0]
           ? {
               update: {
@@ -209,9 +204,7 @@ export class DbUtil {
       },
       include: {
         info: true,
-        images: true,
         stats: true,
-        thumbnail: true,
         leaderboards: true,
         submission: { include: { versions: true, currentVersion: true } }
       }
@@ -226,8 +219,6 @@ export class DbUtil {
       MMap & {
         info: MapInfo;
         stats: MapStats;
-        images: MapImage[];
-        thumbnail: MapImage;
         leaderboards: Leaderboard[];
       }
     >

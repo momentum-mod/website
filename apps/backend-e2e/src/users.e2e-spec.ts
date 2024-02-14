@@ -554,16 +554,6 @@ describe('Users', () => {
           token
         }));
 
-      it('should respond with list of credits with thumbnail expand', () =>
-        req.expandTest({
-          url: `users/${user.id}/credits`,
-          expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail',
-          validate: MapCreditDto,
-          paged: true,
-          token
-        }));
-
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users/1/credits', 'get'));
     });

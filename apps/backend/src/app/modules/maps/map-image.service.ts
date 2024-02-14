@@ -43,16 +43,10 @@ export class MapImageService {
   ): Promise<MapImageDto[]> {
     const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,
-      userID: loggedInUserID,
-      include: { images: true }
-    });
-
-    return images.map((x) => DtoFactory(MapImageDto, x));
-  }
-
       userID: loggedInUserID
     });
 
+    return images.map((id) => DtoFactory(MapImageDto, { id }));
   }
 
   async updateImages(

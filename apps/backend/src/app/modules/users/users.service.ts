@@ -809,7 +809,6 @@ export class UsersService {
       else {
         include.mmap = { include: {} };
         if (expand.includes('info')) include.mmap.include.info = true;
-        if (expand.includes('thumbnail')) include.mmap.include.thumbnail = true;
       }
     }
 

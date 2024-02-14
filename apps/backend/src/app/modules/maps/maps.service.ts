@@ -116,10 +116,10 @@ export class MapsService {
     status: true,
     hash: true,
     hasVmf: true,
+    images: true,
     createdAt: true,
     updatedAt: true,
-    submitterID: true,
-    thumbnailID: true
+    submitterID: true
   };
 
   //#region Gets
@@ -842,8 +842,6 @@ export class MapsService {
         stats: true,
         submission: { include: { currentVersion: true, versions: true } },
         submitter: true,
-        images: true,
-        thumbnail: true,
         credits: { include: { user: true } }
       }
     });
@@ -1471,9 +1469,10 @@ export class MapsService {
     if (!map) throw new NotFoundException('No map found');
 
     // Delete all stored map images
-    const images = await this.db.mapImage.findMany({ where: { mapID } });
     await Promise.all(
-      images.map((img) => this.mapImageService.deleteStoredMapImage(img.id))
+      map.images.map((imageID) =>
+        this.mapImageService.deleteStoredMapImage(imageID)
+      )
     );
 
     // Delete all run files

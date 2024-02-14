@@ -83,8 +83,6 @@ export class MapsGetAllQueryDto
     'stats',
     'submitter',
     'credits',
-    'thumbnail',
-    'images',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -115,9 +113,7 @@ export class MapsGetAllAdminQueryDto
     'info',
     'stats',
     'submitter',
-    'credits',
-    'thumbnail',
-    'images'
+    'credits'
   ])
   readonly expand?: MapsGetAllAdminExpand;
 
@@ -143,8 +139,6 @@ export class MapsGetAllSubmissionQueryDto
     'stats',
     'submitter',
     'credits',
-    'thumbnail',
-    'images',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -177,8 +171,6 @@ export class MapsGetAllSubmissionAdminQueryDto
     'stats',
     'submitter',
     'credits',
-    'thumbnail',
-    'images',
     'currentVersion',
     'versions',
     'reviews'
@@ -204,8 +196,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'info',
     'credits',
     'submitter',
-    'images',
-    'thumbnail',
     'stats',
     'tracks',
     'inFavorites',
