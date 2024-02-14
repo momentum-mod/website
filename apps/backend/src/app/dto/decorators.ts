@@ -20,7 +20,8 @@ import {
   IsDateString,
   IsString,
   Max,
-  Min
+  Min,
+  IsUUID
 } from 'class-validator';
 import { intersection } from '@momentum/util-fn';
 import { Enum } from '@momentum/enum';
@@ -130,12 +131,14 @@ export function IdProperty(
  * Required by default!
  */
 export function StringIdProperty(
-  options?: Omit<ApiPropertyOptions, 'type'>
+  options?: { uuid?: boolean } & Omit<ApiPropertyOptions, 'type'>
 ): PropertyDecorator {
   const required = options?.required ?? true;
+  const uuid = options?.uuid;
+  delete options?.uuid;
   return applyDecorators(
     ApiProperty({ type: String, ...options, required }),
-    IsString(),
+    uuid ? IsUUID(4) : IsString(),
     conditionalDecorator(!required, IsOptional)
   );
 }
