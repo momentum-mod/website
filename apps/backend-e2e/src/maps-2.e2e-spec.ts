@@ -28,6 +28,7 @@ import {
 } from '@momentum/test-utils';
 import {
   ActivityType,
+  AdminActivityType,
   CombinedMapStatuses,
   Gamemode,
   MapCreditType,
@@ -742,26 +743,40 @@ describe('Maps Part 2', () => {
     });
   });
 
-
   describe('maps/{mapID}/images', () => {
     describe('GET', () => {
-      let token, map;
+      let token, map, id1, id2;
       beforeAll(async () => {
+        [id1, id2] = [db.uuid(), db.uuid()];
         [token, map] = await Promise.all([
           db.loginNewUser(),
-          db.createMap({ images: { createMany: { data: [{}, {}] } } })
+          db.createMap({ images: [id2, id1] })
         ]);
       });
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      it('should respond with a list of images', () =>
-        req.get({
+      it('should respond with a list of images', async () => {
+        const res = await req.get({
           url: `maps/${map.id}/images`,
           status: 200,
           validateArray: { type: MapImageDto, length: 2 },
           token
-        }));
+        });
+
+        expect(res.body).toMatchObject([
+          {
+            small: expect.stringContaining(`${id2}-small.jpg`),
+            medium: expect.stringContaining(`${id2}-medium.jpg`),
+            large: expect.stringContaining(`${id2}-large.jpg`)
+          },
+          {
+            small: expect.stringContaining(`${id1}-small.jpg`),
+            medium: expect.stringContaining(`${id1}-medium.jpg`),
+            large: expect.stringContaining(`${id1}-large.jpg`)
+          }
+        ]);
+      });
 
       // Test that permissions checks are getting called
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -787,6 +802,297 @@ describe('Maps Part 2', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/images', 'get'));
+    });
+
+    describe('PUT', () => {
+      let user, token, map;
+
+      const imageBuffer = readFileSync(path.join(FILES_PATH, '2560_1440.png'));
+
+      beforeAll(async () => {
+        [user, token] = await db.createAndLoginUser({
+          data: { roles: Role.MAPPER }
+        });
+      });
+
+      beforeEach(async () => {
+        map = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING,
+          submitter: { connect: { id: user.id } }
+        });
+      });
+
+      afterAll(() => db.cleanup('user'));
+
+      afterEach(() =>
+        Promise.all([
+          db.cleanup('mMap', 'adminActivity'),
+          fileStore.deleteDirectory('img')
+        ])
+      );
+
+      it('should create a map image for the specified map', async () => {
+        const res = await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          data: { imageIDs: ['1'] },
+          validateArray: { type: MapImageDto, length: 1 },
+          token
+        });
+
+        const updatedMap = await prisma.mMap.findFirst();
+        for (const size of ['small', 'medium', 'large']) {
+          expect(res.body[0][size]).toBeDefined();
+          expect(
+            await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`)
+          ).toBe(true);
+        }
+      });
+
+      it('should reorder images correctly, and delete any unused ones', async () => {
+        const [id1, id2] = [db.uuid(), db.uuid()];
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { images: [id1, id2] }
+        });
+
+        const buf = Buffer.alloc(1);
+        for (const id of [id1, id2])
+          for (const size of ['small', 'medium', 'large'])
+            await fileStore.add(`img/${id}-${size}.jpg`, buf);
+
+        for (const id of [id1, id2])
+          for (const size of ['small', 'medium', 'large'])
+            expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
+
+        const res = await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' },
+            { file: imageBuffer, field: 'images', fileName: 'hello2.png' }
+          ],
+          data: { imageIDs: ['1', id1, '2'] },
+          validateArray: { type: MapImageDto, length: 3 },
+          token
+        });
+
+        const { images } = await prisma.mMap.findFirst();
+        expect(res.body).toMatchObject(
+          images.map((id) => ({
+            id,
+            small: expect.stringContaining(`${id}-small.jpg`),
+            medium: expect.stringContaining(`${id}-medium.jpg`),
+            large: expect.stringContaining(`${id}-large.jpg`)
+          }))
+        );
+        expect(images).toHaveLength(3);
+        expect(images[0][8]).toBe('-'); // World's laziest uuid validation, whatever
+        expect(images[1]).toBe(id1);
+        expect(images[2][8]).toBe('-');
+
+        for (const id of images)
+          for (const size of ['small', 'medium', 'large'])
+            expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
+
+        for (const size of ['small', 'medium', 'large'])
+          expect(await fileStore.exists(`img/${id2}-${size}.jpg`)).toBe(false);
+      });
+
+      it('should reorder with no files provided', async () => {
+        const [id1, id2] = [db.uuid(), db.uuid()];
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { images: [id1, id2] }
+        });
+
+        const res = await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          data: { imageIDs: [id2, id1] },
+          validateArray: { type: MapImageDto, length: 3 },
+          token
+        });
+
+        expect(res.body[0].id).toBe(id2);
+        expect(res.body[1].id).toBe(id1);
+
+        const { images } = await prisma.mMap.findUnique({
+          where: { id: map.id }
+        });
+        expect(images).toEqual([id2, id1]);
+      });
+
+      it('should 400 when the map image limit has been reached', async () => {
+        map = await prisma.mMap.update({
+          where: { id: map.id },
+          data: { images: Array.from({ length: 5 }, () => db.uuid()) }
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          data: { imageIDs: [...map.images, '1'] },
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          token
+        });
+      });
+
+      it('should 400 if the map image has bad extension', () =>
+        req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          files: [{ file: 'map.zon', field: 'images' }],
+          data: { imageIDs: ['1'] },
+          token
+        }));
+
+      it('should 400 for PNG with wrong dimensions', () =>
+        req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          files: [{ file: '1920_1080.png', field: 'images' }],
+          data: { imageIDs: ['1'] },
+          token
+        }));
+
+      it('should 400 for JPG with correct dimensions', () =>
+        req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          files: [{ file: '2560_1440.jpg', field: 'images' }],
+          data: { imageIDs: ['1'] },
+          token
+        }));
+
+      it("should 400 when the image file is greater than the config's max image file size", () =>
+        req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 400,
+          data: { imageIDs: ['1'] },
+          files: [
+            { file: Buffer.alloc(Config.limits.imageSize + 1), field: 'images' }
+          ],
+          token
+        }));
+
+      it('should 403 if the user is not the submitter of the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { submitter: { create: { alias: 'George Weasley' } } }
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 403,
+          data: { imageIDs: ['1'] },
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { submitter: { connect: { id: user.id } } }
+        });
+      });
+
+      it('should allow a mod user', async () => {
+        const modToken = await db.loginNewUser({
+          data: { roles: Role.MODERATOR }
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          data: { imageIDs: ['1'] },
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          token: modToken
+        });
+      });
+
+      it('should generate an admin activity for a mod user', async () => {
+        const [mod, modToken] = await db.createAndLoginUser({
+          data: { roles: Role.MODERATOR }
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          data: { imageIDs: ['1'] },
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          token: modToken
+        });
+
+        const activity = await prisma.adminActivity.findFirst();
+        expect(activity).toMatchObject({
+          userID: mod.id,
+          type: AdminActivityType.MAP_UPDATE
+        });
+      });
+
+      it('should allow an admin user', async () => {
+        const adminToken = await db.loginNewUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 200,
+          data: { imageIDs: ['1'] },
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          token: adminToken
+        });
+      });
+
+      for (const status of Enum.values(MapStatusNew)) {
+        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const expectedStatus = shouldPass ? 200 : 403;
+
+        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
+
+          await req.putAttach({
+            url: `maps/${map.id}/images`,
+            status: expectedStatus,
+            data: { imageIDs: ['1'] },
+            files: [
+              { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+            ],
+            token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
+        });
+      }
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/images', 'put'));
     });
   });
 

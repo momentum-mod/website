@@ -1,8 +1,7 @@
 ﻿import {
-  MAX_MAP_IMAGE_UPLOADS,
+  MAX_MAP_IMAGES,
   MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
-  MAX_PENDING_MAPS,
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
   MAX_TESTING_REQUESTS,
@@ -58,8 +57,7 @@ export const ConfigFactory = (): ConfigInterface => {
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
-      mapImageUploads: MAX_MAP_IMAGE_UPLOADS,
-      pendingMaps: MAX_PENDING_MAPS,
+      mapImageUploads: MAX_MAP_IMAGES,
       // Keep low for tests, as we'll be generating buffers of slightly
       // above this size to test make file size validation
       bspSize: isTest ? 1e6 : MAX_BSP_SIZE,

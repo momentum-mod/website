@@ -1,24 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUrl } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsString, IsUrl } from 'class-validator';
 import { Expose } from 'class-transformer';
 import {
   imgLargePath,
   imgMediumPath,
   imgSmallPath,
-  MapImage
+  MapImage,
+  MAX_MAP_IMAGES,
+  UpdateMapImages
 } from '@momentum/constants';
 import { Config } from '../../config';
-import { IdProperty } from '../decorators';
+import { StringIdProperty } from '../decorators';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
 
 export class MapImageDto implements MapImage {
-  @IdProperty()
-  readonly id: number;
-
-  @IdProperty()
-  readonly mapID: number;
+  @StringIdProperty({ uuid: true })
+  readonly id: string;
 
   @ApiProperty({
     type: String,
@@ -49,4 +48,12 @@ export class MapImageDto implements MapImage {
   get large(): string {
     return `${ENDPOINT_URL}/${BUCKET}/${imgLargePath(this.id)}`;
   }
+}
+
+export class UpdateMapImagesDto implements UpdateMapImages {
+  @ApiProperty({ description: 'See endpoint description', type: 'string[]' })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(MAX_MAP_IMAGES)
+  @IsString({ each: true })
+  imageIDs: string[];
 }

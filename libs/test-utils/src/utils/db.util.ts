@@ -13,6 +13,7 @@
   User
 } from '@prisma/client';
 import { CamelCase, JsonValue, PartialDeep } from 'type-fest';
+import { v4 as uuid4 } from 'uuid';
 import { merge } from 'lodash'; // TODO: Replace with fastify deepmerge when everything is passing!
 import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
@@ -51,6 +52,9 @@ export class DbUtil {
   private users: number;
   private maps: number;
 
+  uuid(): string {
+    return uuid4();
+  }
   cleanup(...models: CamelCase<Prisma.ModelName>[]) {
     return this.prisma.$transaction(
       models.map((name) =>
@@ -139,7 +143,7 @@ export class DbUtil {
             status: MapStatus.APPROVED,
             hash: randomHash(),
             info: { create: { creationDate: new Date() } },
-            images: mmap?.images ?? { create: {} },
+            images: mmap?.images ?? [],
             stats: mmap?.stats ?? { create: {} },
             submission: mmap?.submission ?? {
               create: {
@@ -184,7 +188,7 @@ export class DbUtil {
           mmap
         )
       } as any,
-      include: { images: true, submission: { include: { versions: true } } }
+      include: { submission: { include: { versions: true } } }
     });
 
     return this.prisma.mMap.update({
