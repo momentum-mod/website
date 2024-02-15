@@ -9,7 +9,11 @@ export function IsMapName(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: unknown) {
-          return typeof value === 'string' && /^[\w-]+$/.test(value);
+          // Don't allow map names to start with a number. It lets us determine
+          // when some value is a ID or a name (useful), and no current maps
+          // start with a name (practically all current maps start with a
+          // gamemode prefix)
+          return typeof value === 'string' && /^[A-Za-z][\w-]+$/.test(value);
         },
 
         defaultMessage() {
