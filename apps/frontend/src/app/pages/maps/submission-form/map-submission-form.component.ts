@@ -30,7 +30,9 @@ import {
   MAX_MAP_NAME_LENGTH,
   MAX_VMF_SIZE,
   MIN_MAP_NAME_LENGTH,
-  TrackType
+  TrackType,
+  YOUTUBE_ID_REGEXP,
+  MAP_NAME_REGEXP
 } from '@momentum/constants';
 import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
 import {
@@ -152,6 +154,7 @@ export class MapSubmissionFormComponent implements OnInit {
         '',
         [
           Validators.required,
+          Validators.pattern(MAP_NAME_REGEXP),
           Validators.minLength(MIN_MAP_NAME_LENGTH),
           Validators.maxLength(MAX_MAP_NAME_LENGTH)
         ],
@@ -166,7 +169,7 @@ export class MapSubmissionFormComponent implements OnInit {
         [Validators.required, Validators.max(Date.now())]
       ],
       submissionType: [null, [Validators.required]],
-      youtubeID: ['', [Validators.pattern(/[\w-]{11}/)]]
+      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]]
     }),
     images: [
       null,
