@@ -67,7 +67,6 @@ export class MapDto implements MMap {
   @IsMapName()
   @MinLength(MIN_MAP_NAME_LENGTH)
   @MaxLength(MAX_MAP_NAME_LENGTH)
-  @IsLowercase()
   readonly name: string;
 
   @EnumProperty(MapStatusNew)

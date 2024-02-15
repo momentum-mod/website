@@ -26,4 +26,14 @@ describe('IsMapName', () => {
         'value is not a valid map name. It should contain only alphanumeric characters and the _ and - characters'
     });
   });
+
+  it('should fail validation if the value starts with a number', async () => {
+    const testObject = new TestClass('1de_dust2');
+    const errors = await validate(testObject);
+    expect(errors).toHaveLength(1);
+    expect(errors[0].constraints).toEqual({
+      isMapName:
+        'value is not a valid map name. It should contain only alphanumeric characters and the _ and - characters'
+    });
+  });
 });
