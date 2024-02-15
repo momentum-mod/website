@@ -36,3 +36,5 @@ export * from './maps/ban-names.map';
 export * from './types/models';
 export * from './types/queries';
 export * from './types/utils/';
+export * from './regexp/youtube-id.regexp';
+export * from './regexp/map-name.regexp';
