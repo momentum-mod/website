@@ -4,7 +4,7 @@
   MAX_DAILY_REPORTS,
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
-  MAX_TESTING_REQUESTS,
+  MAX_TEST_INVITES,
   MIN_PUBLIC_TESTING_DURATION,
   MAX_CREDITS_EXCEPT_TESTERS,
   STEAM_APPIDS,
@@ -64,7 +64,7 @@ export const ConfigFactory = (): ConfigInterface => {
       vmfSize: isTest ? 1e6 : MAX_VMF_SIZE,
       imageSize: isTest ? 1e6 : MAX_MAP_IMAGE_SIZE,
       reviewLength: MAX_REVIEW_LENGTH,
-      testingRequests: MAX_TESTING_REQUESTS,
+      testInvites: MAX_TEST_INVITES,
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
     }

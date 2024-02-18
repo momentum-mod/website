@@ -20,7 +20,7 @@ import {
   MapStatus,
   MapStatusNew,
   MapSubmissionType,
-  MapTestingRequestState,
+  MapTestInviteState,
   ReportCategory,
   ReportType,
   Role,
@@ -1111,7 +1111,7 @@ describe('Admin', () => {
       });
 
       afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
-      afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
+      afterEach(() => db.cleanup('mapTestInvite', 'mapCredit'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -1332,11 +1332,11 @@ describe('Admin', () => {
         });
 
         it('should include private testing maps for which the user has an accepted invite', async () => {
-          await prisma.mapTestingRequest.create({
+          await prisma.mapTestInvite.create({
             data: {
               userID: reviewer.id,
               mapID: privMap.id,
-              state: MapTestingRequestState.ACCEPTED
+              state: MapTestInviteState.ACCEPTED
             }
           });
 
@@ -1358,11 +1358,11 @@ describe('Admin', () => {
         });
 
         it('should not include a private testing map if the user has an declined invite', async () => {
-          await prisma.mapTestingRequest.create({
+          await prisma.mapTestInvite.create({
             data: {
               userID: reviewer.id,
               mapID: privMap.id,
-              state: MapTestingRequestState.DECLINED
+              state: MapTestInviteState.DECLINED
             }
           });
 
@@ -1454,11 +1454,11 @@ describe('Admin', () => {
         });
 
         it('should filter by private maps when given the private filter', async () => {
-          await prisma.mapTestingRequest.create({
+          await prisma.mapTestInvite.create({
             data: {
               mapID: privMap.id,
               userID: reviewer.id,
-              state: MapTestingRequestState.ACCEPTED
+              state: MapTestInviteState.ACCEPTED
             }
           });
 

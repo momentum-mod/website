@@ -1,14 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ArrayMaxSize, IsArray, IsBoolean, IsInt } from 'class-validator';
 import {
-  CreateMapTestingRequest,
-  UpdateMapTestingRequest
+  CreateMapTestInvite,
+  MAX_TEST_INVITES,
+  UpdateMapTestInvite
 } from '@momentum/constants';
-import { Config } from '../../config';
 
-const MAX_TESTING_REQUESTS = Config.limits.testingRequests;
-
-export class CreateMapTestingRequestDto implements CreateMapTestingRequest {
+export class CreateMapTestInviteDto implements CreateMapTestInvite {
   @ApiProperty({
     description: `
       Array of userIDs to invite/disinvite.
@@ -17,12 +15,12 @@ export class CreateMapTestingRequestDto implements CreateMapTestingRequest {
       `
   })
   @IsArray()
-  @ArrayMaxSize(MAX_TESTING_REQUESTS)
+  @ArrayMaxSize(MAX_TEST_INVITES)
   @IsInt({ each: true })
   readonly userIDs: number[];
 }
 
-export class UpdateMapTestingRequestDto implements UpdateMapTestingRequest {
+export class UpdateMapTestInviteDto implements UpdateMapTestInvite {
   @ApiProperty({ description: 'Whether to accept the request or not' })
   @IsBoolean()
   readonly accept: boolean;

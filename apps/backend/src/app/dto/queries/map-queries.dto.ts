@@ -29,7 +29,7 @@ import {
   MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/constants';
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -205,7 +205,8 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'submission',
     'currentVersion',
     'versions',
-    'reviews'
+    'reviews',
+    'testInvites'
   ])
   readonly expand?: MapsGetExpand;
 

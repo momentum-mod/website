@@ -19,7 +19,11 @@ import {
   PagedQuery,
   UpdateMapReviewComment,
   CreateMapReviewWithFiles,
-  UpdateMapReview
+  UpdateMapReview,
+  UpdateMap,
+  UpdateMapImagesWithFiles,
+  CreateMapSubmissionVersionWithFiles,
+  CreateMapTestInvite
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -103,7 +107,7 @@ export class MapsService {
     formData.append('file', mapImageFile, mapImageFile.name);
     return this.http.post<MapImage>(`maps/${id}/images`, { body: formData });
   }
-
+  
   updateMapImage(
     id: number,
     mapImageID: number,
@@ -113,9 +117,11 @@ export class MapsService {
     formData.append('file', mapImageFile, mapImageFile.name);
     return this.http.put(`maps/${id}/images/${mapImageID}`, { body: formData });
   }
-
-  deleteMapImage(id: number, mapImageID: number): Observable<void> {
-    return this.http.delete(`maps/${id}/images/${mapImageID}`);
+  
+  updateMapTestInvites(mapID: number, invites: number[]): Observable<void> {
+    return this.http.patch(`${mapID}/testInvite`, {
+      body: { userIDs: invites } as CreateMapTestInvite[]
+    });
   }
 
   getMapReviews(

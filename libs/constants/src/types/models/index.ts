@@ -17,7 +17,7 @@ export * from './map/map-review-edit.model';
 export * from './map/map-review-comment.model';
 export * from './map/map-review-suggestion.model';
 export * from './map/map-tags.model';
-export * from './map/map-testing-request.model';
+export * from './map/map-test-invite.model';
 export * from './map/map-zones.model';
 export * from './run/leaderboard.model';
 export * from './run/leaderboard-run.model';

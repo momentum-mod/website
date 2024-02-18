@@ -33,7 +33,7 @@ import {
   Gamemode,
   MapCreditType,
   MapStatusNew,
-  MapTestingRequestState,
+  MapTestInviteState,
   MAX_CREDITS_EXCEPT_TESTERS,
   Role,
   TrackType
@@ -1919,7 +1919,7 @@ describe('Maps Part 2', () => {
     });
   });
 
-  describe('maps/{mapID}/testRequest', () => {
+  describe('maps/{mapID}/testInvite', () => {
     describe('PUT', () => {
       let u1, u1Token, u2, u2Token, u3, u4, map;
       beforeEach(async () => {
@@ -1938,97 +1938,97 @@ describe('Maps Part 2', () => {
 
       afterEach(() => db.cleanup('mMap', 'user'));
 
-      it('should create MapTestingRequests', async () => {
+      it('should create MapTestInvites', async () => {
         await req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 204,
           body: { userIDs: [u2.id, u3.id, u4.id] },
           token: u1Token
         });
 
-        const createdRequests = await prisma.mapTestingRequest.findMany();
+        const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
-          { userID: u2.id, state: MapTestingRequestState.UNREAD },
-          { userID: u3.id, state: MapTestingRequestState.UNREAD },
-          { userID: u4.id, state: MapTestingRequestState.UNREAD }
+          { userID: u2.id, state: MapTestInviteState.UNREAD },
+          { userID: u3.id, state: MapTestInviteState.UNREAD },
+          { userID: u4.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
-      it('should remove any MapTestingRequests not on the userID', async () => {
-        await prisma.mapTestingRequest.create({
+      it('should remove any MapTestInvites not on the userID', async () => {
+        await prisma.mapTestInvite.create({
           data: {
             mapID: map.id,
             userID: u2.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
         await req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 204,
           body: { userIDs: [u3.id] },
           token: u1Token
         });
 
-        const createdRequests = await prisma.mapTestingRequest.findMany();
+        const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
-          { userID: u3.id, state: MapTestingRequestState.UNREAD }
+          { userID: u3.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
-      it('should remove all MapTestingRequests for an empty array', async () => {
-        await prisma.mapTestingRequest.create({
+      it('should remove all MapTestInvites for an empty array', async () => {
+        await prisma.mapTestInvite.create({
           data: {
             mapID: map.id,
             userID: u2.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
         await req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 204,
           body: { userIDs: [] },
           token: u1Token
         });
 
-        const createdRequests = await prisma.mapTestingRequest.findMany();
+        const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toHaveLength(0);
       });
 
-      it('should leave any existing MapTestingRequests contained in the userIDs unaffected', async () => {
-        await prisma.mapTestingRequest.createMany({
+      it('should leave any existing MapTestInvites contained in the userIDs unaffected', async () => {
+        await prisma.mapTestInvite.createMany({
           data: [
             {
               mapID: map.id,
               userID: u2.id,
-              state: MapTestingRequestState.DECLINED
+              state: MapTestInviteState.DECLINED
             },
             {
               mapID: map.id,
               userID: u3.id,
-              state: MapTestingRequestState.ACCEPTED
+              state: MapTestInviteState.ACCEPTED
             }
           ]
         });
 
         await req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 204,
           body: { userIDs: [u3.id, u4.id] },
           token: u1Token
         });
 
-        const createdRequests = await prisma.mapTestingRequest.findMany();
+        const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
-          { userID: u3.id, state: MapTestingRequestState.ACCEPTED },
-          { userID: u4.id, state: MapTestingRequestState.UNREAD }
+          { userID: u3.id, state: MapTestInviteState.ACCEPTED },
+          { userID: u4.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
       it('should 404 in the map does not exist', () =>
         req.put({
-          url: `maps/${NULL_ID}/testRequest`,
+          url: `maps/${NULL_ID}/testInvite`,
           status: 404,
           body: { userIDs: [] },
           token: u1Token
@@ -2036,7 +2036,7 @@ describe('Maps Part 2', () => {
 
       it('should 400 if userIDs array is missing', () =>
         req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 400,
           body: {},
           token: u1Token
@@ -2044,7 +2044,7 @@ describe('Maps Part 2', () => {
 
       it('should 403 if the user is not the submitter of the map', () =>
         req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 403,
           body: { userIDs: [u3.id] },
           token: u2Token
@@ -2052,7 +2052,7 @@ describe('Maps Part 2', () => {
 
       it('should 400 if the userIDs contains an ID that does not exist', () =>
         req.put({
-          url: `maps/${map.id}/testRequest`,
+          url: `maps/${map.id}/testInvite`,
           status: 400,
           body: { userIDs: [NULL_ID] },
           token: u1Token
@@ -2068,7 +2068,7 @@ describe('Maps Part 2', () => {
           });
 
           await req.put({
-            url: `maps/${map.id}/testRequest`,
+            url: `maps/${map.id}/testInvite`,
             status: 403,
             body: { userIDs: [u3.id] },
             token: u1Token
@@ -2076,11 +2076,11 @@ describe('Maps Part 2', () => {
         });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/testRequest`, 'put'));
+        req.unauthorizedTest(`maps/${map.id}/testInvite`, 'put'));
     });
   });
 
-  describe('maps/{mapID}/testRequestResponse', () => {
+  describe('maps/{mapID}/testInviteResponse', () => {
     describe('PATCH', () => {
       let user, token, map;
       beforeEach(async () => {
@@ -2088,41 +2088,41 @@ describe('Maps Part 2', () => {
 
         map = await db.createMap({
           status: MapStatusNew.PRIVATE_TESTING,
-          testingRequests: {
-            create: { userID: user.id, state: MapTestingRequestState.UNREAD }
+          testInvites: {
+            create: { userID: user.id, state: MapTestInviteState.UNREAD }
           }
         });
       });
 
       afterEach(() => db.cleanup('mMap', 'user'));
 
-      it('should successfully accept a testing request', async () => {
+      it('should successfully accept a test invite', async () => {
         await req.patch({
-          url: `maps/${map.id}/testRequestResponse`,
+          url: `maps/${map.id}/testInviteResponse`,
           status: 204,
           body: { accept: true },
           token
         });
 
-        const createdRequests = await prisma.mapTestingRequest.findMany();
+        const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
-          { userID: user.id, state: MapTestingRequestState.ACCEPTED }
+          { userID: user.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
 
-      it('should successfully decline a testing request', () =>
+      it('should successfully decline a test invite', () =>
         req.patch({
-          url: `maps/${map.id}/testRequestResponse`,
+          url: `maps/${map.id}/testInviteResponse`,
           status: 204,
           body: { accept: false },
           token
         }));
 
-      it('should 404 if the user does not have a testing request', async () => {
-        await prisma.mapTestingRequest.deleteMany();
+      it('should 404 if the user does not have a test invite', async () => {
+        await prisma.mapTestInvite.deleteMany();
 
         await req.patch({
-          url: `maps/${map.id}/testRequestResponse`,
+          url: `maps/${map.id}/testInviteResponse`,
           status: 404,
           body: { accept: false },
           token
@@ -2131,7 +2131,7 @@ describe('Maps Part 2', () => {
 
       it("should 400 if body does not contain an 'accept' value", () =>
         req.patch({
-          url: `maps/${map.id}/testRequestResponse`,
+          url: `maps/${map.id}/testInviteResponse`,
           status: 400,
           body: {},
           token
@@ -2139,7 +2139,7 @@ describe('Maps Part 2', () => {
 
       it('should 404 in the map does not exist', () =>
         req.patch({
-          url: `maps/${NULL_ID}/testRequestResponse`,
+          url: `maps/${NULL_ID}/testInviteResponse`,
           status: 404,
           body: { accept: true },
           token
@@ -2155,7 +2155,7 @@ describe('Maps Part 2', () => {
           });
 
           await req.patch({
-            url: `maps/${map.id}/testRequestResponse`,
+            url: `maps/${map.id}/testInviteResponse`,
             status: 403,
             body: { accept: true },
             token
@@ -2163,7 +2163,7 @@ describe('Maps Part 2', () => {
         });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/testRequestResponse`, 'patch'));
+        req.unauthorizedTest(`maps/${map.id}/testInviteResponse`, 'patch'));
     });
   });
 });
