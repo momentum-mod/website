@@ -58,8 +58,7 @@ import {
   MapCreditsSelectionComponent,
   MapImageSelectionComponent,
   MapLeaderboardSelectionComponent,
-  MapSubmissionTypeInfoComponent,
-  MapTestingRequestSelectionComponent,
+  MapTestInviteSelectionComponent,
   MultiFileUploadComponent
 } from '../../../components';
 import { SharedModule } from '../../../shared.module';
@@ -82,7 +81,7 @@ import { DropdownModule } from 'primeng/dropdown';
     MapImageSelectionComponent,
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
-    MapTestingRequestSelectionComponent,
+    MapTestInviteSelectionComponent,
     TooltipDirective,
     ProgressBarModule,
     CalendarModule,

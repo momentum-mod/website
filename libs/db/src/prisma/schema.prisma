@@ -27,18 +27,18 @@ model User {
   mapFavorites      MapFavorite[]
   mapLibraryEntries MapLibraryEntry[]
   activities        Activity[]
-  follows           Follow[]            @relation("follow_follow")
-  followers         Follow[]            @relation("follow_follower")
+  follows           Follow[]           @relation("follow_follow")
+  followers         Follow[]           @relation("follow_follower")
   mapNotifies       MapNotify[]
   notifications     Notification[]
   runSessions       RunSession[]
   leaderboardRuns   LeaderboardRun[]
   pastRuns          PastRun[]
-  reportSubmitted   Report[]            @relation("report_submitter")
-  reportResolved    Report[]            @relation("report_resolver")
-  testingRequests   MapTestingRequest[]
-  reviewsSubmitted  MapReview[]         @relation("mapreview_reviewer")
-  reviewsResolved   MapReview[]         @relation("mapreview_resolver")
+  reportSubmitted   Report[]           @relation("report_submitter")
+  reportResolved    Report[]           @relation("report_resolver")
+  testInvites   MapTestInvite[]
+  reviewsSubmitted  MapReview[]        @relation("mapreview_reviewer")
+  reviewsResolved   MapReview[]        @relation("mapreview_resolver")
   reviewComments    MapReviewComment[]
   adminActivities   AdminActivity[]
 
@@ -195,7 +195,7 @@ model MMap {
   notifies        MapNotify[]
   reviews         MapReview[]
   submission      MapSubmission?
-  testingRequests MapTestingRequest[]
+  testInvites     MapTestInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -275,7 +275,7 @@ model MapStats {
   mapID Int  @id
 }
 
-model MapTestingRequest {
+model MapTestInvite {
   mapID Int
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
 

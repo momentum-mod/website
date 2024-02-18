@@ -1,22 +1,19 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import {
-  MAX_TESTING_REQUESTS,
-  User
-} from '../../../../../../../libs/constants/src';
+import { MAX_TEST_INVITES, User } from '@momentum/constants';
 import { NgClass } from '@angular/common';
 import { UserSearchComponent } from '../../search/user-search/user-search.component';
-import { TooltipDirective } from '../../../directives';
+import { SpinnerDirective, TooltipDirective } from '../../../directives';
 import { AvatarComponent } from '../../avatar/avatar.component';
 import { UserComponent } from '../../user/user.component';
 
 @Component({
-  selector: 'm-map-testing-request-selection',
-  templateUrl: 'map-testing-request-selection.component.html',
+  selector: 'm-map-test-invite-selection',
+  templateUrl: 'map-test-invite-selection.component.html',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => MapTestingRequestSelectionComponent),
+      useExisting: forwardRef(() => MapTestInviteSelectionComponent),
       multi: true
     }
   ],
@@ -26,13 +23,12 @@ import { UserComponent } from '../../user/user.component';
     UserSearchComponent,
     TooltipDirective,
     AvatarComponent,
-    UserComponent
+    UserComponent,
+    SpinnerDirective
   ]
 })
-export class MapTestingRequestSelectionComponent
-  implements ControlValueAccessor
-{
-  protected readonly MAX_TESTING_REQUESTS = MAX_TESTING_REQUESTS;
+export class MapTestInviteSelectionComponent implements ControlValueAccessor {
+  protected readonly MAX_TESTING_REQUESTS = MAX_TEST_INVITES;
 
   protected users: User[] = [];
   protected disabled = false;

@@ -15,7 +15,7 @@ import {
   MapStatusNew,
   MapSubmissionDate,
   MapSubmissionType,
-  MapTestingRequestState,
+  MapTestInviteState,
   MIN_PUBLIC_TESTING_DURATION,
   Role,
   TrackType,
@@ -733,7 +733,7 @@ describe('Maps', () => {
         });
 
         it('should create map review invites for the invitees', async () => {
-          const invites = await prisma.mapTestingRequest.findMany();
+          const invites = await prisma.mapTestInvite.findMany();
           const invitees = invites.map((u) => u.userID);
           expect(invitees).toEqual(expect.arrayContaining([u2.id, u3.id]));
           expect(invitees).toHaveLength(2);
@@ -2719,7 +2719,7 @@ describe('Maps', () => {
       });
 
       afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
-      afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
+      afterEach(() => db.cleanup('mapTestInvite', 'mapCredit'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -3037,11 +3037,11 @@ describe('Maps', () => {
       });
 
       it('should include private testing maps for which the user has an accepted invite', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             userID: u1.id,
             mapID: privMap.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
@@ -3062,11 +3062,11 @@ describe('Maps', () => {
       });
 
       it('should not include a private testing map if the user has an declined invite', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             userID: u1.id,
             mapID: privMap.id,
-            state: MapTestingRequestState.DECLINED
+            state: MapTestInviteState.DECLINED
           }
         });
 
@@ -3209,11 +3209,11 @@ describe('Maps', () => {
       });
 
       it('should filter by private maps when given the private filter', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             mapID: privMap.id,
             userID: u1.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
