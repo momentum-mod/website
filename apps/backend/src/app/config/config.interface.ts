@@ -40,7 +40,7 @@ export interface ConfigInterface {
     vmfSize: number;
     imageSize: number;
     reviewLength: number;
-    testingRequests: number;
+    testInvites: number;
     minPublicTestingDuration: number;
     maxCreditsExceptTesters: number;
   };

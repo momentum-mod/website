@@ -17,7 +17,7 @@ export * from './enums/map-credit-type.enum';
 export * from './enums/report-category.enum';
 export * from './enums/bans.enum';
 export * from './enums/country-codes.enum';
-export * from './enums/map-testing-request-state.enum';
+export * from './enums/map-test-invite-state.enum';
 export * from './enums/map-submission-type.enum';
 export * from './enums/track-type.enum';
 export * from './enums/style.enum';

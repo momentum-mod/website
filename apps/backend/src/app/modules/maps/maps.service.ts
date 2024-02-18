@@ -31,7 +31,7 @@ import {
   MapSubmissionDate,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
-  MapTestingRequestState,
+  MapTestInviteState,
   MapZones,
   Role,
   submissionBspPath,
@@ -83,7 +83,7 @@ import {
 } from '../../dto';
 import { FileStoreService } from '../filestore/file-store.service';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
-import { MapTestingRequestService } from './map-testing-request.service';
+import { MapTestInviteService } from './map-test-invite.service';
 import { MapImageService } from './map-image.service';
 import {
   LeaderboardHandler,
@@ -102,8 +102,8 @@ export class MapsService {
     private readonly leaderboardRunService: LeaderboardRunsService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
-    @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapTestingRequestService: MapTestingRequestService,
+    @Inject(forwardRef(() => MapTestInviteService))
+    private readonly mapTestInviteService: MapTestInviteService,
     @Inject(forwardRef(() => MapReviewService))
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService
@@ -227,8 +227,8 @@ export class MapsService {
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -252,8 +252,8 @@ export class MapsService {
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -275,8 +275,8 @@ export class MapsService {
                   { submitterID: userID },
                   { credits: { some: { userID } } },
                   {
-                    testingRequests: {
-                      some: { userID, state: MapTestingRequestState.ACCEPTED }
+                    testInvites: {
+                      some: { userID, state: MapTestInviteState.ACCEPTED }
                     }
                   }
                 ]
@@ -294,8 +294,8 @@ export class MapsService {
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -592,7 +592,7 @@ export class MapsService {
 
       if (dto.wantsPrivateTesting && dto.testInvites?.length > 0) {
         tasks.push(
-          this.mapTestingRequestService.createOrUpdatePrivateTestingInvites(
+          this.mapTestInviteService.createOrUpdatePrivateTestingInvites(
             tx,
             map.id,
             dto.testInvites
@@ -626,6 +626,12 @@ export class MapsService {
 
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the map submitter');
+
+    // This should never happen but stops someone flooding S3 storage with
+    // garbage.
+    if (map.submission.versions?.length > 100) {
+      throw new ForbiddenException('Reached map version limit');
+    }
 
     const { bans: userBans } = await this.db.user.findUnique({
       where: { id: userID },
@@ -1591,7 +1597,7 @@ export class MapsService {
       // - The submitter
       // - Moderator/Admin
       // - in the credits
-      // - Has an accepted MapTestingRequest
+      // - Has an accepted MapTestInvite
       case MapStatusNew.PRIVATE_TESTING: {
         if (
           map.submitterID === args.userID ||
@@ -1600,11 +1606,11 @@ export class MapsService {
           return map as GetMMapUnique<S, I>;
 
         if (
-          await this.db.mapTestingRequest.exists({
+          await this.db.mapTestInvite.exists({
             where: {
               mapID,
               userID: args.userID,
-              state: MapTestingRequestState.ACCEPTED
+              state: MapTestInviteState.ACCEPTED
             }
           })
         )

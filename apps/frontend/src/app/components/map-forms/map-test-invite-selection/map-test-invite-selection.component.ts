@@ -1,7 +1,7 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
-  MAX_TESTING_REQUESTS,
+  MAX_TEST_INVITES,
   User
 } from '../../../../../../../libs/constants/src';
 import { NgClass } from '@angular/common';
@@ -11,12 +11,12 @@ import { AvatarComponent } from '../../avatar/avatar.component';
 import { UserComponent } from '../../user/user.component';
 
 @Component({
-  selector: 'm-map-testing-request-selection',
-  templateUrl: 'map-testing-request-selection.component.html',
+  selector: 'm-map-test-invite-selection',
+  templateUrl: 'map-test-invite-selection.component.html',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => MapTestingRequestSelectionComponent),
+      useExisting: forwardRef(() => MapTestInviteSelectionComponent),
       multi: true
     }
   ],
@@ -29,10 +29,8 @@ import { UserComponent } from '../../user/user.component';
     UserComponent
   ]
 })
-export class MapTestingRequestSelectionComponent
-  implements ControlValueAccessor
-{
-  protected readonly MAX_TESTING_REQUESTS = MAX_TESTING_REQUESTS;
+export class MapTestInviteSelectionComponent implements ControlValueAccessor {
+  protected readonly MAX_TESTING_REQUESTS = MAX_TEST_INVITES;
 
   protected users: User[] = [];
   protected disabled = false;

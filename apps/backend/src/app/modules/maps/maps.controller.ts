@@ -52,7 +52,7 @@ import {
   CreateMapReviewDto,
   CreateMapReviewWithFilesDto,
   CreateMapSubmissionVersionDto,
-  CreateMapTestingRequestDto,
+  CreateMapTestInviteDto,
   CreateMapWithFilesDto,
   LeaderboardRunDto,
   MapCreditDto,
@@ -71,7 +71,7 @@ import {
   MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
-  UpdateMapTestingRequestDto,
+  UpdateMapTestInviteDto,
   VALIDATION_PIPE_CONFIG,
   UpdateMapImagesDto
 } from '../../dto';
@@ -81,7 +81,7 @@ import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.inter
 import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
-import { MapTestingRequestService } from './map-testing-request.service';
+import { MapTestInviteService } from './map-test-invite.service';
 import { MapsService } from './maps.service';
 import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
@@ -99,7 +99,7 @@ export class MapsController {
     private readonly mapCreditsService: MapCreditsService,
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
-    private readonly mapTestingRequestService: MapTestingRequestService,
+    private readonly mapTestInviteService: MapTestInviteService,
     private readonly runsService: LeaderboardRunsService
   ) {}
 
@@ -269,7 +269,7 @@ export class MapsController {
     }
   }
 
-  @Put('/:mapID/testRequest')
+  @Put('/:mapID/testInvite')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update the private testing invites for the map' })
   @ApiParam({
@@ -278,33 +278,33 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
-  async updateTestingRequests(
+  async updateTestInvites(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Body() body: CreateMapTestingRequestDto,
+    @Body() body: CreateMapTestInviteDto,
     @LoggedInUser('id') userID: number
   ) {
-    await this.mapTestingRequestService.updateTestingRequests(
+    await this.mapTestInviteService.updateTestInvites(
       mapID,
       body.userIDs,
       userID
     );
   }
 
-  @Patch('/:mapID/testRequestResponse')
+  @Patch('/:mapID/testInviteResponse')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Accept or decline a MapTestingRequest' })
+  @ApiOperation({ summary: 'Accept or decline a MapTestInvite' })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'Target Map ID',
     required: true
   })
-  async testingRequestResponse(
+  async testInviteResponse(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Body() body: UpdateMapTestingRequestDto,
+    @Body() body: UpdateMapTestInviteDto,
     @LoggedInUser('id') userID: number
   ) {
-    await this.mapTestingRequestService.testingRequestResponse(
+    await this.mapTestInviteService.testInviteResponse(
       mapID,
       userID,
       body.accept

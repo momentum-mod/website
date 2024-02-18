@@ -14,7 +14,7 @@ export * from './map-forms/map-credits-selection/map-credits-selection.component
 export * from './map-forms/map-image-selection/image-selection-item.class';
 export * from './map-forms/map-image-selection/map-image-selection.component';
 export * from './map-forms/map-leaderboard-selection/map-leaderboard-selection.component';
-export * from './map-forms/map-testing-request-selection/map-testing-request-selection.component';
+export * from './map-forms/map-test-invite-selection/map-test-invite-selection.component';
 export * from './map-review/map-review-list.component';
 export * from './map-review/map-review-form.component';
 export * from './map-review/map-review-suggestions.component';

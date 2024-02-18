@@ -94,7 +94,7 @@ describe('MapsService', () => {
     
     const mockMapValue = (map) => db.mMap.findUnique.mockResolvedValueOnce(map);
     const mockUserValue = (user) => db.user.findUnique.mockResolvedValueOnce(user);
-    const mockTestingReqExists = (exists) => db.mapTestingRequest.exists.mockResolvedValueOnce(exists);
+    const mockTestInviteExists = (exists) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
     const mockMapCreditExists = (exists) => db.mapCredit.exists.mockResolvedValueOnce(exists);
 
     for (const status of Enum.values(MapStatusNew)) {
@@ -121,7 +121,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.ADMIN });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -132,7 +132,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.MODERATOR });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -143,7 +143,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.REVIEWER });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -155,18 +155,18 @@ describe('MapsService', () => {
           const submittedMap = { ...map, submitterID: 1 };
           mockMapValue(submittedMap);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, submittedMap, 1);
         });
 
-        it(`should ${shouldPass('acceptedRequest')} a user with an accepted testing request`, async () => {
+        it(`should ${shouldPass('acceptedRequest')} a user with an accepted test invite`, async () => {
           const pass = passes('acceptedRequest');
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(true);
+          mockTestInviteExists(true);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -177,7 +177,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(true);
 
           await expects(pass, map);
@@ -186,7 +186,7 @@ describe('MapsService', () => {
         it('should reject a user that does not match any above conditions', async () => {
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(false, map);

@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatusNew, MapTestingRequestState } from '@momentum/constants';
+import { MapStatusNew, MapTestInviteState } from '@momentum/constants';
 import { difference } from '@momentum/util-fn';
 import {
   ExtendedPrismaService,
@@ -14,16 +14,12 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 
 @Injectable()
-export class MapTestingRequestService {
+export class MapTestInviteService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
   ) {}
 
-  async updateTestingRequests(
-    mapID: number,
-    requestIDs: number[],
-    userID: number
-  ) {
+  async updateTestInvites(mapID: number, requestIDs: number[], userID: number) {
     const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) {
@@ -41,10 +37,10 @@ export class MapTestingRequestService {
     await this.createOrUpdatePrivateTestingInvites(this.db, mapID, requestIDs);
   }
 
-  async testingRequestResponse(mapID: number, userID: number, accept: boolean) {
+  async testInviteResponse(mapID: number, userID: number, accept: boolean) {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { testingRequests: true }
+      include: { testInvites: true }
     });
 
     if (!map) {
@@ -55,22 +51,18 @@ export class MapTestingRequestService {
       throw new ForbiddenException('Map is not in private testing');
     }
 
-    const matchingRequest = map.testingRequests.find(
-      (t) => t.userID === userID
-    );
+    const matchingRequest = map.testInvites.find((t) => t.userID === userID);
 
     if (!matchingRequest) {
-      throw new NotFoundException(
-        'User does not have a testing request for map'
-      );
+      throw new NotFoundException('User does not have a test invite for map');
     }
 
-    await this.db.mapTestingRequest.update({
+    await this.db.mapTestInvite.update({
       where: { mapID_userID: { mapID, userID } },
       data: {
         state: accept
-          ? MapTestingRequestState.ACCEPTED
-          : MapTestingRequestState.DECLINED
+          ? MapTestInviteState.ACCEPTED
+          : MapTestInviteState.DECLINED
       }
     });
   }
@@ -93,7 +85,7 @@ export class MapTestingRequestService {
       throw new BadRequestException('Invalid userID in testing invites');
     }
 
-    const existingInvites = await tx.mapTestingRequest.findMany({
+    const existingInvites = await tx.mapTestInvite.findMany({
       where: { mapID },
       select: { userID: true }
     });
@@ -102,15 +94,15 @@ export class MapTestingRequestService {
     // We assume some invites may exist already, then add invites for any users
     // on new invites but not existing invites, and remove for any users on
     // existing invites but not new invites.
-    await tx.mapTestingRequest.createMany({
+    await tx.mapTestInvite.createMany({
       data: difference(userIDs, existingInviteUserIDs).map((userID) => ({
         mapID,
         userID,
-        state: MapTestingRequestState.UNREAD
+        state: MapTestInviteState.UNREAD
       }))
     });
 
-    await tx.mapTestingRequest.deleteMany({
+    await tx.mapTestInvite.deleteMany({
       where: {
         userID: { in: difference(existingInviteUserIDs, userIDs) }
       }
