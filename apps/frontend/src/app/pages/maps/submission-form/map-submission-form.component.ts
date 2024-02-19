@@ -1,4 +1,11 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  isDevMode,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { Router } from '@angular/router';
 import {
   FormBuilder,
@@ -58,7 +65,7 @@ import { TooltipDirective } from '../../../directives';
 import { SuggestionType } from '@momentum/formats/zone';
 import { GroupedMapCredits, FormUtils } from '../../../util';
 
-// TODO: "are you sure you wnat to leave this page" thingy!
+import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -80,7 +87,10 @@ import { GroupedMapCredits, FormUtils } from '../../../util';
     CreditsInfoComponent
   ]
 })
-export class MapSubmissionFormComponent extends Unsub implements OnInit {
+export class MapSubmissionFormComponent
+  extends Unsub
+  implements OnInit, ConfirmDeactivate
+{
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
@@ -456,5 +466,18 @@ export class MapSubmissionFormComponent extends Unsub implements OnInit {
     this.isUploading = false;
     this.uploadStatusDescription = '';
     this.uploadPercentage = 0;
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  canLeavePage(_event: Event): boolean {
+    return (!this.isUploading && !this.form.dirty) || isDevMode();
+  }
+
+  canDeactivate(): true | string {
+    if (this.isUploading)
+      return 'Map is currently uploading, are you sure you want to leave this page?';
+    else if (this.form.dirty)
+      return 'Form is incomplete, are you sure you want to leave this page?';
+    return true;
   }
 }

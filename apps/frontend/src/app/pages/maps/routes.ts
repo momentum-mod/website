@@ -4,6 +4,7 @@ import { MapSubmissionStatusComponent } from './submission-status/map-submission
 import { MapSubmissionFormComponent } from './submission-form/map-submission-form.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
+import { DeactivateConfirmGuard } from '../../guards/component-can-deactivate.guard';
 
 export default [
   { path: '', pathMatch: 'full', component: MapBrowserComponent },
@@ -11,9 +12,17 @@ export default [
     path: 'submissions',
     children: [
       { path: '', component: MapSubmissionStatusComponent },
-      { path: 'submit', component: MapSubmissionFormComponent }
+      {
+        path: 'submit',
+        component: MapSubmissionFormComponent,
+        canDeactivate: [DeactivateConfirmGuard]
+      }
     ]
   },
-  { path: ':id', component: MapInfoComponent },
-  { path: ':id/edit', component: MapEditComponent }
+  { path: ':name', component: MapInfoComponent },
+  {
+    path: ':name/edit',
+    component: MapEditComponent,
+    canDeactivate: [DeactivateConfirmGuard]
+  }
 ] satisfies Route[];
