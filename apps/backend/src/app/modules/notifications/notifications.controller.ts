@@ -1,6 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
 import {
+  BadRequestException,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Query
+} from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags
@@ -25,5 +36,34 @@ export class NotificationsController {
     @LoggedInUser('id') userID: number
   ): Promise<NotificationDto[]> {
     return this.notifsService.getNotifications(userID);
+  }
+  @Delete('/markAsRead')
+  @ApiOperation({
+    description: 'Marks the given notifications as read.'
+  })
+  @ApiBody({
+    type: String,
+    description: 'Comma-separated list of notification ids or the word "all"',
+    required: true
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'Notifications marked as read successfully'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid body' })
+  async markNotificationsAsRead(
+    @LoggedInUser('id') userID: number,
+    @Query('notifIDs') notifIDs: string
+  ): Promise<void> {
+    if (!notifIDs) throw new BadRequestException('Invalid notification IDs');
+    if (notifIDs === 'all')
+      return this.notifsService.markAsRead(userID, [], true);
+    else {
+      return this.notifsService.markAsRead(
+        userID,
+        notifIDs.split(',').map((x) => Number.parseInt(x)),
+        false
+      );
+    }
   }
 }
