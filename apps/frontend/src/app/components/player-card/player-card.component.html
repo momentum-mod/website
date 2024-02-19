@@ -5,7 +5,7 @@
     <p class="mb-auto text-lg">{{ user.alias }}</p>
     <p class="text-sm">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
     <p-progressBar
-      class="playercard__progressbar h-4"
+      class="playercard__progressbar mt-auto h-2"
       [showValue]="false"
       [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)"
     />

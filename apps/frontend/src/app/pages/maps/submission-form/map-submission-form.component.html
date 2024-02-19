@@ -127,7 +127,8 @@
     </div>
 
     <div class="flex flex-col">
-      <div class="z-10 -mb-12 ml-4 mt-12 flex items-center gap-4">
+      <div class="z-50 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <!--        TODO: VALIDATION NOT RIGHT D:<-->
         <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
@@ -307,7 +308,7 @@
       <div class="m-card m-card--fancy mt-6 pt-4">
         <m-map-leaderboards-selection [formControl]="suggestions" />
         @if (suggestions.dirty && suggestions.errors) {
-          <p class="mb-1 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
+          <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
         }
       </div>
     </div>
@@ -339,7 +340,7 @@
       <div class="m-card m-card--fancy mt-6 pt-10">
         <div class="flex gap-4" [formGroup]="privateTesting">
           <div class="flex flex-col md:w-full lg:flex-grow">
-            <div class="prose max-w-none pt-4">
+            <div class="prose max-w-none">
               <p>
                 Private testing is an optional first phase of map submission wherein only players you personally invite can play and review
                 your map.

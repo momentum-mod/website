@@ -1,4 +1,4 @@
-<button class="m-btn m-btn-green ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
+<button class="m-btn m-btn-blue -mb-6 ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
   Add Leaderboard
 </button>
 <table
@@ -13,7 +13,8 @@
       <th class="text-center">Type</th>
       <th class="text-center">Track</th>
       <th class="text-center">Tier</th>
-      <th><span class="absolute -translate-x-2">Ranked</span></th>
+      <!-- Making this not look ugly with budging it like this a nightmare -->
+      <th><span class="absolute -translate-x-5">Ranked</span></th>
       <th class="text-center">Comments</th>
       <th class="text-center"></th>
     </tr>
