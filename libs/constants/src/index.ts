@@ -14,6 +14,7 @@ export * from './enums/map-status.enum';
 export * from './enums/report-type.enum';
 export * from './enums/activity-type.enum';
 export * from './enums/map-credit-type.enum';
+export * from './enums/notification-type.enum';
 export * from './enums/report-category.enum';
 export * from './enums/bans.enum';
 export * from './enums/country-codes.enum';

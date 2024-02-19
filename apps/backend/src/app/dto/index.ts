@@ -37,7 +37,7 @@ export * from './user/follow.dto';
 export * from './user/profile.dto';
 export * from './user/activity.dto';
 export * from './user/user-stats.dto';
-export * from './user/notification.dto';
+export * from './notification/notification.dto';
 export * from './user/user-maps-summary.dto';
 export * from './user/socials.dto';
 export * from './user/admin-activity-dto';
