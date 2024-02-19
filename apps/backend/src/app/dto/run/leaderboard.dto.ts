@@ -6,7 +6,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { EnumProperty } from '../decorators';
 
@@ -34,6 +34,7 @@ export class LeaderboardDto implements Leaderboard {
 
   @ApiProperty({ type: Number, description: 'The tier of the leaderboard' })
   @IsInt()
+  @IsOptional()
   readonly tier: number;
 
   @ApiProperty({
@@ -56,5 +57,6 @@ export class LeaderboardDto implements Leaderboard {
     description: 'Whether leaderboard corresponds to a linear track'
   })
   @IsBoolean()
+  @IsOptional()
   readonly linear: boolean;
 }

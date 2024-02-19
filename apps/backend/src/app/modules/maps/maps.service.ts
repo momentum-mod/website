@@ -91,6 +91,7 @@ import {
 } from './leaderboard-handler.util';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
 import { MapReviewService } from '../map-review/map-review.service';
+import { LeaderboardService } from '../runs/leaderboard.service';
 
 @Injectable()
 export class MapsService {
@@ -100,6 +101,8 @@ export class MapsService {
     private readonly fileStoreService: FileStoreService,
     @Inject(forwardRef(() => LeaderboardRunsService))
     private readonly leaderboardRunService: LeaderboardRunsService,
+    @Inject(forwardRef(() => LeaderboardService))
+    private readonly leaderboardService: LeaderboardService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestInviteService))
