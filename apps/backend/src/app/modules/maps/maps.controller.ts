@@ -87,6 +87,8 @@ import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
 import { MapReviewService } from '../map-review/map-review.service';
 import { ImageType } from '@momentum/constants';
+import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
+import { LeaderboardService } from '../runs/leaderboard.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -100,7 +102,8 @@ export class MapsController {
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
     private readonly mapTestInviteService: MapTestInviteService,
-    private readonly runsService: LeaderboardRunsService
+    private readonly runsService: LeaderboardRunsService,
+    private readonly leaderboardService: LeaderboardService
   ) {}
 
   //#region Maps
@@ -588,7 +591,7 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
-  @ApiOkResponse({ description: 'The found run' })
+  @ApiOkResponse({ type: LeaderboardRunDto })
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiNotFoundResponse({ description: 'Run not found' })
   getLeaderboardRun(
@@ -599,10 +602,21 @@ export class MapsController {
     return this.runsService.getRun(mapID, query, userID);
   }
 
+  @Get('/:mapID/leaderboardStats')
+  @ApiOperation({
+    description: 'Get stats of for all the leaderboards on a map'
+  })
+  @ApiOkResponse({ type: LeaderboardStatsDto, isArray: true })
+  getLeaderboardStats(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
+  ) {
+    return this.leaderboardService.getLeaderboardStats(mapID, userID);
+  }
+
   //#endregion
 
   //#region Reviews
-
   @Get('/:mapID/reviews')
   @ApiOperation({ summary: 'Returns the reviews for a specific map' })
   @ApiParam({

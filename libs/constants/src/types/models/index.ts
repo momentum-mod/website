@@ -24,6 +24,7 @@ export * from './run/leaderboard-run.model';
 export * from './run/past-run.model';
 export * from './run/run-session.model';
 export * from './run/completed-run.model';
+export * from './run/leaderboard-stats.model';
 export * from './run/run-session-timestamp.model';
 export * from './auth/jwt-response.model';
 export * from './auth/refresh-token.model';
