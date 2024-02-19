@@ -12,6 +12,7 @@ import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { MapReviewModule } from '../map-review/map-review.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { MapReviewModule } from '../map-review/map-review.module';
     SessionModule,
     forwardRef(() => RunsModule),
     forwardRef(() => AdminModule),
-    forwardRef(() => MapReviewModule)
+    forwardRef(() => MapReviewModule),
+    NotificationsModule
   ],
   controllers: [MapsController],
   providers: [
