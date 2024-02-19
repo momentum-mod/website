@@ -33,6 +33,7 @@ import {
   MapSubmissionSuggestion,
   MapTestingRequestState,
   MapZones,
+  NotificationType,
   Role,
   submissionBspPath,
   submissionVmfsPath,
@@ -1239,6 +1240,11 @@ export class MapsService {
       newStatus === MapStatusNew.APPROVED
     ) {
       await this.updateStatusFromFAToApproved(tx, map, dto);
+    } else if (
+      oldStatus === MapStatusNew.PRIVATE_TESTING &&
+      newStatus !== MapStatusNew.PRIVATE_TESTING
+    ) {
+      await this.updateStatusFromPrivate(tx, map);
     }
 
     return {
@@ -1459,6 +1465,20 @@ export class MapsService {
 
       this.checkZones(zones);
     }
+  }
+  /**
+   * Private Testing -> Anything Else
+   */
+  private async updateStatusFromPrivate(
+    tx: ExtendedPrismaServiceTransaction,
+    map: MapWithSubmission
+  ) {
+    await tx.mapTestingRequest.deleteMany({
+      where: { mapID: map.id, state: MapTestingRequestState.UNREAD }
+    });
+    await tx.notification.deleteMany({
+      where: { type: NotificationType.MAP_TESTING_REQUEST, mapID: map.id }
+    });
   }
 
   //#endregion
