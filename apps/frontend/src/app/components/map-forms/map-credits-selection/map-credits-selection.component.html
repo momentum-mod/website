@@ -1,6 +1,6 @@
 @for (type of MapCreditNames | keyvalue; track type) {
   <div class="flex h-full flex-col">
-    <p class="mb-2 ml-2 text-3xl">{{ type.value }}</p>
+    <p class="mb-1 text-xl font-medium">{{ type.value }}</p>
     <div
       class="flex-grow rounded bg-black bg-opacity-25"
       id="{{ type.key }}"
@@ -40,7 +40,7 @@
         </button>
       }
       <m-icon
-        class="my-auto ml-3 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
+        class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
         [mTooltip]="creditsInfo"
         icon="tooltip-question-outline"
       />

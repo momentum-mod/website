@@ -30,7 +30,7 @@
   & .custom {
     z-index: 1;
 
-    filter: blur(4px) contrast(0.7) brightness(0.7);
+    filter: blur(4px) contrast(0.675) brightness(0.7);
     transition-property: opacity;
     transition-duration: 0.2s;
     transition-timing-function: ease-in-out;
@@ -78,7 +78,7 @@ main {
   scroll-behavior: smooth;
   overflow-y: scroll;
 
-  padding: 48px;
+  padding: 36px 48px;
 }
 
 .scroll-container {

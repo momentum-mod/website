@@ -1,15 +1,15 @@
 @if (map) {
-  <div class="grid gap-x-4 gap-y-2 [grid-template-columns:3fr_7fr]">
-    <div class="flex">
+  <div class="grid gap-x-4 gap-y-2 [grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
+    <div class="flex gap-4">
       <!-- This negative margin is pretty evil, breaking the standard <main>
            padding. But vertical space is so precious here! -->
-      <div class="relative -mt-2 flex h-[6.5rem] flex-col">
+      <div class="relative -mt-2 -mb-2 flex h-[6.5rem] flex-col w-[300px]">
         @if (prefix) {
           <p class="m-card-title absolute top-0 text-[2rem] text-gray-200">{{ prefix ?? '' }}</p>
         }
         <p class="m-card-title absolute bottom-0 text-[5rem]">{{ name }}</p>
       </div>
-      <button type="button" class="ml-auto mt-auto flex" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
+      <button type="button" class="mt-auto flex flex-[0_0_auto]" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
         <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
       </button>
     </div>
@@ -17,7 +17,7 @@
       <div class="ml-2 flex items-end gap-4">
         @for (section of sections(); track $index) {
           <button
-            class="font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
+            class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
             [ngClass]="{ '!text-white': currentSection === section }"
             (click)="currentSection = section"
           >
@@ -80,7 +80,7 @@
 
         @if (inSubmission) {
           <div
-            class="flex justify-center gap-2 bg-red-500 bg-opacity-25 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
+            class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3  [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
           >
             <p>In Submission -</p>
             <i>{{ MapStatusName.get(map.status) }}</i
@@ -121,7 +121,7 @@
           }
         </div>
 
-        <div class="flex flex-col gap-2 border-x border-white border-opacity-5 px-5 pb-4">
+        <div class="flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
           <p class="text-shadow mb-2 whitespace-pre-wrap">{{ map.info.description }}</p>
           <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
@@ -146,20 +146,20 @@
                 </div>
               }
             </ng-template>
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
               <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.AUTHOR }" />
-              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.TESTER }" />
-            </div>
-            <div class="flex flex-col gap-4">
               <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.CONTRIBUTOR }" />
+            </div>
+            <div class="flex flex-col gap-2">
               <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.SPECIAL_THANKS }" />
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.TESTER }" />
             </div>
           </div>
         </div>
       </m-card-body>
     </div>
     <div>
-      <m-card-body class="stack m-card--fancy">
+      <div class="stack card card--fancy border-opacity-[0.0675] p-4">
         <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
         <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
       </m-card-body>
