@@ -46,6 +46,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import path from 'node:path';
+import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-stats.dto';
 
 describe('Maps Part 2', () => {
   let app,
@@ -1528,6 +1529,50 @@ describe('Maps Part 2', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/leaderboard/run', 'get'));
+    });
+  });
+
+  describe('maps/{mapID}/leaderboardStats', () => {
+    describe('GET', () => {
+      let user, token, map;
+      beforeAll(async () => {
+        [user, token] = await db.createAndLoginUser();
+        map = await db.createMapWithFullLeaderboards();
+        await db.createLbRun({
+          map,
+          user,
+          rank: 1,
+          trackType: TrackType.MAIN,
+          trackNum: 0,
+          style: 0,
+          gamemode: Gamemode.AHOP
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should return leaderboard stats for a map', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboardStats`,
+          status: 200,
+          validateArray: { type: LeaderboardStatsDto, length: 4 },
+          token
+        });
+
+        for (const {
+          leaderboard: { trackType, trackNum },
+          totalRuns
+        } of res.body) {
+          if (trackType === TrackType.MAIN && trackNum === 0) {
+            expect(totalRuns).toBe(1);
+          } else {
+            expect(totalRuns).toBe(0);
+          }
+        }
+      });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/leaderboardStats', 'get'));
     });
   });
 
