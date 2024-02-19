@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { filter, first } from 'rxjs/operators';
 
@@ -49,7 +49,7 @@ export class LayoutService {
       .pipe(
         filter(
           (event) =>
-            event instanceof NavigationStart &&
+            event instanceof NavigationEnd &&
             !this.backgroundReservations.some((r) => r.test(event.url))
         )
       )
