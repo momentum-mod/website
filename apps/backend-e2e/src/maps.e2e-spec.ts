@@ -2356,19 +2356,35 @@ describe('Maps', () => {
               submission: {
                 create: {
                   type: MapSubmissionType.PORT,
-                  suggestions: {
-                    trackType: TrackType.MAIN,
-                    trackNum: 0,
-                    gamemode: Gamemode.SURF,
-                    tier: 10,
-                    ranked: true
-                  },
+                  suggestions: [
+                    {
+                      trackType: TrackType.MAIN,
+                      trackNum: 0,
+                      gamemode: Gamemode.CONC,
+                      tier: 1,
+                      ranked: true
+                    },
+                    {
+                      trackType: TrackType.BONUS,
+                      trackNum: 0,
+                      gamemode: Gamemode.DEFRAG_CPM,
+                      tier: 1,
+                      ranked: true
+                    }
+                  ],
                   dates: [
                     {
                       status: s1,
                       date: new Date().toJSON()
                     }
-                  ]
+                  ],
+                  versions: {
+                    create: {
+                      zones: ZonesStub,
+                      versionNum: 1,
+                      hash: createSha1Hash(Buffer.from('shashashs'))
+                    }
+                  }
                 }
               }
             });
@@ -2403,12 +2419,28 @@ describe('Maps', () => {
                 }
               ],
               type: MapSubmissionType.PORT,
-              suggestions: {
-                trackType: TrackType.MAIN,
-                trackNum: 0,
-                gamemode: Gamemode.SURF,
-                tier: 10,
-                ranked: true
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  ranked: true
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
               }
             }
           }
@@ -2551,64 +2583,42 @@ describe('Maps', () => {
         });
       });
 
-      it('should not wipe leaderboards if resetLeaderboards is false or undefined', async () => {
+      it('should 400 if suggestions and zones dont match up', async () => {
         const map = await db.createMap({
           ...createMapData,
           status: MapStatusNew.PRIVATE_TESTING,
-          leaderboards: {
+          submission: {
             create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
+              type: MapSubmissionType.PORT,
+              versions: {
                 create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
+                  // Has a bonus
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
                 }
-              }
+              },
+              // No bonus, so should fail
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.SURF,
+                  tier: 10,
+                  ranked: true
+                }
+              ]
             }
           }
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
+        // Try change literally anything, it should 400.
         await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              description: 'damn these runs are great. i love you guys',
-              youtubeID: 'ICZG33IxtgE'
-            },
-            resetLeaderboards: false
-          },
+          status: 400,
+          body: { submission: MapSubmissionType.ORIGINAL },
           token
         });
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              youtubeID: 'oBSGEl-yB7A'
-            }
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
       });
 
       it('should return 400 if the status flag is invalid', async () => {

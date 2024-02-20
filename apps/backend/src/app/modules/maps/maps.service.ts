@@ -12,6 +12,7 @@ import {
   LeaderboardRun,
   MapCredit,
   MapSubmission,
+  MapSubmissionVersion,
   MMap,
   Prisma
 } from '@prisma/client';
@@ -49,7 +50,7 @@ import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
-import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
+import { JsonValue, Merge, MergeExclusive } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
   SuggestionType,
@@ -1005,10 +1006,13 @@ export class MapsService {
     if (isEmpty(dto)) {
       throw new BadRequestException('Empty body');
     }
+
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: true }
-    })) as MapWithSubmission;
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
+    })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) throw new NotFoundException('Map does not exist');
 
@@ -1017,6 +1021,22 @@ export class MapsService {
 
     if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
       throw new ForbiddenException('Map can only be edited during submission');
+
+    // Force the submitter to keep their suggestions in sync with their zones.
+    // If this requests has new suggestions, use those, otherwise use the
+    // existing ones.
+    //
+    // A map submission version could've updated the zones to something that
+    // doesn't work with the current suggestions, in this case, the submitter
+    // will be forced to update suggestions next time they do a general
+    // update, including if they want to change the map status. Frontend
+    // explains this to the user.
+    const suggs =
+      dto.suggestions ??
+      (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
+    const zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+
+    this.checkSuggestionsAndZones(suggs, zones);
 
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
@@ -1035,31 +1055,9 @@ export class MapsService {
         data: deepmerge()(generalUpdate, statusUpdate) as Prisma.MMapUpdateInput
       });
 
-      const mapDB = await this.db.mapSubmission.findUnique({
-        where: { mapID: map.id },
-        include: { currentVersion: true }
-      });
-
       if (dto.suggestions) {
-        const zones = mapDB.currentVersion.zones as unknown as MapZones; // TODO: #855
-        try {
-          validateSuggestions(
-            dto.suggestions,
-            zones,
-            SuggestionType.SUBMISSION
-          );
-        } catch (error) {
-          if (error instanceof SuggestionValidationError) {
-            throw new BadRequestException(
-              `Invalid suggestions: ${error.message}`
-            );
-          } else {
-            throw error;
-          }
-        }
-
         // It's very uncommon we actually need to do this, but someone *could*
-        // change their suggestions from one mode to another *incompatible mode),
+        // change their suggestions from one mode to another incompatible mode),
         // so leaderboards would change. Usually there won't be any changes
         // required though.
         await this.generateSubmissionLeaderboards(
@@ -1080,10 +1078,13 @@ export class MapsService {
     if (isEmpty(dto)) {
       throw new BadRequestException('Empty body');
     }
+
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: true }
-    })) as MapWithSubmission;
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
+    })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) {
       throw new NotFoundException('Map does not exist');
@@ -1259,6 +1260,7 @@ export class MapsService {
     ) {
       return;
     }
+
     // Ensure it's been in testing for minimum period,
     // if it's never been to FINAL_APPROVAL before.
     const currentTime = Date.now();
@@ -1662,7 +1664,7 @@ export class MapsService {
   }
 
   /**
-   * Validate both suggestion and zone validation, throw if either fails
+   * Validates zone data, throw if fails
    * @throws BadRequestException
    */
   checkZones(zones: MapZones) {
@@ -1722,11 +1724,14 @@ export class MapsService {
 }
 
 type MapWithSubmission = MMap & {
-  submission: OverrideProperties<
+  submission: Merge<
     MapSubmission,
     {
       dates: MapSubmissionDate[];
       placeholders: MapSubmissionPlaceholder[];
+      suggestions: MapSubmissionSuggestion[];
+      currentVersion: MapSubmissionVersion;
+      versions: MapSubmissionVersion[];
     }
   >;
 };
