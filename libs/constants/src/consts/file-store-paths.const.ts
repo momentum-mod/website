@@ -26,6 +26,10 @@ export function imgLargePath(key: string): string {
   return `img/${key}-large.jpg`;
 }
 
+export function imgXlPath(key: string): string {
+  return `img/${key}-xl.jpg`;
+}
+
 export function runPath(key: string | number | bigint): string {
   return `runs/${key}`;
 }

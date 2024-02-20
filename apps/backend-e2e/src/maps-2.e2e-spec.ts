@@ -769,12 +769,14 @@ describe('Maps Part 2', () => {
           {
             small: expect.stringContaining(`${id2}-small.jpg`),
             medium: expect.stringContaining(`${id2}-medium.jpg`),
-            large: expect.stringContaining(`${id2}-large.jpg`)
+            large: expect.stringContaining(`${id2}-large.jpg`),
+            xl: expect.stringContaining(`${id2}-xl.jpg`)
           },
           {
             small: expect.stringContaining(`${id1}-small.jpg`),
             medium: expect.stringContaining(`${id1}-medium.jpg`),
-            large: expect.stringContaining(`${id1}-large.jpg`)
+            large: expect.stringContaining(`${id1}-large.jpg`),
+            xl: expect.stringContaining(`${id1}-xl.jpg`)
           }
         ]);
       });
@@ -845,7 +847,7 @@ describe('Maps Part 2', () => {
         });
 
         const updatedMap = await prisma.mMap.findFirst();
-        for (const size of ['small', 'medium', 'large']) {
+        for (const size of ['small', 'medium', 'large', 'xl']) {
           expect(res.body[0][size]).toBeDefined();
           expect(
             await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`)
@@ -863,11 +865,11 @@ describe('Maps Part 2', () => {
 
         const buf = Buffer.alloc(1);
         for (const id of [id1, id2])
-          for (const size of ['small', 'medium', 'large'])
+          for (const size of ['small', 'medium', 'large', 'xl'])
             await fileStore.add(`img/${id}-${size}.jpg`, buf);
 
         for (const id of [id1, id2])
-          for (const size of ['small', 'medium', 'large'])
+          for (const size of ['small', 'medium', 'large', 'xl'])
             expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
 
         const res = await req.putAttach({
@@ -888,7 +890,8 @@ describe('Maps Part 2', () => {
             id,
             small: expect.stringContaining(`${id}-small.jpg`),
             medium: expect.stringContaining(`${id}-medium.jpg`),
-            large: expect.stringContaining(`${id}-large.jpg`)
+            large: expect.stringContaining(`${id}-large.jpg`),
+            xl: expect.stringContaining(`${id}-xl.jpg`)
           }))
         );
         expect(images).toHaveLength(3);
@@ -897,10 +900,10 @@ describe('Maps Part 2', () => {
         expect(images[2][8]).toBe('-');
 
         for (const id of images)
-          for (const size of ['small', 'medium', 'large'])
+          for (const size of ['small', 'medium', 'large', 'xl'])
             expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
 
-        for (const size of ['small', 'medium', 'large'])
+        for (const size of ['small', 'medium', 'large', 'xl'])
           expect(await fileStore.exists(`img/${id2}-${size}.jpg`)).toBe(false);
       });
 
