@@ -209,13 +209,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'testInvites'
   ])
   readonly expand?: MapsGetExpand;
-
-  @ApiProperty({
-    description:
-      'Whether to search based on map name. This will safely handle a map name that is a numeric string.'
-  })
-  @BooleanQueryProperty({ required: false })
-  readonly byName?: boolean;
 }
 
 //#endregion
@@ -308,6 +301,10 @@ export class MapReviewsGetQueryDto
   extends PagedQueryDto
   implements MapReviewsGetQuery
 {
+  // Stupidly high maximum so admins can always fetch everything
+  @TakeQueryProperty(20, 1000)
+  readonly take?: number = 20;
+
   @BooleanQueryProperty({
     description: 'Filter by official or unofficial reviews'
   })
