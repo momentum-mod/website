@@ -1561,6 +1561,9 @@ export class MapsService {
             : { name: args.mapID },
         include: args.include,
         select: args.select
+          ? // Required by below code
+            { id: true, status: true, ...args.select }
+          : undefined
       }));
 
     if (!map) {
@@ -1724,7 +1727,7 @@ type MapWithSubmission = MMap & {
   >;
 };
 
-type GetMMapUnique<S, I> = Prisma.Result<
+type GetMMapUnique<S, I> = { id: number; status: MapStatusNew } & Prisma.Result<
   ExtendedPrismaService['mMap'],
   { select: S; include: I },
   'findUnique'
