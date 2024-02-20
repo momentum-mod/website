@@ -2485,6 +2485,7 @@ describe('Maps', () => {
                 trackType: TrackType.MAIN,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
+                comment: 'FUCK!!!!',
                 tier: 10,
                 ranked: true
               },
