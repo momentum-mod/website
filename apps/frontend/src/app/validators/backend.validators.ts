@@ -11,15 +11,27 @@ export class BackendValidators {
   // which does a class for every validator and ties itself in knots doing DI
   // in a super ugly way. Instead just use a closure we can pass the required
   // services into.
-  static uniqueMapName(mapsService: MapsService): AsyncValidatorFn {
+  static uniqueMapName(
+    mapsService: MapsService,
+    allow?: () => string
+  ): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
-      if (!control.value || typeof control.value != 'string') return of(null);
+      if (
+        !control.value ||
+        typeof control.value != 'string' ||
+        control.value === allow?.()
+      )
+        return of(null);
+
+      if (!Number.isNaN(Number(control.value))) {
+        return of({ badMapName: 'Name cannot be a number' });
+      }
 
       return of(control.value).pipe(
         delay(500),
         switchMap((name) =>
           mapsService
-            .testMapExists(name, { byName: true })
+            .testMapExists(name)
             .pipe(map((exists) => (exists ? { uniqueMapName: true } : null)))
         )
       );

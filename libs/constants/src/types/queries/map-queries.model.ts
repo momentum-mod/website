@@ -95,7 +95,6 @@ export type MapsGetExpand = (MapsGetAllSubmissionExpand[0] | 'submission')[];
 
 export type MapsGetQuery = {
   expand?: MapsGetExpand;
-  byName?: boolean;
 };
 
 //#endregion
