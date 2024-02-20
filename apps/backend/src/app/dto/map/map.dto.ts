@@ -286,7 +286,7 @@ export class UpdateMapDto
 }
 
 export class UpdateMapAdminDto
-  extends OmitType(UpdateMapDto, ['status'] as const)
+  extends OmitType(UpdateMapDto, ['status', 'suggestions'] as const)
   implements UpdateMapAdmin
 {
   @EnumProperty(MapStatusNew)
