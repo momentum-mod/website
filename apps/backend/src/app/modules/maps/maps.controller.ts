@@ -133,12 +133,8 @@ export class MapsController {
     @Param('mapID') mapParam: number | string,
     @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
-    // Use a string ID if param isn't numeric or if explicitly stated to use a string,
-    // and we'll search by map name.
-    const id =
-      Number.isNaN(+mapParam) || query?.byName === true
-        ? mapParam.toString()
-        : +mapParam;
+    // Use a string ID and we'll search by map name.
+    const id = Number.isNaN(+mapParam) ? mapParam.toString() : +mapParam;
     return this.mapsService.get(id, userID, query.expand);
   }
 
