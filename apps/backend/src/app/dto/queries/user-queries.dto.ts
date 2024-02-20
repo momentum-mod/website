@@ -75,6 +75,14 @@ export class UsersGetAllQueryDto
   @IsOptional()
   readonly steamIDs?: string[];
 
+  @IntCsvQueryProperty({
+    description: 'Filter by CSV list of user IDs',
+    example: '123135674,7987347263,98312287631',
+    bigint: false
+  })
+  @IsOptional()
+  readonly userIDs?: number[];
+
   @ApiPropertyOptional({
     name: 'mapRank',
     type: Number,

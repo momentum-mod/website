@@ -68,17 +68,14 @@ export class UsersService {
   async getAll(query: UsersGetAllQueryDto): Promise<PagedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 
-    if (query.steamID && query.steamIDs)
-      throw new BadRequestException(
-        'Only one of steamID and steamIDs may be used at the same time'
-      );
-
     let take = query.take;
     if (query.steamID) {
       take = 1;
       where.steamID = BigInt(query.steamID);
     } else if (query.steamIDs) {
       where.steamID = { in: query.steamIDs.map(BigInt) };
+    } else if (query.userIDs) {
+      where.id = { in: query.userIDs };
     }
 
     if (query.search) {

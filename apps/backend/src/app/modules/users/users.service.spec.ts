@@ -15,7 +15,6 @@ import {
 import { User } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
-import { UsersGetAllQueryDto } from '../../dto';
 
 describe('UserService', () => {
   let usersService: UsersService;
@@ -34,16 +33,6 @@ describe('UserService', () => {
   it('should be defined', () => {
     expect(usersService).toBeDefined();
     expect(db).toBeDefined();
-  });
-
-  describe('getAll', () => {
-    it('should throw an error when passing both steamID and steamIDs', async () => {
-      const a: UsersGetAllQueryDto = {
-        steamID: '123456789',
-        steamIDs: ['123456789', '999999999']
-      };
-      await expect(usersService.getAll(a)).rejects.toThrow(BadRequestException);
-    });
   });
 
   describe('findOrCreateFromGame', () => {

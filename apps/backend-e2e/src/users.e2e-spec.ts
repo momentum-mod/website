@@ -164,6 +164,19 @@ describe('Users', () => {
           token
         }));
 
+      it('should respond with an array of multiple users for multiple matching userID parameters', async () => {
+        const res = await req.get({
+          url: 'users',
+          status: 200,
+          query: { userIDs: users[0].id + ',' + users[1].id },
+          validatePaged: { type: UserDto, count: 2 },
+          token
+        });
+
+        for (const user of res.body.data)
+          expect([users[0].id, users[1].id]).toContain(user.id);
+      });
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users', 'get'));
     });
