@@ -116,4 +116,28 @@ export class MapReviewController {
   ): Promise<void> {
     return this.reviewService.deleteReview(reviewID, userID, false);
   }
+
+  @Get('/:reviewID/comments')
+  @ApiOperation({
+    summary: 'Get list of review comments. Author user is always included.'
+  })
+  @ApiOkPagedResponse(MapReviewCommentDto)
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiForbiddenResponse({ description: 'Map is not in submission' })
+  @ApiParam({
+    name: 'reviewID',
+    type: Number,
+    description: 'Target Review ID',
+    required: true
+  })
+  getComments(
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number,
+    @Query() query: PagedQueryDto
+  ): Promise<PagedResponseDto<MapReviewCommentDto>> {
+    return this.commentService.getComments(reviewID, userID, query);
+  }
+
+  // Not bothered with single comment GET, can't imagine every needing it.
+
 }

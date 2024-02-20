@@ -390,4 +390,50 @@ describe('Map Reviews', () => {
         req.unauthorizedTest('map-review/1', 'del'));
     });
   });
+
+  describe('map-review/{reviewID}/comments', () => {
+    describe('GET', () => {
+      let user, token, mod, modToken, map, reviewID;
+
+      beforeAll(async () => {
+        [[user, token], [mod, modToken]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
+        ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'DISGUSTING',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: user.id } },
+            resolved: false
+          }
+        });
+        reviewID = review.id;
+
+        await prisma.mapReviewComment.createMany({
+          data: [
+            { reviewID, userID: user.id, text: 'no it isnt!!' },
+            { reviewID, userID: user.id, text: 'we are the same person' },
+            { reviewID, userID: user.id, text: 'oh' }
+          ]
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should fetch a paginated list of comments', async () => {
+        const res = await req.get({
+          url: `map-review/${reviewID}/comments`,
+          status: 200,
+          validatePaged: { type: MapReviewCommentDto, count: 3 },
+          token
+        });
+
+        expect(res.body.data[0]).toHaveProperty('user');
+      });
+    });
+  });
 });
