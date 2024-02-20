@@ -19,7 +19,6 @@ import {
   IsDefined,
   IsHash,
   IsInt,
-  IsLowercase,
   IsOptional,
   IsPositive,
   IsString,
@@ -51,6 +50,7 @@ import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 import { MapZonesDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
+import { MapTestInviteDto } from './map-test-invite.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -169,6 +169,9 @@ export class MapDto implements MMap {
 
   @NestedProperty(LeaderboardRunDto, { lazy: true, isArray: true })
   readonly personalBests: LeaderboardRunDto[];
+
+  @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
+  readonly testInvites?: MapTestInviteDto[];
 
   @CreatedAtProperty()
   readonly createdAt: Date;

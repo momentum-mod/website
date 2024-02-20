@@ -423,6 +423,7 @@ export class MapsService {
         without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
         mappings: [
           { expand: 'credits', value: { include: { user: true } } },
+          { expand: 'testInvites', value: { include: { user: true } } },
           {
             expand: 'inFavorites',
             model: 'favorites',

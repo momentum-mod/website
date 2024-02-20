@@ -15,6 +15,7 @@ import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
 import { MapSubmissionApproval } from './map-submission-approval.model';
 import { MapSubmission } from './map-submission.model';
+import { MapTestInvite } from './map-test-invite.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
@@ -38,6 +39,7 @@ export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
   libraryEntries?: MapLibraryEntry[];
   worldRecords?: LeaderboardRun[];
   personalBests?: LeaderboardRun[];
+  testInvites?: MapTestInvite[];
 }
 
 export interface CreateMapWithFiles {
