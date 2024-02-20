@@ -5,10 +5,16 @@ export interface MapSubmissionVersion
   extends Omit<PrismaMapSubmissionVersion, 'zones'> {
   zones: MapZones;
   downloadURL: string;
-  vmfDownloadUrl?: string;
+  vmfDownloadURL?: string;
 }
 
-export type CreateMapSubmissionVersion = Pick<
-  MapSubmissionVersion,
-  'changelog' | 'zones'
->;
+export interface CreateMapSubmissionVersion
+  extends Pick<MapSubmissionVersion, 'changelog' | 'zones'> {
+  resetLeaderboards?: boolean;
+}
+
+export interface CreateMapSubmissionVersionWithFiles {
+  bsp: File;
+  vmfs: File[];
+  data: CreateMapSubmissionVersion;
+}

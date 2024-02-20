@@ -24,6 +24,7 @@ import { MapTestInvite } from './map-test-invite.model';
 export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
   status: MapStatusNew;
   downloadURL: string;
+  vmfDownloadURL?: string;
   thumbnail?: MapImage;
   info?: MapInfo;
   // Omit then redefine zones so can be nullable - even though it's a regular
