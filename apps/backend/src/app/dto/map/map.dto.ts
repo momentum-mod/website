@@ -272,11 +272,6 @@ export class UpdateMapDto
   @IsOptional()
   readonly status: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
 
-  @ApiProperty({ description: 'Clear the existing leaderboards' })
-  @IsBoolean()
-  @IsOptional()
-  readonly resetLeaderboards?: boolean;
-
   @EnumProperty(MapSubmissionType, {
     description:
       'Whether the submission is an original map, a port, or something unusual',
