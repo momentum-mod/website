@@ -4,6 +4,7 @@ import {
   MapSubmissionVersion
 } from '@momentum/constants';
 import {
+  IsBoolean,
   IsHash,
   IsInt,
   IsOptional,
@@ -94,4 +95,9 @@ export class CreateMapSubmissionVersionDto
   @ApiProperty()
   @IsString()
   readonly changelog: string;
+
+  @ApiProperty({ description: 'Clear any existing leaderboards' })
+  @IsBoolean()
+  @IsOptional()
+  readonly resetLeaderboards?: boolean;
 }
