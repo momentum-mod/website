@@ -233,7 +233,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       imageBuffers = await Promise.all(
         from(randRange(vars.imageFetches), () =>
           axios
-            .get('https://picsum.photos/1920/1080', {
+            .get('https://picsum.photos/2560/1440', {
               responseType: 'arraybuffer'
             })
             .then(async (res) => ({
@@ -245,7 +245,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 .resize(1280, 720, { fit: 'inside' })
                 .jpeg({ mozjpeg: true })
                 .toBuffer(),
-              large: res.data
+              large: await sharp(res.data)
+                .resize(1920, 1080, { fit: 'inside' })
+                .jpeg({ mozjpeg: true })
+                .toBuffer(),
+              xl: res.data
             }))
         )
       );
@@ -532,7 +536,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 // Could be fancy and bubble up all the promises here to do in parallel
                 // but not worth the insane code
                 await Promise.all(
-                  ['small', 'medium', 'large'].map((size) =>
+                  ['small', 'medium', 'large', 'xl'].map((size) =>
                     s3.send(
                       new PutObjectCommand({
                         Bucket: process.env['STORAGE_BUCKET_NAME'],

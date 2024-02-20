@@ -4,7 +4,8 @@ import {
   ForbiddenException,
   forwardRef,
   Inject,
-  Injectable
+  Injectable,
+  InternalServerErrorException
 } from '@nestjs/common';
 import {
   AdminActivityType,
@@ -12,7 +13,8 @@ import {
   CombinedRoles,
   imgLargePath,
   imgMediumPath,
-  imgSmallPath
+  imgSmallPath,
+  imgXlPath
 } from '@momentum/constants';
 import { File } from '@nest-lab/fastify-multer';
 import sharp from 'sharp';
@@ -141,42 +143,55 @@ export class MapImageService {
     return images.map((id) => DtoFactory(MapImageDto, { id }));
   }
 
+  async storeMapImage(
+    buffer: Buffer,
+    imageID: string
+  ): Promise<FileStoreFile[]> {
+    return parallel(
+      this.storeImageFile(buffer, imgSmallPath(imageID), 480, 360),
+      this.storeImageFile(buffer, imgMediumPath(imageID), 1280, 720),
+      this.storeImageFile(buffer, imgLargePath(imageID), 1920, 1080),
+      this.storeImageFile(buffer, imgXlPath(imageID), 2560, 1440)
+    );
+  }
+
   private async jpegEncodeImageFile(
     buffer: Buffer,
-    fileName: string,
     width: number,
     height: number
-  ): Promise<FileStoreFile> {
+  ): Promise<Buffer> {
     try {
-      return this.fileStoreService.storeFile(
-        await sharp(buffer)
-          .resize(width, height, { fit: 'inside' })
-          .jpeg({ mozjpeg: true })
-          .toBuffer(),
-        fileName
-      );
+      return sharp(buffer)
+        .resize(width, height, { fit: 'inside' })
+        .jpeg({ mozjpeg: true })
+        .toBuffer();
     } catch {
       // This looks bad, but sharp is very non-specific about its errors
       throw new BadRequestException('Invalid image file');
     }
   }
 
-  async storeMapImage(
+  private async storeImageFile(
     buffer: Buffer,
-    imageID: string
-  ): Promise<FileStoreFile[]> {
-    return parallel(
-      this.jpegEncodeImageFile(buffer, imgSmallPath(imageID), 480, 360),
-      this.jpegEncodeImageFile(buffer, imgMediumPath(imageID), 1280, 720),
-      this.jpegEncodeImageFile(buffer, imgLargePath(imageID), 1920, 1080)
-    );
+    fileName: string,
+    width: number,
+    height: number
+  ): Promise<FileStoreFile> {
+    const jpeg = await this.jpegEncodeImageFile(buffer, width, height);
+    try {
+      return this.fileStoreService.storeFile(jpeg, fileName);
+    } catch {
+      // This looks bad, but sharp is very non-specific about its errors
+      throw new InternalServerErrorException('Failed to store image file');
+    }
   }
 
   async deleteStoredMapImage(imageID: string): Promise<void> {
     await parallel(
       this.fileStoreService.deleteFile(imgSmallPath(imageID)),
       this.fileStoreService.deleteFile(imgMediumPath(imageID)),
-      this.fileStoreService.deleteFile(imgLargePath(imageID))
+      this.fileStoreService.deleteFile(imgLargePath(imageID)),
+      this.fileStoreService.deleteFile(imgXlPath(imageID))
     );
   }
 

@@ -5,6 +5,7 @@ import {
   imgLargePath,
   imgMediumPath,
   imgSmallPath,
+  imgXlPath,
   MapImage,
   MAX_MAP_IMAGES,
   UpdateMapImages
@@ -47,6 +48,16 @@ export class MapImageDto implements MapImage {
   @IsUrl({ require_tld: false })
   get large(): string {
     return `${ENDPOINT_URL}/${BUCKET}/${imgLargePath(this.id)}`;
+  }
+
+  @ApiProperty({
+    type: String,
+    description: 'URL to extra high resolution (2560x1440) JPEG image file'
+  })
+  @Expose()
+  @IsUrl({ require_tld: false })
+  get xl(): string {
+    return `${ENDPOINT_URL}/${BUCKET}/${imgXlPath(this.id)}`;
   }
 }
 

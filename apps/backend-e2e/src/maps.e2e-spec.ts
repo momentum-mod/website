@@ -125,7 +125,8 @@ describe('Maps', () => {
             const match = {
               small: expect.stringContaining(`${imageID}-small.jpg`),
               medium: expect.stringContaining(`${imageID}-medium.jpg`),
-              large: expect.stringContaining(`${imageID}-large.jpg`)
+              large: expect.stringContaining(`${imageID}-large.jpg`),
+              xl: expect.stringContaining(`${imageID}-xl.jpg`)
             };
             expect(item).toHaveProperty(prop);
             expect(item.images).toMatchObject([match]);
