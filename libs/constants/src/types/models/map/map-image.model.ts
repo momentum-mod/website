@@ -3,6 +3,7 @@ export interface MapImage {
   small: string;
   medium: string;
   large: string;
+  xl: string;
 }
 
 export interface UpdateMapImages {
