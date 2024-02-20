@@ -689,6 +689,26 @@ export class MapsService {
         zones
       );
 
+      if (dto.resetLeaderboards === true) {
+        // If it's been approved before, deleting runs is a majorly destructive
+        // action that we probably don't want to allow the submitter to do.
+        // If the submitter is fixing the maps in a significant enough way to
+        // still require a leaderboard reset, they should just get an admin to
+        // do it.
+        if (
+          (map.submission.dates as unknown as MapSubmissionDate[]).some(
+            (date) => date.status === MapStatusNew.APPROVED
+          )
+        ) {
+          throw new ForbiddenException(
+            'Cannot reset leaderboards on a previously approved map.' +
+              ' Talk about it with an admin!'
+          );
+        }
+
+        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
+      }
+
       await parallel(
         async () => {
           const zippedVmf = hasVmf
@@ -1048,26 +1068,6 @@ export class MapsService {
           dto.suggestions,
           zones
         );
-      }
-
-      if (dto.resetLeaderboards === true) {
-        // If it's been approved before, deleting runs is a majorly destructive
-        // action that we probably don't want to allow the submitter to do.
-        // If the submitter is fixing the maps in a significant enough way to
-        // still require a leaderboard reset, they should just get an admin to
-        // do it.
-        if (
-          map.submission.dates.some(
-            (date) => date.status === MapStatusNew.APPROVED
-          )
-        ) {
-          throw new ForbiddenException(
-            'Cannot reset leaderboards on a previously approved map.' +
-              ' Talk about it with an admin!'
-          );
-        }
-
-        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
       }
     });
   }

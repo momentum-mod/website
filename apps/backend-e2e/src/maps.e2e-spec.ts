@@ -2010,6 +2010,171 @@ describe('Maps', () => {
         });
       }
 
+      it('should wipe leaderboards if resetLeaderboards is true', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            ranked: false,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'all your runs SUCK', resetLeaderboards: true },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(0);
+      });
+
+      it('should wipe leaderboards if resetLeaderboards is false or undefined', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.RJ,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            ranked: false,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: {
+            changelog: 'damn these runs are great. i love you guys',
+            resetLeaderboards: false
+          },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'im so happy right now' },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
+
+      it('should block resetting leaderboards if the map has previously been approved', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            submission: {
+              update: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: [
+                  {
+                    status: MapStatusNew.APPROVED,
+                    date: new Date(Date.now() - 3000)
+                  },
+                  {
+                    status: MapStatusNew.DISABLED,
+                    date: new Date(Date.now() - 2000)
+                  },
+                  {
+                    status: MapStatusNew.PRIVATE_TESTING,
+                    date: new Date(Date.now() - 1000)
+                  }
+                ]
+              }
+            }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            ranked: false,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 403,
+          data: {
+            changelog: 'PLEASE let me delete these runs',
+            resetLeaderboards: true
+          },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1', 'post'));
     });
@@ -2348,123 +2513,6 @@ describe('Maps', () => {
         expect(
           await prisma.leaderboardRun.findMany({
             where: { mapID: map.id, gamemode: Gamemode.CONC }
-          })
-        ).toHaveLength(1);
-      });
-
-      it('should wipe leaderboards if resetLeaderboards is true', async () => {
-        const map = await db.createMap({
-          ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          leaderboards: {
-            create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
-                create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
-                }
-              }
-            }
-          }
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              description: 'all your runs SUCK',
-              youtubeID: 'Xcz-rVPvL2Y'
-            },
-            resetLeaderboards: true
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(0);
-      });
-
-      it('should block resetting leaderboards if the map has previously been approved', async () => {
-        const map = await db.createMap({
-          ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          submission: {
-            create: {
-              type: MapSubmissionType.ORIGINAL,
-              dates: [
-                {
-                  status: MapStatusNew.APPROVED,
-                  date: new Date(Date.now() - 3000)
-                },
-                {
-                  status: MapStatusNew.DISABLED,
-                  date: new Date(Date.now() - 2000)
-                },
-                {
-                  status: MapStatusNew.PRIVATE_TESTING,
-                  date: new Date(Date.now() - 1000)
-                }
-              ]
-            }
-          },
-          leaderboards: {
-            create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
-                create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
-                }
-              }
-            }
-          }
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 403,
-          body: {
-            info: {
-              description: 'PLEASE let me delete these runs',
-              youtubeID: 'OC9RI8_QYmw'
-            },
-            resetLeaderboards: true
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
           })
         ).toHaveLength(1);
       });
