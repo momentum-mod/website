@@ -15,6 +15,7 @@ export type UsersGetAllQuery = PagedQuery & {
   search?: string;
   steamID?: string;
   steamIDs?: string[];
+  userIDs?: number[];
   mapRank?: number;
 };
 
