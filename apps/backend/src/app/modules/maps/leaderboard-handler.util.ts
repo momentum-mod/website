@@ -21,7 +21,7 @@ export const LeaderboardHandler = {
   getMaximalLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[],
     zones: MapZones
-  ): T[] =>
+  ): LeaderboardProps[] =>
     LeaderboardHandler.getCompatibleLeaderboards([
       ...LeaderboardHandler.setLeaderboardLinearity(leaderboards, zones),
       ...LeaderboardHandler.getStageLeaderboards(leaderboards, zones)
@@ -34,15 +34,20 @@ export const LeaderboardHandler = {
    */
   getCompatibleLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[]
-  ): T[] =>
+  ): LeaderboardProps[] =>
     leaderboards
-      .flatMap((lb) =>
+      .flatMap(({ trackType, trackNum, linear, gamemode }) =>
         Enum.values(Gamemode) // Note: this will include `suggestion`
           .filter(
-            (gamemode) =>
-              !IncompatibleGamemodes.get(lb.gamemode).includes(gamemode)
+            (newGamemode) =>
+              !IncompatibleGamemodes.get(gamemode).includes(newGamemode)
           )
-          .map((gamemode) => ({ ...lb, gamemode }))
+          .map((newGamemode) => ({
+            trackType,
+            trackNum,
+            linear,
+            gamemode: newGamemode
+          }))
       )
       .filter(
         // Filter out any duplicates
