@@ -91,7 +91,11 @@ export type MapsGetAllSubmissionAdminQuery = MapsGetAllBaseQuery & {
 //#endregion
 //#region Get
 
-export type MapsGetExpand = (MapsGetAllSubmissionExpand[0] | 'submission')[];
+export type MapsGetExpand = (
+  | MapsGetAllSubmissionExpand[0]
+  | 'submission'
+  | 'testInvites'
+)[];
 
 export type MapsGetQuery = {
   expand?: MapsGetExpand;

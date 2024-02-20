@@ -1232,6 +1232,9 @@ describe('Maps', () => {
               reviewer: { connect: { id: u2.id } },
               mainText: 'No! No!!'
             }
+          },
+          testInvites: {
+            create: { userID: u2.id, state: MapTestInviteState.ACCEPTED }
           }
         });
 
@@ -1321,6 +1324,15 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'zones',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the testInvites expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'testInvites',
+          expectedPropertyName: 'testInvites[0].user',
           token: u1Token
         }));
 
