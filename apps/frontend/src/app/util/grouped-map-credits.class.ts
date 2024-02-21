@@ -3,21 +3,20 @@ import {
   MapCredit,
   MapCreditType,
   MapSubmissionPlaceholder,
-  User
+  STEAM_MISSING_AVATAR_URL
 } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
 
 /**
  * Either a MapCredit with just the parts we need to handle filtering/editing
  * credits, or placeholder create data
- *
- * `user` is optional on MapCredit model so casting/explicit null checking
- * sometimes needed
  */
 export interface EditableMapCredit {
-  user: Partial<User>;
   type: MapCreditType;
-  placeholder?: boolean;
+  alias: string;
+  avatarURL: string;
+  placeholder: boolean;
+  userID?: number;
   description?: string;
 }
 
@@ -28,32 +27,54 @@ export interface EditableMapCredit {
  *
  * Using an Object rather than a Map for easier change detection
  */
-export class GroupedMapCredits
-  implements Record<MapCreditType, EditableMapCredit[]>
-{
-  [MapCreditType.AUTHOR]: EditableMapCredit[] = [];
-  [MapCreditType.CONTRIBUTOR]: EditableMapCredit[] = [];
-  [MapCreditType.SPECIAL_THANKS]: EditableMapCredit[] = [];
-  [MapCreditType.TESTER]: EditableMapCredit[] = [];
+export class GroupedMapCredits {
+  private [MapCreditType.AUTHOR]: EditableMapCredit[] = [];
+  private [MapCreditType.CONTRIBUTOR]: EditableMapCredit[] = [];
+  private [MapCreditType.SPECIAL_THANKS]: EditableMapCredit[] = [];
+  private [MapCreditType.TESTER]: EditableMapCredit[] = [];
 
-  constructor(credits?: MapCredit[]) {
+  constructor(
+    ...credits: Array<
+      Array<
+        | Omit<MapCredit, 'userID' | 'mapID'>
+        | EditableMapCredit
+        | MapSubmissionPlaceholder
+      >
+    >
+  ) {
     if (!credits) return;
 
-    if (!credits[0]?.user) {
-      console.warn('Missing user on MapCredit!');
-    }
-
-    this.set(credits as EditableMapCredit[]);
+    credits
+      .flat(2)
+      .filter(Boolean)
+      .forEach((credit) => this.add(credit));
   }
 
-  set(credits: EditableMapCredit[], type?: MapCreditType): void {
-    if (type === undefined) {
-      this.clear();
-      for (const credit of credits) {
-        this[credit.type].push(credit);
-      }
+  add(
+    credit:
+      | Omit<MapCredit, 'userID' | 'mapID'>
+      | EditableMapCredit
+      | MapSubmissionPlaceholder
+  ) {
+    if ('placeholder' in credit) {
+      // EditableMapCredit
+      this[credit.type].push(credit);
+    } else if ('alias' in credit) {
+      // MapSubmissionPlaceholder
+      this[credit.type].push({
+        ...credit,
+        placeholder: true,
+        avatarURL: STEAM_MISSING_AVATAR_URL
+      });
     } else {
-      this[type] = credits;
+      // MapCredit
+      this[credit.type].push({
+        ...credit,
+        placeholder: false,
+        alias: credit.user.alias,
+        userID: credit.user.id,
+        avatarURL: credit.user.avatarURL
+      });
     }
   }
 
@@ -65,11 +86,16 @@ export class GroupedMapCredits
     return this.values().flat();
   }
 
+  updateInnerTypes(): void {
+    this.entries().forEach(([type, arr]) =>
+      arr.forEach((credit) => (credit.type = type))
+    );
+  }
+
   getSubmittableRealUsers(): CreateMapCredit[] {
-    return this.values()
-      .flat()
+    return this.getAll()
       .filter(({ placeholder }) => !placeholder)
-      .map(({ type, description, user: { id: userID } }) => ({
+      .map(({ type, description, userID }) => ({
         userID,
         type,
         description
@@ -77,10 +103,9 @@ export class GroupedMapCredits
   }
 
   getSubmittablePlaceholders(): MapSubmissionPlaceholder[] {
-    return this.values()
-      .flat()
+    return this.getAll()
       .filter(({ placeholder }) => placeholder === true)
-      .map(({ user: { alias }, type, description }) => ({
+      .map(({ alias, type, description }) => ({
         alias,
         type,
         description
