@@ -2471,6 +2471,54 @@ describe('Maps', () => {
         expect(updatedMap.status).toBe(MapStatusNew.FINAL_APPROVAL);
       });
 
+      it("should not allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PUBLIC_TESTING,
+          submission: {
+            create: {
+              dates: [
+                {
+                  status: MapStatusNew.PUBLIC_TESTING,
+                  date: Date.now() - 1000
+                }
+              ],
+              type: MapSubmissionType.PORT,
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  ranked: true
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
+              }
+            }
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatusNew.FINAL_APPROVAL },
+          token
+        });
+      });
+
       it('should generate new leaderboards if suggestions change', async () => {
         const map = await db.createMap({
           ...createMapData,
