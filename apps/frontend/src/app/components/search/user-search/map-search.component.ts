@@ -35,8 +35,7 @@ export class MapSearchComponent extends AbstractSearchComponent<MMap> {
     return this.mapsService.getMaps({
       search: searchString,
       take: this.rows,
-      skip: this.first,
-      expand: ['thumbnail']
+      skip: this.first
     });
   }
 }

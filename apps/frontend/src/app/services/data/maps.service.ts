@@ -93,35 +93,10 @@ export class MapsService {
     });
   }
 
-  updateMapThumbnail(id: number, thumbnailFile: File): Observable<void> {
     const formData = new FormData();
-    formData.append('file', thumbnailFile, thumbnailFile.name);
-    return this.http.put(`maps/${id}/thumbnail`, {
-      body: formData,
-      responseType: 'text'
-    });
-  }
 
-  createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
-    const formData = new FormData();
-    formData.append('file', mapImageFile, mapImageFile.name);
-    return this.http.post<MapImage>(`maps/${id}/images`, { body: formData });
   }
-  
-  updateMapImage(
-    id: number,
-    mapImageID: number,
-    mapImageFile: File
   ): Observable<void> {
-    const formData = new FormData();
-    formData.append('file', mapImageFile, mapImageFile.name);
-    return this.http.put(`maps/${id}/images/${mapImageID}`, { body: formData });
-  }
-  
-  updateMapTestInvites(mapID: number, invites: number[]): Observable<void> {
-    return this.http.patch(`${mapID}/testInvite`, {
-      body: { userIDs: invites } as CreateMapTestInvite[]
-    });
   }
 
   getMapReviews(

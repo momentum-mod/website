@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
   ControlContainer,
   FormControl,
@@ -19,6 +19,7 @@ import { AbstractFileUploadComponent } from '../../file-upload/abstract-file-upl
 import { MultiFileUploadComponent } from '../../file-upload/multi-file-upload.component';
 import { ImageSelectionItem } from './image-selection-item.class';
 import { BackgroundState, LayoutService } from '../../../services';
+import { MAX_MAP_IMAGES } from '@momentum/constants';
 
 export enum ImageSelectionType {
   THUMBNAIL,
@@ -49,10 +50,13 @@ export enum ImageSelectionType {
   ]
 })
 export class MapImageSelectionComponent implements OnInit {
-  @Input({ required: true }) formControlPassthrough: FormControl;
+  @Input({ required: true }) formControlPassthrough: FormControl<File[]>;
   @Input() icon: Icon;
   @Input() disabled = false;
   @Input() previewFullscreenBackground = false;
+
+  @ViewChild(MultiFileUploadComponent)
+  private uploadComponent: MultiFileUploadComponent;
 
   protected readonly ImageSelectionType = ImageSelectionType;
   protected readonly max = 5;
@@ -71,6 +75,13 @@ export class MapImageSelectionComponent implements OnInit {
   };
 
   async onFileSelectionChanged() {
+    if (Object.values(this.items).flat().length > MAX_MAP_IMAGES) {
+      this.formControlPassthrough.disable({ emitEvent: false });
+      this.uploadComponent.disabledBecauseReachedMax = true;
+    }
+
+    if (!(this.formControlPassthrough.value?.length > 0)) return;
+
     const newFiles = structuredClone(
       this.formControlPassthrough.value
     ) as File[];
@@ -101,8 +112,13 @@ export class MapImageSelectionComponent implements OnInit {
                 ![
                   ...this.items[ImageSelectionType.THUMBNAIL],
                   ...this.items[ImageSelectionType.EXTRA]
-                ].some(({ file }) =>
-                  AbstractFileUploadComponent.isIdenticalFile(file, newFile)
+                ].some(
+                  (item) =>
+                    item?.file &&
+                    AbstractFileUploadComponent.isIdenticalFile(
+                      item.file,
+                      newFile
+                    )
                 )
             )
             .map((file) => ImageSelectionItem.create(file))
@@ -172,15 +188,15 @@ export class MapImageSelectionComponent implements OnInit {
   }
 
   removeItem(item: ImageSelectionItem, type: ImageSelectionType) {
-    if (item.file) {
-      const arr = this.items[type];
-      arr.splice(
-        arr.findIndex((x) =>
-          AbstractFileUploadComponent.isIdenticalFile(x.file, item.file)
-        ),
-        1
-      );
-    }
+    const arr = this.items[type];
+    arr.splice(
+      arr.findIndex(({ dataUrl, file }) =>
+        file
+          ? AbstractFileUploadComponent.isIdenticalFile(file, item.file)
+          : dataUrl === item.dataUrl
+      ),
+      1
+    );
 
     if (type === ImageSelectionType.THUMBNAIL) {
       if (this.items[ImageSelectionType.EXTRA].length > 0) {
@@ -199,6 +215,11 @@ export class MapImageSelectionComponent implements OnInit {
   }
 
   updateFormValue() {
+    // If editing existing images and move order, should be marked considered
+    // touched + dirty
+    this.formControlPassthrough.markAsTouched();
+    this.formControlPassthrough.markAsDirty();
+
     this.formControlPassthrough.setValue(
       [
         ...this.items[ImageSelectionType.THUMBNAIL],
