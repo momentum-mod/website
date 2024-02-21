@@ -1,15 +1,18 @@
 export class ImageSelectionItem {
   file?: File;
   dataUrl: string;
+  existingID?: string;
 
   private constructor() {}
 
   static async create(
-    input: File | string
+    input: File | string,
+    existingID?: string
   ): Promise<ImageSelectionItem | null> {
     const instance = new ImageSelectionItem();
     if (typeof input == 'string') {
       instance.dataUrl = input;
+      instance.existingID = existingID;
     } else {
       instance.file = input;
       try {

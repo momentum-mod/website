@@ -34,7 +34,7 @@ export class MapQueueComponent implements OnInit {
   loadMapQueue(priority: boolean) {
     this.adminService
       .getMaps({
-        expand: ['info', 'submitter', 'thumbnail'],
+        expand: ['info', 'submitter'],
         skip:
           ((priority ? this.priorityQueuePage : this.nonPriorityQueuePage) -
             1) *

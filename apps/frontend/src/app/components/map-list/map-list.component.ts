@@ -21,7 +21,6 @@ import { PaginatorModule } from 'primeng/paginator';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 import { SpinnerDirective } from '../../directives';
-import { SharedModule } from '../../shared.module';
 import { LocalUserService, MapsService } from '../../services';
 import { MapListItemComponent } from './map-list-item.component';
 import { ActivityContentComponent } from '../activity/activity-content.component';
@@ -44,7 +43,6 @@ export type MapListFiltersForm = FormGroup<
   templateUrl: './map-list.component.html',
   standalone: true,
   imports: [
-    SharedModule,
     MapListItemComponent,
     DropdownModule,
     InputSwitchModule,
@@ -115,17 +113,17 @@ export class MapListComponent implements OnInit {
           if (this.isUpload) {
             return this.localUserService.getSubmittedMaps({
               ...options,
-              expand: ['submitter', 'thumbnail', 'inFavorites', 'leaderboards']
+              expand: ['submitter', 'inFavorites', 'leaderboards']
             });
           } else if (favorites) {
             return this.localUserService.getMapFavorites({
               ...options,
-              expand: ['submitter', 'thumbnail']
+              expand: ['submitter']
             });
           } else {
             return this.mapsService.getMaps({
               ...options,
-              expand: ['submitter', 'thumbnail', 'inFavorites', 'leaderboards']
+              expand: ['submitter', 'inFavorites', 'leaderboards']
             });
           }
         }),
