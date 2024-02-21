@@ -6,6 +6,7 @@ export const MAX_MAP_IMAGE_SIZE = 10_000_000;
 export const MAP_IMAGE_WIDTH = 2560;
 export const MAP_IMAGE_HEIGHT = 1440;
 export const MAX_CREDIT_DESCRIPTION_LENGTH = 64;
+export const MAX_CHANGELOG_LENGTH = 1500;
 export const MAX_REVIEW_LENGTH = 5000;
 export const MAX_REVIEW_IMAGES = 20;
 export const MAX_REVIEW_COMMENT_LENGTH = 1000;
