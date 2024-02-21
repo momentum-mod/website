@@ -7,12 +7,7 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
-import {
-  MapCreditNames,
-  MapCreditType,
-  STEAM_MISSING_AVATAR_URL,
-  User
-} from '@momentum/constants';
+import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
 import {
   CdkDragDrop,
   moveItemInArray,
@@ -83,7 +78,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
   ) {
     const alreadyContainsUser = this.value
       .getAll()
-      .some((userEntry) => userEntry.user.id === user.id);
+      .some((userEntry) => userEntry.userID === user.id);
     if (alreadyContainsUser) {
       TooltipDirective.findByContext(this.tooltips, type).setAndShow(
         `User is already in the "${MapCreditNames.get(
@@ -93,26 +88,22 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       );
     } else {
       searchComponent.resetSearchBox();
-      this.value[type].push({ user, type });
+      this.value.add({ user, type });
       this.onChange(this.value);
     }
   }
 
-  removeUser(type: MapCreditType, user: Partial<User>) {
-    const userIndex = this.value[type].findIndex(
-      (credit) => credit.user.id === user.id
-    );
+  removeUser(type: MapCreditType, userID: number) {
+    const userIndex = this.value
+      .get(type)
+      .findIndex((credit) => credit.userID === userID);
     if (userIndex === -1) return;
     this.value[type].splice(userIndex, 1);
     this.onChange(this.value);
   }
 
   addPlaceholder(type: MapCreditType, input: string) {
-    this.value[type].push({
-      user: { alias: input, avatarURL: STEAM_MISSING_AVATAR_URL },
-      type,
-      placeholder: true
-    });
+    this.value.add({ type, alias: input });
     this.placeholderInputs.get(type).reset();
     this.onChange(this.value);
   }
@@ -132,6 +123,9 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
         event.currentIndex
       );
     }
+
+    // Update the type of each inner credit when it gets moved between arrays
+    this.value.updateInnerTypes();
     this.onChange(this.value);
   }
 

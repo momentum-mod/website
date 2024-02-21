@@ -15,29 +15,36 @@
     >
       @for (credit of value[type.key]; track credit) {
         <div class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5" cdkDrag>
-          <m-avatar class="mr-2" [url]="credit.user.avatarURL" />
+          @if (!credit.placeholder) {
+            <m-avatar class="mr-2 h-[3.25rem] w-[3.25rem]" [url]="credit.avatarURL" />
+          } @else {
+            <div class="mr-2 inline-grid h-[3.25rem] w-[3.25rem] place-content-center">
+              <p mTooltip="Placeholder user" class="text-shadow-strong font-display text-48 font-bold">?</p>
+            </div>
+          }
+
           <div class="flex flex-grow flex-col">
             <div class="flex">
-              <span class="mr-3 flex-grow">{{ credit.user.alias }}</span>
-              <button (click)="removeUser(type.key, credit.user)">
+              <span class="mr-3 flex-grow">{{ credit.alias }}</span>
+              <button (click)="removeUser(type.key, credit.userID)">
                 <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
               </button>
             </div>
-            <input class="m-textinput !px-3 !py-0.5 text-sm" placeholder="Description" [(ngModel)]="credit.description" />
+            <input
+              class="m-textinput !px-3 !py-0.5 text-sm"
+              placeholder="Description"
+              [(ngModel)]="credit.description"
+              (change)="onChange(this.value)"
+            />
           </div>
         </div>
       }
     </div>
     <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
     <div class="flex">
-      <input #placeHolderInput class="m-textinput flex-grow" placeholder="Create placeholder..." />
-      @if (placeHolderInput.value.length > 0) {
-        <button
-          class="btn ml-3 bg-green-600 transition-colors hover:bg-green-500"
-          (click)="addPlaceholder(type.key, placeHolderInput.value)"
-        >
-          Add
-        </button>
+      <input [formControl]="placeholderInputs.get(type.key)" class="m-textinput flex-grow" placeholder="Create placeholder..." />
+      @if (placeholderInputs.get(type.key).value?.length >= 3) {
+        <button class="m-btn m-btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
       }
       <m-icon
         class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
