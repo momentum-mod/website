@@ -1,12 +1,14 @@
 import {
   AfterContentInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ContentChildren,
   Input,
   QueryList
 } from '@angular/core';
 import { AccordionItemComponent } from './accordion-item.component';
-import { Subject, takeWhile } from 'rxjs';
+import { Subject, delay, takeWhile } from 'rxjs';
 
 /**
  * Slip like Freudian your first and last step to playing yourself like
@@ -14,45 +16,66 @@ import { Subject, takeWhile } from 'rxjs';
 @Component({
   selector: 'm-accordion',
   template: '<ng-content/>',
-  standalone: true
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionComponent implements AfterContentInit {
-  // Strategy: each accordion-item component is passed the same subject, which
-  // it calls with a key unique to that component instance whenever it opens.
-  // Then just iterate over the query list of accordion items, opening the
-  // one that makes the key, and closing the rest.
-  private readonly itemOpened = new Subject<symbol>();
+  // Strategy: each accordion-item component injects this component, which calls
+  // the below Subject  whenever it opens with a key unique to that component.
+  // Then we just iterate over the query list of accordion items, opening the
+  // one that makes the key, and closing the rest. This is easier than handling
+  // separate Subjects for each item. Accordion to who? Me.
+  public readonly itemOpened = new Subject<symbol>();
 
-  @Input() startFirstOpen?: boolean;
+  /** Close all other items when one item is opened */
+  @Input() autoClose = true;
+
+  /** Start with the first item opened */
+  @Input() startFirstOpen = false;
+
+  /** Start with all items opened */
+  @Input() startAllOpen = false;
 
   @ContentChildren(AccordionItemComponent)
   private items: QueryList<AccordionItemComponent>;
 
+  constructor(private readonly cdRef: ChangeDetectorRef) {}
+
   ngAfterContentInit() {
-    this.items.changes.subscribe(() => this.passChildSubjects());
     this.itemOpened.subscribe((key) => this.onItemOpened(key));
-    if (this.startFirstOpen)
+    if (this.startFirstOpen || this.startAllOpen)
       this.items.changes
         .pipe(
+          // Delay this check until next EL macrotask to avoid
+          // ExpressionChangedAfterItHasBeenCheckedError that throw even with
+          // the explicit CDRef.detachChanges call for some fucking reason.
+          // See https://stackoverflow.com/a/72021564
+          delay(0),
           takeWhile(() => {
             const item = this.items.get(0);
-            if (item) {
+            if (!item) return false;
+
+            if (this.startFirstOpen) {
               item.open = true;
-              return true;
+            } else if (this.startAllOpen) {
+              this.items.forEach((item) => (item.open = true));
             }
-            return false;
+
+            this.cdRef.detectChanges();
+            return true;
           })
         )
         .subscribe();
   }
 
-  passChildSubjects() {
-    this.items.forEach((item) => (item.opened = this.itemOpened));
-  }
-
   onItemOpened(key: symbol) {
     for (const item of this.items) {
-      item.open = item.Key === key;
+      // CD calls happen in here
+      if (item.Key === key) {
+        item.open = true;
+      } else if (this.autoClose) {
+        item.open = false;
+      }
     }
   }
 }

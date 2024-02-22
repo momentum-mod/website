@@ -2,12 +2,15 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  forwardRef,
   HostBinding,
+  Inject,
   Input
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { IconComponent } from '../../icons';
 import { Subject } from 'rxjs';
+import { AccordionComponent } from './accordion.component';
 
 /**
  * Super simple accordion component.
@@ -61,12 +64,13 @@ import { Subject } from 'rxjs';
         display: flex;
         background-color: rgb(255 255 255 / 0.05);
         padding: 0.5rem 1rem;
+        align-items: center;
 
         @apply transition-colors;
+      }
 
-        &:hover {
-          background-color: rgb(255 255 255 / 0.1);
-        }
+      :host.hasContent .header:hover {
+        background-color: rgb(255 255 255 / 0.1);
       }
 
       .content {
@@ -87,23 +91,30 @@ export class AccordionItemComponent {
   @Input() title: string;
   @Input() titleClass = '';
 
-  @Input() hasContent = true;
+  @HostBinding('class.hasContent')
+  @Input()
+  hasContent = true;
 
-  public opened: Subject<symbol>;
+  public opened: Subject<symbol> = this.parent.itemOpened;
 
   public Key = Symbol();
 
-  @HostBinding('class.open')
-  private _open: boolean;
+  @HostBinding('class.open') // TODO: this *probably* the buggy
+  private _open = false;
   public get open() {
     return this._open;
   }
   public set open(val: boolean) {
+    if (!this.hasContent) return;
     this._open = val;
-    this.cdRef.markForCheck();
+    this.cdRef.detectChanges();
   }
 
-  constructor(private readonly cdRef: ChangeDetectorRef) {}
+  constructor(
+    @Inject(forwardRef(() => AccordionComponent))
+    private readonly parent: AccordionComponent,
+    private readonly cdRef: ChangeDetectorRef
+  ) {}
 
   toggle() {
     if (!this.hasContent) return;
