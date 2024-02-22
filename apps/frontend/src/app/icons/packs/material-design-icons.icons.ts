@@ -35,6 +35,8 @@ export {
   mdiTooltipQuestionOutline,
   mdiChevronLeftCircleOutline,
   mdiChevronRightCircleOutline,
+  mdiChevronDown,
+  mdiChevronUp,
   mdiNoteEdit,
   mdiNotebookOutline,
   mdiForumOutline,
