@@ -6,7 +6,6 @@ import {
   MMap,
   MapCredit,
   MapImage,
-  MapInfo,
   MapsGetAllQuery,
   MapsGetQuery,
   CreateMapWithFiles,
@@ -55,8 +54,8 @@ export class MapsService {
     return this.http.get<PagedResponse<MMap>>('maps', { query });
   }
 
-  updateMapInfo(mapID: number, body: MapInfo): Observable<void> {
-    return this.http.patch(`maps/${mapID}/info`, { body });
+  updateMap(mapID: number, body: UpdateMap): Observable<MMap> {
+    return this.http.patch(`maps/${mapID}`, { body });
   }
 
   getMapCredits(mapID: number): Observable<PagedResponse<MapCredit>> {
@@ -70,15 +69,36 @@ export class MapsService {
     return this.http.put<MapCredit[]>(`maps/${mapID}/credits`, { body });
   }
 
-  submitMap(createMapData: CreateMapWithFiles): Observable<HttpEvent<string>> {
+  submitMap({
+    bsp,
+    data,
+    vmfs
+  }: CreateMapWithFiles): Observable<HttpEvent<string>> {
     const formData = new FormData();
 
-    formData.append('data', JSON.stringify(createMapData.data));
-    formData.append('bsp', createMapData.bsp, createMapData.bsp.name);
-    for (const vmf of createMapData.vmfs ?? [])
-      formData.append('vmfs', vmf, vmf.name);
+    formData.append('data', JSON.stringify(data));
+    formData.append('bsp', bsp, bsp.name);
+    for (const vmf of vmfs ?? []) formData.append('vmfs', vmf, vmf.name);
 
     return this.http.post('maps', {
+      body: formData,
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'text'
+    });
+  }
+
+  submitMapVersion(
+    mapID: number,
+    { bsp, data, vmfs }: CreateMapSubmissionVersionWithFiles
+  ): Observable<HttpEvent<string>> {
+    const formData = new FormData();
+
+    formData.append('data', JSON.stringify(data));
+    formData.append('bsp', bsp, bsp.name);
+    for (const vmf of vmfs ?? []) formData.append('vmfs', vmf, vmf.name);
+
+    return this.http.post(`maps/${mapID}`, {
       body: formData,
       reportProgress: true,
       observe: 'events',
@@ -93,10 +113,28 @@ export class MapsService {
     });
   }
 
+  updateMapImages(
+    mapID: number,
+    update: UpdateMapImagesWithFiles
+  ): Observable<MapImage[]> {
     const formData = new FormData();
 
+    formData.append('data', JSON.stringify(update.data));
+
+    if (update.images) {
+      for (const image of update.images) {
+        formData.append('images', image, image.name);
+      }
+    }
+
+    return this.http.put(`maps/${mapID}/images`, { body: formData });
   }
+
+  updateMapTestInvites(
+    mapID: number,
+    invites: CreateMapTestInvite
   ): Observable<void> {
+    return this.http.put(`maps/${mapID}/testInvite`, { body: invites });
   }
 
   getMapReviews(
