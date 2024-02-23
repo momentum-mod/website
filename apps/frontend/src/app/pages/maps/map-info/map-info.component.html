@@ -13,8 +13,8 @@
         <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
       </button>
     </div>
-    @if (currentSection != null && inSubmission) {
-      <div class="ml-2 flex items-end gap-4">
+    <div class="ml-2 flex gap-2">
+      @if (currentSection != null && inSubmission) {
         @for (section of sections(); track $index) {
           <button
             class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
@@ -24,13 +24,40 @@
             {{ MapInfoSection[section] }}
           </button>
         }
+      }
+      <div class="ml-auto flex items-end gap-2">
+        @if (isSubmitter || isModerator) {
+          <a routerLink="edit" class="m-btn m-btn-green">Edit Map</a>
+        }
+        <button class="m-btn m-btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">
+          <m-icon class="mr-2 pb-0.5" icon="play-circle" />
+          Play
+        </button>
+        <button
+          class="m-btn m-btn-yellow"
+          type="button"
+          (click)="toggleFavorite()"
+          mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
+        >
+          <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+        </button>
+        <button
+          class="m-btn m-btn-orange"
+          type="button"
+          (click)="editNotificationSettings()"
+          mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+        >
+          <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
+        </button>
+        @if (!isSubmitter && !isModerator) {
+          <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+        }
       </div>
-    } @else {
-      <!-- Silly thing to take up a grid space. Trust me it's simplest -->
-      <span></span>
-    }
-    <div>
-      <m-card-body [mSpinner]="loading" class="m-card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none p-0">
+    </div>
+    <div #sideBar>
+      <m-card-body #card [mSpinner]="loading" class="m-card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none p-0">
+        <!-- This double gallery setup is SO messy but I hate this component and
+             dont have time to write a custom one. -->
         <p-galleria
           #regularGallery
           [showItemNavigatorsOnHover]="true"
@@ -102,36 +129,7 @@
           </div>
         }
 
-        <div class="flex justify-center gap-2 border-x border-t border-white border-opacity-5 p-3">
-          @if (isSubmitter || isModerator) {
-            <a routerLink="edit" class="m-btn m-btn-green grow">Edit Map</a>
-          }
-          <button class="m-btn m-btn-blue grow" type="button" mTooltip="Play map - I don't actually work yet!!!">
-            <m-icon class="mr-2 pb-0.5" icon="play-circle" />
-            Play
-          </button>
-          <button
-            class="m-btn m-btn-yellow"
-            type="button"
-            (click)="toggleFavorite()"
-            mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
-          >
-            <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
-          </button>
-          <button
-            class="m-btn m-btn-orange"
-            type="button"
-            (click)="editNotificationSettings()"
-            mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-          >
-            <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
-          </button>
-          @if (!isSubmitter && !isModerator) {
-            <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
-          }
-        </div>
-
-        <div class="flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
+        <div class="mt-4 flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
           <p class="text-shadow mb-2 whitespace-pre-wrap">{{ map.info.description }}</p>
           <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
