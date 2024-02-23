@@ -304,5 +304,6 @@ export class UpdateMapAdminDto
 
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)
+  @IsOptional()
   finalLeaderboards?: MapSubmissionApprovalDto[];
 }
