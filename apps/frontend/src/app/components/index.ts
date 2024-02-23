@@ -35,4 +35,6 @@ export * from './tabs/tab.component';
 export * from './tabs/tabs.component';
 export * from './alert/alert.component';
 export * from './user/user.component';
-export * from './tooltips/map-submission-type-tooltip.component';
+export * from './tooltips/submission-type-info.component';
+export * from './tooltips/credits-info.component';
+export * from './tooltips/leaderboards-info.component';
