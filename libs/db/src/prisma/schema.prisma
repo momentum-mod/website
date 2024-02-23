@@ -371,14 +371,14 @@ model MapReviewComment {
 
 /// This table stores what a tracks on a map a run can be submitted to, in what
 /// gamemode and style, plus metadata about that track in that gamemode e.g. its
-/// tier.
+/// tier and type.
 ///
 /// For example, surf_utopia probably just gets gamemode = Gamemode.SURF,
 /// trackType = TrackType.MAIN, trackNum = 0 entries, for all the styles surf
-/// supports, with ranked = true.
+/// supports, with type = LeaderboardType.RANKED.
 /// A mode that supports several different gamemodes, and has stages,
 /// bonuses etc. is likely to have dozens of different entries, perhaps some
-/// ranked, others unranked.
+/// ranked, others unranked, some hidden.
 model Leaderboard {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -391,8 +391,8 @@ model Leaderboard {
   // Optional as these don't necessarily apply to stages/bonuses
   tier   Int?     @db.SmallInt
   linear Boolean?
-
-  ranked Boolean
+  
+  type Int @db.SmallInt // leaderboard-type.enum.ts
 
   tags Json @default("[]")
 

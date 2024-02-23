@@ -15,6 +15,7 @@ import {
   AdminActivityType,
   Ban,
   Gamemode,
+  LeaderboardType,
   MapCreditType,
   mapReviewAssetPath,
   MapStatus,
@@ -1054,7 +1055,7 @@ describe('Admin', () => {
                 trackType: TrackType.MAIN,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
-                ranked: true,
+                type: LeaderboardType.RANKED,
                 comment: 'This stage was built by children'
               }
             ],
@@ -1649,7 +1650,7 @@ describe('Admin', () => {
                   trackType: TrackType.MAIN,
                   trackNum: 0,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.IN_SUBMISSION
                 }
               ],
               versions: {
@@ -1690,15 +1691,18 @@ describe('Admin', () => {
                   'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
                 youtubeID: 'Rt460jKi4Bk'
               },
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.CONC,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
+              finalLeaderboards:
+                status === MapStatusNew.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined,
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
             token: adminToken
@@ -1721,9 +1725,9 @@ describe('Admin', () => {
                 {
                   trackNum: 0,
                   trackType: TrackType.MAIN,
-                  gamemode: Gamemode.CONC,
+                  gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.IN_SUBMISSION
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -1749,15 +1753,18 @@ describe('Admin', () => {
                   'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
                 youtubeID: 'IUfBBCkl_QI'
               },
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.BHOP,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
+              finalLeaderboards:
+                status === MapStatusNew.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined,
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
             token: modToken
@@ -1776,15 +1783,6 @@ describe('Admin', () => {
               youtubeID: 'IUfBBCkl_QI'
             },
             submission: {
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.BHOP,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
@@ -1803,8 +1801,47 @@ describe('Admin', () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
             status: 403,
-            body: { name: 'surf_albatross' },
+            body: {
+              name: 'surf_albatross',
+              finalLeaderboards:
+                status === MapStatusNew.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined
+            },
             token: reviewerToken
+          });
+        });
+
+        it('should not allow an admin to update suggestions during submission', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatusNew.PUBLIC_TESTING
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: {
+              name: 'surf_asbestos',
+              suggestions: [
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.BHOP,
+                  tier: 1,
+                  type: LeaderboardType.UNRANKED
+                }
+              ]
+            },
+            token: adminToken
           });
         });
       }
@@ -1896,7 +1933,7 @@ describe('Admin', () => {
                             trackNum: 0,
                             trackType: 0,
                             tier: 1,
-                            ranked: false
+                            type: LeaderboardType.RANKED
                           }
                         ]
                       : undefined
@@ -1968,7 +2005,7 @@ describe('Admin', () => {
                 trackType: TrackType.MAIN,
                 trackNum: 0,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.UNRANKED
               }
             ]
           },
@@ -1999,14 +2036,21 @@ describe('Admin', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 5,
-            ranked: true
+            type: LeaderboardType.UNRANKED
+          },
+          {
+            gamemode: Gamemode.DEFRAG_VQ3,
+            trackType: TrackType.BONUS,
+            trackNum: 0,
+            tier: 5,
+            type: LeaderboardType.RANKED
           },
           {
             gamemode: Gamemode.DEFRAG_CPM,
             trackType: TrackType.BONUS,
             trackNum: 0,
             tier: 10,
-            ranked: false
+            type: LeaderboardType.HIDDEN
           }
         ];
 
@@ -2047,7 +2091,7 @@ describe('Admin', () => {
             data: ZonesStubLeaderboards.map((lb) => ({
               mapID: map.id,
               style: 0,
-              ranked: false,
+              type: LeaderboardType.IN_SUBMISSION,
               ...lb
             }))
           });
@@ -2175,7 +2219,7 @@ describe('Admin', () => {
                 linear: false,
                 style: 0,
                 tier: 5,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
                 tags: []
               },
               {
@@ -2185,7 +2229,7 @@ describe('Admin', () => {
                 trackNum: 0,
                 linear: null,
                 tier: null,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
                 style: 0,
                 tags: []
               },
@@ -2196,7 +2240,18 @@ describe('Admin', () => {
                 trackNum: 1,
                 linear: null,
                 tier: null,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
+                style: 0,
+                tags: []
+              },
+              {
+                mapID: map.id,
+                gamemode: Gamemode.DEFRAG_VQ3,
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                linear: null,
+                tier: 5,
+                type: LeaderboardType.RANKED,
                 style: 0,
                 tags: []
               },
@@ -2207,14 +2262,14 @@ describe('Admin', () => {
                 trackNum: 0,
                 linear: null,
                 tier: 10,
-                ranked: false,
+                type: LeaderboardType.HIDDEN,
                 style: 0,
                 tags: []
               }
             ])
           );
 
-          expect(leaderboards).toHaveLength(4);
+          expect(leaderboards).toHaveLength(5);
 
           expect(
             await prisma.leaderboardRun.findMany({

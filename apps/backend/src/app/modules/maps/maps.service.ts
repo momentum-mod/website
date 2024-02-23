@@ -24,11 +24,13 @@ import {
   Ban,
   CombinedMapStatuses,
   CombinedRoles,
+  LeaderboardType,
   MapCreditType,
   MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
   MapStatusChangers,
   MapStatusNew,
+  MapSubmissionApproval,
   MapSubmissionDate,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
@@ -92,7 +94,6 @@ import {
 } from './leaderboard-handler.util';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
 import { MapReviewService } from '../map-review/map-review.service';
-import { LeaderboardService } from '../runs/leaderboard.service';
 
 @Injectable()
 export class MapsService {
@@ -102,8 +103,6 @@ export class MapsService {
     private readonly fileStoreService: FileStoreService,
     @Inject(forwardRef(() => LeaderboardRunsService))
     private readonly leaderboardRunService: LeaderboardRunsService,
-    @Inject(forwardRef(() => LeaderboardService))
-    private readonly leaderboardService: LeaderboardService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestInviteService))
@@ -155,6 +154,7 @@ export class MapsService {
 
       if (query.gamemode) {
         leaderboardSome.gamemode = query.gamemode;
+        leaderboardSome.type = { not: LeaderboardType.HIDDEN };
       }
 
       if (query.difficultyHigh && query.difficultyLow) {
@@ -573,7 +573,7 @@ export class MapsService {
           mapID: map.id,
           ...obj,
           style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
-          ranked: false
+          type: LeaderboardType.IN_SUBMISSION
         }))
       });
 
@@ -906,7 +906,7 @@ export class MapsService {
           mapID,
           ...obj,
           style: 0, // TODO: Styles
-          ranked: false
+          type: LeaderboardType.IN_SUBMISSION
         }))
       });
 
@@ -1685,7 +1685,7 @@ export class MapsService {
    * @throws BadRequestException
    */
   checkSuggestionsAndZones(
-    suggestions: MapSubmissionSuggestion[],
+    suggestions: MapSubmissionSuggestion[] | MapSubmissionApproval[],
     zones: MapZones
   ) {
     try {

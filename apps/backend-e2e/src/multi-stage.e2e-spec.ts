@@ -5,6 +5,7 @@ import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import {
   Gamemode,
+  LeaderboardType,
   MapCreditType,
   MapStatusNew,
   MapSubmissionDate,
@@ -82,7 +83,7 @@ describe('Multi-stage E2E tests', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 1,
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         wantsPrivateTesting: true,
@@ -201,7 +202,7 @@ describe('Multi-stage E2E tests', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 10,
-            ranked: true
+            type: LeaderboardType.UNRANKED
           }
         ]
       },
@@ -238,7 +239,7 @@ describe('Multi-stage E2E tests', () => {
           linear: true,
           style: 0,
           tier: 10,
-          ranked: true,
+          type: LeaderboardType.UNRANKED,
           tags: []
         }
       ]
