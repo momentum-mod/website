@@ -122,14 +122,13 @@ export class MapInfoComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.layoutService.reserveBackgroundUrl(/\/maps\/\d+\/?$/);
+    this.layoutService.reserveBackgroundUrl(/\/maps\/[\w-]+\/?$/);
 
     this.route.paramMap
       .pipe(
         tap(() => (this.loading = true)),
-        // delay(1000),
         switchMap((params: ParamMap) =>
-          this.mapService.getMap(Number(params.get('id')), {
+          this.mapService.getMap(params.get('name'), {
             expand: [
               'info',
               'zones',
