@@ -238,30 +238,10 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="m-card-title ml-2 text-5xl">Credits</span>
-        <m-icon icon="tooltip-question" [mTooltip]="creditsInfo" />
-        <ng-template #creditsInfo>
-          <div class="prose p-3">
-            <p>Our credits system lets you link to the Momentum profile of everyone who's contributed to your map.</p>
-            <p>
-              If you know their Steam account but not their name in Momentum, search by their Steam Community ID - you can find that by
-              pasting the full URL of their Steam profile into a <a href="https://steamid.io/">steamid.io</a> and copying the
-              <b>steamID64</b> value.
-            </p>
-            <p>
-              Anyone who has ever played Momentum or signed in to our website should have a Momentum account. But if they don't, you can
-              submit a "placeholder" credit that will generate a placeholder user for the given alias, when the map is approved.
-            </p>
-            <p>Here are some general guidelines what user goes in what category:</p>
-            <ul>
-              <li>
-                <i>Authors: </i>the primary creator(s) of the map. Bonus creators should be included, but describe them as e.g. "Bonus 1",
-                and put them after main track authors.
-              </li>
-              <li><i>Contributors: TODO: IM BORED DOING TOMORROW</i></li>
-            </ul>
-          </div>
-        </ng-template>
+
+        <span class="card-title ml-2 text-5xl">Credits</span>
+        <m-icon icon="tooltip-question" [mTooltip]="creditsTooltip" />
+        <ng-template #creditsTooltip><m-credits-info /> </ng-template>
       </div>
       <div class="m-card m-card--fancy mt-6 pt-10">
         <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
@@ -296,14 +276,9 @@
             mTooltip="Add a zones file to enable leaderboard editing!"
           />
         </div>
-        <span class="m-card-title ml-2 text-5xl">Leaderboards</span>
-        <m-icon icon="tooltip-question" class="mr-2 align-middle" [mTooltip]="leaderboardsInfo" />
-        <ng-template #leaderboardsInfo>
-          <div class="prose p-3">
-            <!-- TODO: Write stuff!!!!!!!! -->
-            <p>wow</p>
-          </div>
-        </ng-template>
+        <span class="card-title ml-2 text-5xl">Leaderboards</span>
+        <m-icon icon="tooltip-question" class="mr-2 align-middle" [mTooltip]="leaderboardsTooltip" />
+        <ng-template #leaderboardsTooltip><m-leaderboards-info /> </ng-template>
       </div>
       <div class="m-card m-card--fancy mt-6 pt-4">
         <m-map-leaderboards-selection [formControl]="suggestions" />

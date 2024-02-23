@@ -13,8 +13,8 @@ import { SharedModule } from '../../../../shared.module';
 import {
   AvatarComponent,
   UserComponent,
-  MapSubmissionTypeInfoComponent,
-  MapReviewListComponent
+  MapReviewListComponent,
+  SubmissionTypeInfoComponent
 } from '../../../../components';
 import {
   GroupedMapSubmissionSuggestions,
@@ -29,11 +29,11 @@ import { PluralPipe, UnsortedKeyvaluePipe } from '../../../../pipes';
   imports: [
     SharedModule,
     AvatarComponent,
-    MapSubmissionTypeInfoComponent,
     UnsortedKeyvaluePipe,
     UserComponent,
     MapReviewListComponent,
-    PluralPipe
+    PluralPipe,
+    SubmissionTypeInfoComponent
   ]
 })
 export class MapSubmissionComponent {

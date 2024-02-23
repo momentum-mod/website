@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { SharedModule } from '../../shared.module';
 
 @Component({
-  selector: 'm-map-submission-type-info',
+  selector: 'm-submission-type-info',
   template: `
     <div class="prose p-3">
       <p>
@@ -26,7 +25,6 @@ import { SharedModule } from '../../shared.module';
       </p>
     </div>
   `,
-  standalone: true,
-  imports: [SharedModule]
+  standalone: true
 })
-export class MapSubmissionTypeInfoComponent {}
+export class SubmissionTypeInfoComponent {}

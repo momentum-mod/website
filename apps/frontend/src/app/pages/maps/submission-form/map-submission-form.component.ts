@@ -58,7 +58,9 @@ import {
   MapLeaderboardSelectionComponent,
   MapTestInviteSelectionComponent,
   MultiFileUploadComponent,
-  MapDetailsFormComponent
+  MapDetailsFormComponent,
+  LeaderboardsInfoComponent,
+  CreditsInfoComponent
 } from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
