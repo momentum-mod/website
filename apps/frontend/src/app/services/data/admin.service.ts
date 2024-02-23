@@ -6,12 +6,12 @@ import {
   MapsGetAllAdminQuery,
   MMap,
   Report,
-  UpdateMap,
   UpdateReport,
   User,
   PagedResponse,
   MapReview,
-  AdminUpdateMapReview
+  AdminUpdateMapReview,
+  UpdateMapAdmin
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -19,7 +19,7 @@ import { HttpService } from './http.service';
 export class AdminService {
   constructor(private http: HttpService) {}
 
-  updateMap(mapID: number, body: UpdateMap): Observable<void> {
+  updateMap(mapID: number, body: UpdateMapAdmin): Observable<MMap> {
     return this.http.patch(`admin/maps/${mapID}`, { body });
   }
 
