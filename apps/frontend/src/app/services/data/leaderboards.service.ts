@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   LeaderboardRun,
+  LeaderboardStats,
   MapLeaderboardGetQuery,
   MapLeaderboardGetRunQuery,
   PagedResponse
@@ -29,5 +30,9 @@ export class LeaderboardsService {
     return this.http.get<LeaderboardRun>(`maps/${mapID}/leaderboard/unique`, {
       query
     });
+  }
+
+  getLeaderboardStats(mapID: number): Observable<LeaderboardStats[]> {
+    return this.http.get<LeaderboardStats[]>(`maps/${mapID}/leaderboardStats`);
   }
 }

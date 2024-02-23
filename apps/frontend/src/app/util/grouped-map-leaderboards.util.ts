@@ -11,6 +11,8 @@ export type GroupedMapLeaderboards = Array<
     gamemode: Gamemode;
     gamemodeName: string;
     bonuses?: Array<{ num: number; tier: number }>;
+    reviews?: MapReview[];
+    totalRuns?: number;
     // If the map is ONLY bonuses, these are all undefined.
   } & RequireAllOrNone<{
     tier: number;
