@@ -40,8 +40,8 @@ export function validateSuggestions(
           } else {
             throw new SuggestionValidationError(
               `Duplicate suggestion for gamemode ${GamemodeName.get(gm)}, ` +
-                `trackType ${TTName.get(tt)}, ` +
-                `trackNum ${tn}`
+                `${TTName.get(tt)} track, ` +
+                `track number ${tn + 1}`
             );
           }
         }
@@ -60,8 +60,8 @@ export function validateSuggestions(
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
               `${GamemodeName.get(gm)} and ${GamemodeName.get(gm2)} on ` +
-              `trackType: ${TTName.get(tt)}, ` +
-              `trackNum: ${tn}`
+              `${TTName.get(tt)} track, ` +
+              `track number ${tn + 1}`
           );
         }
       }
