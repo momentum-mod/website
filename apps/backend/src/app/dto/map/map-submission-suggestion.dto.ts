@@ -1,11 +1,11 @@
 import {
   Gamemode,
+  LeaderboardType,
   MapSubmissionSuggestion,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
 import {
-  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -38,11 +38,16 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @Max(10)
   readonly tier: number;
 
-  @ApiProperty({
-    description: 'Whether the track should be ranked for this gamemode'
-  })
-  @IsBoolean()
-  readonly ranked: boolean;
+  @EnumProperty(
+    {
+      [LeaderboardType.RANKED]: LeaderboardType.RANKED,
+      [LeaderboardType.UNRANKED]: LeaderboardType.UNRANKED
+    },
+    {
+      description: 'Type of leaderboard, ranked, unranked or hidden'
+    }
+  )
+  readonly type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
 
   @ApiProperty({
     description: 'General comments about the track on this gamemode'

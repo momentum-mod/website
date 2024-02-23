@@ -1,6 +1,7 @@
 import {
   Gamemode,
   IncompatibleGamemodes,
+  LeaderboardType,
   MapReviewSuggestion,
   MapSubmissionSuggestion,
   TrackType as TT
@@ -29,7 +30,7 @@ describe('validateSuggestions', () => {
       gamemode: Gamemode.AHOP,
       tier: 1,
       comment: 'This track came to me in a dream',
-      ranked: true
+      type: LeaderboardType.RANKED
     },
     {
       trackType: TT.BONUS,
@@ -37,7 +38,7 @@ describe('validateSuggestions', () => {
       gamemode: Gamemode.AHOP,
       tier: 1,
       comment: 'This track sucks',
-      ranked: true
+      type: LeaderboardType.RANKED
     }
   ];
 
@@ -100,7 +101,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.BHOP,
             tier: 1,
             comment: 'This track doesnt exist',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,
@@ -163,7 +164,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.AHOP,
             tier: 1,
             comment: 'someComment',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,
@@ -199,7 +200,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.AHOP,
             tier: 2,
             comment: 'someComment',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,
@@ -235,7 +236,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.AHOP,
             tier: 1,
             comment: 'someComment',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,
@@ -273,7 +274,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.BHOP,
             tier: 1,
             comment: 'someComment',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,
@@ -315,7 +316,7 @@ describe('validateSuggestions', () => {
             gamemode: Gamemode.SURF,
             tier: 1,
             comment: 'someComment',
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         zones,

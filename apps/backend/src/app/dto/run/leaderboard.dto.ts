@@ -1,6 +1,7 @@
 import {
   Gamemode,
   Leaderboard,
+  LeaderboardType,
   MapTags,
   Style,
   TrackType
@@ -45,12 +46,10 @@ export class LeaderboardDto implements Leaderboard {
   @IsString({ each: true })
   readonly tags: MapTags;
 
-  @ApiProperty({
-    type: Boolean,
-    description: 'Whether leaderboard runs provide rank points'
+  @EnumProperty(LeaderboardType, {
+    description: 'Type of leaderboard, ranked, unranked or hidden'
   })
-  @IsBoolean()
-  readonly ranked: boolean;
+  readonly type: LeaderboardType;
 
   @ApiProperty({
     type: Boolean,

@@ -18,6 +18,7 @@ import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
 import {
   Gamemode,
+  LeaderboardType,
   MapStatus,
   MapSubmissionType,
   RunStats,
@@ -151,7 +152,7 @@ export class DbUtil {
                     trackType: TrackType.MAIN,
                     trackNum: 0,
                     tier: 1,
-                    ranked: true
+                    type: LeaderboardType.RANKED
                   }
                 ],
                 versions: {
@@ -178,7 +179,7 @@ export class DbUtil {
                       style: 0,
                       tier: 1,
                       linear: true,
-                      ranked: true
+                      type: LeaderboardType.RANKED
                     }
                   }
           } as CreateMapMMapArgs,
@@ -247,21 +248,21 @@ export class DbUtil {
               style: 0,
               tier: 1,
               linear: true,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.STAGE,
               trackNum: 0,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.STAGE,
               trackNum: 1,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
@@ -269,7 +270,7 @@ export class DbUtil {
               trackNum: 0,
               style: 0,
               tier: 5,
-              ranked: true
+              type: LeaderboardType.RANKED
             }
           ]
         }
