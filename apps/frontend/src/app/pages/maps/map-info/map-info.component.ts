@@ -12,7 +12,8 @@ import {
   MapStatusNameNew,
   MapStatusNew,
   MMap,
-  ReportType
+  ReportType,
+  YOUTUBE_ID_REGEXP
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -47,6 +48,7 @@ import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
 import { Enum } from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -100,7 +102,9 @@ export class MapInfoComponent implements OnInit {
   prefix: string | null;
   leaderboards: GroupedMapLeaderboards;
   credits: GroupedMapCredits;
-  images: Array<{ full: string; thumb: string }>;
+  images: Array<{ full: string; thumb: string } | { youtube: true }>;
+  youtubeID?: SafeUrl;
+  youtubeThumbnail?: SafeUrl;
 
   notify: MapNotify;
   notifications = false;
@@ -118,7 +122,8 @@ export class MapInfoComponent implements OnInit {
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
     private readonly dialogService: DialogService,
-    private readonly layoutService: LayoutService
+    private readonly layoutService: LayoutService,
+    private readonly sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -162,9 +167,9 @@ export class MapInfoComponent implements OnInit {
       ? MapInfoSection.SUBMISSION
       : MapInfoSection.LEADERBOARDS;
 
-    this.setImages(this.map.images);
+    this.setImages(this.map.images, this.map.info.youtubeID);
 
-    this.layoutService.setBackgroundImage(this.map.thumbnail.large);
+    this.layoutService.setBackgroundImage(this.map.thumbnail?.large);
 
     this.localUserService.checkMapNotify(this.map.id).subscribe({
       next: (resp) => {
@@ -184,19 +189,33 @@ export class MapInfoComponent implements OnInit {
     // In favourites iff num mapfavorites entries for user > 0. sorry
     this.inFavorites = this.map.favorites?.length > 0;
 
-    this.localUserService.localUserSubject.subscribe((locUser) => {
-      this.isModerator = this.localUserService.hasRole(
-        CombinedRoles.MOD_OR_ADMIN
+    this.isModerator = this.localUserService.hasRole(
+      CombinedRoles.MOD_OR_ADMIN
+    );
+
+    this.isSubmitter =
+      this.map.submitterID === this.localUserService.localUser.id;
+
+    const youtubeID = this.map?.info?.youtubeID;
+    if (youtubeID && YOUTUBE_ID_REGEXP.test(youtubeID)) {
+      this.youtubeID = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `https://www.youtube.com/embed/${youtubeID}`
       );
-      this.isSubmitter = this.map.submitterID === locUser.id;
-    });
+      this.youtubeThumbnail = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `https://img.youtube.com/vi/${youtubeID}/default.jpg`
+      );
+    }
   }
 
-  setImages(images: MapImage[]) {
+  setImages(images: MapImage[], youtubeID?: string) {
     this.images = images.map(({ small, large }) => ({
       thumb: small,
       full: large
     }));
+
+    if (youtubeID) {
+      this.images.unshift({ youtube: true });
+    }
   }
 
   toggleFavorite() {

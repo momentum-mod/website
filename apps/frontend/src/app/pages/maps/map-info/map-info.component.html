@@ -32,19 +32,29 @@
     <div>
       <m-card-body [mSpinner]="loading" class="m-card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none p-0">
         <p-galleria
+          #regularGallery
           [showItemNavigatorsOnHover]="true"
-          [showThumbnails]="map.images.length > 1"
+          [showThumbnails]="images.length > 1"
           [showThumbnailNavigators]="false"
           [value]="images"
-          [numVisible]="5"
+          [numVisible]="images.length"
+          (activeIndexChange)="fullscreenGallery.activeIndex = regularGallery.activeIndex"
         >
           <ng-template pTemplate="item" let-item>
-            <div (click)="displayFullscreenGallery = true">
-              <img [src]="item.full" />
-            </div>
+            @if (item.youtube) {
+              <iframe type="text/html" [width]="sideBar.offsetWidth" [height]="sideBar.offsetWidth / (16 / 9)" [src]="youtubeID"></iframe>
+            } @else {
+              <div (click)="displayFullscreenGallery = true">
+                <img [src]="item.full" />
+              </div>
+            }
           </ng-template>
           <ng-template pTemplate="thumbnail" let-item>
-            <img [src]="item.thumb" />
+            @if (item.youtube) {
+              <img class="aspect-video max-h-[4rem]" [src]="youtubeThumbnail" />
+            } @else {
+              <img class="aspect-video max-h-[4rem]" [src]="item.thumb" />
+            }
           </ng-template>
         </p-galleria>
         <div
@@ -167,12 +177,27 @@
   </div>
 
   <!-- Fullscreen gallery - if nested deeper in DOM it renders weirdly for some reason -->
-  <p-galleria [(visible)]="displayFullscreenGallery" [fullScreen]="true" [value]="images" [numVisible]="5">
+  <p-galleria #fullscreenGallery [(visible)]="displayFullscreenGallery" [fullScreen]="true" [value]="images" [numVisible]="5">
     <ng-template pTemplate="item" let-item>
-      <img [src]="item.full" />
+      @if (item.youtube) {
+        <iframe
+          type="text/html"
+          [width]="fullscreenGallery.element.nativeElement.offsetWidth"
+          [height]="fullscreenGallery.element.nativeElement.offsetWidth / (16 / 9)"
+          [src]="youtubeID"
+        ></iframe>
+      } @else {
+        <div (click)="displayFullscreenGallery = true">
+          <img [src]="item.full" />
+        </div>
+      }
     </ng-template>
     <ng-template pTemplate="thumbnail" let-item>
-      <img [src]="item.thumb" />
+      @if (item.youtube) {
+        <img class="youtube" [src]="youtubeThumbnail" />
+      } @else {
+        <img [src]="item.thumb" />
+      }
     </ng-template>
   </p-galleria>
 } @else {
