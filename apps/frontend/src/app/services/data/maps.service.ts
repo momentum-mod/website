@@ -31,8 +31,8 @@ import { HttpService } from './http.service';
 export class MapsService {
   constructor(private http: HttpService) {}
 
-  getMap(id: number | string, query?: MapsGetQuery): Observable<MMap> {
-    return this.http.get<MMap>(`maps/${id}`, { query });
+  getMap(nameOrId: number | string, query?: MapsGetQuery): Observable<MMap> {
+    return this.http.get<MMap>(`maps/${nameOrId}`, { query });
   }
 
   testMapExists(
