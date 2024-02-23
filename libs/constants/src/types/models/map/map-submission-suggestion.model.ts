@@ -1,4 +1,4 @@
-import { Gamemode, TrackType } from '../../../';
+import { Gamemode, LeaderboardType, TrackType } from '../../../';
 
 export interface MapSubmissionSuggestion {
   // TODO: #855 extends JsonObject {
@@ -6,7 +6,7 @@ export interface MapSubmissionSuggestion {
   trackNum: number;
   gamemode: Gamemode;
   tier: number;
-  ranked: boolean;
+  type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
   comment?: string;
   //  TODO: Tags!
 }

@@ -1,6 +1,7 @@
 import {
   Gamemode,
   IncompatibleGamemodes,
+  LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
   TrackType
@@ -81,7 +82,7 @@ export const LeaderboardHandler = {
             ({
               gamemode: lb.gamemode,
               // Whether is ranked depends on main Track, doesn't have a tier.
-              ranked: (lb as T & { ranked?: boolean }).ranked,
+              type: (lb as T & { type?: LeaderboardType }).type,
               trackType: TrackType.STAGE,
               trackNum: i
             }) as unknown as T

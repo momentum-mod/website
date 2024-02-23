@@ -16,6 +16,7 @@ import {
   CombinedMapStatuses,
   Gamemode,
   GamemodePrefix,
+  LeaderboardType,
   MapCreditType,
   mapReviewAssetPath,
   MapStatusNew,
@@ -405,7 +406,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const modes = [...modesSet.values()];
 
       // Keep main track and stage ranked-ness synced up
-      const rankedMainTracks = new Map(modes.map((m) => [m, Random.chance()]));
+      const rankedMainTracks = new Map(
+        modes.map((m) => [
+          m,
+          Random.chance() ? LeaderboardType.RANKED : LeaderboardType.UNRANKED
+        ])
+      );
 
       const leaderboards = modes.flatMap((m) =>
         [
@@ -435,9 +441,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
               trackType !== TrackType.STAGE && !inSubmission
                 ? Random.int(10, 1)
                 : undefined,
-            ranked:
-              trackType === TrackType.BONUS
+            type: inSubmission
+              ? LeaderboardType.IN_SUBMISSION
+              : trackType === TrackType.BONUS
                 ? Random.chance()
+                  ? LeaderboardType.RANKED
+                  : LeaderboardType.UNRANKED
                 : rankedMainTracks.get(m)
           };
 
@@ -447,13 +456,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
           if (trackType !== TrackType.STAGE && !inSubmission) {
             leaderboard.tier = Random.int(10, 1);
-          }
-
-          if (!inSubmission) {
-            leaderboard.ranked =
-              trackType === TrackType.BONUS
-                ? Random.chance()
-                : rankedMainTracks.get(m);
           }
 
           return leaderboard;
@@ -469,7 +471,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackNum,
             tier: Random.int(10, 1),
             comment: faker.lorem.sentence(),
-            ranked: Random.chance()
+            type: Random.chance()
+              ? LeaderboardType.RANKED
+              : LeaderboardType.UNRANKED
           }));
 
       const review = async () => ({

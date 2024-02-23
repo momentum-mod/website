@@ -19,7 +19,8 @@ import {
   MIN_PUBLIC_TESTING_DURATION,
   Role,
   TrackType,
-  MapZones
+  MapZones,
+  LeaderboardType
 } from '@momentum/constants';
 import {
   AuthUtil,
@@ -216,11 +217,36 @@ describe('Maps', () => {
         const map = await db.createMap({
           leaderboards: {
             create: {
-              gamemode: gamemode,
+              gamemode,
               trackType: TrackType.MAIN,
               trackNum: 0,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
+            }
+          }
+        });
+
+        // Create a map with a hidden leaderboard in the one we're searching
+        // to test we don't receive it
+        await db.createMap({
+          leaderboards: {
+            createMany: {
+              data: [
+                {
+                  gamemode,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  style: 0,
+                  type: LeaderboardType.HIDDEN
+                },
+                {
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  style: 0,
+                  type: LeaderboardType.RANKED
+                }
+              ]
             }
           }
         });
@@ -542,7 +568,7 @@ describe('Maps', () => {
               trackNum: 0,
               gamemode: Gamemode.RJ,
               tier: 1,
-              ranked: true,
+              type: LeaderboardType.RANKED,
               comment: 'I love you'
             },
             {
@@ -550,7 +576,7 @@ describe('Maps', () => {
               trackNum: 0,
               gamemode: Gamemode.DEFRAG_CPM,
               tier: 2,
-              ranked: false,
+              type: LeaderboardType.RANKED,
               comment: 'comment'
             }
           ],
@@ -627,7 +653,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true,
+                  type: LeaderboardType.RANKED,
                   comment: 'I love you'
                 },
                 {
@@ -635,7 +661,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 2,
-                  ranked: false,
+                  type: LeaderboardType.RANKED,
                   comment: 'comment'
                 }
               ],
@@ -682,7 +708,7 @@ describe('Maps', () => {
             mapID: createdMap.id,
             style: 0,
             tier: null,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             tags: []
           }));
 
@@ -1116,6 +1142,36 @@ describe('Maps', () => {
           });
         });
 
+        it('should 400 if the map has invalid suggestions', async () => {
+          const suggs = structuredClone(createMapObject.suggestions);
+
+          suggs[0].type = LeaderboardType.IN_SUBMISSION;
+
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, suggestions: suggs },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          suggs[0].type = LeaderboardType.HIDDEN;
+
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, suggestions: suggs },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
         it('should 400 if the map has conflicting suggestions', async () => {
           const suggs = structuredClone(createMapObject.suggestions);
 
@@ -1210,7 +1266,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.SURF,
                   tier: 1,
-                  ranked: true,
+                  type: LeaderboardType.RANKED,
                   comment: 'I will kill again'
                 }
               ],
@@ -1528,7 +1584,7 @@ describe('Maps', () => {
                     trackNum: 0,
                     gamemode: Gamemode.RJ,
                     tier: 10,
-                    ranked: true
+                    type: LeaderboardType.RANKED
                   }
                 ],
                 versions: {
@@ -1637,7 +1693,7 @@ describe('Maps', () => {
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
         });
@@ -2030,7 +2086,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
                 userID: u1.id,
@@ -2072,7 +2128,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
                 userID: u1.id,
@@ -2151,7 +2207,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
                 userID: u1.id,
@@ -2219,14 +2275,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               versions: {
@@ -2266,14 +2322,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -2301,14 +2357,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -2374,14 +2430,14 @@ describe('Maps', () => {
                       trackNum: 0,
                       gamemode: Gamemode.CONC,
                       tier: 1,
-                      ranked: true
+                      rtype: LeaderboardType.RANKED
                     },
                     {
                       trackType: TrackType.BONUS,
                       trackNum: 0,
                       gamemode: Gamemode.DEFRAG_CPM,
                       tier: 1,
-                      ranked: true
+                      type: LeaderboardType.RANKED
                     }
                   ],
                   dates: [
@@ -2437,14 +2493,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 10,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 }
               ],
               versions: {
@@ -2490,14 +2546,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 10,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 }
               ],
               versions: {
@@ -2529,7 +2585,7 @@ describe('Maps', () => {
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
         });
@@ -2574,14 +2630,14 @@ describe('Maps', () => {
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 10,
-                ranked: true
+                type: LeaderboardType.RANKED
               },
               {
                 trackType: TrackType.BONUS,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.RANKED
               }
             ]
           },
@@ -2590,13 +2646,23 @@ describe('Maps', () => {
 
         expect(
           await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.BHOP, style: 0 }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.BHOP,
+              style: 0,
+              type: LeaderboardType.IN_SUBMISSION
+            }
           })
         ).toHaveLength(4);
 
         expect(
           await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.CONC,
+              style: 0,
+              type: LeaderboardType.IN_SUBMISSION
+            }
           })
         ).toHaveLength(4);
 
@@ -2619,7 +2685,7 @@ describe('Maps', () => {
         // Lots of checks here but is unit tested, just remove the bonus
         await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
+          status: 400,
           body: {
             suggestions: [
               {
@@ -2628,14 +2694,32 @@ describe('Maps', () => {
                 gamemode: Gamemode.DEFRAG_CPM,
                 comment: 'FUCK!!!!',
                 tier: 10,
-                ranked: true
+                type: LeaderboardType.RANKED
+              }
+            ]
+          },
+          token
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 400,
+          body: {
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                comment: 'FUCK!!!!',
+                tier: 10,
+                type: LeaderboardType.HIDDEN
               },
               {
                 trackType: TrackType.BONUS,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.IN_SUBMISSION
               }
             ]
           },
@@ -2665,7 +2749,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.SURF,
                   tier: 10,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 }
               ]
             }
@@ -2759,7 +2843,7 @@ describe('Maps', () => {
                 trackNum: 0,
                 gamemode: Gamemode.CONC,
                 tier: 1,
-                ranked: true,
+                type: LeaderboardType.RANKED,
                 comment: 'My dad made this'
               }
             ],
