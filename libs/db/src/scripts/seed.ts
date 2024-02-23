@@ -57,9 +57,8 @@ const defaultVars = {
   majorCPs: { min: 0, max: 5 },
   minorCPs: { min: 0, max: 5 },
   bonusesPerMap: { min: 0, max: 3 },
-  testingRequestsPerMap: { min: 0, max: 10 },
-  reviewsPerMap: { min: 0, max: 5 },
-  imagesPerReview: { min: 1, max: 20 }, // 50% chance for no images
+  reviewsPerMap: { min: 50, max: 100 },
+  imagesPerReview: { min: 1, max: 5 }, // 80% chance for no images
   commentsPerReview: { min: 0, max: 5 },
   submissionPlaceholders: { min: 0, max: 2 },
   submissionVersions: { min: 1, max: 5 },
@@ -487,7 +486,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const review = async () => ({
         reviewerID: Random.element(userIDs),
         mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
-        imageIDs: Random.chance()
+        imageIDs: Random.chance(0.2)
           ? await Promise.all(
               from(randRange(vars.imagesPerReview), async () => {
                 const id = `${uuidv4()}.jpeg`;
@@ -590,13 +589,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 ]),
                 placeholders: from(
                   randRange(vars.submissionPlaceholders),
-                  () => [
-                    {
-                      alias: faker.internet.userName(),
-                      type: Random.enumValue(MapCreditType),
-                      description: faker.lorem.sentence()
-                    }
-                  ]
+                  () => ({
+                    alias: faker.internet.userName(),
+                    type: Random.enumValue(MapCreditType),
+                    description: faker.lorem.words({ min: 1, max: 4 })
+                  })
                 ),
                 dates: submissionsDates(),
                 versions: { createMany: { data: versions } },
@@ -771,7 +768,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               type: type ?? Random.enumValue(MapCreditType),
               mapID,
               userID,
-              description: faker.lorem.words({ min: 1, max: 2 })
+              description: faker.lorem.words({ min: 1, max: 4 })
             }
           })
           .catch(); // Ignore any creates that violate uniqueness
