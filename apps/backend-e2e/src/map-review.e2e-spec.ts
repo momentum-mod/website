@@ -13,6 +13,7 @@ import {
   Gamemode,
   mapReviewAssetPath,
   MapStatusNew,
+  NotificationType,
   Role,
   TrackType
 } from '@momentum/constants';
@@ -279,7 +280,7 @@ describe('Map Reviews', () => {
         req.unauthorizedTest('map-review/1', 'patch'));
     });
     describe('DELETE', () => {
-      let user, token, u2Token, modToken, map, review;
+      let user, token, u2Token, modToken, map, review, notif;
       const assetPath = mapReviewAssetPath('1');
 
       beforeAll(async () => {
@@ -315,7 +316,15 @@ describe('Map Reviews', () => {
             resolved: true
           }
         });
-
+        notif = await prisma.notification.create({
+          data: {
+            type: NotificationType.MAP_TESTING_REQUEST,
+            targetUserID: map.submitterID,
+            userID: review.reviewerID,
+            mapID: map.id,
+            reviewID: review.id
+          }
+        });
         await fileStore.add(assetPath, Buffer.alloc(1024));
       });
 
@@ -356,6 +365,16 @@ describe('Map Reviews', () => {
         });
 
         expect(await fileStore.exists(assetPath)).toBe(false);
+      });
+
+      it('should delete relevant notifications', async () => {
+        await req.del({
+          url: `map-review/${review.id}`,
+          status: 204,
+          token: token
+        });
+        const notifs = await prisma.notification.findMany();
+        expect(notifs).toHaveLength(0);
       });
 
       it("should 403 if map isn't in submission", async () => {

@@ -10,6 +10,7 @@ import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapDto } from '../map/map.dto';
 import { PastRunDto } from '../run/past-run.dto';
+import { MapReviewDto } from '../map/map-review.dto';
 
 export class NotificationDto implements Notification {
   @IdProperty()
@@ -62,6 +63,16 @@ export class NotificationDto implements Notification {
   @NestedProperty(PastRunDto)
   @IsOptional()
   readonly run: PastRunDto;
+
+  @IdProperty({
+    description: 'The ID of the MapReview that has just been posted'
+  })
+  @IsOptional()
+  readonly reviewID: number;
+
+  @NestedProperty(MapReviewDto)
+  @IsOptional()
+  readonly review: MapReviewDto;
 
   @CreatedAtProperty()
   readonly createdAt: Date;

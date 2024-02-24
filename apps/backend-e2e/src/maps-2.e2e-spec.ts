@@ -2069,6 +2069,7 @@ describe('Maps Part 2', () => {
 
     describe('POST', () => {
       let normalToken,
+        normalUser,
         reviewerToken,
         miscUser,
         approvedMap,
@@ -2076,11 +2077,12 @@ describe('Maps Part 2', () => {
         privTestMap;
 
       beforeAll(async () => {
-        [normalToken, reviewerToken, miscUser] = await Promise.all([
-          db.loginNewUser(),
-          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
-          db.createUser()
-        ]);
+        [[normalUser, normalToken], reviewerToken, miscUser] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+            db.createUser()
+          ]);
 
         pubTestMap = await db.createMap({
           status: MapStatusNew.PUBLIC_TESTING,
@@ -2100,7 +2102,7 @@ describe('Maps Part 2', () => {
 
       afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(() => db.cleanup('mapReview', 'notification'));
 
       it('should successfully create a review', async () => {
         const imageBuffer = readFileSync(
@@ -2133,6 +2135,47 @@ describe('Maps Part 2', () => {
         const imageUrl = res.body.images[0];
         const image = await fileStore.downloadHttp(imageUrl);
         expect(createSha1Hash(image)).toBe(imageHash);
+      });
+
+      it('should create a REVIEW_POSTED notification for the submitter', async () => {
+        const res = await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: {
+            mainText:
+              'course 1 gave me an anuyresm anurism thing when ur braign pops',
+            suggestions: [
+              {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 0,
+                tier: 1,
+                gameplayRating: 1
+              }
+            ]
+          },
+          validate: MapReviewDto,
+          token: normalToken
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            targetUserID: miscUser.id,
+            type: NotificationType.REVIEW_POSTED,
+            userID: normalUser.id,
+            mapID: pubTestMap.id,
+            reviewID: res.body.id
+          }
+        });
+        expect(notifs).toHaveLength(1);
+        expect(notifs).toMatchObject([
+          {
+            targetUserID: miscUser.id,
+            type: NotificationType.REVIEW_POSTED,
+            userID: normalUser.id,
+            mapID: pubTestMap.id,
+            reviewID: res.body.id
+          }
+        ]);
       });
 
       it('should succeed with no images', async () =>

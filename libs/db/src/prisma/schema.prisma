@@ -154,6 +154,9 @@ model Notification {
   run   PastRun? @relation(fields: [runID], references: [id], onDelete: Cascade)
   runID BigInt?
 
+  review   MapReview? @relation(fields: [reviewID], references: [id], onDelete: Cascade)
+  reviewID Int?
+
   createdAt DateTime @default(now())
 
   @@index(targetUserID)
@@ -372,6 +375,8 @@ model MapReview {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notifsAbout Notification[]
 
   @@index([mapID])
 }
