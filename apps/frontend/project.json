@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "momentum",
   "sourceRoot": "apps/frontend/src",
-  "tags": [],
+  "tags": ["frontend"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser-esbuild",

@@ -13,6 +13,14 @@ module.exports = {
             allow: [],
             depConstraints: [
               {
+                sourceTag: 'frontend',
+                bannedExternalImports: ['@nestjs/common', '@prisma/client']
+              },
+              {
+                sourceTag: 'backend',
+                bannedExternalImports: ['@angular/core']
+              },
+              {
                 sourceTag: '*',
                 onlyDependOnLibsWithTags: ['*']
               }

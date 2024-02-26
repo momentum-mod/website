@@ -13,7 +13,8 @@ export interface MapSubmission extends PrismaMapSubmission {
   type: MapSubmissionType;
   suggestions: Jsonify<MapSubmissionSuggestion[]>;
   placeholders: Jsonify<MapSubmissionPlaceholder[]>;
-  dates: Jsonify<MapSubmissionDate[]>;
+  dates: MapSubmissionDate[];
   submitter?: User;
   versions: MapSubmissionVersion[];
+  currentVersion: MapSubmissionVersion;
 }

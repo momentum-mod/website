@@ -30,7 +30,7 @@ model User {
   follows           Follow[]            @relation("follow_follow")
   followers         Follow[]            @relation("follow_follower")
   mapNotifies       MapNotify[]
-  notifications     Notification[]
+  notifications     Notification[]      @relation("notifs_to")
   runSessions       RunSession[]
   leaderboardRuns   LeaderboardRun[]
   pastRuns          PastRun[]
@@ -40,7 +40,9 @@ model User {
   reviewsSubmitted  MapReview[]         @relation("mapreview_reviewer")
   reviewsResolved   MapReview[]         @relation("mapreview_resolver")
   reviewComments    MapReviewComment[]
-  AdminActivities   AdminActivity[]
+  adminActivities   AdminActivity[]
+
+  notifsAbout Notification[] @relation("notifs_about")
 
   createdAt DateTime @default(now())
 }
@@ -109,8 +111,6 @@ model Activity {
   /// determined by the value of `type`.
   data BigInt @db.BigInt
 
-  notifications Notification[]
-
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int
 
@@ -138,18 +138,28 @@ model Follow {
 model Notification {
   id Int @id @default(autoincrement())
 
-  read Boolean @default(false)
+  type Int /// notification-type.enum.ts
 
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
+  targetUser   User @relation("notifs_to", fields: [targetUserID], references: [id], onDelete: Cascade)
+  targetUserID Int
 
-  activity   Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
-  activityID Int
+  message String?
+
+  user   User? @relation("notifs_about", fields: [userID], references: [id], onDelete: Cascade)
+  userID Int?
+
+  map   MMap? @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int?
+
+  run   PastRun? @relation(fields: [runID], references: [id], onDelete: Cascade)
+  runID BigInt?
+
+  review   MapReview? @relation(fields: [reviewID], references: [id], onDelete: Cascade)
+  reviewID Int?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@index([activityID, userID])
+  @@index(targetUserID)
 }
 
 model MapNotify {
@@ -200,6 +210,8 @@ model MMap {
   reviews         MapReview[]
   submission      MapSubmission?
   testingRequests MapTestingRequest[]
+
+  notifsAbout Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -347,8 +359,9 @@ model MapReview {
 
   mainText    String
   comments    MapReviewComment[]
-  suggestions Json               @default("{}") // map-submission-suggestions.model.ts
-  editHistory Json? // Array of map-review-edit-history.model.ts
+  suggestions Json               @default("[]") // Array of map-submission-suggestions.model.ts
+  editHistory Json               @default("[]") // Array of map-review-edit-history.model.ts
+  imageIDs    String[]
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -356,12 +369,14 @@ model MapReview {
   reviewer   User @relation(name: "mapreview_reviewer", fields: [reviewerID], references: [id], onDelete: Cascade)
   reviewerID Int
 
-  resolved   Boolean @default(false)
-  resolver   User?   @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
+  resolved   Boolean? /// If NULL, the review does not need resolving to pass to FINAL_APPROVAL
+  resolver   User?    @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
   resolverID Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notifsAbout Notification[]
 
   @@index([mapID])
 }
@@ -378,8 +393,9 @@ model MapReviewComment {
   reviewID Int
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([reviewID])
+  @@index([reviewID, createdAt])
 }
 
 /// This table stores what a tracks on a map a run can be submitted to, in what
@@ -533,6 +549,7 @@ model PastRun {
   flags Int[] @db.SmallInt
 
   leaderboardRun LeaderboardRun?
+  notifsAbout    Notification[]
 
   createdAt DateTime @default(now())
 

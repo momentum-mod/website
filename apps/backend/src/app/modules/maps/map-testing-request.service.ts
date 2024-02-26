@@ -5,18 +5,24 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatusNew, MapTestingRequestState } from '@momentum/constants';
+import {
+  MapStatusNew,
+  MapTestingRequestState,
+  NotificationType
+} from '@momentum/constants';
 import { difference } from '@momentum/util-fn';
 import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../database/prisma.extension';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MapTestingRequestService {
   constructor(
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly notifsService: NotificationsService
   ) {}
 
   async updateTestingRequests(
@@ -73,6 +79,14 @@ export class MapTestingRequestService {
           : MapTestingRequestState.DECLINED
       }
     });
+
+    await this.db.notification.deleteMany({
+      where: {
+        targetUserID: userID,
+        mapID: mapID,
+        type: NotificationType.MAP_TESTING_REQUEST
+      }
+    });
   }
 
   async createOrUpdatePrivateTestingInvites(
@@ -113,6 +127,26 @@ export class MapTestingRequestService {
     await tx.mapTestingRequest.deleteMany({
       where: {
         userID: { in: difference(existingInviteUserIDs, userIDs) }
+      }
+    });
+
+    const map = await tx.mMap.findUnique({ where: { id: mapID } });
+
+    await this.notifsService.sendNotifications(
+      difference(userIDs, existingInviteUserIDs),
+      {
+        type: NotificationType.MAP_TESTING_REQUEST,
+        mapID: mapID,
+        requesterID: map.submitterID
+      },
+      tx
+    );
+
+    await tx.notification.deleteMany({
+      where: {
+        targetUserID: { in: difference(existingInviteUserIDs, userIDs) },
+        mapID: mapID,
+        type: NotificationType.MAP_TESTING_REQUEST
       }
     });
   }

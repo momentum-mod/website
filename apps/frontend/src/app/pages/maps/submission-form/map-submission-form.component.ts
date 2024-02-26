@@ -60,6 +60,7 @@ import {
 import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
 import { PluralPipe } from '../../../pipes';
+import { SuggestionType } from '@momentum/formats/zone';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -171,7 +172,11 @@ export class MapSubmissionFormComponent implements OnInit {
     credits: [null, [creditsValidator]],
     suggestions: new FormControl(
       { value: [], disabled: true },
-      { validators: [suggestionsValidator(() => this.zones)] }
+      {
+        validators: [
+          suggestionsValidator(() => this.zones, SuggestionType.SUBMISSION)
+        ]
+      }
     ),
     privateTesting: this.fb.group(
       {

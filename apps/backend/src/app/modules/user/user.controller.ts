@@ -32,13 +32,10 @@ import {
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
-  NotificationDto,
   PagedResponseDto,
-  PagedQueryDto,
   ProfileDto,
   UpdateFollowStatusDto,
   UpdateMapNotifyDto,
-  UpdateNotificationDto,
   UpdateUserDto,
   UserDto,
   UserMapLibraryGetQueryDto,
@@ -328,62 +325,6 @@ export class UserController {
       query.type,
       query.data
     );
-  }
-
-  //#endregion
-
-  //#region Notifications
-
-  @Get('/notifications')
-  @ApiOperation({ summary: "Returns all of the local user's notifications" })
-  @ApiOkPagedResponse(NotificationDto, {
-    description: "Paginated list of the local user's notifications"
-  })
-  getNotifications(
-    @LoggedInUser('id') userID: number,
-    @Query() query?: PagedQueryDto
-  ): Promise<PagedResponseDto<NotificationDto>> {
-    return this.usersService.getNotifications(userID, query.skip, query.take);
-  }
-
-  @Patch('/notifications/:notificationID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Marks the given notification as read or unread' })
-  @ApiBody({
-    type: UpdateNotificationDto,
-    description:
-      'Bool expressing whether the notification has been read or not',
-    required: true
-  })
-  @ApiNoContentResponse({
-    description: 'Notification was updated successfully'
-  })
-  @ApiBadRequestResponse({ description: 'Invalid read data' })
-  @ApiNotFoundResponse({ description: 'The notification does not exist' })
-  updateNotification(
-    @LoggedInUser('id') userID: number,
-    @Param('notificationID', ParseIntSafePipe) notificationID: number,
-    @Body() updateDto: UpdateNotificationDto
-  ) {
-    return this.usersService.updateNotification(
-      userID,
-      notificationID,
-      updateDto
-    );
-  }
-
-  @Delete('/notifications/:notificationID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiNoContentResponse({
-    description: 'Notification was deleted successfully'
-  })
-  @ApiOperation({ summary: 'Deletes the given notification' })
-  @ApiNotFoundResponse({ description: 'The notification does not exist' })
-  deleteNotification(
-    @LoggedInUser('id') userID: number,
-    @Param('notificationID', ParseIntSafePipe) notificationID: number
-  ) {
-    return this.usersService.deleteNotification(userID, notificationID);
   }
 
   //#endregion

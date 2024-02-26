@@ -74,14 +74,25 @@ export class FileStoreS3Service extends FileStoreService {
   }
 
   async deleteFiles(fileKeys: string[]): Promise<boolean> {
-    return this.isMissingHandler(
-      this.s3Client.send(
-        new DeleteObjectsCommand({
-          Bucket: this.bucket,
-          Delete: { Objects: fileKeys.map((Key) => ({ Key })) }
-        })
-      )
-    );
+    // AWS S3 docs limit this command to 1000 keys, assuming other S3 providers
+    // do the same.
+    // https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjects.html
+    for (let i = 0; i < fileKeys.length; i += 1000) {
+      const ok = await this.isMissingHandler(
+        this.s3Client.send(
+          new DeleteObjectsCommand({
+            Bucket: this.bucket,
+            Delete: {
+              Objects: fileKeys.slice(i, i + 1000).map((Key) => ({ Key }))
+            }
+          })
+        )
+      );
+
+      if (!ok) return false;
+    }
+
+    return true;
   }
 
   async getFile(fileKey: string): Promise<Uint8Array | null> {

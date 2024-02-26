@@ -33,6 +33,7 @@ import {
   MapSubmissionSuggestion,
   MapTestingRequestState,
   MapZones,
+  NotificationType,
   Role,
   submissionBspPath,
   submissionVmfsPath,
@@ -52,6 +53,7 @@ import { ConfigService } from '@nestjs/config';
 import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
+  SuggestionType,
   SuggestionValidationError,
   validateSuggestions,
   validateZoneFile,
@@ -89,6 +91,7 @@ import {
   LeaderboardProps
 } from './leaderboard-handler.util';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Injectable()
 export class MapsService {
@@ -102,6 +105,8 @@ export class MapsService {
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
     private readonly mapTestingRequestService: MapTestingRequestService,
+    @Inject(forwardRef(() => MapReviewService))
+    private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService
   ) {}
 
@@ -612,7 +617,9 @@ export class MapsService {
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: { include: { currentVersion: true } } }
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
     });
 
     if (!map) {
@@ -834,7 +841,7 @@ export class MapsService {
       include: {
         info: true,
         stats: true,
-        submission: { include: { currentVersion: true } },
+        submission: { include: { currentVersion: true, versions: true } },
         submitter: true,
         images: true,
         thumbnail: true,
@@ -1022,7 +1029,11 @@ export class MapsService {
       if (dto.suggestions) {
         const zones = mapDB.currentVersion.zones as unknown as MapZones; // TODO: #855
         try {
-          validateSuggestions(dto.suggestions, zones);
+          validateSuggestions(
+            dto.suggestions,
+            zones,
+            SuggestionType.SUBMISSION
+          );
         } catch (error) {
           if (error instanceof SuggestionValidationError) {
             throw new BadRequestException(
@@ -1229,6 +1240,11 @@ export class MapsService {
       newStatus === MapStatusNew.APPROVED
     ) {
       await this.updateStatusFromFAToApproved(tx, map, dto);
+    } else if (
+      oldStatus === MapStatusNew.PRIVATE_TESTING &&
+      newStatus !== MapStatusNew.PRIVATE_TESTING
+    ) {
+      await this.updateStatusFromPrivate(tx, map);
     }
 
     return {
@@ -1302,6 +1318,13 @@ export class MapsService {
     map: MapWithSubmission,
     dto: UpdateMapAdminDto
   ) {
+    // Check we don't have any unresolved reviews. Even admins shouldn't be able
+    // to bypass this, if needed they can just go in and resolve those reviews!
+    const reviews = await tx.mapReview.findMany({ where: { mapID: map.id } });
+    if (reviews.some((review) => review.resolved === false)) {
+      throw new BadRequestException('Map has unresolved reviews!');
+    }
+
     // Create placeholder users for all the users the submitter requested
     // Can't use createMany due to nesting (thanks Prisma!!)
     for (const placeholder of map.submission.placeholders ?? []) {
@@ -1375,17 +1398,25 @@ export class MapsService {
     });
 
     // Delete all the submission files - these would take up a LOT of space otherwise
-    try {
-      await this.fileStoreService.deleteFiles(
-        versions.flatMap((v) => [
-          submissionBspPath(v.id),
-          submissionVmfsPath(v.id)
-        ])
-      );
-    } catch (error) {
-      error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
-      throw new InternalServerErrorException(error);
-    }
+    await parallel(
+      this.fileStoreService
+        .deleteFiles(
+          versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        )
+        .catch((error) => {
+          error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        }),
+      this.mapReviewService
+        .deleteAllReviewAssetsForMap(map.id)
+        .catch((error) => {
+          error.message = `Failed to delete map review files for ${map.fileName}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        })
+    );
 
     // Is it getting approved for first time?
     if (
@@ -1434,6 +1465,20 @@ export class MapsService {
 
       this.checkZones(zones);
     }
+  }
+  /**
+   * Private Testing -> Anything Else
+   */
+  private async updateStatusFromPrivate(
+    tx: ExtendedPrismaServiceTransaction,
+    map: MapWithSubmission
+  ) {
+    await tx.mapTestingRequest.deleteMany({
+      where: { mapID: map.id, state: MapTestingRequestState.UNREAD }
+    });
+    await tx.notification.deleteMany({
+      where: { type: NotificationType.MAP_TESTING_REQUEST, mapID: map.id }
+    });
   }
 
   //#endregion
@@ -1519,6 +1564,9 @@ export class MapsService {
    * can do the desired fetch for you - hence the types having to be a little
    * insane.
    *
+   * If `submissionOnly: true` is given, throws if map is not in submission,
+   * except for mods and admins
+   *
    * @throws ForbiddenException
    */
   async getMapAndCheckReadAccess<
@@ -1526,7 +1574,7 @@ export class MapsService {
     S extends Prisma.MMapSelect,
     I extends Prisma.MMapInclude
   >(
-    args: { userID: number } & MergeExclusive<
+    args: { userID: number; submissionOnly?: boolean } & MergeExclusive<
       { map: M },
       { mapID: number | string } & MergeExclusive<
         { select?: S },
@@ -1557,7 +1605,7 @@ export class MapsService {
 
     // If APPROVED/PUBLIC_TESTING, anyone can access.
     if (
-      map.status === MapStatusNew.APPROVED ||
+      (map.status === MapStatusNew.APPROVED && !args?.submissionOnly) ||
       map.status === MapStatusNew.PUBLIC_TESTING
     ) {
       return map as GetMMapUnique<S, I>;
@@ -1567,6 +1615,17 @@ export class MapsService {
     const user = await this.db.user.findUnique({ where: { id: args.userID } });
 
     switch (map.status) {
+      // APPROVED, always allow unless:
+      // - submissionOnly is true, and not mod/admin
+      case MapStatusNew.APPROVED: {
+        if (
+          !args?.submissionOnly ||
+          Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+        )
+          return map as GetMMapUnique<S, I>;
+
+        break;
+      }
       // PRIVATE_TESTING, only allow:
       // - The submitter
       // - Moderator/Admin
@@ -1668,7 +1727,7 @@ export class MapsService {
   ) {
     try {
       validateZoneFile(zones);
-      validateSuggestions(suggestions, zones);
+      validateSuggestions(suggestions, zones, SuggestionType.SUBMISSION);
     } catch (error) {
       if (error instanceof ZoneValidationError) {
         throw new BadRequestException(`Invalid zone files: ${error.message}`);

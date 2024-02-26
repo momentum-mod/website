@@ -17,6 +17,7 @@ import { UserModule } from './modules/user/user.module';
 import { UsersModule } from './modules/users/users.module';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
+import { MapReviewModule } from './modules/map-review/map-review.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
     ActivitiesModule,
     AdminModule,
     MapsModule,
+    MapReviewModule,
     ReportsModule,
     RunsModule,
     StatsModule,

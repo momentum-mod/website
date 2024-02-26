@@ -4,6 +4,8 @@ import { MapZones } from './map-zones.model';
 export interface MapSubmissionVersion
   extends Omit<PrismaMapSubmissionVersion, 'zones'> {
   zones: MapZones;
+  downloadURL: string;
+  vmfDownloadUrl?: string;
 }
 
 export type CreateMapSubmissionVersion = Pick<

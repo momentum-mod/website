@@ -111,10 +111,7 @@ export class RequestUtil {
     }
 
     if (['POST', 'PUT', 'PATCH'].includes(injectOptions.method)) {
-      if (
-        ('file' in options && options.file) ||
-        ('files' in options && options.files)
-      ) {
+      if ('file' in options || 'files' in options || 'data' in options) {
         const attachFile = (
           form: FormData,
           file: Buffer | File | string,

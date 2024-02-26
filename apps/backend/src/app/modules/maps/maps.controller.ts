@@ -41,7 +41,13 @@ import {
   FileFieldsInterceptor,
   FileInterceptor
 } from '@nest-lab/fastify-multer';
-import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
+import {
+  MAP_IMAGE_HEIGHT,
+  MAP_IMAGE_WIDTH,
+  MAX_MAP_IMAGE_SIZE,
+  MAX_REVIEW_IMAGES,
+  Role
+} from '@momentum/constants';
 import { ConfigService } from '@nestjs/config';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 import { RolesGuard } from '../auth/roles.guard';
@@ -49,8 +55,12 @@ import {
   ApiOkPagedResponse,
   CreateMapCreditDto,
   CreateMapDto,
+  CreateMapReviewDto,
+  CreateMapReviewWithFilesDto,
   CreateMapSubmissionVersionDto,
   CreateMapTestingRequestDto,
+  CreateMapWithFilesDto,
+  LeaderboardRunDto,
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
@@ -58,30 +68,30 @@ import {
   MapImageDto,
   MapInfoDto,
   MapLeaderboardGetQueryDto,
+  MapLeaderboardGetRunQueryDto,
   MapReviewDto,
-  MapReviewGetIdDto,
   MapReviewsGetQueryDto,
   MapsGetAllQueryDto,
   MapsGetQueryDto,
+  MapZonesDto,
+  MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
   UpdateMapTestingRequestDto,
-  VALIDATION_PIPE_CONFIG,
-  CreateMapWithFilesDto,
-  MapZonesDto,
-  LeaderboardRunDto,
-  MapLeaderboardGetRunQueryDto,
-  MinimalLeaderboardRunDto
+  VALIDATION_PIPE_CONFIG
 } from '../../dto';
 import { LoggedInUser, Roles } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
-import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { MapsService } from './maps.service';
+import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
+import { ImageFileValidator } from '../../validators/image-file.validator';
+import { MapReviewService } from '../map-review/map-review.service';
+import { ImageType } from '@momentum/constants';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -136,19 +146,17 @@ export class MapsController {
 
   @Patch('/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Updates a single map's status flag" })
+  @ApiOperation({ summary: 'Updates a submitted map' })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'Target Map ID',
     required: true
   })
-  @ApiNoContentResponse({ description: 'Map status updated successfully' })
+  @ApiNoContentResponse({ description: 'Map updated successfully' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiBadRequestResponse({
-    description: "Map's status does not allow updating"
-  })
+  @ApiForbiddenResponse({ description: 'The map is not accepting revisions' })
   updateMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
@@ -250,6 +258,9 @@ export class MapsController {
     // https://github.com/dmitriy-nz/nestjs-form-data/tree/master/src/decorators/validation
     // if we wanted, but given the likelihood of us moving off class-validator,
     // it doesn't seem worth the effort.
+    //   spooky note from the future : We could figure out a way to do the above
+    //   this using new ParseFilesPipe.
+
     const maxBspSize = this.config.getOrThrow('limits.bspSize');
     if (bspFile.size > maxBspSize) {
       throw new BadRequestException(`BSP file too large (> ${maxBspSize})`);
@@ -517,7 +528,16 @@ export class MapsController {
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @UploadedFile(
       new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: MAX_IMAGE_SIZE })]
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
       })
     )
     file: File
@@ -559,7 +579,21 @@ export class MapsController {
   updateImage(
     @LoggedInUser('id') userID: number,
     @Param('imgID', ParseIntSafePipe) imgID: number,
-    @UploadedFile() file
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
+      })
+    )
+    file: File
   ): Promise<void> {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
@@ -624,7 +658,21 @@ export class MapsController {
   updateThumbnail(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile() file
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new ImageFileValidator({
+            format: ImageType.PNG,
+            minWidth: MAP_IMAGE_WIDTH,
+            maxWidth: MAP_IMAGE_WIDTH,
+            minHeight: MAP_IMAGE_HEIGHT,
+            maxHeight: MAP_IMAGE_HEIGHT
+          }),
+          new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+        ]
+      })
+    )
+    file: File
   ): Promise<void> {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
@@ -712,53 +760,51 @@ export class MapsController {
     return this.mapReviewService.getAllReviews(mapID, userID, query);
   }
 
-  @Get('/:mapID/reviews/:reviewID')
-  @ApiOperation({ summary: 'Returns the requested review' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
+  @Post('/:mapID/reviews')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_REVIEW_IMAGES }]),
+    FormDataJsonInterceptor('data')
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Creates a review for a map' })
+  @ApiOkResponse({ type: MapReviewDto, description: 'The created review' })
+  @ApiForbiddenResponse({
+    description: 'User does not have the required role to review'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid map' })
+  @ApiBody({
+    type: CreateMapReviewWithFilesDto,
+    description: 'The create map review data transfer object',
     required: true
   })
-  @ApiParam({
-    name: 'reviewID',
-    type: Number,
-    description: 'Target Review ID',
-    required: true
-  })
-  @ApiOkResponse({ description: 'The requested review of the map' })
-  @ApiNotFoundResponse({
-    description: 'Either the map or review was not found'
-  })
-  getReview(
+  createReview(
+    @Body('data') data: CreateMapReviewDto,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
-    @LoggedInUser('id') userID: number,
-    @Query() query?: MapReviewGetIdDto
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new ImageFileValidator({
+              minHeight: 100,
+              minWidth: 100,
+              maxWidth: 4000,
+              maxHeight: 4000
+            }),
+            new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
+          ]
+        })
+      )
+    )
+    files: { images?: File[] },
+    @LoggedInUser('id') userID: number
   ): Promise<MapReviewDto> {
-    return this.mapReviewService.getReview(mapID, reviewID, userID, query);
+    return this.mapReviewService.createReview(
+      userID,
+      mapID,
+      data,
+      files?.images
+    );
   }
 
-  @Delete('/:mapID/reviews/:reviewID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletes a map review' })
-  @ApiNoContentResponse({ description: 'Review deleted successfully' })
-  @ApiNotFoundResponse({ description: 'Review not found' })
-  @ApiForbiddenResponse({
-    description: 'User is not the submitter of the map review'
-  })
-  @ApiParam({
-    name: 'reviewID',
-    type: Number,
-    description: 'Target Review ID',
-    required: true
-  })
-  deleteReview(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
-    @LoggedInUser('id') userID: number
-  ): Promise<void> {
-    return this.mapReviewService.deleteReview(mapID, reviewID, userID);
-  }
   //endregion
 }

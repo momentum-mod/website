@@ -7,6 +7,7 @@
   S3Client
 } from '@aws-sdk/client-s3';
 import { createSha1Hash } from './crypto.util';
+import axios from 'axios';
 
 /**
  * Simple handler class wrapped over the AWS S3 client for use in tests.
@@ -121,5 +122,11 @@ export class FileStoreUtil {
     } catch {
       return false;
     }
+  }
+
+  async downloadHttp(url: string): Promise<Buffer> {
+    return axios
+      .get(url, { responseType: 'arraybuffer' })
+      .then((res) => Buffer.from(res.data, 'binary'));
   }
 }

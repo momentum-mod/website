@@ -69,7 +69,7 @@ export class PastRunsService {
       leaderboardRun: query?.expand?.includes('leaderboardRun')
         ? true
         : { select: { time: true } } // Don't care about value so select something small
-    };
+    } satisfies Prisma.PastRunInclude;
 
     const dbResponse = await this.db.pastRun.findManyAndCount({
       where,
@@ -95,7 +95,7 @@ export class PastRunsService {
     query: RunsGetQuery,
     userID: number
   ): Promise<PastRunDto> {
-    const include: Prisma.PastRunInclude = {
+    const include = {
       user: query?.expand?.includes('user') ? true : undefined,
       mmap: true,
       leaderboardRun: query?.expand?.includes('leaderboardRun')
@@ -130,5 +130,5 @@ type PastRunWithPbData = PastRun & {
   user?: unknown;
   leaderboardRun?: unknown;
   mmap?: unknown;
-  isPB: boolean;
+  isPB?: boolean;
 };

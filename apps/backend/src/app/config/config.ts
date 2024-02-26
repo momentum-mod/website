@@ -1,5 +1,4 @@
 ﻿import {
-  MAX_IMAGE_SIZE,
   MAX_MAP_IMAGE_UPLOADS,
   MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
@@ -12,7 +11,8 @@
   STEAM_APPIDS,
   JWT_GAME_EXPIRY_TIME,
   JWT_WEB_EXPIRY_TIME,
-  JWT_REFRESH_EXPIRY_TIME
+  JWT_REFRESH_EXPIRY_TIME,
+  MAX_MAP_IMAGE_SIZE
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
 
@@ -64,7 +64,7 @@ export const ConfigFactory = (): ConfigInterface => {
       // above this size to test make file size validation
       bspSize: isTest ? 1e6 : MAX_BSP_SIZE,
       vmfSize: isTest ? 1e6 : MAX_VMF_SIZE,
-      imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE,
+      imageSize: isTest ? 1e6 : MAX_MAP_IMAGE_SIZE,
       reviewLength: MAX_REVIEW_LENGTH,
       testingRequests: MAX_TESTING_REQUESTS,
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,

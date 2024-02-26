@@ -38,12 +38,10 @@ import {
   MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
-  NotificationDto,
   PagedResponseDto,
   ProfileDto,
   UpdateFollowStatusDto,
   UpdateMapNotifyDto,
-  UpdateNotificationDto,
   UpdateUserDto,
   UserDto,
   UsersGetAllQueryDto
@@ -528,60 +526,6 @@ export class UsersService {
         followee: true
       }
     });
-  }
-
-  //#endregion
-
-  //#region Notifications
-
-  async getNotifications(
-    userID: number,
-    skip?: number,
-    take?: number
-  ): Promise<PagedResponseDto<NotificationDto>> {
-    const dbResponse = await this.db.notification.findManyAndCount({
-      where: { userID },
-      include: { user: { include: { profile: true } }, activity: true },
-      skip,
-      take
-    });
-
-    return new PagedResponseDto(NotificationDto, dbResponse);
-  }
-
-  async updateNotification(
-    userID: number,
-    notificationID: number,
-    updateDto: UpdateNotificationDto
-  ) {
-    const notification = await this.db.notification.findUnique({
-      where: { id: notificationID }
-    });
-
-    if (!notification)
-      throw new NotFoundException('Notification does not exist');
-
-    if (notification.userID !== userID)
-      throw new ForbiddenException('Notification does not belong to user');
-
-    await this.db.notification.update({
-      where: { id: notificationID },
-      data: { read: updateDto.read }
-    });
-  }
-
-  async deleteNotification(userID: number, notificationID: number) {
-    const notification = await this.db.notification.findUnique({
-      where: { id: notificationID }
-    });
-
-    if (!notification)
-      throw new NotFoundException('Notification does not exist');
-
-    if (notification.userID !== userID)
-      throw new ForbiddenException('Notification does not belong to user');
-
-    await this.db.notification.delete({ where: { id: notificationID } });
   }
 
   //#endregion

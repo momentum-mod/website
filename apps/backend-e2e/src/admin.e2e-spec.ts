@@ -3,6 +3,7 @@
 import {
   AdminActivityDto,
   MapDto,
+  MapReviewDto,
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
@@ -15,10 +16,12 @@ import {
   Ban,
   Gamemode,
   MapCreditType,
+  mapReviewAssetPath,
   MapStatus,
   MapStatusNew,
   MapSubmissionType,
   MapTestingRequestState,
+  NotificationType,
   ReportCategory,
   ReportType,
   Role,
@@ -658,12 +661,6 @@ describe('Admin', () => {
           data: {
             type: ActivityType.MAP_APPROVED,
             data: 123,
-            notifications: {
-              create: {
-                read: true,
-                user: { connect: { id: user.id } }
-              }
-            },
             user: { connect: { id: user.id } }
           }
         });
@@ -1654,16 +1651,26 @@ describe('Admin', () => {
         reviewerToken,
         u1,
         u1Token,
+        u2,
+        u3,
         createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
-        [[mod, modToken], [admin, adminToken], reviewerToken, [u1, u1Token]] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
-            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
-            db.createAndLoginUser()
-          ]);
+        [
+          [mod, modToken],
+          [admin, adminToken],
+          reviewerToken,
+          [u1, u1Token],
+          u2,
+          u3
+        ] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createUser()
+        ]);
 
         createMapData = {
           name: 'map',
@@ -1701,11 +1708,13 @@ describe('Admin', () => {
         };
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'adminActivity'));
+      afterAll(() =>
+        db.cleanup('leaderboardRun', 'user', 'adminActivity', 'notification')
+      );
 
       afterEach(() =>
         Promise.all([
-          db.cleanup('mMap', 'adminActivity'),
+          db.cleanup('mMap', 'adminActivity', 'notification'),
           fileStore.deleteDirectory('maps'),
           fileStore.deleteDirectory('submissions')
         ])
@@ -2030,6 +2039,56 @@ describe('Admin', () => {
         });
       });
 
+      it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to DISABLED', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING,
+          testingRequests: {
+            createMany: {
+              data: [
+                {
+                  userID: u2.id,
+                  state: MapTestingRequestState.UNREAD
+                },
+                {
+                  userID: u3.id,
+                  state: MapTestingRequestState.ACCEPTED
+                }
+              ]
+            }
+          }
+        });
+        await prisma.notification.create({
+          data: {
+            targetUserID: u2.id,
+            type: NotificationType.MAP_TESTING_REQUEST,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        });
+        await req.patch({
+          url: `admin/maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatusNew.DISABLED },
+          token: adminToken
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_TESTING_REQUEST,
+            mapID: map.id
+          }
+        });
+        expect(notifs).toHaveLength(0);
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { testingRequests: true }
+        });
+        expect(updatedMap.testingRequests).toHaveLength(1);
+        expect(updatedMap.testingRequests).toMatchObject([
+          { userID: u3.id, state: MapTestingRequestState.ACCEPTED }
+        ]);
+      });
+
       describe('Map Approval', () => {
         let map;
         const finalLeaderboards = [
@@ -2268,6 +2327,79 @@ describe('Admin', () => {
           ).toHaveLength(0);
         });
 
+        it('should delete any map review assets after map status changed from FA to approved', async () => {
+          const assetPath = mapReviewAssetPath('1');
+
+          await prisma.mapReview.create({
+            data: {
+              mainText:
+                'This map doesn’t scrape the bottom of the barrel. ' +
+                'This map isn’t the bottom of the barrel. ' +
+                'This map isn’t below the bottom of the barrel. ' +
+                'This map doesn’t deserve to be mentioned in the same sentence with barrels.',
+              resolved: true,
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await fileStore.add(assetPath, Buffer.alloc(1024));
+          expect(await fileStore.exists(assetPath)).toBe(true);
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+
+          expect(await fileStore.exists(assetPath)).toBe(false);
+        });
+
+        it('should 400 if map has unresolved reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: false,
+              mainText:
+                'I hated this map. ' +
+                'Hated hated hated hated hated this map. Hated it. ' +
+                'Hated every simpering stupid vacant player-insulting stage of it',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+        });
+
+        it('should succeed if map has resolved=null reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: null,
+              mainText:
+                'Was there no one connected with this project who read the ' +
+                'screenplay, considered the story, evaluated the proposed map and vomited?',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+        });
+
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
@@ -2402,6 +2534,216 @@ describe('Admin', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/maps/1', 'del'));
+    });
+  });
+
+  describe('admin/map-review/{reviewID}', () => {
+    describe('PATCH', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'im sick today so cba to think of silly messages',
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow admin to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: adminToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow mod to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: modToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow reviewer to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should not allow review author to access', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          body: { resolved: true },
+          token: u1Token
+        }));
+
+      it('should 400 for bad update data', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 400,
+          body: { mainText: "admins cant rewrite people's reviews" },
+          token: adminToken
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.patch({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          body: { resolved: true },
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'patch'));
+    });
+
+    describe('DELETE', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+      const assetPath = mapReviewAssetPath('1');
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'auuaghauguhhh!!',
+            imageIDs: ['1'],
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+
+        await fileStore.add(assetPath, Buffer.alloc(1024));
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow an admin to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should delete any stored assets', async () => {
+        expect(await fileStore.exists(assetPath)).toBe(true);
+
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(await fileStore.exists(assetPath)).toBe(false);
+      });
+
+      it('should allow a mod to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: modToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should not allow a reviewer to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: reviewerToken
+        });
+      });
+
+      it('should not allow review author to delete a map review (via this endpoint)', () =>
+        req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.del({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'del'));
     });
   });
 

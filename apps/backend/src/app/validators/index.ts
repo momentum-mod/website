@@ -1,5 +1,4 @@
-export * from './';
-export * from './is-big.int';
+export * from './is-bigint.validator';
 export * from './is-map-name.validator';
 export * from './is-steam-id.validator';
 export * from './is-enum-flag.validator';

@@ -17,9 +17,9 @@ import {
   createSha1Hash,
   DbUtil,
   FILES_PATH,
+  FileStoreUtil,
   RequestUtil
 } from '@momentum/test-utils';
-import axios from 'axios';
 import Zip from 'adm-zip';
 import { BabyZonesStub } from '@momentum/formats/zone';
 import { MapDto } from '../../backend/src/app/dto';
@@ -29,7 +29,11 @@ import {
 } from './support/environment';
 
 describe('Multi-stage E2E tests', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
+  let app,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    fileStore: FileStoreUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -37,6 +41,7 @@ describe('Multi-stage E2E tests', () => {
     app = env.app;
     req = env.req;
     db = env.db;
+    fileStore = env.fileStore;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -246,16 +251,10 @@ describe('Multi-stage E2E tests', () => {
     expect(
       (mapRes.downloadURL as string).endsWith('surf_todd_howard.bsp')
     ).toBeTruthy();
-    const bspDownloadBuffer = await axios
-      .get(mapRes.downloadURL, { responseType: 'arraybuffer' })
-      .then((res) => Buffer.from(res.data, 'binary'));
+    const bspDownloadBuffer = await fileStore.downloadHttp(mapRes.downloadURL);
     expect(createSha1Hash(bspDownloadBuffer)).toBe(bsp2Hash);
 
-    const vmfZip = new Zip(
-      await axios
-        .get(mapRes.vmfDownloadURL, { responseType: 'arraybuffer' })
-        .then((res) => Buffer.from(res.data, 'binary'))
-    );
+    const vmfZip = new Zip(await fileStore.downloadHttp(mapRes.vmfDownloadURL));
     expect(
       createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData())
     ).toBe(vmf2Hash);
