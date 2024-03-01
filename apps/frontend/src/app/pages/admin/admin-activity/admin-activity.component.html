@@ -1,0 +1,34 @@
+<m-card title="Admin Activity">
+  <p-dropdown
+    header
+    class="[&>*]:w-48"
+    placeholder="Activity type"
+    [options]="AdminActivitiesFilters"
+    optionLabel="text"
+    optionValue="value"
+    (onChange)="filterChange.next()"
+    [(ngModel)]="filter"
+  />
+  <div [mSpinner]="loading">
+    <m-accordion>
+      @for (activity of activities; track activity) {
+        <m-accordion-item [hasContent]="!!activity.entry.diff">
+          <m-admin-activity-entry-header header [activity]="activity.activity" [activityData]="activity.entry" />
+          <m-admin-activity-entry [activityData]="activity.entry" />
+        </m-accordion-item>
+      } @empty {
+        @if (!loading) {
+          <h3>Activities not found!</h3>
+        }
+      }
+    </m-accordion>
+    <p-paginator
+      (onPageChange)="pageChange.next($event)"
+      [first]="first"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [showCurrentPageReport]="true"
+      [alwaysShow]="false"
+    />
+  </div>
+</m-card>

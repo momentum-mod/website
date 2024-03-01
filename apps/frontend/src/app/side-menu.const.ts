@@ -57,6 +57,11 @@ export const SIDENAV_ITEMS: Array<{
         icon: 'emoticon-angry'
       },
       {
+        title: 'Admin Activity',
+        link: '/admin/admin-activity',
+        icon: 'notebook-outline'
+      },
+      {
         title: 'Utilities',
         link: '/admin/utilities',
         icon: 'tools'
