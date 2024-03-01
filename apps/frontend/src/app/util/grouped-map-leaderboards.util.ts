@@ -2,6 +2,7 @@ import {
   Gamemode,
   GamemodeName,
   Leaderboard,
+  MMap,
   TrackType
 } from '@momentum/constants';
 import { RequireAllOrNone } from 'type-fest';
@@ -68,4 +69,19 @@ export function groupMapLeaderboards(
   );
 
   return arr;
+}
+
+export type MapWithGroupedLeaderboard = MMap & {
+  groupedLeaderboards: GroupedMapLeaderboards;
+};
+
+export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
+  currentModeLeaderboards?: GroupedMapLeaderboards[number];
+};
+
+export function getSpecificGroupedLeaderboard(
+  leaderboards: GroupedMapLeaderboards,
+  mode: Gamemode
+): GroupedMapLeaderboards[number] {
+  return leaderboards.find(({ gamemode }) => gamemode === mode);
 }

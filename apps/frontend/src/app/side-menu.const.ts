@@ -20,9 +20,14 @@ export const SIDENAV_ITEMS: Array<{
         icon: 'panorama-outline'
       },
       {
-        title: 'Submission',
+        title: 'Beta Maps',
+        link: '/maps/beta',
+        icon: 'test-tube'
+      },
+      {
+        title: 'Your Maps',
         link: '/maps/submissions',
-        icon: 'cloud-upload-outline'
+        icon: 'upload'
       }
     ]
   },
@@ -47,9 +52,9 @@ export const SIDENAV_ITEMS: Array<{
     needsMod: true,
     items: [
       {
-        title: 'Map Queue',
-        link: '/admin/map-queue',
-        icon: 'tray-full'
+        title: 'Map List',
+        link: '/admin/maps',
+        icon: 'panorama-variant-outline'
       },
       {
         title: 'Report Queue',

@@ -1,0 +1,31 @@
+<div class="grid grid-flow-col grid-cols-[minmax(auto,20rem)_1fr] grid-rows-[auto_auto] gap-4">
+  <p class="card-title text-48">Your Maps</p>
+  <div class="flex flex-col gap-4">
+    @if (hasSubmissionBan) {
+      <p>You are banned from map submission</p>
+    } @else {
+      <m-card title="Map Summary">
+        @if (summaryLoading || summary?.length > 0) {
+          <div class="flex flex-col gap-1" [mSpinner]="summaryLoading">
+            @for (item of summary; track item.status) {
+              <p class="text-gray-300">{{ MapStatusName.get(item.status) }}</p>
+              <p class="mb-1 text-gray-50">{{ item.statusCount }}</p>
+            }
+          </div>
+        } @else {
+          <p>No maps submitted</p>
+        }
+      </m-card>
+      <button class="btn btn-blue" type="button" routerLink="/maps/submissions/submit">Submit a Map</button>
+    }
+  </div>
+
+  <div class="flex flex-wrap items-end gap-4 self-end">
+    <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
+      <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <p class="font-display text-24">Status</p>
+      <p-multiSelect formControlName="status" [options]="StatusDropdown" optionLabel="label" optionValue="type" [showHeader]="false" />
+    </form>
+  </div>
+  <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
+</div>
