@@ -25,7 +25,8 @@ import {
   ReportType,
   Role,
   TrackType,
-  MapZones
+  MapZones,
+  AdminActivityType
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
@@ -43,6 +44,7 @@ const defaultVars = {
   imageFetches: { min: 25, max: 25 },
   users: { min: 100, max: 100 },
   maps: { min: 50, max: 50 },
+  adminActivities: { min: 30, max: 50 },
   usersThatSubmitMaps: { min: 15, max: 20 },
   randomImagesToDownload: { min: 20, max: 20 },
   credits: { min: 2, max: 20 },
@@ -252,7 +254,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       : undefined
   );
 
-  const users = Random.shuffle(await prisma.user.findMany());
+  const users = Random.shuffle(
+    await prisma.user.findMany({ include: { profile: true } })
+  );
   const userIDs = users.map(({ id }) => id);
 
   //#region Interactions
@@ -729,6 +733,158 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     //#endregion
   }
+
+  //#region Admin Activity
+
+  console.log('Creating admin activity');
+  const maps = Random.shuffle(await prisma.mMap.findMany());
+  const reports = Random.shuffle(await prisma.report.findMany());
+  const adminActivitiesToCreate = randRange(vars.adminActivities);
+  for (let i = 0; i < adminActivitiesToCreate; i++) {
+    const adminID = Random.element(userIDs);
+    const type = Random.element([
+      AdminActivityType.USER_UPDATE_ROLES,
+      AdminActivityType.USER_UPDATE_BANS,
+      AdminActivityType.USER_UPDATE_ALIAS,
+      AdminActivityType.USER_UPDATE_BIO,
+      AdminActivityType.USER_CREATE_PLACEHOLDER,
+      // AdminActivityType.USER_MERGE, // I don't want to simulate the whole merge logic
+      AdminActivityType.USER_DELETE,
+      AdminActivityType.MAP_UPDATE,
+      AdminActivityType.MAP_DELETE,
+      AdminActivityType.REPORT_UPDATE,
+      AdminActivityType.REPORT_RESOLVE
+    ]);
+
+    let target = 0;
+    let oldData: any = {};
+    let newData: any = {};
+    switch (type) {
+      case AdminActivityType.USER_UPDATE_ROLES:
+        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        target = oldData.id;
+        newData = await prisma.user.update({
+          where: { id: oldData.id },
+          data: {
+            roles: Bitflags.join(
+              Random.chance(0.1) ? Role.VERIFIED : 0,
+              Random.chance(0.1) ? Role.ADMIN : 0,
+              Random.chance(0.1) ? Role.MODERATOR : 0
+            )
+          }
+        });
+        break;
+      case AdminActivityType.USER_UPDATE_BANS:
+        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        target = oldData.id;
+        newData = await prisma.user.update({
+          where: { id: oldData.id },
+          data: {
+            bans: Bitflags.join(
+              Random.chance(0.1) ? Ban.BIO : 0,
+              Random.chance(0.1) ? Ban.AVATAR : 0,
+              Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
+              Random.chance(0.1) ? Ban.ALIAS : 0
+            )
+          }
+        });
+        break;
+      case AdminActivityType.USER_UPDATE_ALIAS:
+        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        target = oldData.id;
+        newData = await prisma.user.update({
+          where: { id: oldData.id },
+          data: {
+            alias: faker.internet.userName()
+          }
+        });
+        break;
+      case AdminActivityType.USER_UPDATE_BIO:
+        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        target = oldData.id;
+        newData = await prisma.user.update({
+          where: { id: oldData.id },
+          data: {
+            profile: {
+              update: {
+                bio: faker.lorem
+                  .paragraphs({ min: 1, max: 2 })
+                  .slice(0, MAX_BIO_LENGTH)
+              }
+            }
+          },
+          include: { profile: true }
+        });
+        break;
+      case AdminActivityType.USER_CREATE_PLACEHOLDER:
+        newData = await prisma.user.create({
+          data: {
+            alias: faker.internet.userName(),
+            roles: Role.PLACEHOLDER,
+            profile: { create: {} },
+            userStats: { create: {} }
+          }
+        });
+        target = newData.id;
+        break;
+      case AdminActivityType.USER_MERGE: // No
+        break;
+      case AdminActivityType.USER_DELETE:
+        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        target = oldData.id;
+        newData = await prisma.user.update({
+          where: { id: oldData.id },
+          data: {
+            roles: Bitflags.join(oldData.roles, Role.DELETED)
+          }
+        });
+        break;
+      case AdminActivityType.MAP_UPDATE:
+        oldData = Random.element(maps);
+        target = oldData.id;
+        newData = await prisma.mMap.update({
+          where: { id: oldData.id },
+          data: {
+            status: Random.weighted(
+              weights.mapStatusWeights.filter(
+                (weight) => weight[0] !== oldData.status
+              )
+            )
+          }
+        });
+        break;
+      case AdminActivityType.MAP_DELETE:
+        oldData = Random.element(maps);
+        target = oldData.id;
+        break;
+      case AdminActivityType.REPORT_UPDATE:
+        oldData = Random.element(reports);
+        target = oldData.id;
+        newData = await prisma.report.update({
+          where: { id: oldData.id },
+          data: {
+            resolutionMessage: faker.lorem.paragraph()
+          }
+        });
+        break;
+      case AdminActivityType.REPORT_RESOLVE:
+        oldData = Random.element(reports);
+        target = oldData.id;
+        newData = await prisma.report.update({
+          where: { id: oldData.id },
+          data: {
+            resolutionMessage: faker.lorem.paragraph(),
+            resolved: true
+          }
+        });
+        break;
+    }
+    await prisma.adminActivity.create({
+      data: { type, target, newData, oldData, userID: adminID }
+    });
+  }
+
+  //#endregion
 
   //#region Make me admin
 
