@@ -1,4 +1,4 @@
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
 /**
  * Returns true if a group is valid and dirty.
@@ -31,4 +31,28 @@ export function groupIsActuallyInvalid(group: FormGroup): boolean {
  */
 export function groupIsIncomplete(group: FormGroup): boolean {
   return !groupIsActuallyInvalid(group) && !group.valid;
+}
+
+export function getAllErrors(form: AbstractControl): Record<string, unknown> {
+  if (form instanceof FormControl) {
+    return form.errors ?? null;
+  }
+
+  if (form instanceof FormGroup) {
+    const groupErrors = form.errors;
+    // Form group can contain errors itself, in that case add'em
+    const formErrors = groupErrors ? { groupErrors } : {};
+    Object.keys(form.controls).forEach((key) => {
+      // Recursive call of the FormGroup fields
+      const error = getAllErrors(form.get(key));
+      if (error !== null) {
+        formErrors[key] = error;
+      }
+    });
+
+    // Return FormGroup errors or null
+    return Object.keys(formErrors).length > 0 ? formErrors : null;
+  }
+
+  return null;
 }
