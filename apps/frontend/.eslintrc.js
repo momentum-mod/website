@@ -37,7 +37,12 @@ module.exports = {
     {
       files: ['*.html'],
       extends: ['plugin:@nx/angular-template'],
-      rules: {}
+      rules: {
+        '@angular-eslint/template/eqeqeq': [
+          'error',
+          { allowNullOrUndefined: true }
+        ]
+      }
     }
   ]
 };
