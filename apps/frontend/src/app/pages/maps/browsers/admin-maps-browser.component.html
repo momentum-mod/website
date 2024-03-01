@@ -1,0 +1,19 @@
+<div class="mb-4 flex flex-wrap items-end gap-4">
+  <p class="card-title flex text-48">All Maps</p>
+  <p class="pb-1 text-sm italic">
+    This page is practically the same as the main map list, except it includes maps of all statuses, including disabled.
+  </p>
+  <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
+    <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+    <p class="font-display text-24">Status</p>
+    <p-multiSelect
+      formControlName="status"
+      [options]="StatusDropdown"
+      optionLabel="label"
+      optionValue="type"
+      [showHeader]="false"
+      appendTo="body"
+    />
+  </form>
+</div>
+<m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isAdminPage]="true" />

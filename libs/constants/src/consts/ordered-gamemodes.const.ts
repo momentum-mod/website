@@ -9,7 +9,7 @@ export const ORDERED_GAMEMODES: Array<{
   value: Gamemode | undefined;
   text: string;
 }> = [
-  { value: undefined, text: 'All' },
+  { value: undefined, text: 'All modes' },
   ...Enum.values(Gamemode)
     .map(
       (status) =>
