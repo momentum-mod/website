@@ -5,7 +5,7 @@ import {
   withInterceptorsFromDi,
   provideHttpClient
 } from '@angular/common/http';
-import { APP_BASE_HREF } from '@angular/common';
+import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -24,6 +24,15 @@ bootstrapApplication(AppComponent, {
       useClass: AuthInterceptor,
       multi: true
     },
+    {
+      provide: IMAGE_CONFIG,
+      // Map submission image handling inevitably requires resizing very large
+      // images. Most users will never use this, but it's annoying for
+      // developers working on this, and is the only place we're likely to
+      // encounter this.
+      useValue: { disableImageSizeWarning: true }
+    },
+
     provideRouter(APP_ROUTES),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
