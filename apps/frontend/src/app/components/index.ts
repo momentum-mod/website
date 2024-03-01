@@ -27,6 +27,7 @@ export * from './search/search.component';
 export * from './search/user-search/abstract-search.component';
 export * from './search/user-search/map-search.component';
 export * from './search/user-search/user-search.component';
+export * from './slider/slider.component';
 export * from './sidenav/sidenav.component';
 export * from './spinner/spinner.component';
 export * from './accordion/accordion-item.component';
