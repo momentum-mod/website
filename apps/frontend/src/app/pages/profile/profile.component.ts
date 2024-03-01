@@ -10,7 +10,8 @@ import {
   Socials,
   SocialsData,
   Follow,
-  User
+  User,
+  CombinedRoles
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { TabViewModule } from 'primeng/tabview';
@@ -27,6 +28,7 @@ import { UnsortedKeyvaluePipe } from '../../pipes';
 import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
+import { Bitflags } from '@momentum/bitflags';
 
 @Component({
   selector: 'm-user-profile',
@@ -164,6 +166,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
   canEdit(): boolean {
     return (
       this.isLocal || this.localUserService.hasRole(Role.MODERATOR | Role.ADMIN)
+    );
+  }
+
+  onAdminActivity() {
+    this.router.navigate([`/admin/admin-activity/${this.user.id}/`]);
+  }
+
+  canSeeAdminActivity(): boolean {
+    return (
+      this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN) &&
+      (this.isLocal ||
+        Bitflags.has(CombinedRoles.MOD_OR_ADMIN, this.user.roles))
     );
   }
 }
