@@ -1,5 +1,10 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { MapSubmissionSuggestion, MapZones } from '@momentum/constants';
+import {
+  MapReviewSuggestion,
+  MapSubmissionApproval,
+  MapSubmissionSuggestion,
+  MapZones
+} from '@momentum/constants';
 import {
   SuggestionType,
   SuggestionValidationError,
@@ -11,13 +16,20 @@ export function suggestionsValidator(
   type: SuggestionType
 ): ValidatorFn {
   return (
-    control: AbstractControl<MapSubmissionSuggestion[]>
+    control: AbstractControl<
+      | MapSubmissionSuggestion[]
+      | MapReviewSuggestion[]
+      | MapSubmissionApproval[]
+    >
   ): ValidationErrors | null => {
     const zones = zoneGet();
     if (!zones) return { error: 'Zone file is missing!' };
 
     if (!control.value || control.value.length === 0) {
-      if (type === SuggestionType.SUBMISSION) {
+      if (
+        type === SuggestionType.SUBMISSION ||
+        type === SuggestionType.APPROVAL
+      ) {
         return { error: 'Missing suggestions' };
       } else {
         return null;

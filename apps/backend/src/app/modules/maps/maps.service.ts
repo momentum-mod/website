@@ -583,7 +583,11 @@ export class MapsService {
 
     this.checkMapFiles(bspFile, vmfFiles);
 
-    this.checkSuggestionsAndZones(dto.suggestions, dto.zones);
+    this.checkSuggestionsAndZones(
+      dto.suggestions,
+      dto.zones,
+      SuggestionType.SUBMISSION
+    );
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -1067,7 +1071,7 @@ export class MapsService {
       (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
     const zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
 
-    this.checkSuggestionsAndZones(suggs, zones);
+    this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
@@ -1403,9 +1407,12 @@ export class MapsService {
       if (!dto.finalLeaderboards || dto.finalLeaderboards.length === 0)
         throw new BadRequestException('Missing finalized leaderboards');
 
-      // Shouldn't be possible that zones are invalid but doesn't hurt to
-      // re-check
-      this.checkSuggestionsAndZones(dto.finalLeaderboards, zones);
+      // Check final approval data
+      this.checkSuggestionsAndZones(
+        dto.finalLeaderboards,
+        zones,
+        SuggestionType.APPROVAL
+      );
 
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
@@ -1732,11 +1739,12 @@ export class MapsService {
    */
   checkSuggestionsAndZones(
     suggestions: MapSubmissionSuggestion[] | MapSubmissionApproval[],
-    zones: MapZones
+    zones: MapZones,
+    type: SuggestionType
   ) {
     try {
       validateZoneFile(zones);
-      validateSuggestions(suggestions, zones, SuggestionType.SUBMISSION);
+      validateSuggestions(suggestions, zones, type);
     } catch (error) {
       if (error instanceof ZoneValidationError) {
         throw new BadRequestException(`Invalid zone files: ${error.message}`);
