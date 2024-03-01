@@ -1348,7 +1348,6 @@ export class MapsService {
       )
     });
 
-    // Copy final MapSubmissionVersion BSP and VMFs to maps/
     const {
       currentVersion: { id: currentVersionID, hash, hasVmf, zones: dbZones },
       versions
@@ -1358,55 +1357,12 @@ export class MapsService {
     });
     const zones = dbZones as unknown as MapZones; // TODO: #855
 
-    const [bspSuccess, vmfSuccess] = await parallel(
-      this.fileStoreService.copyFile(
-        submissionBspPath(currentVersionID),
-        approvedBspPath(map.name)
-      ),
-      hasVmf
-        ? this.fileStoreService.copyFile(
-            submissionVmfsPath(currentVersionID),
-            approvedVmfsPath(map.name)
-          )
-        : () => Promise.resolve(true)
-    );
-
-    if (!bspSuccess)
-      throw new InternalServerErrorException(
-        `BSP file for map submission version ${currentVersionID} not in object store`
-      );
-    if (!vmfSuccess)
-      throw new InternalServerErrorException(
-        `VMF file for map submission version ${currentVersionID} not in object store`
-      );
-
     // Set hash of MMap to final version BSP's hash, and hasVmf is just whether
     // final version had a VMF.
     await tx.mMap.update({
       where: { id: map.id },
       data: { hash, hasVmf, zones: dbZones } // TODO: e2e test zoines
     });
-
-    // Delete all the submission files - these would take up a LOT of space otherwise
-    await parallel(
-      this.fileStoreService
-        .deleteFiles(
-          versions.flatMap((v) => [
-            submissionBspPath(v.id),
-            submissionVmfsPath(v.id)
-          ])
-        )
-        .catch((error) => {
-          error.message = `Failed to delete map submission version file for ${map.name}: ${error.message}`;
-          throw new InternalServerErrorException(error);
-        }),
-      this.mapReviewService
-        .deleteAllReviewAssetsForMap(map.id)
-        .catch((error) => {
-          error.message = `Failed to delete map review files for ${map.name}: ${error.message}`;
-          throw new InternalServerErrorException(error);
-        })
-    );
 
     // Is it getting approved for first time?
     if (
@@ -1455,6 +1411,54 @@ export class MapsService {
 
       this.checkZones(zones);
     }
+
+    // Do S3 stuff last in case something errors - this is well tested and
+    // *should* behave well in production, but it's still complex stuff and
+    // we can't rollback S3 operations like we can a Postgres transaction.
+
+    // Copy final MapSubmissionVersion BSP and VMFs to maps/
+    const [bspSuccess, vmfSuccess] = await parallel(
+      this.fileStoreService.copyFile(
+        submissionBspPath(currentVersionID),
+        approvedBspPath(map.name)
+      ),
+      hasVmf
+        ? this.fileStoreService.copyFile(
+            submissionVmfsPath(currentVersionID),
+            approvedVmfsPath(map.name)
+          )
+        : () => Promise.resolve(true)
+    );
+
+    if (!bspSuccess)
+      throw new InternalServerErrorException(
+        `BSP file for map submission version ${currentVersionID} not in object store`
+      );
+    if (!vmfSuccess)
+      throw new InternalServerErrorException(
+        `VMF file for map submission version ${currentVersionID} not in object store`
+      );
+
+    // Delete all the submission files - these would take up a LOT of space otherwise
+    await parallel(
+      this.fileStoreService
+        .deleteFiles(
+          versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        )
+        .catch((error) => {
+          error.message = `Failed to delete map submission version file for ${map.name}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        }),
+      this.mapReviewService
+        .deleteAllReviewAssetsForMap(map.id)
+        .catch((error) => {
+          error.message = `Failed to delete map review files for ${map.name}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        })
+    );
   }
 
   //#endregion
