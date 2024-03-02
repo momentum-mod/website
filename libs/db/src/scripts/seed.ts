@@ -29,6 +29,9 @@ import {
   FlatMapList,
   CombinedMapStatuses,
   mapListPath,
+  imgSmallPath,
+  imgMediumPath,
+  imgLargePath,
   AdminActivityType
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -165,10 +168,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   const doFileUploads = args.has('--s3files');
   let imageBuffers: { small: Buffer; medium: Buffer; large: Buffer }[];
+
+  const s3EndpointUrl = process.env['STORAGE_ENDPOINT_URL'];
+  const s3BucketName = process.env['STORAGE_BUCKET_NAME'];
+  const s3Url = (str: string) => `${s3EndpointUrl}/${s3BucketName}/${str}`;
+
   const s3 = doFileUploads
     ? new S3Client({
         region: process.env['STORAGE_REGION'],
-        endpoint: process.env['STORAGE_ENDPOINT_URL'],
+        endpoint: s3EndpointUrl,
         credentials: {
           accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'],
           secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY']
@@ -315,7 +323,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   // () =>
   //   s3.send(
   //     new PutObjectCommand({
-  //       Bucket: process.env['STORAGE_BUCKET_NAME'],
+  //       Bucket: s3BucketName,
   //       Key: approvedBspPath('dev_flatgrid'),
   //       Body: mapFile
   //     })
@@ -656,7 +664,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           ['small', 'medium', 'large'].map((size) =>
             s3.send(
               new PutObjectCommand({
-                Bucket: process.env['STORAGE_BUCKET_NAME'],
+                Bucket: s3BucketName,
                 Key: `img/${image.id}-${size}.jpg`,
                 Body: buffer[size]
               })
@@ -944,11 +952,41 @@ prismaWrapper(async (prisma: PrismaClient) => {
         }
       });
 
+      // Unless we illegally cross some module boundaries, we can't use
+      // class-transformer @Transform/@Expose/@Excludes here. Trust me, I tried
+      // getting CT working, but doesn't even seem possible with ESBuild.
+      for (const map of maps) {
+        delete map.info.mapID;
+
+        for (const image of [...map.images, map.thumbnail] as any[]) {
+          delete image.mapID;
+          image.small = s3Url(imgSmallPath(image.id));
+          image.medium = s3Url(imgMediumPath(image.id));
+          image.large = s3Url(imgLargePath(image.id));
+        }
+
+        for (const credit of map.credits as any[]) {
+          credit.user.steamID = credit.user.steamID.toString();
+          credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}`;
+          delete credit.user.avatar;
+          delete credit.mapID;
+        }
+
+        for (const leaderboard of map.leaderboards) {
+          delete leaderboard.mapID;
+        }
+      }
+
       const mapListJson = JSON.stringify(maps);
+
+      // Uncomment below line and import writeFileSync to write this out to disk
+      // if you want to debug output of this.
+      // writeFileSync(`./map-list-${type}.json`, mapListJson);
+
       const compressed = await promisify(zlib.deflate)(mapListJson);
       await s3.send(
         new PutObjectCommand({
-          Bucket: process.env['STORAGE_BUCKET_NAME'],
+          Bucket: s3BucketName,
           Key: mapListPath(type, 1),
           Body: compressed
         })
