@@ -73,7 +73,36 @@ export class MapListService implements OnModuleInit {
         images: true,
         info: true,
         leaderboards: true,
-        info: true
+        credits: {
+          select: {
+            type: true,
+            description: true,
+            user: {
+              select: { id: true, alias: true, avatar: true, steamID: true }
+            }
+          }
+        },
+        submission:
+          type === FlatMapList.SUBMISSION
+            ? {
+                select: {
+                  currentVersion: {
+                    select: {
+                      id: true,
+                      versionNum: true,
+                      hash: true,
+                      changelog: true,
+                      createdAt: true
+                    }
+                  },
+                  type: true,
+                  placeholders: true,
+                  suggestions: true,
+                  dates: true
+                }
+              }
+            : undefined,
+        createdAt: true
       }
     });
 

@@ -989,10 +989,40 @@ prismaWrapper(async (prisma: PrismaClient) => {
           name: true,
           fileName: true,
           hash: true,
-          createdAt: true,
+          status: true,
+          images: true,
           thumbnail: true,
+          info: true,
           leaderboards: true,
-          info: true
+          createdAt: true,
+          credits: {
+            select: {
+              type: true,
+              description: true,
+              user: {
+                select: { id: true, alias: true, avatar: true, steamID: true }
+              }
+            }
+          },
+          submission:
+            type === FlatMapList.SUBMISSION
+              ? {
+                  select: {
+                    currentVersion: {
+                      select: {
+                        versionNum: true,
+                        hash: true,
+                        changelog: true,
+                        createdAt: true
+                      }
+                    },
+                    type: true,
+                    placeholders: true,
+                    suggestions: true,
+                    dates: true
+                  }
+                }
+              : undefined
         }
       });
 
