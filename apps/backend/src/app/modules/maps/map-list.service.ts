@@ -2,7 +2,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { DtoFactory } from '../../dto';
+import { DtoFactory, MapDto } from '../../dto';
 import { MapListVersionDto } from '../../dto/map/map-list-version.dto';
 import {
   FlatMapList,
@@ -12,6 +12,7 @@ import {
 } from '@momentum/constants';
 import * as zlib from 'node:zlib';
 import { promisify } from 'node:util';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class MapListService implements OnModuleInit {
@@ -106,7 +107,11 @@ export class MapListService implements OnModuleInit {
       }
     });
 
-    const mapListJson = JSON.stringify(maps);
+    // Convert to DTO then serialize back to JSON so any class-transformer
+    // transformations are applied.
+    const mapListJson = JSON.stringify(
+      maps.map((map) => instanceToPlain(plainToInstance(MapDto, map)))
+    );
     const compressed = await promisify(zlib.deflate)(mapListJson);
 
     const oldVersion = this.version[type];
