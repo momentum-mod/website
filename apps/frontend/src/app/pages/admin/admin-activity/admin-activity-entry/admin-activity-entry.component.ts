@@ -5,7 +5,8 @@ import {
   Role,
   RoleNames,
   Ban,
-  BanNames
+  BanNames,
+  ISO_8601_REGEXP
 } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { NgStyle } from '@angular/common';
@@ -15,17 +16,23 @@ import { Enum } from '@momentum/enum';
 @Component({
   selector: 'm-admin-activity-entry',
   template: `
-    <div class="flex flex-col gap-1">
+    <div
+      class="grid grid-cols-[6rem_1fr_1fr] gap-x-8 gap-y-1 bg-black bg-opacity-10 p-4 shadow-inner"
+    >
+      <p class="col-start-2 font-medium">Old Value</p>
+      <p class="font-medium">New Value</p>
       @for (diffEntry of diffEntries; track diffEntry.key) {
-        <div class="flex">
-          <p class="font-bold p-2">{{ diffEntry.key }}:</p>
-          @if (diffEntry.oldValue != null) {
-            <p class="grow bg-red-900 p-2">{{ diffEntry.oldValue }}</p>
-          }
-          @if (diffEntry.newValue != null) {
-            <p class="grow bg-green-900 p-2">{{ diffEntry.newValue }}</p>
-          }
-        </div>
+        <p class="font-medium">{{ diffEntry.key }}</p>
+        @if (diffEntry.oldValue != null) {
+          <p class="font-mono">{{ diffEntry.oldValue }}</p>
+        } @else {
+          <p class="font-mono text-gray-200">null</p>
+        }
+        @if (diffEntry.newValue != null) {
+          <p class="font-mono">{{ diffEntry.newValue }}</p>
+        } @else {
+          <p class="font-mono text-gray-300">null</p>
+        }
       }
     </div>
   `,
@@ -182,15 +189,15 @@ export class AdminActivityEntryComponent implements OnInit {
         let oldValue = oldData[key];
         let newValue = newData[key];
 
-        if (oldValue instanceof Date || newValue instanceof Date) {
-          oldValue = oldValue.toString();
-          newValue = newValue.toString();
-        }
+        if (ISO_8601_REGEXP.test(oldValue))
+          oldValue = new Date(oldValue).toLocaleString();
+        if (ISO_8601_REGEXP.test(newValue))
+          newValue = new Date(newValue).toLocaleString();
 
-        if (typeof oldValue == 'object' || typeof newValue == 'object') {
-          oldValue = JSON.stringify(oldValue);
-          newValue = JSON.stringify(newValue);
-        }
+        if (typeof oldValue == 'object')
+          oldValue = JSON.stringify(oldValue, undefined, 4);
+        if (typeof newValue == 'object')
+          newValue = JSON.stringify(newValue, undefined, 4);
 
         if (oldValue !== newValue) {
           result[key] = [oldValue, newValue];

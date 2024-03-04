@@ -10,7 +10,7 @@
     [(ngModel)]="filter"
   />
   <div [mSpinner]="loading">
-    <m-accordion>
+    <m-accordion [autoClose]="false" [startFirstOpen]="true">
       @for (activity of activities; track activity) {
         <m-accordion-item [hasContent]="!!activity.entry.diff">
           <m-admin-activity-entry-header header [activity]="activity.activity" [activityData]="activity.entry" />
