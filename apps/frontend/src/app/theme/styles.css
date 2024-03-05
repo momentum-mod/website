@@ -472,6 +472,27 @@
    */
   .prose {
     @apply prose-invert;
+    color: theme('colors.gray.50');
+    & :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      &:not(:first-child) {
+        margin-top: 1rem;
+      }
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+
+    &
+      :where(h1, h2, h3, h4, h5, h6):not(
+        :where([class~='not-prose'], [class~='not-prose'] *)
+      ) {
+      &:not(:first-child) {
+        margin-top: 0.5rem;
+      }
+      &:not(:last-child) {
+        margin-bottom: 0.5rem;
+      }
+    }
   }
 
   .scroll-thin::-webkit-scrollbar {
