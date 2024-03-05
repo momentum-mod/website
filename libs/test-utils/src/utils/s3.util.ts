@@ -136,7 +136,7 @@ export class FileStoreUtil {
     const file = await this.get(
       `maplist/${
         type === FlatMapList.APPROVED ? 'approved' : 'submissions'
-      }/${version}.json.deflate`
+      }/${version}.dat`
     );
     return JSON.parse(zlib.inflateSync(file).toString());
   }

@@ -37,7 +37,7 @@ export function mapListPath(
 ): string {
   return `maplist/${
     type === FlatMapList.APPROVED ? 'approved' : 'submissions'
-  }/${version}.json.deflate`;
+  }/${version}.dat`;
 }
 
 export function mapListDir(type: FlatMapList) {

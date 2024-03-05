@@ -29,10 +29,10 @@ describe('MapListService', () => {
 
     it('should set version values based on files in storage', async () => {
       fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/approved/1.json.deflate'
+        'maplist/approved/1.dat'
       ]);
       fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/submissions/15012024.json.deflate'
+        'maplist/submissions/15012024.dat'
       ]);
 
       await service.onModuleInit();
@@ -58,10 +58,10 @@ describe('MapListService', () => {
 
     it('should pick most recent when multiple versions exist in storage, and wipe old versions', async () => {
       fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/approved/4.json.deflate',
-        'maplist/approved/5.json.deflate',
-        'maplist/approved/3.json.deflate',
-        'maplist/approved/1.json.deflate'
+        'maplist/approved/4.dat',
+        'maplist/approved/5.dat',
+        'maplist/approved/3.dat',
+        'maplist/approved/1.dat'
       ]);
 
       await service.onModuleInit();
@@ -72,9 +72,9 @@ describe('MapListService', () => {
       });
 
       expect(fileStoreMock.deleteFiles).toHaveBeenCalledWith([
-        'maplist/approved/4.json.deflate',
-        'maplist/approved/3.json.deflate',
-        'maplist/approved/1.json.deflate'
+        'maplist/approved/4.dat',
+        'maplist/approved/3.dat',
+        'maplist/approved/1.dat'
       ]);
     });
   });
