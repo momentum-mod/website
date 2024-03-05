@@ -1,4 +1,5 @@
 import { FlatMapList } from '../enums/flat-map-list.enum';
+
 export function approvedBspPath(key: string | number): string {
   return `maps/${key}.bsp`;
 }
@@ -41,7 +42,7 @@ export function mapListPath(
 ): string {
   return `maplist/${
     type === FlatMapList.APPROVED ? 'approved' : 'submissions'
-  }/${version}.json.deflate`;
+  }/${version}.dat`;
 }
 
 export function mapListDir(type: FlatMapList) {
