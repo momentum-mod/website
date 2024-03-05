@@ -128,6 +128,6 @@ export class MapListService implements OnModuleInit {
   }
 
   private extractVersionFromFileKey(key: string): number {
-    return Number(/(?<=\/)\d+(?=.json)/.exec(key)[0]);
+    return Number(/(?<=\/)\d+(?=.dat)/.exec(key)[0]);
   }
 }
