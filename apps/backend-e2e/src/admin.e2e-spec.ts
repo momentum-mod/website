@@ -14,6 +14,7 @@ import {
   ActivityType,
   AdminActivityType,
   Ban,
+  FlatMapList,
   Gamemode,
   MapCreditType,
   mapReviewAssetPath,
@@ -1709,7 +1710,8 @@ describe('Admin', () => {
         Promise.all([
           db.cleanup('mMap', 'adminActivity'),
           fileStore.deleteDirectory('maps'),
-          fileStore.deleteDirectory('submissions')
+          fileStore.deleteDirectory('submissions'),
+          fileStore.deleteDirectory('maplist')
         ])
       );
 
@@ -2343,6 +2345,54 @@ describe('Admin', () => {
           });
         });
 
+        it('should generate new map list version files', async () => {
+          // This is just stored in memory so we can't test this without calling
+          // another endpoint. In future we could probably just peer inside of
+          // Redis.
+          const oldVersion = await req.get({
+            url: 'maps/maplistversion',
+            status: 200,
+            token: adminToken
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+
+          const newVersion = await req.get({
+            url: 'maps/maplistversion',
+            status: 200,
+            token: adminToken
+          });
+
+          expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
+          expect(newVersion.body.submissions).toBe(
+            oldVersion.body.submissions + 1
+          );
+
+          const approvedMapList = await fileStore.getMapListVersion(
+            FlatMapList.APPROVED,
+            newVersion.body.approved
+          );
+          expect(approvedMapList).toHaveLength(1);
+          expect(approvedMapList[0]).toMatchObject({
+            id: map.id,
+            leaderboards: expect.anything(),
+            info: expect.anything(),
+            thumbnail: expect.anything()
+          });
+          expect(approvedMapList[0]).not.toHaveProperty('zones');
+
+          const submissionMapList = await fileStore.getMapListVersion(
+            FlatMapList.SUBMISSION,
+            newVersion.body.submissions
+          );
+          expect(submissionMapList).toHaveLength(0);
+        });
+
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
@@ -2351,6 +2401,48 @@ describe('Admin', () => {
             token: adminToken
           });
         });
+      });
+
+      it('should generate a new map list version file without the map when the map gets disabled', async () => {
+        const oldVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: adminToken
+        });
+
+        const map1 = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.APPROVED
+        });
+        const map2 = await db.createMap({
+          ...createMapData,
+          name: 'surf_thisfileistoobig',
+          fileName: 'aaaaaaaaaa',
+          status: MapStatusNew.APPROVED
+        });
+
+        await req.patch({
+          url: `admin/maps/${map1.id}`,
+          status: 204,
+          body: { status: MapStatusNew.DISABLED },
+          token: adminToken
+        });
+
+        const newVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: adminToken
+        });
+
+        expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
+        expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
+
+        const approvedMapList = await fileStore.getMapListVersion(
+          FlatMapList.APPROVED,
+          newVersion.body.approved
+        );
+        expect(approvedMapList).toHaveLength(1);
+        expect(approvedMapList[0]).toMatchObject({ id: map2.id });
       });
 
       it('should return 404 if map not found', () =>
@@ -2395,7 +2487,9 @@ describe('Admin', () => {
         await db.createLbRun({ map: m1, user: u1, time: 1, rank: 1 });
       });
 
-      afterEach(() => db.cleanup('mMap'));
+      afterEach(() =>
+        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
+      );
 
       it('should successfully delete the map and related stored data', async () => {
         const fileName = 'my_cool_map';
@@ -2452,6 +2546,35 @@ describe('Admin', () => {
             AdminActivityType.MAP_DELETE
           ])
         ).toBe(true);
+      });
+
+      it('should update the map list version', async () => {
+        const oldVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: adminToken
+        });
+
+        await req.del({
+          url: `admin/maps/${m1.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        const newVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: adminToken
+        });
+
+        expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
+        expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
+
+        const approvedMapList = await fileStore.getMapListVersion(
+          FlatMapList.APPROVED,
+          newVersion.body.approved
+        );
+        expect(approvedMapList).toHaveLength(0);
       });
 
       it('should return 404 if map not found', () =>

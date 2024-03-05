@@ -5,7 +5,8 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   CopyObjectCommand,
-  DeleteObjectsCommand
+  DeleteObjectsCommand,
+  ListObjectsV2Command
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { FileStoreFile } from './file-store.interface';
@@ -111,6 +112,19 @@ export class FileStoreS3Service extends FileStoreService {
       if (error?.Code === 'NoSuchKey') return null;
       throw error;
     }
+  }
+
+  async listFileKeys(prefix: string): Promise<string[]> {
+    const response = await this.s3Client.send(
+      new ListObjectsV2Command({
+        Bucket: this.bucket,
+        Delimiter: '/',
+        Prefix: prefix
+      })
+    );
+
+    if (response.KeyCount === 0 || !response.Contents) return [];
+    return response.Contents.map(({ Key }) => Key);
   }
 
   private async isMissingHandler(
