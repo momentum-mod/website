@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { CardHeaderComponent } from './card-header.component';
 import { CardBodyComponent } from './card-body.component';
@@ -8,7 +8,7 @@ import { CardBodyComponent } from './card-body.component';
   standalone: true,
   imports: [CardHeaderComponent, NgClass, CardBodyComponent],
   template: `
-    <m-card-header [title]="title" [titleSize]="titleSize">
+    <m-card-header class="card-header" [title]="title" [titleSize]="titleSize">
       <ng-content select="[header]"></ng-content>
     </m-card-header>
     <m-card-body [ngClass]="cardClass">
@@ -17,7 +17,8 @@ import { CardBodyComponent } from './card-body.component';
   `
 })
 export class CardComponent {
+  @HostBinding('class') classes = 'card';
   @Input() title: string;
-  @Input() titleSize: string | number = 4;
+  @Input() titleSize: string | number = 2;
   @Input() cardClass = '';
 }

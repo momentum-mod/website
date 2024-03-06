@@ -9,7 +9,7 @@
   [formGroup]="versionForm"
   (ngSubmit)="submitVersionForm()"
   [mSpinner]="loading"
-  class="card card--fancy my-8 flex-col"
+  class="card card--fancy my-8 flex-col overflow-visible p-4"
   [ngClass]="isSubmitter ? '!flex' : '!hidden'"
 >
   <div class="card-title -mt-10 mb-2 text-5xl">Submit New Version</div>
@@ -60,12 +60,12 @@
   }
 </form>
 
-<fieldset
+<div
   [mSpinner]="loading"
-  class="card card--fancy my-8 flex-col gap-4"
+  class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
   [ngClass]="isSubmitter && map.status === MapStatusNew.PRIVATE_TESTING ? '!flex' : '!hidden'"
 >
-  <legend class="card-title text-5xl">Invite Testers</legend>
+  <p class="card-title -mb-4 -mt-9 text-5xl">Invite Testers</p>
   <m-map-test-invite-selection [formControl]="testInviteForm" />
   <button
     type="button"
@@ -75,13 +75,13 @@
   >
     Update Invites
   </button>
-</fieldset>
+</div>
 
 <form
   [formGroup]="mainForm"
   (ngSubmit)="submitMainForm()"
   [mSpinner]="loading"
-  class="card card--fancy my-8 flex-col gap-8"
+  class="card card--fancy my-8 flex-col gap-8 overflow-visible p-4"
   [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'"
 >
   <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>

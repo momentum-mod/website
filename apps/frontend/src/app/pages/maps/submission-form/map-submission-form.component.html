@@ -42,7 +42,7 @@
         </div>
         <p class="card-title ml-2 text-5xl">Files</p>
       </div>
-      <div class="card card--fancy mt-6 grid gap-4 pt-6 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
+      <div class="card card--fancy mt-6 grid gap-4 p-4 pt-6 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
         <div class="flex flex-col">
           <p class="mt-2 text-center text-xl font-medium">
             BSP File
@@ -152,7 +152,7 @@
         <p class="card-title ml-2 text-5xl">Details</p>
       </div>
         <m-map-details-form [formGroup]="info" [isModOrAdmin]="isModOrAdmin" />
-      <div class="card card--fancy mt-6 pt-10">
+      <div class="card card--fancy mt-6 p-4 pt-10">
       </div>
     </div>
 
@@ -181,7 +181,7 @@
         <span class="card-title ml-2 text-5xl">Images</span>
       </div>
 
-      <div class="card card--fancy mt-6 pt-10">
+      <div class="card card--fancy mt-6 p-4 pt-10">
         <p class="mb-2">
           A thumbnail, and up to four additional images. Images <i>must </i> be 2560x1440px PNGs, you can use the TODO command ingame to
           take one, even if you don't have a 2K monitor.
@@ -243,7 +243,7 @@
         <m-icon icon="tooltip-question" [mTooltip]="creditsTooltip" />
         <ng-template #creditsTooltip><m-credits-info /> </ng-template>
       </div>
-      <div class="card card--fancy mt-6 pt-10">
+      <div class="card card--fancy mt-6 p-4 pt-10">
         <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
       </div>
     </div>
@@ -280,7 +280,7 @@
         <m-icon icon="tooltip-question" class="mr-2 align-middle" [mTooltip]="leaderboardsTooltip" />
         <ng-template #leaderboardsTooltip><m-leaderboards-info /> </ng-template>
       </div>
-      <div class="card card--fancy mt-6 pt-4">
+      <div class="card card--fancy mt-6 p-4">
         <m-map-leaderboards-selection [formControl]="suggestions" />
         @if (suggestions.dirty && suggestions.errors) {
           <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
@@ -312,7 +312,7 @@
         </div>
         <span class="card-title ml-2 text-5xl">Private Testing</span>
       </div>
-      <div class="card card--fancy mt-6 pt-10">
+      <div class="card card--fancy mt-6 p-4 pt-10">
         <div class="flex gap-4" [formGroup]="privateTesting">
           <div class="flex flex-col md:w-full lg:flex-grow">
             <div class="prose max-w-none">
@@ -370,7 +370,7 @@
     </div>
   </div>
 } @else {
-  <div class="card prose max-w-none">
+  <div class="card prose max-w-none p-4">
     <p>
       You currently have a map in submission. As you don't yet have any approved maps, you are only allowed to have one map in submission at
       a time.

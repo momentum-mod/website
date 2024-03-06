@@ -25,6 +25,7 @@
     scroll-behavior: smooth;
     height: 100vh;
     width: 100vw;
+    color: theme('colors.gray.50');
   }
 
   /* If the user prefers dark mode, we of course apply color-scheme: dark, as usual */
@@ -60,24 +61,31 @@
 
   .card,
   .alert {
+    display: flex;
+    flex-direction: column;
     border-radius: 0.25rem;
-    padding: 1rem;
-    border: 1px solid rgb(255 255 255 / 0.05);
+    background-color: rgb(50 50 50 / 0.9);
+    @apply border border-white border-opacity-5;
     box-shadow:
       1px 3px 4px rgb(0 0 0 / 0.2),
       2px 4px 24px rgb(0 0 0 / 0.2);
     backdrop-filter: none;
-
-    background-color: rgb(var(--gray-600) / 0.8);
+    overflow: hidden;
   }
 
   .card--fancy,
   .alert--fancy {
     background-color: rgb(255 255 255 / 0.0625);
-    backdrop-filter: blur(48px) brightness(0.9);
+    backdrop-filter: blur(100px) brightness(0.9);
   }
 
-  .m-card-title {
+  .card-header {
+    background-color: rgb(0 0 0 / 0.175);
+    border-bottom: 1px solid rgb(0 0 0 / 0.1);
+    padding: 0.75rem 1rem;
+  }
+
+  .card-title {
     @apply font-display;
     font-weight: 700;
     opacity: 0.875;
@@ -87,15 +95,21 @@
       drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
   }
 
-  .m-card-inset {
-    padding: 0.75rem;
+  .card-body {
+    display: block;
+    padding: 1rem;
+    border-top: 1px solid rgba(255 255 255 / 0.0375);
+  }
+
+  .card-inset {
+    padding: 1rem;
     border-radius: 0.25rem;
     background-color: rgba(0 0 0 / 0.15);
     box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
     border: 1px solid rgba(255 255 255 / 0.1);
 
     &:is(fieldset) {
-      padding: 0.25rem 1rem 0.75rem 1rem;
+      padding: 0.25rem 1rem 1rem 1rem;
     }
   }
 

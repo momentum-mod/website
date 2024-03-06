@@ -6,10 +6,10 @@ import { NgClass } from '@angular/common';
   standalone: true,
   imports: [NgClass],
   template: `
-    <div class="flex items-end gap-2 mb-2" [ngClass]="{ 'items-end': !!title }">
+    <div class="flex items-center gap-2" [ngClass]="{ 'items-end': !!title }">
       @if (title) {
         <p
-          class="flex-grow m-card-title"
+          class="flex-grow card-title"
           [style]="'font-size: ' + titleSize + 'rem;'"
         >
           {{ title }}
