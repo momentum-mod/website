@@ -22,7 +22,7 @@ export class AlertComponent {
   protected display = 'block';
 
   @HostBinding('class')
-  private readonly class = 'm-alert';
+  private readonly class = 'alert';
 
   dismiss() {
     this.display = 'none';

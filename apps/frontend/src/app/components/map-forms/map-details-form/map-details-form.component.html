@@ -22,7 +22,7 @@
     </div>
     <input
       id="name"
-      class="m-textinput textinput-validated !max-w-full"
+      class="textinput textinput-validated !max-w-full"
       type="text"
       mTooltip
       tooltipContext="mapNameError"
@@ -78,7 +78,7 @@
     <input
       id="youtubeID"
       type="text"
-      class="m-textinput textinput-validated !max-w-full"
+      class="textinput textinput-validated !max-w-full"
       [formControl]="youtubeID"
       (change)="stripYoutubeUrl()"
     />
@@ -108,7 +108,7 @@
     </div>
     <textarea
       id="description"
-      class="m-textinput m-textinput-validated flex-grow"
+      class="textinput textinput-validated flex-grow"
       rows="4"
       [formControl]="description"
       [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"

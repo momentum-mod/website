@@ -19,7 +19,7 @@
         aspect ratio at all times, so we use a hacky 1/1 grid to stack each item, so an item being
         dragged over existing thumbnail gets plonked on top of it.  -->
       <div
-        class="m-inputlike grid aspect-video w-full place-items-center bg-black bg-opacity-25 [grid-template:1fr/1fr] hover:!bg-opacity-25 [&>*]:[grid-column:1/1] [&>*]:[grid-row:1/1] [&>.cdk-drag-placeholder]:opacity-100 [&>.cdk-drag-placeholder]:[z-index:2]"
+        class="inputlike grid aspect-video w-full place-items-center bg-black bg-opacity-25 [grid-template:1fr/1fr] hover:!bg-opacity-25 [&>*]:[grid-column:1/1] [&>*]:[grid-row:1/1] [&>.cdk-drag-placeholder]:opacity-100 [&>.cdk-drag-placeholder]:[z-index:2]"
         cdkDropList
         cdkDropListOrientation="horizontal"
         #thumbnailList="cdkDropList"
@@ -52,7 +52,7 @@
         [cdkDropListData]="items[ImageSelectionType.EXTRA]"
         [cdkDropListConnectedTo]="[thumbnailList]"
         (cdkDropListDropped)="drop($event, ImageSelectionType.EXTRA)"
-        class="m-inputlike grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 [&>.cdk-drag-placeholder]:opacity-0"
+        class="inputlike grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 [&>.cdk-drag-placeholder]:opacity-0"
       >
         @for (item of items[ImageSelectionType.EXTRA]; track item) {
           <div

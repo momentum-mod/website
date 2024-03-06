@@ -1,6 +1,6 @@
 <div [formGroup]="form" class="flex flex-col">
   <div class="mb-4 flex gap-2">
-    <textarea [formControl]="mainText" class="m-textinput grow" rows="6"></textarea>
+    <textarea [formControl]="mainText" class="textinput grow" rows="6"></textarea>
     @if (!editing) {
       <m-multi-file-upload
         class="h-auto max-w-[20%]"
@@ -28,13 +28,13 @@
         icon="tooltip-question-outline"
         mTooltip="Mark this review as requiring resolving before the map can be approved. This option is only available to official reviewers."
       />
-      <input type="checkbox" class="m-checkbox" [formControl]="needsResolving" />
+      <input type="checkbox" class="checkbox" [formControl]="needsResolving" />
     }
     @if (editing) {
-      <button type="submit" class="m-btn m-btn-red m-btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
+      <button type="submit" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
     }
     <div class="flex items-center justify-end gap-2">
-      <button type="button" class="m-btn m-btn-blue m-btn-thin" (click)="suggs.addEmptyItem()">
+      <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
         Add Tier/Ranking Suggestions
         <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
       </button>
@@ -45,7 +45,7 @@
         </div>
       </ng-template>
     </div>
-    <button type="submit" class="m-btn m-btn-green m-btn-thin self-end" [disabled]="form.invalid || form.pristine" (click)="submit()">
+    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine" (click)="submit()">
       Post
     </button>
   </div>

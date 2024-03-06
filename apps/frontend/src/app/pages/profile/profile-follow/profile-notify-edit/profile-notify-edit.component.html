@@ -1,15 +1,15 @@
 <p>Notify me when this user</p>
 <ul class="my-4 grid items-center gap-x-2 gap-y-4 [grid-template-columns:auto_1fr]">
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.pb.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.pb.checked" />
   <p>achieves a personal best</p>
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.wr.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.wr.checked" />
   <p>achieves a world record</p>
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.approved.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.approved.checked" />
   <p>gets a map approved</p>
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.uploaded.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.uploaded.checked" />
   <p>uploads a map</p>
 </ul>
 <div class="grid grid-cols-2 gap-2">
-  <button class="m-btn" (click)="close()">Close</button>
-  <button class="m-btn m-btn-blue" (click)="submit()">Submit</button>
+  <button class="btn" (click)="close()">Close</button>
+  <button class="btn btn-blue" (click)="submit()">Submit</button>
 </div>

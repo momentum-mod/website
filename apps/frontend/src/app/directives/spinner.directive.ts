@@ -21,7 +21,7 @@ export class SpinnerDirective implements OnInit {
     val ? this.show() : this.hide();
   }
 
-  @HostBinding('class.m-spinner-container--active')
+  @HostBinding('class.spinner-container--active')
   protected active = false;
 
   constructor(
@@ -39,7 +39,7 @@ export class SpinnerDirective implements OnInit {
     );
     this.renderer.addClass(
       this.directiveElement.nativeElement,
-      'm-spinner-container'
+      'spinner-container'
     );
   }
 

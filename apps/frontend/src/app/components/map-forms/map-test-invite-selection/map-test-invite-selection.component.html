@@ -11,7 +11,7 @@
     @for (user of users; track user) {
       <div class="flex items-center bg-white bg-opacity-0 p-2 px-4 transition-colors hover:bg-opacity-5">
         <m-user [user]="user" aliasClass="text-base ml-1" />
-        <button class="m-btn m-btn-red ml-auto py-1" (click)="removeUser(user.id)">Delete</button>
+        <button class="btn btn-red ml-auto py-1" (click)="removeUser(user.id)">Delete</button>
       </div>
     }
     <p class="mr-3 mt-auto self-end text-sm italic text-gray-200">

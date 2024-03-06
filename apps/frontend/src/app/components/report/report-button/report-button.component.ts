@@ -9,7 +9,7 @@ import { IconComponent } from '../../../icons';
   standalone: true,
   imports: [IconComponent],
   template: `
-    <button class="m-btn m-btn-red" (click)="onClick()">
+    <button class="btn btn-red" (click)="onClick()">
       <m-icon icon="flag-outline"></m-icon>
     </button>
   `

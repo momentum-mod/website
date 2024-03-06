@@ -58,8 +58,8 @@
     }
   }
 
-  .m-card,
-  .m-alert {
+  .card,
+  .alert {
     border-radius: 0.25rem;
     padding: 1rem;
     border: 1px solid rgb(255 255 255 / 0.05);
@@ -71,8 +71,8 @@
     background-color: rgb(var(--gray-600) / 0.8);
   }
 
-  .m-card--fancy,
-  .m-alert--fancy {
+  .card--fancy,
+  .alert--fancy {
     background-color: rgb(255 255 255 / 0.0625);
     backdrop-filter: blur(48px) brightness(0.9);
   }
@@ -99,14 +99,14 @@
     }
   }
 
-  .m-alert {
+  .alert {
     display: block;
     position: relative;
     padding: 1.5rem;
   }
 
-  .m-link {
-    color: rgb(var(--blue-500));
+  .link {
+    color: rgb(var(--blue-400));
     transition: color ease-out 0.15s;
 
     &:hover {
@@ -115,11 +115,12 @@
     }
   }
 
-  .m-btn {
+  .btn {
     display: flex;
     position: relative;
     padding: 0.5rem 0.75rem;
     justify-content: center;
+    align-items: center;
     border-radius: 0.25rem;
     font-weight: 500;
     /* This fixes a weird issue with box model insanity
@@ -130,7 +131,7 @@
 
     transition: background-color ease-out 0.15s;
     text-shadow: 0 1px 1px rgb(0 0 0 / 0.3);
-    & > m-icon {
+    & > icon {
       filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2));
     }
 
@@ -164,70 +165,69 @@
     }
   }
 
-  .m-btn-thin {
+  .btn-thin {
     padding: 0.375rem 0.625rem;
   }
 
-  .m-btn-blue {
+  .btn-blue {
     background: linear-gradient(
       rgb(var(--blue-500)),
       color-mix(in srgb, rgb(var(--blue-500)), rgb(var(--blue-600)))
     );
   }
 
-  .m-btn-pale {
+  .btn-pale {
     background: linear-gradient(
       rgb(var(--pale-500)),
       color-mix(in srgb, rgb(var(--pale-500)), rgb(var(--pale-600)))
     );
   }
 
-  .m-btn-red {
+  .btn-red {
     background: linear-gradient(
       rgb(var(--red-500)),
       color-mix(in srgb, rgb(var(--red-500)), rgb(var(--red-600)))
     );
   }
 
-  .m-btn-green {
+  .btn-green {
     background: linear-gradient(
       rgb(var(--green-500)),
       color-mix(in srgb, rgb(var(--green-500)), rgb(var(--green-600)))
     );
   }
 
-  .m-btn-orange {
+  .btn-orange {
     background: linear-gradient(
       rgb(var(--orange-500)),
-      color-mix(in srgb, rgb(var(--orange-500)), rgb(var(--orange-600)))
+      color-mix(in srgb, rgb(var(--orange-500)), 75% rgb(var(--orange-600)))
     );
   }
 
-  .m-btn-pink {
+  .btn-pink {
     background: linear-gradient(
       rgb(var(--pink-500)),
       color-mix(in srgb, rgb(var(--pink-500)), rgb(var(--pink-600)))
     );
   }
 
-  .m-btn-purple {
+  .btn-purple {
     background: linear-gradient(
       rgb(var(--purple-500)),
       color-mix(in srgb, rgb(var(--purple-500)), rgb(var(--purple-600)))
     );
   }
 
-  .m-btn-yellow {
-    background: linear-gradient(
-      rgb(var(--yellow-500)),
-      color-mix(in srgb, rgb(var(--yellow-500)), rgb(var(--yellow-600)))
-    );
+  .btn-yellow {
+    /* Yellow is a bastard */
+    border: 1px solid rgb(255 255 255 / 0.25);
+    background: linear-gradient(rgb(var(--yellow-500)), rgb(var(--yellow-600)));
   }
 
-  .m-inputlike,
-  .m-textinput,
-  .m-radio,
-  .m-checkbox,
+  .inputlike,
+  .textinput,
+  .radio,
+  .checkbox,
   m-file-upload,
   m-multi-file-upload {
     border-radius: 0.25rem;
@@ -257,11 +257,11 @@
     }
   }
 
-  .m-textinput {
+  .textinput {
     padding: 0.5rem 1rem;
   }
 
-  .m-textinput-validated {
+  .textinput-validated {
     &.ng-valid.ng-dirty {
       @apply border-green-500 !important;
     }
@@ -275,8 +275,8 @@
     }
   }
 
-  /* Using techniques from https://moderncss.dev/pure-css-custom-checkbox-style/ */
-  .m-checkbox {
+  /* Using techniques from https://moderncss.dev/pure-css-custocheckbox-style/ */
+  .checkbox {
     vertical-align: middle;
     height: 1.5rem;
     aspect-ratio: 1 / 1;
@@ -310,7 +310,7 @@
     }
   }
 
-  .m-radio {
+  .radio {
     padding: 0.75rem;
     -webkit-appearance: none;
     appearance: none;
@@ -341,7 +341,7 @@
     }
   }
 
-  .m-badge {
+  .badge {
     pointer-events: none;
     border-radius: 1rem;
     text-align: center;
@@ -357,27 +357,27 @@
     @apply bg-gray-600;
   }
 
-  .m-badge-blue {
+  .badge-blue {
     @apply bg-blue-600;
   }
 
-  .m-badge-red {
+  .badge-red {
     @apply bg-red-600 hover:bg-red-400;
   }
 
-  .m-badge-green {
+  .badge-green {
     @apply bg-green-400 hover:bg-green-500;
   }
 
-  .m-badge-orange {
+  .badge-orange {
     @apply bg-orange-400 hover:bg-orange-500;
   }
 
-  .m-spinner-container:not(.m-spinner-container--active) > m-spinner {
+  .spinner-container:not(.spinner-container--active) > m-spinner {
     display: none;
   }
 
-  .m-spinner-container--active > *:not(m-spinner) {
+  .spinner-container--active > *:not(m-spinner) {
     opacity: 0.8;
   }
 
