@@ -27,14 +27,14 @@
       }
       <div class="ml-auto flex items-end gap-2">
         @if (isSubmitter || isModerator) {
-          <a routerLink="edit" class="m-btn m-btn-green">Edit Map</a>
+          <a routerLink="edit" class="btn btn-green">Edit Map</a>
         }
-        <button class="m-btn m-btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">
+        <button class="btn btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">
           <m-icon class="mr-2 pb-0.5" icon="play-circle" />
           Play
         </button>
         <button
-          class="m-btn m-btn-yellow"
+          class="btn btn-yellow"
           type="button"
           (click)="toggleFavorite()"
           mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
@@ -42,7 +42,7 @@
           <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
         </button>
         <button
-          class="m-btn m-btn-orange"
+          class="btn btn-orange"
           type="button"
           (click)="editNotificationSettings()"
           mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"

@@ -31,7 +31,7 @@
               </button>
             </div>
             <input
-              class="m-textinput !px-3 !py-0.5 text-sm"
+              class="textinput !px-3 !py-0.5 text-sm"
               placeholder="Description"
               [(ngModel)]="credit.description"
               (change)="onChange(this.value)"
@@ -42,9 +42,9 @@
     </div>
     <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
     <div class="flex">
-      <input [formControl]="placeholderInputs.get(type.key)" class="m-textinput flex-grow" placeholder="Create placeholder..." />
+      <input [formControl]="placeholderInputs.get(type.key)" class="textinput flex-grow" placeholder="Create placeholder..." />
       @if (placeholderInputs.get(type.key).value?.length >= 3) {
-        <button class="m-btn m-btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
+        <button class="btn btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
       }
       <m-icon
         class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"

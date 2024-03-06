@@ -26,7 +26,7 @@
     <p class="text-balance px-2 font-medium">
       @if (enableClipboard) {
         Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }}, drag here, or
-        <a class="m-link" (click)="addFromClipboard($event)">add from clipboard</a>
+        <a class="link" (click)="addFromClipboard($event)">add from clipboard</a>
       } @else {
         Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }} or drag here
       }

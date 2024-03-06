@@ -7,7 +7,7 @@
   <div class="text-center" [ngClass]="{ group: localFollowStatus }">
     <!--  TODO: This styling is a little insane and I haven't had a chance to 
               test properly since porting to Tailwind. - Tom-->
-    <button class="m-btn m-btn-blue ml-2 h-12 overflow-hidden p-0 font-bold" (click)="followClick()">
+    <button class="btn btn-blue ml-2 h-12 overflow-hidden p-0 font-bold" (click)="followClick()">
       <span
         class="block"
         [ngClass]="{
@@ -20,7 +20,7 @@
       }
     </button>
     @if (localFollowStatus) {
-      <button class="m-btn m-btn-blue" (click)="editNotificationSettings()">
+      <button class="btn btn-blue" (click)="editNotificationSettings()">
         <m-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
       </button>
     }

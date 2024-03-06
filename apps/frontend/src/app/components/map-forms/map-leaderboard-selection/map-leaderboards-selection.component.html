@@ -1,4 +1,4 @@
-<button class="m-btn m-btn-blue -mb-6 ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
+<button class="btn btn-blue -mb-6 ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
   Add Leaderboard
 </button>
 <table
@@ -67,8 +67,8 @@
         <td class="ml-auto">
           <input
             type="checkbox"
-            class="m-checkbox h-[2.625rem] before:h-1/2 before:w-1/2"
             [(ngModel)]="item.ranked"
+            class="checkbox h-[2.625rem] before:h-1/2 before:w-1/2"
             (blur)="onTouched()"
             (ngModelChange)="onChange(value)"
           />
@@ -76,7 +76,7 @@
         <td>
           <input
             type="text"
-            class="m-textinput w-full"
+            class="textinput w-full"
             [ngModel]="item.comment"
             (ngModelChange)="setComment(item, $event)"
             [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
@@ -85,7 +85,7 @@
           />
         </td>
         <td>
-          <button class="m-btn m-btn-red" (click)="removeItem(i)">Delete</button>
+          <button class="btn btn-red" (click)="removeItem(i)">Delete</button>
         </td>
       </tr>
     }

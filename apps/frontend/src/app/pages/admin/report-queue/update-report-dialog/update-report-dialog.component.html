@@ -2,20 +2,20 @@
   <div class="mb-4">
     <label class="mr-3">Resolved</label>
     <label class="flex items-center">
-      <input formControlName="resolved" class="m-radio mr-2" type="radio" [value]="true" />
+      <input formControlName="resolved" class="radio mr-2" type="radio" [value]="true" />
       Yes
     </label>
     <label class="flex items-center">
-      <input formControlName="resolved" class="m-radio mr-2" type="radio" [value]="false" />
+      <input formControlName="resolved" class="radio mr-2" type="radio" [value]="false" />
       No
     </label>
   </div>
   <div class="m-0 mb-4">
     <label>Resolution Message</label>
-    <textarea rows="8" class="m-textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
+    <textarea rows="8" class="textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
   </div>
 </form>
 <div class="grid grid-cols-2 gap-2">
-  <button class="m-btn" (click)="cancel()">Cancel</button>
-  <button class="m-btn m-btn-red" (click)="save()" [disabled]="!updateReportForm.valid">Submit</button>
+  <button class="btn" (click)="cancel()">Cancel</button>
+  <button class="btn btn-red" (click)="save()" [disabled]="!updateReportForm.valid">Submit</button>
 </div>

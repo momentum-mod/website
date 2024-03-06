@@ -1,6 +1,6 @@
 <div #searchMain class="relative flex w-full items-center gap-2">
   <input
-    class="m-textinput min-w-[15rem] flex-grow"
+    class="textinput min-w-[15rem] flex-grow"
     [mSpinner]="search.status === 'PENDING'"
     [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
     [formControl]="search"

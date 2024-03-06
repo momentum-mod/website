@@ -13,9 +13,9 @@
   To confirm, please enter the following code: <b class="select-none">{{ randomCode }}</b>
 </p>
 <div class="relative mt-1 flex w-full items-stretch">
-  <input (keyup)="onCodeInput($event)" type="text" class="m-textinput mb-1" placeholder="Verification code" />
+  <input (keyup)="onCodeInput($event)" type="text" class="textinput mb-1" placeholder="Verification code" />
 </div>
 <div class="grid grid-cols-2 gap-2">
-  <button class="m-btn" (click)="ref.close(false)">Cancel</button>
-  <button class="m-btn m-btn-red" (click)="submit()" [disabled]="!this.isCodeValid">Delete</button>
+  <button class="btn" (click)="ref.close(false)">Cancel</button>
+  <button class="btn btn-red" (click)="submit()" [disabled]="!this.isCodeValid">Delete</button>
 </div>
