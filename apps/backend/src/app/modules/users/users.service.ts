@@ -646,66 +646,6 @@ export class UsersService {
 
   //#region Map Favorites
 
-  async getFavoritedMaps(
-    userID: number,
-    skip: number,
-    take: number,
-    search: string,
-    expand?: UserMapFavoritesGetExpand
-  ) {
-    const where: Prisma.MapFavoriteWhereInput = { userID: userID };
-
-    const include: Prisma.MapFavoriteInclude = { user: true };
-
-    if (search) {
-      where.mmap = { name: { contains: search } };
-      include.mmap = true;
-    }
-
-    const mapIncludes: Prisma.MMapInclude = expandToIncludes(expand, {
-      mappings: [
-        {
-          expand: 'inLibrary',
-          model: 'libraryEntries',
-          value: { where: { userID } }
-        },
-        {
-          expand: 'personalBest',
-          model: 'leaderboardRuns',
-          value: { where: { userID } }
-        }
-      ]
-    });
-
-    if (!isEmpty(mapIncludes)) {
-      include.mmap = { include: mapIncludes };
-    }
-
-    const dbResponse: [
-      (MapFavorite & { mmap?: MMap & { personalBest?: LeaderboardRun } })[],
-      number
-    ] = await this.db.mapFavorite.findManyAndCount({
-      where,
-      include,
-      skip,
-      take
-    });
-
-    if (expand?.includes('personalBest')) {
-      for (const { mmap } of dbResponse[0] as (MapFavorite & {
-        mmap?: MMap & {
-          personalBest?: LeaderboardRun;
-          leaderboardRuns?: LeaderboardRun[];
-        };
-      })[]) {
-        mmap.personalBest = mmap.leaderboardRuns[0];
-        delete mmap.leaderboardRuns;
-      }
-    }
-
-    return new PagedResponseDto(MapFavoriteDto, dbResponse);
-  }
-
   async checkFavoritedMap(userID: number, mapID: number) {
     const dbResponse = await this.db.mapFavorite.findUnique({
       where: { mapID_userID: { userID, mapID } }

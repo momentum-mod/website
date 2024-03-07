@@ -28,7 +28,6 @@ import {
   ApiOkPagedResponse,
   FollowStatusDto,
   MapDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
@@ -44,7 +43,6 @@ import {
   UserMapLibraryGetQueryDto,
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
-  UserMapFavoritesGetQueryDto,
   FollowDto,
   MapsGetAllUserSubmissionQueryDto,
   MapsGetAllSubmissionQueryDto
@@ -469,24 +467,6 @@ export class UserController {
   //#endregion
 
   //#region Map Favorites
-
-  @Get('/maps/favorites')
-  @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
-  @ApiOkPagedResponse(MapFavoriteDto, {
-    description: 'Paginated list of favorited maps'
-  })
-  getFavoritedMaps(
-    @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapFavoritesGetQueryDto
-  ): Promise<PagedResponseDto<MapFavoriteDto>> {
-    return this.usersService.getFavoritedMaps(
-      userID,
-      query.skip,
-      query.take,
-      query.search,
-      query.expand
-    );
-  }
 
   @Get('/maps/favorites/:mapID')
   @ApiOperation({
