@@ -46,8 +46,8 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
 import {
   CardHeaderComponent,
-  ConfirmDialogComponent,
   CreditsInfoComponent,
+  DeleteUserDialogComponent,
   FileUploadComponent,
   ImageSelectionItem,
   ImageSelectionType,
@@ -612,15 +612,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     return true;
   }
 
-  showMapDeleteDialog() {
+  deleteMap() {
     this.dialogService
-      .open(ConfirmDialogComponent, {
-        header: 'Are you sure?',
-        data: {
-          message:
-            'You are about to permanently delete this map. Are you sure you want to proceed?'
-        }
-      })
+      .open(DeleteUserDialogComponent, { header: 'Delete map' })
       .onClose.subscribe((response) => {
         if (!response) return;
         this.adminService.deleteMap(this.map.id).subscribe({
