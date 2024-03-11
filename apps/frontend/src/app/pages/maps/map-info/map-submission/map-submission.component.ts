@@ -6,8 +6,8 @@ import {
   MapSubmissionSuggestion,
   GamemodeName,
   TrackType,
-  GamemodeIcon,
-  MapSubmissionVersion
+  MapSubmissionVersion,
+  LeaderboardType
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import {
@@ -39,9 +39,9 @@ import { PluralPipe, UnsortedKeyvaluePipe } from '../../../../pipes';
 export class MapSubmissionComponent {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly TrackType = TrackType;
+  protected readonly LeaderboardType = LeaderboardType;
   protected readonly GamemodeName = GamemodeName;
   protected readonly MapStatusName = MapStatusNameNew;
-  protected readonly GamemodeIcon = GamemodeIcon;
 
   protected suggestions: GroupedMapSubmissionSuggestions;
   protected versions: MapSubmissionVersion[];

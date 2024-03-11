@@ -51,7 +51,7 @@
             <p-dropdown
               class="[&>*]:w-full"
               [(ngModel)]="item.trackNum"
-              [options]="availableBonusTrackNums"
+              [options]="availableBonusTracks"
               (blur)="onTouched()"
               (onChange)="onChange(value)"
               appendTo="body"
@@ -71,8 +71,9 @@
         <td class="ml-auto">
           <input
             type="checkbox"
-            [(ngModel)]="item.ranked"
             class="checkbox h-[2.625rem] before:h-1/2 before:w-1/2"
+            [ngModel]="item.type"
+            (change)="updateRankedCheckbox(item, $event)"
             (blur)="onTouched()"
             (ngModelChange)="onChange(value)"
           />

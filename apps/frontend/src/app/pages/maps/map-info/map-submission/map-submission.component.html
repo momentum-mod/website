@@ -33,11 +33,7 @@
         @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
           <p class="w-[1.75rem] font-medium text-gray-50">Main</p>
           <p class="font-medium">{{ mainSugg.tier ?? '' }}</p>
-          @if (mainSugg.ranked) {
-            <m-icon class="text-xl" icon="check" />
-          } @else {
-            <m-icon class="text-xl" icon="close" />
-          }
+          <m-icon class="text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
           @if (mainSugg.comment) {
             <m-icon class="text-xl" icon="tooltip-question-outline" [mTooltip]="mainSugg.comment" />
           } @else {
@@ -48,7 +44,7 @@
         @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
           <p class="w-[1.75rem] text-center font-medium text-gray-50">B{{ bonus.trackNum + 1 }}</p>
           <p class="font-medium">{{ bonus.tier ?? '' }}</p>
-          @if (bonus.ranked) {
+          @if (bonus.type === LeaderboardType.RANKED) {
             <m-icon class="text-xl" icon="check" />
           } @else {
             <m-icon class="text-xl" icon="close" />
