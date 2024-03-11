@@ -22,6 +22,7 @@
               optionValue="gamemode"
               (blur)="onTouched()"
               (onChange)="onChange(value)"
+              appendTo="body"
             />
           </td>
           <td>
@@ -33,6 +34,7 @@
               optionValue="type"
               (blur)="onTouched()"
               (onChange)="onChange(value)"
+              appendTo="body"
             />
           </td>
           <td>
@@ -45,6 +47,7 @@
               [disabled]="item.trackType !== TrackType.BONUS"
               (blur)="onTouched()"
               (onChange)="onChange(value)"
+              appendTo="body"
             />
           </td>
           <td>

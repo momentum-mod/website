@@ -1,7 +1,14 @@
 <form [formGroup]="createReportForm">
   <div class="mb-4">
     <label class="mr-3">Category</label>
-    <p-dropdown [options]="Categories" optionLabel="label" optionValue="value" formControlName="category" placeholder="Select category" />
+    <p-dropdown
+      [options]="Categories"
+      optionLabel="label"
+      optionValue="value"
+      formControlName="category"
+      placeholder="Select category"
+      appendTo="body"
+    />
   </div>
   <div class="mb-4">
     <label>Message</label>
