@@ -20,7 +20,7 @@ import {
 } from '@angular/forms';
 import { take, tap } from 'rxjs/operators';
 import { FileValidators, suggestionsValidator } from '../../validators';
-import { MapReviewSuggestionsComponent } from './map-review-suggestions.component';
+import { MapReviewSuggestionsFormComponent } from './map-review-suggestions-form.component';
 import { SuggestionType } from '@momentum/formats/zone';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives';
@@ -33,7 +33,7 @@ import { JsonPipe } from '@angular/common';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    MapReviewSuggestionsComponent,
+    MapReviewSuggestionsFormComponent,
     IconComponent,
     TooltipDirective,
     MultiFileUploadComponent,

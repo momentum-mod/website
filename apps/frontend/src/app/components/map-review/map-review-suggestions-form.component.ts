@@ -16,29 +16,22 @@ import { CommonModule } from '@angular/common';
 import { Enum } from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
 import { groupMapLeaderboards } from '../../util';
-import { MapSubmissionTypeInfoComponent } from '../tooltips/map-submission-type-tooltip.component';
 import { IconComponent } from '../../icons';
 
 @Component({
-  selector: 'm-map-review-suggestions',
-  templateUrl: 'map-review-suggestions.component.html',
+  selector: 'm-map-review-suggestions-form',
+  templateUrl: 'map-review-suggestions-form.component.html',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => MapReviewSuggestionsComponent),
+      useExisting: forwardRef(() => MapReviewSuggestionsFormComponent),
       multi: true
     }
   ],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    DropdownModule,
-    MapSubmissionTypeInfoComponent,
-    IconComponent
-  ]
+  imports: [CommonModule, FormsModule, DropdownModule, IconComponent]
 })
-export class MapReviewSuggestionsComponent implements ControlValueAccessor {
+export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected readonly TrackType = TrackType;
   protected readonly TrackTypes = [
     { type: TrackType.MAIN, label: 'Main' },
