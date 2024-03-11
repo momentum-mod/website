@@ -51,7 +51,7 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.USER_MERGE, text: 'User merged' },
     { value: AdminActivityType.USER_DELETE, text: 'User deleted' },
     { value: AdminActivityType.MAP_UPDATE, text: 'Map update' },
-    { value: AdminActivityType.MAP_DELETE, text: 'Map deleted' },
+    { value: AdminActivityType.MAP_CONTENT_DELETE, text: 'Map deleted' },
     { value: AdminActivityType.REPORT_UPDATE, text: 'Report update' },
     { value: AdminActivityType.REPORT_RESOLVE, text: 'Report resolve' }
   ];

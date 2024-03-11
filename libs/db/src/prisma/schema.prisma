@@ -312,7 +312,7 @@ model MapSubmissionVersion {
 
   versionNum Int     @db.SmallInt
   changelog  String?
-  hash       String  @db.Char(40)
+  hash       String?  @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
   hasVmf     Boolean @default(false)
   zones      Json? /// map-zones.model.ts
 

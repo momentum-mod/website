@@ -2372,7 +2372,7 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, admin, adminToken, u1, u1Token, m1, imgID;
+      let modToken, admin, adminToken, u1, u1Token, map, imgID;
 
       beforeAll(async () => {
         [modToken, [admin, adminToken], [u1, u1Token]] = await Promise.all([
@@ -2388,19 +2388,19 @@ describe('Admin', () => {
 
       beforeEach(async () => {
         imgID = db.uuid();
-        m1 = await db.createMap({
+        map = await db.createMap({
           submitter: { connect: { id: u1.id } },
           images: [imgID]
         });
-        await db.createLbRun({ map: m1, user: u1, time: 1, rank: 1 });
+        await db.createLbRun({ map: map, user: u1, time: 1, rank: 1 });
       });
 
       afterEach(() => db.cleanup('mMap'));
 
-      it('should successfully delete the map and related stored data', async () => {
+      it('should successfully disable the map and related stored data', async () => {
         const fileName = 'my_cool_map';
         await prisma.mMap.update({
-          where: { id: m1.id },
+          where: { id: map.id },
           data: { name: fileName }
         });
 
@@ -2423,26 +2423,30 @@ describe('Admin', () => {
         }
 
         const run = await prisma.leaderboardRun.findFirst({
-          where: { mapID: m1.id }
+          where: { mapID: map.id }
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
         await req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 204,
           token: adminToken
         });
 
-        expect(
-          await prisma.mMap.findFirst({ where: { id: m1.id } })
-        ).toBeNull();
+        const updated = await prisma.mMap.findFirst({ where: { id: map.id } });
+        expect(updated).toMatchObject({
+          status: MapStatusNew.DISABLED,
+          hash: null
+        });
+
         expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
+        // We used to delete these, check we don't anymore
         const relatedRuns = await prisma.leaderboardRun.findMany({
-          where: { mapID: m1.id }
+          where: { mapID: map.id }
         });
-        expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        expect(relatedRuns).toHaveLength(1);
+        expect(await fileStore.exists(runPath(run.replayHash))).toBeTruthy();
 
         for (const size of ['small', 'medium', 'large']) {
           expect(
@@ -2465,14 +2469,14 @@ describe('Admin', () => {
 
       it('should return 403 if a non admin access token is given', () =>
         req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 403,
           token: u1Token
         }));
 
       it('should return 403 if a mod access token is given', () =>
         req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 403,
           token: modToken
         }));
