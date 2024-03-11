@@ -19,10 +19,10 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { IconComponent } from '../../../icons';
-import { MapSubmissionTypeInfoComponent } from '../../tooltips/map-submission-type-tooltip.component';
 import { PluralPipe } from '../../../pipes';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
+import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 
 @Component({
   selector: 'm-map-details-form',
@@ -32,10 +32,10 @@ import { DropdownModule } from 'primeng/dropdown';
     TooltipDirective,
     ReactiveFormsModule,
     IconComponent,
-    MapSubmissionTypeInfoComponent,
     PluralPipe,
     CalendarModule,
-    DropdownModule
+    DropdownModule,
+    SubmissionTypeInfoComponent
   ]
 })
 export class MapDetailsFormComponent implements OnInit {
