@@ -89,12 +89,18 @@ export class MapDetailsFormComponent implements OnInit {
       return;
     }
 
-    if (this.name.errors['uniqueMapName']) {
-      tooltip.setAndShow('Map name is in use!');
-    } else if (this.name.errors['maxlength'] || this.name.errors['minlength']) {
-      tooltip.setAndShow(
-        `Map name must be between ${MIN_MAP_NAME_LENGTH} and ${MAX_MAP_NAME_LENGTH} characters.`
-      );
+    const errors = this.name.errors;
+    if (Object.values(errors).length > 0) {
+      let str = JSON.stringify(Object.values(errors)[0]);
+      if (errors['uniqueMapName']) {
+        str = 'Map name is in use!';
+      } else if (errors['maxlength'] || errors['minlength']) {
+        str = `Map name must be between ${MIN_MAP_NAME_LENGTH} and ${MAX_MAP_NAME_LENGTH} characters.`;
+      } else if (errors['pattern']) {
+        str =
+          'Name must consist of lowercase letters, _ and -, and cannot start with a number.';
+      }
+      tooltip.setAndShow(str);
     } else {
       tooltip.hide();
     }
