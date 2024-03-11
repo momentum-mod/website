@@ -35,7 +35,7 @@ export class AdminGetAdminActivitiesQueryDto extends PagedQueryDto {
       AdminActivityType.USER_MERGE,
       AdminActivityType.USER_DELETE,
       AdminActivityType.MAP_UPDATE,
-      AdminActivityType.MAP_DELETE,
+      AdminActivityType.MAP_CONTENT_DELETE,
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE
     ],

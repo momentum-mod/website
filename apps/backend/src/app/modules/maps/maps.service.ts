@@ -1483,10 +1483,18 @@ export class MapsService {
 
   //#region Deletions
 
-  async delete(mapID: number, adminID?: number): Promise<void> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
+  async delete(mapID: number, adminID: number): Promise<void> {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { submission: { include: { versions: true } } }
+    });
 
     if (!map) throw new NotFoundException('No map found');
+
+    await this.db.mMap.update({
+      where: { id: mapID },
+      data: { status: MapStatusNew.DISABLED, hash: null }
+    });
 
     // Delete all stored map images
     await Promise.all(
@@ -1495,23 +1503,28 @@ export class MapsService {
       )
     );
 
-    // Delete all run files
-    await this.leaderboardRunService.deleteStoredMapRuns(mapID);
+    // Delete any stored map files. Doesn't matter if any of these don't exist.
+    await Promise.all(
+      [
+        this.fileStoreService.deleteFile(approvedBspPath(map.name)),
+        this.fileStoreService.deleteFile(approvedVmfsPath(map.name)),
+        this.fileStoreService.deleteFiles(
+          map.submission.versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        ),
+        this.mapReviewService.deleteAllReviewAssetsForMap(map.id)
+      ].map((promise) => promise.catch(() => void 0))
+    );
 
-    // Delete stored map file
-    await this.fileStoreService.deleteFile(approvedBspPath(map.name));
-
-    await this.db.mMap.delete({ where: { id: mapID } });
-
-    if (adminID) {
-      await this.adminActivityService.create(
-        adminID,
-        AdminActivityType.MAP_DELETE,
-        mapID,
-        {},
-        map
-      );
-    }
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.MAP_CONTENT_DELETE,
+      mapID,
+      {},
+      map
+    );
   }
 
   //#endregion

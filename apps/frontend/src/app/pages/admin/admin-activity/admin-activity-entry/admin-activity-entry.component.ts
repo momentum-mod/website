@@ -146,7 +146,7 @@ export class AdminActivityEntryComponent implements OnInit {
           )
         };
 
-      case AdminActivityType.MAP_DELETE:
+      case AdminActivityType.MAP_CONTENT_DELETE:
         return {
           actionText: 'deleted map',
           targetName: activity.oldData.name

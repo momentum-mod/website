@@ -837,7 +837,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       // AdminActivityType.USER_MERGE, // I don't want to simulate the whole merge logic
       AdminActivityType.USER_DELETE,
       AdminActivityType.MAP_UPDATE,
-      AdminActivityType.MAP_DELETE,
+      AdminActivityType.MAP_CONTENT_DELETE,
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE
     ]);
@@ -939,7 +939,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           }
         });
         break;
-      case AdminActivityType.MAP_DELETE:
+      case AdminActivityType.MAP_CONTENT_DELETE:
         oldData = Random.element(maps);
         target = oldData.id;
         break;

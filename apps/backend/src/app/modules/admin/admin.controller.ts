@@ -204,14 +204,13 @@ export class AdminController {
 
   @Delete('/maps/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete the target map' })
+  @ApiOperation({ summary: 'Disables a map and deletes any files' })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'ID of the map to delete',
     required: true
   })
-  @ApiNoContentResponse({ description: 'The map was deleted successfully' })
   deleteMap(
     @LoggedInUser('id') adminID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number
