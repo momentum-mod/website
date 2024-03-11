@@ -8,6 +8,7 @@
     optionValue="value"
     (onChange)="filterChange.next()"
     [(ngModel)]="filter"
+    appendTo="body"
   />
   <div [mSpinner]="loading">
     <m-accordion [autoClose]="false" [startFirstOpen]="true">

@@ -27,7 +27,13 @@
 
           <div class="mb-4">
             <h3>Country</h3>
-            <p-dropdown formControlName="country" [options]="AlphabeticalCountryCodes" optionValue="code" optionLabel="label" />
+            <p-dropdown
+              formControlName="country"
+              [options]="AlphabeticalCountryCodes"
+              optionValue="code"
+              optionLabel="label"
+              appendTo="body"
+            />
           </div>
 
           <div class="mb-4" [ngClass]="{ 'has-error': !bio.valid }">
@@ -72,21 +78,15 @@
                   submitting to leaderboards >
                 </li>
                 <li>
-                  <input
-                    type="checkbox"
-                    class="checkbox"
-                    (change)="toggleBan(Ban.MAP_SUBMISSION)"
-                    formControlName="banMapSubmission"
-                  />Ban submitting maps
+                  <input type="checkbox" class="checkbox" (change)="toggleBan(Ban.MAP_SUBMISSION)" formControlName="banMapSubmission" />Ban
+                  submitting maps
                 </li>
               </ul>
             </div>
             <div class="relative max-w-full flex-1 flex-grow px-4 pl-4 pr-4 md:w-1/4">
               <h2>Roles</h2>
               <ul class="list-unstyled whitespace-nowrap">
-                <li>
-                  <input type="checkbox" class="checkbox" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified
-                </li>
+                <li><input type="checkbox" class="checkbox" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified</li>
                 <li><input type="checkbox" class="checkbox" (change)="toggleRole(Role.MAPPER)" formControlName="mapper" />Mapper</li>
                 <li>
                   @if (isAdmin) {

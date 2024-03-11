@@ -11,8 +11,22 @@
       <input class="textinput" type="text" placeholder="Map" formControlName="map" />
     </div>
     <div class="relative text-left md:flex-1 md:flex-grow md:text-center">
-      <p-dropdown formControlName="orderBy" [options]="OrderByDropdown" optionValue="value" optionLabel="label" placeholder="Sort by" />
-      <p-dropdown formControlName="order" [options]="OrderDropdown" optionValue="value" optionLabel="label" placeholder="Order" />
+      <p-dropdown
+        formControlName="orderBy"
+        [options]="OrderByDropdown"
+        optionValue="value"
+        optionLabel="label"
+        placeholder="Sort by"
+        appendTo="body"
+      />
+      <p-dropdown
+        formControlName="order"
+        [options]="OrderDropdown"
+        optionValue="value"
+        optionLabel="label"
+        placeholder="Order"
+        appendTo="body"
+      />
     </div>
     <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
       <button class="btn btn-green" (click)="onFilterApply()">Apply</button>

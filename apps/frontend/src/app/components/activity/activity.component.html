@@ -1,7 +1,14 @@
 <m-card [title]="headerTitle">
   <ng-container header>
     <span class="mr-2">Filter:</span>
-    <p-dropdown [options]="Types" [(ngModel)]="filterValue" optionLabel="label" optionValue="value" (onChange)="filterActivities()" />
+    <p-dropdown
+      [options]="Types"
+      [(ngModel)]="filterValue"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="filterActivities()"
+      appendTo="body"
+    />
   </ng-container>
   <div [mSpinner]="loading" [ngStyle]="{ height }" class="infinite-scroll-container scroll-thin overflow-y-scroll pr-4">
     <div
