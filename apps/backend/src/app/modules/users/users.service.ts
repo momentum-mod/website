@@ -2,28 +2,20 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  GoneException,
   Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import {
-  Follow,
-  LeaderboardRun,
-  MapFavorite,
-  MMap,
-  Prisma,
-  User,
-  UserAuth
-} from '@prisma/client';
+import { Follow, Prisma, User, UserAuth } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,
   AdminActivityType,
   Ban,
   Role,
-  UserMapFavoritesGetExpand,
   UserMapLibraryGetExpand
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
@@ -35,7 +27,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   NotificationDto,
@@ -651,16 +642,20 @@ export class UsersService {
       where: { mapID_userID: { userID, mapID } }
     });
 
-    if (!dbResponse) throw new NotFoundException('Target map not found');
+    if (!dbResponse) throw new GoneException('Map is not favorited');
 
-    return dbResponse;
+    return;
   }
 
   async addFavoritedMap(userID: number, mapID: number) {
     if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
-    await this.db.mapFavorite.create({ data: { userID, mapID } });
+    await this.db.mapFavorite.create({ data: { userID, mapID } }).catch(() => {
+      throw new BadRequestException(
+        "Target map is already in the user's favorites"
+      );
+    });
   }
 
   async removeFavoritedMap(userID: number, mapID: number) {
@@ -670,7 +665,7 @@ export class UsersService {
     await this.db.mapFavorite
       .delete({ where: { mapID_userID: { userID, mapID } } })
       .catch(() => {
-        throw new NotFoundException("Target map is not in user's favorites");
+        throw new BadRequestException("Target map is not in user's favorites");
       });
   }
 
