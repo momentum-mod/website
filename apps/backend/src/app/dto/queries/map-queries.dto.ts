@@ -101,6 +101,18 @@ export class MapsGetAllQueryDto
 
   @BooleanQueryProperty({ description: 'Filter by linear or staged' })
   readonly linear?: boolean;
+
+  @BooleanQueryProperty({
+    description: 'Filter by whether map is or is not in user favorites'
+  })
+  readonly favorite?: boolean;
+
+  @BooleanQueryProperty({
+    description:
+      'Filter by whether map whether or not the user has beaten the main track of this map.' +
+      'If a gamemode is provided, uses that. Otherwise uses any mode.'
+  })
+  readonly PB?: boolean;
 }
 
 export class MapsGetAllAdminQueryDto

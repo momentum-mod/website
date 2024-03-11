@@ -126,7 +126,6 @@ export class MapsService {
 
   //#region Gets
 
-  //
   async getAll(
     userID: number,
     query:
@@ -152,6 +151,7 @@ export class MapsService {
         trackType: TrackType.MAIN
       };
 
+      // Gamemode 0 doesn't exist, so non-zero check makes sense here
       if (query.gamemode) {
         leaderboardSome.gamemode = query.gamemode;
         leaderboardSome.type = { not: LeaderboardType.HIDDEN };
@@ -168,13 +168,31 @@ export class MapsService {
         leaderboardSome.tier = { lt: query.difficultyHigh };
       }
 
-      if (typeof query.linear === 'boolean') {
+      if (query.linear != null) {
         leaderboardSome.linear = query.linear;
       }
 
       // Starts with 1 key so check g.t.
       if (Object.keys(leaderboardSome).length > 1) {
         where.leaderboards = { some: leaderboardSome };
+      }
+
+      if (query.favorite != null) {
+        if (!userID)
+          throw new ForbiddenException(
+            'favorite param is invalid without a login'
+          );
+        where.favorites = { [query.favorite ? 'some' : 'none']: { userID } };
+      }
+
+      if (query.PB != null) {
+        if (!userID)
+          throw new ForbiddenException('PB param is invalid without a login');
+        const quantifier = query.PB ? 'some' : 'none';
+        where.leaderboardRuns = { [quantifier]: { userID } };
+        if (query.gamemode) {
+          where.leaderboardRuns[quantifier].gamemode = query.gamemode;
+        }
       }
     } else if (
       query instanceof MapsGetAllSubmissionQueryDto ||
