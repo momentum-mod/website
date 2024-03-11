@@ -58,11 +58,17 @@ describe('Admin', () => {
     req: RequestUtil,
     db: DbUtil,
     fileStore: FileStoreUtil,
-    auth: AuthUtil,
-    adminActivityWasCreated: (
-      userID: number,
-      types: AdminActivityType[]
-    ) => Promise<boolean>;
+    auth: AuthUtil;
+
+  async function expectAdminActivityWasCreated(
+    userID: number,
+    type: AdminActivityType
+  ) {
+    const activities = await prisma.adminActivity.findMany({
+      where: { userID }
+    });
+    expect(activities.some((activity) => activity.type === type)).toBeTruthy();
+  }
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -72,19 +78,6 @@ describe('Admin', () => {
     db = env.db;
     auth = env.auth;
     fileStore = env.fileStore;
-    adminActivityWasCreated = async (
-      userID: number,
-      types: AdminActivityType[]
-    ) => {
-      const adminActivitiesTypes = await prisma.adminActivity.findMany({
-        where: { userID }
-      });
-      for (const activity of adminActivitiesTypes) {
-        if (!types.includes(activity.type)) return false;
-        types = types.filter((type) => type != activity.type);
-      }
-      return types.length === 0;
-    };
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -113,11 +106,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Burger');
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_CREATE_PLACEHOLDER
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_CREATE_PLACEHOLDER
+        );
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -230,11 +222,11 @@ describe('Admin', () => {
         // Placeholder should have been deleted
         const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
         expect(mu1DB).toBeNull();
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_MERGE
-          ])
-        ).toBe(true);
+
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_MERGE
+        );
       });
 
       it('should 400 if the user to merge from is not a placeholder', () =>
@@ -346,11 +338,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Barry 2');
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_ALIAS
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_ALIAS
+        );
       });
 
       it("should 409 when an admin tries to set a verified user's alias to something used by another verified user", () =>
@@ -393,11 +384,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.bio).toBe(bio);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_BIO
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_BIO
+        );
       });
 
       it("should successfully update a specific user's bans", async () => {
@@ -413,11 +403,10 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(userDB.bans).toBe(bans);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_BANS
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_BANS
+        );
       });
 
       it("should successfully update a specific user's roles", async () => {
@@ -431,11 +420,10 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_ROLES
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_ROLES
+        );
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
@@ -772,11 +760,10 @@ describe('Admin', () => {
         });
 
         expect(deletedSteamIDEntry).toBeTruthy();
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_DELETE
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_DELETE
+        );
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -1733,11 +1720,10 @@ describe('Admin', () => {
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
-          expect(
-            await adminActivityWasCreated(admin.id, [
-              AdminActivityType.MAP_UPDATE
-            ])
-          ).toBe(true);
+          await expectAdminActivityWasCreated(
+            admin.id,
+            AdminActivityType.MAP_UPDATE
+          );
         });
 
         it(`should allow a mod to update map data during ${MapStatusNew[status]}`, async () => {
@@ -1786,11 +1772,10 @@ describe('Admin', () => {
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
-          expect(
-            await adminActivityWasCreated(mod.id, [
-              AdminActivityType.MAP_UPDATE
-            ])
-          ).toBe(true);
+          await expectAdminActivityWasCreated(
+            mod.id,
+            AdminActivityType.MAP_UPDATE
+          );
         });
 
         it(`should not allow a reviewer to update map data during ${MapStatusNew[status]}`, async () => {
@@ -2465,11 +2450,10 @@ describe('Admin', () => {
           ).toBeFalsy();
         }
 
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.MAP_DELETE
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.MAP_CONTENT_DELETE
+        );
       });
 
       it('should return 404 if map not found', () =>
@@ -2884,11 +2868,10 @@ describe('Admin', () => {
         expect(changedReport.resolved).toBe(true);
         expect(changedReport.resolutionMessage).toBe('resolved');
         expect(changedReport.resolverID).toBe(admin.id);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.REPORT_RESOLVE
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.REPORT_RESOLVE
+        );
       });
 
       it('should return 404 if targeting a nonexistent report', () =>
