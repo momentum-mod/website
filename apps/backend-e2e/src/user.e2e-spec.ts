@@ -1588,7 +1588,7 @@ describe('User', () => {
     });
   });
 
-  describe('user/maps/submitted', () => {
+  describe('user/maps', () => {
     describe('GET', () => {
       let u1, u1Token, u2Token;
 
@@ -1619,7 +1619,7 @@ describe('User', () => {
 
       it('should retrieve the list of maps that the user submitted', () =>
         req.get({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           status: 200,
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
@@ -1627,7 +1627,7 @@ describe('User', () => {
 
       it('should retrieve an empty map list if the user has not submitted any maps', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           status: 200,
           token: u2Token
         });
@@ -1637,21 +1637,21 @@ describe('User', () => {
 
       it('should retrieve the users submitted maps when using the skip query parameter', () =>
         req.skipTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           token: u1Token
         }));
 
       it('should retrieve the users submitted maps when using the take query parameter', () =>
         req.takeTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           token: u1Token
         }));
 
       it('should retrieve the submitted maps with expanded info', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'info',
@@ -1660,7 +1660,7 @@ describe('User', () => {
 
       it('should retrieve the submitted maps with expanded submitter', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'submitter',
@@ -1669,7 +1669,7 @@ describe('User', () => {
 
       it('should retrieve the submitted maps with expanded credits', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'credits',
@@ -1679,7 +1679,7 @@ describe('User', () => {
 
       it('should retrieve a map specified by a search query parameter', () =>
         req.searchTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           token: u1Token,
           validate: { type: MapDto, count: 1 },
           searchPropertyName: 'name',
@@ -1688,11 +1688,11 @@ describe('User', () => {
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/submitted', 'get'));
+        req.unauthorizedTest('user/maps', 'get'));
     });
   });
 
-  describe('user/maps/submitted/summary', () => {
+  describe('user/maps/summary', () => {
     describe('GET', () => {
       let u1, u1Token, u2Token;
 
@@ -1717,7 +1717,7 @@ describe('User', () => {
 
       it('should retrieve an array of objects that each contain a status and its count', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted/summary',
+          url: 'user/maps/summary',
           status: 200,
           token: u1Token
         });
@@ -1728,7 +1728,7 @@ describe('User', () => {
 
       it('should retrieve an empty summary list', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted/summary',
+          url: 'user/maps/summary',
           status: 200,
           token: u2Token
         });
@@ -1738,7 +1738,7 @@ describe('User', () => {
       });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/submitted/summary', 'get'));
+        req.unauthorizedTest('user/maps/summary', 'get'));
     });
   });
 

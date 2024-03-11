@@ -539,7 +539,7 @@ export class UserController {
 
   //#region Map Submissions
 
-  @Get('/maps/submitted')
+  @Get('/maps')
   @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
   @ApiOkPagedResponse(MapDto, {
     description: 'Paginated list of submitted maps'
@@ -554,7 +554,7 @@ export class UserController {
     } as MapsGetAllSubmissionQueryDto);
   }
 
-  @Get('/maps/submitted/summary')
+  @Get('/maps/summary')
   @ApiOkPagedResponse(MapSummaryDto, {
     description:
       'The amount of each map submitted by a user of a each possible status'
