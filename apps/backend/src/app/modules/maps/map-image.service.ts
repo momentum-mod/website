@@ -163,7 +163,7 @@ export class MapImageService {
     try {
       return sharp(buffer)
         .resize(width, height, { fit: 'inside' })
-        .jpeg({ mozjpeg: true })
+        .jpeg({ mozjpeg: true, quality: 90 })
         .toBuffer();
     } catch {
       // This looks bad, but sharp is very non-specific about its errors
