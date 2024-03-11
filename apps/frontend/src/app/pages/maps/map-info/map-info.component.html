@@ -127,6 +127,18 @@
               icon="help-circle"
             />
           </div>
+        } @else if (map.status === MapStatusNew.DISABLED) {
+          <div class="flex flex-col items-center gap-2 border border-red-500 bg-red-500 bg-opacity-50 p-3 text-center">
+            <b>Map Disabled</b>
+            @if (map.hash || map.submission?.currentVersion?.hash) {
+              <i>This map is currently disabled. It's only visible to moderators and admins, and can only be re-enabled by admins.</i>
+            } @else {
+              <i>
+                This map is disabled and its files have been deleted. It's only visible to moderators and admins, and if we ever want to
+                re-enable it, new files must be uploaded.
+              </i>
+            }
+          </div>
         }
 
         <div class="mt-4 flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
