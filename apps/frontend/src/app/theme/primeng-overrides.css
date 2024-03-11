@@ -5,7 +5,14 @@
 */
 p-galleria {
   .p-galleria-fullscreen {
-    margin-top: -5vh;
+    p-galleriaitemslot[type='item'] img {
+      max-height: 80vh;
+      max-width: 95vw;
+    }
+
+    p-galleriaitemslot[type='thumbnail'] img {
+      max-height: 4rem;
+    }
   }
 
   .p-galleria {
@@ -50,14 +57,6 @@ p-galleria {
       &:hover::after {
         background-color: rgb(255 255 255 / 0.075);
       }
-    }
-
-    p-galleriaitemslot[type='item'] > img {
-      max-height: 70vh;
-    }
-
-    p-galleriaitemslot[type='thumbnail'] > img {
-      max-height: 4rem;
     }
   }
 }
