@@ -163,7 +163,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const mapBuffer = readFileSync(path.join(dir, '/flat_devgrid.bsp'));
   const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
 
-  let imageBuffers: { small: Buffer; medium: Buffer; large: Buffer }[];
+  let imageBuffers: {
+    small: Buffer;
+    medium: Buffer;
+    large: Buffer;
+    xl: Buffer;
+  }[];
   const s3 = new S3Client({
     region: process.env['STORAGE_REGION'],
     endpoint: process.env['STORAGE_ENDPOINT_URL'],
@@ -240,17 +245,20 @@ prismaWrapper(async (prisma: PrismaClient) => {
             .then(async (res) => ({
               small: await sharp(res.data)
                 .resize(480, 360, { fit: 'inside' })
-                .jpeg({ mozjpeg: true })
+                .jpeg({ mozjpeg: true, quality: 90 })
                 .toBuffer(),
               medium: await sharp(res.data)
                 .resize(1280, 720, { fit: 'inside' })
-                .jpeg({ mozjpeg: true })
+                .jpeg({ mozjpeg: true, quality: 90 })
                 .toBuffer(),
               large: await sharp(res.data)
                 .resize(1920, 1080, { fit: 'inside' })
-                .jpeg({ mozjpeg: true })
+                .jpeg({ mozjpeg: true, quality: 90 })
                 .toBuffer(),
-              xl: res.data
+              xl: await sharp(res.data)
+                .resize(2560, 1440, { fit: 'inside' })
+                .jpeg({ mozjpeg: true, quality: 90 })
+                .toBuffer()
             }))
         )
       );
@@ -782,13 +790,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       for (const userID of userIDs) {
         if (Random.chance(randRange(vars.mapFavoriteChance)))
-          await prisma.mapFavorite.create({
-            data: {
-              userID,
-              mapID: map.id,
-              ...Random.createdUpdatedDates()
-            }
-          });
+          await prisma.mapFavorite.create({ data: { userID, mapID: map.id } });
 
         if (Random.chance(randRange(vars.mapReportChance))) {
           await prisma.report.create({
