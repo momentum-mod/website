@@ -149,3 +149,7 @@
     <button class="btn btn-green ml-auto" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
   </div>
 </form>
+
+@if (isAdmin) {
+  <button class="btn btn-red ml-auto" type="button" (click)="deleteMap()">Disable map and delete files</button>
+}

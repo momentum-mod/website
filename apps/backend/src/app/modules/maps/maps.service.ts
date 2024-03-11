@@ -1532,6 +1532,9 @@ export class MapsService {
             submissionVmfsPath(v.id)
           ])
         ),
+        ...map.images.map((imageID) =>
+          this.mapImageService.deleteStoredMapImage(imageID)
+        ),
         this.mapReviewService.deleteAllReviewAssetsForMap(map.id)
       ].map((promise) => promise.catch(() => void 0))
     );
