@@ -10,6 +10,18 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname)
   ],
   theme: {
+    screens: {
+      // Default Tailwind is
+      //   'sm': '640px',
+      //   'md': '768px',
+      //   'lg': '1024px',
+      //   'xl': '1280px'
+      // but we don't care about small variations in tablet sizes that much
+      sm: '640px',
+      md: '768px',
+      lg: '1280px',
+      xl: '1536px'
+    },
     extend: {
       fontFamily: {
         sans: ['Roboto', ...defaultTheme.fontFamily.sans],
