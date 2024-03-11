@@ -477,7 +477,7 @@ describe('Maps', () => {
           validatePaged: { type: MapDto, count: 2 }
         }));
 
-      it('should respond with filtered maps when the linear filter', async () => {
+      it('should respond with filtered maps when using the linear filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
             where: { mapID: m1.id },
@@ -522,6 +522,90 @@ describe('Maps', () => {
 
         expect(res.body.totalCount).toBe(1);
         expect(res.body.returnCount).toBe(1);
+      });
+
+      it('should respond with maps with a PB when using the PB filter', async () => {
+        await db.cleanup('leaderboardRun');
+
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m1.id,
+            gamemode: Gamemode.RJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m2.id,
+            gamemode: Gamemode.SJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: true },
+          validatePaged: { type: MapDto, count: 2 },
+          token: u1Token
+        });
+
+        expect(res.body.data.map(({ id }) => id)).toMatchObject(
+          expect.arrayContaining([m1.id, m2.id])
+        );
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: false },
+          validatePaged: { type: MapDto, count: 2 },
+          token: u1Token
+        });
+
+        expect(res.body.data.map(({ id }) => id)).toMatchObject(
+          expect.arrayContaining([m3.id, m4.id])
+        );
+      });
+
+      it('should respond with maps with a PB on a specific gamemode when given a gamemode and the PB filter', async () => {
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: true, gamemode: Gamemode.RJ },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].id).toBe(m1.id);
+      });
+
+      it('should respond with favorited maps when using the favorites filter', async () => {
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { favorite: true },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].id).toBe(m1.id);
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: { favorite: false },
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
       });
 
       it('should 401 when no access token is provided', () =>
