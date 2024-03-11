@@ -5,7 +5,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
@@ -1464,7 +1463,7 @@ describe('User', () => {
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      it('should return a map favorites', async () => {
+      it('should return 204 if the map is not in favorites', async () => {
         await prisma.mapFavorite.create({
           data: { userID: user.id, mapID: map.id }
         });
@@ -1472,26 +1471,24 @@ describe('User', () => {
         const res = await req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
-          status: 200
+          status: 204
         });
-
-        expect(res.body).toMatchObject({ mapID: map.id, userID: user.id });
 
         await prisma.mapFavorite.deleteMany();
       });
 
-      it('should return 404 if the map is not in library', () =>
+      it('should return 410 if the map is not in favorites', () =>
         req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
-          status: 404
+          status: 410
         }));
 
-      it("should return 404 if the map doesn't exist", () =>
+      it("should return 410 if the map doesn't exist", () =>
         req.get({
           url: `user/maps/favorites/${NULL_ID}`,
           token,
-          status: 404
+          status: 410
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1531,6 +1528,13 @@ describe('User', () => {
           token
         }));
 
+      it('should 400 if the map is already in users favorites', () =>
+        req.put({
+          url: `user/maps/favorites/${map.id}`,
+          status: 400,
+          token
+        }));
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/maps/favorites/1', 'put'));
     });
@@ -1565,10 +1569,10 @@ describe('User', () => {
         expect(favorite).toBeNull();
       });
 
-      it('should 404 if the map is not in the local users favorites', () =>
+      it('should 400 if the map is not in the local users favorites', () =>
         req.del({
           url: `user/maps/favorites/${map.id}`,
-          status: 404,
+          status: 400,
           token
         }));
 
