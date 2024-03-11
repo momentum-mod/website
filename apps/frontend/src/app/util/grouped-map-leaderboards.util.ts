@@ -3,6 +3,8 @@ import {
   GamemodeName,
   Leaderboard,
   MMap,
+  LeaderboardType,
+  MapReview,
   TrackType
 } from '@momentum/constants';
 import { RequireAllOrNone } from 'type-fest';
@@ -17,7 +19,7 @@ export type GroupedMapLeaderboards = Array<
     // If the map is ONLY bonuses, these are all undefined.
   } & RequireAllOrNone<{
     tier: number;
-    ranked: boolean;
+    type: LeaderboardType;
     linear: boolean;
     stages: number;
   }>
@@ -38,7 +40,7 @@ export function groupMapLeaderboards(
 
     if (lb.trackType === TrackType.MAIN) {
       entry.tier = lb.tier;
-      entry.ranked = lb.ranked;
+      entry.type = lb.type;
       entry.linear = lb.linear;
     } else if (lb.trackType === TrackType.STAGE) {
       if (!entry.stages) {
@@ -62,7 +64,7 @@ export function groupMapLeaderboards(
   // ranked, or has more bonuses.
   arr.sort((a, b) =>
     (a.tier !== undefined && b.tier === undefined) ||
-    (a.ranked && !b.ranked) ||
+    (a.type === LeaderboardType.RANKED && b !== LeaderboardType.RANKED) ||
     (a.bonuses?.length ?? 0) > (b.bonuses?.length ?? 0)
       ? -1
       : 0

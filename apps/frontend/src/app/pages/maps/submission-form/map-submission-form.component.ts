@@ -18,6 +18,7 @@ import {
   CombinedRoles,
   Gamemode,
   GamemodePrefix,
+  LeaderboardType,
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
   MapSubmissionSuggestion,
@@ -332,14 +333,14 @@ export class MapSubmissionFormComponent
           gamemode,
           trackType: TrackType.MAIN,
           trackNum: 0,
-          ranked: true,
+          type: LeaderboardType.RANKED,
           tier: 1
         },
         ...this.zones.tracks.bonuses.map((_, i) => ({
           gamemode,
           trackType: TrackType.BONUS,
           trackNum: i,
-          ranked: true,
+          type: LeaderboardType.RANKED as LeaderboardType.RANKED,
           tier: 1
         }))
       ])
