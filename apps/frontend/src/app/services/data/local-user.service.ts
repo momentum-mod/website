@@ -167,11 +167,11 @@ export class LocalUserService {
   public getSubmittedMaps(
     query?: MapsGetAllUserSubmissionQuery
   ): Observable<PagedResponse<MMap>> {
-    return this.http.get<PagedResponse<MMap>>('user/maps/submitted', { query });
+    return this.http.get<PagedResponse<MMap>>('user/maps', { query });
   }
 
   public getSubmittedMapSummary(): Observable<MapSummary[]> {
-    return this.http.get<MapSummary[]>('user/maps/submitted/summary');
+    return this.http.get<MapSummary[]>('user/maps/summary');
   }
 
   public checkFollowStatus(user: User): Observable<FollowStatus> {
