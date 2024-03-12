@@ -14,6 +14,7 @@ export const MAX_TEST_INVITES = 20;
 export const MIN_PUBLIC_TESTING_DURATION = 7 * 24 * 60 * 60 * 1000;
 export const MAX_CREDITS_EXCEPT_TESTERS = 20;
 export const MAX_BIO_LENGTH = 2000;
+export const MIN_MAP_DESCRIPTION_LENGTH = 30; // Fuck you, make an effort
 export const MAX_MAP_DESCRIPTION_LENGTH = 1500;
 export const MIN_MAP_NAME_LENGTH = 3;
 export const MAX_MAP_NAME_LENGTH = 32; // Seems high but this is actually a constant in engine.

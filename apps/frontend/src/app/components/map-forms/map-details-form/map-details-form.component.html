@@ -89,17 +89,17 @@
           <ng-template #descriptionInfo>
             <div class="prose p-3">
               <p>
-                A general description of your map. You can include pretty much anything you want here, just keep in mind we have dedicated
-                sections for credits, including special thanks!
+                A general description of your map. You can include pretty much anything here, just keep in mind we have dedicated sections
+                for credits, including special thanks!
               </p>
               <p>
                 If you can't think of anything at all, just do something super simple like
-                <i>"A short bhop map based on the life and works of Anthony Hopkins"</i>.
+                <i>"A short bhop map based on the life and works of Philip Seymour Hoffman"</i>.
               </p>
             </div>
           </ng-template>
         </label>
-        <span class="ml-2 text-sm italic text-gray-200">Required</span>
+        <span class="ml-2 text-sm italic text-gray-200">Minimum {{ MIN_MAP_DESCRIPTION_LENGTH }} characters required</span>
       </div>
       <span class="mr-2 mt-auto text-sm">{{ MAX_MAP_DESCRIPTION_LENGTH - description.value?.length | plural: 'character' }} remaining</span>
     </div>

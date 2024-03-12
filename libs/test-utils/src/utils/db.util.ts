@@ -140,7 +140,12 @@ export class DbUtil {
             zones: ZonesStub,
             status: MapStatus.APPROVED,
             hash: randomHash(),
-            info: { create: { creationDate: new Date() } },
+            info: {
+              create: {
+                creationDate: new Date(),
+                description: 'Maps have a minimum description length now!!'
+              }
+            },
             images: mmap?.images ?? [],
             stats: mmap?.stats ?? { create: {} },
             submission: mmap?.submission ?? {

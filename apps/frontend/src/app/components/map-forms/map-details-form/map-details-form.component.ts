@@ -11,6 +11,7 @@ import {
   MapSubmissionType,
   MAX_MAP_DESCRIPTION_LENGTH,
   MAX_MAP_NAME_LENGTH,
+  MIN_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_NAME_LENGTH
 } from '@momentum/constants';
 import {
@@ -42,6 +43,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class MapDetailsFormComponent implements OnInit {
   protected readonly MapSubmissionType = MapSubmissionType;
+  protected readonly MIN_MAP_DESCRIPTION_LENGTH = MIN_MAP_DESCRIPTION_LENGTH;
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
   protected mapSubmissionTypeOptions: Array<{
     type: MapSubmissionType;

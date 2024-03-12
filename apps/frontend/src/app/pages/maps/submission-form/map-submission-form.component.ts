@@ -29,6 +29,7 @@ import {
   MAX_MAP_IMAGE_SIZE,
   MAX_MAP_NAME_LENGTH,
   MAX_VMF_SIZE,
+  MIN_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_NAME_LENGTH,
   TrackType,
   YOUTUBE_ID_REGEXP,
@@ -141,7 +142,11 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       ],
       description: [
         '',
-        [Validators.required, Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)]
+        [
+          Validators.required,
+          Validators.minLength(MIN_MAP_DESCRIPTION_LENGTH),
+          Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)
+        ]
       ],
       creationDate: [
         new Date(),
