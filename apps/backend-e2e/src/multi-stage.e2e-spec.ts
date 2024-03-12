@@ -72,7 +72,7 @@ describe('Multi-stage E2E tests', () => {
       data: {
         name: 'surf_todd_howard',
         info: {
-          description: 'fallout',
+          description: 'falloutfalloutfalloutfalloutfalloutfalloutfallout',
           creationDate: '2023-02-01T12:43:33.410Z'
         },
         submissionType: MapSubmissionType.ORIGINAL,
@@ -228,7 +228,7 @@ describe('Multi-stage E2E tests', () => {
         { user: { alias: 'todd howard' }, type: MapCreditType.AUTHOR }
       ],
       info: {
-        description: 'fallout',
+        description: 'falloutfalloutfalloutfalloutfalloutfalloutfallout',
         creationDate: '2023-02-01T12:43:33.410Z'
       },
       leaderboards: [

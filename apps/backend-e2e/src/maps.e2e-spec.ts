@@ -641,7 +641,7 @@ describe('Maps', () => {
         createMapObject = {
           name: 'surf_map',
           info: {
-            description: 'mamp',
+            description: 'mampmampmampmampmampmampmampmamp',
             creationDate: '2022-07-07T18:33:33.000Z'
           },
           submissionType: MapSubmissionType.ORIGINAL,
@@ -757,7 +757,7 @@ describe('Maps', () => {
               ]
             },
             info: {
-              description: 'mamp',
+              description: 'mampmampmampmampmampmampmampmamp',
               creationDate: new Date('2022-07-07T18:33:33.000Z')
             },
             submitterID: user.id,
@@ -2466,7 +2466,11 @@ describe('Maps', () => {
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { info: { description: 'Fuck ostriches' } },
+          body: {
+            info: {
+              description: 'Fuck ostriches fuck ostriches fuck ostriches'
+            }
+          },
           token
         });
       });
