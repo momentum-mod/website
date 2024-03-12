@@ -75,9 +75,11 @@ export class MapBrowserComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.gamemode.valueChanges.subscribe((value) =>
-      this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false })
-    );
+    this.gamemode.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) =>
+        this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false })
+      );
 
     merge(
       of(this.initialItems),

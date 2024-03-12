@@ -182,20 +182,27 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   });
 
   ngOnInit(): void {
-    this.zon.statusChanges.pipe(distinctUntilChanged()).subscribe((status) => {
-      if (status === 'VALID') {
-        this.onValidZoneFileSelected();
-        this.suggestions.enable();
-      } else {
-        this.suggestions.disable();
-      }
-    });
+    this.zon.statusChanges
+      .pipe(distinctUntilChanged())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        if (status === 'VALID') {
+          this.onValidZoneFileSelected();
+          this.suggestions.enable();
+        } else {
+          this.suggestions.disable();
+        }
+      });
 
-    this.bsp.valueChanges.subscribe(this.onBspFileSelected.bind(this));
+    this.bsp.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(this.onBspFileSelected.bind(this));
 
-    this.wantsPrivateTesting.valueChanges.subscribe((value) =>
-      value ? this.testInvites.enable() : this.testInvites.disable()
-    );
+    this.wantsPrivateTesting.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) =>
+        value ? this.testInvites.enable() : this.testInvites.disable()
+      );
 
     this.localUserService.localUserSubject
       .pipe(takeUntilDestroyed(this.destroyRef))

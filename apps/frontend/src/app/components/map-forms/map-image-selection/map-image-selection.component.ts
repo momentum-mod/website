@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, ViewChild } from '@angular/core';
 import {
   ControlContainer,
   FormControl,
@@ -20,6 +20,7 @@ import { MultiFileUploadComponent } from '../../file-upload/multi-file-upload.co
 import { ImageSelectionItem } from './image-selection-item.class';
 import { BackgroundState, LayoutService } from '../../../services';
 import { MAX_MAP_IMAGES } from '@momentum/constants';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export enum ImageSelectionType {
   THUMBNAIL,
@@ -61,12 +62,15 @@ export class MapImageSelectionComponent implements OnInit {
   protected readonly ImageSelectionType = ImageSelectionType;
   protected readonly max = 5;
 
-  constructor(private readonly layoutService: LayoutService) {}
+  constructor(
+    private readonly layoutService: LayoutService,
+    private readonly destroyRef: DestroyRef
+  ) {}
 
   ngOnInit() {
-    this.formControlPassthrough.valueChanges.subscribe(() =>
-      this.onFileSelectionChanged()
-    );
+    this.formControlPassthrough.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onFileSelectionChanged());
   }
 
   public items: Record<ImageSelectionType, Array<ImageSelectionItem>> = {
