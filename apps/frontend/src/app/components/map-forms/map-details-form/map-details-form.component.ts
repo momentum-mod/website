@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   Input,
   OnInit,
   QueryList,
@@ -23,6 +24,7 @@ import { PluralPipe } from '../../../pipes';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-map-details-form',
@@ -75,8 +77,12 @@ export class MapDetailsFormComponent implements OnInit {
   @ViewChildren(TooltipDirective)
   tooltips: QueryList<TooltipDirective>;
 
+  constructor(private readonly destroyRef: DestroyRef) {}
+
   ngOnInit() {
-    this.name.statusChanges.subscribe(this.onNameStatusChange.bind(this));
+    this.name.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(this.onNameStatusChange.bind(this));
   }
 
   onNameStatusChange(status: FormControlStatus) {
