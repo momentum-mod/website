@@ -85,6 +85,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitleService } from '../../../services/title.service';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -233,7 +234,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     private readonly messageService: MessageService,
     private readonly fb: FormBuilder,
     private readonly layoutService: LayoutService,
-    private readonly destroyRef: DestroyRef
+    private readonly destroyRef: DestroyRef,
+    private readonly titleService: TitleService
   ) {}
 
   ngOnInit() {
@@ -280,6 +282,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           await this.router.navigate(['/maps/' + map.name]);
 
         this.map = map;
+        this.titleService.setTitle(`Editing ${map.name}`);
         this.lastMapName = map.name;
         await this.setupMainForm();
         this.setupVersionForm();

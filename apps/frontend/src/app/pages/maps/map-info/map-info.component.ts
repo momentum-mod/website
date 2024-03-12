@@ -54,6 +54,7 @@ import { MapSubmissionComponent } from './map-submission/map-submission.componen
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitleService } from '../../../services/title.service';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -130,7 +131,9 @@ export class MapInfoComponent implements OnInit {
     private readonly messageService: MessageService,
     private readonly dialogService: DialogService,
     private readonly layoutService: LayoutService,
-    private readonly sanitizer: DomSanitizer
+    private readonly sanitizer: DomSanitizer,
+    private readonly destroyRef: DestroyRef,
+    private readonly titleService: TitleService
   ) {}
 
   ngOnInit() {
@@ -171,6 +174,8 @@ export class MapInfoComponent implements OnInit {
     this.map = map;
 
     if (!map) this.router.navigate(['/404']);
+
+    this.titleService.setTitle(this.map.name);
 
     const [name, prefix] = extractPrefixFromMapName(map.name);
     this.name = name;

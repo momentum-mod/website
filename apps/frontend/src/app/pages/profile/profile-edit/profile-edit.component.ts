@@ -35,6 +35,7 @@ import {
 } from '../../../services';
 import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitleService } from '../../../services/title.service';
 
 @Component({
   selector: 'm-profile-edit',
@@ -98,7 +99,8 @@ export class ProfileEditComponent implements OnInit {
     private readonly messageService: MessageService,
     private readonly dialogService: DialogService,
     private readonly fb: FormBuilder,
-    private readonly destroyRef: DestroyRef
+    private readonly destroyRef: DestroyRef,
+    private readonly titleService: TitleService
   ) {
     const socialsForm = {};
     for (const [name, { regex }] of Object.entries(SocialsData)) {
@@ -173,6 +175,9 @@ export class ProfileEditComponent implements OnInit {
 
   setUser(user: User) {
     this.user = user;
+    if (!this.isLocal) {
+      this.titleService.setTitle(`Editing ${user.alias}'s profile`);
+    }
     // On DTO profile stuff in within `profile` sub-object - for form we don't
     // want that nesting.
     this.form.patchValue({ ...omit(user, 'profile'), ...user.profile });
