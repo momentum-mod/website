@@ -29,7 +29,11 @@ import {
   TabDirective,
   TabsComponent
 } from '../../../components';
-import { SpinnerDirective, TooltipDirective } from '../../../directives';
+import {
+  SpinnerDirective,
+  TooltipDirective,
+  FontSizeLerpDirective
+} from '../../../directives';
 import { SharedModule } from '../../../shared.module';
 import {
   LayoutService,
@@ -82,7 +86,8 @@ enum MapInfoSection {
     TabComponent,
     UnsortedKeyvaluePipe,
     SpinnerDirective,
-    SpinnerComponent
+    SpinnerComponent,
+    FontSizeLerpDirective
   ]
 })
 export class MapInfoComponent implements OnInit {
