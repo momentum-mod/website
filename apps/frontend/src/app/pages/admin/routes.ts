@@ -2,19 +2,27 @@ import { Route } from '@angular/router';
 import { ReportQueueComponent } from './report-queue/report-queue.component';
 import { AdminActivityComponent } from './admin-activity/admin-activity.component';
 import { UtilitiesComponent } from './utilities/utilities.component';
+import { AdminMapsBrowserComponent } from '../maps/browsers/admin-maps-browser.component';
 
 export default [
   {
-    path: 'report-queue',
-    pathMatch: 'full',
-    component: ReportQueueComponent
+    path: 'maps',
+    component: AdminMapsBrowserComponent,
+    title: 'Maps (Admin)'
   },
   {
-    path: 'admin-activity',
-    children: [
-      { path: '', component: AdminActivityComponent },
-      { path: ':adminID', component: AdminActivityComponent }
-    ]
+    path: 'reports',
+    component: ReportQueueComponent,
+    title: 'Reports'
   },
-  { path: 'utilities', component: UtilitiesComponent }
+  {
+    path: 'activity',
+    component: AdminActivityComponent,
+    title: 'Admin Activity'
+  },
+  {
+    path: 'utilities',
+    component: UtilitiesComponent,
+    title: 'Admin Utilities'
+  }
 ] satisfies Route[];

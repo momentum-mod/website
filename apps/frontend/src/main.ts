@@ -6,7 +6,7 @@ import {
   provideHttpClient
 } from '@angular/common/http';
 import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -14,6 +14,7 @@ import { SharedModule } from './app/shared.module';
 import { APP_ROUTES } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AppComponent } from './app/app.component';
+import { CustomTitleStrategy } from './app/services/title.service';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -32,8 +33,8 @@ bootstrapApplication(AppComponent, {
       // encounter this.
       useValue: { disableImageSizeWarning: true }
     },
-
     provideRouter(APP_ROUTES),
+    { provide: TitleStrategy, useClass: CustomTitleStrategy },
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
     // These PrimeNg services don't have `providedIn: root` so need providing

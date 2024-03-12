@@ -6,8 +6,16 @@ import { ProfileComponent } from './profile.component';
 import { ProfileRedirectComponent } from './profile-redirect.component';
 
 export default [
-  { path: '', component: ProfileRedirectComponent },
-  { path: 'edit', component: ProfileEditComponent },
+  {
+    path: '',
+    component: ProfileRedirectComponent,
+    title: 'Your Profile'
+  },
+  {
+    path: 'edit',
+    component: ProfileEditComponent,
+    title: 'Edit Profile'
+  },
   {
     path: ':id',
     children: [

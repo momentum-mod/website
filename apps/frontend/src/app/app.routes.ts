@@ -9,6 +9,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: '',
     component: HomeComponent,
+    title: 'Dashboard',
     canActivate: [AuthGuard]
   },
   {
@@ -34,6 +35,7 @@ export const APP_ROUTES: Route[] = [
   },
   {
     path: '**',
-    component: NotFoundComponent
+    component: NotFoundComponent,
+    title: 'Not Found'
   }
 ];

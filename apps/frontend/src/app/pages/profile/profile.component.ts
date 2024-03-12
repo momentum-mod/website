@@ -32,6 +32,7 @@ import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-hi
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 import { Bitflags } from '@momentum/bitflags';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitleService } from '../../services/title.service';
 
 @Component({
   selector: 'm-user-profile',
@@ -84,7 +85,8 @@ export class ProfileComponent implements OnInit {
     private readonly localUserService: LocalUserService,
     private readonly usersService: UsersService,
     private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
+    private readonly destroyRef: DestroyRef,
+    private readonly titleService: TitleService
   ) {}
 
   ngOnInit() {
@@ -112,6 +114,9 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (user) => {
           this.user = user;
+          if (!this.isLocal) {
+            this.titleService.setTitle(user.alias);
+          }
           this.user.profile.socials ??= {}; // So we can ngFor over this safely
           this.userSubject.next(user);
           if (!this.hasBan(Ban.AVATAR) && this.user.avatarURL)

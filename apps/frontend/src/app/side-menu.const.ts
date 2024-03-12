@@ -58,12 +58,12 @@ export const SIDENAV_ITEMS: Array<{
       },
       {
         title: 'Report Queue',
-        link: '/admin/report-queue',
+        link: '/admin/reports',
         icon: 'emoticon-angry'
       },
       {
         title: 'Admin Activity',
-        link: '/admin/admin-activity',
+        link: '/admin/activity',
         icon: 'notebook-outline'
       },
       {
