@@ -170,7 +170,7 @@ export class MapsService {
   }
 
   deleteMapReview(reviewID: number): Observable<void> {
-    return this.http.patch(`map-review/${reviewID}`);
+    return this.http.delete(`map-review/${reviewID}`);
   }
 
   getMapReviewComments(
