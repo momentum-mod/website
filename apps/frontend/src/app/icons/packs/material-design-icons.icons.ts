@@ -75,5 +75,9 @@ export {
   mdiAbacus,
   mdiDelete,
   mdiCalendar,
-  mdiShieldStar
+  mdiShieldStar,
+  mdiEye,
+  mdiEyeClosed,
+  mdiEyeOff,
+  mdiNumericOff
 } from '@mdi/js';

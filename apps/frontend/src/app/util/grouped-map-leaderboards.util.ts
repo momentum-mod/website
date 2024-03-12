@@ -2,28 +2,28 @@ import {
   Gamemode,
   GamemodeName,
   Leaderboard,
-  MMap,
   LeaderboardType,
   MapReview,
+  MMap,
   TrackType
 } from '@momentum/constants';
 import { RequireAllOrNone } from 'type-fest';
 
-export type GroupedMapLeaderboards = Array<
-  {
-    gamemode: Gamemode;
-    gamemodeName: string;
-    bonuses?: Array<{ num: number; tier: number }>;
-    reviews?: MapReview[];
-    totalRuns?: number;
-    // If the map is ONLY bonuses, these are all undefined.
-  } & RequireAllOrNone<{
-    tier: number;
-    type: LeaderboardType;
-    linear: boolean;
-    stages: number;
-  }>
->;
+export type GroupedMapLeaderboards = Array<GroupedMapLeaderboard>;
+export type GroupedMapLeaderboard = {
+  gamemode: Gamemode;
+  gamemodeName: string;
+  bonuses?: Array<{ num: number; tier: number; type: LeaderboardType }>;
+  reviews?: MapReview[];
+  totalRuns?: number;
+  allHidden: boolean;
+  // If the map is ONLY bonuses, these are all undefined.
+} & RequireAllOrNone<{
+  tier: number;
+  type: LeaderboardType;
+  linear: boolean;
+  stages: number;
+}>;
 
 export function groupMapLeaderboards(
   leaderboards: Leaderboard[]
@@ -53,22 +53,31 @@ export function groupMapLeaderboards(
       if (!entry.bonuses) entry.bonuses = [];
       entry.bonuses.push({
         num: lb.trackNum + 1, // trackNums start at 0
-        tier: lb.tier
+        tier: lb.tier,
+        type: lb.type
       });
     }
   }
 
-  // Try to guess at what mode the map is primarily intended for: if no tier,
-  // it has no main track, only bonuses (impossible to have stages but no main
-  // track), so rank stuff with main track higher. Then rank higher if it's
-  // ranked, or has more bonuses.
-  arr.sort((a, b) =>
-    (a.tier !== undefined && b.tier === undefined) ||
-    (a.type === LeaderboardType.RANKED && b !== LeaderboardType.RANKED) ||
-    (a.bonuses?.length ?? 0) > (b.bonuses?.length ?? 0)
-      ? -1
-      : 0
-  );
+  for (const group of arr as GroupedMapLeaderboards) {
+    group.allHidden =
+      group.type === LeaderboardType.HIDDEN &&
+      !group.bonuses?.some((bonus) => bonus.type !== LeaderboardType.HIDDEN);
+  }
+
+  // Try to guess at what mode the map is primarily intended for:
+  // If no tier, it has no main track, only bonuses (impossible to have stages
+  // but no main track), so rank stuff with main track higher.
+  // Then try main ranked > main unranked > main hidden
+  // Then if all lbs hidden
+  // Then try > number bonuses
+  arr.sort((a: GroupedMapLeaderboard, b: GroupedMapLeaderboard) => {
+    if (a.tier != null && b.tier == null) return 1;
+    if (a.type > b.type) return 1;
+    if (!a.allHidden && b.allHidden) return 1;
+    if (a.bonuses?.length ?? 0 > b.bonuses?.length ?? 0) return 1;
+    return 0;
+  });
 
   return arr;
 }
@@ -78,12 +87,12 @@ export type MapWithGroupedLeaderboard = MMap & {
 };
 
 export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
-  currentModeLeaderboards?: GroupedMapLeaderboards[number];
+  currentModeLeaderboards?: GroupedMapLeaderboard;
 };
 
 export function getSpecificGroupedLeaderboard(
   leaderboards: GroupedMapLeaderboards,
   mode: Gamemode
-): GroupedMapLeaderboards[number] {
+): GroupedMapLeaderboard {
   return leaderboards.find(({ gamemode }) => gamemode === mode);
 }
