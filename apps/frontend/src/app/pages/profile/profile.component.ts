@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { switchMap, takeUntil } from 'rxjs/operators';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import {
   Ban,
   ISOCountryCode,
@@ -31,6 +31,7 @@ import { ProfileFollowComponent } from './profile-follow/profile-follow.componen
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 import { Bitflags } from '@momentum/bitflags';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-user-profile',
@@ -52,8 +53,7 @@ import { Bitflags } from '@momentum/bitflags';
     TabComponent
   ]
 })
-export class ProfileComponent implements OnInit, OnDestroy {
-  private readonly ngUnsub = new Subject<void>();
+export class ProfileComponent implements OnInit {
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
   protected readonly SocialsData = SocialsData as Readonly<
@@ -79,11 +79,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   followedByUsers: Follow[] = [];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    public localUserService: LocalUserService,
-    private usersService: UsersService,
-    private messageService: MessageService
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly localUserService: LocalUserService,
+    private readonly usersService: UsersService,
+    private readonly messageService: MessageService,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   ngOnInit() {
@@ -106,7 +107,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.localUserService.refreshLocalUser();
           return this.localUserService.localUserSubject;
         }),
-        takeUntil(this.ngUnsub)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (user) => {
@@ -144,11 +145,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
             detail: error.message
           })
       });
-  }
-
-  ngOnDestroy() {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
   }
 
   hasRole(role: Role) {

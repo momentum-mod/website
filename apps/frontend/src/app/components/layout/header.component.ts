@@ -1,10 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Notification, User } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { LocalUserService } from '../../services';
@@ -14,6 +12,7 @@ import { MultiSearchComponent } from '../search/multi-search.component';
 import { IconComponent } from '../../icons';
 import { PlayerCardComponent } from '../player-card/player-card.component';
 import { NotificationsService } from '../../services/notifications.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-header',
@@ -31,7 +30,7 @@ import { NotificationsService } from '../../services/notifications.service';
     MenuModule
   ]
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent implements OnInit {
   menu: MenuItem[] = [
     {
       label: 'Profile',
@@ -53,17 +52,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected notifications: Notification[] = [];
   protected unreadNotificationCount = 0;
 
-  private readonly ngUnsub = new Subject<void>();
-
   constructor(
     private readonly localUserService: LocalUserService,
     private readonly layoutService: LayoutService,
-    private readonly notificationService: NotificationsService
+    private readonly notificationService: NotificationsService,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   ngOnInit() {
     this.localUserService.localUserSubject
-      .pipe(takeUntil(this.ngUnsub))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => (this.user = user));
     this.notificationService.notifications.subscribe((notifs) => {
       this.notifications = notifs;
@@ -71,11 +69,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         ({ read }) => read === false
       ).length;
     });
-  }
-
-  ngOnDestroy() {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
   }
 
   toggleSidenav() {
