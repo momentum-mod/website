@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
@@ -34,6 +34,7 @@ import {
   UsersService
 } from '../../../services';
 import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-profile-edit',
@@ -48,7 +49,7 @@ import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
     UnsortedKeyvaluePipe
   ]
 })
-export class ProfileEditComponent implements OnInit, OnDestroy {
+export class ProfileEditComponent implements OnInit {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)
     .sort(([_, a], [__, b]) => a.localeCompare(b))
     .map(([code, label]) => ({ code, label }));
@@ -85,19 +86,19 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   isAdmin = false;
   isModerator: boolean;
 
-  private ngUnsub = new Subject<void>();
   refreshCurrentUser = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private localUserService: LocalUserService,
-    private usersService: UsersService,
-    private adminService: AdminService,
-    private authService: AuthService,
-    private messageService: MessageService,
-    private dialogService: DialogService,
-    private fb: FormBuilder
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly localUserService: LocalUserService,
+    private readonly usersService: UsersService,
+    private readonly adminService: AdminService,
+    private readonly authService: AuthService,
+    private readonly messageService: MessageService,
+    private readonly dialogService: DialogService,
+    private readonly fb: FormBuilder,
+    private readonly destroyRef: DestroyRef
   ) {
     const socialsForm = {};
     for (const [name, { regex }] of Object.entries(SocialsData)) {
@@ -165,7 +166,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
             })
           );
         }),
-        takeUntil(this.ngUnsub)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -392,10 +393,5 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           detail: error.message
         })
     });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
   }
 }

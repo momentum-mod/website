@@ -64,6 +64,7 @@ import { SuggestionType } from '@momentum/formats/zone';
 import { GroupedMapCredits, FormUtils } from '../../../util';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -85,10 +86,7 @@ import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guar
     CreditsInfoComponent
   ]
 })
-export class MapSubmissionFormComponent
-  extends Unsub
-  implements OnInit, ConfirmDeactivate
-{
+export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
@@ -99,7 +97,8 @@ export class MapSubmissionFormComponent
     private readonly router: Router,
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   @ViewChild(MapLeaderboardSelectionComponent)
@@ -199,7 +198,7 @@ export class MapSubmissionFormComponent
     );
 
     this.localUserService.localUserSubject
-      .pipe(takeUntil(this.unsub))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.isMapperOrPorter = this.localUserService.hasRole(
           CombinedRoles.MAPPER_AND_ABOVE

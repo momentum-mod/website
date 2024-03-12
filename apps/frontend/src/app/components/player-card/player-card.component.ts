@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { IconComponent } from '../../icons';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { FullUser, LocalUserService } from '../../services';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-player-card',
@@ -12,23 +12,22 @@ import { FullUser, LocalUserService } from '../../services';
   templateUrl: './player-card.component.html',
   styleUrl: './player-card.component.css'
 })
-export class PlayerCardComponent implements OnInit, OnDestroy {
+export class PlayerCardComponent implements OnInit {
   protected user: FullUser;
   protected level: number;
   protected xp: number;
   protected currLevelXp: number;
   protected nextLevelXp: number;
 
-  private readonly ngUnsub = new Subject<void>();
-
   constructor(
     private readonly localUserService: LocalUserService,
-    private readonly xpService: XpSystemsService
+    private readonly xpService: XpSystemsService,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   ngOnInit() {
     this.localUserService.localUserSubject
-      .pipe(takeUntil(this.ngUnsub))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user: FullUser) => {
         this.user = user;
         this.level = user.userStats.level;
@@ -36,10 +35,5 @@ export class PlayerCardComponent implements OnInit, OnDestroy {
         this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
         this.nextLevelXp = this.xpService.getCosmeticXpForLevel(this.level + 1);
       });
-  }
-
-  ngOnDestroy() {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
   }
 }

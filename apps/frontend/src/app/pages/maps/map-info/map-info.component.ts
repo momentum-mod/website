@@ -1,5 +1,5 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   CombinedMapStatuses,
@@ -53,6 +53,7 @@ import { Enum } from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -157,7 +158,8 @@ export class MapInfoComponent implements OnInit {
             ]
           })
         ),
-        tap(() => (this.loading = false))
+        tap(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (map) => this.setMap(map),
