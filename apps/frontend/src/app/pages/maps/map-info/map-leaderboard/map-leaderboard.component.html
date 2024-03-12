@@ -114,7 +114,9 @@
         <p class="basis-3/20 text-right">Achieved</p>
       </div>
       @for (run of runs; track $index) {
-        <div class="leaderboard-entry">
+        <div
+          class="mt-[0.375rem] flex items-center rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-4 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15]"
+        >
           <p class="text-shadow pointer-events-none basis-1/10 text-left font-display text-2xl">{{ run.rank }}</p>
           <div class="flex grow basis-auto gap-2">
             <m-user class="contents" [user]="run.user" avatarClass="h-7" />
