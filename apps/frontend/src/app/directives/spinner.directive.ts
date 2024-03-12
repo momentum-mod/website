@@ -10,8 +10,14 @@ import {
 } from '@angular/core';
 import { SpinnerComponent } from '../components';
 
-// Based off of Nebular directive
-// https://github.com/akveo/nebular/blob/master/src/framework/theme/components/spinner/spinner.directive.ts
+/*
+ * Shows an m-spinner component when the directive input value is `true`.
+ * Note: this will override the `position` property of the element it's applied
+ * to to `relative`.
+ *
+ * Based off of Nebular directive
+ * https://github.com/akveo/nebular/blob/master/src/framework/theme/components/spinner/spinner.directive.ts
+ */
 @Directive({ selector: '[mSpinner]', standalone: true })
 export class SpinnerDirective implements OnInit {
   spinner: ComponentRef<SpinnerComponent>;
@@ -33,6 +39,8 @@ export class SpinnerDirective implements OnInit {
   ngOnInit() {
     this.spinner = this.vcRef.createComponent(SpinnerComponent);
     this.spinner.changeDetectorRef.detectChanges();
+    (this.directiveElement.nativeElement as HTMLElement).style.position =
+      'relative';
     this.renderer.appendChild(
       this.directiveElement.nativeElement,
       this.spinner.location.nativeElement
