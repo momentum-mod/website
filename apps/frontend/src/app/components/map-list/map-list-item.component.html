@@ -28,7 +28,6 @@
             >
               {{ lb.bonuses?.length | plural: 'bonus' : 'bonuses' }}
             </p>
-            <!--        <p class="font-display text-24 font-bold">Tier {{ lb.tier }} | Bonuses {{ lb.bonuses?.length }}</p>-->
           }
           @if (lb.type === LeaderboardType.UNRANKED) {
             <p
@@ -37,7 +36,6 @@
             >
               Unranked
             </p>
-            <!--        <p class="font-display text-24 font-bold">Tier {{ lb.tier }} | Bonuses {{ lb.bonuses?.length }}</p>-->
           }
         </div>
       } @else {
@@ -45,12 +43,14 @@
           class="m-2 ml-auto mt-auto flex h-10 flex-wrap gap-2 rounded border border-white border-opacity-10 bg-gray-500 bg-opacity-50 p-1 shadow backdrop-blur-md"
         >
           @for (leaderboard of map.groupedLeaderboards; track $index) {
-            <img
-              class="h-8 drop-shadow-sm"
-              [ngClass]="{ 'ml-auto': $first }"
-              [mTooltip]="GamemodeName.get(leaderboard.gamemode)"
-              [src]="GamemodeIcon.get(leaderboard.gamemode)"
-            />
+            @if (!leaderboard.allHidden) {
+              <img
+                class="h-8 drop-shadow-sm"
+                [ngClass]="{ 'ml-auto': $first }"
+                [mTooltip]="GamemodeName.get(leaderboard.gamemode)"
+                [src]="GamemodeIcon.get(leaderboard.gamemode)"
+              />
+            }
           }
         </div>
       }

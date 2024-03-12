@@ -1,22 +1,32 @@
 <div [mSpinner]="!map">
-  <div class="flex flex-wrap gap-x-8 gap-y-2">
-    @for (groupedLeaderboard of leaderboards; track $index) {
-      <button
-        class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
-        (click)="selectMode($index)"
-        [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
-      >
-        <img class="aspect-square h-11" [src]="GamemodeIcon.get(groupedLeaderboard.gamemode)" />
-        <p class="font-display text-5xl font-bold leading-none">
-          {{ groupedLeaderboard.gamemodeName }}
-        </p>
+  <div class="flex gap-4">
+    <div class="flex grow flex-wrap gap-x-8 gap-y-2">
+      @for (groupedLeaderboard of getLeaderboards(); track $index) {
+        <button
+          class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
+          (click)="selectMode($index)"
+          [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
+        >
+          <img class="aspect-square h-11" [src]="GamemodeIcon.get(groupedLeaderboard.gamemode)" />
+          <p class="font-display text-5xl font-bold leading-none">
+            {{ groupedLeaderboard.gamemodeName }}
+          </p>
+        </button>
+      }
+    </div>
+    @if (map.status === MapStatus.APPROVED && hasHiddenLeaderboards()) {
+      <button class="mb-auto ml-auto" type="button" [mTooltip]="hiddenLbInfo" (click)="showHiddenLeaderboards = !showHiddenLeaderboards">
+        <m-icon class="h-6 w-6 drop-shadow-lg" [icon]="showHiddenLeaderboards ? 'eye' : 'eye-closed'" />
       </button>
+      <ng-template #hiddenLbInfo><m-hidden-leaderboards-info title="Show Hidden Leaderboard" /></ng-template>
     }
   </div>
 
   <div class="my-4 flex w-full max-w-full flex-wrap gap-4 [&>*]:box-border">
+    <ng-template #unrankedLbInfo><m-unranked-leaderboards-info /></ng-template>
+    <ng-template #hiddenLbInfo><m-hidden-leaderboards-info /></ng-template>
     <button
-      class="flex flex-initial items-center overflow-hidden rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+      class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
       (click)="selectTrack(TrackType.MAIN, 0)"
       [ngClass]="{
         selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 0
@@ -34,6 +44,11 @@
         >
           T{{ activeMode.tier }}
         </p>
+      }
+      @if (activeMode.type === LeaderboardType.UNRANKED) {
+        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+      } @else if (activeMode.type === LeaderboardType.HIDDEN) {
+        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
       }
     </button>
 
@@ -67,7 +82,7 @@
     @for (bonus of activeMode.bonuses; track $index) {
       <button
         (click)="selectTrack(TrackType.BONUS, $index)"
-        class="flex flex-initial items-center overflow-hidden rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+        class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
         [ngClass]="{
           selected: activeTrack.type === TrackType.BONUS && activeTrack.num === $index
         }"
@@ -85,13 +100,18 @@
             T{{ bonus.tier }}
           </p>
         }
+        @if (bonus.type === LeaderboardType.UNRANKED) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+        } @else if (bonus.type === LeaderboardType.HIDDEN) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+        }
       </button>
     }
 
     <p-dropdown
       class="ml-auto self-center"
       [(ngModel)]="activeType"
-      [options]="LeaderboardTypeDropdown"
+      [options]="LeaderboardFilterTypeDropdown"
       optionLabel="label"
       optionValue="type"
       (onChange)="load.next()"
