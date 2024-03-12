@@ -3,11 +3,11 @@
     <div class="flex gap-4">
       <!-- This negative margin is pretty evil, breaking the standard <main>
            padding. But vertical space is so precious here! -->
-      <div class="relative -mt-2 -mb-2 flex h-[6.5rem] flex-col w-[300px]">
-        @if (prefix) {
-          <p class="m-card-title absolute top-0 text-[2rem] text-gray-200">{{ prefix ?? '' }}</p>
-        }
-        <p class="m-card-title absolute bottom-0 text-[5rem]">{{ name }}</p>
+      <div class="-mt-4 flex h-24 flex-[1_1_auto] flex-col">
+        <p class="card-title -mb-1 mt-auto text-[2rem] text-gray-200">{{ prefix }}</p>
+        <p class="card-title" [fontSizeLerp]="{ chars: name.length, maxChars: 29, startAt: 16, baseRem: 4.5, minRem: 2.5 }">
+          {{ name }}
+        </p>
       </div>
       <button type="button" class="mt-auto flex flex-[0_0_auto]" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
         <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
