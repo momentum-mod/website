@@ -110,8 +110,6 @@ export class MapSubmissionFormComponent
   @ViewChild(MapLeaderboardSelectionComponent)
   lbSelection: MapLeaderboardSelectionComponent;
 
-  @ViewChild('submitButton', { static: true })
-  submitButton: ElementRef<HTMLButtonElement>;
 
   isUploading = false;
   uploadPercentage = 0;
@@ -295,7 +293,7 @@ export class MapSubmissionFormComponent
 
   onSubmit() {
     this.form.markAllAsTouched();
-    if (!this.form.valid) return;
+    if (this.form.invalid) return;
 
     this.isUploading = true;
     let mapID;

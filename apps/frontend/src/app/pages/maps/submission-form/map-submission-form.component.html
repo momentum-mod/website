@@ -15,7 +15,7 @@
       <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
     </p>
   </m-alert>
-  <form [formGroup]="form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mt-4 flex flex-col">
       <!--  Evil fake fieldset using negative margins. Backdrop-filter extends
             to the header section of a real fieldset, looks like shite    -->
@@ -347,28 +347,21 @@
         </div>
       </div>
     </div>
-  </form>
-
-  <div class="mt-4 flex">
-    @if (isUploading) {
-      <div class="flex flex-grow flex-col">
-        <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
-        <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+    <div class="mt-4 flex">
+      @if (isUploading) {
+        <div class="my-auto flex flex-grow flex-col">
+          <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
+          <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+        </div>
+      }
+      <div class="ml-auto h-full">
+        <button class="btn btn-green gap-2 px-4 text-xl" type="submit" [disabled]="form.invalid || isUploading">
+          Submit Map
+          <m-icon class="text-3xl" icon="upload" />
+        </button>
       </div>
-    }
-    <div class="ml-auto h-full">
-      <button
-        #submitButton
-        class="m-btn m-btn-green gap-2 px-4 text-xl"
-        type="button"
-        [disabled]="form.invalid || isUploading"
-        (click)="onSubmit()"
-      >
-        Submit Map
-        <m-icon class="text-3xl" icon="upload" />
-      </button>
     </div>
-  </div>
+  </form>
 } @else {
   <div class="card prose max-w-none p-4">
     <p>
