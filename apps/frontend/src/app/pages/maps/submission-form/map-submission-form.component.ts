@@ -119,11 +119,7 @@ export class MapSubmissionFormComponent
     files: this.fb.group({
       bsp: [
         null,
-        [
-          Validators.required,
-          FileValidators.maxSize(MAX_BSP_SIZE),
-          FileValidators.namePattern(/^[\w-]+\.bsp$/)
-        ],
+        [Validators.required, FileValidators.maxSize(MAX_BSP_SIZE)],
         [FileValidators.isCompressedBsp()]
       ],
       zon: [null, [Validators.required], [FileValidators.isValidZones()]],
@@ -180,12 +176,11 @@ export class MapSubmissionFormComponent
     privateTesting: this.fb.group(
       {
         wantsPrivateTesting: [false],
-        testInvites: new FormControl({ value: [], disabled: true })
+        testInvites: new FormControl<number[]>({ value: [], disabled: true })
       },
       { validators: [testInvitesValidator] }
     )
   });
-
 
   ngOnInit(): void {
     this.zon.statusChanges.pipe(distinctUntilChanged()).subscribe((status) => {
@@ -228,10 +223,10 @@ export class MapSubmissionFormComponent
   }
 
   async onBspFileSelected() {
-    const name = this.bsp.value.name.replaceAll('.bsp', '').toLowerCase();
+    const name = this.bsp.value?.name.replaceAll('.bsp', '').toLowerCase();
 
     // Fill name field with map name if pristine
-    if (this.name.pristine) {
+    if (this.name.pristine || this.name.value === '') {
       this.name.setValue(name, { emitEvent: true });
     }
   }
