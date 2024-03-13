@@ -34,13 +34,8 @@ import {
   YOUTUBE_ID_REGEXP,
   MAP_NAME_REGEXP
 } from '@momentum/constants';
-import { distinctUntilChanged, last, mergeMap, tap } from 'rxjs/operators';
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpEventType
-} from '@angular/common/http';
-import { forkJoin } from 'rxjs';
+import { distinctUntilChanged, tap } from 'rxjs/operators';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
 import { LocalUserService, MapsService } from '../../../services';
@@ -67,7 +62,7 @@ import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives';
 import { SuggestionType } from '@momentum/formats/zone';
 import { GroupedMapCredits, FormUtils } from '../../../util';
-
+import { lastValueFrom } from 'rxjs';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 
 @Component({
@@ -109,7 +104,6 @@ export class MapSubmissionFormComponent
 
   @ViewChild(MapLeaderboardSelectionComponent)
   lbSelection: MapLeaderboardSelectionComponent;
-
 
   isUploading = false;
   uploadPercentage = 0;
@@ -291,113 +285,111 @@ export class MapSubmissionFormComponent
     return modes.length > 0 ? modes : null;
   }
 
-  onSubmit() {
+  async onSubmit() {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
     this.isUploading = true;
-    let mapID;
+    let mapID: number;
 
-    this.mapsService
-      .submitMap({
-        data: {
-          name: this.name.value,
-          fileName: this.bsp.value.name.replaceAll('.bsp', ''),
-          submissionType: this.submissionType.value,
-          wantsPrivateTesting: this.wantsPrivateTesting.value,
-          testInvites: this.testInvites.value ?? [],
-          zones: this.zones,
-          credits: this.credits.value.getSubmittableRealUsers(),
-          placeholders: this.credits.value.getSubmittablePlaceholders(),
-          suggestions: this.suggestions.value,
-          info: {
-            description: this.description.value,
-            youtubeID: this.youtubeID.value || undefined,
-            creationDate: this.creationDate.value
-          }
-        },
-        bsp: this.bsp.value,
-        vmfs: this.vmfs.value
-      })
-      .pipe(
-        tap({
-          next: (event: HttpEvent<string>) => {
-            switch (event.type) {
-              case HttpEventType.Sent:
-                this.isUploading = true;
-                // Okay, we already started senting the BSP file here since it's
-                // all one request but whatever this looks good
-                this.uploadStatusDescription = 'Submitting map...';
-                break;
-              case HttpEventType.UploadProgress:
-                this.uploadStatusDescription = 'Uploading BSP file...';
-                // Let this bar go 90% of the way, then images will be final 10%
-                this.uploadPercentage = Math.round(
-                  (event['loaded'] / event['total']) * 80
-                );
-                break;
-              case HttpEventType.Response:
-                mapID = JSON.parse(event.body).id;
-                this.uploadStatusDescription = 'Uploading images...';
-                this.uploadPercentage = 90;
-                break;
-            }
-          },
-          error: (httpError: HttpErrorResponse) =>
-            this.onUploadError(httpError, 'Map')
-        }),
-        last(),
-        mergeMap(() =>
-          forkJoin([
-            this.mapsService.updateMapThumbnail(mapID, this.images.value[0]),
-            ...this.images.value
-              .slice(1)
-              .map((image) => this.mapsService.createMapImage(mapID, image))
-          ])
-        )
-      )
-      .subscribe({
-        next: () => {
-          // Not being fancy with upload progress here, just wait for all images
-          // to complete then set to 100.
-          this.uploadPercentage = 100;
-          this.isUploading = false;
-          this.uploadStatusDescription = 'Upload completed!';
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Map upload complete!'
-          });
-        },
-        error: (httpError: HttpErrorResponse) =>
-          this.onUploadError(
-            httpError,
-            'Map image',
-            'You will have to resubmit some images on the map edit page!'
-          ),
-        complete: () => {
-          this.resetUploadStatus();
-          this.router.navigate([`/maps/${mapID}`]);
-        }
+    try {
+      await lastValueFrom(
+        this.mapsService
+          .submitMap({
+            data: {
+              name: this.name.value,
+              submissionType: this.submissionType.value,
+              wantsPrivateTesting: this.wantsPrivateTesting.value,
+              testInvites: this.testInvites.value ?? [],
+              zones: this.zones,
+              credits: this.credits.value.getSubmittableRealUsers(),
+              placeholders: this.credits.value.getSubmittablePlaceholders(),
+              suggestions: this.suggestions.value,
+              info: {
+                description: this.description.value,
+                youtubeID: this.youtubeID.value || undefined,
+                creationDate: this.creationDate.value
+              }
+            },
+            bsp: this.bsp.value,
+            vmfs: this.vmfs.value
+          })
+          .pipe(
+            tap((event: HttpEvent<string>) => {
+              switch (event.type) {
+                case HttpEventType.Sent:
+                  this.isUploading = true;
+                  // Okay, we already started senting the BSP file here since it's
+                  // all one request but whatever this looks good
+                  this.uploadStatusDescription = 'Submitting map...';
+                  break;
+                case HttpEventType.UploadProgress:
+                  this.uploadStatusDescription = 'Uploading BSP file...';
+                  // Let this bar go 80% of the way, then images will be final 10%
+                  this.uploadPercentage = Math.round(
+                    (event['loaded'] / event['total']) * 80
+                  );
+                  break;
+                case HttpEventType.Response:
+                  mapID = JSON.parse(event.body).id;
+                  this.uploadStatusDescription = 'Uploading images...';
+                  this.uploadPercentage = 90;
+                  break;
+              }
+            })
+          )
+      );
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Map upload failed!',
+        detail: JSON.parse(error.error).message,
+        sticky: true
       });
-  }
 
-  onUploadError(error: HttpErrorResponse, type: string, extraMessage?: string) {
-    const errorMessage = JSON.parse(error?.error)?.message ?? 'Unknown error';
+      this.resetUpload();
+      return;
+    }
+
+    try {
+      await lastValueFrom(
+        this.mapsService.updateMapImages(mapID, {
+          images: this.images.value,
+          data: { imageIDs: this.images.value.map((_, i) => i.toString()) }
+        })
+      );
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Image upload failed!',
+        detail: `You may need to edit resubmit some images on the Map Edit page. ${error.message}`,
+        sticky: true
+      });
+      // Don't return if this fails, we don't want the user trying to resubmit
+      // the same map. Just take to map page and they can edit images if
+      // needed.
+    }
+
+    this.uploadPercentage = 100;
+    this.uploadStatusDescription = 'Upload completed!';
     this.messageService.add({
-      severity: 'error',
-      summary: `${type} upload failed!`,
-      detail: `Image submission failed with error: ${errorMessage}. ${extraMessage}`,
-      life: 20000
+      severity: 'success',
+      summary: 'Map upload complete!'
     });
-    console.error(`${type} upload failure: ${errorMessage}`);
 
-    this.resetUploadStatus();
+    // Just feels good to have short delay after bar reaches end :)
+    setTimeout(() => {
+      this.resetUpload();
+      this.form.reset();
+      this.form.markAsPristine();
+      this.router.navigate([`/maps/${mapID}`]);
+    }, 1000);
   }
 
-  private resetUploadStatus() {
-    this.isUploading = false;
+  resetUpload() {
     this.uploadStatusDescription = '';
     this.uploadPercentage = 0;
+    this.isUploading = false;
   }
 
   @HostListener('window:beforeunload', ['$event'])
