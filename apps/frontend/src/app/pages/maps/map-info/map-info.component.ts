@@ -164,7 +164,10 @@ export class MapInfoComponent implements OnInit {
     const [name, prefix] = extractPrefixFromMapName(map.name);
     this.name = name;
     this.prefix = prefix;
-    this.credits = new GroupedMapCredits(this.map.credits);
+    this.credits = new GroupedMapCredits(
+      this.map.credits ?? [],
+      this.map.submission?.placeholders ?? []
+    );
     this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(map.status);
     // Show Review section first if in review, otherwise leaderboards (and the
     // tab view won't be visible anyway).
