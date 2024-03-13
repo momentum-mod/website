@@ -107,7 +107,7 @@ export class MapSubmissionFormComponent
 
   isUploading = false;
   uploadPercentage = 0;
-  uploadStatusDescription = 'TODO: MAKE ME EMPTY STRING';
+  uploadStatusDescription = '';
 
   protected zones: MapZones | null = null;
 
