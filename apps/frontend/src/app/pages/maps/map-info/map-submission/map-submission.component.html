@@ -60,29 +60,29 @@
   </div>
 </fieldset>
 
-@if (map.submission.versions?.length > 1) {
-  <fieldset class="m-card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
-    <legend class="font-display text-4xl font-bold text-gray-50">Versions</legend>
+<fieldset class="card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
+  <legend class="font-display text-4xl font-bold text-gray-50">Versions</legend>
 
-    @for (version of versions.slice(0, visibleVersions); track $index) {
-      <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ versions.length - $index }}</p>
+  @for (version of versions.slice(0, visibleVersions); track $index) {
+    <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ versions.length - $index }}</p>
+    @if (version.changelog) {
       <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
-      <p class="mb-4 mt-1 last:mb-0">
-        <a class="m-link text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
-        @if (version.vmfDownloadUrl) {
-          <a class="m-link text-sm font-medium" [href]="version.vmfDownloadUrl">Download VMF</a>
-        }
-      </p>
     }
+    <p class="mb-4 mt-1 last:mb-0">
+      <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
+      @if (version.vmfDownloadURL) {
+        <a class="link text-sm font-medium" [href]="version.vmfDownloadURL">Download VMF</a>
+      }
+    </p>
+  }
 
-    @if (visibleVersions < versions.length) {
-      <p>
-        {{ versions.length - visibleVersions | plural: 'more version' }} -
-        <a class="m-link cursor-pointer font-medium" (click)="visibleVersions = visibleVersions + 5">Load more</a>
-      </p>
-    }
-  </fieldset>
-}
+  @if (visibleVersions < versions.length) {
+    <p>
+      {{ versions.length - visibleVersions | plural: 'more version' }} -
+      <a class="link cursor-pointer font-medium" (click)="visibleVersions = visibleVersions + 5">Load more</a>
+    </p>
+  }
+</fieldset>
 
 <fieldset class="card-inset">
   <legend class="mb-2 flex w-full items-center">
