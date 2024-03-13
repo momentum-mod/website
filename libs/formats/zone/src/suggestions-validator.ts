@@ -11,6 +11,7 @@ import {
   TrackType,
   TrackTypeName as TTName
 } from '@momentum/constants';
+import { arrayFrom } from '@momentum/util-fn';
 
 export enum SuggestionType {
   SUBMISSION,
@@ -185,10 +186,7 @@ export function validateSuggestions(
   if (type === SuggestionType.APPROVAL) {
     [
       [TrackType.MAIN, 0],
-      ...Array.from({ length: zoneData.tracks.bonuses.length }, (_, i) => [
-        TrackType.BONUS,
-        i
-      ])
+      ...arrayFrom(zoneData.tracks.bonuses.length, (i) => [TrackType.BONUS, i])
     ].forEach(([trackType, trackNum]) => {
       if (
         !suggestions.some(

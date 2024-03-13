@@ -27,6 +27,7 @@ import {
 } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
 import { createSha1Hash } from './crypto.util';
+import { arrayFrom } from '@momentum/util-fn';
 
 export const NULL_ID = 999999999;
 
@@ -88,9 +89,7 @@ export class DbUtil {
   }
 
   createUsers(count: number, args: CreateUserArgs = {}): Promise<User[]> {
-    return Promise.all(
-      Array.from({ length: count }, () => this.createUser(args))
-    );
+    return Promise.all(arrayFrom(count, () => this.createUser(args)));
   }
 
   async createAndLoginUser(args?: CreateUserArgs): Promise<[User, string]> {
@@ -228,9 +227,7 @@ export class DbUtil {
       }
     >
   > {
-    return Promise.all(
-      Array.from({ length: count }, () => this.createMap(map))
-    );
+    return Promise.all(arrayFrom(count, () => this.createMap(map)));
   }
 
   /**

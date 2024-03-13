@@ -39,7 +39,7 @@ import {
   ZonesStubLeaderboards,
   ZoneUtil
 } from '@momentum/formats/zone';
-import { from } from '@momentum/util-fn';
+import { arrayFrom } from '@momentum/util-fn';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -1310,7 +1310,7 @@ describe('Maps', () => {
               // 10,000 zones :D
               zones: ZoneUtil.generateRandomMapZones(
                 100,
-                from(100, () => 100),
+                arrayFrom(100, () => 100),
                 0,
                 1024 ** 2,
                 1024,

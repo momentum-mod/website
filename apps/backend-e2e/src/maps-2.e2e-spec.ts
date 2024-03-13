@@ -39,7 +39,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
-import { difference } from '@momentum/util-fn';
+import { difference, arrayFrom } from '@momentum/util-fn';
 import { ZonesStub } from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
@@ -605,10 +605,10 @@ describe('Maps Part 2', () => {
             url: `maps/${map.id}/credits`,
             status: 400,
             // Too long to create > 20 users, this check hits earlier than user existence. allow it
-            body: Array.from(
-              { length: MAX_CREDITS_EXCEPT_TESTERS + 1 },
-              (_, i) => ({ userID: i + 100, type })
-            ),
+            body: arrayFrom(MAX_CREDITS_EXCEPT_TESTERS, (i) => ({
+              userID: i + 100,
+              type
+            })),
             token: u1Token
           }));
       }
@@ -935,7 +935,7 @@ describe('Maps Part 2', () => {
       it('should 400 when the map image limit has been reached', async () => {
         map = await prisma.mMap.update({
           where: { id: map.id },
-          data: { images: Array.from({ length: 5 }, () => db.uuid()) }
+          data: { images: arrayFrom(5, () => db.uuid()) }
         });
 
         await req.putAttach({
@@ -1270,12 +1270,8 @@ describe('Maps Part 2', () => {
       beforeAll(async () => {
         map = await db.createMap();
         runs = await Promise.all(
-          Array.from({ length: 20 }, (_, i) =>
-            db.createLbRun({
-              map: map,
-              rank: i + 1,
-              time: (i + 1) * 100
-            })
+          arrayFrom(20, (i) =>
+            db.createLbRun({ map: map, rank: i + 1, time: (i + 1) * 100 })
           )
         );
         u7 = runs[6].user;

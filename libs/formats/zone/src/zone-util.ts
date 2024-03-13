@@ -6,7 +6,7 @@ import {
   Volume,
   Zone
 } from '@momentum/constants';
-import { from } from '@momentum/util-fn';
+import { arrayFrom } from '@momentum/util-fn';
 
 export const ZoneUtil = {
   isLinearMainTrack: function (zoneData: MapZones): boolean {
@@ -65,7 +65,7 @@ export const ZoneUtil = {
 
     const doSegment = (numCPs: number): Segment => ({
       limitStartGroundSpeed: false,
-      checkpoints: from(numCPs, (_, i) => randomZone(i === 0))
+      checkpoints: arrayFrom(numCPs, (i) => randomZone(i === 0))
     });
 
     const volumes: Volume[] = [];
@@ -75,12 +75,12 @@ export const ZoneUtil = {
         minorRequired: true,
         zones: {
           end: randomZone(),
-          segments: from(majorCheckpoints, (_, i) =>
+          segments: arrayFrom(majorCheckpoints, (i) =>
             doSegment(minorCheckpoints[i])
           )
         }
       },
-      bonuses: from(numBonuses, () => ({
+      bonuses: arrayFrom(numBonuses, () => ({
         zones: {
           end: randomZone(),
           segments: [doSegment(Math.ceil(Math.random() * 4))]

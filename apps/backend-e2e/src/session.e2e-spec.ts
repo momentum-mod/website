@@ -26,6 +26,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { arrayFrom } from '@momentum/util-fn';
 
 describe('Session', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, map;
@@ -366,7 +367,7 @@ describe('Session', () => {
         });
 
         await Promise.all(
-          Array.from({ length: 10 }, (_, i) =>
+          arrayFrom(10, (i) =>
             prisma.user
               .create({
                 data: {

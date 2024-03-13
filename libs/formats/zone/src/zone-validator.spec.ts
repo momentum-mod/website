@@ -12,6 +12,7 @@ import {
   validateZoneFile,
   ZonesStub
 } from './';
+import { arrayFrom } from '@momentum/util-fn';
 
 describe('validateZoneFile', () => {
   let input: MapZones;
@@ -57,9 +58,7 @@ describe('validateZoneFile', () => {
     // tracks must match the number of main track segments" first
     it.skip('should throw if map has too many stages', () => {
       const stage = structuredClone(input.tracks.stages[0]);
-      input.tracks.stages = Array.from({ length: MAX_STAGE_TRACKS + 1 }).fill(
-        stage
-      ) as Track[];
+      input.tracks.stages = arrayFrom(MAX_STAGE_TRACKS).fill(stage) as Track[];
 
       expect(() => validateZoneFile(input)).toThrow('Too many stage tracks');
     });
@@ -98,7 +97,7 @@ describe('validateZoneFile', () => {
 
     it('should throw if map has too many bonuses', () => {
       const bonus = structuredClone(input.tracks.bonuses[0]);
-      input.tracks.bonuses = Array.from({ length: MAX_BONUS_TRACKS + 1 }).fill(
+      input.tracks.bonuses = arrayFrom(MAX_BONUS_TRACKS + 1).fill(
         bonus
       ) as Track[];
 
@@ -119,18 +118,14 @@ describe('validateZoneFile', () => {
       const segment = structuredClone(input.tracks.main.zones.segments[0]);
       const checkpoint = segment.checkpoints[0];
 
-      input.tracks.main.zones.segments = Array.from({
-        length: MAX_TRACK_SEGMENTS - 1
-      }).fill({
-        limitGroundSpeed: false,
-        checkpoints: Array.from({
-          length: MAX_SEGMENT_CHECKPOINTS - 1
-        }).fill(checkpoint)
-      }) as Segment[];
+      input.tracks.main.zones.segments = arrayFrom(MAX_TRACK_SEGMENTS - 1).fill(
+        {
+          limitGroundSpeed: false,
+          checkpoints: arrayFrom(MAX_SEGMENT_CHECKPOINTS - 1).fill(checkpoint)
+        }
+      ) as Segment[];
 
-      input.tracks.stages = Array.from({
-        length: MAX_TRACK_SEGMENTS - 1
-      }).fill({
+      input.tracks.stages = arrayFrom(MAX_TRACK_SEGMENTS - 1).fill({
         majorOrdered: true,
         minorRequired: true,
         zones: {
@@ -185,9 +180,9 @@ describe('validateZoneFile', () => {
     });
 
     it('should throw if a region has more than MAX_ZONE_REGION_POINTS points', () => {
-      input.volumes[0].regions[0].points = Array.from({
-        length: MAX_ZONE_REGION_POINTS + 1
-      }).fill([0, 0]) as Vector2D[]; // Would also fail angle checks but this throws first
+      input.volumes[0].regions[0].points = arrayFrom(
+        MAX_ZONE_REGION_POINTS + 1
+      ).fill([0, 0]) as Vector2D[]; // Would also fail angle checks but this throws first
 
       expect(() => validateZoneFile(input)).toThrow(
         'Volume 0 region 0 has too many points'
@@ -343,9 +338,9 @@ describe('validateZoneFile', () => {
     it('should throw if a track has too many segments', () => {
       const segment = structuredClone(input.tracks.main.zones.segments[0]);
 
-      input.tracks.main.zones.segments = Array.from({
-        length: MAX_TRACK_SEGMENTS + 1
-      }).fill(segment) as Segment[];
+      input.tracks.main.zones.segments = arrayFrom(MAX_TRACK_SEGMENTS + 1).fill(
+        segment
+      ) as Segment[];
 
       expect(() => validateZoneFile(input)).toThrow(
         'Track Main has too many segments'
@@ -374,9 +369,7 @@ describe('validateZoneFile', () => {
       );
       input.tracks.main.zones.segments[0].checkpoints = [
         input.tracks.main.zones.segments[0].checkpoints[0],
-        ...(Array.from({
-          length: MAX_SEGMENT_CHECKPOINTS + 1
-        }).fill(checkpoint) as Zone[])
+        ...(arrayFrom(MAX_SEGMENT_CHECKPOINTS + 1).fill(checkpoint) as Zone[])
       ];
 
       expect(() => validateZoneFile(input)).toThrow(

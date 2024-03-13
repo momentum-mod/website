@@ -8,6 +8,7 @@ import {
 } from '@momentum/constants';
 import { ZoneUtil } from '@momentum/formats/zone';
 import { Enum } from '@momentum/enum';
+import { arrayFrom } from '@momentum/util-fn';
 
 export interface LeaderboardProps
   extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
@@ -76,9 +77,9 @@ export const LeaderboardHandler = {
     leaderboards
       .filter(({ trackType }) => trackType === TrackType.MAIN)
       .flatMap((lb: T) =>
-        Array.from(
-          { length: zones.tracks.stages.length },
-          (_, i) =>
+        arrayFrom(
+          zones.tracks.stages.length,
+          (i) =>
             ({
               gamemode: lb.gamemode,
               // Whether is ranked depends on main Track, doesn't have a tier.

@@ -32,7 +32,7 @@ import {
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
-import { from, parallel, promiseAllSync } from '@momentum/util-fn';
+import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
 import axios from 'axios';
 import sharp from 'sharp';
 import { JsonValue } from 'type-fest';
@@ -191,7 +191,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const usersToCreate = randRange(vars.users);
   await parallel(
     promiseAllSync(
-      from(
+      arrayFrom(
         usersToCreate,
         () => () =>
           prisma.user.create({
@@ -236,7 +236,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     async () => {
       imageBuffers = await Promise.all(
-        from(randRange(vars.imageFetches), () =>
+        arrayFrom(randRange(vars.imageFetches), () =>
           axios
             .get('https://picsum.photos/2560/1440', {
               responseType: 'arraybuffer'
@@ -354,7 +354,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const randomZones = () =>
         ZoneUtil.generateRandomMapZones(
           majCps,
-          from(majCps, () => randRange(vars.minorCPs)),
+          arrayFrom(majCps, () => randRange(vars.minorCPs)),
           randRange(vars.bonusesPerMap),
           2 ** 16 - 64,
           1024,
@@ -386,7 +386,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         return dates;
       };
 
-      const versions = from(randRange(vars.submissionVersions), (_, i) => ({
+      const versions = arrayFrom(randRange(vars.submissionVersions), (i) => ({
         // TODO: We'd have to upload the same BSP 50 or so times
         // for submissions here, since submissions use the UUID
         // of this entry. If we really want to test BSP downloads
@@ -426,11 +426,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.MAIN,
             trackNum: 0
           },
-          ...from(zones.tracks.stages.length, (_, i) => ({
+          ...arrayFrom(zones.tracks.stages.length, (i) => ({
             trackType: TrackType.STAGE,
             trackNum: i
           })),
-          ...from(zones.tracks.bonuses.length, (_, i) => ({
+          ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
             trackType: TrackType.BONUS,
             trackNum: i
           }))
@@ -488,7 +488,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         mainText: faker.lorem.paragraphs({ min: 1, max: 3 }),
         imageIDs: Random.chance(0.2)
           ? await Promise.all(
-              from(randRange(vars.imagesPerReview), async () => {
+              arrayFrom(randRange(vars.imagesPerReview), async () => {
                 const id = `${uuidv4()}.jpeg`;
                 await s3.send(
                   new PutObjectCommand({
@@ -512,7 +512,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             gameplayRating: Random.int(10, 1)
           })),
         editHistory: Random.chance()
-          ? from(Random.int(5), () => ({
+          ? arrayFrom(Random.int(5), () => ({
               mainText: faker.lorem.paragraph(),
               date: Random.pastDateInYears()
             }))
@@ -539,7 +539,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               }
             },
             images: await Promise.all(
-              from(randRange(vars.images), async () => {
+              arrayFrom(randRange(vars.images), async () => {
                 const id = uuidv4();
 
                 const buffer = Random.element(imageBuffers);
@@ -576,7 +576,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             reviews: {
               createMany: {
                 data: await Promise.all(
-                  from(randRange(vars.reviewsPerMap), review)
+                  arrayFrom(randRange(vars.reviewsPerMap), review)
                 )
               }
             },
@@ -587,7 +587,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                   [MapSubmissionType.PORT, 1],
                   [MapSubmissionType.SPECIAL, 0.2]
                 ]),
-                placeholders: from(
+                placeholders: arrayFrom(
                   randRange(vars.submissionPlaceholders),
                   () => ({
                     alias: faker.internet.userName(),
@@ -627,7 +627,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       for (const review of map.reviews) {
         await prisma.mapReviewComment.createMany({
-          data: from(randRange(vars.commentsPerReview), () => ({
+          data: arrayFrom(randRange(vars.commentsPerReview), () => ({
             userID: Random.element(users).id,
             text: faker.lorem.sentence(),
             reviewID: review.id
@@ -699,7 +699,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         let time = Random.int(0, 1000);
 
         await Promise.all(
-          from(numPastRuns, (_, i) => {
+          arrayFrom(numPastRuns, (i) => {
             time += Random.int(100);
 
             const createLbRun = i < numRuns;
@@ -777,7 +777,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       await parallel(
         // A map should always have at least one author
         () => createCredit(map.id, unusedUserIDs.pop(), MapCreditType.AUTHOR),
-        ...from(randRange(vars.credits) - 1, () =>
+        ...arrayFrom(randRange(vars.credits) - 1, () =>
           createCredit(map.id, unusedUserIDs.pop())
         )
       );

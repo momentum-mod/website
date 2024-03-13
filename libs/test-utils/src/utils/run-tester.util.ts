@@ -8,6 +8,7 @@
 import { ParsedResponse, RequestUtil } from './request.util';
 import { Gamemode, Tickrates, TrackType } from '@momentum/constants';
 import * as Random from '@momentum/random';
+import { arrayFrom } from '@momentum/util-fn';
 
 const DEFAULT_DELAY_MS = 10;
 const MAGIC = 0x524d4f4d;
@@ -230,7 +231,7 @@ export class RunTester {
     //   this.replay.overallStats = RunTester.createStats(new Date(), 0);
     // }
 
-    this.replay.frames = Array.from({ length: this.stopTick }, () =>
+    this.replay.frames = arrayFrom(this.stopTick, () =>
       RunTester.createFrame()
     );
 
