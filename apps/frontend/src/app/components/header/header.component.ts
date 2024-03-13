@@ -10,7 +10,7 @@ import { MenuModule } from 'primeng/menu';
 import { LocalUserService } from '../../services';
 import { LayoutService } from '../../services/layout.service';
 import { NotificationComponent } from '../notification/notification.component';
-import { SearchComponent } from '../search/search.component';
+import { MultiSearchComponent } from '../search/multi-search.component';
 import { IconComponent } from '../../icons';
 import { PlayerCardComponent } from '../player-card/player-card.component';
 import { NotificationsService } from '../../services/notifications.service';
@@ -23,7 +23,7 @@ import { NotificationsService } from '../../services/notifications.service';
   imports: [
     RouterLink,
     IconComponent,
-    SearchComponent,
+    MultiSearchComponent,
     NotificationComponent,
     OverlayPanelModule,
     CommonModule,
