@@ -133,7 +133,9 @@ export class MapInfoComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.layoutService.reserveBackgroundUrl(/\/maps\/[\w-]+\/?$/);
+    this.layoutService.reserveBackgroundUrl(
+      /\/maps\/(?!beta|submissions)[\w-]+\/?$/
+    );
 
     this.route.paramMap
       .pipe(
