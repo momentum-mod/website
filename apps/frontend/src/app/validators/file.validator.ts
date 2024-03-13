@@ -131,6 +131,7 @@ export class FileValidators {
   static isValidZones(): AsyncFileValidatorFn {
     return FileValidators.asyncFileValidatorHandler(
       async (file: File): Promise<FileValidationErrors | null> => {
+        if (!file) return null;
         try {
           const text = await file.text();
           const parsed = JSON.parse(text);
