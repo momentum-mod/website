@@ -1,5 +1,4 @@
 import { MapSubmission as PrismaMapSubmission } from '@prisma/client';
-import { Jsonify } from 'type-fest';
 import {
   MapSubmissionSuggestion,
   MapSubmissionType,
@@ -9,10 +8,11 @@ import {
 } from '../../../';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 
-export interface MapSubmission extends PrismaMapSubmission {
+export interface MapSubmission
+  extends Omit<PrismaMapSubmission, 'suggestions' | 'placeholders'> {
   type: MapSubmissionType;
-  suggestions: Jsonify<MapSubmissionSuggestion[]>;
-  placeholders: Jsonify<MapSubmissionPlaceholder[]>;
+  suggestions: MapSubmissionSuggestion[];
+  placeholders: MapSubmissionPlaceholder[];
   dates: MapSubmissionDate[];
   submitter?: User;
   versions: MapSubmissionVersion[];
