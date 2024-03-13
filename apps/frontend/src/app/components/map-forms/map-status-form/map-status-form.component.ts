@@ -22,7 +22,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe, JsonPipe, KeyValuePipe, NgClass } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ChartModule } from 'primeng/chart';
-import { from, leaderboardKey } from '@momentum/util-fn';
+import { arrayFrom, leaderboardKey } from '@momentum/util-fn';
 import * as Chart from 'chart.js';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
@@ -197,7 +197,7 @@ export class MapStatusFormComponent implements OnChanges {
   ) {
     const subSuggs = this.map.submission.suggestions;
     const reviewSuggs = reviews.flatMap(({ suggestions }) => suggestions);
-    const arr10 = from(10, (_, i) => i + 1);
+    const arr10 = arrayFrom(10, (i) => i + 1);
     const style = getComputedStyle(document.documentElement);
     const tierColors = arr10.map((k) => style.getPropertyValue(`--tier-${k}`));
     const ratingColors = ['blue', 'green', 'orange', 'red', 'purple'].map(

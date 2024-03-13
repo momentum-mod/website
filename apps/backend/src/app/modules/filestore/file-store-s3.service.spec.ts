@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { mockDeep } from 'jest-mock-extended';
 import { FileStoreS3Service } from './file-store-s3.service';
-import { from } from '@momentum/util-fn';
+import { arrayFrom } from '@momentum/util-fn';
 
 describe('FileStoreS3Service', () => {
   let service: FileStoreS3Service;
@@ -106,7 +106,7 @@ describe('FileStoreS3Service', () => {
   });
 
   it('deleteFiles should handle deleting LOADS of files', async () => {
-    const fileKeys = from(10000, (k) => `fileKey${k}`);
+    const fileKeys = arrayFrom(10000, (k) => `fileKey${k}`);
 
     const spy = jest.spyOn(service['s3Client'], 'send');
     spy.mockImplementation(() => Promise.resolve());

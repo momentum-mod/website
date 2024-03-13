@@ -1,4 +1,4 @@
-import { from } from '@momentum/util-fn';
+import { arrayFrom } from '@momentum/util-fn';
 
 interface Lump {
   offset: number;
@@ -64,7 +64,7 @@ export class BspHeader {
 
     header.version = view.getInt32(4, true);
 
-    header.lumps = from(BspHeader.HEADER_LUMPS, (_, i) => {
+    header.lumps = arrayFrom(BspHeader.HEADER_LUMPS, (i) => {
       const offset = 8 + i * 16;
       return {
         offset: view.getInt32(offset, true),

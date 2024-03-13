@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
+import { arrayFrom } from '@momentum/util-fn';
 
 /**
  * Returns a number[] between (start, stop], like a Python range().
@@ -11,6 +12,6 @@ export class RangePipe implements PipeTransform {
       start = 0;
     }
 
-    return Array.from({ length: stop - start }, (_, i) => start + i);
+    return arrayFrom(stop - start, (i) => start + i);
   }
 }

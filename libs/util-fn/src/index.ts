@@ -7,7 +7,7 @@ export * from './is-object';
 export * from './flatten-object';
 export * from './vector';
 export * from './parallel';
-export * from './from';
+export * from './array-from';
 export * from './kebab-case';
 export * from './deep-equal';
 export * from './extract-prefix-from-map-name';

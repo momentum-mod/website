@@ -9,6 +9,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { arrayFrom } from '@momentum/util-fn';
 
 describe('Reports', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
@@ -53,7 +54,7 @@ describe('Reports', () => {
 
       it('should 409 if the user has 5 or more pending reports in the last 24 hours', async () => {
         await prisma.report.createMany({
-          data: Array.from({ length: 5 }, () => ({
+          data: arrayFrom(5, () => ({
             submitterID: user.id,
             data: 1,
             type: ReportType.MAP_COMMENT_REPORT,
@@ -72,7 +73,7 @@ describe('Reports', () => {
 
       it('should create a new report if the pending reports are older than 24 hours', async () => {
         await prisma.report.createMany({
-          data: Array.from({ length: 5 }, () => ({
+          data: arrayFrom(5, () => ({
             submitterID: user.id,
             data: 1,
             type: ReportType.MAP_COMMENT_REPORT,
@@ -93,7 +94,7 @@ describe('Reports', () => {
 
       it('should create a new report if recent reports are resolved', async () => {
         await prisma.report.createMany({
-          data: Array.from({ length: 5 }, () => ({
+          data: arrayFrom(5, () => ({
             submitterID: user.id,
             data: 1,
             type: ReportType.MAP_COMMENT_REPORT,
