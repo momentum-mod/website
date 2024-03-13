@@ -7,7 +7,7 @@
   </a>
 
   <p-overlayPanel #searchOverlay>
-    <m-search (selected)="searchOverlay.hide()" />
+    <m-multisearch (selected)="searchOverlay.hide()" />
   </p-overlayPanel>
   <div class="item">
     <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>

@@ -6,12 +6,12 @@ import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RouterLink } from '@angular/router';
-import { IconComponent } from '../../../icons';
-import { LocalUserService, UsersService } from '../../../services';
-import { TooltipDirective, SpinnerDirective } from '../../../directives/';
-import { RoleBadgesComponent } from '../../role-badges/role-badges.component';
+import { IconComponent } from '../../icons';
+import { LocalUserService, UsersService } from '../../services';
+import { TooltipDirective, SpinnerDirective } from '../../directives';
+import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
-import { SpinnerComponent } from '../../spinner/spinner.component';
+import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({
   selector: 'm-user-search',

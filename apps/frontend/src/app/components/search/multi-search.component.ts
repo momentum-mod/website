@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MMap, User } from '@momentum/constants';
-import { UserSearchComponent } from './user-search/user-search.component';
-import { MapSearchComponent } from './user-search/map-search.component';
+import { UserSearchComponent } from './user-search.component';
+import { MapSearchComponent } from './map-search.component';
 
 enum SearchType {
   USER,
@@ -12,10 +12,10 @@ enum SearchType {
 }
 
 @Component({
-  selector: 'm-search',
+  selector: 'm-multisearch',
   standalone: true,
   imports: [CommonModule, FormsModule, UserSearchComponent, MapSearchComponent],
-  templateUrl: './search.component.html',
+  templateUrl: './multi-search.component.html',
   styles: [
     `
       :host {
@@ -27,7 +27,7 @@ enum SearchType {
     `
   ]
 })
-export class SearchComponent {
+export class MultiSearchComponent {
   protected readonly SearchType = SearchType;
   protected activeType: SearchType = SearchType.MAP;
   @Output() readonly selected = new EventEmitter<void>();
