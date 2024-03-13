@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   CombinedMapStatuses,
@@ -123,6 +123,7 @@ export class MapInfoComponent implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly mapService: MapsService,
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
@@ -156,11 +157,17 @@ export class MapInfoComponent implements OnInit {
         ),
         tap(() => (this.loading = false))
       )
-      .subscribe((map) => this.setMap(map));
+      .subscribe({
+        next: (map) => this.setMap(map),
+        error: () => this.router.navigate(['/404'])
+      });
   }
 
   setMap(map: MMap) {
     this.map = map;
+
+    if (!map) this.router.navigate(['/404']);
+
     const [name, prefix] = extractPrefixFromMapName(map.name);
     this.name = name;
     this.prefix = prefix;
