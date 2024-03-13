@@ -55,7 +55,7 @@
       </div>
     </div>
     <div #sideBar>
-      <m-card-body #card [mSpinner]="loading" class="m-card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none p-0">
+      <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
         <!-- This double gallery setup is SO messy but I hate this component and
              dont have time to write a custom one. -->
         <p-galleria
@@ -104,20 +104,21 @@
             <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
           </div>
           <div class="ml-auto flex items-center gap-1" [mTooltip]="dateTooltip">
-            <p class="font-display text-24 drop-shadow-md">{{ map.info?.creationDate | date }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.createdAt | date }}</p>
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>
           <ng-template #dateTooltip>
-            <p class="text-right"><b>First Released - </b>{{ map.info?.creationDate | date }}</p>
+            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
             @if (map.status === MapStatusNew.APPROVED) {
-              <p><b>Added to Momentum - </b>{{ getLatestStatusChangeDate(MapStatusNew.APPROVED) | date }}</p>
+              <!-- TODO: New date thing -->
+              <p><b>Released in Momentum - </b>{{ getLatestStatusChangeDate(MapStatusNew.APPROVED) | date }}</p>
             }
           </ng-template>
         </div>
 
         @if (inSubmission) {
           <div
-            class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3  [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
+            class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
           >
             <p>In Submission -</p>
             <i>{{ MapStatusName.get(map.status) }}</i
@@ -188,13 +189,18 @@
             </div>
           </div>
         </div>
-      </m-card-body>
+      </div>
     </div>
     <div>
       <div class="stack card card--fancy border-opacity-[0.0675] p-4">
         <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
-        <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
-      </m-card-body>
+        <!-- Don't insert this at all if not in submission, we don't want to 
+             try fetch extra data/images unless we're may actually display it.
+         -->
+        @if (this.map.status !== MapStatusNew.APPROVED) {
+          <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
+        }
+      </div>
     </div>
   </div>
 
