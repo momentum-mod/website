@@ -206,10 +206,10 @@
           @if (images.errors?.['imageFileDimensionsError']) {
             <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be 2560x1440 - use the TODO!!! command!</p>
           }
-          @if (bsp.errors?.['imageFileReadError']) {
+          @if (images.errors?.['imageFileReadError']) {
             <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Bad image file.</p>
           }
-          @if (bsp.errors?.['fileReadError']) {
+          @if (images.errors?.['fileReadError']) {
             <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
           }
         </div>
