@@ -6,7 +6,7 @@
         (click)="selectMode($index)"
         [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
       >
-        <img class="aspect-square h-11" [src]="'assets/images/gamemodes/' + GamemodeIcon.get(groupedLeaderboard.gamemode)" />
+        <img class="aspect-square h-11" [src]="GamemodeIcon.get(groupedLeaderboard.gamemode)" />
         <p class="font-display text-5xl font-bold leading-none">
           {{ groupedLeaderboard.gamemodeName }}
         </p>
