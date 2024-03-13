@@ -12,6 +12,7 @@
 <div class="stack overflow-hidden">
   <m-user-search
     #userSearch
+    [useOverlay]="false"
     [ngClass]="{ hide: activeType !== SearchType.USER }"
     class="transition-all [&.hide]:-z-10 [&.hide]:translate-x-1/2 [&.hide]:opacity-0"
     (selected)="userSelected($event); userSearch.resetSearchBox()"

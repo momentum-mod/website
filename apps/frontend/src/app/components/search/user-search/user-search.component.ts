@@ -1,16 +1,17 @@
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
-import { NgClass, NgOptimizedImage } from '@angular/common';
+import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../../icons';
 import { LocalUserService, UsersService } from '../../../services';
 import { TooltipDirective, SpinnerDirective } from '../../../directives/';
 import { RoleBadgesComponent } from '../../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
+import { SpinnerComponent } from '../../spinner/spinner.component';
 
 @Component({
   selector: 'm-user-search',
@@ -27,10 +28,15 @@ import { AbstractSearchComponent } from './abstract-search.component';
     RouterLink,
     TooltipDirective,
     RoleBadgesComponent,
-    SpinnerDirective
+    SpinnerDirective,
+    SpinnerComponent,
+    NgTemplateOutlet
   ]
 })
-export class UserSearchComponent extends AbstractSearchComponent<User> {
+export class UserSearchComponent
+  extends AbstractSearchComponent<User>
+  implements OnInit
+{
   constructor(
     private readonly usersService: UsersService,
     private readonly localUserService: LocalUserService
@@ -39,15 +45,19 @@ export class UserSearchComponent extends AbstractSearchComponent<User> {
   }
 
   protected readonly Role = Role;
-  itemsName = 'users';
+  public itemsName = 'users';
   protected searchBySteam = false;
 
   /**
    * Show a button for opening the user profile in a separate tab. Used when a
    * component wants to select a user, not view this profile (e.g. credits
    * picker)
-   * */
+   */
   @Input() showProfileButton = false;
+  @Input() useOverlay = true;
+
+  @ViewChild('searchMain') mainEl: ElementRef;
+  @ViewChild('searchOverlay') overlay: OverlayPanel;
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {
@@ -66,5 +76,17 @@ export class UserSearchComponent extends AbstractSearchComponent<User> {
 
   hasRole(role: Role, user: User) {
     return this.localUserService.hasRole(role, user);
+  }
+
+  override ngOnInit() {
+    if (this.useOverlay) {
+      this.search.valueChanges.subscribe((value) =>
+        value?.length > 0
+          ? this.overlay.show(null, this.mainEl.nativeElement)
+          : this.overlay.hide()
+      );
+    }
+
+    super.ngOnInit();
   }
 }
