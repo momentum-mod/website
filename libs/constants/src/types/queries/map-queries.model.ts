@@ -14,15 +14,15 @@ type BaseMapsGetAllExpand =
   | 'submitter'
   | 'credits';
 
-export type MapsGetAllExpand = (
+export type MapsGetAllExpand = Array<
   | BaseMapsGetAllExpand
   | 'inFavorites'
   | 'inLibrary'
   | 'personalBest'
   | 'worldRecord'
-)[];
+>;
 
-export type MapsGetAllSubmissionExpand = (
+export type MapsGetAllSubmissionExpand = Array<
   | BaseMapsGetAllExpand
   | 'inFavorites'
   | 'inLibrary'
@@ -31,7 +31,7 @@ export type MapsGetAllSubmissionExpand = (
   | 'currentVersion'
   | 'versions'
   | 'reviews'
-)[];
+>;
 
 type MapsGetAllBaseQuery = {
   skip?: number;
@@ -47,18 +47,19 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   difficultyLow?: number;
   difficultyHigh?: number;
   linear?: boolean;
+  favorite?: boolean;
+  PB?: boolean;
 };
 
-export type MapsGetAllAdminFilter = MapStatusNew[];
+export type MapsGetAllAdminFilter = Array<MapStatusNew>;
 
 export type MapsGetAllAdminQuery = MapsGetAllBaseQuery & {
   filter?: MapsGetAllAdminFilter;
 };
 
-export type MapsGetAllSubmissionFilter = (
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-)[];
+export type MapsGetAllSubmissionFilter = Array<
+  MapStatusNew.PUBLIC_TESTING | MapStatusNew.PRIVATE_TESTING
+>;
 
 export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
   expand?: MapsGetAllSubmissionExpand;
@@ -70,34 +71,28 @@ export type MapsGetAllUserSubmissionQuery = Omit<
   'submitterID'
 >;
 
-export type MapsGetAllSubmissionAdminFilter = (
+export type MapsGetAllSubmissionAdminFilter = Array<
   | MapStatusNew.PUBLIC_TESTING
   | MapStatusNew.PRIVATE_TESTING
   | MapStatusNew.CONTENT_APPROVAL
   | MapStatusNew.FINAL_APPROVAL
-)[];
+>;
 
 //#endregion
 //#region Get
 
-export type MapsGetExpand = (
-  | MapsGetAllSubmissionExpand[0]
-  | 'submission'
-  | 'testInvites'
-)[];
+export type MapsGetExpand = Array<
+  MapsGetAllSubmissionExpand[number] | 'submission' | 'testInvites'
+>;
 
-export type MapsGetQuery = {
-  expand?: MapsGetExpand;
-};
+export type MapsGetQuery = { expand?: MapsGetExpand };
 
 //#endregion
 //#region Credits
 
 export type MapCreditsGetExpand = 'user';
 
-export type MapCreditsGetQuery = {
-  expand?: MapCreditsGetExpand;
-};
+export type MapCreditsGetQuery = { expand?: MapCreditsGetExpand };
 
 //#endregion
 //#region Runs
