@@ -119,7 +119,7 @@ export class MapInfoComponent implements OnInit {
   inSubmission: boolean;
 
   currentSection?: MapInfoSection = null;
-  sections = () => Enum.values(MapInfoSection);
+  sections = Enum.values(MapInfoSection);
 
   constructor(
     private readonly route: ActivatedRoute,
