@@ -141,7 +141,7 @@ export class MapSubmissionFormComponent
         [FileValidators.isValidVdf()]
       ]
     }),
-    info: this.fb.group({
+    details: this.fb.group({
       name: [
         '',
         [
@@ -194,75 +194,6 @@ export class MapSubmissionFormComponent
     )
   });
 
-  get files() {
-    return this.form.get('files') as FormGroup;
-  }
-
-  get info() {
-    return this.form.get('info') as FormGroup;
-  }
-
-  get privateTesting() {
-    return this.form.get('privateTesting') as FormGroup;
-  }
-
-  get bsp() {
-    return this.form.get('files.bsp') as FormControl<File>;
-  }
-
-  get vmfs() {
-    return this.form.get('files.vmfs') as FormControl<File[]>;
-  }
-
-  get zon() {
-    return this.form.get('files.zon') as FormControl<File>;
-  }
-
-  get youtubeID() {
-    return this.form.get('info.youtubeID') as FormControl<string>;
-  }
-
-  get name() {
-    return this.form.get('info.name') as FormControl<string>;
-  }
-
-  get description() {
-    return this.form.get('info.description') as FormControl<string>;
-  }
-
-  get creationDate() {
-    return this.form.get('info.creationDate') as FormControl<Date>;
-  }
-
-  get submissionType() {
-    return this.form.get(
-      'info.submissionType'
-    ) as FormControl<MapSubmissionType>;
-  }
-
-  get images() {
-    return this.form.get('images') as FormControl<File[]>;
-  }
-
-  get credits() {
-    return this.form.get('credits') as FormControl<GroupedMapCredits>;
-  }
-
-  get suggestions() {
-    return this.form.get('suggestions') as FormControl<
-      MapSubmissionSuggestion[]
-    >;
-  }
-
-  get wantsPrivateTesting() {
-    return this.privateTesting.get(
-      'wantsPrivateTesting'
-    ) as FormControl<boolean>;
-  }
-
-  get testInvites() {
-    return this.privateTesting.get('testInvites') as FormControl<number[]>;
-  }
 
   ngOnInit(): void {
     this.zon.statusChanges.pipe(distinctUntilChanged()).subscribe((status) => {
@@ -482,5 +413,75 @@ export class MapSubmissionFormComponent
     else if (this.form.dirty)
       return 'Form is incomplete, are you sure you want to leave this page?';
     return true;
+  }
+
+  get files() {
+    return this.form.get('files') as FormGroup;
+  }
+
+  get details() {
+    return this.form.get('details') as FormGroup;
+  }
+
+  get privateTesting() {
+    return this.form.get('privateTesting') as FormGroup;
+  }
+
+  get bsp() {
+    return this.form.get('files.bsp') as FormControl<File>;
+  }
+
+  get vmfs() {
+    return this.form.get('files.vmfs') as FormControl<File[]>;
+  }
+
+  get zon() {
+    return this.form.get('files.zon') as FormControl<File>;
+  }
+
+  get youtubeID() {
+    return this.form.get('details.youtubeID') as FormControl<string>;
+  }
+
+  get name() {
+    return this.form.get('details.name') as FormControl<string>;
+  }
+
+  get description() {
+    return this.form.get('details.description') as FormControl<string>;
+  }
+
+  get creationDate() {
+    return this.form.get('details.creationDate') as FormControl<Date>;
+  }
+
+  get submissionType() {
+    return this.form.get(
+      'details.submissionType'
+    ) as FormControl<MapSubmissionType>;
+  }
+
+  get images() {
+    return this.form.get('images') as FormControl<File[]>;
+  }
+
+  get credits() {
+    return this.form.get('credits') as FormControl<GroupedMapCredits>;
+  }
+
+  get suggestions() {
+    return this.form.get('suggestions') as FormControl<
+      MapSubmissionSuggestion[]
+    >;
+  }
+
+  get wantsPrivateTesting() {
+    return this.privateTesting.get(
+      'wantsPrivateTesting'
+    ) as FormControl<boolean>;
+  }
+
+  get testInvites() {
+    return this.privateTesting.get('testInvites') as FormControl<number[]>;
   }
 }
