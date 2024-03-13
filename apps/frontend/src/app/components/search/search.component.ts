@@ -22,6 +22,7 @@ enum SearchType {
         display: flex;
         flex-direction: column;
         min-width: 32rem;
+        padding: 0.75rem;
       }
     `
   ]
