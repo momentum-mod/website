@@ -15,7 +15,7 @@
     </div>
     <div class="ml-2 flex gap-2">
       @if (currentSection != null && inSubmission) {
-        @for (section of sections(); track $index) {
+        @for (section of sections; track $index) {
           <button
             class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
             [ngClass]="{ '!text-white': currentSection === section }"
