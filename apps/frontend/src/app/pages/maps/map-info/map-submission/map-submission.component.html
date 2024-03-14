@@ -70,6 +70,7 @@
     }
     <p class="mb-4 mt-1 last:mb-0">
       <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
+      <a class="link mr-4 cursor-pointer text-sm font-medium" (click)="downloadZoneFile(map)">Download Zones</a>
       @if (version.vmfDownloadURL) {
         <a class="link text-sm font-medium" [href]="version.vmfDownloadURL">Download VMF</a>
       }
