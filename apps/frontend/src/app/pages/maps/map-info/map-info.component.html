@@ -33,6 +33,27 @@
           <m-icon class="mr-2 pb-0.5" icon="play-circle" />
           Play
         </button>
+        @if (map.downloadURL ?? map.submission?.currentVersion?.downloadURL; as bsp) {
+          <a (click)="downloadOverlay.show($event)" class="btn btn-purple" mTooltip="Download map file">
+            <m-icon class="pb-0.5" icon="download" />
+            <p-overlayPanel #downloadOverlay appendTo="body">
+              <div class="max-w-lg">
+                <p class="mb-1 text-sm italic text-gray-200">
+                  For convenience we recommend downloading and launching maps through the in-game map browser!
+                </p>
+                <p>
+                  <a class="link" [href]="bsp">Download BSP</a>
+                </p>
+                <p>
+                  <a class="link cursor-pointer" (click)="downloadZoneFile(map)">Download Zones</a>
+                </p>
+                @if (map.vmfDownloadURL ?? map.submission?.currentVersion?.vmfDownloadURL; as vmf) {
+                  <p><a class="link" [href]="vmf">Download VMF</a></p>
+                }
+              </div>
+            </p-overlayPanel>
+          </a>
+        }
         <button
           class="btn btn-yellow"
           type="button"
