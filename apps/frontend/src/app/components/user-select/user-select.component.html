@@ -1,0 +1,10 @@
+@if (value) {
+  <div class="inputlike flex h-10 w-full items-center gap-2 px-2">
+    <m-user [user]="value" aliasClass="text-16" avatarClass="!h-6" />
+    <button type="button" (click)="removeUser()" class="flex">
+      <m-icon icon="close" class="my-auto opacity-75 transition-opacity hover:opacity-100" />
+    </button>
+  </div>
+} @else {
+  <m-user-search (selected)="selectUser($event)" />
+}
