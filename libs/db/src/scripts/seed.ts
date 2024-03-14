@@ -1021,6 +1021,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                         versionNum: true,
                         hash: true,
                         changelog: true,
+                        zones: true,
                         createdAt: true
                       }
                     },
