@@ -1,22 +1,6 @@
-<m-card title="Submitted Maps">
-  <div class="flex flex-wrap justify-around text-center">
-    <div class="mx-1 mb-3 border-b-2 border-green-500">
-      <h4 class="mb-0">
-        {{ submittedMapStatusSummary[MapStatus.APPROVED] || 0 }}
-      </h4>
-      <h5>Approved</h5>
-    </div>
-
-    <div class="mx-1 mb-3 border-b-2 border-orange-500">
-      <h4 class="mb-0">{{ submittedMapStatusSummary[MapStatus.PENDING] || 0 }}</h4>
-      <h5>Pending</h5>
-    </div>
-
-    <div class="mx-1 mb-3 border-b-2 border-red-500">
-      <h4 class="mb-0">
-        {{ submittedMapStatusSummary[MapStatus.REJECTED] || 0 }}
-      </h4>
-      <h5>Rejected</h5>
-    </div>
-  </div>
+<m-card [loading]="loading" title="Submitted Maps" cardClass="grid grid-cols-2 place-items-center">
+  <p class="font-display text-24">Approved</p>
+  <p class="font-display text-24">In Submission</p>
+  <p class="mb-2 border-b-2 border-blue-500 font-display text-4xl font-bold">{{ approved }}</p>
+  <p class="mb-2 border-b-2 border-purple-500 font-display text-4xl font-bold">{{ submission }}</p>
 </m-card>
