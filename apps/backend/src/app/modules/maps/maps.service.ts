@@ -76,7 +76,6 @@ import {
   MapInfoDto,
   MapsGetAllAdminQueryDto,
   MapsGetAllQueryDto,
-  MapsGetAllSubmissionAdminQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
   MapZonesDto,
@@ -85,7 +84,6 @@ import {
   UpdateMapDto
 } from '../../dto';
 import { FileStoreService } from '../filestore/file-store.service';
-import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 import { MapTestInviteService } from './map-test-invite.service';
 import { MapImageService } from './map-image.service';
 import {
@@ -101,8 +99,6 @@ export class MapsService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly config: ConfigService,
     private readonly fileStoreService: FileStoreService,
-    @Inject(forwardRef(() => LeaderboardRunsService))
-    private readonly leaderboardRunService: LeaderboardRunsService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestInviteService))
@@ -132,7 +128,6 @@ export class MapsService {
       | MapsGetAllQueryDto
       | MapsGetAllAdminQueryDto
       | MapsGetAllSubmissionQueryDto
-      | MapsGetAllSubmissionAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
@@ -194,10 +189,7 @@ export class MapsService {
           where.leaderboardRuns[quantifier].gamemode = query.gamemode;
         }
       }
-    } else if (
-      query instanceof MapsGetAllSubmissionQueryDto ||
-      query instanceof MapsGetAllSubmissionAdminQueryDto
-    ) {
+    } else if (query instanceof MapsGetAllSubmissionQueryDto) {
       const user = await this.db.user.findUnique({
         where: { id: userID },
         select: { roles: true }
@@ -352,66 +344,86 @@ export class MapsService {
       }
     }
 
-    const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
-      query.expand,
-      {
-        only: ['currentVersion', 'versions'],
-        mappings: [
-          {
-            expand: 'versions',
-            model: 'versions',
-            value: {
-              select: {
-                hash: true,
-                hasVmf: true,
-                versionNum: true,
-                id: true,
-                createdAt: true,
-                // Changelog and zones are quite large structures so not worth
-                // ever including on the paginated query - make clients query
-                // for a specific submission if they want all that stuff
-                zones: false,
-                changelog: false
-              }
-            }
-          }
-        ]
-      }
-    );
+    let incPB = false,
+      incWR = false;
 
     // Select (and include)
-    const select: Prisma.MMapSelect = {
-      ...this.baseMapsSelect,
-      submission: isEmpty(submissionInclude)
-        ? true
-        : { include: submissionInclude },
-      ...expandToIncludes(query.expand, {
-        without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
-        mappings: [
-          { expand: 'credits', value: { include: { user: true } } },
-          {
-            expand: 'inFavorites',
-            model: 'favorites',
-            value: { where: { userID: userID } }
-          },
-          {
-            expand: 'inLibrary',
-            model: 'libraryEntries',
-            value: { where: { userID: userID } }
-          }
-        ]
-      })
-    };
+    // For admins we don't need dynamic expands, just give em everything.
+    let select: Prisma.MMapSelect;
+    if (query instanceof MapsGetAllAdminQueryDto) {
+      select = {
+        ...this.baseMapsSelect,
+        submission: { include: { currentVersion: true, versions: true } },
+        info: true,
+        leaderboards: true,
+        images: true,
+        submitter: true,
+        credits: { include: { user: true } }
+      };
+    } else {
+      const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
+        query.expand,
+        {
+          only: ['currentVersion', 'versions'],
+          mappings: [
+            {
+              expand: 'versions',
+              model: 'versions',
+              value: {
+                select: {
+                  hash: true,
+                  hasVmf: true,
+                  versionNum: true,
+                  id: true,
+                  createdAt: true,
+                  // Changelog and zones are quite large structures so not worth
+                  // ever including on the paginated query - make clients query
+                  // for a specific submission if they want all that stuff
+                  zones: false,
+                  changelog: false
+                }
+              }
+            }
+          ]
+        }
+      );
 
-    let incPB: boolean, incWR: boolean;
+      select = {
+        ...this.baseMapsSelect,
+        submission: isEmpty(submissionInclude)
+          ? true
+          : { include: submissionInclude },
+        ...expandToIncludes(query.expand, {
+          without: [
+            'currentVersion',
+            'versions',
+            'personalBest',
+            'worldRecord'
+          ],
+          mappings: [
+            { expand: 'credits', value: { include: { user: true } } },
+            {
+              expand: 'inFavorites',
+              model: 'favorites',
+              value: { where: { userID: userID } }
+            },
+            {
+              expand: 'inLibrary',
+              model: 'libraryEntries',
+              value: { where: { userID: userID } }
+            }
+          ]
+        })
+      };
 
-    if (
-      query instanceof MapsGetAllQueryDto ||
-      query instanceof MapsGetAllSubmissionQueryDto
-    ) {
-      incPB = query.expand?.includes('personalBest');
-      incWR = query.expand?.includes('worldRecord');
-      this.handleMapGetIncludes(select, incPB, incWR, userID);
+      if (
+        query instanceof MapsGetAllQueryDto ||
+        query instanceof MapsGetAllSubmissionQueryDto
+      ) {
+        incPB = query.expand?.includes('personalBest');
+        incWR = query.expand?.includes('worldRecord');
+        this.handleMapGetIncludes(select, incPB, incWR, userID);
+      }
     }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
@@ -1491,17 +1503,16 @@ export class MapsService {
 
     if (!map) throw new NotFoundException('No map found');
 
+    // Set hashes to null to give frontend easy to tell files have been deleted
     await this.db.mMap.update({
       where: { id: mapID },
       data: { status: MapStatusNew.DISABLED, hash: null }
     });
 
-    // Delete all stored map images
-    await Promise.all(
-      map.images.map((imageID) =>
-        this.mapImageService.deleteStoredMapImage(imageID)
-      )
-    );
+    await this.db.mapSubmissionVersion.updateMany({
+      where: { submissionID: mapID },
+      data: { hash: null }
+    });
 
     // Delete any stored map files. Doesn't matter if any of these don't exist.
     await Promise.all(
