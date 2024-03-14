@@ -14,7 +14,7 @@ import {
 import {
   ActivityType,
   Gamemode,
-  MapStatusNew,
+  MapStatus,
   RunValidationErrorType,
   Tickrates,
   TrackType
@@ -40,7 +40,7 @@ describe('Session', () => {
 
     map = await db.createMapWithFullLeaderboards({
       name: 'ahop_eazy',
-      status: MapStatusNew.APPROVED
+      status: MapStatus.APPROVED
     });
   });
 
@@ -724,7 +724,7 @@ describe('Session', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         const res = await submitRun();
@@ -732,7 +732,7 @@ describe('Session', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 

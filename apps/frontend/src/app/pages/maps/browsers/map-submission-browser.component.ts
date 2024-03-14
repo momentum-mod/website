@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import {
   MapsGetAllSubmissionQuery,
-  MapStatusNew,
+  MapStatus,
   MMap,
   PagedResponse,
   User
@@ -18,10 +18,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 
 type StatusFilters = Array<
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-  | MapStatusNew.CONTENT_APPROVAL
-  | MapStatusNew.FINAL_APPROVAL
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
 >;
 
 // This component is very similar to the MapBrowserComponent, found it easier to
@@ -38,10 +38,10 @@ type StatusFilters = Array<
 })
 export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly StatusDropdown = [
-    { type: MapStatusNew.PRIVATE_TESTING, label: 'Private Testing' },
-    { type: MapStatusNew.CONTENT_APPROVAL, label: 'Content Approval' },
-    { type: MapStatusNew.PUBLIC_TESTING, label: 'Public Testing' },
-    { type: MapStatusNew.FINAL_APPROVAL, label: 'Final Approval' }
+    { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
+    { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+    { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
+    { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
   protected readonly filters = new FormGroup({

@@ -32,7 +32,7 @@ import {
   CombinedMapStatuses,
   Gamemode,
   MapCreditType,
-  MapStatusNew,
+  MapStatus,
   MapTestInviteState,
   MAX_CREDITS_EXCEPT_TESTERS,
   Role,
@@ -94,7 +94,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -105,7 +105,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -184,7 +184,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -195,7 +195,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -235,7 +235,7 @@ describe('Maps Part 2', () => {
         modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
         newMapCredit = [
           {
@@ -429,7 +429,7 @@ describe('Maps Part 2', () => {
       it('should allow an admin to update a credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
 
         await req.put({
@@ -442,7 +442,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
       });
 
@@ -458,7 +458,7 @@ describe('Maps Part 2', () => {
       it('should allow a mod to update the credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
 
         await req.put({
@@ -471,7 +471,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
       });
 
@@ -554,18 +554,16 @@ describe('Maps Part 2', () => {
         }));
 
       for (const [term, forbidden] of [
-        ['regular user', [MapStatusNew.DISABLED, MapStatusNew.APPROVED]],
+        ['regular user', [MapStatus.DISABLED, MapStatus.APPROVED]],
         ['moderator', []],
         ['admin', []]
       ]) {
-        for (const status of Enum.values(MapStatusNew)) {
-          const allow = !(forbidden as MapStatusNew[]).includes(status);
+        for (const status of Enum.values(MapStatus)) {
+          const allow = !(forbidden as MapStatus[]).includes(status);
 
           it(`should ${
             allow ? 'allow' : 'reject'
-          } a ${term} if map has status of ${
-            MapStatusNew[status]
-          }`, async () => {
+          } a ${term} if map has status of ${MapStatus[status]}`, async () => {
             await prisma.mMap.update({
               where: { id: map.id },
               data: { status }
@@ -589,7 +587,7 @@ describe('Maps Part 2', () => {
 
             await prisma.mMap.update({
               where: { id: map.id },
-              data: { status: MapStatusNew.APPROVED }
+              data: { status: MapStatus.APPROVED }
             });
           });
         }
@@ -676,7 +674,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -687,7 +685,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -785,7 +783,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -796,7 +794,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -820,7 +818,7 @@ describe('Maps Part 2', () => {
 
       beforeEach(async () => {
         map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } }
         });
       });
@@ -1016,7 +1014,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
 
         await req.putAttach({
@@ -1068,11 +1066,11 @@ describe('Maps Part 2', () => {
         });
       });
 
-      for (const status of Enum.values(MapStatusNew)) {
+      for (const status of Enum.values(MapStatus)) {
         const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
         const expectedStatus = shouldPass ? 200 : 403;
 
-        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+        it(`should ${expectedStatus} if the map is not in the ${MapStatus[status]} state`, async () => {
           await prisma.mMap.update({
             where: { id: map.id },
             data: { status }
@@ -1090,7 +1088,7 @@ describe('Maps Part 2', () => {
 
           await prisma.mMap.update({
             where: { id: map.id },
-            data: { status: MapStatusNew.PRIVATE_TESTING }
+            data: { status: MapStatus.PRIVATE_TESTING }
           });
         });
       }
@@ -1236,7 +1234,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -1248,7 +1246,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -1495,7 +1493,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -1507,7 +1505,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -1585,7 +1583,7 @@ describe('Maps Part 2', () => {
         ]);
 
         map = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submitter: { connect: { id: u1.id } }
         });
 
@@ -1768,7 +1766,7 @@ describe('Maps Part 2', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -1779,7 +1777,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -1810,17 +1808,17 @@ describe('Maps Part 2', () => {
         ]);
 
         pubTestMap = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submitter: { connect: { id: miscUser.id } }
         });
 
         approvedMap = await db.createMap({
-          status: MapStatusNew.APPROVED,
+          status: MapStatus.APPROVED,
           submitter: { connect: { id: miscUser.id } }
         });
 
         privTestMap = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submitter: { connect: { id: miscUser.id } }
         });
       });
@@ -1975,7 +1973,7 @@ describe('Maps Part 2', () => {
         ]);
 
         map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submitter: { connect: { id: u1.id } }
         });
       });
@@ -2102,10 +2100,10 @@ describe('Maps Part 2', () => {
           token: u1Token
         }));
 
-      for (const status of difference(Enum.values(MapStatusNew), [
-        MapStatusNew.PRIVATE_TESTING
+      for (const status of difference(Enum.values(MapStatus), [
+        MapStatus.PRIVATE_TESTING
       ]))
-        it(`should 403 if the map is in ${MapStatusNew[status]}`, async () => {
+        it(`should 403 if the map is in ${MapStatus[status]}`, async () => {
           await prisma.mMap.update({
             where: { id: map.id },
             data: { status }
@@ -2131,7 +2129,7 @@ describe('Maps Part 2', () => {
         [user, token] = await db.createAndLoginUser();
 
         map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           testInvites: {
             create: { userID: user.id, state: MapTestInviteState.UNREAD }
           }
@@ -2189,10 +2187,10 @@ describe('Maps Part 2', () => {
           token
         }));
 
-      for (const status of difference(Enum.values(MapStatusNew), [
-        MapStatusNew.PRIVATE_TESTING
+      for (const status of difference(Enum.values(MapStatus), [
+        MapStatus.PRIVATE_TESTING
       ]))
-        it(`should 403 if the map is in ${MapStatusNew[status]}`, async () => {
+        it(`should 403 if the map is in ${MapStatus[status]}`, async () => {
           await prisma.mMap.update({
             where: { id: map.id },
             data: { status }

@@ -45,7 +45,10 @@ import {
   ]
 })
 export class MapBrowserComponent implements OnInit {
-  protected readonly ORDERED_GAMEMODES = ORDERED_GAMEMODES;
+  protected readonly ORDERED_GAMEMODES = [
+    { value: undefined, text: 'All modes' },
+    ...ORDERED_GAMEMODES
+  ];
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 

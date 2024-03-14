@@ -1,4 +1,4 @@
-import { MapStatusNew as S, Role as R } from '../';
+import { MapStatus as S, Role as R } from '../';
 
 /**
  * Stores what changes between map statuses are allowed by what users

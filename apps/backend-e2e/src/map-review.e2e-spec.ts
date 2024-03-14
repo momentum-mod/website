@@ -12,7 +12,7 @@ import {
 import {
   Gamemode,
   mapReviewAssetPath,
-  MapStatusNew,
+  MapStatus,
   Role,
   TrackType
 } from '@momentum/constants';
@@ -47,7 +47,7 @@ describe('Map Reviews', () => {
           data: { roles: Role.REVIEWER }
         });
 
-        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
 
         review = await prisma.mapReview.create({
           data: {
@@ -108,7 +108,7 @@ describe('Map Reviews', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -119,7 +119,7 @@ describe('Map Reviews', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -143,7 +143,7 @@ describe('Map Reviews', () => {
           db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
         ]);
 
-        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
       afterAll(() => db.cleanup('mMap', 'user'));
@@ -246,7 +246,7 @@ describe('Map Reviews', () => {
 
       it('should return 403 if map not in submission', async () => {
         const approvedMap = await db.createMap({
-          status: MapStatusNew.APPROVED,
+          status: MapStatus.APPROVED,
           submitter: { connect: { id: u2.id } }
         });
 
@@ -290,7 +290,7 @@ describe('Map Reviews', () => {
         ]);
 
         map = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING
+          status: MapStatus.PUBLIC_TESTING
         });
       });
 
@@ -360,7 +360,7 @@ describe('Map Reviews', () => {
 
       it("should 403 if map isn't in submission", async () => {
         const approvedMap = await db.createMap({
-          status: MapStatusNew.APPROVED
+          status: MapStatus.APPROVED
         });
 
         const rev = await prisma.mapReview.create({
@@ -401,7 +401,7 @@ describe('Map Reviews', () => {
           db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
         ]);
 
-        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
 
         const review = await prisma.mapReview.create({
           data: {

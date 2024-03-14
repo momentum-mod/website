@@ -7,7 +7,7 @@ import {
   Gamemode,
   LeaderboardType,
   MapCreditType,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
   MIN_PUBLIC_TESTING_DURATION,
@@ -121,14 +121,14 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.CONTENT_APPROVAL },
+      body: { status: MapStatus.CONTENT_APPROVAL },
       token
     });
 
     await req.patch({
       url: `admin/maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.PUBLIC_TESTING },
+      body: { status: MapStatus.PUBLIC_TESTING },
       token: reviewerToken
     });
 
@@ -168,7 +168,7 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 403,
-      body: { status: MapStatusNew.FINAL_APPROVAL },
+      body: { status: MapStatus.FINAL_APPROVAL },
       token
     });
 
@@ -178,7 +178,7 @@ describe('Multi-stage E2E tests', () => {
     // So, boring way, just patch the date in DB.
     const tmpMap = await prisma.mapSubmission.findUnique({ where: { mapID } });
     const dates = tmpMap.dates as MapSubmissionDate[];
-    dates.find((x) => x.status === MapStatusNew.PUBLIC_TESTING).date = new Date(
+    dates.find((x) => x.status === MapStatus.PUBLIC_TESTING).date = new Date(
       Date.now() - MIN_PUBLIC_TESTING_DURATION
     ).toJSON();
     await prisma.mapSubmission.update({ where: { mapID }, data: { dates } });
@@ -186,7 +186,7 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.FINAL_APPROVAL },
+      body: { status: MapStatus.FINAL_APPROVAL },
       token
     });
 
@@ -195,7 +195,7 @@ describe('Multi-stage E2E tests', () => {
       url: `admin/maps/${mapID}`,
       status: 204,
       body: {
-        status: MapStatusNew.APPROVED,
+        status: MapStatus.APPROVED,
         finalLeaderboards: [
           {
             gamemode: Gamemode.BHOP,
@@ -217,7 +217,7 @@ describe('Multi-stage E2E tests', () => {
     });
 
     expect(mapRes).toMatchObject({
-      status: MapStatusNew.APPROVED,
+      status: MapStatus.APPROVED,
       name: 'surf_todd_howard',
       credits: [
         {

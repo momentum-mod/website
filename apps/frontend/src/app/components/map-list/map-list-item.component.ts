@@ -12,8 +12,7 @@ import {
   LeaderboardType,
   MapCreditType,
   MapStatusName,
-  MapStatusNameNew,
-  MapStatusNew,
+  MapStatus,
   MMap
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
@@ -45,8 +44,8 @@ export class MapListItemComponent implements OnChanges {
   protected readonly GamemodeIcon = GamemodeIcon;
   protected readonly GamemodeName = GamemodeName;
   protected readonly LeaderboardType = LeaderboardType;
-  protected readonly MapStatusName = MapStatusNameNew;
-  protected readonly MapStatus = MapStatusNew;
+  protected readonly MapStatusName = MapStatusName;
+  protected readonly MapStatus = MapStatus;
 
   @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
   @Input() isSubmission = false;

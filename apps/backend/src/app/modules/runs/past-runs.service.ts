@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatusNew, RunsGetQuery } from '@momentum/constants';
+import { MapStatus, RunsGetQuery } from '@momentum/constants';
 import { PastRun, Prisma } from '@prisma/client';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -46,7 +46,7 @@ export class PastRunsService {
 
       where.mapID = query.mapID;
     } else {
-      where.mmap = { status: MapStatusNew.APPROVED };
+      where.mmap = { status: MapStatus.APPROVED };
       if (query.mapName) {
         where.mmap.name = { contains: query.mapName };
       }
@@ -110,7 +110,7 @@ export class PastRunsService {
 
     if (!dbResponse) throw new NotFoundException('Run not found');
 
-    if (dbResponse.mmap.status !== MapStatusNew.APPROVED) {
+    if (dbResponse.mmap.status !== MapStatus.APPROVED) {
       await this.mapsService.getMapAndCheckReadAccess({
         map: dbResponse.mmap,
         userID

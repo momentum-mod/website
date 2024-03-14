@@ -10,7 +10,7 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
-import { MapStatusNew, Order, RunsGetAllOrder } from '@momentum/constants';
+import { MapStatus, Order, RunsGetAllOrder } from '@momentum/constants';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -38,7 +38,7 @@ describe('Runs', () => {
         [users, maps, testingMap] = await Promise.all([
           db.createUsers(2),
           db.createMaps(2),
-          db.createMap({ status: MapStatusNew.PUBLIC_TESTING })
+          db.createMap({ status: MapStatus.PUBLIC_TESTING })
         ]);
         token = auth.login(users[0]);
 
@@ -173,7 +173,7 @@ describe('Runs', () => {
       it("should refuse to return non-approved maps the user can't access", async () => {
         await prisma.mMap.update({
           where: { id: testingMap.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -185,7 +185,7 @@ describe('Runs', () => {
 
         await prisma.mMap.update({
           where: { id: testingMap.id },
-          data: { status: MapStatusNew.PUBLIC_TESTING }
+          data: { status: MapStatus.PUBLIC_TESTING }
         });
       });
 
@@ -372,7 +372,7 @@ describe('Runs', () => {
       it("should refuse to return non-approved maps the user can't access", async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -383,7 +383,7 @@ describe('Runs', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PUBLIC_TESTING }
+          data: { status: MapStatus.PUBLIC_TESTING }
         });
       });
 

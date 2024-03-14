@@ -21,7 +21,7 @@ import {
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
   MAP_NAME_REGEXP,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
   MapSubmissionType,
@@ -122,7 +122,7 @@ export type FinalApprovalFormGroup = Record<
   ]
 })
 export class MapEditComponent implements OnInit, ConfirmDeactivate {
-  protected readonly MapStatusNew = MapStatusNew;
+  protected readonly MapStatus = MapStatus;
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
 
@@ -191,7 +191,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     }),
 
     statusChange: this.fb.group({
-      status: [-1 as MapStatusNew | -1],
+      status: [-1 as MapStatus | -1],
       finalLeaderboards: new FormControl<MapSubmissionApproval[]>([])
     })
   });
@@ -326,7 +326,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       this.map?.zones ?? this.map.submission?.currentVersion?.zones;
     this.suggestions.setValue(this.map.submission.suggestions);
 
-    if (this.map.status === MapStatusNew.FINAL_APPROVAL) {
+    if (this.map.status === MapStatus.FINAL_APPROVAL) {
       const validatorFn = suggestionsValidator(
         () => this.map?.zones ?? this.map.submission?.currentVersion?.zones,
         SuggestionType.APPROVAL
@@ -334,7 +334,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       this.status.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((status) =>
-          status === MapStatusNew.APPROVED
+          status === MapStatus.APPROVED
             ? this.finalLeaderboards.addValidators(validatorFn)
             : this.finalLeaderboards.removeValidators(validatorFn)
         );
@@ -390,9 +390,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           this.isSubmitter &&
           !(
             (this.isAdmin || this.isMod) &&
-            (body.status === MapStatusNew.APPROVED ||
-              this.map.status === MapStatusNew.APPROVED ||
-              this.map.status === MapStatusNew.DISABLED)
+            (body.status === MapStatus.APPROVED ||
+              this.map.status === MapStatus.APPROVED ||
+              this.map.status === MapStatus.DISABLED)
           )
         ) {
           await firstValueFrom(
@@ -558,7 +558,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   setupTestInviteForm() {
     this.versionForm.reset();
 
-    if (this.map.status !== MapStatusNew.PRIVATE_TESTING) return;
+    if (this.map.status !== MapStatus.PRIVATE_TESTING) return;
 
     this.testInviteForm.setValue(
       this.map.testInvites
@@ -722,9 +722,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   get status() {
-    return this.mainForm.get(
-      'statusChange.status'
-    ) as FormControl<MapStatusNew>;
+    return this.mainForm.get('statusChange.status') as FormControl<MapStatus>;
   }
 
   get finalLeaderboards() {

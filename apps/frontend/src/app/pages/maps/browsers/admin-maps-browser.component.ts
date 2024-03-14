@@ -1,8 +1,8 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import {
   MapsGetAllAdminQuery,
-  MapStatusNameNew,
-  MapStatusNew,
+  MapStatusName,
+  MapStatus,
   MMap,
   PagedResponse
 } from '@momentum/constants';
@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SpinnerDirective } from '../../../directives';
 
-type StatusFilters = Array<MapStatusNew>;
+type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
@@ -26,11 +26,11 @@ type StatusFilters = Array<MapStatusNew>;
   imports: [SharedModule, MapListComponent, MultiSelectModule, SpinnerDirective]
 })
 export class AdminMapsBrowserComponent implements OnInit {
-  protected readonly MapStatusName = MapStatusNameNew;
-  protected readonly StatusDropdown = Enum.values(MapStatusNew).map(
-    (status: MapStatusNew) => ({
+  protected readonly MapStatusName = MapStatusName;
+  protected readonly StatusDropdown = Enum.values(MapStatus).map(
+    (status: MapStatus) => ({
       type: status,
-      label: MapStatusNameNew.get(status)
+      label: MapStatusName.get(status)
     })
   );
 

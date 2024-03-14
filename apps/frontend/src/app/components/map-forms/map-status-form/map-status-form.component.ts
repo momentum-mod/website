@@ -8,8 +8,8 @@ import {
   MapReview,
   MapReviewSuggestion,
   MapStatusChangers,
-  MapStatusNameNew,
-  MapStatusNew,
+  MapStatusName,
+  MapStatus,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
   MIN_PUBLIC_TESTING_DURATION,
@@ -84,8 +84,8 @@ export type GroupedLeaderboards = Map<
   ]
 })
 export class MapStatusFormComponent implements OnChanges {
-  protected readonly MapStatus = MapStatusNew;
-  protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly MapStatus = MapStatus;
+  protected readonly MapStatusName = MapStatusName;
   protected readonly MIN_PUBLIC_TESTING_DURATION = MIN_PUBLIC_TESTING_DURATION;
   @Input({ required: true }) map: MMap;
   @Input({ required: true }) sub: boolean;
@@ -94,14 +94,14 @@ export class MapStatusFormComponent implements OnChanges {
   @Input({ required: true }) rev: boolean;
 
   @Input({ required: true }) formGroup: FormGroup<{
-    status: FormControl<MapStatusNew>;
+    status: FormControl<MapStatus>;
     finalLeaderboards: FormControl<MapSubmissionApproval[]>;
   }>;
 
-  protected status: MapStatusNew;
+  protected status: MapStatus;
   protected possibleStatuses: Array<{
     label: string;
-    value: MapStatusNew | -1; // PrimeNG component behaves weirdly for `null`
+    value: MapStatus | -1; // PrimeNG component behaves weirdly for `null`
   }> = [];
 
   protected firstEnteredPublicTesting: number;
@@ -129,7 +129,7 @@ export class MapStatusFormComponent implements OnChanges {
     this.populateStatuses();
 
     if (
-      ![MapStatusNew.FINAL_APPROVAL, MapStatusNew.PUBLIC_TESTING].includes(
+      ![MapStatus.FINAL_APPROVAL, MapStatus.PUBLIC_TESTING].includes(
         this.status
       )
     )
@@ -158,12 +158,12 @@ export class MapStatusFormComponent implements OnChanges {
 
     this.setupFinalApprovalForm(leaderboardStats, reviews.data);
     this.hasBeenApprovedBefore = this.map.submission.dates.some(
-      (date) => date.status === MapStatusNew.APPROVED
+      (date) => date.status === MapStatus.APPROVED
     );
 
     this.firstEnteredPublicTesting = new Date(
       this.map.submission.dates
-        .filter(({ status }) => status === MapStatusNew.PUBLIC_TESTING)
+        .filter(({ status }) => status === MapStatus.PUBLIC_TESTING)
         .at(-1)?.date
     ).getTime();
     this.isBlockedForSubmissionTimeGate =
@@ -179,7 +179,7 @@ export class MapStatusFormComponent implements OnChanges {
     ) {
       this.possibleStatuses.splice(
         this.possibleStatuses.findIndex(
-          ({ value }) => value === MapStatusNew.FINAL_APPROVAL
+          ({ value }) => value === MapStatus.FINAL_APPROVAL
         ),
         1
       );
@@ -311,11 +311,11 @@ export class MapStatusFormComponent implements OnChanges {
             (roles.includes(Role.MODERATOR) && this.mod) ||
             (roles.includes(Role.REVIEWER) && this.rev) ||
             (roles.includes('submitter') && this.sub))
-      ).map(({ to }) => ({ value: to, label: MapStatusNameNew.get(to) }))
+      ).map(({ to }) => ({ value: to, label: MapStatusName.get(to) }))
     ];
   }
 
-  isPossibleStatus(status: MapStatusNew) {
+  isPossibleStatus(status: MapStatus) {
     return this.possibleStatuses.some(({ value }) => value === status);
   }
 
@@ -323,7 +323,7 @@ export class MapStatusFormComponent implements OnChanges {
   protected leaderboardKey = leaderboardKey;
 
   get statusControl() {
-    return this.formGroup.get('status') as FormControl<MapStatusNew>;
+    return this.formGroup.get('status') as FormControl<MapStatus>;
   }
 
   get finalLeaderboards() {
@@ -331,5 +331,4 @@ export class MapStatusFormComponent implements OnChanges {
       MapSubmissionApproval[]
     >;
   }
-  protected readonly MapStatusNew = MapStatusNew;
 }

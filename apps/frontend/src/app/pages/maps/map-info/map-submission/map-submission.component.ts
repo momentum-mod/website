@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import {
   MMap,
   MapSubmissionType,
-  MapStatusNameNew,
+  MapStatusName,
   MapSubmissionSuggestion,
   GamemodeName,
   TrackType,
@@ -42,7 +42,7 @@ export class MapSubmissionComponent {
   protected readonly TrackType = TrackType;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly GamemodeName = GamemodeName;
-  protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly MapStatusName = MapStatusName;
   protected readonly downloadZoneFile = downloadZoneFile;
 
   protected suggestions: GroupedMapSubmissionSuggestions;

@@ -130,9 +130,9 @@
           </div>
           <ng-template #dateTooltip>
             <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
-            @if (map.status === MapStatusNew.APPROVED) {
+            @if (map.status === MapStatus.APPROVED) {
               <!-- TODO: New date thing -->
-              <p><b>Released in Momentum - </b>{{ getLatestStatusChangeDate(MapStatusNew.APPROVED) | date }}</p>
+              <p><b>Released in Momentum - </b>{{ getLatestStatusChangeDate(MapStatus.APPROVED) | date }}</p>
             }
           </ng-template>
         </div>
@@ -149,7 +149,7 @@
               icon="help-circle"
             />
           </div>
-        } @else if (map.status === MapStatusNew.DISABLED) {
+        } @else if (map.status === MapStatus.DISABLED) {
           <div class="flex flex-col items-center gap-2 border border-red-500 bg-red-500 bg-opacity-50 p-3 text-center">
             <b>Map Disabled</b>
             @if (map.hash || map.submission?.currentVersion?.hash) {
@@ -218,7 +218,7 @@
         <!-- Don't insert this at all if not in submission, we don't want to 
              try fetch extra data/images unless we're may actually display it.
          -->
-        @if (this.map.status !== MapStatusNew.APPROVED) {
+        @if (this.map.status !== MapStatus.APPROVED) {
           <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
         }
       </div>

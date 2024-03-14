@@ -1,5 +1,5 @@
 import { Gamemode } from '../../enums/gamemode.enum';
-import { MapStatusNew } from '../../enums/map-status.enum';
+import { MapStatus } from '../../enums/map-status.enum';
 import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
 import { PagedQuery } from './pagination.model';
@@ -51,14 +51,14 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   PB?: boolean;
 };
 
-export type MapsGetAllAdminFilter = Array<MapStatusNew>;
+export type MapsGetAllAdminFilter = Array<MapStatus>;
 
 export type MapsGetAllAdminQuery = MapsGetAllBaseQuery & {
   filter?: MapsGetAllAdminFilter;
 };
 
 export type MapsGetAllSubmissionFilter = Array<
-  MapStatusNew.PUBLIC_TESTING | MapStatusNew.PRIVATE_TESTING
+  MapStatus.PUBLIC_TESTING | MapStatus.PRIVATE_TESTING
 >;
 
 export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
@@ -72,10 +72,10 @@ export type MapsGetAllUserSubmissionQuery = Omit<
 >;
 
 export type MapsGetAllSubmissionAdminFilter = Array<
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-  | MapStatusNew.CONTENT_APPROVAL
-  | MapStatusNew.FINAL_APPROVAL
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
 >;
 
 //#endregion

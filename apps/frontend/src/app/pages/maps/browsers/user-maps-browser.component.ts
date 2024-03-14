@@ -2,8 +2,8 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import {
   Ban,
   MapsGetAllSubmissionQuery,
-  MapStatusNameNew,
-  MapStatusNew,
+  MapStatusName,
+  MapStatus,
   MapSummary,
   MMap,
   PagedResponse
@@ -20,11 +20,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SpinnerDirective } from '../../../directives';
 
 type StatusFilters = Array<
-  // | MapStatusNew.APPROVED // TODO: Need to support this on the backend
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-  | MapStatusNew.CONTENT_APPROVAL
-  | MapStatusNew.FINAL_APPROVAL
+  // | MapStatus.APPROVED // TODO: Need to support this on the backend
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
 >;
 
 @Component({
@@ -33,12 +33,12 @@ type StatusFilters = Array<
   imports: [SharedModule, MapListComponent, MultiSelectModule, SpinnerDirective]
 })
 export class UserMapsBrowserComponent implements OnInit {
-  protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = [
-    { type: MapStatusNew.PRIVATE_TESTING, label: 'Private Testing' },
-    { type: MapStatusNew.CONTENT_APPROVAL, label: 'Content Approval' },
-    { type: MapStatusNew.PUBLIC_TESTING, label: 'Public Testing' },
-    { type: MapStatusNew.FINAL_APPROVAL, label: 'Final Approval' }
+    { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
+    { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+    { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
+    { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
   protected hasSubmissionBan = false;
