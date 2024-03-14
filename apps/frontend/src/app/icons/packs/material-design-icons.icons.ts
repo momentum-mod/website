@@ -29,6 +29,7 @@ export {
   mdiFolderOutline,
   mdiStar,
   mdiStarOutline,
+  mdiDownload,
   mdiDownloadOutline,
   mdiPlayCircle,
   mdiPlayCircleOutline,

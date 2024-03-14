@@ -55,6 +55,8 @@ import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { downloadZoneFile } from '../../../util/download-zone-file.util';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -89,7 +91,8 @@ enum MapInfoSection {
     UnsortedKeyvaluePipe,
     SpinnerDirective,
     SpinnerComponent,
-    FontSizeLerpDirective
+    FontSizeLerpDirective,
+    OverlayPanelModule
   ]
 })
 export class MapInfoComponent implements OnInit {
@@ -99,6 +102,7 @@ export class MapInfoComponent implements OnInit {
   protected readonly MapCreditNames = MapCreditNames;
   protected readonly MapInfoSection = MapInfoSection;
   protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly downloadZoneFile = downloadZoneFile;
 
   protected loading = false;
   protected displayFullscreenGallery = false;
