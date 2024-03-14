@@ -21,6 +21,7 @@ import {
   groupMapSuggestions
 } from '../../../../util/grouped-map-suggestions.util';
 import { PluralPipe, UnsortedKeyvaluePipe } from '../../../../pipes';
+import { downloadZoneFile } from '../../../../util/download-zone-file.util';
 
 @Component({
   selector: 'm-map-submission',
@@ -42,6 +43,7 @@ export class MapSubmissionComponent {
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly GamemodeName = GamemodeName;
   protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly downloadZoneFile = downloadZoneFile;
 
   protected suggestions: GroupedMapSubmissionSuggestions;
   protected versions: MapSubmissionVersion[];
