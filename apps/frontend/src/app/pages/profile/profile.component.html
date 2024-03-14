@@ -11,12 +11,6 @@
               <m-report-button [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
             }
 
-            @if (canSeeAdminActivity()) {
-              <button class="btn btn-blue ml-2" type="button" (click)="onAdminActivity()">
-                <m-icon class="inline-block" icon="notebook-outline" />
-              </button>
-            }
-
             @if (canEdit()) {
               <button class="btn btn-blue ml-2" type="button" (click)="onEditProfile()">
                 <span class="hidden md:inline-block">Edit Profile</span>
