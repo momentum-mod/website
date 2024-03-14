@@ -94,6 +94,7 @@ export class MapListService implements OnModuleInit {
                       versionNum: true,
                       hash: true,
                       changelog: true,
+                      zones: true,
                       createdAt: true
                     }
                   },
