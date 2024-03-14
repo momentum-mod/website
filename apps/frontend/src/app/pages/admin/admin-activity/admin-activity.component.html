@@ -1,15 +1,16 @@
 <m-card title="Admin Activity">
-  <p-dropdown
-    header
-    class="[&>*]:w-48"
-    placeholder="Activity type"
-    [options]="AdminActivitiesFilters"
-    optionLabel="text"
-    optionValue="value"
-    (onChange)="filterChange.next()"
-    [(ngModel)]="filter"
-    appendTo="body"
-  />
+  <div header class="flex items-center gap-4" [formGroup]="filters">
+    <p-dropdown
+      class="[&>*]:w-48"
+      placeholder="Activity Type"
+      [options]="AdminActivitiesFilters"
+      optionLabel="text"
+      optionValue="value"
+      formControlName="type"
+      appendTo="body"
+    />
+    <m-user-select formControlName="user" />
+  </div>
   <div [mSpinner]="loading">
     <m-accordion [autoClose]="false" [startFirstOpen]="true">
       @for (activity of activities; track activity) {
@@ -19,7 +20,13 @@
         </m-accordion-item>
       } @empty {
         @if (!loading) {
-          <h3>Activities not found!</h3>
+          <p class="my-4 text-center text-2xl text-gray-100">
+            @if (totalRecords === -1) {
+              User is not an admin
+            } @else {
+              No activities found
+            }
+          </p>
         }
       }
     </m-accordion>
