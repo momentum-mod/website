@@ -7,13 +7,9 @@ import {
   MapCreditsGetExpand,
   MapsGetExpand,
   MapsGetAllAdminQuery,
-  MapsGetAllAdminExpand,
   MapsGetAllSubmissionQuery,
   MapsGetAllSubmissionFilter,
   MapsGetAllSubmissionExpand,
-  MapsGetAllSubmissionAdminExpand,
-  MapsGetAllSubmissionAdminFilter,
-  MapsGetAllSubmissionAdminQuery,
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery,
@@ -119,16 +115,6 @@ export class MapsGetAllAdminQueryDto
   extends MapsGetAllBaseQueryDto
   implements MapsGetAllAdminQuery
 {
-  @ExpandQueryProperty([
-    'zones',
-    'leaderboards',
-    'info',
-    'stats',
-    'submitter',
-    'credits'
-  ])
-  readonly expand?: MapsGetAllAdminExpand;
-
   @EnumFilterQueryProperty([
     MapStatusNew.APPROVED,
     MapStatusNew.PRIVATE_TESTING,
@@ -171,32 +157,6 @@ export class MapsGetAllSubmissionQueryDto
 export class MapsGetAllUserSubmissionQueryDto
   extends OmitType(MapsGetAllSubmissionQueryDto, ['submitterID'] as const)
   implements MapsGetAllUserSubmissionQuery {}
-
-export class MapsGetAllSubmissionAdminQueryDto
-  extends MapsGetAllBaseQueryDto
-  implements MapsGetAllSubmissionAdminQuery
-{
-  @ExpandQueryProperty([
-    'zones',
-    'leaderboards',
-    'info',
-    'stats',
-    'submitter',
-    'credits',
-    'currentVersion',
-    'versions',
-    'reviews'
-  ])
-  readonly expand?: MapsGetAllSubmissionAdminExpand;
-
-  @EnumFilterQueryProperty([
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.PRIVATE_TESTING,
-    MapStatusNew.CONTENT_APPROVAL,
-    MapStatusNew.FINAL_APPROVAL
-  ])
-  readonly filter?: MapsGetAllSubmissionAdminFilter;
-}
 
 //#endregion
 //#region Get

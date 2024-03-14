@@ -39,7 +39,6 @@ import {
   MapDto,
   MapReviewDto,
   MapsGetAllAdminQueryDto,
-  MapsGetAllSubmissionAdminQueryDto,
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
@@ -163,21 +162,6 @@ export class AdminController {
   getMaps(
     @LoggedInUser('id') userID: number,
     @Query() query: MapsGetAllAdminQueryDto
-  ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(userID, query);
-  }
-
-  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR, RolesEnum.REVIEWER)
-  @Get('/maps/submissions')
-  @ApiOperation({
-    description:
-      'Retrieve a paginated list of maps in submission with extra admin filtration'
-  })
-  @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
-  @ApiBadRequestResponse({ description: 'Invalid query data' })
-  getMapSubmissions(
-    @LoggedInUser('id') userID: number,
-    @Query() query: MapsGetAllSubmissionAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }

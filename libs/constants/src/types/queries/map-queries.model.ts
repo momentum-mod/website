@@ -33,10 +33,6 @@ export type MapsGetAllSubmissionExpand = (
   | 'reviews'
 )[];
 
-export type MapsGetAllAdminExpand = BaseMapsGetAllExpand[];
-
-export type MapsGetAllSubmissionAdminExpand = BaseMapsGetAllExpand[];
-
 type MapsGetAllBaseQuery = {
   skip?: number;
   take?: number;
@@ -56,9 +52,7 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
 export type MapsGetAllAdminFilter = MapStatusNew[];
 
 export type MapsGetAllAdminQuery = MapsGetAllBaseQuery & {
-  expand?: MapsGetAllAdminExpand;
   filter?: MapsGetAllAdminFilter;
-  priority?: boolean;
 };
 
 export type MapsGetAllSubmissionFilter = (
@@ -82,11 +76,6 @@ export type MapsGetAllSubmissionAdminFilter = (
   | MapStatusNew.CONTENT_APPROVAL
   | MapStatusNew.FINAL_APPROVAL
 )[];
-
-export type MapsGetAllSubmissionAdminQuery = MapsGetAllBaseQuery & {
-  expand?: MapsGetAllSubmissionAdminExpand;
-  filter?: MapsGetAllSubmissionAdminFilter;
-};
 
 //#endregion
 //#region Get
