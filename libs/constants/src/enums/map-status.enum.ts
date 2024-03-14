@@ -1,18 +1,4 @@
 export enum MapStatus {
-  APPROVED = 0,
-  PENDING = 1,
-  NEEDS_REVISION = 2,
-  PRIVATE_TESTING = 3,
-  PUBLIC_TESTING = 4,
-  READY_FOR_RELEASE = 5,
-  REJECTED = 6,
-  REMOVED = 7
-}
-
-// This is the 0.10.0 version of MapStatuses. We've kept the old one for now,
-// so everything compiles okay. All map submission work should use THIS enum,
-// once complete we'll remove the above enum and rename this one to MapStatus.
-export enum MapStatusNew {
   /* Completed submission and is available to everyone */
   APPROVED = 0,
   /* Available in the Beta tab to users with an accepted MapTestingInvite */
@@ -31,9 +17,9 @@ export enum MapStatusNew {
 
 export const CombinedMapStatuses = Object.freeze({
   IN_SUBMISSION: [
-    MapStatusNew.PRIVATE_TESTING,
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.CONTENT_APPROVAL,
-    MapStatusNew.FINAL_APPROVAL
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.CONTENT_APPROVAL,
+    MapStatus.FINAL_APPROVAL
   ]
 });

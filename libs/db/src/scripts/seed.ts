@@ -19,7 +19,7 @@ import {
   LeaderboardType,
   MapCreditType,
   mapReviewAssetPath,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
   MapZones,
@@ -73,51 +73,51 @@ const defaultVars = {
 
 const weights = {
   mapStatusWeights: [
-    [MapStatusNew.APPROVED, 1],
-    [MapStatusNew.PUBLIC_TESTING, 0.2],
-    [MapStatusNew.DISABLED, 0.2],
-    [MapStatusNew.CONTENT_APPROVAL, 0.2],
-    [MapStatusNew.PRIVATE_TESTING, 0.2],
-    [MapStatusNew.FINAL_APPROVAL, 0.2]
-  ] as [MapStatusNew, number][],
+    [MapStatus.APPROVED, 1],
+    [MapStatus.PUBLIC_TESTING, 0.2],
+    [MapStatus.DISABLED, 0.2],
+    [MapStatus.CONTENT_APPROVAL, 0.2],
+    [MapStatus.PRIVATE_TESTING, 0.2],
+    [MapStatus.FINAL_APPROVAL, 0.2]
+  ] as [MapStatus, number][],
   submissionGraphWeights: {
-    [MapStatusNew.PRIVATE_TESTING]: [
+    [MapStatus.PRIVATE_TESTING]: [
       [null, 0.3],
-      [MapStatusNew.CONTENT_APPROVAL, 1],
-      [MapStatusNew.DISABLED, 0.05]
+      [MapStatus.CONTENT_APPROVAL, 1],
+      [MapStatus.DISABLED, 0.05]
     ],
-    [MapStatusNew.CONTENT_APPROVAL]: [
+    [MapStatus.CONTENT_APPROVAL]: [
       [null, 0.3],
-      [MapStatusNew.PRIVATE_TESTING, 0.2],
-      [MapStatusNew.PUBLIC_TESTING, 1],
-      [MapStatusNew.FINAL_APPROVAL, 0.2],
-      [MapStatusNew.DISABLED, 0.1]
+      [MapStatus.PRIVATE_TESTING, 0.2],
+      [MapStatus.PUBLIC_TESTING, 1],
+      [MapStatus.FINAL_APPROVAL, 0.2],
+      [MapStatus.DISABLED, 0.1]
     ],
-    [MapStatusNew.PUBLIC_TESTING]: [
+    [MapStatus.PUBLIC_TESTING]: [
       [null, 0.3],
-      [MapStatusNew.CONTENT_APPROVAL, 0.15],
-      [MapStatusNew.FINAL_APPROVAL, 1],
-      [MapStatusNew.DISABLED, 0.1]
+      [MapStatus.CONTENT_APPROVAL, 0.15],
+      [MapStatus.FINAL_APPROVAL, 1],
+      [MapStatus.DISABLED, 0.1]
     ],
-    [MapStatusNew.FINAL_APPROVAL]: [
+    [MapStatus.FINAL_APPROVAL]: [
       [null, 0.3],
-      [MapStatusNew.APPROVED, 1],
-      [MapStatusNew.PUBLIC_TESTING, 0.2],
-      [MapStatusNew.DISABLED, 0.1]
+      [MapStatus.APPROVED, 1],
+      [MapStatus.PUBLIC_TESTING, 0.2],
+      [MapStatus.DISABLED, 0.1]
     ],
-    [MapStatusNew.APPROVED]: [
+    [MapStatus.APPROVED]: [
       [null, 1],
-      [MapStatusNew.DISABLED, 0.2]
+      [MapStatus.DISABLED, 0.2]
     ],
-    [MapStatusNew.DISABLED]: [
+    [MapStatus.DISABLED]: [
       [null, 1],
-      [MapStatusNew.APPROVED, 0.5],
-      [MapStatusNew.PRIVATE_TESTING, 0.5],
-      [MapStatusNew.CONTENT_APPROVAL, 0.5],
-      [MapStatusNew.PUBLIC_TESTING, 0.5],
-      [MapStatusNew.FINAL_APPROVAL, 0.5]
+      [MapStatus.APPROVED, 0.5],
+      [MapStatus.PRIVATE_TESTING, 0.5],
+      [MapStatus.CONTENT_APPROVAL, 0.5],
+      [MapStatus.PUBLIC_TESTING, 0.5],
+      [MapStatus.FINAL_APPROVAL, 0.5]
     ]
-  } as Record<MapStatusNew, [null | MapStatusNew, number][]>
+  } as Record<MapStatus, [null | MapStatus, number][]>
 };
 
 //#endregion
@@ -364,9 +364,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const submissionsDates = () => {
         const dates: MapSubmissionDate[] = [];
 
-        let currStatus: MapStatusNew = Random.chance()
-          ? MapStatusNew.PRIVATE_TESTING
-          : MapStatusNew.CONTENT_APPROVAL;
+        let currStatus: MapStatus = Random.chance()
+          ? MapStatus.PRIVATE_TESTING
+          : MapStatus.CONTENT_APPROVAL;
         let currDate = Random.pastDateSince(1e6).toDateString();
 
         while (currStatus !== null) {
@@ -615,7 +615,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         data: { currentVersion: { connect: { id: lastVersion.id } } }
       });
 
-      if ([MapStatusNew.APPROVED, MapStatusNew.DISABLED].includes(map.status))
+      if ([MapStatus.APPROVED, MapStatus.DISABLED].includes(map.status))
         await prisma.mMap.update({
           where: { id: map.id },
           data: {
@@ -661,7 +661,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         }
       });
 
-      if (map.status === MapStatusNew.APPROVED) {
+      if (map.status === MapStatus.APPROVED) {
         await prisma.activity.create({
           data: {
             userID: map.submitterID,

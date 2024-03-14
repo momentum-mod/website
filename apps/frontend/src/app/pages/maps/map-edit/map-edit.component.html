@@ -63,7 +63,7 @@
 <div
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
-  [ngClass]="isSubmitter && map.status === MapStatusNew.PRIVATE_TESTING ? '!flex' : '!hidden'"
+  [ngClass]="isSubmitter && map.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
 >
   <p class="card-title -mb-4 -mt-9 text-5xl">Invite Testers</p>
   <m-map-test-invite-selection [formControl]="testInviteForm" />

@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from './icons';
 import { CardComponent } from './components';
-import { TooltipDirective } from './directives';
+import { SpinnerDirective, TooltipDirective } from './directives';
 
 const SHARED = [
   CommonModule,
@@ -12,7 +12,8 @@ const SHARED = [
   RouterModule,
   IconComponent,
   CardComponent,
-  TooltipDirective
+  TooltipDirective,
+  SpinnerDirective
 ];
 
 /**

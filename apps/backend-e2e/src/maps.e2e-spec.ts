@@ -12,7 +12,7 @@ import {
   Gamemode as GM,
   Gamemode,
   MapCreditType,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
   MapTestInviteState,
@@ -83,20 +83,20 @@ describe('Maps', () => {
             images: [imageID]
           }),
           db.createMap({
-            status: MapStatusNew.PRIVATE_TESTING,
+            status: MapStatus.PRIVATE_TESTING,
             images: [imageID]
           }),
-          db.createMap({ images: [imageID], status: MapStatusNew.DISABLED }),
+          db.createMap({ images: [imageID], status: MapStatus.DISABLED }),
           db.createMap({
-            status: MapStatusNew.FINAL_APPROVAL,
-            images: [imageID]
-          }),
-          db.createMap({
-            status: MapStatusNew.CONTENT_APPROVAL,
+            status: MapStatus.FINAL_APPROVAL,
             images: [imageID]
           }),
           db.createMap({
-            status: MapStatusNew.PUBLIC_TESTING,
+            status: MapStatus.CONTENT_APPROVAL,
+            images: [imageID]
+          }),
+          db.createMap({
+            status: MapStatus.PUBLIC_TESTING,
             images: [imageID]
           })
         ]);
@@ -146,7 +146,7 @@ describe('Maps', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item.status).toBe(MapStatusNew.APPROVED);
+          expect(item.status).toBe(MapStatus.APPROVED);
         }
       });
 
@@ -727,7 +727,7 @@ describe('Maps', () => {
         it('should create a map within the database', () => {
           expect(createdMap).toMatchObject({
             name: 'surf_map',
-            status: MapStatusNew.PRIVATE_TESTING,
+            status: MapStatus.PRIVATE_TESTING,
             submission: {
               type: MapSubmissionType.ORIGINAL,
               placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
@@ -751,7 +751,7 @@ describe('Maps', () => {
               ],
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: expect.any(String)
                 }
               ]
@@ -853,7 +853,7 @@ describe('Maps', () => {
 
       describe('Permission checks', () => {
         for (const status of CombinedMapStatuses.IN_SUBMISSION) {
-          it(`should 403 if the user already has a map in ${MapStatusNew[status]} and is not a MAPPER`, async () => {
+          it(`should 403 if the user already has a map in ${MapStatus[status]} and is not a MAPPER`, async () => {
             await db.createMap({
               submitter: { connect: { id: user.id } },
               status
@@ -880,7 +880,7 @@ describe('Maps', () => {
             Role.MODERATOR,
             Role.ADMIN
           ]) {
-            it(`should allow if the user already has a map in ${MapStatusNew[status]} and is a ${Role[role]}`, async () => {
+            it(`should allow if the user already has a map in ${MapStatus[status]} and is a ${Role[role]}`, async () => {
               await prisma.user.update({
                 where: { id: user.id },
                 data: { roles: role }
@@ -928,13 +928,13 @@ describe('Maps', () => {
             token
           });
 
-          expect(res.body.status).toBe(MapStatusNew.CONTENT_APPROVAL);
+          expect(res.body.status).toBe(MapStatus.CONTENT_APPROVAL);
 
           expect(
             Date.now() -
               new Date(
                 (res.body.submission.dates as MapSubmissionDate[]).find(
-                  ({ status }) => status === MapStatusNew.CONTENT_APPROVAL
+                  ({ status }) => status === MapStatus.CONTENT_APPROVAL
                 ).date
               ).getTime()
           ).toBeLessThan(1000);
@@ -1155,7 +1155,7 @@ describe('Maps', () => {
         it('should succeed if the user already has an APPROVED map and is not a mapper', async () => {
           await db.createMap({
             submitter: { connect: { id: user.id } },
-            status: MapStatusNew.APPROVED
+            status: MapStatus.APPROVED
           });
 
           await req.postAttach({
@@ -1362,9 +1362,7 @@ describe('Maps', () => {
                   ]
                 }
               },
-              dates: [
-                { status: MapStatusNew.APPROVED, date: new Date().toJSON() }
-              ]
+              dates: [{ status: MapStatus.APPROVED, date: new Date().toJSON() }]
             }
           },
           reviews: {
@@ -1602,7 +1600,7 @@ describe('Maps', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -1613,7 +1611,7 @@ describe('Maps', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -1658,7 +1656,7 @@ describe('Maps', () => {
           {
             name: 'surf_map', // This is actually RJ now. deal with it lol
             submitter: { connect: { id: u1.id } },
-            status: MapStatusNew.PRIVATE_TESTING,
+            status: MapStatus.PRIVATE_TESTING,
             submission: {
               create: {
                 type: MapSubmissionType.ORIGINAL,
@@ -1680,7 +1678,7 @@ describe('Maps', () => {
                 },
                 dates: [
                   {
-                    status: MapStatusNew.PRIVATE_TESTING,
+                    status: MapStatus.PRIVATE_TESTING,
                     date: new Date().toJSON()
                   }
                 ]
@@ -2141,8 +2139,8 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      for (const status of [MapStatusNew.APPROVED, MapStatusNew.DISABLED]) {
-        it(`should 403 if the map status is ${MapStatusNew[status]}`, async () => {
+      for (const status of [MapStatus.APPROVED, MapStatus.DISABLED]) {
+        it(`should 403 if the map status is ${MapStatus[status]}`, async () => {
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
 
           await req.postAttach({
@@ -2157,7 +2155,7 @@ describe('Maps', () => {
 
           await prisma.mMap.update({
             where: { id: map.id },
-            data: { status: MapStatusNew.PRIVATE_TESTING }
+            data: { status: MapStatus.PRIVATE_TESTING }
           });
         });
       }
@@ -2267,15 +2265,15 @@ describe('Maps', () => {
                 type: MapSubmissionType.ORIGINAL,
                 dates: [
                   {
-                    status: MapStatusNew.APPROVED,
+                    status: MapStatus.APPROVED,
                     date: new Date(Date.now() - 3000)
                   },
                   {
-                    status: MapStatusNew.DISABLED,
+                    status: MapStatus.DISABLED,
                     date: new Date(Date.now() - 2000)
                   },
                   {
-                    status: MapStatusNew.PRIVATE_TESTING,
+                    status: MapStatus.PRIVATE_TESTING,
                     date: new Date(Date.now() - 1000)
                   }
                 ]
@@ -2349,7 +2347,7 @@ describe('Maps', () => {
               type: MapSubmissionType.ORIGINAL,
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: new Date().toJSON()
                 }
               ],
@@ -2386,7 +2384,7 @@ describe('Maps', () => {
       afterEach(() => db.cleanup('mMap'));
 
       for (const status of CombinedMapStatuses.IN_SUBMISSION) {
-        it(`should allow the submitter to change most data during ${MapStatusNew[status]}`, async () => {
+        it(`should allow the submitter to change most data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
@@ -2460,7 +2458,7 @@ describe('Maps', () => {
       it('should always 403 if map is APPROVED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.APPROVED
+          status: MapStatus.APPROVED
         });
 
         await req.patch({
@@ -2478,7 +2476,7 @@ describe('Maps', () => {
       it('should always 403 if map is DISABLED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.DISABLED
+          status: MapStatus.DISABLED
         });
 
         await req.patch({
@@ -2489,12 +2487,12 @@ describe('Maps', () => {
         });
       });
 
-      const statuses = Enum.values(MapStatusNew);
+      const statuses = Enum.values(MapStatus);
       // Storing number tuple won't pass .has
       const validChanges = new Set([
-        MapStatusNew.PRIVATE_TESTING + ',' + MapStatusNew.CONTENT_APPROVAL,
-        MapStatusNew.CONTENT_APPROVAL + ',' + MapStatusNew.PRIVATE_TESTING,
-        MapStatusNew.FINAL_APPROVAL + ',' + MapStatusNew.PUBLIC_TESTING
+        MapStatus.PRIVATE_TESTING + ',' + MapStatus.CONTENT_APPROVAL,
+        MapStatus.CONTENT_APPROVAL + ',' + MapStatus.PRIVATE_TESTING,
+        MapStatus.FINAL_APPROVAL + ',' + MapStatus.PUBLIC_TESTING
       ]);
 
       for (const s1 of statuses) {
@@ -2503,8 +2501,8 @@ describe('Maps', () => {
 
           it(`should ${
             shouldPass ? '' : 'not '
-          }allow a user to change their map from ${MapStatusNew[s1]} to ${
-            MapStatusNew[s2]
+          }allow a user to change their map from ${MapStatus[s1]} to ${
+            MapStatus[s2]
           }`, async () => {
             const map = await db.createMap({
               ...createMapData,
@@ -2565,12 +2563,12 @@ describe('Maps', () => {
       it("should allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's been in testing for required time period", async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: {
             create: {
               dates: [
                 {
-                  status: MapStatusNew.PUBLIC_TESTING,
+                  status: MapStatus.PUBLIC_TESTING,
                   date: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
                 }
               ],
@@ -2605,25 +2603,25 @@ describe('Maps', () => {
         await req.patch({
           url: `maps/${map.id}`,
           status: 204,
-          body: { status: MapStatusNew.FINAL_APPROVAL },
+          body: { status: MapStatus.FINAL_APPROVAL },
           token
         });
 
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatusNew.FINAL_APPROVAL);
+        expect(updatedMap.status).toBe(MapStatus.FINAL_APPROVAL);
       });
 
       it("should not allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: {
             create: {
               dates: [
                 {
-                  status: MapStatusNew.PUBLIC_TESTING,
+                  status: MapStatus.PUBLIC_TESTING,
                   date: Date.now() - 1000
                 }
               ],
@@ -2658,7 +2656,7 @@ describe('Maps', () => {
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { status: MapStatusNew.FINAL_APPROVAL },
+          body: { status: MapStatus.FINAL_APPROVAL },
           token
         });
       });
@@ -2666,7 +2664,7 @@ describe('Maps', () => {
       it('should generate new leaderboards if suggestions change', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await prisma.leaderboard.createMany({
@@ -2767,7 +2765,7 @@ describe('Maps', () => {
         const map = await db.createMap({
           ...createMapData,
           submitter: { connect: { id: user.id } },
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         // Lots of checks here but is unit tested, just remove the bonus
@@ -2818,7 +2816,7 @@ describe('Maps', () => {
       it('should 400 if suggestions and zones dont match up', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submission: {
             create: {
               type: MapSubmissionType.PORT,
@@ -2868,26 +2866,26 @@ describe('Maps', () => {
 
       it('should return 403 if the map was not submitted by that user', async () => {
         const map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token: u2Token
         });
       });
 
       it('should return 403 if the map was not submitted by that user even for an admin', async () => {
         const map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token: adminToken
         });
       });
@@ -2896,7 +2894,7 @@ describe('Maps', () => {
         req.patch({
           url: `maps/${NULL_ID}`,
           status: 404,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token
         }));
 
@@ -2920,7 +2918,7 @@ describe('Maps', () => {
             type: MapSubmissionType.ORIGINAL,
             dates: [
               {
-                status: MapStatusNew.PRIVATE_TESTING,
+                status: MapStatus.PRIVATE_TESTING,
                 date: new Date().toJSON()
               }
             ],
@@ -2945,9 +2943,9 @@ describe('Maps', () => {
             }
           }
         };
-        await db.createMap({ status: MapStatusNew.APPROVED });
+        await db.createMap({ status: MapStatus.APPROVED });
         pubMap1 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: submissionCreate,
           reviews: {
             create: {
@@ -2957,19 +2955,19 @@ describe('Maps', () => {
           }
         });
         pubMap2 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: submissionCreate
         });
         privMap = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submission: submissionCreate
         });
         faMap = await db.createMap({
-          status: MapStatusNew.CONTENT_APPROVAL,
+          status: MapStatus.CONTENT_APPROVAL,
           submission: submissionCreate
         });
         caMap = await db.createMap({
-          status: MapStatusNew.FINAL_APPROVAL,
+          status: MapStatus.FINAL_APPROVAL,
           submission: submissionCreate
         });
 
@@ -3464,7 +3462,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          query: { filter: MapStatusNew.PUBLIC_TESTING },
+          query: { filter: MapStatus.PUBLIC_TESTING },
           validatePaged: { type: MapDto, count: 2 },
           token: u1Token
         });
@@ -3489,7 +3487,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          query: { filter: MapStatusNew.PRIVATE_TESTING },
+          query: { filter: MapStatus.PRIVATE_TESTING },
           validatePaged: { type: MapDto, count: 1 },
           token: u1Token
         });

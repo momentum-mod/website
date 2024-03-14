@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatusNew, MapTestInviteState } from '@momentum/constants';
+import { MapStatus, MapTestInviteState } from '@momentum/constants';
 import { difference } from '@momentum/util-fn';
 import {
   ExtendedPrismaService,
@@ -30,7 +30,7 @@ export class MapTestInviteService {
       throw new ForbiddenException('User is not the submitter of the map');
     }
 
-    if (map.status !== MapStatusNew.PRIVATE_TESTING) {
+    if (map.status !== MapStatus.PRIVATE_TESTING) {
       throw new ForbiddenException('Map is not in private testing');
     }
 
@@ -47,7 +47,7 @@ export class MapTestInviteService {
       throw new NotFoundException('Map does not exist');
     }
 
-    if (map.status !== MapStatusNew.PRIVATE_TESTING) {
+    if (map.status !== MapStatus.PRIVATE_TESTING) {
       throw new ForbiddenException('Map is not in private testing');
     }
 

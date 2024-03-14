@@ -1,5 +1,5 @@
 import { MMap as PrismaMMap } from '@prisma/client';
-import { MapStatusNew } from '../../../enums/map-status.enum';
+import { MapStatus } from '../../../enums/map-status.enum';
 import { User } from '../user/user.model';
 import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
 import { LeaderboardRun } from '../run/leaderboard-run.model';
@@ -22,7 +22,7 @@ import { MapTestInvite } from './map-test-invite.model';
  * "Map" to avoid collision with the "Map" data structure.
  */
 export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
-  status: MapStatusNew;
+  status: MapStatus;
   downloadURL: string;
   vmfDownloadURL?: string;
   thumbnail?: MapImage;
@@ -72,13 +72,13 @@ export interface UpdateMap
       | 'submissionType'
     >
   > {
-  status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+  status?: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
   info?: UpdateMapInfo;
   zones?: MapZones;
   resetLeaderboards?: boolean;
 }
 
 export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
-  status?: MapStatusNew;
+  status?: MapStatus;
   finalLeaderboards?: MapSubmissionApproval[];
 }

@@ -9,8 +9,8 @@ import {
   MapCreditType,
   MapImage,
   MapNotify,
-  MapStatusNameNew,
-  MapStatusNew,
+  MapStatusName,
+  MapStatus,
   MMap,
   ReportType,
   YOUTUBE_ID_REGEXP
@@ -97,11 +97,11 @@ enum MapInfoSection {
 })
 export class MapInfoComponent implements OnInit {
   protected readonly ReportType = ReportType;
-  protected readonly MapStatusNew = MapStatusNew;
+  protected readonly MapStatus = MapStatus;
   protected readonly MapCreditType = MapCreditType;
   protected readonly MapCreditNames = MapCreditNames;
   protected readonly MapInfoSection = MapInfoSection;
-  protected readonly MapStatusName = MapStatusNameNew;
+  protected readonly MapStatusName = MapStatusName;
   protected readonly downloadZoneFile = downloadZoneFile;
 
   protected loading = false;
@@ -319,7 +319,7 @@ export class MapInfoComponent implements OnInit {
   }
 
   // TODO: https://github.com/momentum-mod/website/issues/903
-  getLatestStatusChangeDate(status: MapStatusNew): DateString {
+  getLatestStatusChangeDate(status: MapStatus): DateString {
     return this.map.submission.dates
       .filter((date) => date.status === status)
       .at(-1)?.date;

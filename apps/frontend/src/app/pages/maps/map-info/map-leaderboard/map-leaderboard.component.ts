@@ -4,7 +4,7 @@ import {
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
-  MapStatusNew,
+  MapStatus,
   MMap,
   PagedResponse,
   TrackType
@@ -63,7 +63,7 @@ export interface ActiveTrack {
   ]
 })
 export class MapLeaderboardComponent implements OnChanges {
-  protected readonly MapStatus = MapStatusNew;
+  protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly TrackType = TrackType;
   protected readonly GamemodeIcon = GamemodeIcon;

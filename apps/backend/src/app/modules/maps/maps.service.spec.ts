@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import { CombinedRoles, MapStatusNew, Role } from '@momentum/constants';
+import { CombinedRoles, MapStatus, Role } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
@@ -53,7 +53,7 @@ describe('MapsService', () => {
         db.user.findUnique.mockResolvedValueOnce({ id: 1, roles: role } as any);
         db.mMap.findUnique.mockResolvedValueOnce({
           id: 1,
-          status: MapStatusNew.APPROVED
+          status: MapStatus.APPROVED
         } as any);
 
         if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, role)) {
@@ -79,12 +79,12 @@ describe('MapsService', () => {
     // Map of what states should PASS access checks for each MapStatus,
     // otherwise should fail. Below code performs each check against each state.
     const tests = {
-      [MapStatusNew.APPROVED]: 'any',
-      [MapStatusNew.PUBLIC_TESTING]: 'any',
-      [MapStatusNew.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
-      [MapStatusNew.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
-      [MapStatusNew.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
-      [MapStatusNew.DISABLED]: ['admin', 'moderator']
+      [MapStatus.APPROVED]: 'any',
+      [MapStatus.PUBLIC_TESTING]: 'any',
+      [MapStatus.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
+      [MapStatus.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
+      [MapStatus.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
+      [MapStatus.DISABLED]: ['admin', 'moderator']
     };
 
     const expects = async (pass: boolean, map: any, userID = 1) =>
@@ -97,8 +97,8 @@ describe('MapsService', () => {
     const mockTestInviteExists = (exists) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
     const mockMapCreditExists = (exists) => db.mapCredit.exists.mockResolvedValueOnce(exists);
 
-    for (const status of Enum.values(MapStatusNew)) {
-      describe(MapStatusNew[status], () => {
+    for (const status of Enum.values(MapStatus)) {
+      describe(MapStatus[status], () => {
         afterEach(() => jest.resetAllMocks());
 
         const conditions = tests[status];

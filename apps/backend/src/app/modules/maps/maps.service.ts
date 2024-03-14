@@ -29,7 +29,7 @@ import {
   MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
   MapStatusChangers,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionApproval,
   MapSubmissionDate,
   MapSubmissionPlaceholder,
@@ -137,7 +137,7 @@ export class MapsService {
     if (query.submitterID) where.submitterID = query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
-      where.status = MapStatusNew.APPROVED;
+      where.status = MapStatus.APPROVED;
 
       const leaderboardSome: Prisma.LeaderboardWhereInput = {
         // These extra params allow apply to main tracks for now - I'm not sure
@@ -211,31 +211,28 @@ export class MapsService {
       } else if (Bitflags.has(Role.REVIEWER, roles)) {
         const adminFilter = filter as MapsGetAllSubmissionAdminFilter;
         if (adminFilter?.length > 0) {
-          if (adminFilter?.includes(MapStatusNew.FINAL_APPROVAL))
+          if (adminFilter?.includes(MapStatus.FINAL_APPROVAL))
             throw new ForbiddenException();
 
           const ORs = [];
-          if (adminFilter?.includes(MapStatusNew.PUBLIC_TESTING)) {
-            if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
+          if (adminFilter?.includes(MapStatus.PUBLIC_TESTING)) {
+            if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
               ORs.push({
                 status: {
-                  in: [
-                    MapStatusNew.PUBLIC_TESTING,
-                    MapStatusNew.CONTENT_APPROVAL
-                  ]
+                  in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
                 }
               });
             } else {
-              ORs.push({ status: MapStatusNew.PUBLIC_TESTING });
+              ORs.push({ status: MapStatus.PUBLIC_TESTING });
             }
-          } else if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
-            ORs.push({ status: MapStatusNew.CONTENT_APPROVAL });
+          } else if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
+            ORs.push({ status: MapStatus.CONTENT_APPROVAL });
           }
 
-          if (adminFilter?.includes(MapStatusNew.PRIVATE_TESTING)) {
+          if (adminFilter?.includes(MapStatus.PRIVATE_TESTING)) {
             ORs.push({
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
@@ -255,12 +252,12 @@ export class MapsService {
           where.OR = [
             {
               status: {
-                in: [MapStatusNew.PUBLIC_TESTING, MapStatusNew.CONTENT_APPROVAL]
+                in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
               }
             },
             {
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
@@ -278,12 +275,12 @@ export class MapsService {
         }
       } else {
         // Regular user filters can only be public, private, both or none (last two are equiv)
-        if (filter?.[0] === MapStatusNew.PUBLIC_TESTING) {
-          where.status = MapStatusNew.PUBLIC_TESTING;
-        } else if (filter?.[0] === MapStatusNew.PRIVATE_TESTING) {
+        if (filter?.[0] === MapStatus.PUBLIC_TESTING) {
+          where.status = MapStatus.PUBLIC_TESTING;
+        } else if (filter?.[0] === MapStatus.PRIVATE_TESTING) {
           where.AND = {
             AND: [
-              { status: MapStatusNew.PRIVATE_TESTING },
+              { status: MapStatus.PRIVATE_TESTING },
               {
                 OR: [
                   { submitterID: userID },
@@ -299,10 +296,10 @@ export class MapsService {
           };
         } else {
           where.OR = [
-            { status: MapStatusNew.PUBLIC_TESTING },
+            { status: MapStatus.PUBLIC_TESTING },
             {
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
@@ -318,19 +315,19 @@ export class MapsService {
             },
             {
               AND: {
-                status: MapStatusNew.CONTENT_APPROVAL,
+                status: MapStatus.CONTENT_APPROVAL,
                 submitterID: userID
               }
             },
             {
               AND: {
-                status: MapStatusNew.FINAL_APPROVAL,
+                status: MapStatus.FINAL_APPROVAL,
                 submitterID: userID
               }
             },
             {
               AND: {
-                status: MapStatusNew.DISABLED,
+                status: MapStatus.DISABLED,
                 submitterID: userID
               }
             }
@@ -733,7 +730,7 @@ export class MapsService {
         // do it.
         if (
           (map.submission.dates as unknown as MapSubmissionDate[]).some(
-            (date) => date.status === MapStatusNew.APPROVED
+            (date) => date.status === MapStatus.APPROVED
           )
         ) {
           throw new ForbiddenException(
@@ -820,8 +817,8 @@ export class MapsService {
     hasVmf: boolean
   ) {
     const status = createMapDto.wantsPrivateTesting
-      ? MapStatusNew.PRIVATE_TESTING
-      : MapStatusNew.CONTENT_APPROVAL;
+      ? MapStatus.PRIVATE_TESTING
+      : MapStatus.CONTENT_APPROVAL;
 
     // Prisma doesn't let you do nested createMany https://github.com/prisma/prisma/issues/5455)
     // so we have to do this shit in parts... Fortunately this doesn't run often.
@@ -1132,7 +1129,7 @@ export class MapsService {
         // The *only* things reviewer is allowed is to go from
         // content approval -> public testing or rejected
         if (
-          dto.status !== MapStatusNew.PUBLIC_TESTING || // updating to status other public testing
+          dto.status !== MapStatus.PUBLIC_TESTING || // updating to status other public testing
           Object.values(dto).filter((x) => x !== undefined).length !== 1 // anything else on the DTO
         ) {
           throw new ForbiddenException(
@@ -1259,13 +1256,13 @@ export class MapsService {
 
     // Call functions for specific status changes
     if (
-      oldStatus === MapStatusNew.PUBLIC_TESTING &&
-      newStatus === MapStatusNew.FINAL_APPROVAL
+      oldStatus === MapStatus.PUBLIC_TESTING &&
+      newStatus === MapStatus.FINAL_APPROVAL
     ) {
       await this.updateStatusFromPublicToFA(map);
     } else if (
-      oldStatus === MapStatusNew.FINAL_APPROVAL &&
-      newStatus === MapStatusNew.APPROVED
+      oldStatus === MapStatus.FINAL_APPROVAL &&
+      newStatus === MapStatus.APPROVED
     ) {
       await this.updateStatusFromFAToApproved(tx, map, dto);
     }
@@ -1290,7 +1287,7 @@ export class MapsService {
     // If it's met the criteria to go to FA once, allowed to skip these checks
     if (
       map.submission.dates.some(
-        (date) => date.status === MapStatusNew.FINAL_APPROVAL
+        (date) => date.status === MapStatus.FINAL_APPROVAL
       )
     ) {
       return;
@@ -1300,7 +1297,7 @@ export class MapsService {
     // if it's never been to FINAL_APPROVAL before.
     const currentTime = Date.now();
     const latestPubTestDate = map.submission.dates
-      .filter((x) => x.status === MapStatusNew.PUBLIC_TESTING)
+      .filter((x) => x.status === MapStatus.PUBLIC_TESTING)
       .sort(
         ({ date: dateA }, { date: dateB }) =>
           new Date(dateA).getTime() - new Date(dateB).getTime()
@@ -1400,9 +1397,7 @@ export class MapsService {
 
     // Is it getting approved for first time?
     if (
-      !map.submission.dates.some(
-        (date) => date.status === MapStatusNew.APPROVED
-      )
+      !map.submission.dates.some((date) => date.status === MapStatus.APPROVED)
     ) {
       if (!dto.finalLeaderboards || dto.finalLeaderboards.length === 0)
         throw new BadRequestException('Missing finalized leaderboards');
@@ -1513,7 +1508,7 @@ export class MapsService {
     // Set hashes to null to give frontend easy to tell files have been deleted
     await this.db.mMap.update({
       where: { id: mapID },
-      data: { status: MapStatusNew.DISABLED, hash: null }
+      data: { status: MapStatus.DISABLED, hash: null }
     });
 
     await this.db.mapSubmissionVersion.updateMany({
@@ -1641,8 +1636,8 @@ export class MapsService {
 
     // If APPROVED/PUBLIC_TESTING, anyone can access.
     if (
-      (map.status === MapStatusNew.APPROVED && !args?.submissionOnly) ||
-      map.status === MapStatusNew.PUBLIC_TESTING
+      (map.status === MapStatus.APPROVED && !args?.submissionOnly) ||
+      map.status === MapStatus.PUBLIC_TESTING
     ) {
       return map as GetMMapUnique<S, I>;
     }
@@ -1653,7 +1648,7 @@ export class MapsService {
     switch (map.status) {
       // APPROVED, always allow unless:
       // - submissionOnly is true, and not mod/admin
-      case MapStatusNew.APPROVED: {
+      case MapStatus.APPROVED: {
         if (
           !args?.submissionOnly ||
           Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
@@ -1667,7 +1662,7 @@ export class MapsService {
       // - Moderator/Admin
       // - in the credits
       // - Has an accepted MapTestInvite
-      case MapStatusNew.PRIVATE_TESTING: {
+      case MapStatus.PRIVATE_TESTING: {
         if (
           map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
@@ -1698,8 +1693,8 @@ export class MapsService {
       // - The submitter
       // - Moderator/Admin
       // - Reviewer
-      case MapStatusNew.CONTENT_APPROVAL:
-      case MapStatusNew.FINAL_APPROVAL: {
+      case MapStatus.CONTENT_APPROVAL:
+      case MapStatus.FINAL_APPROVAL: {
         if (
           map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE)
@@ -1710,7 +1705,7 @@ export class MapsService {
       }
       // DISABLED, only allow:
       // - Moderator/Admin
-      case MapStatusNew.DISABLED: {
+      case MapStatus.DISABLED: {
         if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN))
           return map as GetMMapUnique<S, I>;
         break;
@@ -1794,7 +1789,7 @@ type MapWithSubmission = MMap & {
   >;
 };
 
-type GetMMapUnique<S, I> = { id: number; status: MapStatusNew } & Prisma.Result<
+type GetMMapUnique<S, I> = { id: number; status: MapStatus } & Prisma.Result<
   ExtendedPrismaService['mMap'],
   { select: S; include: I },
   'findUnique'

@@ -1,5 +1,5 @@
 import {
-  MapStatusNew,
+  MapStatus,
   Gamemode,
   MapReviewsGetQuery,
   MapsGetAllExpand,
@@ -116,12 +116,12 @@ export class MapsGetAllAdminQueryDto
   implements MapsGetAllAdminQuery
 {
   @EnumFilterQueryProperty([
-    MapStatusNew.APPROVED,
-    MapStatusNew.PRIVATE_TESTING,
-    MapStatusNew.CONTENT_APPROVAL,
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.FINAL_APPROVAL,
-    MapStatusNew.DISABLED
+    MapStatus.APPROVED,
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.CONTENT_APPROVAL,
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.FINAL_APPROVAL,
+    MapStatus.DISABLED
   ])
   readonly filter?: MapsGetAllAdminFilter;
 }
@@ -148,8 +148,8 @@ export class MapsGetAllSubmissionQueryDto
   readonly expand?: MapsGetAllSubmissionExpand;
 
   @EnumFilterQueryProperty([
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.PRIVATE_TESTING
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.PRIVATE_TESTING
   ])
   readonly filter?: MapsGetAllSubmissionFilter;
 }

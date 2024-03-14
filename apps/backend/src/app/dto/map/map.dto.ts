@@ -3,7 +3,7 @@ import {
   approvedVmfsPath,
   CreateMap,
   CreateMapWithFiles,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionType,
   MAX_MAP_NAME_LENGTH,
   MIN_MAP_NAME_LENGTH,
@@ -69,8 +69,8 @@ export class MapDto implements MMap {
   @MaxLength(MAX_MAP_NAME_LENGTH)
   readonly name: string;
 
-  @EnumProperty(MapStatusNew)
-  readonly status: MapStatusNew;
+  @EnumProperty(MapStatus)
+  readonly status: MapStatus;
 
   @NestedProperty(MapZonesDto, {
     required: false,
@@ -84,7 +84,7 @@ export class MapDto implements MMap {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return this.status === MapStatusNew.APPROVED
+    return this.status === MapStatus.APPROVED
       ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.name)}`
       : undefined;
   }
@@ -100,7 +100,7 @@ export class MapDto implements MMap {
   @IsString()
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
-    return this.status === MapStatusNew.APPROVED && this.hasVmf
+    return this.status === MapStatus.APPROVED && this.hasVmf
       ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.name)}`
       : undefined;
   }
@@ -271,9 +271,9 @@ export class UpdateMapDto
   @IsOptional()
   readonly info: UpdateMapInfoDto;
 
-  @EnumProperty(MapStatusNew)
+  @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+  readonly status: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
 
   @EnumProperty(MapSubmissionType, {
     description:
@@ -287,9 +287,9 @@ export class UpdateMapAdminDto
   extends OmitType(UpdateMapDto, ['status', 'suggestions'] as const)
   implements UpdateMapAdmin
 {
-  @EnumProperty(MapStatusNew)
+  @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatusNew;
+  readonly status: MapStatus;
 
   @ApiProperty({ description: 'UserID to update the submitter to' })
   @IsPositive()

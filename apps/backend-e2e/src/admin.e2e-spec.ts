@@ -19,7 +19,6 @@ import {
   MapCreditType,
   mapReviewAssetPath,
   MapStatus,
-  MapStatusNew,
   MapSubmissionType,
   ReportCategory,
   ReportType,
@@ -803,11 +802,11 @@ describe('Admin', () => {
             db.createMaps(4)
           ]);
 
-        await db.createMap({ status: MapStatusNew.PRIVATE_TESTING });
-        caMap = await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
-        faMap = await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
-        await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
-        await db.createMap({ status: MapStatusNew.DISABLED });
+        await db.createMap({ status: MapStatus.PRIVATE_TESTING });
+        caMap = await db.createMap({ status: MapStatus.CONTENT_APPROVAL });
+        faMap = await db.createMap({ status: MapStatus.FINAL_APPROVAL });
+        await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+        await db.createMap({ status: MapStatus.DISABLED });
       });
 
       afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
@@ -972,7 +971,7 @@ describe('Admin', () => {
               type: MapSubmissionType.ORIGINAL,
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: new Date().toJSON()
                 }
               ],
@@ -1009,8 +1008,8 @@ describe('Admin', () => {
         ])
       );
 
-      for (const status of Enum.values(MapStatusNew)) {
-        it(`should allow an admin to update map data during ${MapStatusNew[status]}`, async () => {
+      for (const status of Enum.values(MapStatus)) {
+        it(`should allow an admin to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
@@ -1024,7 +1023,7 @@ describe('Admin', () => {
                 youtubeID: 'Rt460jKi4Bk'
               },
               finalLeaderboards:
-                status === MapStatusNew.FINAL_APPROVAL
+                status === MapStatus.FINAL_APPROVAL
                   ? [
                       {
                         gamemode: Gamemode.RJ,
@@ -1071,7 +1070,7 @@ describe('Admin', () => {
           );
         });
 
-        it(`should allow a mod to update map data during ${MapStatusNew[status]}`, async () => {
+        it(`should allow a mod to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
@@ -1085,7 +1084,7 @@ describe('Admin', () => {
                 youtubeID: 'IUfBBCkl_QI'
               },
               finalLeaderboards:
-                status === MapStatusNew.FINAL_APPROVAL
+                status === MapStatus.FINAL_APPROVAL
                   ? [
                       {
                         gamemode: Gamemode.RJ,
@@ -1123,7 +1122,7 @@ describe('Admin', () => {
           );
         });
 
-        it(`should not allow a reviewer to update map data during ${MapStatusNew[status]}`, async () => {
+        it(`should not allow a reviewer to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
@@ -1134,7 +1133,7 @@ describe('Admin', () => {
             body: {
               name: 'surf_albatross',
               finalLeaderboards:
-                status === MapStatusNew.FINAL_APPROVAL
+                status === MapStatus.FINAL_APPROVAL
                   ? [
                       {
                         gamemode: Gamemode.RJ,
@@ -1153,7 +1152,7 @@ describe('Admin', () => {
         it('should not allow an admin to update suggestions during submission', async () => {
           const map = await db.createMap({
             ...createMapData,
-            status: MapStatusNew.PUBLIC_TESTING
+            status: MapStatus.PUBLIC_TESTING
           });
 
           await req.patch({
@@ -1176,33 +1175,33 @@ describe('Admin', () => {
         });
       }
 
-      const statuses = Enum.values(MapStatusNew);
+      const statuses = Enum.values(MapStatus);
       //prettier-ignore
       const validChanges = new Set([
-        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.REVIEWER}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.MODERATOR}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.MODERATOR}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.PRIVATE_TESTING },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`
+        `${MapStatus.APPROVED        },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.APPROVED        },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PRIVATE_TESTING },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PRIVATE_TESTING },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.REVIEWER}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.CONTENT_APPROVAL},${Role.MODERATOR}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.APPROVED        },${Role.MODERATOR}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.APPROVED        },${Role.ADMIN}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.APPROVED        },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.PRIVATE_TESTING },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`
       ]);
 
       for (const s1 of statuses) {
@@ -1216,8 +1215,8 @@ describe('Admin', () => {
                 : role === Role.MODERATOR
                   ? 'mod'
                   : 'reviewer'
-            } to change a map from ${MapStatusNew[s1]} to ${
-              MapStatusNew[s2]
+            } to change a map from ${MapStatus[s1]} to ${
+              MapStatus[s2]
             }`, async () => {
               const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
 
@@ -1256,7 +1255,7 @@ describe('Admin', () => {
                 body: {
                   status: s2,
                   finalLeaderboards:
-                    s2 === MapStatusNew.APPROVED
+                    s2 === MapStatus.APPROVED
                       ? [
                           {
                             gamemode: Gamemode.RJ,
@@ -1311,7 +1310,7 @@ describe('Admin', () => {
               ]
             }
           },
-          status: MapStatusNew.FINAL_APPROVAL
+          status: MapStatus.FINAL_APPROVAL
         });
 
         await prisma.mapSubmission.update({
@@ -1400,7 +1399,7 @@ describe('Admin', () => {
                 }
               }
             },
-            status: MapStatusNew.FINAL_APPROVAL
+            status: MapStatus.FINAL_APPROVAL
           });
 
           const vmfZip = new Zip();
@@ -1442,7 +1441,7 @@ describe('Admin', () => {
           });
 
           expect(updatedMap).toMatchObject({
-            status: MapStatusNew.APPROVED,
+            status: MapStatus.APPROVED,
             hash: bspHash,
             hasVmf: true
           });
@@ -1779,7 +1778,7 @@ describe('Admin', () => {
 
         const updated = await prisma.mMap.findFirst({ where: { id: map.id } });
         expect(updated).toMatchObject({
-          status: MapStatusNew.DISABLED,
+          status: MapStatus.DISABLED,
           hash: null
         });
 
@@ -1843,7 +1842,7 @@ describe('Admin', () => {
             db.loginNewUser({ data: { roles: Role.REVIEWER } })
           ]);
 
-        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
       afterAll(() => db.cleanup('mMap', 'user'));
@@ -1947,7 +1946,7 @@ describe('Admin', () => {
             db.loginNewUser({ data: { roles: Role.REVIEWER } })
           ]);
 
-        map = await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
       afterAll(() => db.cleanup('mMap', 'user'));
