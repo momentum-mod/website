@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { MapStatus } from '@momentum/constants';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { CombinedMapStatuses, MapStatus } from '@momentum/constants';
 import { LocalUserService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-home-user-maps',
@@ -11,17 +12,38 @@ import { SharedModule } from '../../../shared.module';
 })
 export class HomeUserMapsComponent implements OnInit {
   protected readonly MapStatus = MapStatus;
-  submittedMapStatusSummary = {};
+  protected approved: number;
+  protected submission: number;
 
-  constructor(private readonly userService: LocalUserService) {}
+  protected loading = true;
+
+  constructor(
+    private readonly userService: LocalUserService,
+    private readonly destroyRef: DestroyRef
+  ) {}
 
   ngOnInit() {
-    this.userService.getSubmittedMapSummary().subscribe({
-      next: (response) =>
-        (this.submittedMapStatusSummary = Object.fromEntries(
-          response.map((sum) => [sum.status, sum.statusCount])
-        )),
-      error: (error) => console.error(error)
-    });
+    this.userService
+      .getSubmittedMapSummary()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          this.approved =
+            response.find(({ status }) => status === MapStatus.APPROVED)
+              ?.statusCount ?? 0;
+          this.submission =
+            response
+              .filter(({ status }) =>
+                CombinedMapStatuses.IN_SUBMISSION.includes(status)
+              )
+              .map(({ statusCount }) => statusCount)
+              .reduce((a, c) => a + c, 0) ?? 0;
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error(error);
+        }
+      });
   }
 }
