@@ -51,7 +51,6 @@ export class MapListItemComponent implements OnChanges {
   @Input() isSubmission = false;
   @Input() isAdminPage = false;
 
-  @Output() libraryUpdate = new EventEmitter();
   @Output() favoriteUpdate = new EventEmitter();
 
   inFavorites: boolean;
