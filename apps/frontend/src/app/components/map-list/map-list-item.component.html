@@ -5,9 +5,12 @@
       [src]="map.thumbnail?.small"
       class="h-full w-full rounded-t border-b border-black border-opacity-5 transition-all group-hover:brightness-110"
     />
+    <button type="button" class="m-2 ml-auto mt-auto" (click)="toggleMapInFavorites()">
+      <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+    </button>
     @if (isReleasedMap(map) && !isAdminPage) {
       @if (map.currentModeLeaderboards; as lb) {
-        <div class="m-2 ml-auto mt-auto flex flex-wrap gap-2">
+        <div class="m-2 ml-auto mt-auto flex h-6 w-6 flex-wrap gap-2">
           <!-- prettier-ignore -->
           <div
           class="flex h-10 min-w-[2.5rem] rounded border border-white border-opacity-10 px-2 backdrop-blur-md shadow"

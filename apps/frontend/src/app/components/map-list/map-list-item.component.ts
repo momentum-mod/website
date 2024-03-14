@@ -25,6 +25,7 @@ import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { PluralPipe, TimeAgoPipe } from '../../pipes';
 import { TooltipDirective } from '../../directives';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
+import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-map-list-item',
@@ -37,7 +38,8 @@ import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive
     TimeAgoPipe,
     PluralPipe,
     TooltipDirective,
-    FontSizeLerpDirective
+    FontSizeLerpDirective,
+    IconComponent
   ]
 })
 export class MapListItemComponent implements OnChanges {
