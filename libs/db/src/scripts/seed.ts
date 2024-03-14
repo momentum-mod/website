@@ -431,13 +431,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 [MapSubmissionType.PORT, 1],
                 [MapSubmissionType.SPECIAL, 0.2]
               ]),
-              placeholders: from(randRange(vars.submissionPlaceholders), () => [
-                {
+              placeholders: from(
+                randRange(vars.submissionPlaceholders),
+                () => ({
                   alias: faker.internet.userName(),
                   type: Random.enumValue(MapCreditType),
                   description: faker.lorem.sentence()
-                }
-              ]),
+                })
+              ),
               dates: submissionsDates(),
               versions: {
                 createMany: {
