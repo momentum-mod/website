@@ -32,7 +32,9 @@ import {
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
-  AdminActivityType
+  AdminActivityType,
+  approvedBspPath,
+  submissionBspPath
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
@@ -937,6 +939,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                   select: {
                     currentVersion: {
                       select: {
+                        id: true,
                         versionNum: true,
                         hash: true,
                         changelog: true,
@@ -956,9 +959,19 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       // Unless we illegally cross some module boundaries, we can't use
       // class-transformer @Transform/@Expose/@Excludes here. Trust me, I tried
-      // getting CT working, but doesn't even seem possible with ESBuild.
-      for (const map of maps) {
+      // getting CT working, but doesn't even seem possible with esbuild.
+      for (const map of maps as any[]) {
         delete map.info.mapID;
+
+        map.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${approvedBspPath(
+          map.fileName
+        )}`;
+
+        if (map.submission) {
+          map.submission.currentVersion.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${submissionBspPath(
+            map.submission.currentVersion.id
+          )}`;
+        }
 
         for (const image of [...map.images, map.thumbnail] as any[]) {
           delete image.mapID;
