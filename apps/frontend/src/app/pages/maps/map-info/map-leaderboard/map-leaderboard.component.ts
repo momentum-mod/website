@@ -14,24 +14,20 @@ import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { SharedModule } from '../../../../shared.module';
-import { LeaderboardsService } from '../../../../services';
-import {
-  AvatarComponent,
-  SpinnerComponent,
-  UserComponent
-} from '../../../../components';
-import { TimeAgoPipe, TimingPipe } from '../../../../pipes';
 import {
   GroupedMapLeaderboard,
   GroupedMapLeaderboards,
   groupMapLeaderboards
 } from '../../../../util';
-import { RangePipe } from '../../../../pipes/range.pipe';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { SpinnerDirective } from '../../../../directives';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HiddenLeaderboardsInfoComponent } from '../../../../components/tooltips/hidden-leaderboards-info.component';
 import { UnrankedLeaderboardsInfoComponent } from '../../../../components/tooltips/unranked-leaderboards-info.component';
+
+import { SpinnerComponent } from '../../../../components/spinner/spinner.component';
+import { SpinnerDirective } from '../../../../directives/spinner.directive';
+import { UserComponent } from '../../../../components/user/user.component';
+import { LeaderboardsService } from '../../../../services/data/leaderboards.service';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
@@ -51,10 +47,6 @@ export interface ActiveTrack {
   imports: [
     SharedModule,
     DropdownModule,
-    AvatarComponent,
-    TimingPipe,
-    TimeAgoPipe,
-    RangePipe,
     SpinnerComponent,
     SpinnerDirective,
     UserComponent,

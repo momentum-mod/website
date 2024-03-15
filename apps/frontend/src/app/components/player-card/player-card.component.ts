@@ -2,8 +2,11 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { IconComponent } from '../../icons';
 import { XpSystemsService } from '../../services/xp-systems.service';
-import { FullUser, LocalUserService } from '../../services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  FullUser,
+  LocalUserService
+} from '../../services/data/local-user.service';
 
 @Component({
   selector: 'm-player-card',

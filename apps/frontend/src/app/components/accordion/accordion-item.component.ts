@@ -7,10 +7,9 @@ import {
   Inject,
   Input
 } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { IconComponent } from '../../icons';
 import { Subject } from 'rxjs';
 import { AccordionComponent } from './accordion.component';
+import { SharedModule } from '../../shared.module';
 
 /**
  * Super simple accordion component.
@@ -83,7 +82,7 @@ import { AccordionComponent } from './accordion.component';
       }
     `
   ],
-  imports: [NgClass, IconComponent],
+  imports: [SharedModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })

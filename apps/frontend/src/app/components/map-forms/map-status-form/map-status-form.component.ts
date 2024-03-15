@@ -1,5 +1,4 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { TooltipDirective } from '../../../directives';
 import {
   Gamemode,
   Leaderboard,
@@ -18,25 +17,24 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { DatePipe, JsonPipe, KeyValuePipe, NgClass } from '@angular/common';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ChartModule } from 'primeng/chart';
 import { arrayFrom, leaderboardKey } from '@momentum/util-fn';
-import * as Chart from 'chart.js';
+import { ChartData } from 'chart.js';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { firstValueFrom, forkJoin } from 'rxjs';
-import { IconComponent } from '../../../icons';
-import { PluralPipe, TimingPipe, UnsortedKeyvaluePipe } from '../../../pipes';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
-import { LeaderboardsService, MapsService } from '../../../services';
 import { AccordionModule } from 'primeng/accordion';
 import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { IterableElement } from 'type-fest';
 import { SliderComponent } from '../../slider/slider.component';
 import { MapFinalApprovalFormComponent } from './map-final-approval-form.component';
+import { SharedModule } from '../../../shared.module';
+import { MapsService } from '../../../services/data/maps.service';
+import { LeaderboardsService } from '../../../services/data/leaderboards.service';
 
 export type GroupedLeaderboards = Map<
   Gamemode,
@@ -46,7 +44,7 @@ export type GroupedLeaderboards = Map<
         totalRuns: number;
         subSugg?: MapSubmissionSuggestion;
         reviews: MapReviewSuggestion[];
-        graphs: { tiers: Chart.ChartData; ratings: any };
+        graphs: { tiers: ChartData; ratings: any };
         averageTier?: number;
         averageRating?: number;
         tier: number | null;
@@ -62,25 +60,16 @@ export type GroupedLeaderboards = Map<
   templateUrl: 'map-status-form.component.html',
   standalone: true,
   imports: [
-    TooltipDirective,
-    ReactiveFormsModule,
-    IconComponent,
-    PluralPipe,
+    SharedModule,
     CalendarModule,
     DropdownModule,
     SubmissionTypeInfoComponent,
-    JsonPipe,
-    TimingPipe,
-    DatePipe,
     ChartModule,
-    UnsortedKeyvaluePipe,
-    KeyValuePipe,
     AccordionModule,
     AccordionComponent,
     AccordionItemComponent,
     SliderComponent,
-    MapFinalApprovalFormComponent,
-    NgClass
+    MapFinalApprovalFormComponent
   ]
 })
 export class MapStatusFormComponent implements OnChanges {

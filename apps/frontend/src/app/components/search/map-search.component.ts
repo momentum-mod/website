@@ -1,28 +1,17 @@
 import { Component } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgClass, NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { IconComponent } from '../../icons';
-import { MapsService } from '../../services';
-import { SpinnerDirective } from '../../directives';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { MMap } from '@momentum/constants';
+import { SharedModule } from '../../shared.module';
+import { MapsService } from '../../services/data/maps.service';
 
 @Component({
   selector: 'm-map-search',
   templateUrl: './map-search.component.html',
   standalone: true,
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    IconComponent,
-    NgClass,
-    PaginatorModule,
-    OverlayPanelModule,
-    NgOptimizedImage,
-    SpinnerDirective
-  ]
+  imports: [SharedModule, PaginatorModule, OverlayPanelModule, NgOptimizedImage]
 })
 export class MapSearchComponent extends AbstractSearchComponent<MMap> {
   constructor(private readonly mapsService: MapsService) {

@@ -9,21 +9,20 @@ import {
 import { Enum } from '@momentum/enum';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
-import { MapListComponent } from '../../../components';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { AdminService } from '../../../services';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SpinnerDirective } from '../../../directives';
+import { MapListComponent } from '../../../components/map-list/map-list.component';
+import { AdminService } from '../../../services/data/admin.service';
 
 type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
   standalone: true,
-  imports: [SharedModule, MapListComponent, MultiSelectModule, SpinnerDirective]
+  imports: [SharedModule, MapListComponent, MultiSelectModule]
 })
 export class AdminMapsBrowserComponent implements OnInit {
   protected readonly MapStatusName = MapStatusName;

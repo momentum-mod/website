@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { LocalUserService } from '../services';
 import { env } from '../env/environment';
+import { LocalUserService } from '../services/data/local-user.service';
 
 const POST_AUTH_REDIRECT_KEY = 'postAuthLocation';
 

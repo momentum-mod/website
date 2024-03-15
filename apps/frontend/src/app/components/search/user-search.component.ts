@@ -1,36 +1,23 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
-import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { PaginatorModule } from 'primeng/paginator';
 import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
-import { RouterLink } from '@angular/router';
-import { IconComponent } from '../../icons';
-import { LocalUserService, UsersService } from '../../services';
-import { TooltipDirective, SpinnerDirective } from '../../directives';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
-import { SpinnerComponent } from '../spinner/spinner.component';
+import { SharedModule } from '../../shared.module';
+import { UsersService } from '../../services/data/users.service';
+import { LocalUserService } from '../../services/data/local-user.service';
 
 @Component({
   selector: 'm-user-search',
   templateUrl: './user-search.component.html',
   standalone: true,
   imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    IconComponent,
-    NgClass,
+    SharedModule,
     PaginatorModule,
     OverlayPanelModule,
-    NgOptimizedImage,
-    RouterLink,
-    TooltipDirective,
-    RoleBadgesComponent,
-    SpinnerDirective,
-    SpinnerComponent,
-    NgTemplateOutlet
+    RoleBadgesComponent
   ]
 })
 export class UserSearchComponent

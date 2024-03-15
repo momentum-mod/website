@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-spinner',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   template: '<span [ngClass]="spinnerClass"></span>',
   styles: [
     `

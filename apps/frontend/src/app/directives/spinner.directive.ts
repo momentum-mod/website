@@ -8,7 +8,7 @@ import {
   HostBinding,
   Input
 } from '@angular/core';
-import { SpinnerComponent } from '../components';
+import { SpinnerComponent } from '../components/spinner/spinner.component';
 
 /*
  * Shows an m-spinner component when the directive input value is `true`.

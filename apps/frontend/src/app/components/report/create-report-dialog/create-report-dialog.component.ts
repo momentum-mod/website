@@ -1,22 +1,17 @@
 import { Component, Input, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule
-} from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { CardComponent } from '../../card/card.component';
-import { ReportService } from '../../../services';
+import { SharedModule } from '../../../shared.module';
+import { ReportService } from '../../../services/data/report.service';
 
 @Component({
   selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CardComponent, DropdownModule]
+  imports: [SharedModule, DropdownModule]
 })
 export class CreateReportDialogComponent implements OnInit {
   protected readonly Categories = [

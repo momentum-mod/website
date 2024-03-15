@@ -1,11 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { AdminActivity } from '@momentum/constants';
-import { RouterLink } from '@angular/router';
-import { AvatarComponent } from '../../../../components';
-import { TimeAgoPipe } from '../../../../pipes';
-import { NgStyle } from '@angular/common';
-import { IconComponent } from '../../../../icons';
 import { AdminActivityEntryData } from './admin-activity-entry.component';
+import { SharedModule } from '../../../../shared.module';
+import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 
 @Component({
   selector: 'm-admin-activity-entry-header',
@@ -27,7 +24,7 @@ import { AdminActivityEntryData } from './admin-activity-entry.component';
     </div>
   `,
   standalone: true,
-  imports: [NgStyle, RouterLink, AvatarComponent, IconComponent, TimeAgoPipe]
+  imports: [SharedModule, TimeAgoPipe]
 })
 export class AdminActivityEntryHeaderComponent {
   @Input({ required: true }) activity: AdminActivity;

@@ -1,8 +1,7 @@
 import { Component, Input, OnChanges } from '@angular/core';
-
 import { Bitfield, Role, RoleNames } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { TooltipDirective } from '../../directives';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 /**
  * List of icons for each role on a Role bitfield in a simple flexbox layout.

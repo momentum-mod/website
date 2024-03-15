@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { NotificationsService } from './services/notifications.service';
-import { IconComponent } from './icons';
-import { HeaderComponent, SidenavComponent } from './components';
 import { LayoutService, SidenavState } from './services/layout.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { NgStyle } from '@angular/common';
+import { HeaderComponent } from './components/layout/header.component';
+import { SidenavComponent } from './components/layout/sidenav.component';
+import { SharedModule } from './shared.module';
 
 @Component({
   selector: 'm-app',
@@ -14,13 +13,11 @@ import { NgStyle } from '@angular/common';
   styleUrl: 'app.component.css',
   standalone: true,
   imports: [
+    SharedModule,
     HeaderComponent,
-    IconComponent,
-    RouterOutlet,
     SidenavComponent,
     ToastModule,
-    ConfirmDialogModule,
-    NgStyle
+    ConfirmDialogModule
   ]
 })
 export class AppComponent {

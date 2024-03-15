@@ -6,7 +6,6 @@ import {
   QueryList,
   ViewChildren
 } from '@angular/core';
-import { TooltipDirective } from '../../../directives';
 import {
   MapSubmissionType,
   MAX_MAP_DESCRIPTION_LENGTH,
@@ -14,28 +13,20 @@ import {
   MIN_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_NAME_LENGTH
 } from '@momentum/constants';
-import {
-  FormControl,
-  FormControlStatus,
-  FormGroup,
-  ReactiveFormsModule
-} from '@angular/forms';
-import { IconComponent } from '../../../icons';
-import { PluralPipe } from '../../../pipes';
+import { FormControl, FormControlStatus, FormGroup } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SharedModule } from '../../../shared.module';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-details-form',
   templateUrl: 'map-details-form.component.html',
   standalone: true,
   imports: [
-    TooltipDirective,
-    ReactiveFormsModule,
-    IconComponent,
-    PluralPipe,
+    SharedModule,
     CalendarModule,
     DropdownModule,
     SubmissionTypeInfoComponent

@@ -11,31 +11,18 @@ import {
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import {
-  AvatarComponent,
-  UserComponent,
-  MapReviewListComponent,
-  SubmissionTypeInfoComponent
-} from '../../../../components';
-import {
   GroupedMapSubmissionSuggestions,
   groupMapSuggestions
 } from '../../../../util/grouped-map-suggestions.util';
-import { PluralPipe, UnsortedKeyvaluePipe } from '../../../../pipes';
 import { downloadZoneFile } from '../../../../util/download-zone-file.util';
+import { MapReviewListComponent } from '../../../../components/map-review/map-review-list.component';
+import { SubmissionTypeInfoComponent } from '../../../../components/tooltips/submission-type-info.component';
 
 @Component({
   selector: 'm-map-submission',
   templateUrl: 'map-submission.component.html',
   standalone: true,
-  imports: [
-    SharedModule,
-    AvatarComponent,
-    UnsortedKeyvaluePipe,
-    UserComponent,
-    MapReviewListComponent,
-    PluralPipe,
-    SubmissionTypeInfoComponent
-  ]
+  imports: [SharedModule, MapReviewListComponent, SubmissionTypeInfoComponent]
 })
 export class MapSubmissionComponent {
   protected readonly MapSubmissionType = MapSubmissionType;

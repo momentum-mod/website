@@ -1,11 +1,9 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TEST_INVITES, User } from '@momentum/constants';
-import { NgClass } from '@angular/common';
 import { UserSearchComponent } from '../../search/user-search.component';
-import { SpinnerDirective, TooltipDirective } from '../../../directives';
-import { AvatarComponent } from '../../avatar/avatar.component';
-import { UserComponent } from '../../user/user.component';
+import { SharedModule } from '../../../shared.module';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-test-invite-selection',
@@ -18,14 +16,7 @@ import { UserComponent } from '../../user/user.component';
     }
   ],
   standalone: true,
-  imports: [
-    NgClass,
-    UserSearchComponent,
-    TooltipDirective,
-    AvatarComponent,
-    UserComponent,
-    SpinnerDirective
-  ]
+  imports: [SharedModule, UserSearchComponent]
 })
 export class MapTestInviteSelectionComponent implements ControlValueAccessor {
   protected readonly MAX_TESTING_REQUESTS = MAX_TEST_INVITES;

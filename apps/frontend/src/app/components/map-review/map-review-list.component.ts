@@ -1,16 +1,15 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
 import { merge, Subject } from 'rxjs';
-import { LocalUserService, MapsService } from '../../services';
 import { switchMap, tap } from 'rxjs/operators';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 import { MessageService } from 'primeng/api';
-import { SpinnerDirective } from '../../directives';
-import { RouterLink } from '@angular/router';
 import { PaginatorModule } from 'primeng/paginator';
 import { MapReviewComponent } from './map-review.component';
 import { MapReviewFormComponent } from './map-review-form.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared.module';
+import { MapsService } from '../../services/data/maps.service';
+import { LocalUserService } from '../../services/data/local-user.service';
 
 enum FilterType {
   NONE,
@@ -22,12 +21,10 @@ enum FilterType {
   selector: 'm-map-review-list',
   standalone: true,
   imports: [
-    SpinnerDirective,
-    RouterLink,
+    SharedModule,
     PaginatorModule,
     MapReviewComponent,
-    MapReviewFormComponent,
-    ReactiveFormsModule
+    MapReviewFormComponent
   ],
   templateUrl: './map-review-list.component.html'
 })

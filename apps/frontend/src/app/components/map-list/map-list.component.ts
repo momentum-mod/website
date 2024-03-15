@@ -3,13 +3,13 @@ import { Subject } from 'rxjs';
 import { MMap } from '@momentum/constants';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { MapListItemComponent } from './map-list-item.component';
-import { SpinnerComponent } from '../spinner/spinner.component';
+import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'm-map-list',
   templateUrl: './map-list.component.html',
   standalone: true,
-  imports: [MapListItemComponent, InfiniteScrollModule, SpinnerComponent]
+  imports: [SharedModule, MapListItemComponent, InfiniteScrollModule]
 })
 export class MapListComponent {
   @Input({ required: true }) maps: MMap[];

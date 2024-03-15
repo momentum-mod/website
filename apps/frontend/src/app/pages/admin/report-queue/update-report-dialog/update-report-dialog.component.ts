@@ -3,8 +3,8 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { AdminService } from '../../../../services';
 import { SharedModule } from '../../../../shared.module';
+import { AdminService } from '../../../../services/data/admin.service';
 
 @Component({
   selector: 'm-update-report-dialog',

@@ -5,15 +5,14 @@ import { MapCredit, User, MapCreditType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 import { PaginatorModule } from 'primeng/paginator';
-import { UsersService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
-import { SpinnerDirective } from '../../../directives';
+import { UsersService } from '../../../services/data/users.service';
 
 @Component({
   selector: 'm-profile-credits',
   templateUrl: './profile-credits.component.html',
   standalone: true,
-  imports: [SharedModule, SpinnerDirective, PaginatorModule]
+  imports: [SharedModule, PaginatorModule]
 })
 export class ProfileCreditsComponent implements OnInit {
   protected readonly MapCreditType = MapCreditType;

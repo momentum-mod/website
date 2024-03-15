@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, take, tap } from 'rxjs/operators';
 import { EMPTY, merge, Subject } from 'rxjs';
 import {
@@ -19,36 +20,22 @@ import { omit } from 'lodash-es';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
-import {
-  UserSearchComponent,
-  AvatarComponent,
-  DeleteUserDialogComponent,
-  ConfirmDialogComponent
-} from '../../../components';
 import { SharedModule } from '../../../shared.module';
 import { Icon } from '../../../icons';
-import {
-  AdminService,
-  AuthService,
-  LocalUserService,
-  UsersService
-} from '../../../services';
-import { PluralPipe, UnsortedKeyvaluePipe } from '../../../pipes';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
+import { UserSearchComponent } from '../../../components/search/user-search.component';
+import { LocalUserService } from '../../../services/data/local-user.service';
+import { UsersService } from '../../../services/data/users.service';
+import { AdminService } from '../../../services/data/admin.service';
+import { AuthService } from '../../../services/data/auth.service';
+import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
+import { DeleteUserDialogComponent } from '../../../components/dialogs/delete-user-dialog.component';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   standalone: true,
-  imports: [
-    SharedModule,
-    UserSearchComponent,
-    DropdownModule,
-    AvatarComponent,
-    PluralPipe,
-    UnsortedKeyvaluePipe
-  ]
+  imports: [SharedModule, UserSearchComponent, DropdownModule]
 })
 export class ProfileEditComponent implements OnInit {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)

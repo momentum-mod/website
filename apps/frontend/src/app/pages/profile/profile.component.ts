@@ -14,25 +14,21 @@ import {
   CombinedRoles
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-import { TabViewModule } from 'primeng/tabview';
-import { LocalUserService, UsersService } from '../../services';
-import { Icon } from '../../icons';
 import { SharedModule } from '../../shared.module';
-import {
-  ReportButtonComponent,
-  RoleBadgesComponent,
-  AvatarComponent,
-  ActivityComponent,
-  TabsComponent,
-  TabComponent
-} from '../../components';
-import { UnsortedKeyvaluePipe } from '../../pipes';
 import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 import { Bitflags } from '@momentum/bitflags';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
+import { ActivityComponent } from '../../components/activity/activity.component';
+import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
+import { RoleBadgesComponent } from '../../components/role-badges/role-badges.component';
+import { TabsComponent } from '../../components/tabs/tabs.component';
+import { TabComponent } from '../../components/tabs/tab.component';
+import { Icon } from '../../icons';
+import { LocalUserService } from '../../services/data/local-user.service';
+import { UsersService } from '../../services/data/users.service';
 
 @Component({
   selector: 'm-user-profile',
@@ -47,9 +43,6 @@ import { TitleService } from '../../services/title.service';
     ProfileRunHistoryComponent,
     ProfileCreditsComponent,
     RoleBadgesComponent,
-    TabViewModule,
-    AvatarComponent,
-    UnsortedKeyvaluePipe,
     TabsComponent,
     TabComponent
   ]

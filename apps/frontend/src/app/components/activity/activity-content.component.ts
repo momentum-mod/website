@@ -1,23 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Activity, ActivityType } from '@momentum/constants';
-import { RouterLink } from '@angular/router';
-import { NgClass, NgStyle } from '@angular/common';
-import { Icon, IconComponent } from '../../icons';
-import { AvatarComponent } from '../avatar/avatar.component';
-import { TimeAgoPipe } from '../../pipes';
+import { Icon } from '../../icons';
+import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'm-activity-content',
   templateUrl: './activity-content.component.html',
   standalone: true,
-  imports: [
-    NgClass,
-    RouterLink,
-    NgStyle,
-    IconComponent,
-    AvatarComponent,
-    TimeAgoPipe
-  ]
+  imports: [SharedModule]
 })
 export class ActivityContentComponent implements OnInit {
   @Input() activity: Activity;

@@ -7,32 +7,23 @@ import {
   User
 } from '@momentum/constants';
 import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { filter, mergeMap, tap } from 'rxjs/operators';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
-import { SpinnerComponent } from '../spinner/spinner.component';
-import { SpinnerDirective } from '../../directives';
-import { CardComponent } from '../card/card.component';
-import { ActivityService, LocalUserService } from '../../services';
 import { ActivityContentComponent } from './activity-content.component';
+import { SharedModule } from '../../shared.module';
+import { ActivityService } from '../../services/data/activity.service';
+import { LocalUserService } from '../../services/data/local-user.service';
 
 @Component({
   selector: 'm-activity',
   templateUrl: './activity.component.html',
   standalone: true,
   imports: [
-    CommonModule,
-    CardComponent,
+    SharedModule,
     DropdownModule,
-    FormsModule,
     ActivityContentComponent,
-    InfiniteScrollModule,
-    ProgressSpinnerModule,
-    SpinnerComponent,
-    SpinnerDirective
+    InfiniteScrollModule
   ]
 })
 export class ActivityComponent implements OnInit {

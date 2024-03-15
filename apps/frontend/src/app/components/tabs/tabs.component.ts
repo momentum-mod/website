@@ -5,8 +5,8 @@ import {
   Input,
   QueryList
 } from '@angular/core';
-import { TabDirective } from './tab.component';
 import { NgClass, NgStyle } from '@angular/common';
+import { TabDirective } from './tab.component';
 
 @Component({
   selector: 'm-tabs',

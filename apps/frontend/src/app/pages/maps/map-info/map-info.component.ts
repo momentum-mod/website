@@ -17,34 +17,7 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { TabViewModule } from 'primeng/tabview';
-import {
-  AvatarComponent,
-  CardBodyComponent,
-  CardComponent,
-  CardHeaderComponent,
-  ReportButtonComponent,
-  SpinnerComponent,
-  TabComponent,
-  TabDirective,
-  TabsComponent
-} from '../../../components';
-import {
-  SpinnerDirective,
-  TooltipDirective,
-  FontSizeLerpDirective
-} from '../../../directives';
 import { SharedModule } from '../../../shared.module';
-import {
-  LayoutService,
-  LocalUserService,
-  MapsService
-} from '../../../services';
-import {
-  PluralPipe,
-  ThousandsSuffixPipe,
-  UnsortedKeyvaluePipe
-} from '../../../pipes';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { GalleriaModule } from 'primeng/galleria';
@@ -57,6 +30,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { downloadZoneFile } from '../../../util/download-zone-file.util';
+import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
+import { TabsComponent } from '../../../components/tabs/tabs.component';
+import {
+  TabComponent,
+  TabDirective
+} from '../../../components/tabs/tab.component';
+import { FontSizeLerpDirective } from '../../../directives/font-size-lerp.directive';
+import { MapsService } from '../../../services/data/maps.service';
+import { LocalUserService } from '../../../services/data/local-user.service';
+import { LayoutService } from '../../../services/layout.service';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -76,21 +59,10 @@ enum MapInfoSection {
     MapLeaderboardComponent,
     MapSubmissionComponent,
     ReportButtonComponent,
-    CardHeaderComponent,
-    CardComponent,
-    TooltipDirective,
-    TabViewModule,
-    AvatarComponent,
-    PluralPipe,
-    ThousandsSuffixPipe,
     TabsComponent,
-    GalleriaModule,
-    CardBodyComponent,
     TabDirective,
+    GalleriaModule,
     TabComponent,
-    UnsortedKeyvaluePipe,
-    SpinnerDirective,
-    SpinnerComponent,
     FontSizeLerpDirective,
     OverlayPanelModule
   ]

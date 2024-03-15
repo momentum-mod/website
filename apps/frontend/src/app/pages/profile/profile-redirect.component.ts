@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LocalUserService } from '../../services';
+import { LocalUserService } from '../../services/data/local-user.service';
 
 /**
  * Redirects `/profile` to `/profile/<logged-in-ID>` if has a logged in user,
