@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { parse, simplify } from 'txml';
+import { XMLParser } from 'fast-xml-parser';
 import { SharedModule } from '../../../shared.module';
 import { BlogService } from '../../../services/data/blog.service';
 
@@ -19,6 +19,8 @@ export class CommunityNewsComponent implements OnInit {
   feed: { item: BlogPost[] } = { item: [] };
   loaded = false;
 
+  parser = new XMLParser();
+
   constructor(private readonly blogService: BlogService) {}
 
   ngOnInit() {
@@ -26,8 +28,7 @@ export class CommunityNewsComponent implements OnInit {
       .getRecentBlogPosts()
       .pipe(finalize(() => (this.loaded = true)))
       .subscribe((response) => {
-        response = parse(response, { noChildNodes: [] });
-        response = simplify(response);
+        response = this.parser.parse(response);
         this.feed = response.rss.channel;
 
         for (const post of this.feed.item) {
