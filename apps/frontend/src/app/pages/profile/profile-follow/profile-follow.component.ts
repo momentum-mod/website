@@ -4,16 +4,15 @@ import { finalize } from 'rxjs/operators';
 import { Follow, User } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { LocalUserService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 @Component({
   selector: 'm-profile-follow',
   templateUrl: './profile-follow.component.html',
   standalone: true,
-  imports: [SharedModule, TooltipDirective]
+  imports: [SharedModule]
 })
 export class ProfileFollowComponent implements OnInit {
   @Input() userSubject: BehaviorSubject<User>;

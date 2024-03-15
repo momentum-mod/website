@@ -18,9 +18,12 @@ import { Icon, IconComponent } from '../../../icons';
 import { AbstractFileUploadComponent } from '../../file-upload/abstract-file-upload.component';
 import { MultiFileUploadComponent } from '../../file-upload/multi-file-upload.component';
 import { ImageSelectionItem } from './image-selection-item.class';
-import { BackgroundState, LayoutService } from '../../../services';
 import { MAX_MAP_IMAGES } from '@momentum/constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  BackgroundState,
+  LayoutService
+} from '../../../services/layout.service';
 
 export enum ImageSelectionType {
   THUMBNAIL,

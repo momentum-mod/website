@@ -43,33 +43,7 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { TabViewModule } from 'primeng/tabview';
-import {
-  CardHeaderComponent,
-  CreditsInfoComponent,
-  DeleteUserDialogComponent,
-  FileUploadComponent,
-  ImageSelectionItem,
-  ImageSelectionType,
-  MapCreditsSelectionComponent,
-  MapDetailsFormComponent,
-  MapImageSelectionComponent,
-  MapLeaderboardSelectionComponent,
-  MapStatusFormComponent,
-  MapTestInviteSelectionComponent,
-  MultiFileUploadComponent,
-  SpinnerComponent,
-  TabComponent,
-  TabsComponent
-} from '../../../components';
-import {
-  AdminService,
-  LayoutService,
-  LocalUserService,
-  MapsService
-} from '../../../services';
 import { SharedModule } from '../../../shared.module';
-import { PluralPipe } from '../../../pipes';
 import { FormUtils, GroupedMapCredits } from '../../../util';
 import {
   BackendValidators,
@@ -77,7 +51,6 @@ import {
   FileValidators,
   suggestionsValidator
 } from '../../../validators';
-import { SpinnerDirective } from '../../../directives';
 import { firstValueFrom, lastValueFrom, merge, Subject } from 'rxjs';
 import { deepEquals, isEmpty } from '@momentum/util-fn';
 import { SuggestionType } from '@momentum/formats/zone';
@@ -86,6 +59,26 @@ import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
+import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
+import { MapsService } from '../../../services/data/maps.service';
+import { AdminService } from '../../../services/data/admin.service';
+import { LayoutService } from '../../../services/layout.service';
+import { LocalUserService } from '../../../services/data/local-user.service';
+import { TabsComponent } from '../../../components/tabs/tabs.component';
+import { TabComponent } from '../../../components/tabs/tab.component';
+import { MapDetailsFormComponent } from '../../../components/map-forms/map-details-form/map-details-form.component';
+import {
+  ImageSelectionType,
+  MapImageSelectionComponent
+} from '../../../components/map-forms/map-image-selection/map-image-selection.component';
+import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.component';
+import { MapCreditsSelectionComponent } from '../../../components/map-forms/map-credits-selection/map-credits-selection.component';
+import { MapLeaderboardSelectionComponent } from '../../../components/map-forms/map-leaderboard-selection/map-leaderboard-selection.component';
+import { MapStatusFormComponent } from '../../../components/map-forms/map-status-form/map-status-form.component';
+import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
+import { MapTestInviteSelectionComponent } from '../../../components/map-forms/map-test-invite-selection/map-test-invite-selection.component';
+import { ImageSelectionItem } from '../../../components/map-forms/map-image-selection/image-selection-item.class';
+import { DeleteUserDialogComponent } from '../../../components/dialogs/delete-user-dialog.component';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -103,20 +96,15 @@ export type FinalApprovalFormGroup = Record<
     CdkDrag,
     CdkDropList,
     FileUploadComponent,
-    TabViewModule,
-    PluralPipe,
+    MultiFileUploadComponent,
     TabsComponent,
     TabComponent,
     MapDetailsFormComponent,
-    CardHeaderComponent,
-    SpinnerComponent,
     MapImageSelectionComponent,
-    SpinnerDirective,
     CreditsInfoComponent,
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
     MapStatusFormComponent,
-    MultiFileUploadComponent,
     ProgressBarModule,
     MapTestInviteSelectionComponent
   ]

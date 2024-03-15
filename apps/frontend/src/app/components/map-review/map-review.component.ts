@@ -16,44 +16,32 @@ import {
   TrackType
 } from '@momentum/constants';
 import { UserComponent } from '../user/user.component';
-import { DatePipe, JsonPipe, NgClass, NgStyle } from '@angular/common';
-import { PluralPipe, UnsortedKeyvaluePipe } from '../../pipes';
 import {
   GroupedMapReviewSuggestions,
   groupMapSuggestions
 } from '../../util/grouped-map-suggestions.util';
 import { PaginatorModule } from 'primeng/paginator';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AdminService, LocalUserService, MapsService } from '../../services';
+import { FormControl, Validators } from '@angular/forms';
 import { switchMap, take, tap } from 'rxjs/operators';
-import { SpinnerDirective, TooltipDirective } from '../../directives';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
-import { IconComponent } from '../../icons';
-import { ButtonModule } from 'primeng/button';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { GalleriaModule } from 'primeng/galleria';
 import { MapReviewFormComponent } from './map-review-form.component';
 import { DialogModule } from 'primeng/dialog';
+import { SharedModule } from '../../shared.module';
+import { MapsService } from '../../services/data/maps.service';
+import { LocalUserService } from '../../services/data/local-user.service';
+import { AdminService } from '../../services/data/admin.service';
 
 @Component({
   selector: 'm-map-review',
   standalone: true,
   imports: [
+    SharedModule,
     UserComponent,
-    DatePipe,
-    UnsortedKeyvaluePipe,
-    NgStyle,
-    NgClass,
-    JsonPipe,
-    PluralPipe,
     PaginatorModule,
-    ReactiveFormsModule,
-    SpinnerDirective,
-    IconComponent,
-    TooltipDirective,
-    ButtonModule,
     ConfirmPopupModule,
     ConfirmDialogModule,
     GalleriaModule,

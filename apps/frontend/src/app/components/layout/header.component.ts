@@ -1,18 +1,16 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { Notification, User } from '@momentum/constants';
-import { RouterLink } from '@angular/router';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { CommonModule } from '@angular/common';
 import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
-import { LocalUserService } from '../../services';
 import { LayoutService } from '../../services/layout.service';
 import { NotificationComponent } from '../notification/notification.component';
 import { MultiSearchComponent } from '../search/multi-search.component';
-import { IconComponent } from '../../icons';
 import { PlayerCardComponent } from '../player-card/player-card.component';
 import { NotificationsService } from '../../services/notifications.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SharedModule } from '../../shared.module';
+import { LocalUserService } from '../../services/data/local-user.service';
+import { MenuModule } from 'primeng/menu';
 
 @Component({
   selector: 'm-header',
@@ -20,12 +18,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './header.component.css',
   standalone: true,
   imports: [
-    RouterLink,
-    IconComponent,
+    SharedModule,
     MultiSearchComponent,
     NotificationComponent,
     OverlayPanelModule,
-    CommonModule,
     PlayerCardComponent,
     MenuModule
   ]

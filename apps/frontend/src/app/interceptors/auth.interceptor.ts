@@ -8,8 +8,8 @@ import {
 import { BehaviorSubject, EMPTY, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { DOCUMENT } from '@angular/common';
-import { AuthService } from '../services';
 import { env } from '../env/environment';
+import { AuthService } from '../services/data/auth.service';
 
 /**
  * Sets JWT access tokens on requests to the backend, and handles refresh tokens

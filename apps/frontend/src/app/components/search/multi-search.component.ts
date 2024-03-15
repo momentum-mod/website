@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MMap, User } from '@momentum/constants';
 import { UserSearchComponent } from './user-search.component';
 import { MapSearchComponent } from './map-search.component';
+import { SharedModule } from '../../shared.module';
 
 enum SearchType {
   USER,
@@ -14,7 +13,7 @@ enum SearchType {
 @Component({
   selector: 'm-multisearch',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserSearchComponent, MapSearchComponent],
+  imports: [SharedModule, UserSearchComponent, MapSearchComponent],
   templateUrl: './multi-search.component.html',
   styles: [
     `

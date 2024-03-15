@@ -7,23 +7,14 @@ import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { SpinnerDirective } from '../../../directives';
 import { SharedModule } from '../../../shared.module';
-import { PastRunsService } from '../../../services';
-import { TimeAgoPipe, TimingPipe } from '../../../pipes';
+import { PastRunsService } from '../../../services/data/past-runs.service';
 
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   standalone: true,
-  imports: [
-    SharedModule,
-    DropdownModule,
-    SpinnerDirective,
-    PaginatorModule,
-    TimingPipe,
-    TimeAgoPipe
-  ]
+  imports: [SharedModule, DropdownModule, PaginatorModule]
 })
 export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderByDropdown = [

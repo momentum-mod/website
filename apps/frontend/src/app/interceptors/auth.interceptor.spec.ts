@@ -9,9 +9,9 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
-import { AuthService } from '../services';
 import { of, Subject, throwError } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
+import { AuthService } from '../services/data/auth.service';
 
 describe('AuthInterceptor', () => {
   let httpMock: HttpTestingController;

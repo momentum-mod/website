@@ -1,8 +1,8 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { CombinedMapStatuses, MapStatus } from '@momentum/constants';
-import { LocalUserService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 @Component({
   selector: 'm-home-user-maps',

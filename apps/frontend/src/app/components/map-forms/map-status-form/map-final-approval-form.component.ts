@@ -6,46 +6,28 @@ import {
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
-import {
-  ControlValueAccessor,
-  FormsModule,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule
-} from '@angular/forms';
-import { DatePipe, JsonPipe, KeyValuePipe, NgClass } from '@angular/common';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { leaderboardKey } from '@momentum/util-fn';
-import * as Chart from 'chart.js';
+import { ChartOptions } from 'chart.js';
 import { DropdownModule } from 'primeng/dropdown';
-import { IconComponent } from '../../../icons';
-import { PluralPipe, TimingPipe, UnsortedKeyvaluePipe } from '../../../pipes';
 import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { SliderComponent } from '../../slider/slider.component';
-import { TooltipDirective } from '../../../directives';
 import { GroupedLeaderboards } from './map-status-form.component';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'm-map-final-approval-form',
   templateUrl: 'map-final-approval-form.component.html',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    IconComponent,
+    SharedModule,
     DropdownModule,
-    JsonPipe,
-    TimingPipe,
-    DatePipe,
     ChartModule,
-    UnsortedKeyvaluePipe,
     AccordionComponent,
     AccordionItemComponent,
-    SliderComponent,
-    TooltipDirective,
-    PluralPipe,
-    KeyValuePipe,
-    FormsModule,
-    NgClass
+    SliderComponent
   ],
   providers: [
     {
@@ -65,8 +47,8 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   ];
   protected readonly TTName = TrackTypeName;
   protected readonly GamemodeName = GamemodeName;
-  protected readonly TierChartOptions: Chart.ChartOptions;
-  protected readonly RatingChartOptions: Chart.ChartOptions;
+  protected readonly TierChartOptions: ChartOptions;
+  protected readonly RatingChartOptions: ChartOptions;
 
   public get value(): MapSubmissionApproval[] {
     return [...this.groupedLeaderboards.values()].flatMap(({ leaderboards }) =>
@@ -114,9 +96,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  private chartOptions: (title: string) => Chart.ChartOptions<'bar'> = (
-    title
-  ) => ({
+  private chartOptions: (title: string) => ChartOptions<'bar'> = (title) => ({
     bar: { datasets: { barPercentage: 1 } },
     color: '#fff',
     font: { family: 'Roboto, sans-serif', size: 12 },

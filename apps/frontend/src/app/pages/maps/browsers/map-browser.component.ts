@@ -10,17 +10,8 @@ import {
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
-import {
-  MapListComponent,
-  MapListItemComponent,
-  NStateButtonComponent,
-  SliderComponent,
-  SpinnerComponent
-} from '../../../components';
-import { SpinnerDirective } from '../../../directives';
 import { PaginatorModule } from 'primeng/paginator';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { MapsService } from '../../../services';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,6 +20,11 @@ import {
   groupMapLeaderboards,
   getSpecificGroupedLeaderboard
 } from '../../../util';
+import { MapListComponent } from '../../../components/map-list/map-list.component';
+import { MapListItemComponent } from '../../../components/map-list/map-list-item.component';
+import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
+import { SliderComponent } from '../../../components/slider/slider.component';
+import { MapsService } from '../../../services/data/maps.service';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -36,12 +32,10 @@ import {
   imports: [
     SharedModule,
     MapListComponent,
-    SliderComponent,
     NStateButtonComponent,
     MapListItemComponent,
     PaginatorModule,
-    SpinnerDirective,
-    SpinnerComponent
+    SliderComponent
   ]
 })
 export class MapBrowserComponent implements OnInit {

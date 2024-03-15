@@ -97,9 +97,6 @@
       "options": {
         "buildTarget": "frontend:build"
       }
-    },
-    "bundle-analyzer": {
-      "command": "webpack-bundle-analyzer dist/apps/frontend/stats.json"
     }
   }
 }

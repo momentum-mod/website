@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
-import { LocalUserService } from '../services';
+import { LocalUserService } from '../services/data/local-user.service';
 
 export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
-  const userService: LocalUserService = inject(LocalUserService);
+  const userService = inject(LocalUserService);
   const router = inject(Router);
 
   const allowedRoles = route?.data?.['roles'];

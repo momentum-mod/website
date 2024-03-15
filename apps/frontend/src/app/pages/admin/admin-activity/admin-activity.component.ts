@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { SharedModule } from '../../../shared.module';
-import { SpinnerDirective } from '../../../directives';
-import { AdminActivityService } from '../../../services';
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -11,14 +9,13 @@ import {
   AdminActivityEntryData
 } from './admin-activity-entry/admin-activity-entry.component';
 import { AdminActivityEntryHeaderComponent } from './admin-activity-entry/admin-activity-entry-header.component';
-import {
-  AccordionComponent,
-  AccordionItemComponent,
-  UserSearchComponent
-} from '../../../components';
 import { FormControl, FormGroup } from '@angular/forms';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { mapHttpError } from '@momentum/util-fn';
+import { AccordionComponent } from '../../../components/accordion/accordion.component';
+import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
+import { UserSearchComponent } from '../../../components/search/user-search.component';
+import { AdminActivityService } from '../../../services/data/admin-activity.service';
 
 @Component({
   selector: 'm-admin-activity',
@@ -26,7 +23,6 @@ import { mapHttpError } from '@momentum/util-fn';
   standalone: true,
   imports: [
     SharedModule,
-    SpinnerDirective,
     PaginatorModule,
     AdminActivityEntryComponent,
     AdminActivityEntryHeaderComponent,

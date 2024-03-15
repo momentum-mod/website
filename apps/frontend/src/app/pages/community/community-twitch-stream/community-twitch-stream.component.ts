@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { TwitchStream } from '@momentum/constants';
 import { finalize } from 'rxjs/operators';
-import { TwitchAPIService } from '../../../services';
 import { SharedModule } from '../../../shared.module';
 import { TwitchDataComponent } from './twitch-data/twitch-data.component';
+import { TwitchAPIService } from '../../../services/data/twitch-api.service';
 
 @Component({
   selector: 'm-community-twitch-stream',

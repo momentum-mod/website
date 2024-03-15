@@ -5,10 +5,10 @@ import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { merge, of, Subject } from 'rxjs';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { SpinnerDirective } from '../../../directives';
 import { SharedModule } from '../../../shared.module';
-import { AdminService } from '../../../services';
 import { QueuedReportComponent } from './queued-report/queued-report.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { AdminService } from '../../../services/data/admin.service';
 
 @Component({
   selector: 'm-report-queue',

@@ -10,14 +10,13 @@ import {
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
-import { MapListComponent } from '../../../components';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { LocalUserService } from '../../../services';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SpinnerDirective } from '../../../directives';
+import { MapListComponent } from '../../../components/map-list/map-list.component';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -30,7 +29,7 @@ type StatusFilters = Array<
 @Component({
   templateUrl: 'user-maps-browser.component.html',
   standalone: true,
-  imports: [SharedModule, MapListComponent, MultiSelectModule, SpinnerDirective]
+  imports: [SharedModule, MapListComponent, MultiSelectModule]
 })
 export class UserMapsBrowserComponent implements OnInit {
   protected readonly MapStatusName = MapStatusName;

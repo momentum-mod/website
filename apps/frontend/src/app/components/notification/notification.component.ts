@@ -1,16 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Notification } from '@momentum/constants';
-import { NgClass } from '@angular/common';
 import { NotificationsService } from '../../services/notifications.service';
-import { IconComponent } from '../../icons';
 import { ActivityContentComponent } from '../activity/activity-content.component';
-import { TimeAgoPipe } from '../../pipes';
+import { SharedModule } from '../../shared.module';
 
 @Component({
   selector: 'm-notifications',
   templateUrl: './notification.component.html',
   standalone: true,
-  imports: [NgClass, ActivityContentComponent, IconComponent, TimeAgoPipe]
+  imports: [SharedModule, ActivityContentComponent]
 })
 export class NotificationComponent implements OnInit {
   @Input() notifications: Notification[];

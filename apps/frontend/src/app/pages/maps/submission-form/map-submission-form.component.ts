@@ -39,7 +39,6 @@ import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageService } from 'primeng/api';
-import { LocalUserService, MapsService } from '../../../services';
 import {
   BackendValidators,
   creditsValidator,
@@ -47,25 +46,24 @@ import {
   suggestionsValidator,
   testInvitesValidator
 } from '../../../validators';
-import {
-  AlertComponent,
-  FileUploadComponent,
-  MapCreditsSelectionComponent,
-  MapImageSelectionComponent,
-  MapLeaderboardSelectionComponent,
-  MapTestInviteSelectionComponent,
-  MultiFileUploadComponent,
-  MapDetailsFormComponent,
-  LeaderboardsInfoComponent,
-  CreditsInfoComponent
-} from '../../../components';
 import { SharedModule } from '../../../shared.module';
-import { TooltipDirective } from '../../../directives';
 import { SuggestionType } from '@momentum/formats/zone';
 import { GroupedMapCredits, FormUtils } from '../../../util';
 import { lastValueFrom } from 'rxjs';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
+import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
+import { MapImageSelectionComponent } from '../../../components/map-forms/map-image-selection/map-image-selection.component';
+import { MapLeaderboardSelectionComponent } from '../../../components/map-forms/map-leaderboard-selection/map-leaderboard-selection.component';
+import { MapCreditsSelectionComponent } from '../../../components/map-forms/map-credits-selection/map-credits-selection.component';
+import { MapTestInviteSelectionComponent } from '../../../components/map-forms/map-test-invite-selection/map-test-invite-selection.component';
+import { AlertComponent } from '../../../components/alert/alert.component';
+import { MapDetailsFormComponent } from '../../../components/map-forms/map-details-form/map-details-form.component';
+import { LeaderboardsInfoComponent } from '../../../components/tooltips/leaderboards-info.component';
+import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.component';
+import { MapsService } from '../../../services/data/maps.service';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -79,7 +77,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
     MapTestInviteSelectionComponent,
-    TooltipDirective,
     ProgressBarModule,
     AlertComponent,
     MapDetailsFormComponent,

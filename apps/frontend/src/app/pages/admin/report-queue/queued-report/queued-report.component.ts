@@ -3,13 +3,12 @@ import { ReportCategory, ReportType, Report } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { SharedModule } from '../../../../shared.module';
-import { AvatarComponent } from '../../../../components';
 
 @Component({
   selector: 'm-queued-report',
   templateUrl: './queued-report.component.html',
   standalone: true,
-  imports: [SharedModule, AvatarComponent]
+  imports: [SharedModule]
 })
 export class QueuedReportComponent implements OnInit {
   @Input() report: Report;

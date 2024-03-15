@@ -8,14 +8,14 @@ import {
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
-import { MapListComponent } from '../../../components';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { MapsService } from '../../../services';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
+import { MapListComponent } from '../../../components/map-list/map-list.component';
+import { MapsService } from '../../../services/data/maps.service';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
