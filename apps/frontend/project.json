@@ -7,7 +7,7 @@
   "tags": ["frontend"],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser-esbuild",
+      "executor": "@nx/angular:browser-esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/frontend",
@@ -23,6 +23,9 @@
       "configurations": {
         "production": {
           "buildOptimizer": true,
+          "commonChunk": true,
+          "namedChunks": false,
+          "vendorChunk": false,
           "fileReplacements": [
             {
               "replace": "apps/frontend/src/app/env/environment.ts",
@@ -48,6 +51,7 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true,
+          "vendorChunk": true,
           "namedChunks": true
         }
       },
