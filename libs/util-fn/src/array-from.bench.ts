@@ -1,6 +1,3 @@
-/* eslint-disable unicorn/new-for-builtins */
-/* eslint-disable unicorn/no-new-array */
-
 const ITERS = 1e6;
 const ARRAY_SIZE = 10;
 
