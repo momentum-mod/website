@@ -16,7 +16,7 @@ import {
   SocialsData
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { omit } from 'lodash-es';
+import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';

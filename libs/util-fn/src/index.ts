@@ -13,3 +13,4 @@ export * from './deep-equal';
 export * from './extract-prefix-from-map-name';
 export * from './rxjs/map-http-error';
 export * from './leaderboard-key';
+export * from './omit';
