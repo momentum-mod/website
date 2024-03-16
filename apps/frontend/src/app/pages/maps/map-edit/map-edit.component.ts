@@ -227,7 +227,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   ) {}
 
   ngOnInit() {
-    this.layoutService.reserveBackgroundUrl(/\/maps\/.+\/edit\/?$/);
+    this.layoutService.reserveBackgroundUrl(/\/map-edit\/(?!submit)[\w-]+\/?$/);
 
     merge([
       this.route.paramMap.pipe(map((params) => params.get('name'))),

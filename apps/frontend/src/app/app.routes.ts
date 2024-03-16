@@ -14,7 +14,12 @@ export const APP_ROUTES: Route[] = [
   },
   {
     path: 'maps',
-    loadChildren: () => import('./pages/maps/routes'),
+    loadChildren: () => import('./pages/maps/routes-user-facing'),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'map-edit',
+    loadChildren: () => import('./pages/maps/routes-mapper-facing'),
     canActivate: [AuthGuard]
   },
   {
