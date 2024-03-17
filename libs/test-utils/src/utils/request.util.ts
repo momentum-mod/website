@@ -8,7 +8,7 @@ import * as http from 'node:http';
 import path from 'node:path';
 import { FILES_PATH } from '../files-path.const';
 import { isEmpty } from '@momentum/util-fn';
-import { MergeExclusive } from 'type-fest';
+import { MergeExclusive, Primitive } from 'type-fest';
 
 export const URL_PREFIX = '/api/v1/';
 
@@ -391,7 +391,7 @@ export class RequestUtil {
 
 //#region Types
 
-type Query = Record<string, string | number | boolean | bigint>;
+type Query = Record<string, Primitive | Array<Primitive>>;
 type Body = Record<string, unknown> | Record<string, unknown>[];
 
 export interface ParsedResponse extends Omit<Response, 'body'> {
