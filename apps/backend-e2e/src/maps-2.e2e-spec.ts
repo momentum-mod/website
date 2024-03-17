@@ -598,17 +598,18 @@ describe('Maps Part 2', () => {
         MapCreditType.CONTRIBUTOR,
         MapCreditType.SPECIAL_THANKS
       ]) {
-        it(`should 400 if there are more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits`, () =>
-          req.put({
+        it(`should 400 if there are more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits`, async () => {
+          const userIDs = await db
+            .createUsers(MAX_CREDITS_EXCEPT_TESTERS + 1)
+            .then((users) => users.map(({ id }) => id));
+          await req.put({
             url: `maps/${map.id}/credits`,
             status: 400,
             // Too long to create > 20 users, this check hits earlier than user existence. allow it
-            body: arrayFrom(MAX_CREDITS_EXCEPT_TESTERS, (i) => ({
-              userID: i + 100,
-              type
-            })),
+            body: userIDs.map((userID) => ({ userID, type })),
             token: u1Token
-          }));
+          });
+        });
       }
 
       it('should 400 if the credited user does not exist', () =>
