@@ -69,7 +69,7 @@ describe('Maps', () => {
     describe('GET', () => {
       let u1, u1Token, u2, m1, m2, m3, m4, imageID;
 
-      beforeAll(async () => {
+      beforeEach(async () => {
         imageID = db.uuid(); // Gonna use this for *every* image
 
         [[u1, u1Token], [u2]] = await Promise.all([
@@ -102,7 +102,7 @@ describe('Maps', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -369,12 +369,7 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({
-          map: m1,
-          user: u2,
-          time: 5,
-          rank: 1
-        });
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
 
         const res = await req.get({
           url: 'maps',
@@ -393,12 +388,8 @@ describe('Maps', () => {
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({
-          map: m1,
-          user: u1,
-          time: 10,
-          rank: 2
-        });
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
 
         const res = await req.get({
           url: 'maps',
@@ -415,6 +406,9 @@ describe('Maps', () => {
       });
 
       it('should respond properly with both personalBest and worldRecord expansions', async () => {
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
+
         const res = await req.get({
           url: 'maps',
           status: 200,
@@ -459,23 +453,62 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered maps when using the difficultyHigh filter', () =>
-        req.get({
+      it('should respond with filtered maps when using the difficultyHigh filter', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+
+        await req.get({
           url: 'maps',
           status: 200,
           query: { difficultyHigh: 4 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 3 }
-        }));
+        });
+      });
 
-      it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', () =>
-        req.get({
+      it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+        await req.get({
           url: 'maps',
           status: 200,
           query: { difficultyLow: 2, difficultyHigh: 4 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
-        }));
+        });
+      });
 
       it('should respond with filtered maps when using the linear filter', async () => {
         await Promise.all([
@@ -513,6 +546,36 @@ describe('Maps', () => {
       });
 
       it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and linear filters', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { linear: false }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { linear: false }
+          })
+        ]);
+
         const res = await req.get({
           url: 'maps',
           status: 200,
@@ -525,8 +588,6 @@ describe('Maps', () => {
       });
 
       it('should respond with maps with a PB when using the PB filter', async () => {
-        await db.cleanup('leaderboardRun');
-
         await prisma.leaderboard.create({
           data: {
             mapID: m1.id,
@@ -563,7 +624,7 @@ describe('Maps', () => {
           expect.arrayContaining([m1.id, m2.id])
         );
 
-        await req.get({
+        const res2 = await req.get({
           url: 'maps',
           status: 200,
           query: { PB: false },
@@ -571,12 +632,36 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data.map(({ id }) => id)).toMatchObject(
+        expect(res2.body.data.map(({ id }) => id)).toMatchObject(
           expect.arrayContaining([m3.id, m4.id])
         );
       });
 
       it('should respond with maps with a PB on a specific gamemode when given a gamemode and the PB filter', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m1.id,
+            gamemode: Gamemode.RJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m2.id,
+            gamemode: Gamemode.SJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
         const res = await req.get({
           url: 'maps',
           status: 200,
@@ -589,6 +674,10 @@ describe('Maps', () => {
       });
 
       it('should respond with favorited maps when using the favorites filter', async () => {
+        await prisma.mapFavorite.create({
+          data: { userID: u1.id, mapID: m1.id }
+        });
+
         const res = await req.get({
           url: 'maps',
           status: 200,
