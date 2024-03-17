@@ -77,7 +77,9 @@ export class MapListItemComponent implements OnChanges {
       );
   }
 
-  toggleMapInFavorites() {
+  toggleMapInFavorites(event?: Event) {
+    event?.stopPropagation();
+    event?.preventDefault();
     if (this.inFavorites) {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe({
         next: () => {
