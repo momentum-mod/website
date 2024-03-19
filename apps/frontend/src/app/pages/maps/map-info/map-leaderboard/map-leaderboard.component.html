@@ -1,86 +1,150 @@
-<m-card title="Leaderboards">
-  <button header class="m-btn m-btn-blue" type="button" (click)="filterActive = !filterActive">Filter</button>
-  <div
-    class="filter-content"
-    [ngClass]="{ 'filter-active': filterActive }"
-    [ngStyle]="{
-      'max-height': filterActive ? filterContent.scrollHeight + 'px' : null
-    }"
-    #filterContent
-  >
-    <div class="p-6">
-      <div class="mb-3 flex flex-wrap">
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <p-dropdown [(ngModel)]="selectedMode" [options]="availableModes" optionLabel="label" optionValue="gamemode" />
-        </div>
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <input type="text" class="m-textinput mb-1" placeholder="Rank" />
-        </div>
-        <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
-          <input type="text" class="m-textinput mb-1" placeholder="Name" />
-        </div>
-        <div class="relative flex gap-4 md:flex-1 md:flex-grow">
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.TOP10" [(ngModel)]="filterLeaderboardType" />
-            Show top 10 times
-          </label>
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.AROUND" [(ngModel)]="filterLeaderboardType" />
-            Show ranks around me
-          </label>
-          <label class="flex items-center">
-            <input class="m-radio mr-2" type="radio" [value]="LeaderboardType.FRIENDS" [(ngModel)]="filterLeaderboardType" />
-            Show friend's time
-          </label>
-        </div>
-      </div>
-      <div class="flex flex-wrap">
-        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
-          <button class="m-btn m-btn-blue w-full" (click)="loadLeaderboardRuns()">Update</button>
-        </div>
-        <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
-          <button class="m-btn m-btn-orange w-full">Clear</button>
-        </div>
-      </div>
+<div [mSpinner]="!map">
+  <div class="flex gap-4">
+    <div class="flex grow flex-wrap gap-x-8 gap-y-2">
+      @for (groupedLeaderboard of getLeaderboards(); track $index) {
+        <button
+          class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
+          (click)="selectMode($index)"
+          [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
+        >
+          <img class="aspect-square h-11" [src]="GamemodeIcon.get(groupedLeaderboard.gamemode)" />
+          <p class="font-display text-5xl font-bold leading-none">
+            {{ groupedLeaderboard.gamemodeName }}
+          </p>
+        </button>
+      }
     </div>
+    @if (map.status === MapStatus.APPROVED && hasHiddenLeaderboards()) {
+      <button class="mb-auto ml-auto" type="button" [mTooltip]="hiddenLbInfo" (click)="showHiddenLeaderboards = !showHiddenLeaderboards">
+        <m-icon class="h-6 w-6 drop-shadow-lg" [icon]="showHiddenLeaderboards ? 'eye' : 'eye-closed'" />
+      </button>
+      <ng-template #hiddenLbInfo><m-hidden-leaderboards-info title="Show Hidden Leaderboard" /></ng-template>
+    }
   </div>
-  @if (!searchedRanks) {
-    <h4 class="text-center">Waiting for API response</h4>
+
+  <div class="my-4 flex w-full max-w-full flex-wrap gap-4 [&>*]:box-border">
+    <ng-template #unrankedLbInfo><m-unranked-leaderboards-info /></ng-template>
+    <ng-template #hiddenLbInfo><m-hidden-leaderboards-info /></ng-template>
+    <button
+      class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+      (click)="selectTrack(TrackType.MAIN, 0)"
+      [ngClass]="{
+        selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 0
+      }"
+    >
+      <p
+        class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+      >
+        Map
+      </p>
+      @if (activeMode.tier) {
+        <p
+          class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-30 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+          [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + activeMode.tier + ') / 0.7)' }"
+        >
+          T{{ activeMode.tier }}
+        </p>
+      }
+      @if (activeMode.type === LeaderboardType.UNRANKED) {
+        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+      } @else if (activeMode.type === LeaderboardType.HIDDEN) {
+        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+      }
+    </button>
+
+    @if (activeMode.stages > 0) {
+      <div
+        class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
+      >
+        <p
+          class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 transition-all"
+        >
+          Stage
+        </p>
+        <div class="flex max-w-[60rem] flex-wrap">
+          @for (stage of activeMode.stages | range; track $index) {
+            <button
+              class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-30 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+              [ngClass]="{
+                '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
+                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage,
+                '!border-b': activeMode.stages > 20
+              }"
+              (click)="selectTrack(TrackType.STAGE, stage)"
+            >
+              {{ stage + 1 }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @for (bonus of activeMode.bonuses; track $index) {
+      <button
+        (click)="selectTrack(TrackType.BONUS, $index)"
+        class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+        [ngClass]="{
+          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === $index
+        }"
+      >
+        <p
+          class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+        >
+          Bonus {{ bonus.num }}
+        </p>
+        @if (bonus.tier) {
+          <p
+            class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-30 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+            [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + bonus.tier + ') / 0.7)' }"
+          >
+            T{{ bonus.tier }}
+          </p>
+        }
+        @if (bonus.type === LeaderboardType.UNRANKED) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+        } @else if (bonus.type === LeaderboardType.HIDDEN) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+        }
+      </button>
+    }
+
+    <p-dropdown
+      class="ml-auto self-center"
+      [(ngModel)]="activeType"
+      [options]="LeaderboardFilterTypeDropdown"
+      optionLabel="label"
+      optionValue="type"
+      (onChange)="load.next()"
+      appendTo="body"
+    />
+  </div>
+
+  @if (loading) {
+    <m-spinner />
   }
-  @if (searchedRanks && leaderboardRuns.length === 0) {
+  @if (!loading && runs.length === 0) {
     <h4 class="text-center">No runs found</h4>
   }
-  @if (searchedRanks && leaderboardRuns.length > 0) {
-    <div class="scrolling-touch block w-full overflow-auto">
-      <table>
-        <tr>
-          <th>Rank</th>
-          <th>User</th>
-          <th>Time</th>
-          <th>Flags</th>
-          <th>Achieved</th>
-          <th>View</th>
-        </tr>
-        @for (run of leaderboardRuns; track run) {
-          <tr>
-            <td>{{ run.rank }}</td>
-            <td>
-              <a [routerLink]="'/profile/' + run.user.id" class="flex items-center gap-2">
-                <m-avatar class="h-6" [url]="run.user.avatarURL" />
-                <p>{{ run.user }}</p>
-              </a>
-            </td>
-            <td>{{ run.time | timing }}</td>
-            <td></td>
-            <td>{{ run.createdAt | timeAgo }}</td>
-            <td>
-              <button class="m-btn m-btn-blue" type="button" (click)="viewRun(run)">
-                <m-icon icon="arrow-right-thick"></m-icon>
-              </button>
-            </td>
-          </tr>
-        }
-      </table>
+  @if (!loading && runs.length > 0) {
+    <div class="mt-4 w-full">
+      <div class="flex px-4">
+        <p class="basis-1/10 text-left">Rank</p>
+        <p class="grow basis-auto">User</p>
+        <p class="basis-1/10">Time</p>
+        <p class="basis-3/20 text-right">Achieved</p>
+      </div>
+      @for (run of runs; track $index) {
+        <div
+          class="mt-[0.375rem] flex items-center rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-4 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15]"
+        >
+          <p class="text-shadow pointer-events-none basis-1/10 text-left font-display text-2xl">{{ run.rank }}</p>
+          <div class="flex grow basis-auto gap-2">
+            <m-user class="contents" [user]="run.user" avatarClass="h-7" />
+          </div>
+          <p class="text-shadow pointer-events-none basis-1/10 text-lg">{{ run.time | timing }}</p>
+          <p class="text-shadow pointer-events-none basis-3/20 text-right">{{ run.createdAt | timeAgo }}</p>
+        </div>
+      }
     </div>
   }
-</m-card>
+</div>

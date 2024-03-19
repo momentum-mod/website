@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import {
   CreatedAtProperty,
@@ -11,8 +11,21 @@ import { MapDto } from './map.dto';
 import { MapReviewEditDto } from './map-review-edit.dto';
 import { MapReviewCommentDto } from './map-review-comment.dto';
 import { MapReviewSuggestionDto } from './map-review-suggestions.dto';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import {
+  AdminUpdateMapReview,
+  CreateMapReview,
+  CreateMapReviewWithFiles,
+  MapReview,
+  mapReviewAssetPath,
+  UpdateMapReview
+} from '@momentum/constants';
+import { Config } from '../../config';
 
-export class MapReviewDto {
+const ENDPOINT_URL = Config.storage.endpointUrl;
+const BUCKET = Config.storage.bucketName;
+
+export class MapReviewDto implements MapReview {
   @IdProperty()
   readonly id: number;
 
@@ -26,9 +39,13 @@ export class MapReviewDto {
   })
   readonly comments: MapReviewCommentDto[];
 
+  @IsInt()
+  @IsOptional()
+  numComments: number;
+
   @NestedProperty(MapReviewSuggestionDto, {
     lazy: true,
-    required: true,
+    required: false,
     isArray: true
   })
   readonly suggestions: MapReviewSuggestionDto[];
@@ -48,6 +65,16 @@ export class MapReviewDto {
   @IdProperty()
   readonly mapID: number;
 
+  @Exclude()
+  readonly imageIDs: string[];
+
+  @Expose()
+  get images(): string[] {
+    return this.imageIDs.map(
+      (id) => `${ENDPOINT_URL}/${BUCKET}/${mapReviewAssetPath(id.toString())}`
+    );
+  }
+
   @NestedProperty(UserDto, { lazy: true, required: true })
   readonly reviewer: UserDto;
 
@@ -55,14 +82,15 @@ export class MapReviewDto {
   readonly reviewerID: number;
 
   @IsBoolean()
-  readonly resolved: boolean;
+  @IsOptional()
+  readonly resolved: boolean | null;
 
   @NestedProperty(UserDto, { lazy: true })
   readonly resolver?: UserDto;
 
   @IdProperty()
   @IsOptional()
-  readonly resolverID?: number;
+  readonly resolverID: number;
 
   @CreatedAtProperty()
   readonly createdAt: Date;
@@ -70,3 +98,45 @@ export class MapReviewDto {
   @UpdatedAtProperty()
   readonly updatedAt: Date;
 }
+
+export class CreateMapReviewDto
+  extends PickType(MapReviewDto, ['mainText', 'suggestions'] as const)
+  implements CreateMapReview
+{
+  @ApiProperty({
+    description:
+      'Whether the review needs resolving to pass to FINAL_APPROVAL. Only accessible to Reviewers, Mods and Admins'
+  })
+  @IsBoolean()
+  @IsOptional()
+  readonly needsResolving?: boolean;
+}
+
+export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {
+  @ApiProperty({
+    type: 'file array',
+    format: 'binary',
+    description: 'Array of image files'
+  })
+  @IsOptional()
+  readonly images: any[];
+
+  @NestedProperty(CreateMapReviewDto, {
+    description: 'The JSON part of the body'
+  })
+  readonly data: CreateMapReviewDto;
+}
+
+export class UpdateMapReviewDto
+  extends PartialType(CreateMapReviewDto)
+  implements UpdateMapReview
+{
+  @ApiProperty({ description: 'Update the resolved state' })
+  @IsBoolean()
+  @IsOptional()
+  readonly resolved?: boolean | null;
+}
+
+export class AdminUpdateMapReviewDto
+  extends PickType(UpdateMapReviewDto, ['resolved'] as const)
+  implements AdminUpdateMapReview {}

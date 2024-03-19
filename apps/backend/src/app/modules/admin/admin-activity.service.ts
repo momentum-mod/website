@@ -50,6 +50,7 @@ export class AdminActivityService {
 
     const activities = await this.db.adminActivity.findManyAndCount({
       where: { userID, type: { in: filter } },
+      include: { user: true },
       orderBy: { createdAt: 'desc' },
       take,
       skip

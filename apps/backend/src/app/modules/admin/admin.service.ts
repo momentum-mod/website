@@ -199,7 +199,7 @@ export class AdminService {
 
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (update.bans !== undefined) {
+    if (update.bans !== undefined && user.bans !== update.bans) {
       updateInput.bans = update.bans;
       activities.push(AdminActivityType.USER_UPDATE_BANS);
     }

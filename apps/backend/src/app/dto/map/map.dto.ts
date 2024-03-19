@@ -3,7 +3,7 @@ import {
   approvedVmfsPath,
   CreateMap,
   CreateMapWithFiles,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionType,
   MAX_MAP_NAME_LENGTH,
   MIN_MAP_NAME_LENGTH,
@@ -19,7 +19,6 @@ import {
   IsDefined,
   IsHash,
   IsInt,
-  IsLowercase,
   IsOptional,
   IsPositive,
   IsString,
@@ -27,7 +26,7 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance, Transform } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
 import { Config } from '../../config';
 import {
@@ -51,6 +50,7 @@ import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 import { MapZonesDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
+import { MapTestInviteDto } from './map-test-invite.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -61,27 +61,16 @@ export class MapDto implements MMap {
 
   @ApiProperty({
     type: String,
-    description:
-      'The name of the map without any extra embellishments e.g. "_final"',
+    description: 'The name of the map',
     example: 'arcane'
-  })
-  @MinLength(MIN_MAP_NAME_LENGTH)
-  @MaxLength(MAX_MAP_NAME_LENGTH)
-  @IsLowercase()
-  readonly name: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'The full filename of the map',
-    example: 'bhop_arcane'
   })
   @IsMapName()
   @MinLength(MIN_MAP_NAME_LENGTH)
   @MaxLength(MAX_MAP_NAME_LENGTH)
-  readonly fileName: string;
+  readonly name: string;
 
-  @EnumProperty(MapStatusNew)
-  readonly status: MapStatusNew;
+  @EnumProperty(MapStatus)
+  readonly status: MapStatus;
 
   @NestedProperty(MapZonesDto, {
     required: false,
@@ -95,8 +84,8 @@ export class MapDto implements MMap {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return this.status === MapStatusNew.APPROVED
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`
+    return this.status === MapStatus.APPROVED
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.name)}`
       : undefined;
   }
 
@@ -111,19 +100,13 @@ export class MapDto implements MMap {
   @IsString()
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
-    return this.status === MapStatusNew.APPROVED && this.hasVmf
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.fileName)}`
+    return this.status === MapStatus.APPROVED && this.hasVmf
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.name)}`
       : undefined;
   }
 
   @Exclude()
   readonly hasVmf: boolean;
-
-  @Exclude()
-  readonly thumbnailID: number;
-
-  @NestedProperty(MapImageDto)
-  readonly thumbnail: MapImageDto;
 
   @ApiProperty()
   @IsPositive()
@@ -142,8 +125,29 @@ export class MapDto implements MMap {
   @NestedProperty(MapSubmissionDto)
   readonly submission: MapSubmissionDto;
 
-  @NestedProperty(MapImageDto, { isArray: true })
+  @ApiProperty({
+    description: 'Array of urls to map images',
+    type: MapImageDto,
+    isArray: true
+  })
+  @Transform(({ value }) =>
+    // HACK: This is a stupid hack to get class-transformer to transform
+    // correctly. It only works because my DtoFactory setup is ridiculous and
+    // seems to transform TWICE. We're going to rework/replace CT/CV in future
+    // anyway so leaving for now. UUUUGH
+    value.map((image) =>
+      typeof image == 'string'
+        ? { id: image }
+        : plainToInstance(MapImageDto, image)
+    )
+  )
   readonly images: MapImageDto[];
+
+  @ApiProperty({ description: 'Primary image for the map', type: MapImageDto })
+  @Expose()
+  get thumbnail(): MapImageDto {
+    return plainToInstance(MapImageDto, this.images?.[0]);
+  }
 
   @NestedProperty(MapStatsDto)
   readonly stats: MapStatsDto;
@@ -166,6 +170,9 @@ export class MapDto implements MMap {
   @NestedProperty(LeaderboardRunDto, { lazy: true, isArray: true })
   readonly personalBests: LeaderboardRunDto[];
 
+  @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
+  readonly testInvites?: MapTestInviteDto[];
+
   @CreatedAtProperty()
   readonly createdAt: Date;
 
@@ -174,7 +181,7 @@ export class MapDto implements MMap {
 }
 
 export class CreateMapDto
-  extends PickType(MapDto, ['name', 'fileName'] as const)
+  extends PickType(MapDto, ['name'] as const)
   implements CreateMap
 {
   @EnumProperty(MapSubmissionType, {
@@ -231,7 +238,7 @@ export class CreateMapDto
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
   @ApiProperty({
-    type: 'string',
+    type: 'file',
     format: 'binary',
     description: 'BSP for the map. MUST be run through bspzip!'
   })
@@ -239,7 +246,7 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
   readonly bsp: any;
 
   @ApiProperty({
-    type: 'string',
+    type: 'file array',
     format: 'binary',
     description:
       'VMFs for the map. Usually a single file, but takes an array to allow instances.'
@@ -254,9 +261,7 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
 }
 
 export class UpdateMapDto
-  extends PartialType(
-    PickType(CreateMapDto, ['name', 'fileName', 'suggestions'] as const)
-  )
+  extends PartialType(PickType(CreateMapDto, ['name', 'suggestions'] as const))
   implements UpdateMap
 {
   @NestedProperty(MapSubmissionPlaceholderDto)
@@ -266,23 +271,25 @@ export class UpdateMapDto
   @IsOptional()
   readonly info: UpdateMapInfoDto;
 
-  @EnumProperty(MapStatusNew)
+  @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+  readonly status: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
 
-  @ApiProperty({ description: 'Clear the existing leaderboards' })
-  @IsBoolean()
-  @IsOptional()
-  readonly resetLeaderboards?: boolean;
+  @EnumProperty(MapSubmissionType, {
+    description:
+      'Whether the submission is an original map, a port, or something unusual',
+    required: false
+  })
+  readonly submissionType: MapSubmissionType;
 }
 
 export class UpdateMapAdminDto
-  extends OmitType(UpdateMapDto, ['status'] as const)
+  extends OmitType(UpdateMapDto, ['status', 'suggestions'] as const)
   implements UpdateMapAdmin
 {
-  @EnumProperty(MapStatusNew)
+  @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatusNew;
+  readonly status: MapStatus;
 
   @ApiProperty({ description: 'UserID to update the submitter to' })
   @IsPositive()
@@ -297,5 +304,6 @@ export class UpdateMapAdminDto
 
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)
+  @IsOptional()
   finalLeaderboards?: MapSubmissionApprovalDto[];
 }

@@ -1,0 +1,42 @@
+<m-card title="Admin Activity">
+  <div header class="flex items-center gap-4" [formGroup]="filters">
+    <p-dropdown
+      class="[&>*]:w-48"
+      placeholder="Activity Type"
+      [options]="AdminActivitiesFilters"
+      optionLabel="text"
+      optionValue="value"
+      formControlName="type"
+      appendTo="body"
+    />
+    <m-user-select formControlName="user" />
+  </div>
+  <div [mSpinner]="loading">
+    <m-accordion [autoClose]="false" [startFirstOpen]="true">
+      @for (activity of activities; track activity) {
+        <m-accordion-item [hasContent]="!!activity.entry.diff">
+          <m-admin-activity-entry-header header [activity]="activity.activity" [activityData]="activity.entry" />
+          <m-admin-activity-entry [activityData]="activity.entry" />
+        </m-accordion-item>
+      } @empty {
+        @if (!loading) {
+          <p class="my-4 text-center text-2xl text-gray-100">
+            @if (totalRecords === -1) {
+              User is not an admin
+            } @else {
+              No activities found
+            }
+          </p>
+        }
+      }
+    </m-accordion>
+    <p-paginator
+      (onPageChange)="pageChange.next($event)"
+      [first]="first"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [showCurrentPageReport]="true"
+      [alwaysShow]="false"
+    />
+  </div>
+</m-card>

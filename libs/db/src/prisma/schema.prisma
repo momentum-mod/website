@@ -27,20 +27,20 @@ model User {
   mapFavorites      MapFavorite[]
   mapLibraryEntries MapLibraryEntry[]
   activities        Activity[]
-  follows           Follow[]            @relation("follow_follow")
-  followers         Follow[]            @relation("follow_follower")
+  follows           Follow[]           @relation("follow_follow")
+  followers         Follow[]           @relation("follow_follower")
   mapNotifies       MapNotify[]
   notifications     Notification[]
   runSessions       RunSession[]
   leaderboardRuns   LeaderboardRun[]
   pastRuns          PastRun[]
-  reportSubmitted   Report[]            @relation("report_submitter")
-  reportResolved    Report[]            @relation("report_resolver")
-  testingRequests   MapTestingRequest[]
-  reviewsSubmitted  MapReview[]         @relation("mapreview_reviewer")
-  reviewsResolved   MapReview[]         @relation("mapreview_resolver")
+  reportSubmitted   Report[]           @relation("report_submitter")
+  reportResolved    Report[]           @relation("report_resolver")
+  testInvites   MapTestInvite[]
+  reviewsSubmitted  MapReview[]        @relation("mapreview_reviewer")
+  reviewsResolved   MapReview[]        @relation("mapreview_resolver")
   reviewComments    MapReviewComment[]
-  AdminActivities   AdminActivity[]
+  adminActivities   AdminActivity[]
 
   createdAt DateTime @default(now())
 }
@@ -172,15 +172,12 @@ model MapNotify {
 model MMap {
   id Int @id @default(autoincrement())
 
-  name     String  @unique
-  fileName String? // Optional as isn't set until map is approved
-  status   Int     @db.SmallInt /// map-status.enum.ts
-  hash     String? @db.Char(40)
-  hasVmf   Boolean @default(false)
-  zones    Json? /// map-zones.model.ts
-
-  thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
-  thumbnailID Int?      @unique
+  name   String   @unique
+  status Int      @db.SmallInt /// map-status.enum.ts
+  hash   String?  @db.Char(40)
+  hasVmf Boolean  @default(false)
+  zones  Json? /// map-zones.model.ts
+  images String[]
 
   submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
   submitterID Int?
@@ -194,12 +191,11 @@ model MMap {
   runSessions     RunSession[]
   credits         MapCredit[]
   favorites       MapFavorite[]
-  images          MapImage[]
   libraryEntries  MapLibraryEntry[]
   notifies        MapNotify[]
   reviews         MapReview[]
   submission      MapSubmission?
-  testingRequests MapTestingRequest[]
+  testInvites     MapTestInvite[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -234,20 +230,8 @@ model MapFavorite {
   userID Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@unique([mapID, userID])
-}
-
-model MapImage {
-  id Int @id @default(autoincrement())
-
-  thumbnail MMap? @relation("mapimage_thumbnail")
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  @@index([mapID])
 }
 
 model MapInfo {
@@ -290,7 +274,7 @@ model MapStats {
   mapID Int  @id
 }
 
-model MapTestingRequest {
+model MapTestInvite {
   mapID Int
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
 
@@ -328,7 +312,7 @@ model MapSubmissionVersion {
 
   versionNum Int     @db.SmallInt
   changelog  String?
-  hash       String  @db.Char(40)
+  hash       String?  @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
   hasVmf     Boolean @default(false)
   zones      Json? /// map-zones.model.ts
 
@@ -347,8 +331,9 @@ model MapReview {
 
   mainText    String
   comments    MapReviewComment[]
-  suggestions Json               @default("{}") // map-submission-suggestions.model.ts
-  editHistory Json? // Array of map-review-edit-history.model.ts
+  suggestions Json               @default("[]") // Array of map-submission-suggestions.model.ts
+  editHistory Json               @default("[]") // Array of map-review-edit-history.model.ts
+  imageIDs    String[]
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -356,8 +341,8 @@ model MapReview {
   reviewer   User @relation(name: "mapreview_reviewer", fields: [reviewerID], references: [id], onDelete: Cascade)
   reviewerID Int
 
-  resolved   Boolean @default(false)
-  resolver   User?   @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
+  resolved   Boolean? /// If NULL, the review does not need resolving to pass to FINAL_APPROVAL
+  resolver   User?    @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
   resolverID Int?
 
   createdAt DateTime @default(now())
@@ -378,20 +363,21 @@ model MapReviewComment {
   reviewID Int
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([reviewID])
+  @@index([reviewID, createdAt])
 }
 
 /// This table stores what a tracks on a map a run can be submitted to, in what
 /// gamemode and style, plus metadata about that track in that gamemode e.g. its
-/// tier.
+/// tier and type.
 ///
 /// For example, surf_utopia probably just gets gamemode = Gamemode.SURF,
 /// trackType = TrackType.MAIN, trackNum = 0 entries, for all the styles surf
-/// supports, with ranked = true.
+/// supports, with type = LeaderboardType.RANKED.
 /// A mode that supports several different gamemodes, and has stages,
 /// bonuses etc. is likely to have dozens of different entries, perhaps some
-/// ranked, others unranked.
+/// ranked, others unranked, some hidden.
 model Leaderboard {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -404,8 +390,8 @@ model Leaderboard {
   // Optional as these don't necessarily apply to stages/bonuses
   tier   Int?     @db.SmallInt
   linear Boolean?
-
-  ranked Boolean
+  
+  type Int @db.SmallInt // leaderboard-type.enum.ts
 
   tags Json @default("[]")
 

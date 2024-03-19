@@ -5,6 +5,7 @@ import {
   nuke
 } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
+import { arrayFrom } from '@momentum/util-fn';
 
 // No, these are not E2E tests, but they need a live DB so they live here. Bite me!
 describe('Prisma Client Extensions', () => {
@@ -24,10 +25,7 @@ describe('Prisma Client Extensions', () => {
   describe('findManyAndCount', () => {
     beforeAll(async () => {
       await prisma.user.createMany({
-        data: Array.from({ length: 10 }, (_, i) => ({
-          alias: 'User',
-          roles: i >= 5 ? 1 : 0
-        }))
+        data: arrayFrom(10, (i) => ({ alias: 'User', roles: i >= 5 ? 1 : 0 }))
       });
     });
 

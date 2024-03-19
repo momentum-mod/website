@@ -1,14 +1,21 @@
 <form [formGroup]="createReportForm">
   <div class="mb-4">
     <label class="mr-3">Category</label>
-    <p-dropdown [options]="Categories" optionLabel="label" optionValue="value" formControlName="category" placeholder="Select category" />
+    <p-dropdown
+      [options]="Categories"
+      optionLabel="label"
+      optionValue="value"
+      formControlName="category"
+      placeholder="Select category"
+      appendTo="body"
+    />
   </div>
   <div class="mb-4">
     <label>Message</label>
-    <textarea rows="8" class="m-textinput mb-1" [maxLength]="1000" formControlName="message"></textarea>
+    <textarea rows="8" class="textinput mb-1" [maxLength]="1000" formControlName="message"></textarea>
   </div>
 </form>
 <div class="grid grid-cols-2 gap-2">
-  <button class="m-btn" (click)="ref.close()">Cancel</button>
-  <button class="m-btn m-btn-red" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
+  <button class="btn" (click)="ref.close()">Cancel</button>
+  <button class="btn btn-red" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
 </div>

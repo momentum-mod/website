@@ -15,6 +15,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiGoneResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -28,7 +29,6 @@ import {
   ApiOkPagedResponse,
   FollowStatusDto,
   MapDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
@@ -44,7 +44,6 @@ import {
   UserMapLibraryGetQueryDto,
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
-  UserMapFavoritesGetQueryDto,
   FollowDto,
   MapsGetAllUserSubmissionQueryDto,
   MapsGetAllSubmissionQueryDto
@@ -470,27 +469,12 @@ export class UserController {
 
   //#region Map Favorites
 
-  @Get('/maps/favorites')
-  @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
-  @ApiOkPagedResponse(MapFavoriteDto, {
-    description: 'Paginated list of favorited maps'
-  })
-  getFavoritedMaps(
-    @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapFavoritesGetQueryDto
-  ): Promise<PagedResponseDto<MapFavoriteDto>> {
-    return this.usersService.getFavoritedMaps(
-      userID,
-      query.skip,
-      query.take,
-      query.search,
-      query.expand
-    );
-  }
-
   @Get('/maps/favorites/:mapID')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: "Return 204 if the map is in the user's favorites, 404 otherwise"
+    summary:
+      "Return 204 if the map is in the user's favorites, 410 otherwise." +
+      "For performance we don't check whether the map exists first, so if it doesn't you'll just get a 410."
   })
   @ApiParam({
     name: 'mapID',
@@ -499,7 +483,9 @@ export class UserController {
     required: true
   })
   @ApiNoContentResponse({ description: 'Map is in the favorites' })
-  @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
+  @ApiGoneResponse({
+    description: "Map is not in the favorites, or not doesn't map"
+  })
   checkFavoritedMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number
@@ -518,6 +504,7 @@ export class UserController {
   })
   @ApiNoContentResponse({ description: 'Map was added to the favorites' })
   @ApiNotFoundResponse({ description: 'The map does not exist' })
+  @ApiBadRequestResponse({ description: 'The map is already favorited' })
   addFavoritedMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number
@@ -538,6 +525,9 @@ export class UserController {
   })
   @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
   @ApiNotFoundResponse({ description: 'The map does not exist' })
+  @ApiBadRequestResponse({
+    description: "The map is not in the user's favorites"
+  })
   removeFavoritedMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number
@@ -549,7 +539,7 @@ export class UserController {
 
   //#region Map Submissions
 
-  @Get('/maps/submitted')
+  @Get('/maps')
   @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
   @ApiOkPagedResponse(MapDto, {
     description: 'Paginated list of submitted maps'
@@ -564,7 +554,7 @@ export class UserController {
     } as MapsGetAllSubmissionQueryDto);
   }
 
-  @Get('/maps/submitted/summary')
+  @Get('/maps/summary')
   @ApiOkPagedResponse(MapSummaryDto, {
     description:
       'The amount of each map submitted by a user of a each possible status'

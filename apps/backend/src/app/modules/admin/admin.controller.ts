@@ -32,12 +32,13 @@ import {
   AdminActivityDto,
   AdminGetAdminActivitiesQueryDto,
   AdminGetReportsQueryDto,
+  AdminUpdateMapReviewDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
   CreateUserDto,
   MapDto,
+  MapReviewDto,
   MapsGetAllAdminQueryDto,
-  MapsGetAllSubmissionAdminQueryDto,
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
@@ -48,6 +49,7 @@ import {
 import { ParseIntSafePipe } from '../../pipes';
 import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -59,6 +61,7 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly mapsService: MapsService,
+    private readonly mapReviewService: MapReviewService,
     private readonly usersService: UsersService,
     private readonly adminActivityService: AdminActivityService
   ) {}
@@ -148,14 +151,6 @@ export class AdminController {
     return this.usersService.delete(userID, adminID);
   }
 
-  // This seems to only be used to reset all cosmetic or ranked XP.
-  // Such a thing terrifies me, so lets leave it for now.
-  @Patch('/user-stats')
-  @ApiOperation({ summary: "Update every user's stats" })
-  updateUserStats() {
-    return;
-  }
-
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @Get('/maps')
   @ApiOperation({
@@ -167,21 +162,6 @@ export class AdminController {
   getMaps(
     @LoggedInUser('id') userID: number,
     @Query() query: MapsGetAllAdminQueryDto
-  ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(userID, query);
-  }
-
-  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR, RolesEnum.REVIEWER)
-  @Get('/maps/submissions')
-  @ApiOperation({
-    description:
-      'Retrieve a paginated list of maps in submission with extra admin filtration'
-  })
-  @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
-  @ApiBadRequestResponse({ description: 'Invalid query data' })
-  getMapSubmissions(
-    @LoggedInUser('id') userID: number,
-    @Query() query: MapsGetAllSubmissionAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
@@ -208,14 +188,13 @@ export class AdminController {
 
   @Delete('/maps/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete the target map' })
+  @ApiOperation({ summary: 'Disables a map and deletes any files' })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'ID of the map to delete',
     required: true
   })
-  @ApiNoContentResponse({ description: 'The map was deleted successfully' })
   deleteMap(
     @LoggedInUser('id') adminID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number
@@ -263,6 +242,34 @@ export class AdminController {
     @Body() body: UpdateReportDto
   ) {
     return this.adminService.updateReport(userID, reportID, body);
+  }
+
+  @Patch('/map-review/:reviewID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR, RolesEnum.REVIEWER)
+  @ApiOperation({ summary: 'Resolve or unresolve a map review' })
+  @ApiOkResponse({ type: MapReviewDto, description: 'The updated review' })
+  @ApiNotFoundResponse({ description: 'Map not found' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiBody({ type: AdminUpdateMapReviewDto, required: true })
+  updateMapReview(
+    @Body() body: AdminUpdateMapReviewDto,
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewDto> {
+    return this.mapReviewService.updateReviewAsReviewer(reviewID, userID, body);
+  }
+
+  @Delete('/map-review/:reviewID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a map review' })
+  @ApiNoContentResponse({ description: 'Review deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  deleteMapReview(
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<void> {
+    return this.mapReviewService.deleteReview(reviewID, userID, true);
   }
 
   @Get('/activities')

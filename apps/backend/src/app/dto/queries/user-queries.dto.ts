@@ -75,6 +75,14 @@ export class UsersGetAllQueryDto
   @IsOptional()
   readonly steamIDs?: string[];
 
+  @IntCsvQueryProperty({
+    description: 'Filter by CSV list of user IDs',
+    example: '123135674,7987347263,98312287631',
+    bigint: false
+  })
+  @IsOptional()
+  readonly userIDs?: number[];
+
   @ApiPropertyOptional({
     name: 'mapRank',
     type: Number,
@@ -110,7 +118,7 @@ export class UsersGetCreditsQueryDto
   extends PagedQueryDto
   implements UsersGetCreditsQuery
 {
-  @ExpandQueryProperty(['map', 'info', 'thumbnail'])
+  @ExpandQueryProperty(['map', 'info'])
   expand: UsersGetCreditsExpand;
 }
 
@@ -130,7 +138,7 @@ export class UserMapLibraryGetQueryDto
   extends UserMapsBaseGetQuery
   implements UserMapLibraryGetQuery
 {
-  @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
+  @ExpandQueryProperty(['submitter', 'inFavorites'])
   readonly expand: UserMapLibraryGetExpand;
 }
 

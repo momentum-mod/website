@@ -3,6 +3,10 @@ import { CommunityNewsComponent } from './community-news/community-news.componen
 import { CommunityTwitchStreamComponent } from './community-twitch-stream/community-twitch-stream.component';
 
 export default [
-  { path: 'news', component: CommunityNewsComponent },
-  { path: 'twitch', component: CommunityTwitchStreamComponent }
+  { path: 'news', component: CommunityNewsComponent, title: 'Community News' },
+  {
+    path: 'twitch',
+    component: CommunityTwitchStreamComponent,
+    title: 'Twitch Streams'
+  }
 ] satisfies Route[];

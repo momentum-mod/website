@@ -13,6 +13,7 @@
 // Interestingly, reduce gets progressively slower for bigger arrays, but for
 // small stuff, it's fastest. So reduce is actually totally reasonable here.
 
+import { arrayFrom } from '@momentum/util-fn';
 const joinFor = (...flags: number[]): number => {
   if (flags.length === 1) return flags[0];
   let sum = flags[0];
@@ -24,7 +25,7 @@ const joinReduce = (...flags: number[]): number =>
   flags.reduce((sum, current) => sum | current, 0);
 
 const randomArr = (length: number): number[] =>
-  Array.from({ length }, () => Math.floor(Math.random() * 2 ** 8));
+  arrayFrom(length, () => Math.floor(Math.random() * 2 ** 8));
 const arrSmall = randomArr(5);
 const arrBig = randomArr(1000);
 

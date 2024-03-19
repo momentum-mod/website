@@ -7,7 +7,6 @@ export function testInvitesValidator(control: AbstractControl) {
   if (!enabled) return null;
 
   if (!invites || !Array.isArray(invites)) {
-    console.log({ enabled, invites });
     console.error('Missing test invite controls!');
     return null;
   }

@@ -1,0 +1,27 @@
+<div class="mb-4 flex flex-wrap items-end gap-4">
+  <p class="card-title flex text-48">
+    Beta Maps <m-icon class="ml-2 h-5 w-5 self-start pt-1" icon="help-circle" [mTooltip]="infoTooltip" />
+  </p>
+  <ng-template #infoTooltip>
+    <div class="prose p-3">
+      <p>Beta maps are maps currently in the submission pipeline.</p>
+      <p>You can play any of these maps in-game, leave reviews, and submit runs for them.</p>
+      <p>However, they may be subject to change in the future, and any runs you submit will be wiped when the map is released.</p>
+    </div>
+  </ng-template>
+  <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
+    <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+    <p class="font-display text-24">Status</p>
+    <p-multiSelect
+      formControlName="status"
+      [options]="StatusDropdown"
+      optionLabel="label"
+      optionValue="type"
+      [showHeader]="false"
+      appendTo="body"
+    />
+    <p class="ml-4 font-display text-24">Submitter</p>
+    <m-user-select formControlName="submitter" />
+  </form>
+</div>
+<m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />

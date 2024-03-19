@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { KeyValuePipe } from '@angular/common';
+import { KeyValue, KeyValuePipe } from '@angular/common';
 
 /**
  * `keyvalue` without sorting.
@@ -14,7 +14,25 @@ export class UnsortedKeyvaluePipe
   extends KeyValuePipe
   implements PipeTransform
 {
-  override transform(value: any): any {
-    return super.transform(value, (a: any, _: any) => a);
+  // These are all the overloads from the base KeyValue pipe, we use a bunch of
+  // them and unaware of a way to yoink every pair of Parameters and ReturnTypes
+  override transform<K, V>(input: ReadonlyMap<K, V>): Array<KeyValue<K, V>>;
+  override transform<K extends number, V>(
+    input: Record<K, V>
+  ): Array<KeyValue<string, V>>;
+  override transform<K extends string, V>(
+    input: Record<K, V> | ReadonlyMap<K, V>
+  ): Array<KeyValue<K, V>>;
+  override transform(input: null | undefined): null;
+  override transform<K, V>(
+    input: ReadonlyMap<K, V> | null | undefined
+  ): Array<KeyValue<K, V>> | null;
+  override transform<K extends number, V>(
+    input: Record<K, V> | null | undefined
+  ): Array<KeyValue<string, V>> | null;
+  override transform<K extends string, V>(
+    input: Record<K, V> | ReadonlyMap<K, V> | null | undefined
+  ): Array<KeyValue<K, V>> | null {
+    return super.transform(input as any, (a: any, _: any) => a);
   }
 }

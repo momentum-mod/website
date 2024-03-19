@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   LeaderboardRun,
+  LeaderboardStats,
   MapLeaderboardGetQuery,
   MapLeaderboardGetRunQuery,
   PagedResponse
@@ -31,23 +32,7 @@ export class LeaderboardsService {
     });
   }
 
-  getFriendRuns(
-    mapID: number,
-    query: Omit<MapLeaderboardGetQuery, 'filter'>
-  ): Observable<PagedResponse<LeaderboardRun>> {
-    return this.http.get<PagedResponse<LeaderboardRun>>(
-      `maps/${mapID}/leaderboards`,
-      { query: { ...query, filter: 'friends' } }
-    );
-  }
-
-  getAroundFriends(
-    mapID: number,
-    query: Omit<MapLeaderboardGetQuery, 'filter'>
-  ): Observable<PagedResponse<LeaderboardRun>> {
-    return this.http.get<PagedResponse<LeaderboardRun>>(
-      `maps/${mapID}/leaderboards`,
-      { query: { ...query, filter: 'around' } }
-    );
+  getLeaderboardStats(mapID: number): Observable<LeaderboardStats[]> {
+    return this.http.get<LeaderboardStats[]>(`maps/${mapID}/leaderboardStats`);
   }
 }

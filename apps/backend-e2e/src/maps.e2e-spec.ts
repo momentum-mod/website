@@ -12,14 +12,15 @@ import {
   Gamemode as GM,
   Gamemode,
   MapCreditType,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
-  MapTestingRequestState,
+  MapTestInviteState,
   MIN_PUBLIC_TESTING_DURATION,
   Role,
   TrackType,
-  MapZones
+  MapZones,
+  LeaderboardType
 } from '@momentum/constants';
 import {
   AuthUtil,
@@ -31,7 +32,6 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
-import axios from 'axios';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
 import {
@@ -39,7 +39,7 @@ import {
   ZonesStubLeaderboards,
   ZoneUtil
 } from '@momentum/formats/zone';
-import { from } from '@momentum/util-fn';
+import { arrayFrom } from '@momentum/util-fn';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -67,9 +67,11 @@ describe('Maps', () => {
 
   describe('maps', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, m1, m2, m3, m4;
+      let u1, u1Token, u2, m1, m2, m3, m4, imageID;
 
-      beforeAll(async () => {
+      beforeEach(async () => {
+        imageID = db.uuid(); // Gonna use this for *every* image
+
         [[u1, u1Token], [u2]] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser()
@@ -77,17 +79,30 @@ describe('Maps', () => {
 
         [[m1, m2, m3, m4]] = await Promise.all([
           db.createMaps(4, {
-            credits: { create: { type: 0, userID: u1.id } }
+            credits: { create: { type: 0, userID: u1.id } },
+            images: [imageID]
           }),
-          db.createMap({ status: MapStatusNew.PRIVATE_TESTING }),
-          db.createMap({ status: MapStatusNew.DISABLED }),
-          db.createMap({ status: MapStatusNew.FINAL_APPROVAL }),
-          db.createMap({ status: MapStatusNew.CONTENT_APPROVAL }),
-          db.createMap({ status: MapStatusNew.PUBLIC_TESTING })
+          db.createMap({
+            status: MapStatus.PRIVATE_TESTING,
+            images: [imageID]
+          }),
+          db.createMap({ images: [imageID], status: MapStatus.DISABLED }),
+          db.createMap({
+            status: MapStatus.FINAL_APPROVAL,
+            images: [imageID]
+          }),
+          db.createMap({
+            status: MapStatus.CONTENT_APPROVAL,
+            images: [imageID]
+          }),
+          db.createMap({
+            status: MapStatus.PUBLIC_TESTING,
+            images: [imageID]
+          })
         ]);
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -101,7 +116,6 @@ describe('Maps', () => {
           for (const prop of [
             'id',
             'name',
-            'fileName',
             'status',
             'hash',
             'downloadURL',
@@ -109,7 +123,15 @@ describe('Maps', () => {
             'createdAt',
             'updatedAt'
           ]) {
+            const match = {
+              small: expect.stringContaining(`${imageID}-small.jpg`),
+              medium: expect.stringContaining(`${imageID}-medium.jpg`),
+              large: expect.stringContaining(`${imageID}-large.jpg`),
+              xl: expect.stringContaining(`${imageID}-xl.jpg`)
+            };
             expect(item).toHaveProperty(prop);
+            expect(item.images).toMatchObject([match]);
+            expect(item.thumbnail).toMatchObject(match);
           }
           expect(item).not.toHaveProperty('zones');
         }
@@ -124,7 +146,7 @@ describe('Maps', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item.status).toBe(MapStatusNew.APPROVED);
+          expect(item.status).toBe(MapStatus.APPROVED);
         }
       });
 
@@ -153,10 +175,10 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered map data using the fileName parameter', async () => {
+      it('should respond with filtered map data using the searchStartsWith parameter', async () => {
         m1 = await prisma.mMap.update({
           where: { id: m1.id },
-          data: { fileName: 'surf_bbbbb' }
+          data: { name: 'surf_bbbbb' }
         });
 
         await req.searchTest({
@@ -164,8 +186,8 @@ describe('Maps', () => {
           token: u1Token,
           searchMethod: 'startsWith',
           searchString: 'surf_bb',
-          searchPropertyName: 'fileName',
-          searchQueryName: 'fileName',
+          searchPropertyName: 'name',
+          searchQueryName: 'searchStartsWith',
           validate: { type: MapDto, count: 1 }
         });
       });
@@ -195,11 +217,36 @@ describe('Maps', () => {
         const map = await db.createMap({
           leaderboards: {
             create: {
-              gamemode: gamemode,
+              gamemode,
               trackType: TrackType.MAIN,
               trackNum: 0,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
+            }
+          }
+        });
+
+        // Create a map with a hidden leaderboard in the one we're searching
+        // to test we don't receive it
+        await db.createMap({
+          leaderboards: {
+            createMany: {
+              data: [
+                {
+                  gamemode,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  style: 0,
+                  type: LeaderboardType.HIDDEN
+                },
+                {
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  style: 0,
+                  type: LeaderboardType.RANKED
+                }
+              ]
             }
           }
         });
@@ -271,24 +318,6 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'maps',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'maps',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
           url: 'maps',
@@ -340,12 +369,7 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({
-          map: m1,
-          user: u2,
-          time: 5,
-          rank: 1
-        });
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
 
         const res = await req.get({
           url: 'maps',
@@ -364,12 +388,8 @@ describe('Maps', () => {
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({
-          map: m1,
-          user: u1,
-          time: 10,
-          rank: 2
-        });
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
 
         const res = await req.get({
           url: 'maps',
@@ -386,6 +406,9 @@ describe('Maps', () => {
       });
 
       it('should respond properly with both personalBest and worldRecord expansions', async () => {
+        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
+
         const res = await req.get({
           url: 'maps',
           status: 200,
@@ -430,25 +453,64 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered maps when using the difficultyHigh filter', () =>
-        req.get({
+      it('should respond with filtered maps when using the difficultyHigh filter', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+
+        await req.get({
           url: 'maps',
           status: 200,
           query: { difficultyHigh: 4 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 3 }
-        }));
+        });
+      });
 
-      it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', () =>
-        req.get({
+      it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+        await req.get({
           url: 'maps',
           status: 200,
           query: { difficultyLow: 2, difficultyHigh: 4 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
-        }));
+        });
+      });
 
-      it('should respond with filtered maps when the linear filter', async () => {
+      it('should respond with filtered maps when using the linear filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
             where: { mapID: m1.id },
@@ -484,6 +546,36 @@ describe('Maps', () => {
       });
 
       it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and linear filters', async () => {
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
+          })
+        ]);
+
+        await Promise.all([
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { linear: false }
+          }),
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { linear: false }
+          })
+        ]);
+
         const res = await req.get({
           url: 'maps',
           status: 200,
@@ -493,6 +585,116 @@ describe('Maps', () => {
 
         expect(res.body.totalCount).toBe(1);
         expect(res.body.returnCount).toBe(1);
+      });
+
+      it('should respond with maps with a PB when using the PB filter', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m1.id,
+            gamemode: Gamemode.RJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m2.id,
+            gamemode: Gamemode.SJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: true },
+          validatePaged: { type: MapDto, count: 2 },
+          token: u1Token
+        });
+
+        expect(res.body.data.map(({ id }) => id)).toMatchObject(
+          expect.arrayContaining([m1.id, m2.id])
+        );
+
+        const res2 = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: false },
+          validatePaged: { type: MapDto, count: 2 },
+          token: u1Token
+        });
+
+        expect(res2.body.data.map(({ id }) => id)).toMatchObject(
+          expect.arrayContaining([m3.id, m4.id])
+        );
+      });
+
+      it('should respond with maps with a PB on a specific gamemode when given a gamemode and the PB filter', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m1.id,
+            gamemode: Gamemode.RJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mapID: m2.id,
+            gamemode: Gamemode.SJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+          }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { PB: true, gamemode: Gamemode.RJ },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].id).toBe(m1.id);
+      });
+
+      it('should respond with favorited maps when using the favorites filter', async () => {
+        await prisma.mapFavorite.create({
+          data: { userID: u1.id, mapID: m1.id }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { favorite: true },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].id).toBe(m1.id);
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: { favorite: false },
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
       });
 
       it('should 401 when no access token is provided', () =>
@@ -526,10 +728,9 @@ describe('Maps', () => {
         vmfHash = createSha1Hash(vmfBuffer);
 
         createMapObject = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           info: {
-            description: 'mamp',
+            description: 'mampmampmampmampmampmampmampmamp',
             creationDate: '2022-07-07T18:33:33.000Z'
           },
           submissionType: MapSubmissionType.ORIGINAL,
@@ -540,7 +741,7 @@ describe('Maps', () => {
               trackNum: 0,
               gamemode: Gamemode.RJ,
               tier: 1,
-              ranked: true,
+              type: LeaderboardType.RANKED,
               comment: 'I love you'
             },
             {
@@ -548,7 +749,7 @@ describe('Maps', () => {
               trackNum: 0,
               gamemode: Gamemode.DEFRAG_CPM,
               tier: 2,
-              ranked: false,
+              type: LeaderboardType.RANKED,
               comment: 'comment'
             }
           ],
@@ -614,9 +815,8 @@ describe('Maps', () => {
 
         it('should create a map within the database', () => {
           expect(createdMap).toMatchObject({
-            name: 'map',
-            fileName: 'surf_map',
-            status: MapStatusNew.PRIVATE_TESTING,
+            name: 'surf_map',
+            status: MapStatus.PRIVATE_TESTING,
             submission: {
               type: MapSubmissionType.ORIGINAL,
               placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
@@ -626,7 +826,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true,
+                  type: LeaderboardType.RANKED,
                   comment: 'I love you'
                 },
                 {
@@ -634,19 +834,19 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 2,
-                  ranked: false,
+                  type: LeaderboardType.RANKED,
                   comment: 'comment'
                 }
               ],
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: expect.any(String)
                 }
               ]
             },
             info: {
-              description: 'mamp',
+              description: 'mampmampmampmampmampmampmampmamp',
               creationDate: new Date('2022-07-07T18:33:33.000Z')
             },
             submitterID: user.id,
@@ -681,7 +881,7 @@ describe('Maps', () => {
             mapID: createdMap.id,
             style: 0,
             tier: null,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             tags: []
           }));
 
@@ -698,9 +898,9 @@ describe('Maps', () => {
             `${currentVersion.id}.bsp`
           ]);
 
-          const downloadBuffer = await axios
-            .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
-            .then((res) => Buffer.from(res.data, 'binary'));
+          const downloadBuffer = await fileStore.downloadHttp(
+            currentVersion.downloadURL
+          );
           const downloadHash = createSha1Hash(downloadBuffer);
 
           expect(bspHash).toBe(currentVersion.hash);
@@ -715,9 +915,9 @@ describe('Maps', () => {
             `${currentVersion.id}_VMFs.zip`
           ]);
 
-          const downloadBuffer = await axios
-            .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
-            .then((res) => Buffer.from(res.data, 'binary'));
+          const downloadBuffer = await fileStore.downloadHttp(
+            currentVersion.vmfDownloadURL
+          );
 
           const zip = new Zip(downloadBuffer);
 
@@ -733,7 +933,7 @@ describe('Maps', () => {
         });
 
         it('should create map review invites for the invitees', async () => {
-          const invites = await prisma.mapTestingRequest.findMany();
+          const invites = await prisma.mapTestInvite.findMany();
           const invitees = invites.map((u) => u.userID);
           expect(invitees).toEqual(expect.arrayContaining([u2.id, u3.id]));
           expect(invitees).toHaveLength(2);
@@ -742,7 +942,7 @@ describe('Maps', () => {
 
       describe('Permission checks', () => {
         for (const status of CombinedMapStatuses.IN_SUBMISSION) {
-          it(`should 403 if the user already has a map in ${MapStatusNew[status]} and is not a MAPPER`, async () => {
+          it(`should 403 if the user already has a map in ${MapStatus[status]} and is not a MAPPER`, async () => {
             await db.createMap({
               submitter: { connect: { id: user.id } },
               status
@@ -769,7 +969,7 @@ describe('Maps', () => {
             Role.MODERATOR,
             Role.ADMIN
           ]) {
-            it(`should allow if the user already has a map in ${MapStatusNew[status]} and is a ${Role[role]}`, async () => {
+            it(`should allow if the user already has a map in ${MapStatus[status]} and is a ${Role[role]}`, async () => {
               await prisma.user.update({
                 where: { id: user.id },
                 data: { roles: role }
@@ -817,13 +1017,13 @@ describe('Maps', () => {
             token
           });
 
-          expect(res.body.status).toBe(MapStatusNew.CONTENT_APPROVAL);
+          expect(res.body.status).toBe(MapStatus.CONTENT_APPROVAL);
 
           expect(
             Date.now() -
               new Date(
                 (res.body.submission.dates as MapSubmissionDate[]).find(
-                  ({ status }) => status === MapStatusNew.CONTENT_APPROVAL
+                  ({ status }) => status === MapStatus.CONTENT_APPROVAL
                 ).date
               ).getTime()
           ).toBeLessThan(1000);
@@ -898,32 +1098,6 @@ describe('Maps', () => {
             data: obj,
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
-            token
-          });
-        });
-
-        it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'bhop_map.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
-        it('should succeed if BSP filename starts with but does not equal the fileName on the DTO', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 201,
-            data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map_a1.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
           });
@@ -1070,7 +1244,7 @@ describe('Maps', () => {
         it('should succeed if the user already has an APPROVED map and is not a mapper', async () => {
           await db.createMap({
             submitter: { connect: { id: user.id } },
-            status: MapStatusNew.APPROVED
+            status: MapStatus.APPROVED
           });
 
           await req.postAttach({
@@ -1141,6 +1315,36 @@ describe('Maps', () => {
           });
         });
 
+        it('should 400 if the map has invalid suggestions', async () => {
+          const suggs = structuredClone(createMapObject.suggestions);
+
+          suggs[0].type = LeaderboardType.IN_SUBMISSION;
+
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, suggestions: suggs },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          suggs[0].type = LeaderboardType.HIDDEN;
+
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, suggestions: suggs },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
         it('should 400 if the map has conflicting suggestions', async () => {
           const suggs = structuredClone(createMapObject.suggestions);
 
@@ -1170,31 +1374,14 @@ describe('Maps', () => {
         });
 
         it('should 409 if a map with the same name exists', async () => {
-          const fileName = 'ron_weasley';
+          const name = 'ron_weasley';
 
-          await db.createMap({ fileName });
+          await db.createMap({ name });
 
           await req.postAttach({
             url: 'maps',
             status: 409,
-            data: { ...createMapObject, fileName },
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
-        it('should 400 if the name does not contain the fileName', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: {
-              ...createMapObject,
-              fileName: 'ron_weasley',
-              name: 'hagrid'
-            },
+            data: { ...createMapObject, name },
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
@@ -1212,7 +1399,7 @@ describe('Maps', () => {
               // 10,000 zones :D
               zones: ZoneUtil.generateRandomMapZones(
                 100,
-                from(100, () => 100),
+                arrayFrom(100, () => 100),
                 0,
                 1024 ** 2,
                 1024,
@@ -1252,7 +1439,7 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.SURF,
                   tier: 1,
-                  ranked: true,
+                  type: LeaderboardType.RANKED,
                   comment: 'I will kill again'
                 }
               ],
@@ -1264,9 +1451,7 @@ describe('Maps', () => {
                   ]
                 }
               },
-              dates: [
-                { status: MapStatusNew.APPROVED, date: new Date().toJSON() }
-              ]
+              dates: [{ status: MapStatus.APPROVED, date: new Date().toJSON() }]
             }
           },
           reviews: {
@@ -1274,6 +1459,9 @@ describe('Maps', () => {
               reviewer: { connect: { id: u2.id } },
               mainText: 'No! No!!'
             }
+          },
+          testInvites: {
+            create: { userID: u2.id, state: MapTestInviteState.ACCEPTED }
           }
         });
 
@@ -1305,29 +1493,6 @@ describe('Maps', () => {
           validate: MapDto,
           token: u1Token
         }));
-
-      it('should search by name when passed a number and byName is true', async () => {
-        const map2 = await db.createMap({ name: '111' });
-
-        const mapGet = await req.get({
-          url: `maps/${map.id}`,
-          status: 200,
-          validate: MapDto,
-          token: u1Token
-        });
-
-        expect(mapGet.body.id).toBe(map.id);
-
-        const map2Get = await req.get({
-          url: 'maps/111',
-          query: { byName: true },
-          status: 200,
-          validate: MapDto,
-          token: u1Token
-        });
-
-        expect(map2Get.body.id).toBe(map2.id);
-      });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.create({
@@ -1365,22 +1530,6 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'images',
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'thumbnail',
-          token: u1Token
-        }));
-
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
@@ -1402,6 +1551,15 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'zones',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the testInvites expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'testInvites',
+          expectedPropertyName: 'testInvites[0].user',
           token: u1Token
         }));
 
@@ -1531,7 +1689,7 @@ describe('Maps', () => {
       it('should 403 if the user does not have permission to access to the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
+          data: { status: MapStatus.PRIVATE_TESTING }
         });
 
         await req.get({
@@ -1542,7 +1700,7 @@ describe('Maps', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
+          data: { status: MapStatus.APPROVED }
         });
       });
 
@@ -1585,10 +1743,9 @@ describe('Maps', () => {
       beforeEach(async () => {
         map = await db.createMap(
           {
-            name: 'map',
-            fileName: 'surf_map', // This is actually RJ now. deal with it lol
+            name: 'surf_map', // This is actually RJ now. deal with it lol
             submitter: { connect: { id: u1.id } },
-            status: MapStatusNew.PRIVATE_TESTING,
+            status: MapStatus.PRIVATE_TESTING,
             submission: {
               create: {
                 type: MapSubmissionType.ORIGINAL,
@@ -1598,7 +1755,7 @@ describe('Maps', () => {
                     trackNum: 0,
                     gamemode: Gamemode.RJ,
                     tier: 10,
-                    ranked: true
+                    type: LeaderboardType.RANKED
                   }
                 ],
                 versions: {
@@ -1610,7 +1767,7 @@ describe('Maps', () => {
                 },
                 dates: [
                   {
-                    status: MapStatusNew.PRIVATE_TESTING,
+                    status: MapStatus.PRIVATE_TESTING,
                     date: new Date().toJSON()
                   }
                 ]
@@ -1642,7 +1799,10 @@ describe('Maps', () => {
             versionNum: 2,
             changelog
           },
-          versions: [{ versionNum: 1 }, { versionNum: 2, changelog }]
+          versions: expect.arrayContaining([
+            expect.objectContaining({ versionNum: 1 }),
+            expect.objectContaining({ versionNum: 2, changelog })
+          ])
         });
 
         const submissionDB = await prisma.mapSubmission.findUnique({
@@ -1676,9 +1836,9 @@ describe('Maps', () => {
           `${currentVersion.id}.bsp`
         ]);
 
-        const bspDownloadBuffer = await axios
-          .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
-          .then((res) => Buffer.from(res.data, 'binary'));
+        const bspDownloadBuffer = await fileStore.downloadHttp(
+          currentVersion.downloadURL
+        );
         const bspDownloadHash = createSha1Hash(bspDownloadBuffer);
 
         expect(bspHash).toBe(currentVersion.hash);
@@ -1689,9 +1849,9 @@ describe('Maps', () => {
           `${currentVersion.id}_VMFs.zip`
         ]);
 
-        const vmfDownloadBuffer = await axios
-          .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
-          .then((res) => Buffer.from(res.data, 'binary'));
+        const vmfDownloadBuffer = await fileStore.downloadHttp(
+          currentVersion.vmfDownloadURL
+        );
 
         const zip = new Zip(vmfDownloadBuffer);
 
@@ -1704,7 +1864,7 @@ describe('Maps', () => {
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
         });
@@ -2068,8 +2228,8 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      for (const status of [MapStatusNew.APPROVED, MapStatusNew.DISABLED]) {
-        it(`should 403 if the map status is ${MapStatusNew[status]}`, async () => {
+      for (const status of [MapStatus.APPROVED, MapStatus.DISABLED]) {
+        it(`should 403 if the map status is ${MapStatus[status]}`, async () => {
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
 
           await req.postAttach({
@@ -2084,10 +2244,175 @@ describe('Maps', () => {
 
           await prisma.mMap.update({
             where: { id: map.id },
-            data: { status: MapStatusNew.PRIVATE_TESTING }
+            data: { status: MapStatus.PRIVATE_TESTING }
           });
         });
       }
+
+      it('should wipe leaderboards if resetLeaderboards is true', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            type: LeaderboardType.IN_SUBMISSION,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'all your runs SUCK', resetLeaderboards: true },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(0);
+      });
+
+      it('should wipe leaderboards if resetLeaderboards is false or undefined', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.RJ,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            type: LeaderboardType.IN_SUBMISSION,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: {
+            changelog: 'damn these runs are great. i love you guys',
+            resetLeaderboards: false
+          },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'im so happy right now' },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
+
+      it('should block resetting leaderboards if the map has previously been approved', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            submission: {
+              update: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: [
+                  {
+                    status: MapStatus.APPROVED,
+                    date: new Date(Date.now() - 3000)
+                  },
+                  {
+                    status: MapStatus.DISABLED,
+                    date: new Date(Date.now() - 2000)
+                  },
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date(Date.now() - 1000)
+                  }
+                ]
+              }
+            }
+          }
+        });
+
+        await prisma.leaderboard.create({
+          data: {
+            mmap: { connect: { id: map.id } },
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: 0,
+            type: LeaderboardType.IN_SUBMISSION,
+            runs: {
+              create: {
+                userID: u1.id,
+                time: 1,
+                stats: {},
+                rank: 1
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 403,
+          data: {
+            changelog: 'PLEASE let me delete these runs',
+            resetLeaderboards: true
+          },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          token: u1Token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1', 'post'));
@@ -2104,15 +2429,14 @@ describe('Maps', () => {
         ]);
 
         createMapData = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           submitter: { connect: { id: user.id } },
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: new Date().toJSON()
                 }
               ],
@@ -2122,14 +2446,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               versions: {
@@ -2149,15 +2473,15 @@ describe('Maps', () => {
       afterEach(() => db.cleanup('mMap'));
 
       for (const status of CombinedMapStatuses.IN_SUBMISSION) {
-        it(`should allow the submitter to change most data during ${MapStatusNew[status]}`, async () => {
+        it(`should allow the submitter to change most data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
             url: `maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_ostrich',
-              name: 'ostrich',
+              name: 'surf_ostrich',
+              submissionType: MapSubmissionType.PORT,
               info: {
                 description:
                   'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -2169,14 +2493,14 @@ describe('Maps', () => {
                   trackNum: 0,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -2190,28 +2514,28 @@ describe('Maps', () => {
           });
 
           expect(updatedMap).toMatchObject({
-            name: 'ostrich',
-            fileName: 'surf_ostrich',
+            name: 'surf_ostrich',
             info: {
               description:
                 'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
               youtubeID: '8k-zNGuiatA'
             },
             submission: {
+              type: MapSubmissionType.PORT,
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
                   trackNum: 0,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 0,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.UNRANKED
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -2223,13 +2547,17 @@ describe('Maps', () => {
       it('should always 403 if map is APPROVED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.APPROVED
+          status: MapStatus.APPROVED
         });
 
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { info: { description: 'Fuck ostriches' } },
+          body: {
+            info: {
+              description: 'Fuck ostriches fuck ostriches fuck ostriches'
+            }
+          },
           token
         });
       });
@@ -2237,7 +2565,7 @@ describe('Maps', () => {
       it('should always 403 if map is DISABLED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.DISABLED
+          status: MapStatus.DISABLED
         });
 
         await req.patch({
@@ -2248,12 +2576,12 @@ describe('Maps', () => {
         });
       });
 
-      const statuses = Enum.values(MapStatusNew);
+      const statuses = Enum.values(MapStatus);
       // Storing number tuple won't pass .has
       const validChanges = new Set([
-        MapStatusNew.PRIVATE_TESTING + ',' + MapStatusNew.CONTENT_APPROVAL,
-        MapStatusNew.CONTENT_APPROVAL + ',' + MapStatusNew.PRIVATE_TESTING,
-        MapStatusNew.FINAL_APPROVAL + ',' + MapStatusNew.PUBLIC_TESTING
+        MapStatus.PRIVATE_TESTING + ',' + MapStatus.CONTENT_APPROVAL,
+        MapStatus.CONTENT_APPROVAL + ',' + MapStatus.PRIVATE_TESTING,
+        MapStatus.FINAL_APPROVAL + ',' + MapStatus.PUBLIC_TESTING
       ]);
 
       for (const s1 of statuses) {
@@ -2262,8 +2590,8 @@ describe('Maps', () => {
 
           it(`should ${
             shouldPass ? '' : 'not '
-          }allow a user to change their map from ${MapStatusNew[s1]} to ${
-            MapStatusNew[s2]
+          }allow a user to change their map from ${MapStatus[s1]} to ${
+            MapStatus[s2]
           }`, async () => {
             const map = await db.createMap({
               ...createMapData,
@@ -2271,19 +2599,35 @@ describe('Maps', () => {
               submission: {
                 create: {
                   type: MapSubmissionType.PORT,
-                  suggestions: {
-                    trackType: TrackType.MAIN,
-                    trackNum: 0,
-                    gamemode: Gamemode.SURF,
-                    tier: 10,
-                    ranked: true
-                  },
+                  suggestions: [
+                    {
+                      trackType: TrackType.MAIN,
+                      trackNum: 0,
+                      gamemode: Gamemode.CONC,
+                      tier: 1,
+                      rtype: LeaderboardType.RANKED
+                    },
+                    {
+                      trackType: TrackType.BONUS,
+                      trackNum: 0,
+                      gamemode: Gamemode.DEFRAG_CPM,
+                      tier: 1,
+                      type: LeaderboardType.RANKED
+                    }
+                  ],
                   dates: [
                     {
                       status: s1,
                       date: new Date().toJSON()
                     }
-                  ]
+                  ],
+                  versions: {
+                    create: {
+                      zones: ZonesStub,
+                      versionNum: 1,
+                      hash: createSha1Hash(Buffer.from('shashashs'))
+                    }
+                  }
                 }
               }
             });
@@ -2308,22 +2652,38 @@ describe('Maps', () => {
       it("should allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's been in testing for required time period", async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: {
             create: {
               dates: [
                 {
-                  status: MapStatusNew.PUBLIC_TESTING,
+                  status: MapStatus.PUBLIC_TESTING,
                   date: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
                 }
               ],
               type: MapSubmissionType.PORT,
-              suggestions: {
-                trackType: TrackType.MAIN,
-                trackNum: 0,
-                gamemode: Gamemode.SURF,
-                tier: 10,
-                ranked: true
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
               }
             }
           }
@@ -2332,27 +2692,75 @@ describe('Maps', () => {
         await req.patch({
           url: `maps/${map.id}`,
           status: 204,
-          body: { status: MapStatusNew.FINAL_APPROVAL },
+          body: { status: MapStatus.FINAL_APPROVAL },
           token
         });
 
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatusNew.FINAL_APPROVAL);
+        expect(updatedMap.status).toBe(MapStatus.FINAL_APPROVAL);
+      });
+
+      it("should not allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PUBLIC_TESTING,
+          submission: {
+            create: {
+              dates: [
+                {
+                  status: MapStatus.PUBLIC_TESTING,
+                  date: Date.now() - 1000
+                }
+              ],
+              type: MapSubmissionType.PORT,
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
+              }
+            }
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
       });
 
       it('should generate new leaderboards if suggestions change', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await prisma.leaderboard.createMany({
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
             style: 0,
-            ranked: false,
+            type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
         });
@@ -2397,14 +2805,14 @@ describe('Maps', () => {
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 10,
-                ranked: true
+                type: LeaderboardType.RANKED
               },
               {
                 trackType: TrackType.BONUS,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.RANKED
               }
             ]
           },
@@ -2413,13 +2821,23 @@ describe('Maps', () => {
 
         expect(
           await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.BHOP, style: 0 }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.BHOP,
+              style: 0,
+              type: LeaderboardType.IN_SUBMISSION
+            }
           })
         ).toHaveLength(4);
 
         expect(
           await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.CONC,
+              style: 0,
+              type: LeaderboardType.IN_SUBMISSION
+            }
           })
         ).toHaveLength(4);
 
@@ -2432,149 +2850,51 @@ describe('Maps', () => {
         ).toHaveLength(1);
       });
 
-      it('should wipe leaderboards if resetLeaderboards is true', async () => {
-        const map = await db.createMap({
-          ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          leaderboards: {
-            create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
-                create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
-                }
-              }
-            }
-          }
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              description: 'all your runs SUCK',
-              youtubeID: 'Xcz-rVPvL2Y'
-            },
-            resetLeaderboards: true
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(0);
-      });
-
-      it('should block resetting leaderboards if the map has previously been approved', async () => {
-        const map = await db.createMap({
-          ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          submission: {
-            create: {
-              type: MapSubmissionType.ORIGINAL,
-              dates: [
-                {
-                  status: MapStatusNew.APPROVED,
-                  date: new Date(Date.now() - 3000)
-                },
-                {
-                  status: MapStatusNew.DISABLED,
-                  date: new Date(Date.now() - 2000)
-                },
-                {
-                  status: MapStatusNew.PRIVATE_TESTING,
-                  date: new Date(Date.now() - 1000)
-                }
-              ]
-            }
-          },
-          leaderboards: {
-            create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
-                create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
-                }
-              }
-            }
-          }
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 403,
-          body: {
-            info: {
-              description: 'PLEASE let me delete these runs',
-              youtubeID: 'OC9RI8_QYmw'
-            },
-            resetLeaderboards: true
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-      });
-
       it('should 400 for invalid suggestions', async () => {
         const map = await db.createMap({
           ...createMapData,
           submitter: { connect: { id: user.id } },
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         // Lots of checks here but is unit tested, just remove the bonus
         await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
+          status: 400,
           body: {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
+                comment: 'FUCK!!!!',
                 tier: 10,
-                ranked: true
+                type: LeaderboardType.RANKED
+              }
+            ]
+          },
+          token
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 400,
+          body: {
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                comment: 'FUCK!!!!',
+                tier: 10,
+                type: LeaderboardType.HIDDEN
               },
               {
                 trackType: TrackType.BONUS,
                 trackNum: 0,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.IN_SUBMISSION
               }
             ]
           },
@@ -2582,64 +2902,42 @@ describe('Maps', () => {
         });
       });
 
-      it('should not wipe leaderboards if resetLeaderboards is false or undefined', async () => {
+      it('should 400 if suggestions and zones dont match up', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          leaderboards: {
+          status: MapStatus.PRIVATE_TESTING,
+          submission: {
             create: {
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 0,
-              style: 0,
-              ranked: false,
-              runs: {
+              type: MapSubmissionType.PORT,
+              versions: {
                 create: {
-                  userID: user.id,
-                  time: 1,
-                  stats: {},
-                  rank: 1
+                  // Has a bonus
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
                 }
-              }
+              },
+              // No bonus, so should fail
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.SURF,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                }
+              ]
             }
           }
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
-
+        // Try change literally anything, it should 400.
         await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              description: 'damn these runs are great. i love you guys',
-              youtubeID: 'ICZG33IxtgE'
-            },
-            resetLeaderboards: false
-          },
+          status: 400,
+          body: { submission: MapSubmissionType.ORIGINAL },
           token
         });
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              youtubeID: 'oBSGEl-yB7A'
-            }
-          },
-          token
-        });
-
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
       });
 
       it('should return 400 if the status flag is invalid', async () => {
@@ -2657,26 +2955,26 @@ describe('Maps', () => {
 
       it('should return 403 if the map was not submitted by that user', async () => {
         const map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token: u2Token
         });
       });
 
       it('should return 403 if the map was not submitted by that user even for an admin', async () => {
         const map = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING
+          status: MapStatus.PRIVATE_TESTING
         });
 
         await req.patch({
           url: `maps/${map.id}`,
           status: 403,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token: adminToken
         });
       });
@@ -2685,7 +2983,7 @@ describe('Maps', () => {
         req.patch({
           url: `maps/${NULL_ID}`,
           status: 404,
-          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          body: { status: MapStatus.CONTENT_APPROVAL },
           token
         }));
 
@@ -2709,7 +3007,7 @@ describe('Maps', () => {
             type: MapSubmissionType.ORIGINAL,
             dates: [
               {
-                status: MapStatusNew.PRIVATE_TESTING,
+                status: MapStatus.PRIVATE_TESTING,
                 date: new Date().toJSON()
               }
             ],
@@ -2720,7 +3018,7 @@ describe('Maps', () => {
                 trackNum: 0,
                 gamemode: Gamemode.CONC,
                 tier: 1,
-                ranked: true,
+                type: LeaderboardType.RANKED,
                 comment: 'My dad made this'
               }
             ],
@@ -2734,9 +3032,9 @@ describe('Maps', () => {
             }
           }
         };
-        await db.createMap({ status: MapStatusNew.APPROVED });
+        await db.createMap({ status: MapStatus.APPROVED });
         pubMap1 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: submissionCreate,
           reviews: {
             create: {
@@ -2746,19 +3044,19 @@ describe('Maps', () => {
           }
         });
         pubMap2 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
+          status: MapStatus.PUBLIC_TESTING,
           submission: submissionCreate
         });
         privMap = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
+          status: MapStatus.PRIVATE_TESTING,
           submission: submissionCreate
         });
         faMap = await db.createMap({
-          status: MapStatusNew.CONTENT_APPROVAL,
+          status: MapStatus.CONTENT_APPROVAL,
           submission: submissionCreate
         });
         caMap = await db.createMap({
-          status: MapStatusNew.FINAL_APPROVAL,
+          status: MapStatus.FINAL_APPROVAL,
           submission: submissionCreate
         });
 
@@ -2777,7 +3075,7 @@ describe('Maps', () => {
       });
 
       afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
-      afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
+      afterEach(() => db.cleanup('mapTestInvite', 'mapCredit'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -2792,7 +3090,6 @@ describe('Maps', () => {
             'submission',
             'id',
             'name',
-            'fileName',
             'status',
             'hash',
             'submitterID',
@@ -2842,19 +3139,19 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered map data using the fileName parameter', async () => {
+      it('should respond with filtered map data using the searchStartsWith parameter', async () => {
         await prisma.mMap.update({
           where: { id: pubMap1.id },
-          data: { fileName: 'Bingus' }
+          data: { name: 'bingus' }
         });
 
         await req.searchTest({
           url: 'maps/submissions',
           token: u1Token,
           searchMethod: 'startsWith',
-          searchString: 'Bingu',
-          searchPropertyName: 'fileName',
-          searchQueryName: 'fileName',
+          searchString: 'bingu',
+          searchPropertyName: 'name',
+          searchQueryName: 'searchStartsWith',
           validate: { type: MapDto, count: 1 }
         });
       });
@@ -2966,24 +3263,6 @@ describe('Maps', () => {
           data: { submitterID: null }
         });
       });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'maps/submissions',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'maps/submissions',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
@@ -3114,11 +3393,11 @@ describe('Maps', () => {
       });
 
       it('should include private testing maps for which the user has an accepted invite', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             userID: u1.id,
             mapID: privMap.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
@@ -3139,11 +3418,11 @@ describe('Maps', () => {
       });
 
       it('should not include a private testing map if the user has an declined invite', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             userID: u1.id,
             mapID: privMap.id,
-            state: MapTestingRequestState.DECLINED
+            state: MapTestInviteState.DECLINED
           }
         });
 
@@ -3272,7 +3551,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          query: { filter: MapStatusNew.PUBLIC_TESTING },
+          query: { filter: MapStatus.PUBLIC_TESTING },
           validatePaged: { type: MapDto, count: 2 },
           token: u1Token
         });
@@ -3286,18 +3565,18 @@ describe('Maps', () => {
       });
 
       it('should filter by private maps when given the private filter', async () => {
-        await prisma.mapTestingRequest.create({
+        await prisma.mapTestInvite.create({
           data: {
             mapID: privMap.id,
             userID: u1.id,
-            state: MapTestingRequestState.ACCEPTED
+            state: MapTestInviteState.ACCEPTED
           }
         });
 
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          query: { filter: MapStatusNew.PRIVATE_TESTING },
+          query: { filter: MapStatus.PRIVATE_TESTING },
           validatePaged: { type: MapDto, count: 1 },
           token: u1Token
         });

@@ -5,8 +5,9 @@ import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import {
   Gamemode,
+  LeaderboardType,
   MapCreditType,
-  MapStatusNew,
+  MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
   MIN_PUBLIC_TESTING_DURATION,
@@ -17,9 +18,9 @@ import {
   createSha1Hash,
   DbUtil,
   FILES_PATH,
+  FileStoreUtil,
   RequestUtil
 } from '@momentum/test-utils';
-import axios from 'axios';
 import Zip from 'adm-zip';
 import { BabyZonesStub } from '@momentum/formats/zone';
 import { MapDto } from '../../backend/src/app/dto';
@@ -29,7 +30,11 @@ import {
 } from './support/environment';
 
 describe('Multi-stage E2E tests', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
+  let app,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    fileStore: FileStoreUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -37,6 +42,7 @@ describe('Multi-stage E2E tests', () => {
     app = env.app;
     req = env.req;
     db = env.db;
+    fileStore = env.fileStore;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -64,10 +70,9 @@ describe('Multi-stage E2E tests', () => {
       url: 'maps',
       status: 201,
       data: {
-        name: 'todd_howard',
-        fileName: 'surf_todd_howard',
+        name: 'surf_todd_howard',
         info: {
-          description: 'fallout',
+          description: 'falloutfalloutfalloutfalloutfalloutfalloutfallout',
           creationDate: '2023-02-01T12:43:33.410Z'
         },
         submissionType: MapSubmissionType.ORIGINAL,
@@ -78,7 +83,7 @@ describe('Multi-stage E2E tests', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 1,
-            ranked: true
+            type: LeaderboardType.RANKED
           }
         ],
         wantsPrivateTesting: true,
@@ -116,14 +121,14 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.CONTENT_APPROVAL },
+      body: { status: MapStatus.CONTENT_APPROVAL },
       token
     });
 
     await req.patch({
       url: `admin/maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.PUBLIC_TESTING },
+      body: { status: MapStatus.PUBLIC_TESTING },
       token: reviewerToken
     });
 
@@ -163,7 +168,7 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 403,
-      body: { status: MapStatusNew.FINAL_APPROVAL },
+      body: { status: MapStatus.FINAL_APPROVAL },
       token
     });
 
@@ -173,7 +178,7 @@ describe('Multi-stage E2E tests', () => {
     // So, boring way, just patch the date in DB.
     const tmpMap = await prisma.mapSubmission.findUnique({ where: { mapID } });
     const dates = tmpMap.dates as MapSubmissionDate[];
-    dates.find((x) => x.status === MapStatusNew.PUBLIC_TESTING).date = new Date(
+    dates.find((x) => x.status === MapStatus.PUBLIC_TESTING).date = new Date(
       Date.now() - MIN_PUBLIC_TESTING_DURATION
     ).toJSON();
     await prisma.mapSubmission.update({ where: { mapID }, data: { dates } });
@@ -181,7 +186,7 @@ describe('Multi-stage E2E tests', () => {
     await req.patch({
       url: `maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.FINAL_APPROVAL },
+      body: { status: MapStatus.FINAL_APPROVAL },
       token
     });
 
@@ -190,14 +195,14 @@ describe('Multi-stage E2E tests', () => {
       url: `admin/maps/${mapID}`,
       status: 204,
       body: {
-        status: MapStatusNew.APPROVED,
+        status: MapStatus.APPROVED,
         finalLeaderboards: [
           {
             gamemode: Gamemode.BHOP,
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 10,
-            ranked: true
+            type: LeaderboardType.UNRANKED
           }
         ]
       },
@@ -212,9 +217,8 @@ describe('Multi-stage E2E tests', () => {
     });
 
     expect(mapRes).toMatchObject({
-      status: MapStatusNew.APPROVED,
-      name: 'todd_howard',
-      fileName: 'surf_todd_howard',
+      status: MapStatus.APPROVED,
+      name: 'surf_todd_howard',
       credits: [
         {
           user: { alias: user.alias },
@@ -224,7 +228,7 @@ describe('Multi-stage E2E tests', () => {
         { user: { alias: 'todd howard' }, type: MapCreditType.AUTHOR }
       ],
       info: {
-        description: 'fallout',
+        description: 'falloutfalloutfalloutfalloutfalloutfalloutfallout',
         creationDate: '2023-02-01T12:43:33.410Z'
       },
       leaderboards: [
@@ -235,7 +239,7 @@ describe('Multi-stage E2E tests', () => {
           linear: true,
           style: 0,
           tier: 10,
-          ranked: true,
+          type: LeaderboardType.UNRANKED,
           tags: []
         }
       ]
@@ -246,16 +250,10 @@ describe('Multi-stage E2E tests', () => {
     expect(
       (mapRes.downloadURL as string).endsWith('surf_todd_howard.bsp')
     ).toBeTruthy();
-    const bspDownloadBuffer = await axios
-      .get(mapRes.downloadURL, { responseType: 'arraybuffer' })
-      .then((res) => Buffer.from(res.data, 'binary'));
+    const bspDownloadBuffer = await fileStore.downloadHttp(mapRes.downloadURL);
     expect(createSha1Hash(bspDownloadBuffer)).toBe(bsp2Hash);
 
-    const vmfZip = new Zip(
-      await axios
-        .get(mapRes.vmfDownloadURL, { responseType: 'arraybuffer' })
-        .then((res) => Buffer.from(res.data, 'binary'))
-    );
+    const vmfZip = new Zip(await fileStore.downloadHttp(mapRes.vmfDownloadURL));
     expect(
       createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData())
     ).toBe(vmf2Hash);

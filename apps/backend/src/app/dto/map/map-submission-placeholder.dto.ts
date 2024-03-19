@@ -1,7 +1,7 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { MapSubmissionPlaceholder } from '@momentum/constants';
 import { JsonValue } from 'type-fest';
-import { IsString, MaxLength } from 'class-validator';
+import { IsString, MaxLength, MinLength } from 'class-validator';
 import { MapCreditDto } from './map-credit.dto';
 
 export class MapSubmissionPlaceholderDto
@@ -12,6 +12,7 @@ export class MapSubmissionPlaceholderDto
 
   @ApiProperty()
   @IsString()
+  @MinLength(3)
   @MaxLength(32)
   readonly alias: string;
 }

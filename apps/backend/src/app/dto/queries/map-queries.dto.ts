@@ -1,5 +1,5 @@
 import {
-  MapStatusNew,
+  MapStatus,
   Gamemode,
   MapReviewsGetQuery,
   MapsGetAllExpand,
@@ -7,13 +7,9 @@ import {
   MapCreditsGetExpand,
   MapsGetExpand,
   MapsGetAllAdminQuery,
-  MapsGetAllAdminExpand,
   MapsGetAllSubmissionQuery,
   MapsGetAllSubmissionFilter,
   MapsGetAllSubmissionExpand,
-  MapsGetAllSubmissionAdminExpand,
-  MapsGetAllSubmissionAdminFilter,
-  MapsGetAllSubmissionAdminQuery,
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery,
@@ -29,7 +25,7 @@ import {
   MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/constants';
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -45,6 +41,7 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
+import { Max } from 'class-validator';
 
 //#region Get All
 
@@ -62,10 +59,10 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   readonly search?: string;
 
   @StringQueryProperty({
-    description: 'Filter by partial map file name match (startsWith)',
+    description: 'Filter by partial map name match (startsWith)',
     example: 'de_dust2'
   })
-  readonly fileName?: string;
+  readonly searchStartsWith?: string;
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
@@ -82,8 +79,6 @@ export class MapsGetAllQueryDto
     'stats',
     'submitter',
     'credits',
-    'thumbnail',
-    'images',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -102,31 +97,31 @@ export class MapsGetAllQueryDto
 
   @BooleanQueryProperty({ description: 'Filter by linear or staged' })
   readonly linear?: boolean;
+
+  @BooleanQueryProperty({
+    description: 'Filter by whether map is or is not in user favorites'
+  })
+  readonly favorite?: boolean;
+
+  @BooleanQueryProperty({
+    description:
+      'Filter by whether map whether or not the user has beaten the main track of this map.' +
+      'If a gamemode is provided, uses that. Otherwise uses any mode.'
+  })
+  readonly PB?: boolean;
 }
 
 export class MapsGetAllAdminQueryDto
   extends MapsGetAllBaseQueryDto
   implements MapsGetAllAdminQuery
 {
-  @ExpandQueryProperty([
-    'zones',
-    'leaderboards',
-    'info',
-    'stats',
-    'submitter',
-    'credits',
-    'thumbnail',
-    'images'
-  ])
-  readonly expand?: MapsGetAllAdminExpand;
-
   @EnumFilterQueryProperty([
-    MapStatusNew.APPROVED,
-    MapStatusNew.PRIVATE_TESTING,
-    MapStatusNew.CONTENT_APPROVAL,
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.FINAL_APPROVAL,
-    MapStatusNew.DISABLED
+    MapStatus.APPROVED,
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.CONTENT_APPROVAL,
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.FINAL_APPROVAL,
+    MapStatus.DISABLED
   ])
   readonly filter?: MapsGetAllAdminFilter;
 }
@@ -142,8 +137,6 @@ export class MapsGetAllSubmissionQueryDto
     'stats',
     'submitter',
     'credits',
-    'thumbnail',
-    'images',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -155,8 +148,8 @@ export class MapsGetAllSubmissionQueryDto
   readonly expand?: MapsGetAllSubmissionExpand;
 
   @EnumFilterQueryProperty([
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.PRIVATE_TESTING
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.PRIVATE_TESTING
   ])
   readonly filter?: MapsGetAllSubmissionFilter;
 }
@@ -164,34 +157,6 @@ export class MapsGetAllSubmissionQueryDto
 export class MapsGetAllUserSubmissionQueryDto
   extends OmitType(MapsGetAllSubmissionQueryDto, ['submitterID'] as const)
   implements MapsGetAllUserSubmissionQuery {}
-
-export class MapsGetAllSubmissionAdminQueryDto
-  extends MapsGetAllBaseQueryDto
-  implements MapsGetAllSubmissionAdminQuery
-{
-  @ExpandQueryProperty([
-    'zones',
-    'leaderboards',
-    'info',
-    'stats',
-    'submitter',
-    'credits',
-    'thumbnail',
-    'images',
-    'currentVersion',
-    'versions',
-    'reviews'
-  ])
-  readonly expand?: MapsGetAllSubmissionAdminExpand;
-
-  @EnumFilterQueryProperty([
-    MapStatusNew.PUBLIC_TESTING,
-    MapStatusNew.PRIVATE_TESTING,
-    MapStatusNew.CONTENT_APPROVAL,
-    MapStatusNew.FINAL_APPROVAL
-  ])
-  readonly filter?: MapsGetAllSubmissionAdminFilter;
-}
 
 //#endregion
 //#region Get
@@ -203,8 +168,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'info',
     'credits',
     'submitter',
-    'images',
-    'thumbnail',
     'stats',
     'tracks',
     'inFavorites',
@@ -214,16 +177,10 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'submission',
     'currentVersion',
     'versions',
-    'reviews'
+    'reviews',
+    'testInvites'
   ])
   readonly expand?: MapsGetExpand;
-
-  @ApiProperty({
-    description:
-      'Whether to search based on map name. This will safely handle a map name that is a numeric string.'
-  })
-  @BooleanQueryProperty({ required: false })
-  readonly byName?: boolean;
 }
 
 //#endregion
@@ -316,13 +273,23 @@ export class MapReviewsGetQueryDto
   extends PagedQueryDto
   implements MapReviewsGetQuery
 {
+  // Stupidly high maximum so admins can always fetch everything
+  @TakeQueryProperty(20, 1000)
+  readonly take?: number = 20;
+
   @BooleanQueryProperty({
     description: 'Filter by official or unofficial reviews'
   })
   readonly official?: boolean;
 
-  @ExpandQueryProperty(['map', 'reviewer'])
+  @ExpandQueryProperty(['map', 'reviewer', 'resolver'])
   readonly expand?: MapReviewsGetExpand;
+
+  @IntQueryProperty({
+    description: 'Number of comments to fetch (latest first)'
+  })
+  @Max(50)
+  readonly comments?: number;
 }
 
 export class MapReviewGetIdDto implements MapReviewGetIdQuery {

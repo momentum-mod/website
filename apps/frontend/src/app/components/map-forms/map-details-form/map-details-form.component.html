@@ -1,0 +1,114 @@
+<div class="flex gap-4 md:flex-wrap" [formGroup]="formGroup">
+  <div class="grid h-fit flex-grow gap-4 [grid-template-columns:auto_1fr]">
+    <div class="flex flex-col">
+      <label class="my-auto text-lg leading-4">
+        Map Name
+        <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapNameInfo" />
+        <ng-template #mapNameInfo>
+          <div class="prose p-3">
+            <p>
+              Gamemode <b>prefixes</b> should typically be the primary gamemode they're made for, but may be omitted if the map plays well
+              in multiple modes. E.g. <i>bhop_canals</i> plays well in many modes, so could be named just <i>canals</i>.
+            </p>
+            <p><b>Suffixes</b> must be <b>removed</b>, e.g. <i>surf_utopia_njv</i> should be <i>surf_utopia.</i></p>
+          </div>
+        </ng-template>
+      </label>
+      <span class="text-sm italic leading-4 text-gray-200">Required </span>
+    </div>
+    <input
+      id="name"
+      class="textinput textinput-validated !max-w-full"
+      type="text"
+      mTooltip
+      tooltipContext="mapNameError"
+      tooltipEvent="noop"
+      [formControl]="name"
+    />
+    <div class="flex flex-col">
+      <label class="my-auto text-lg leading-4">
+        Submission Type
+        <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="subType" />
+        <ng-template #subType><m-submission-type-info /></ng-template>
+      </label>
+      <span class="text-sm italic leading-4 text-gray-200">Required</span>
+    </div>
+    <p-dropdown
+      mTooltip
+      tooltipContext="mapNameError"
+      tooltipEvent="noop"
+      class="textinput-validated [&>*]:w-full"
+      [formControl]="submissionType"
+      [options]="mapSubmissionTypeOptions"
+      optionLabel="label"
+      optionValue="type"
+      appendTo="body"
+    />
+    <div class="flex flex-col">
+      <label for="creationDate" class="my-auto text-lg leading-4">
+        Creation Date
+        <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapCreationDateInfo" />
+        <ng-template #mapCreationDateInfo>
+          <div class="prose p-3">
+            <p>This is the date the map was finished.</p>
+            <p>
+              If it's your map and you're first releasing for Momentum, use today's date. If the map is a port and was originally published
+              on, say, GameBanana, use the exact date on GameBanana.
+            </p>
+            <p>If you don't know the exact date, just take a guess. For a Conc map published sometime around 2002, Jan 1st 2002 is fine.</p>
+          </div>
+        </ng-template>
+      </label>
+      <span class="text-sm italic leading-4 text-gray-200">Required</span>
+    </div>
+    <p-calendar class="w-full [&>*]:w-full" [formControl]="creationDate" appendTo="body" />
+    <label for="youtubeID" class="my-auto text-lg leading-4">
+      Youtube ID
+      <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
+      <ng-template #youtubeIDInfo>
+        <div class="prose p-3">
+          <p>An optional Youtube video showcasing your map.</p>
+          <p>Must be a single 11 character Youtube video ID.</p>
+        </div>
+      </ng-template>
+    </label>
+    <input
+      id="youtubeID"
+      type="text"
+      class="textinput textinput-validated !max-w-full"
+      [formControl]="youtubeID"
+      (change)="stripYoutubeUrl()"
+    />
+  </div>
+  <div class="flex grow-5 flex-col">
+    <div class="mb-2 flex">
+      <div class="my-auto flex flex-grow items-center">
+        <label for="description" class="text-lg">
+          Description
+          <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="descriptionInfo" />
+          <ng-template #descriptionInfo>
+            <div class="prose p-3">
+              <p>
+                A general description of your map. You can include pretty much anything here, just keep in mind we have dedicated sections
+                for credits, including special thanks!
+              </p>
+              <p>
+                If you can't think of anything at all, just do something super simple like
+                <i>"A short bhop map based on the life and works of Philip Seymour Hoffman"</i>.
+              </p>
+            </div>
+          </ng-template>
+        </label>
+        <span class="ml-2 text-sm italic text-gray-200">Minimum {{ MIN_MAP_DESCRIPTION_LENGTH }} characters required</span>
+      </div>
+      <span class="mr-2 mt-auto text-sm">{{ MAX_MAP_DESCRIPTION_LENGTH - description.value?.length | plural: 'character' }} remaining</span>
+    </div>
+    <textarea
+      id="description"
+      class="textinput textinput-validated flex-grow"
+      rows="4"
+      [formControl]="description"
+      [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
+    ></textarea>
+  </div>
+</div>

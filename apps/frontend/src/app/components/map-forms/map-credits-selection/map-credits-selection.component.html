@@ -1,0 +1,72 @@
+@for (type of MapCreditNames | keyvalue; track type) {
+  <div class="flex h-full flex-col">
+    <p class="mb-1 text-xl font-medium">{{ type.value }}</p>
+    <div
+      class="flex-grow rounded bg-black bg-opacity-25"
+      id="{{ type.key }}"
+      cdkDropList
+      [cdkDropListData]="value[type.key]"
+      (cdkDropListDropped)="drop($event)"
+      [cdkDropListConnectedTo]="connectedTo"
+      mTooltip
+      [tooltipContext]="type.key"
+      tooltipPosition="top"
+      tooltipEvent="noop"
+    >
+      @for (credit of value[type.key]; track credit) {
+        <div class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5" cdkDrag>
+          @if (!credit.placeholder) {
+            <m-avatar class="mr-2 h-[3.25rem] w-[3.25rem]" [url]="credit.avatarURL" />
+          } @else {
+            <div class="mr-2 inline-grid h-[3.25rem] w-[3.25rem] place-content-center">
+              <p mTooltip="Placeholder user" class="text-shadow-strong font-display text-48 font-bold">?</p>
+            </div>
+          }
+
+          <div class="flex flex-grow flex-col">
+            <div class="flex">
+              <span class="mr-3 flex-grow">{{ credit.alias }}</span>
+              <button (click)="removeUser(type.key, credit.userID)">
+                <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
+              </button>
+            </div>
+            <input
+              class="textinput !px-3 !py-0.5 text-sm"
+              placeholder="Description"
+              [(ngModel)]="credit.description"
+              (change)="onChange(this.value)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+    <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
+    <div class="flex">
+      <input [formControl]="placeholderInputs.get(type.key)" class="textinput flex-grow" placeholder="Create placeholder..." />
+      @if (placeholderInputs.get(type.key).value?.length >= 3) {
+        <button class="btn btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
+      }
+      <m-icon
+        class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
+        [mTooltip]="creditsInfo"
+        icon="tooltip-question-outline"
+      />
+    </div>
+    <ng-template #creditsInfo>
+      <div class="prose p-3">
+        <p>
+          Placeholder users are a way to credit someone that doesn't have a Momentum account. Just submit an alias and a 'placeholder'
+          account will be created on approval.
+        </p>
+        <p>
+          If that person signs up for Momentum in the future, they can contact an admin to have any placeholder accounts merged into their
+          real account.
+        </p>
+        <p>
+          If the placeholder you want to credit may have been involved with other maps in the past, search for their username to see if you
+          have find any existing placeholders (marked by the little purple ghost icon).
+        </p>
+      </div>
+    </ng-template>
+  </div>
+}

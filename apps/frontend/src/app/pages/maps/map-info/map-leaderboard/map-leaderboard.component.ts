@@ -1,118 +1,177 @@
-import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { Component, DestroyRef, Input, OnChanges } from '@angular/core';
 import {
-  Gamemode,
-  GamemodeName,
+  GamemodeIcon,
   LeaderboardRun,
+  LeaderboardType,
+  MapLeaderboardGetQuery,
+  MapStatus,
   MMap,
   PagedResponse,
   TrackType
 } from '@momentum/constants';
-import { Observable } from 'rxjs';
+import { mapHttpError } from '@momentum/util-fn';
+import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { SharedModule } from '../../../../shared.module';
 import { LeaderboardsService } from '../../../../services';
-import { AvatarComponent } from '../../../../components';
+import {
+  AvatarComponent,
+  SpinnerComponent,
+  UserComponent
+} from '../../../../components';
 import { TimeAgoPipe, TimingPipe } from '../../../../pipes';
+import {
+  GroupedMapLeaderboard,
+  GroupedMapLeaderboards,
+  groupMapLeaderboards
+} from '../../../../util';
+import { RangePipe } from '../../../../pipes/range.pipe';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import { SpinnerDirective } from '../../../../directives';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HiddenLeaderboardsInfoComponent } from '../../../../components/tooltips/hidden-leaderboards-info.component';
+import { UnrankedLeaderboardsInfoComponent } from '../../../../components/tooltips/unranked-leaderboards-info.component';
 
-enum LeaderboardType {
-  TOP10,
-  AROUND,
-  FRIENDS
+enum LeaderboardFilterType {
+  TOP10 = 1,
+  AROUND = 2,
+  FRIENDS = 3
+}
+
+export interface ActiveTrack {
+  type: TrackType;
+  num: number;
 }
 
 @Component({
   selector: 'm-map-leaderboard',
-  templateUrl: './map-leaderboard.component.html',
+  templateUrl: 'map-leaderboard.component.html',
   standalone: true,
   imports: [
     SharedModule,
     DropdownModule,
     AvatarComponent,
     TimingPipe,
-    TimeAgoPipe
+    TimeAgoPipe,
+    RangePipe,
+    SpinnerComponent,
+    SpinnerDirective,
+    UserComponent,
+    HiddenLeaderboardsInfoComponent,
+    UnrankedLeaderboardsInfoComponent
   ]
 })
-export class MapLeaderboardComponent {
+export class MapLeaderboardComponent implements OnChanges {
+  protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
+  protected readonly TrackType = TrackType;
+  protected readonly GamemodeIcon = GamemodeIcon;
+  protected readonly floor = Math.floor;
+  protected readonly LeaderboardFilterTypeDropdown = [
+    { label: 'Top 10', type: LeaderboardFilterType.TOP10 },
+    { label: 'Around', type: LeaderboardFilterType.AROUND },
+    { label: 'Friend', type: LeaderboardFilterType.FRIENDS }
+  ];
 
-  private map: MMap;
-  @Input()
-  set setMap(map: MMap) {
-    this.map = map;
-    // Just handling main tracks for now - we should do stages, bonuses and
-    // styles in the future.
-    this.availableModes = map.leaderboards
-      ?.filter(({ trackType }) => trackType === TrackType.MAIN)
-      // Put ranked stuff at the front: if B is ranked and A isn't, put B first,
-      // otherwise unchanged.
-      .sort((a, b) => (b.ranked && !a.ranked ? 1 : 0))
-      .map(({ gamemode }) => ({ gamemode, label: GamemodeName.get(gamemode) }));
-    // TODO: This isn't getting updated in the template. But this page is throwing
-    // ExpressionChangedAfterItHasBeenChecked errors out the wazzoo, fix that first.
-    this.selectedMode = this.availableModes[0];
-    this.loadLeaderboardRuns();
+  @Input() map: MMap;
+  protected leaderboards: GroupedMapLeaderboards;
+  protected activeMode: GroupedMapLeaderboard;
+  protected activeModeIndex: number;
+  protected activeTrack: ActiveTrack = { type: TrackType.MAIN, num: 0 };
+  // This is going to get *heavily* refactored in the future when we add
+  // support for scrolling, jump-tos, and filtering. For now it's just in sync
+  // with the game version. We'll do fancier stuff at 0.11.0.
+  protected activeType: LeaderboardFilterType;
+
+  protected runs: LeaderboardRun[] = [];
+  protected readonly load = new Subject<void>();
+  protected loading = false;
+
+  protected showHiddenLeaderboards = false;
+
+  selectMode(modeIndex: number) {
+    this.activeModeIndex = modeIndex;
+    this.activeMode = this.leaderboards[modeIndex];
+    this.load.next();
   }
 
-  protected availableModes: Array<{ gamemode: Gamemode; label: string }>;
-  protected selectedMode: { gamemode: Gamemode; label: string };
-  protected filterActive = false;
-  protected leaderboardRuns: LeaderboardRun[] = [];
-  protected searchedRanks = false;
-  protected filterLeaderboardType: LeaderboardType = LeaderboardType.TOP10;
+  selectTrack(type: TrackType, num: number) {
+    this.activeTrack.type = type;
+    this.activeTrack.num = num;
+    this.load.next();
+  }
 
   constructor(
     private readonly leaderboardService: LeaderboardsService,
-    private readonly router: Router,
-    private readonly messageService: MessageService
-  ) {}
-
-  filterLeaderboardRuns(
-    gamemode: Gamemode,
-    mapID?: number
-  ): Observable<PagedResponse<LeaderboardRun>> {
-    switch (this.filterLeaderboardType) {
-      case this.LeaderboardType.TOP10:
-        return this.leaderboardService.getRuns(mapID ?? this.map.id, {
-          gamemode,
-          take: 10
-        });
-
-      case this.LeaderboardType.AROUND:
-        return this.leaderboardService.getAroundFriends(mapID ?? this.map.id, {
-          gamemode
-        });
-
-      case this.LeaderboardType.FRIENDS:
-        return this.leaderboardService.getFriendRuns(mapID ?? this.map.id, {
-          gamemode
-        });
-
-      // No default
-    }
-  }
-
-  loadLeaderboardRuns() {
-    this.leaderboardRuns.map(({ rank }) => rank);
-    this.searchedRanks = false;
-    this.filterLeaderboardRuns(this.selectedMode.gamemode, this.map.id)
-      .pipe(finalize(() => (this.searchedRanks = true)))
+    private readonly messageService: MessageService,
+    private readonly destroyRef: DestroyRef
+  ) {
+    this.load
+      .pipe(
+        map(() =>
+          JSON.stringify([this.activeMode, this.activeTrack, this.activeType])
+        ),
+        distinctUntilChanged(),
+        tap(() => (this.loading = true)),
+        switchMap(() => this.fetchRuns()),
+        tap(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response) => {
-          this.leaderboardRuns = response.data;
+          this.runs = response.data;
         },
         error: (error) =>
           this.messageService.add({
             severity: 'error',
             detail: error.message,
-            summary: 'Could not find runs'
+            summary: 'Error fetching runs'
           })
       });
   }
 
-  viewRun(run: LeaderboardRun) {
-    this.router.navigate(['/runs/' + run.pastRunID]);
+  ngOnChanges(): void {
+    if (!this.map) return;
+
+    this.leaderboards = groupMapLeaderboards(this.map.leaderboards);
+    this.activeMode = this.leaderboards[0];
+    this.activeModeIndex = 0;
+    this.activeType = LeaderboardFilterType.TOP10;
+    this.activeTrack.type = TrackType.MAIN;
+    this.activeTrack.num = 0;
+
+    this.load.next();
+  }
+
+  fetchRuns(): Observable<PagedResponse<LeaderboardRun>> {
+    const { gamemode } = this.activeMode;
+    const query: MapLeaderboardGetQuery = {
+      gamemode,
+      take: 10,
+      trackType: this.activeTrack.type,
+      trackNum: this.activeTrack.num
+    };
+
+    if (this.activeType === LeaderboardFilterType.FRIENDS)
+      query.filter = 'friends';
+    if (this.activeType === LeaderboardFilterType.AROUND)
+      query.filter = 'around';
+
+    return this.leaderboardService
+      .getRuns(this.map.id, query)
+      .pipe(mapHttpError(410, { data: [], totalCount: 0, returnCount: 0 }));
+  }
+
+  getLeaderboards() {
+    return this.showHiddenLeaderboards
+      ? this.leaderboards
+      : this.leaderboards.filter(({ allHidden }) => !allHidden);
+  }
+
+  hasHiddenLeaderboards() {
+    return this.leaderboards.some(
+      ({ type }) => type === LeaderboardType.HIDDEN
+    );
   }
 }

@@ -1,0 +1,78 @@
+<form class="mb-4 flex" [formGroup]="filters">
+  <div class="flex flex-col">
+    <p class="card-title -mb-4 text-48">Browse Maps</p>
+    <div class="flex flex-wrap items-end gap-4">
+      <ng-template #gm let-mode="mode" let-name="name" let-size="size">
+        <button (click)="gamemode.setValue(mode)">
+          <p
+            class="font-display text-32 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50"
+            [ngClass]="{
+              'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': gamemode.value === mode
+            }"
+            [ngStyle]="{ 'font-size': size }"
+          >
+            {{ name }}
+          </p>
+        </button>
+      </ng-template>
+      <ng-container *ngTemplateOutlet="gm; context: { mode: null, name: 'All modes' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SURF, name: 'Surf' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP, name: 'Bhop' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.RJ, name: 'Rocket Jump' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SJ, name: 'Sticky Jump' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.AHOP, name: 'Ahop' }" />
+      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CONC, name: 'Conc' }" />
+      <div class="grid grid-cols-2 grid-rows-1 gap-x-2">
+        <p
+          class="pointer-events-none col-span-2 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
+        >
+          Defrag
+        </p>
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_CPM, name: 'CPM' }" />
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
+      </div>
+    </div>
+  </div>
+  <div class="ml-auto flex flex-col justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <input class="textinput ml-auto h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+    </div>
+    <div class="flex items-center gap-2">
+      <p class="font-display text-24">Favorites</p>
+      <m-n-state-button
+        class="mr-4 h-8 w-8 p-0"
+        [states]="[
+          { icon: 'star', color: null },
+          { icon: 'star', color: 'blue' },
+          { icon: 'star', color: 'red' }
+        ]"
+        formControlName="favorites"
+      />
+      <p class="font-display text-24">Completed</p>
+      <m-n-state-button
+        class="mr-4 h-8 w-8 p-0"
+        [states]="[
+          { icon: 'flag-outline', color: null },
+          { icon: 'flag-outline', color: 'blue' },
+          { icon: 'flag-outline', color: 'red' }
+        ]"
+        formControlName="pb"
+      />
+      <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
+      <m-slider
+        #slider
+        class="h-9 w-64"
+        [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
+        formControlName="tiers"
+        [range]="true"
+        [step]="1"
+        [min]="1"
+        [max]="10"
+        [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+        mTooltip="You must select a gamemode to use this filter"
+        [tooltipDisabled]="gamemode.value != null"
+      />
+    </div>
+  </div>
+</form>
+<m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" />

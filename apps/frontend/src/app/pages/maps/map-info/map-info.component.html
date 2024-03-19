@@ -1,98 +1,254 @@
-<m-card [title]="map.name" titleSize="8">
-  @if (!previewMap) {
-    <ng-container header>
-      @if (isSubmitter || isModerator) {
-        <a routerLink="edit" class="m-btn m-btn-blue">Edit Map</a>
-      }
-      @if (!isSubmitter) {
-        <m-report-button class="text-lg" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
-      }
-      <button
-        class="m-btn"
-        type="button"
-        (click)="editNotificationSettings()"
-        mTooltip="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-      >
-        <m-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
+@if (map) {
+  <div class="grid gap-x-4 gap-y-2 [grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
+    <div class="flex gap-4">
+      <!-- This negative margin is pretty evil, breaking the standard <main>
+           padding. But vertical space is so precious here! -->
+      <div class="-mt-4 flex h-24 flex-[1_1_auto] flex-col">
+        <p class="card-title -mb-1 mt-auto text-[2rem] text-gray-200">{{ prefix }}</p>
+        <p class="card-title" [fontSizeLerp]="{ chars: name.length, maxChars: 29, startAt: 16, baseRem: 4.5, minRem: 2.5 }">
+          {{ name }}
+        </p>
+      </div>
+      <button type="button" class="mt-auto flex flex-[0_0_auto]" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
+        <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
       </button>
-    </ng-container>
-  }
-  <div class="flex flex-wrap">
-    <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-2/5">
-      <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
     </div>
-    <div class="w-full pl-4 pr-4 lg:w-3/5">
-      <p-tabView class="mb-4 w-full overflow-hidden shadow">
-        <p-tabPanel header="Description">
-          <m-map-info-description [map]="map" />
-        </p-tabPanel>
-        <p-tabPanel header="Credits">
-          <m-map-info-credits [map]="map" />
-        </p-tabPanel>
-        @if (!previewMap) {
-          <p-tabPanel header="Statistics">
-            <m-map-info-stats [map]="map" />
-          </p-tabPanel>
+    <div class="ml-2 flex gap-2">
+      @if (currentSection != null && inSubmission) {
+        @for (section of sections; track $index) {
+          <button
+            class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 drop-shadow transition-colors hover:text-gray-50"
+            [ngClass]="{ '!text-white': currentSection === section }"
+            (click)="currentSection = section"
+          >
+            {{ MapInfoSection[section] }}
+          </button>
         }
-      </p-tabView>
-      <div class="flex flex-wrap">
-        <div class="relative w-full sm:flex-1 sm:flex-grow">
-          <h6>
-            Added On:
-            {{ previewMap ? '(some future date)' : (map.createdAt | date) }}
-          </h6>
-          <h6>Original Release Date: {{ map.info?.creationDate | date }}</h6>
-          <h6>
-            Submitted By:
-            <a [routerLink]="'/' + map.submitter?.id" class="flex items-center gap-2">
-              <m-avatar class="h-6" [url]="map.submitter?.avatarURL" />
-              <p>{{ map.submitter?.alias }}</p>
-            </a>
-          </h6>
-        </div>
-        @if (!previewMap) {
-          <div class="relative w-full sm:flex-1 sm:flex-grow">
-            <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
-              <div class="stat" mTooltip="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}">
-                <m-icon icon="folder"></m-icon>
-                {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
-              </div>
-              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
-                <m-icon icon="star"></m-icon>
-                {{ map.stats?.favorites | thousandsSuffix: 1 }}
-              </div>
-              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
-                <m-icon icon="download-outline"></m-icon>
-                {{ map.stats?.downloads | thousandsSuffix: 1 }}
-              </div>
-              <div class="stat sm:ml-6" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
-                <m-icon icon="play-circle-outline"></m-icon>
-                {{ map.stats?.plays | thousandsSuffix: 1 }}
-              </div>
-            </div>
-            <div class="relative inline-flex text-center align-middle sm:text-right">
-              <button type="button" class="m-btn m-btn-blue" (click)="onLibraryUpdate()">
-                <span [ngClass]="{ 'c-anim-btn': mapInLibrary }">{{ mapInLibrary ? 'In Library' : 'Add Map to Library' }}</span>
-                @if (mapInLibrary) {
-                  <span>Remove from Library</span>
+      }
+      <div class="ml-auto flex items-end gap-2">
+        @if (isSubmitter || isModerator) {
+          <a routerLink="edit" class="btn btn-green">Edit Map</a>
+        }
+        <button class="btn btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">
+          <m-icon class="mr-2 pb-0.5" icon="play-circle" />
+          Play
+        </button>
+        @if (map.downloadURL ?? map.submission?.currentVersion?.downloadURL; as bsp) {
+          <a (click)="downloadOverlay.show($event)" class="btn btn-purple" mTooltip="Download map file">
+            <m-icon class="pb-0.5" icon="download" />
+            <p-overlayPanel #downloadOverlay appendTo="body">
+              <div class="max-w-lg">
+                <p class="mb-1 text-sm italic text-gray-200">
+                  For convenience we recommend downloading and launching maps through the in-game map browser!
+                </p>
+                <p>
+                  <a class="link" [href]="bsp">Download BSP</a>
+                </p>
+                <p>
+                  <a class="link cursor-pointer" (click)="downloadZoneFile(map)">Download Zones</a>
+                </p>
+                @if (map.vmfDownloadURL ?? map.submission?.currentVersion?.vmfDownloadURL; as vmf) {
+                  <p><a class="link" [href]="vmf">Download VMF</a></p>
                 }
-              </button>
-              <button
-                type="button"
-                class="m-btn m-btn-blue"
-                (click)="onFavoriteUpdate()"
-                mTooltip="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
-              >
-                <m-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></m-icon>
-              </button>
+              </div>
+            </p-overlayPanel>
+          </a>
+        }
+        <button
+          class="btn btn-yellow"
+          type="button"
+          (click)="toggleFavorite()"
+          mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
+        >
+          <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+        </button>
+        <button
+          class="btn btn-orange"
+          type="button"
+          (click)="editNotificationSettings()"
+          mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+        >
+          <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
+        </button>
+        @if (!isSubmitter && !isModerator) {
+          <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+        }
+      </div>
+    </div>
+    <div #sideBar>
+      <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
+        <!-- This double gallery setup is SO messy but I hate this component and
+             dont have time to write a custom one. -->
+        <p-galleria
+          #regularGallery
+          [showItemNavigatorsOnHover]="true"
+          [showThumbnails]="images.length > 1"
+          [showThumbnailNavigators]="false"
+          [value]="images"
+          [numVisible]="images.length"
+          (activeIndexChange)="fullscreenGallery.activeIndex = regularGallery.activeIndex"
+        >
+          <ng-template pTemplate="item" let-item>
+            @if (item.youtube) {
+              <iframe type="text/html" [width]="sideBar.offsetWidth" [height]="sideBar.offsetWidth / (16 / 9)" [src]="youtubeID"></iframe>
+            } @else {
+              <div (click)="displayFullscreenGallery = true">
+                <img [src]="item.full" />
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="thumbnail" let-item>
+            @if (item.youtube) {
+              <img class="aspect-video max-h-[4rem]" [src]="youtubeThumbnail" />
+            } @else {
+              <img class="aspect-video max-h-[4rem]" [src]="item.thumb" />
+            }
+          </ng-template>
+        </p-galleria>
+        <div
+          class="flex flex-wrap justify-between gap-4 bg-black bg-opacity-10 px-3.5 py-2 [border-bottom:1px_solid_rgb(0_0_0/0.1)] [border-inline:1px_solid_rgb(255_255_255/0.05)] [border-top:1px_solid_rgb(255_255_255/0.1)]"
+        >
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
+            <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
+            <m-icon class="text-24 leading-4 drop-shadow-md" icon="download-outline"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.downloads | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+            <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.favorites | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.uniqueCompletions | plural: 'Unique Completion' }}">
+            <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
+          </div>
+          <div class="ml-auto flex items-center gap-1" [mTooltip]="dateTooltip">
+            <p class="font-display text-24 drop-shadow-md">{{ map.createdAt | date }}</p>
+            <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
+          </div>
+          <ng-template #dateTooltip>
+            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
+            @if (map.status === MapStatus.APPROVED) {
+              <!-- TODO: New date thing -->
+              <p><b>Released in Momentum - </b>{{ getLatestStatusChangeDate(MapStatus.APPROVED) | date }}</p>
+            }
+          </ng-template>
+        </div>
+
+        @if (inSubmission) {
+          <div
+            class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
+          >
+            <p>In Submission -</p>
+            <i>{{ MapStatusName.get(map.status) }}</i
+            ><m-icon
+              class="my-auto text-lg"
+              mTooltip="This map is currently in submission, and hasn't been approved yet. All runs submitted during review are wiped upon approval!"
+              icon="help-circle"
+            />
+          </div>
+        } @else if (map.status === MapStatus.DISABLED) {
+          <div class="flex flex-col items-center gap-2 border border-red-500 bg-red-500 bg-opacity-50 p-3 text-center">
+            <b>Map Disabled</b>
+            @if (map.hash || map.submission?.currentVersion?.hash) {
+              <i>This map is currently disabled. It's only visible to moderators and admins, and can only be re-enabled by admins.</i>
+            } @else {
+              <i>
+                This map is disabled and its files have been deleted. It's only visible to moderators and admins, and if we ever want to
+                re-enable it, new files must be uploaded.
+              </i>
+            }
+          </div>
+        }
+
+        <div class="mt-4 flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
+          <p class="text-shadow mb-2 whitespace-pre-wrap">{{ map.info.description }}</p>
+          <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
+            <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
+               if we ever decide to change layout (see #website Jan 3rd 24) -->
+            <ng-template #creditBlock let-type="type">
+              @if (credits?.get(type).length > 0) {
+                <div>
+                  <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                    {{ MapCreditNames.get(type) }}
+                  </p>
+                  <div class="grid grid-cols-2 gap-1">
+                    @for (credit of credits.get(type); track $index) {
+                      @if (!credit.placeholder) {
+                        <a routerLink="/profile/{{ credit.userID }}" class="flex items-center">
+                          <m-avatar class="mr-4 h-8 w-8" [url]="credit.avatarURL" />
+                          <div class="flex flex-col justify-center">
+                            <p class="text-shadow font-medium leading-none">{{ credit.alias }}</p>
+                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic">{{ credit.description }}</p>
+                          </div>
+                        </a>
+                      } @else {
+                        <div class="flex items-center">
+                          <div class="mr-4 inline-grid h-8 w-8 place-content-center" mTooltip="Placeholder user">
+                            <p class="text-shadow-strong pointer-events-none font-display text-32 font-bold">?</p>
+                          </div>
+                          <div class="flex flex-col justify-center">
+                            <p class="text-shadow font-medium leading-none">{{ credit.alias }}</p>
+                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic">{{ credit.description }}</p>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </ng-template>
+            <div class="flex flex-col gap-2">
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.AUTHOR }" />
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.CONTRIBUTOR }" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.SPECIAL_THANKS }" />
+              <ng-container *ngTemplateOutlet="creditBlock; context: { type: MapCreditType.TESTER }" />
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="stack card card--fancy border-opacity-[0.0675] p-4">
+        <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
+        <!-- Don't insert this at all if not in submission, we don't want to 
+             try fetch extra data/images unless we're may actually display it.
+         -->
+        @if (this.map.status !== MapStatus.APPROVED) {
+          <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
         }
       </div>
     </div>
   </div>
-</m-card>
 
-@if (!previewMap && map) {
-  <m-map-leaderboard [setMap]="map" />
+  <!-- Fullscreen gallery - if nested deeper in DOM it renders weirdly for some reason -->
+  <p-galleria #fullscreenGallery [(visible)]="displayFullscreenGallery" [fullScreen]="true" [value]="images" [numVisible]="5">
+    <ng-template pTemplate="item" let-item>
+      @if (item.youtube) {
+        <iframe
+          type="text/html"
+          [width]="fullscreenGallery.element.nativeElement.offsetWidth"
+          [height]="fullscreenGallery.element.nativeElement.offsetWidth / (16 / 9)"
+          [src]="youtubeID"
+        ></iframe>
+      } @else {
+        <div (click)="displayFullscreenGallery = true">
+          <img [src]="item.full" />
+        </div>
+      }
+    </ng-template>
+    <ng-template pTemplate="thumbnail" let-item>
+      @if (item.youtube) {
+        <img class="youtube" [src]="youtubeThumbnail" />
+      } @else {
+        <img [src]="item.thumb" />
+      }
+    </ng-template>
+  </p-galleria>
+} @else {
+  <m-spinner />
 }

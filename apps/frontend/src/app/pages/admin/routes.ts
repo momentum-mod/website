@@ -1,18 +1,28 @@
 import { Route } from '@angular/router';
-import { MapQueueComponent } from './map-queue/map-queue.component';
 import { ReportQueueComponent } from './report-queue/report-queue.component';
+import { AdminActivityComponent } from './admin-activity/admin-activity.component';
 import { UtilitiesComponent } from './utilities/utilities.component';
+import { AdminMapsBrowserComponent } from '../maps/browsers/admin-maps-browser.component';
 
 export default [
   {
-    path: 'map-queue',
-    pathMatch: 'full', // TODO: I don't know why this and below have pathMatch, maybe remove?
-    component: MapQueueComponent
+    path: 'maps',
+    component: AdminMapsBrowserComponent,
+    title: 'Maps (Admin)'
   },
   {
-    path: 'report-queue',
-    pathMatch: 'full',
-    component: ReportQueueComponent
+    path: 'reports',
+    component: ReportQueueComponent,
+    title: 'Reports'
   },
-  { path: 'utilities', component: UtilitiesComponent }
+  {
+    path: 'activity',
+    component: AdminActivityComponent,
+    title: 'Admin Activity'
+  },
+  {
+    path: 'utilities',
+    component: UtilitiesComponent,
+    title: 'Admin Utilities'
+  }
 ] satisfies Route[];

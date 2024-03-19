@@ -2,6 +2,7 @@
   CreateMapInfo,
   MapInfo,
   MAX_MAP_DESCRIPTION_LENGTH,
+  MIN_MAP_DESCRIPTION_LENGTH,
   UpdateMapInfo
 } from '@momentum/constants';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
@@ -11,6 +12,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  MinLength,
   MaxLength
 } from 'class-validator';
 
@@ -23,6 +25,7 @@ export class MapInfoDto implements MapInfo {
     description: 'Author-submitted description of the map'
   })
   @IsString()
+  @MinLength(MIN_MAP_DESCRIPTION_LENGTH)
   @MaxLength(MAX_MAP_DESCRIPTION_LENGTH)
   readonly description: string;
 

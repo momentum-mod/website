@@ -1,0 +1,86 @@
+@if (value && value.length > 0 && !disabled) {
+  <table class="mb-2 grid border-collapse gap-0.5 [grid-template-columns:repeat(5,1fr)_auto]">
+    <thead class="contents bg-gray-950">
+      <tr class="contents">
+        <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Gamemode</th>
+        <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Track Type</th>
+        <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Track Number</th>
+        <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Tier (1-10)</th>
+        <th class="my-auto pl-1 text-left text-sm font-medium text-gray-200">Gameplay Rating (1-10)</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="contents">
+      @for (item of value; track item; let i = $index) {
+        <tr class="mt-2 contents">
+          <td>
+            <p-dropdown
+              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+              [(ngModel)]="item.gamemode"
+              [options]="availableGamemodes"
+              optionLabel="label"
+              optionValue="gamemode"
+              (blur)="onTouched()"
+              (onChange)="onChange(value)"
+              appendTo="body"
+            />
+          </td>
+          <td>
+            <p-dropdown
+              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+              [(ngModel)]="item.trackType"
+              [options]="TrackTypes"
+              optionLabel="label"
+              optionValue="type"
+              (blur)="onTouched()"
+              (onChange)="onChange(value)"
+              appendTo="body"
+            />
+          </td>
+          <td>
+            <p-dropdown
+              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+              [(ngModel)]="item.trackNum"
+              optionLabel="label"
+              optionValue="trackNum"
+              [options]="item.trackType === TrackType.BONUS ? availableBonusTracks : []"
+              [disabled]="item.trackType !== TrackType.BONUS"
+              (blur)="onTouched()"
+              (onChange)="onChange(value)"
+              appendTo="body"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              class="textinput w-full rounded px-3 py-1.5"
+              min="1"
+              max="10"
+              step="1"
+              [(ngModel)]="item.tier"
+              (blur)="onTouched()"
+              (change)="onChange(value)"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              class="textinput w-full rounded px-3 py-1.5"
+              min="1"
+              max="10"
+              step="1"
+              [(ngModel)]="item.gameplayRating"
+              (blur)="onTouched()"
+              (change)="onChange(value)"
+            />
+          </td>
+          <td>
+            <button class="btn rounded p-1.5" (click)="removeItem(i)">
+              <m-icon icon="delete" />
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

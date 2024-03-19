@@ -1,0 +1,131 @@
+<div class="flex flex-col gap-2 text-gray-50">
+  <div>
+    <p class="mb-1">
+      <span class="text-gray-200">Current status: </span>
+      <span class="text-lg font-medium">{{ MapStatusName.get(status) }}</span>
+    </p>
+    <p class="mb-4">
+      @switch (status) {
+        @case (MapStatus.PRIVATE_TESTING) {
+          The map is only visible to you, and players you invite. It will remain in this state until you chose to move it to
+          <b>content approval</b>.
+        }
+        @case (MapStatus.CONTENT_APPROVAL) {
+          The map is waiting to be checked by an official reviewer, and will be made public once they confirm it is of reasonable quality
+          and abides by the rules. If they find any issues before then, they'll leave a review, which you'll have to address before the map
+          can move to public testing.
+        }
+        @case (MapStatus.PUBLIC_TESTING) {
+          The map is publicly available for testing in-game. All players can play it and leave reviews. It must be in this state for at
+          least one week.
+        }
+        @case (MapStatus.FINAL_APPROVAL) {
+          The map is waiting to be approved by a moderator, who will decide the final tier and available leaderboards, after which the map
+          will be officially released!
+        }
+        @case (MapStatus.APPROVED) {
+          The map has been released and is available permanently to everyone ingame.
+        }
+        @case (MapStatus.DISABLED) {
+          The map is has been disabled and is only visible to mods and admins. Only admins can re-enable.
+        }
+      }
+    </p>
+    @if (sub) {
+      <p class="mb-2">You can change the map to the follow states:</p>
+      <!-- See map-status-changers.map.ts for possible changes -->
+      @if (isPossibleStatus(MapStatus.PRIVATE_TESTING)) {
+        <i class="font-medium">Private Testing</i>
+        <p class="mb-4 ml-2">
+          Returning the map to private testing will make it so only you and people you invite can access the map, and indicates to official
+          reviewers that you're not ready for them to move it to public testing yet.
+        </p>
+        <p>If you really want to do this, you'll have to re-invite anyone that hasn't responded to their test invite. Sorry <b>:)</b></p>
+      }
+      @if (isPossibleStatus(MapStatus.CONTENT_APPROVAL)) {
+        <i class="font-medium">Content Approval</i>
+        <p class="mb-4 ml-2">
+          Going to content approval will pass it to an official reviewer, who will check that it's of reasonable quality and abides by the
+          rules. After they approve it, it'll enter the public testing period in-game.
+        </p>
+      }
+      @if (isPossibleStatus(MapStatus.PUBLIC_TESTING)) {
+        <i class="font-medium">Public Testing</i>
+        <p class="mb-4 ml-2">
+          Moving back to public approval signifies you have some final changes you want to make to the map before it gets approved.
+        </p>
+      }
+      @if (isPossibleStatus(MapStatus.FINAL_APPROVAL)) {
+        <i class="font-medium">Final approval</i>
+        <p class="ml-2">
+          This signifies that you're happy with the final state of the map and ready for it to be added officially. A moderator (TODO: this
+          is probably the "mapping council" or whatever in the future) will look at your suggestions and reviews others left, to pick the
+          tier and what gamemodes the map has ranked/unranked leaderboards in.
+        </p>
+        <p class="mb-4 ml-2">
+          <b>Don't select this until you are ready!</b> Since we want to keep leaderboards reliable, you are not able to alter the map after
+          it's been approved and released, so make absolutely sure that you're happy with it.
+        </p>
+      }
+
+      @if (status === MapStatus.PUBLIC_TESTING && (this.isBlockedForUnresolvedReviews || this.isBlockedForSubmissionTimeGate)) {
+        <div class="my-4 text-red-500">
+          <p>This map cannot leave testing because:</p>
+
+          @if (this.isBlockedForUnresolvedReviews) {
+            <p class="ml-4 mt-0 font-medium">it has unresolved reviews!</p>
+          }
+          @if (this.isBlockedForSubmissionTimeGate) {
+            <p class="ml-4 mt-0 font-medium">
+              it has not been in public testing for long enough. It will be able to move on
+              {{ firstEnteredPublicTesting + MIN_PUBLIC_TESTING_DURATION | date: 'medium' }}.
+            </p>
+          }
+        </div>
+      }
+    }
+  </div>
+  <div class="flex items-center gap-4 self-end">
+    <p class="text-lg">Update status</p>
+    <p-dropdown [formControl]="statusControl" [options]="possibleStatuses" [autoDisplayFirst]="true" appendTo="body" />
+  </div>
+  @if ((mod || adm) && status === MapStatus.FINAL_APPROVAL && !hasBeenApprovedBefore) {
+    <!-- Form goes whack if this is in the above conditional -->
+    <div class="flex flex-col gap-4" [ngClass]="{ hidden: statusControl.value !== MapStatus.APPROVED }">
+      <div class="prose max-w-[64rem]">
+        <h2>Final Approval</h2>
+        <p>
+          This section lets you pick the final leaderboards for the map. You should only be using this if you are a experienced in the main
+          mode(s) of the current map. If you don't know what you're doing, ask in Discord, or leave this to someone else.
+        </p>
+        <p>
+          Most maps are submitted with an single intended gamemode in mind, and will <i> usually</i> be ranked in that mode, unless the
+          gameplay seems to be of very low quality. If that's the case and the submitter requested it be ranked, it may be worth leaving
+          some suggestions in a review, and keeping it in submission for a bit longer.
+        </p>
+        <p>
+          For non-intended modes, if you/others tried it on in that mode and it played reasonably well, usually give it an unranked
+          leaderboard. Remember, unranked leaderboards don't provide rank points, but they do appear in the map selector for that mode, so
+          don't give it a leaderboard if it's silly/gimmicky in that mode (e.g. don't rank a surf map in SJ just because someone airpogoed
+          the entire thing). In the future we'll have "hidden/secret" leaderboards for if people genuinely want to compete in a weird
+          off-mode, and a hidden leaderboard can always be switched to unranked in the future.
+        </p>
+        @if (this.isBlockedForUnresolvedReviews) {
+          <p class="font-medium text-red-500">Warning: map has unresolved reviews!</p>
+        }
+      </div>
+
+      <m-map-final-approval-form [groupedLeaderboards]="groupedLeaderboards" [formControl]="finalLeaderboards" />
+      @if (finalLeaderboards.pristine) {
+        <p class="ml-auto text-blue-100">
+          These selections create approved leaderboards, so are heavily validated. At minimum you need an unhidden, tiered leaderboard in at
+          least one gamemode for each track.
+        </p>
+      } @else if (finalLeaderboards.errors) {
+        <p class="ml-auto text-red-500">{{ finalLeaderboards.errors['error'] }}</p>
+      } @else {
+        <p class="ml-auto text-green-500">Final leaderboards are valid! Good job :)</p>
+      }
+    </div>
+  }
+</div>

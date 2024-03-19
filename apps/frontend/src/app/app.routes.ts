@@ -9,6 +9,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: '',
     component: HomeComponent,
+    title: 'Dashboard',
     canActivate: [AuthGuard]
   },
   {
@@ -33,12 +34,8 @@ export const APP_ROUTES: Route[] = [
     data: { roles: [Role.ADMIN, Role.MODERATOR] }
   },
   {
-    path: 'runs',
-    loadChildren: () => import('./pages/runs/routes'),
-    canActivate: [AuthGuard]
-  },
-  {
     path: '**',
-    component: NotFoundComponent
+    component: NotFoundComponent,
+    title: 'Not Found'
   }
 ];

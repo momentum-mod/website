@@ -1,11 +1,11 @@
 <p>Notify me when a</p>
 <ul class="my-4 grid items-center gap-x-2 gap-y-4 [grid-template-columns:auto_1fr]">
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.PB.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.PB.checked" />
   <p>personal best is set</p>
-  <input type="checkbox" class="m-checkbox" [(ngModel)]="checkboxFlags.WR.checked" />
+  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.WR.checked" />
   <p>world record is set</p>
 </ul>
 <div class="grid grid-cols-2 gap-2">
-  <button class="m-btn" (click)="close()">Close</button>
-  <button class="m-btn m-btn-blue" (click)="submit()">Submit</button>
+  <button class="btn" (click)="close()">Close</button>
+  <button class="btn btn-blue" (click)="submit()">Submit</button>
 </div>

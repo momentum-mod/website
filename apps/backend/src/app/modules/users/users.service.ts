@@ -2,28 +2,20 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  GoneException,
   Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import {
-  Follow,
-  LeaderboardRun,
-  MapFavorite,
-  MMap,
-  Prisma,
-  User,
-  UserAuth
-} from '@prisma/client';
+import { Follow, Prisma, User, UserAuth } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,
   AdminActivityType,
   Ban,
   Role,
-  UserMapFavoritesGetExpand,
   UserMapLibraryGetExpand
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
@@ -35,7 +27,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   NotificationDto,
@@ -68,17 +59,14 @@ export class UsersService {
   async getAll(query: UsersGetAllQueryDto): Promise<PagedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 
-    if (query.steamID && query.steamIDs)
-      throw new BadRequestException(
-        'Only one of steamID and steamIDs may be used at the same time'
-      );
-
     let take = query.take;
     if (query.steamID) {
       take = 1;
       where.steamID = BigInt(query.steamID);
     } else if (query.steamIDs) {
       where.steamID = { in: query.steamIDs.map(BigInt) };
+    } else if (query.userIDs) {
+      where.id = { in: query.userIDs };
     }
 
     if (query.search) {
@@ -649,81 +637,25 @@ export class UsersService {
 
   //#region Map Favorites
 
-  async getFavoritedMaps(
-    userID: number,
-    skip: number,
-    take: number,
-    search: string,
-    expand?: UserMapFavoritesGetExpand
-  ) {
-    const where: Prisma.MapFavoriteWhereInput = { userID: userID };
-
-    const include: Prisma.MapFavoriteInclude = { user: true };
-
-    if (search) {
-      where.mmap = { name: { contains: search } };
-      include.mmap = true;
-    }
-
-    const mapIncludes: Prisma.MMapInclude = expandToIncludes(expand, {
-      mappings: [
-        {
-          expand: 'inLibrary',
-          model: 'libraryEntries',
-          value: { where: { userID } }
-        },
-        {
-          expand: 'personalBest',
-          model: 'leaderboardRuns',
-          value: { where: { userID } }
-        }
-      ]
-    });
-
-    if (!isEmpty(mapIncludes)) {
-      include.mmap = { include: mapIncludes };
-    }
-
-    const dbResponse: [
-      (MapFavorite & { mmap?: MMap & { personalBest?: LeaderboardRun } })[],
-      number
-    ] = await this.db.mapFavorite.findManyAndCount({
-      where,
-      include,
-      skip,
-      take
-    });
-
-    if (expand?.includes('personalBest')) {
-      for (const { mmap } of dbResponse[0] as (MapFavorite & {
-        mmap?: MMap & {
-          personalBest?: LeaderboardRun;
-          leaderboardRuns?: LeaderboardRun[];
-        };
-      })[]) {
-        mmap.personalBest = mmap.leaderboardRuns[0];
-        delete mmap.leaderboardRuns;
-      }
-    }
-
-    return new PagedResponseDto(MapFavoriteDto, dbResponse);
-  }
-
   async checkFavoritedMap(userID: number, mapID: number) {
     const dbResponse = await this.db.mapFavorite.findUnique({
       where: { mapID_userID: { userID, mapID } }
     });
 
-    if (!dbResponse) throw new NotFoundException('Target map not found');
+    if (!dbResponse) throw new GoneException('Map is not favorited');
 
-    return dbResponse;
+    return;
   }
 
   async addFavoritedMap(userID: number, mapID: number) {
     if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
-    await this.db.mapFavorite.create({ data: { userID, mapID } });
+    await this.db.mapFavorite.create({ data: { userID, mapID } }).catch(() => {
+      throw new BadRequestException(
+        "Target map is already in the user's favorites"
+      );
+    });
   }
 
   async removeFavoritedMap(userID: number, mapID: number) {
@@ -733,7 +665,7 @@ export class UsersService {
     await this.db.mapFavorite
       .delete({ where: { mapID_userID: { userID, mapID } } })
       .catch(() => {
-        throw new NotFoundException("Target map is not in user's favorites");
+        throw new BadRequestException("Target map is not in user's favorites");
       });
   }
 
@@ -809,7 +741,6 @@ export class UsersService {
       else {
         include.mmap = { include: {} };
         if (expand.includes('info')) include.mmap.include.info = true;
-        if (expand.includes('thumbnail')) include.mmap.include.thumbnail = true;
       }
     }
 

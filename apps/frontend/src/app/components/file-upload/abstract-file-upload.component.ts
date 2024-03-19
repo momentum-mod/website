@@ -1,6 +1,7 @@
 import {
   Directive,
   ElementRef,
+  HostBinding,
   HostListener,
   Input,
   ViewChild
@@ -32,7 +33,16 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
    * Extensions that file select dialog will accept
    * (use comma separation for multiple)
    */
-  @Input({ required: true }) accept = '';
+  @Input({ required: true }) acceptExtensions = '';
+
+  /**
+   * Mimetypes that the addFromClipboard feature will accept.
+   *
+   * 'Add from clipboard' button will be disabled if this is not provided.
+   */
+  @Input() acceptMimeTypes: string[];
+
+  @Input() enableClipboard = false;
 
   /**
    * Name of the file type to use in "select a <type> string"
@@ -40,7 +50,9 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
   @Input() typeName = '';
 
   protected disabled = false;
-  protected disabledBecauseReachedMax = false;
+
+  // Shouldn't really be public but I wanna set it from MapImageSelection :)
+  public disabledBecauseReachedMax = false;
 
   /**
    * Whether to show a list of selected files within the component. If false,
@@ -53,6 +65,16 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
    * Only supports MDI currently
    */
   @Input() icon: Icon = 'file-upload';
+
+  @HostBinding('class.dragging')
+  private get isDragging() {
+    return this.dragOverCounter > 0;
+  }
+
+  @HostBinding('class.hasSelection')
+  get getHasSelection() {
+    return this.hasSelection();
+  }
 
   @ViewChild('fileInput') private input: ElementRef<HTMLInputElement>;
 
@@ -91,6 +113,8 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
     this.dragOverCounter--;
   }
+
+  abstract addFromClipboard(event: Event): Promise<void>;
 
   removeDragData(event: DragEvent) {
     this.dragOverCounter = 0;

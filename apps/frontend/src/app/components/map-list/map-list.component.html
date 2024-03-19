@@ -1,24 +1,20 @@
-<div [mSpinner]="loading" class="flex flex-wrap">
+<div
+  infiniteScroll
+  [fromRoot]="true"
+  infiniteScrollContainer="main"
+  [infiniteScrollThrottle]="50"
+  [infiniteScrollDistance]="1"
+  (scrolled)="loadMore.next()"
+  class="mb-4 grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+>
   @for (map of maps; track $index) {
-    <m-map-list-item class="w-1/4 p-4" [map]="map" [isUpload]="isUpload" [filterGamemode]="filters?.value?.gamemode" />
+    <m-map-list-item [map]="map" [isSubmission]="isSubmissionPage" [isAdminPage]="isAdminPage" />
   } @empty {
-    @if (!loading) {
-      @if (isUpload && !hasFilters()) {
-        <p class="italics m-8 h-8 text-center text-2xl text-gray-400">
-          You have not uploaded any maps. Try <a routerLink="/maps/uploads/new" class="text-blue-300">uploading a new one!</a>
-        </p>
-      } @else {
-        <p class="italics m-8 h-8 text-center text-2xl text-gray-400">No maps found</p>
-      }
-    }
+    <p class="col-span-full mx-auto my-12 h-32 text-center font-display text-48 font-bold">No maps found</p>
   }
 </div>
-<p-paginator
-  class="mt-2"
-  (onPageChange)="pageChange.next($event)"
-  [first]="first"
-  [rows]="rows"
-  [totalRecords]="totalRecords"
-  [showCurrentPageReport]="true"
-  [rowsPerPageOptions]="[12, 24, 36]"
-/>
+@if (loading) {
+  <div class="relative h-48 w-full">
+    <m-spinner />
+  </div>
+}

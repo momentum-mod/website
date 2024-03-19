@@ -7,7 +7,6 @@ import {
   MapCredit,
   MapCreditsGetQuery,
   MapFavorite,
-  MapLibraryEntry,
   MapNotify,
   MapsGetAllUserSubmissionQuery,
   MapSummary,
@@ -20,7 +19,6 @@ import {
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
-  UserMapLibraryGetQuery,
   UsersGetQuery,
   UserStats
 } from '@momentum/constants';
@@ -98,14 +96,6 @@ export class LocalUserService {
     return this.http.delete('user');
   }
 
-  public getMapLibrary(
-    query?: UserMapLibraryGetQuery
-  ): Observable<PagedResponse<MapLibraryEntry>> {
-    return this.http.get<PagedResponse<MapLibraryEntry>>('user/maps/library', {
-      query
-    });
-  }
-
   public getNotifications(): Observable<PagedResponse<Notification>> {
     return this.http.get<PagedResponse<Notification>>('user/notifications');
   }
@@ -119,18 +109,6 @@ export class LocalUserService {
 
   public deleteNotification(notifID: number): Observable<void> {
     return this.http.delete(`user/notifications/${notifID}`);
-  }
-
-  public addMapToLibrary(mapID: number): Observable<void> {
-    return this.http.put(`user/maps/library/${mapID}`, {});
-  }
-
-  public removeMapFromLibrary(mapID: number): Observable<void> {
-    return this.http.delete(`user/maps/library/${mapID}`);
-  }
-
-  public isMapInLibrary(mapID: number): Observable<MMap> {
-    return this.http.get<MMap>(`user/maps/library/${mapID}`);
   }
 
   public getMapFavorites(
@@ -167,11 +145,11 @@ export class LocalUserService {
   public getSubmittedMaps(
     query?: MapsGetAllUserSubmissionQuery
   ): Observable<PagedResponse<MMap>> {
-    return this.http.get<PagedResponse<MMap>>('user/maps/submitted', { query });
+    return this.http.get<PagedResponse<MMap>>('user/maps', { query });
   }
 
   public getSubmittedMapSummary(): Observable<MapSummary[]> {
-    return this.http.get<MapSummary[]>('user/maps/submitted/summary');
+    return this.http.get<MapSummary[]>('user/maps/summary');
   }
 
   public checkFollowStatus(user: User): Observable<FollowStatus> {

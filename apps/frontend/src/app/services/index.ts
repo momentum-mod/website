@@ -3,6 +3,7 @@ export * from './notifications.service';
 export * from './xp-systems.service';
 export * from './data/activity.service';
 export * from './data/admin.service';
+export * from './data/admin-activity.service';
 export * from './data/auth.service';
 export * from './data/local-user.service';
 export * from './data/past-runs.service';

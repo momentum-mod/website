@@ -1,11 +1,6 @@
 ﻿import { MapFavorite } from '@momentum/constants';
 import { Exclude, Expose, plainToInstance } from 'class-transformer';
-import {
-  CreatedAtProperty,
-  IdProperty,
-  NestedProperty,
-  UpdatedAtProperty
-} from '../decorators';
+import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 
@@ -33,7 +28,4 @@ export class MapFavoriteDto implements MapFavorite {
 
   @CreatedAtProperty()
   readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }

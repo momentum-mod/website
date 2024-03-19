@@ -1,5 +1,5 @@
 import { Gamemode } from '../../enums/gamemode.enum';
-import { MapStatusNew } from '../../enums/map-status.enum';
+import { MapStatus } from '../../enums/map-status.enum';
 import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
 import { PagedQuery } from './pagination.model';
@@ -12,19 +12,17 @@ type BaseMapsGetAllExpand =
   | 'info'
   | 'stats'
   | 'submitter'
-  | 'credits'
-  | 'thumbnail'
-  | 'images';
+  | 'credits';
 
-export type MapsGetAllExpand = (
+export type MapsGetAllExpand = Array<
   | BaseMapsGetAllExpand
   | 'inFavorites'
   | 'inLibrary'
   | 'personalBest'
   | 'worldRecord'
-)[];
+>;
 
-export type MapsGetAllSubmissionExpand = (
+export type MapsGetAllSubmissionExpand = Array<
   | BaseMapsGetAllExpand
   | 'inFavorites'
   | 'inLibrary'
@@ -33,17 +31,13 @@ export type MapsGetAllSubmissionExpand = (
   | 'currentVersion'
   | 'versions'
   | 'reviews'
-)[];
-
-export type MapsGetAllAdminExpand = BaseMapsGetAllExpand[];
-
-export type MapsGetAllSubmissionAdminExpand = BaseMapsGetAllExpand[];
+>;
 
 type MapsGetAllBaseQuery = {
   skip?: number;
   take?: number;
   search?: string;
-  fileName?: string;
+  searchStartsWith?: string;
   submitterID?: number;
 };
 
@@ -53,20 +47,19 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   difficultyLow?: number;
   difficultyHigh?: number;
   linear?: boolean;
+  favorite?: boolean;
+  PB?: boolean;
 };
 
-export type MapsGetAllAdminFilter = MapStatusNew[];
+export type MapsGetAllAdminFilter = Array<MapStatus>;
 
 export type MapsGetAllAdminQuery = MapsGetAllBaseQuery & {
-  expand?: MapsGetAllAdminExpand;
   filter?: MapsGetAllAdminFilter;
-  priority?: boolean;
 };
 
-export type MapsGetAllSubmissionFilter = (
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-)[];
+export type MapsGetAllSubmissionFilter = Array<
+  MapStatus.PUBLIC_TESTING | MapStatus.PRIVATE_TESTING
+>;
 
 export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
   expand?: MapsGetAllSubmissionExpand;
@@ -78,36 +71,28 @@ export type MapsGetAllUserSubmissionQuery = Omit<
   'submitterID'
 >;
 
-export type MapsGetAllSubmissionAdminFilter = (
-  | MapStatusNew.PUBLIC_TESTING
-  | MapStatusNew.PRIVATE_TESTING
-  | MapStatusNew.CONTENT_APPROVAL
-  | MapStatusNew.FINAL_APPROVAL
-)[];
-
-export type MapsGetAllSubmissionAdminQuery = MapsGetAllBaseQuery & {
-  expand?: MapsGetAllSubmissionAdminExpand;
-  filter?: MapsGetAllSubmissionAdminFilter;
-};
+export type MapsGetAllSubmissionAdminFilter = Array<
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
+>;
 
 //#endregion
 //#region Get
 
-export type MapsGetExpand = (MapsGetAllSubmissionExpand[0] | 'submission')[];
+export type MapsGetExpand = Array<
+  MapsGetAllSubmissionExpand[number] | 'submission' | 'testInvites'
+>;
 
-export type MapsGetQuery = {
-  expand?: MapsGetExpand;
-  byName?: boolean;
-};
+export type MapsGetQuery = { expand?: MapsGetExpand };
 
 //#endregion
 //#region Credits
 
 export type MapCreditsGetExpand = 'user';
 
-export type MapCreditsGetQuery = {
-  expand?: MapCreditsGetExpand;
-};
+export type MapCreditsGetQuery = { expand?: MapCreditsGetExpand };
 
 //#endregion
 //#region Runs
@@ -139,11 +124,12 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
 //#endregion
 //#region Reviews
 
-export type MapReviewsGetExpand = ('map' | 'reviewer')[];
+export type MapReviewsGetExpand = ('map' | 'reviewer' | 'resolver')[];
 
-export type MapReviewsGetQuery = {
+export type MapReviewsGetQuery = PagedQuery & {
   official?: boolean;
   expand?: MapReviewsGetExpand;
+  comments?: number;
 };
 
 export type MapReviewGetIdQuery = {

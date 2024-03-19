@@ -36,12 +36,11 @@ export interface ConfigInterface {
   limits: {
     dailyReports: number;
     mapImageUploads: number;
-    pendingMaps: number;
     bspSize: number;
     vmfSize: number;
     imageSize: number;
     reviewLength: number;
-    testingRequests: number;
+    testInvites: number;
     minPublicTestingDuration: number;
     maxCreditsExceptTesters: number;
   };

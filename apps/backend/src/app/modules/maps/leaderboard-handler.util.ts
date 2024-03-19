@@ -1,12 +1,14 @@
 import {
   Gamemode,
   IncompatibleGamemodes,
+  LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
   TrackType
 } from '@momentum/constants';
 import { ZoneUtil } from '@momentum/formats/zone';
 import { Enum } from '@momentum/enum';
+import { arrayFrom } from '@momentum/util-fn';
 
 export interface LeaderboardProps
   extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
@@ -21,7 +23,7 @@ export const LeaderboardHandler = {
   getMaximalLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[],
     zones: MapZones
-  ): T[] =>
+  ): LeaderboardProps[] =>
     LeaderboardHandler.getCompatibleLeaderboards([
       ...LeaderboardHandler.setLeaderboardLinearity(leaderboards, zones),
       ...LeaderboardHandler.getStageLeaderboards(leaderboards, zones)
@@ -34,15 +36,20 @@ export const LeaderboardHandler = {
    */
   getCompatibleLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[]
-  ): T[] =>
+  ): LeaderboardProps[] =>
     leaderboards
-      .flatMap((lb) =>
+      .flatMap(({ trackType, trackNum, linear, gamemode }) =>
         Enum.values(Gamemode) // Note: this will include `suggestion`
           .filter(
-            (gamemode) =>
-              !IncompatibleGamemodes.get(lb.gamemode).includes(gamemode)
+            (newGamemode) =>
+              !IncompatibleGamemodes.get(gamemode).includes(newGamemode)
           )
-          .map((gamemode) => ({ ...lb, gamemode }))
+          .map((newGamemode) => ({
+            trackType,
+            trackNum,
+            linear,
+            gamemode: newGamemode
+          }))
       )
       .filter(
         // Filter out any duplicates
@@ -70,13 +77,13 @@ export const LeaderboardHandler = {
     leaderboards
       .filter(({ trackType }) => trackType === TrackType.MAIN)
       .flatMap((lb: T) =>
-        Array.from(
-          { length: zones.tracks.stages.length },
-          (_, i) =>
+        arrayFrom(
+          zones.tracks.stages.length,
+          (i) =>
             ({
               gamemode: lb.gamemode,
               // Whether is ranked depends on main Track, doesn't have a tier.
-              ranked: (lb as T & { ranked?: boolean }).ranked,
+              type: (lb as T & { type?: LeaderboardType }).type,
               trackType: TrackType.STAGE,
               trackNum: i
             }) as unknown as T

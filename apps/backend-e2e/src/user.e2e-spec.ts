@@ -5,7 +5,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapDto,
-  MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
@@ -1291,17 +1290,6 @@ describe('User', () => {
         });
       });
 
-      it('should respond with expanded submitter data using the thumbnail expand parameter', async () => {
-        await req.expandTest({
-          url: 'user/maps/library',
-          expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail',
-          paged: true,
-          validate: MapLibraryEntryDto,
-          token
-        });
-      });
-
       it('should respond with expanded mapfavorite data for maps the logged in user has favorited when using the inFavorite expansion', async () => {
         await Promise.all(
           maps.map((m) =>
@@ -1461,148 +1449,6 @@ describe('User', () => {
     });
   });
 
-  describe('user/maps/favorites', () => {
-    describe('GET', () => {
-      let user, token, m1;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-        [m1] = await Promise.all([
-          db.createMap({
-            name: 'ahop_aaaaaaaa',
-            favorites: { create: { userID: user.id } },
-            credits: {
-              create: {
-                userID: user.id,
-                type: MapCreditType.TESTER
-              }
-            }
-          }),
-          db.createMap({
-            name: 'ahop_bbbbbbbb',
-            favorites: { create: { userID: user.id } }
-          })
-        ]);
-      });
-
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
-
-      it('should retrieve the list of maps in the local users favorites', () =>
-        req.get({
-          url: 'user/maps/favorites',
-          status: 200,
-          token,
-          validatePaged: { type: MapFavoriteDto, count: 2 }
-        }));
-
-      it('should retrieve a filtered list of maps in the local users favorites using the take query', () =>
-        req.takeTest({
-          url: 'user/maps/favorites',
-          validate: MapFavoriteDto,
-          token
-        }));
-
-      it('should retrieve a filtered list of maps in the local users favorites using the skip query', () =>
-        req.skipTest({
-          url: 'user/maps/favorites',
-          validate: MapFavoriteDto,
-          token
-        }));
-
-      it('should retrieve a list of maps in the local users favorites filtered using a search string', () =>
-        req.searchTest({
-          url: 'user/maps/favorites',
-          token,
-          searchString: 'bbb',
-          searchMethod: 'contains',
-          searchPropertyName: 'map.name',
-          validate: { type: MapFavoriteDto, count: 1 }
-        }));
-
-      it('should retrieve a list of maps in the local users favorites with expanded info', () =>
-        req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'info',
-          expectedPropertyName: 'map.info',
-          paged: true,
-          validate: MapFavoriteDto,
-          token
-        }));
-
-      it('should retrieve a list of maps in the local users favorites with expanded credits', () =>
-        req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'credits',
-          expectedPropertyName: 'map.credits',
-          paged: true,
-          validate: MapFavoriteDto,
-          token,
-          some: true
-        }));
-
-      it('should retrieve a list of maps in the local users favorites with expanded thumbnail', () =>
-        req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail.small',
-          paged: true,
-          validate: MapFavoriteDto,
-          token
-        }));
-
-      it('should retrieve a list of maps in the local users favorites with expanded submitter', () =>
-        req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'submitter',
-          expectedPropertyName: 'map.submitter',
-          paged: true,
-          validate: MapFavoriteDto,
-          token
-        }));
-
-      it("should retrieve a list of maps in the local users favorites with expanded library entries if its in the user's library", async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: user.id, mapID: m1.id }
-        });
-
-        await req.expandTest({
-          url: 'user/maps/favorites',
-          expand: 'inLibrary',
-          expectedPropertyName: 'map.libraryEntries',
-          paged: true,
-          validate: MapFavoriteDto,
-          token,
-          some: true
-        });
-      });
-
-      it('should retrieve a list of maps in the local users favorites with expanded PBs if the user has a PB', async () => {
-        await db.createLbRun({
-          map: m1,
-          user,
-          time: 10,
-          rank: 2
-        });
-
-        const res = await req.get({
-          url: 'user/maps/favorites',
-          status: 200,
-          validatePaged: MapFavoriteDto,
-          query: { expand: 'personalBest' },
-          token
-        });
-
-        const map = res.body.data.find((map) => map.mapID === m1.id).map;
-        expect(map).toMatchObject({
-          personalBest: { rank: 2 }
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/favorites', 'get'));
-    });
-  });
-
   describe('user/maps/favorites/{mapID}', () => {
     describe('GET', () => {
       let user, token, map;
@@ -1617,7 +1463,7 @@ describe('User', () => {
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      it('should return a map favorites', async () => {
+      it('should return 204 if the map is not in favorites', async () => {
         await prisma.mapFavorite.create({
           data: { userID: user.id, mapID: map.id }
         });
@@ -1625,26 +1471,24 @@ describe('User', () => {
         const res = await req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
-          status: 200
+          status: 204
         });
-
-        expect(res.body).toMatchObject({ mapID: map.id, userID: user.id });
 
         await prisma.mapFavorite.deleteMany();
       });
 
-      it('should return 404 if the map is not in library', () =>
+      it('should return 410 if the map is not in favorites', () =>
         req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
-          status: 404
+          status: 410
         }));
 
-      it("should return 404 if the map doesn't exist", () =>
+      it("should return 410 if the map doesn't exist", () =>
         req.get({
           url: `user/maps/favorites/${NULL_ID}`,
           token,
-          status: 404
+          status: 410
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1684,6 +1528,13 @@ describe('User', () => {
           token
         }));
 
+      it('should 400 if the map is already in users favorites', () =>
+        req.put({
+          url: `user/maps/favorites/${map.id}`,
+          status: 400,
+          token
+        }));
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/maps/favorites/1', 'put'));
     });
@@ -1718,10 +1569,10 @@ describe('User', () => {
         expect(favorite).toBeNull();
       });
 
-      it('should 404 if the map is not in the local users favorites', () =>
+      it('should 400 if the map is not in the local users favorites', () =>
         req.del({
           url: `user/maps/favorites/${map.id}`,
-          status: 404,
+          status: 400,
           token
         }));
 
@@ -1737,7 +1588,7 @@ describe('User', () => {
     });
   });
 
-  describe('user/maps/submitted', () => {
+  describe('user/maps', () => {
     describe('GET', () => {
       let u1, u1Token, u2Token;
 
@@ -1768,7 +1619,7 @@ describe('User', () => {
 
       it('should retrieve the list of maps that the user submitted', () =>
         req.get({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           status: 200,
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
@@ -1776,7 +1627,7 @@ describe('User', () => {
 
       it('should retrieve an empty map list if the user has not submitted any maps', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           status: 200,
           token: u2Token
         });
@@ -1786,21 +1637,21 @@ describe('User', () => {
 
       it('should retrieve the users submitted maps when using the skip query parameter', () =>
         req.skipTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           token: u1Token
         }));
 
       it('should retrieve the users submitted maps when using the take query parameter', () =>
         req.takeTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           token: u1Token
         }));
 
       it('should retrieve the submitted maps with expanded info', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'info',
@@ -1809,7 +1660,7 @@ describe('User', () => {
 
       it('should retrieve the submitted maps with expanded submitter', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'submitter',
@@ -1818,7 +1669,7 @@ describe('User', () => {
 
       it('should retrieve the submitted maps with expanded credits', () =>
         req.expandTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'credits',
@@ -1828,7 +1679,7 @@ describe('User', () => {
 
       it('should retrieve a map specified by a search query parameter', () =>
         req.searchTest({
-          url: 'user/maps/submitted',
+          url: 'user/maps',
           token: u1Token,
           validate: { type: MapDto, count: 1 },
           searchPropertyName: 'name',
@@ -1837,11 +1688,11 @@ describe('User', () => {
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/submitted', 'get'));
+        req.unauthorizedTest('user/maps', 'get'));
     });
   });
 
-  describe('user/maps/submitted/summary', () => {
+  describe('user/maps/summary', () => {
     describe('GET', () => {
       let u1, u1Token, u2Token;
 
@@ -1866,7 +1717,7 @@ describe('User', () => {
 
       it('should retrieve an array of objects that each contain a status and its count', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted/summary',
+          url: 'user/maps/summary',
           status: 200,
           token: u1Token
         });
@@ -1877,7 +1728,7 @@ describe('User', () => {
 
       it('should retrieve an empty summary list', async () => {
         const res = await req.get({
-          url: 'user/maps/submitted/summary',
+          url: 'user/maps/summary',
           status: 200,
           token: u2Token
         });
@@ -1887,7 +1738,7 @@ describe('User', () => {
       });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/submitted/summary', 'get'));
+        req.unauthorizedTest('user/maps/summary', 'get'));
     });
   });
 

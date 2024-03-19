@@ -1,83 +1,94 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {
-  Gamemode,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges
+} from '@angular/core';
+import {
+  GamemodeIcon,
   GamemodeName,
-  MMap,
-  TrackType,
-  MapStatusName
+  LeaderboardType,
+  MapCreditType,
+  MapStatusName,
+  MapStatus,
+  MMap
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { CarouselModule } from 'primeng/carousel';
 import { LocalUserService } from '../../services';
-import { SharedModule } from '../../shared.module';
-import { AvatarComponent } from '../avatar/avatar.component';
+import { AvatarComponent } from '../';
+import { MapWithSpecificLeaderboard } from '../../util';
+import { RouterLink } from '@angular/router';
+import { extractPrefixFromMapName } from '@momentum/util-fn';
+import { PluralPipe, TimeAgoPipe } from '../../pipes';
+import { TooltipDirective } from '../../directives';
+import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
+import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-map-list-item',
-  styleUrl: './map-list-item.component.css',
   templateUrl: './map-list-item.component.html',
   standalone: true,
-  imports: [SharedModule, AvatarComponent, CarouselModule]
+  imports: [
+    AvatarComponent,
+    CarouselModule,
+    RouterLink,
+    TimeAgoPipe,
+    PluralPipe,
+    TooltipDirective,
+    FontSizeLerpDirective,
+    IconComponent
+  ]
 })
-export class MapListItemComponent implements OnInit {
-  @Input({ required: true }) map!: MMap;
-  @Input() isUpload = false;
-  @Input() filterGamemode?: Gamemode;
+export class MapListItemComponent implements OnChanges {
+  protected readonly GamemodeIcon = GamemodeIcon;
+  protected readonly GamemodeName = GamemodeName;
+  protected readonly LeaderboardType = LeaderboardType;
+  protected readonly MapStatusName = MapStatusName;
+  protected readonly MapStatus = MapStatus;
 
-  @Output() libraryUpdate = new EventEmitter();
+  @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
+  @Input() isSubmission = false;
+  @Input() isAdminPage = false;
+
   @Output() favoriteUpdate = new EventEmitter();
 
   inFavorites: boolean;
-  status = '';
-  modes: Array<{
-    gamemodeName: string;
-    tier?: number;
-    ranked?: boolean;
-    bonuses: number;
-  }> = [];
+  statusName = '';
+  authors: Array<{ id?: number; alias: string }>;
+  name: string;
+  prefix: string;
+  tierStyle: string;
 
   constructor(
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService
   ) {}
 
-  ngOnInit() {
+  ngOnChanges(changes: SimpleChanges) {
+    if (!changes['map']) return;
+
     // This isn't well-documented (or designed), but `favorites` here is an
     // of MapFavorite entries that match the LU id. So if > 0, user has it
     // favourited.
-    this.inFavorites = this.map.favorites.length > 0;
-    this.status = MapStatusName.get(this.map.status as any);
+    this.inFavorites = this.map.favorites?.length > 0;
+    this.statusName = MapStatusName.get(this.map.status as any);
 
-    for (const { gamemode, tier, trackType, ranked } of this.map.leaderboards) {
-      if (this.filterGamemode && gamemode !== this.filterGamemode) continue;
-
-      const gamemodeName = GamemodeName.get(gamemode);
-      let entry = this.modes.find((e) => e.gamemodeName === gamemodeName);
-
-      if (!entry) {
-        entry = { gamemodeName, bonuses: 0 };
-        this.modes.push(entry);
-      }
-
-      if (trackType === TrackType.MAIN) {
-        entry.tier = tier;
-        entry.ranked = ranked;
-      } else if (trackType === TrackType.BONUS) {
-        entry.bonuses++;
-      }
-    }
-
-    // Try to guess at what mode the map is primarily intended for: if no tier,
-    // it has no main track, only bonuses (impossible to have stages but no main
-    // track), so rank stuff with main track higher. Then rank higher if it's
-    // ranked, or has more bonuses.
-    this.modes.sort((a, b) =>
-      (a.tier !== undefined && b.tier === undefined) ||
-      (a.ranked && !b.ranked) ||
-      a.bonuses > b.bonuses
-        ? -1
-        : 0
-    );
+    const [name, prefix] = extractPrefixFromMapName(this.map.name);
+    this.name = name;
+    this.prefix = prefix;
+    this.authors = [
+      ...this.map.credits,
+      ...(this.map.submission?.placeholders ?? [])
+    ]
+      .filter(({ type }) => type === MapCreditType.AUTHOR)
+      .map((credit) =>
+        'userID' in credit
+          ? { alias: credit.user.alias, id: credit.userID }
+          : { alias: credit.alias }
+      );
   }
 
   toggleMapInFavorites() {
@@ -115,5 +126,18 @@ export class MapListItemComponent implements OnInit {
           })
       });
     }
+  }
+
+  protected isReleasedMap(
+    _map: MMap | MapWithSpecificLeaderboard
+  ): _map is MapWithSpecificLeaderboard {
+    return !this.isSubmission;
+  }
+
+  protected isSubmitterAnAuthor(map: MMap) {
+    return map.credits.some(
+      ({ userID, type }) =>
+        userID === map.submitterID && type === MapCreditType.AUTHOR
+    );
   }
 }

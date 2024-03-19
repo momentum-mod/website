@@ -15,12 +15,13 @@ export type UsersGetAllQuery = PagedQuery & {
   search?: string;
   steamID?: string;
   steamIDs?: string[];
+  userIDs?: number[];
   mapRank?: number;
 };
 
 export type UsersGetActivitiesQuery = Omit<ActivitiesGetQuery, 'userID'>;
 
-export type UsersGetCreditsExpand = ('map' | 'info' | 'thumbnail')[];
+export type UsersGetCreditsExpand = ('map' | 'info')[];
 
 export type UsersGetCreditsQuery = PagedQuery & {
   expand?: UsersGetCreditsExpand;
@@ -28,11 +29,7 @@ export type UsersGetCreditsQuery = PagedQuery & {
 
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
-export type UserMapLibraryGetExpand = (
-  | 'submitter'
-  | 'thumbnail'
-  | 'inFavorites'
-)[];
+export type UserMapLibraryGetExpand = ('submitter' | 'inFavorites')[];
 
 export type UserMapLibraryGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapLibraryGetExpand;
@@ -41,7 +38,6 @@ export type UserMapLibraryGetQuery = UserMapsBaseGetQuery & {
 export type UserMapFavoritesGetExpand = (
   | 'info'
   | 'credits'
-  | 'thumbnail'
   | 'submitter'
   | 'inLibrary'
   | 'personalBest'

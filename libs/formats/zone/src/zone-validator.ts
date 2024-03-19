@@ -1,5 +1,5 @@
 import { MapZones, Region, Track, Volume, Zone } from '@momentum/constants';
-import { Vec } from '@momentum/util-fn';
+import { Vec, arrayFrom } from '@momentum/util-fn';
 
 // Contents of this file largely correspond to mom_zone_defs.cpp/h
 // Some of this implementation is kept deliberately quite C++ish so easiest to
@@ -44,9 +44,7 @@ export function validateZoneFile(input: MapZones): void {
 
   validateVolumes(volumes);
 
-  const usedVolumes = Array.from({ length: volumes.length }).fill(
-    false
-  ) as boolean[];
+  const usedVolumes = arrayFrom(volumes.length).fill(false) as boolean[];
 
   let totalZones = 0;
 

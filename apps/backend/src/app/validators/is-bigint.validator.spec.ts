@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { IsBigInt } from './is-big.int';
+import { IsBigInt } from './is-bigint.validator';
 
 class TestClass {
   @IsBigInt()

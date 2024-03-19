@@ -1,16 +1,16 @@
 @if (user) {
   <m-card title="Edit Profile">
-    <button header class="m-btn m-btn-blue" (click)="returnToProfile()">Return to Profile</button>
+    <button header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>
     <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="flex flex-wrap">
         <div class="w-full">
           <div class="mb-4" [ngClass]="{ 'has-error': !alias.valid }">
             <h3>Alias</h3>
             <div class="relative flex w-full items-stretch">
-              <input class="m-textinput mb-1" formControlName="alias" type="text" />
+              <input class="textinput mb-1" formControlName="alias" type="text" />
               @if (hasBan(Ban.ALIAS)) {
                 <div class="input-group-append">
-                  <button class="m-btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
+                  <button class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
                 </div>
               }
             </div>
@@ -27,12 +27,18 @@
 
           <div class="mb-4">
             <h3>Country</h3>
-            <p-dropdown formControlName="country" [options]="AlphabeticalCountryCodes" optionValue="code" optionLabel="label" />
+            <p-dropdown
+              formControlName="country"
+              [options]="AlphabeticalCountryCodes"
+              optionValue="code"
+              optionLabel="label"
+              appendTo="body"
+            />
           </div>
 
           <div class="mb-4" [ngClass]="{ 'has-error': !bio.valid }">
             <h3>Bio</h3>
-            <textarea rows="6" class="m-textinput mb-1 w-full" formControlName="bio" type="bio" #description></textarea>
+            <textarea rows="6" class="textinput mb-1 w-full" formControlName="bio" type="bio" #description></textarea>
             @if (bio.hasError('maxlength')) {
               <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Text cannot exceed 1000 characters.</p>
             }
@@ -48,7 +54,7 @@
                     <m-icon class="mb-2 h-5 w-5" [icon]="social.value.icon" pack="si" />
                     <h4>{{ social.key }}</h4>
                   </div>
-                  <input [formControlName]="social.key" class="m-textinput mb-1" type="text" />
+                  <input [formControlName]="social.key" class="textinput mb-1" type="text" />
                 </div>
               }
             </div>
@@ -63,40 +69,34 @@
               <h2>Bans</h2>
               <ul class="list-unstyled whitespace-nowrap">
                 <li>
-                  <input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias" />Ban changing alias
+                  <input type="checkbox" class="checkbox" (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias" />Ban changing alias
                 </li>
-                <li><input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.BIO)" formControlName="banBio" />Ban changing bio</li>
-                <li><input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar" />Ban avatar</li>
+                <li><input type="checkbox" class="checkbox" (change)="toggleBan(Ban.BIO)" formControlName="banBio" />Ban changing bio</li>
+                <li><input type="checkbox" class="checkbox" (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar" />Ban avatar</li>
                 <li>
-                  <input type="checkbox" class="m-checkbox" (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards" />Ban
+                  <input type="checkbox" class="checkbox" (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards" />Ban
                   submitting to leaderboards >
                 </li>
                 <li>
-                  <input
-                    type="checkbox"
-                    class="m-checkbox"
-                    (change)="toggleBan(Ban.MAP_SUBMISSION)"
-                    formControlName="banMapSubmission"
-                  />Ban submitting maps
+                  <input type="checkbox" class="checkbox" (change)="toggleBan(Ban.MAP_SUBMISSION)" formControlName="banMapSubmission" />Ban
+                  submitting maps
                 </li>
               </ul>
             </div>
             <div class="relative max-w-full flex-1 flex-grow px-4 pl-4 pr-4 md:w-1/4">
               <h2>Roles</h2>
               <ul class="list-unstyled whitespace-nowrap">
-                <li>
-                  <input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified
-                </li>
-                <li><input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.MAPPER)" formControlName="mapper" />Mapper</li>
+                <li><input type="checkbox" class="checkbox" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified</li>
+                <li><input type="checkbox" class="checkbox" (change)="toggleRole(Role.MAPPER)" formControlName="mapper" />Mapper</li>
                 <li>
                   @if (isAdmin) {
-                    <input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator" />
+                    <input type="checkbox" class="checkbox" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator" />
                   }
                   Moderator
                 </li>
                 <li>
                   @if (isAdmin) {
-                    <input type="checkbox" class="m-checkbox" (change)="toggleRole(Role.ADMIN)" formControlName="admin" />
+                    <input type="checkbox" class="checkbox" (change)="toggleRole(Role.ADMIN)" formControlName="admin" />
                   }
                   Admin
                 </li>
@@ -120,8 +120,8 @@
                         <m-avatar class="h-6" [url]="mergeUser.avatarURL" />
                         <p>{{ mergeUser.alias }}</p>
                       </a>
-                      <button class="m-btn mr-2 mt-1" type="button" (click)="cancelMerge()">Cancel</button>
-                      <button type="button" class="m-btn m-btn-orange" (click)="mergeUsers()">Merge To User</button>
+                      <button class="btn mr-2 mt-1" type="button" (click)="cancelMerge()">Cancel</button>
+                      <button type="button" class="btn btn-orange" (click)="mergeUsers()">Merge To User</button>
                     </div>
                   }
                 </div>
@@ -132,10 +132,10 @@
       }
       <div class="mb-3">
         @if (!hasRole(Role.DELETED)) {
-          <button class="m-btn m-btn-red" type="button" status="danger" (click)="deleteUser()">Delete User</button>
+          <button class="btn btn-red" type="button" status="danger" (click)="deleteUser()">Delete User</button>
         }
       </div>
-      <button class="m-btn m-btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
+      <button class="btn btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
     </form>
   </m-card>
 }

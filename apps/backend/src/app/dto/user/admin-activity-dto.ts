@@ -6,7 +6,13 @@ import {
   IsString
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
+import {
+  CreatedAtProperty,
+  EnumProperty,
+  IdProperty,
+  NestedProperty
+} from '../decorators';
+import { UserDto } from './user.dto';
 
 export class AdminActivityDto implements AdminActivity {
   @IdProperty()
@@ -39,6 +45,11 @@ export class AdminActivityDto implements AdminActivity {
 
   @IdProperty({ description: 'The user ID of admin, who did the activity' })
   userID: number;
+
+  @NestedProperty(UserDto, {
+    description: 'The ID of the admin the activity is associated with'
+  })
+  readonly user: UserDto;
 
   @CreatedAtProperty()
   createdAt: Date;

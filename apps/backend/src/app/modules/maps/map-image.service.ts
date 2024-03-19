@@ -1,28 +1,33 @@
 import {
   BadGatewayException,
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
-  NotFoundException
+  InternalServerErrorException
 } from '@nestjs/common';
 import {
+  AdminActivityType,
   CombinedMapStatuses,
+  CombinedRoles,
   imgLargePath,
   imgMediumPath,
-  imgSmallPath
+  imgSmallPath,
+  imgXlPath
 } from '@momentum/constants';
+import { File } from '@nest-lab/fastify-multer';
 import sharp from 'sharp';
-import { ConfigService } from '@nestjs/config';
 import { parallel } from '@momentum/util-fn';
+import { v4 as uuidv4 } from 'uuid';
 import { DtoFactory, MapImageDto } from '../../dto';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
+import { Bitflags } from '@momentum/bitflags';
+import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
 export class MapImageService {
@@ -31,7 +36,7 @@ export class MapImageService {
     @Inject(forwardRef(() => MapsService))
     private readonly mapsService: MapsService,
     private readonly fileStoreService: FileStoreService,
-    private readonly config: ConfigService
+    private readonly adminActivityService: AdminActivityService
   ) {}
 
   async getImages(
@@ -40,180 +45,155 @@ export class MapImageService {
   ): Promise<MapImageDto[]> {
     const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,
-      userID: loggedInUserID,
-      include: { images: true }
-    });
-
-    return images.map((x) => DtoFactory(MapImageDto, x));
-  }
-
-  async getImage(imgID: number, loggedInUserID: number): Promise<MapImageDto> {
-    const img = await this.db.mapImage.findUnique({ where: { id: imgID } });
-
-    if (!img) throw new NotFoundException('Map image not found');
-
-    await this.mapsService.getMapAndCheckReadAccess({
-      mapID: img.mapID,
       userID: loggedInUserID
     });
 
-    return DtoFactory(MapImageDto, img);
+    return images.map((id) => DtoFactory(MapImageDto, { id }));
   }
 
-  async createImage(
+  async updateImages(
     userID: number,
     mapID: number,
-    imgBuffer: Buffer
-  ): Promise<MapImageDto> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
+    imageIDs: string[],
+    files: File[]
+  ): Promise<MapImageDto[]> {
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID
+    });
 
-    if (!map) throw new NotFoundException('Map not found');
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
+    const isMod = Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN);
+    const isSubmitter = map.submitterID === userID;
+    const isInSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(
+      map.status
+    );
 
-    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
-      throw new ForbiddenException('Map can only be edited during submission');
+    if (!isMod) {
+      if (!isSubmitter)
+        throw new ForbiddenException('User is not the submitter of the map');
 
-    const images = await this.db.mapImage.findMany({ where: { mapID } });
-    let imageCount = images.length;
-    if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
-    if (imageCount >= this.config.getOrThrow('limits.mapImageUploads'))
-      throw new ConflictException('Map image file limit reached');
-
-    // It may seem strange to create an entry with nothing but a key into Map,
-    // but we're doing it so we get an ID from Postgres, and can store the image
-    // file at a corresponding URL.
-    const newImage = await this.db.mapImage.create({ data: { mapID } });
-
-    const uploadedImages = await this.storeMapImage(imgBuffer, newImage.id);
-
-    if (!uploadedImages) {
-      await this.db.mapImage.delete({ where: { id: newImage.id } });
-      throw new BadGatewayException('Error uploading image to CDN');
+      if (!isInSubmission)
+        throw new ForbiddenException(
+          'Map can only be edited during submission'
+        );
     }
 
-    return DtoFactory(MapImageDto, newImage);
+    // imageIDs is something like [0, 1, 87as6df98-dfsg-asdf6asf-safdadaf, 2, 3]
+    const newIDs = imageIDs.filter((id) => !Number.isNaN(Number(id)));
+    if (newIDs.length !== (files?.length ?? 0)) {
+      throw new BadRequestException(
+        'Must have same number of new image places as files!'
+      );
+    }
+
+    // Buffer fs tasks in case validation fails
+    const fsTasks: Array<() => Promise<any>> = [];
+    const newArray = [];
+    for (const id of imageIDs) {
+      const numberified = Number(id);
+      if (Number.isNaN(numberified)) {
+        // Was a UUID, so it's an existing image
+        newArray.push(id);
+        continue;
+      }
+
+      const newID = uuidv4();
+      const file = files[numberified];
+      if (!(file && file.size > 0 && Buffer.isBuffer(file.buffer)))
+        throw new BadRequestException(
+          'Image place does not refer to valid file'
+        );
+
+      fsTasks.push(() => this.storeMapImage(file.buffer, newID));
+      newArray.push(newID);
+    }
+
+    try {
+      await parallel(
+        // Store new files
+        ...fsTasks.map((task) => task()),
+        // Delete old files
+        ...map.images
+          .filter((id) => !newArray.includes(id))
+          .map((id) => this.deleteStoredMapImage(id))
+      );
+    } catch {
+      throw new BadGatewayException('Failed to upload to file store');
+    }
+
+    // Once S3 upload succeeds, update array in DB, ordered correctly!
+    const { images } = await this.db.mMap.update({
+      where: { id: mapID },
+      data: { images: newArray },
+      select: { images: true }
+    });
+
+    if (isMod && !(isSubmitter && isInSubmission)) {
+      await this.adminActivityService.create(
+        userID,
+        AdminActivityType.MAP_UPDATE,
+        mapID,
+        { images: newArray },
+        { images: map.images }
+      );
+    }
+
+    return images.map((id) => DtoFactory(MapImageDto, { id }));
   }
 
-  async updateImage(
-    userID: number,
-    imgID: number,
-    imgBuffer: Buffer
-  ): Promise<void> {
-    await this.editMapImageChecks(userID, imgID);
-
-    const uploadedImages = await this.storeMapImage(imgBuffer, imgID);
-
-    if (!uploadedImages)
-      throw new BadGatewayException('Failed to upload image to CDN');
+  async storeMapImage(
+    buffer: Buffer,
+    imageID: string
+  ): Promise<FileStoreFile[]> {
+    return parallel(
+      this.storeImageFile(buffer, imgSmallPath(imageID), 480, 360),
+      this.storeImageFile(buffer, imgMediumPath(imageID), 1280, 720),
+      this.storeImageFile(buffer, imgLargePath(imageID), 1920, 1080),
+      this.storeImageFile(buffer, imgXlPath(imageID), 2560, 1440)
+    );
   }
 
-  async deleteImage(userID: number, imgID: number): Promise<void> {
-    await this.editMapImageChecks(userID, imgID);
-
-    await Promise.all([
-      this.deleteStoredMapImage(imgID),
-      this.db.mapImage.delete({ where: { id: imgID } })
-    ]);
-  }
-
-  private async editMapImageChecks(
-    userID: number,
-    imgID: number
-  ): Promise<void> {
-    const image = await this.db.mapImage.findUnique({ where: { id: imgID } });
-
-    if (!image) throw new NotFoundException('Image not found');
-
-    const map = await this.db.mMap.findUnique({ where: { id: image.mapID } });
-
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
-
-    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
-      throw new ForbiddenException('Map can only be edited during submission');
-  }
-
-  private async editSaveMapImageFile(
-    imgBuffer: Buffer,
-    fileName: string,
+  private async jpegEncodeImageFile(
+    buffer: Buffer,
     width: number,
     height: number
-  ): Promise<FileStoreFile> {
+  ): Promise<Buffer> {
     try {
-      return this.fileStoreService.storeFile(
-        await sharp(imgBuffer)
-          .resize(width, height, { fit: 'inside' })
-          .jpeg({ mozjpeg: true })
-          .toBuffer(),
-        fileName
-      );
+      return sharp(buffer)
+        .resize(width, height, { fit: 'inside' })
+        .jpeg({ mozjpeg: true, quality: 90 })
+        .toBuffer();
     } catch {
       // This looks bad, but sharp is very non-specific about its errors
       throw new BadRequestException('Invalid image file');
     }
   }
 
-  async storeMapImage(
-    imgBuffer: Buffer,
-    imgID: number
-  ): Promise<FileStoreFile[]> {
-    return parallel(
-      this.editSaveMapImageFile(imgBuffer, imgSmallPath(imgID), 480, 360),
-      this.editSaveMapImageFile(imgBuffer, imgMediumPath(imgID), 1280, 720),
-      this.editSaveMapImageFile(imgBuffer, imgLargePath(imgID), 1920, 1080)
-    );
+  private async storeImageFile(
+    buffer: Buffer,
+    fileName: string,
+    width: number,
+    height: number
+  ): Promise<FileStoreFile> {
+    const jpeg = await this.jpegEncodeImageFile(buffer, width, height);
+    try {
+      return this.fileStoreService.storeFile(jpeg, fileName);
+    } catch {
+      // This looks bad, but sharp is very non-specific about its errors
+      throw new InternalServerErrorException('Failed to store image file');
+    }
   }
 
-  async deleteStoredMapImage(imgID: number): Promise<void> {
+  async deleteStoredMapImage(imageID: string): Promise<void> {
     await parallel(
-      this.fileStoreService.deleteFile(imgSmallPath(imgID)),
-      this.fileStoreService.deleteFile(imgMediumPath(imgID)),
-      this.fileStoreService.deleteFile(imgLargePath(imgID))
+      this.fileStoreService.deleteFile(imgSmallPath(imageID)),
+      this.fileStoreService.deleteFile(imgMediumPath(imageID)),
+      this.fileStoreService.deleteFile(imgLargePath(imageID)),
+      this.fileStoreService.deleteFile(imgXlPath(imageID))
     );
   }
 
   //#endregion
-
-  //#region Thumbnails
-
-  async updateThumbnail(
-    userID: number,
-    mapID: number,
-    imgBuffer: Buffer
-  ): Promise<void> {
-    let map = await this.db.mMap.findUnique({
-      where: { id: mapID },
-      select: { thumbnailID: true, submitterID: true, status: true }
-    });
-
-    if (!map) throw new NotFoundException('Map not found');
-
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
-
-    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
-      throw new ForbiddenException('Map can only be edited during submission');
-
-    if (!map.thumbnailID) {
-      const newThumbnail = await this.db.mapImage.create({ data: { mapID } });
-      map = await this.db.mMap.update({
-        where: { id: mapID },
-        data: { thumbnail: { connect: { id: newThumbnail.id } } }
-      });
-    }
-
-    const thumbnail = await this.db.mapImage.findUnique({
-      where: { id: map.thumbnailID }
-    });
-
-    const uploadedImages = await this.storeMapImage(imgBuffer, thumbnail.id);
-    if (!uploadedImages) {
-      // If the images failed to upload, we want to delete the map image object
-      // if there was no previous thumbnail
-      await this.db.mapImage.delete({ where: { id: thumbnail.id } });
-      throw new BadGatewayException('Failed to upload image to CDN');
-    }
-  }
 }

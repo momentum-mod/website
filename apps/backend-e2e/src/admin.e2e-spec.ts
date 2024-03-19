@@ -3,6 +3,7 @@
 import {
   AdminActivityDto,
   MapDto,
+  MapReviewDto,
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
@@ -14,11 +15,11 @@ import {
   AdminActivityType,
   Ban,
   Gamemode,
+  LeaderboardType,
   MapCreditType,
+  mapReviewAssetPath,
   MapStatus,
-  MapStatusNew,
   MapSubmissionType,
-  MapTestingRequestState,
   ReportCategory,
   ReportType,
   Role,
@@ -55,11 +56,17 @@ describe('Admin', () => {
     req: RequestUtil,
     db: DbUtil,
     fileStore: FileStoreUtil,
-    auth: AuthUtil,
-    adminActivityWasCreated: (
-      userID: number,
-      types: AdminActivityType[]
-    ) => Promise<boolean>;
+    auth: AuthUtil;
+
+  async function expectAdminActivityWasCreated(
+    userID: number,
+    type: AdminActivityType
+  ) {
+    const activities = await prisma.adminActivity.findMany({
+      where: { userID }
+    });
+    expect(activities.some((activity) => activity.type === type)).toBeTruthy();
+  }
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -69,19 +76,6 @@ describe('Admin', () => {
     db = env.db;
     auth = env.auth;
     fileStore = env.fileStore;
-    adminActivityWasCreated = async (
-      userID: number,
-      types: AdminActivityType[]
-    ) => {
-      const adminActivitiesTypes = await prisma.adminActivity.findMany({
-        where: { userID }
-      });
-      for (const activity of adminActivitiesTypes) {
-        if (!types.includes(activity.type)) return false;
-        types = types.filter((type) => type != activity.type);
-      }
-      return types.length === 0;
-    };
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -110,11 +104,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Burger');
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_CREATE_PLACEHOLDER
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_CREATE_PLACEHOLDER
+        );
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -227,11 +220,11 @@ describe('Admin', () => {
         // Placeholder should have been deleted
         const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
         expect(mu1DB).toBeNull();
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_MERGE
-          ])
-        ).toBe(true);
+
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_MERGE
+        );
       });
 
       it('should 400 if the user to merge from is not a placeholder', () =>
@@ -343,11 +336,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.alias).toBe('Barry 2');
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_ALIAS
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_ALIAS
+        );
       });
 
       it("should 409 when an admin tries to set a verified user's alias to something used by another verified user", () =>
@@ -390,11 +382,10 @@ describe('Admin', () => {
         });
 
         expect(res.body.bio).toBe(bio);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_BIO
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_BIO
+        );
       });
 
       it("should successfully update a specific user's bans", async () => {
@@ -410,11 +401,10 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(userDB.bans).toBe(bans);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_BANS
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_BANS
+        );
       });
 
       it("should successfully update a specific user's roles", async () => {
@@ -428,11 +418,10 @@ describe('Admin', () => {
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
         expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_UPDATE_ROLES
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_UPDATE_ROLES
+        );
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
@@ -769,11 +758,10 @@ describe('Admin', () => {
         });
 
         expect(deletedSteamIDEntry).toBeTruthy();
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.USER_DELETE
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.USER_DELETE
+        );
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
@@ -814,11 +802,11 @@ describe('Admin', () => {
             db.createMaps(4)
           ]);
 
-        await db.createMap({ status: MapStatusNew.PRIVATE_TESTING });
-        caMap = await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
-        faMap = await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
-        await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
-        await db.createMap({ status: MapStatusNew.DISABLED });
+        await db.createMap({ status: MapStatus.PRIVATE_TESTING });
+        caMap = await db.createMap({ status: MapStatus.CONTENT_APPROVAL });
+        faMap = await db.createMap({ status: MapStatus.FINAL_APPROVAL });
+        await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+        await db.createMap({ status: MapStatus.DISABLED });
       });
 
       afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
@@ -907,12 +895,12 @@ describe('Admin', () => {
         });
       });
 
-      it('should filter by maps when given the filter paramete', async () => {
+      it('should filter by maps when given the filter parameter', async () => {
         const res = await req.get({
-          url: 'admin/maps/submissions',
+          url: 'admin/maps',
           status: 200,
           query: {
-            filter: `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL}`
+            filter: [MapStatus.CONTENT_APPROVAL, MapStatus.FINAL_APPROVAL]
           },
           validatePaged: { type: MapDto, count: 2 },
           token: adminToken
@@ -925,92 +913,6 @@ describe('Admin', () => {
           ])
         );
       });
-
-      it('should respond with expanded submitter data using the submitter expand parameter', async () => {
-        await prisma.mMap.updateMany({ data: { submitterID: u1.id } });
-
-        await req.expandTest({
-          url: 'admin/maps',
-          expand: 'submitter',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        });
-      });
-
-      it('should respond with expanded map data using the credits expand parameter', async () => {
-        await prisma.mapCredit.createMany({
-          data: [
-            { mapID: m1.id, userID: u1.id, type: MapCreditType.AUTHOR },
-            { mapID: m2.id, userID: u1.id, type: MapCreditType.AUTHOR },
-            { mapID: m3.id, userID: u1.id, type: MapCreditType.AUTHOR },
-            { mapID: m4.id, userID: u1.id, type: MapCreditType.AUTHOR }
-          ]
-        });
-
-        await req.expandTest({
-          url: 'admin/maps',
-          expand: 'credits',
-          paged: true,
-          some: true,
-          validate: MapDto,
-          token: adminToken
-        });
-      });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the stats expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'stats',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the leaderboards expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'leaderboards',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the zones expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'zones',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
-
-      it('should respond with expanded map data using the info expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps',
-          expand: 'info',
-          paged: true,
-          validate: MapDto,
-          token: adminToken
-        }));
 
       it('should return 403 if a regular access token is given', () =>
         req.get({
@@ -1038,610 +940,6 @@ describe('Admin', () => {
     });
   });
 
-  describe('admin/maps/submissions', () => {
-    describe('GET', () => {
-      let user,
-        token,
-        reviewer,
-        reviewerToken,
-        modToken,
-        adminToken,
-        pubMap1,
-        pubMap2,
-        privMap,
-        caMap,
-        faMap;
-
-      beforeAll(async () => {
-        [[user, token], [reviewer, reviewerToken], modToken, adminToken] =
-          await Promise.all([
-            db.createAndLoginUser(),
-            db.createAndLoginUser({ data: { roles: Role.REVIEWER } }),
-            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
-            db.loginNewUser({ data: { roles: Role.ADMIN } })
-          ]);
-
-        const submissionCreate = {
-          create: {
-            type: MapSubmissionType.ORIGINAL,
-            suggestions: [
-              {
-                trackNum: 0,
-                trackType: TrackType.MAIN,
-                gamemode: Gamemode.DEFRAG_CPM,
-                tier: 1,
-                ranked: true,
-                comment: 'This stage was built by children'
-              }
-            ],
-            versions: {
-              createMany: {
-                data: [
-                  { versionNum: 1, hash: createSha1Hash('chips') },
-                  { versionNum: 2, hash: createSha1Hash('fries') }
-                ]
-              }
-            }
-          }
-        };
-        await db.createMap({ status: MapStatusNew.APPROVED });
-        pubMap1 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
-          submission: submissionCreate,
-          reviews: {
-            create: {
-              mainText: 'Atrocious',
-              reviewer: { connect: { id: user.id } }
-            }
-          }
-        });
-        pubMap2 = await db.createMap({
-          status: MapStatusNew.PUBLIC_TESTING,
-          submission: submissionCreate
-        });
-        privMap = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING,
-          submission: submissionCreate
-        });
-        caMap = await db.createMap({
-          status: MapStatusNew.CONTENT_APPROVAL,
-          submission: submissionCreate
-        });
-        faMap = await db.createMap({
-          status: MapStatusNew.FINAL_APPROVAL,
-          submission: submissionCreate
-        });
-
-        await Promise.all(
-          [pubMap1, pubMap2, privMap, caMap, faMap].map((map) =>
-            prisma.mapSubmission.update({
-              where: { mapID: map.id },
-              data: {
-                currentVersion: {
-                  connect: { id: map.submission.versions[1].id }
-                }
-              }
-            })
-          )
-        );
-      });
-
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
-      afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
-
-      it('should respond with map data', async () => {
-        const res = await req.get({
-          url: 'admin/maps/submissions',
-          status: 200,
-          validatePaged: { type: MapDto },
-          token: reviewerToken
-        });
-
-        for (const item of res.body.data) {
-          expect(item).not.toHaveProperty('zones');
-          expect(item).toHaveProperty('submission');
-        }
-      });
-
-      it('should 403 if the user is not reviewer, mod, or admin', () =>
-        req.get({
-          url: 'admin/maps/submissions',
-          status: 403,
-          validatePaged: { type: MapDto },
-          token
-        }));
-
-      it('should be ordered by date', () =>
-        req.sortByDateTest({
-          url: 'admin/maps/submissions',
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with filtered map data using the take parameter', () =>
-        req.takeTest({
-          url: 'admin/maps/submissions',
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with filtered map data using the skip parameter', () =>
-        req.skipTest({
-          url: 'admin/maps/submissions',
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with filtered map data using the search parameter', async () => {
-        await prisma.mMap.update({
-          where: { id: pubMap1.id },
-          data: { name: 'aaaaa' }
-        });
-
-        await req.searchTest({
-          url: 'admin/maps/submissions',
-          token: reviewerToken,
-          searchMethod: 'contains',
-          searchString: 'aaaaa',
-          searchPropertyName: 'name',
-          validate: { type: MapDto, count: 1 }
-        });
-      });
-
-      it('should respond with filtered map data using the submitter id parameter', async () => {
-        await prisma.mMap.update({
-          where: { id: pubMap1.id },
-          data: { submitterID: user.id }
-        });
-
-        const res = await req.get({
-          url: 'admin/maps/submissions',
-          status: 200,
-          query: { submitterID: user.id },
-          validatePaged: { type: MapDto, count: 1 },
-          token: reviewerToken
-        });
-
-        expect(res.body.data[0]).toMatchObject({
-          submitterID: user.id,
-          id: pubMap1.id
-        });
-
-        await prisma.mMap.update({
-          where: { id: pubMap1.id },
-          data: { submitterID: null }
-        });
-      });
-
-      it('should respond with expanded current submission version data using the currentVersion expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'currentVersion',
-          expectedPropertyName: 'submission.currentVersion',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded submission versions data using the version expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'versions',
-          expectedPropertyName: 'submission.versions[1]',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded review data using the reviews expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'reviews',
-          paged: true,
-          some: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the credits expand parameter', async () => {
-        await prisma.mapCredit.createMany({
-          data: [
-            {
-              mapID: pubMap1.id,
-              userID: reviewer.id,
-              type: MapCreditType.AUTHOR
-            }
-          ]
-        });
-
-        await req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'credits',
-          expectedPropertyName: 'credits[0].user', // This should always include user as well
-          paged: true,
-          some: true,
-          validate: MapDto,
-          token: reviewerToken
-        });
-
-        await db.cleanup('mapCredit');
-      });
-
-      it('should respond with expanded submitter data using the submitter expand parameter', async () => {
-        await prisma.mMap.update({
-          where: { id: pubMap1.id },
-          data: { submitterID: reviewer.id }
-        });
-
-        await req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'submitter',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: pubMap1.id },
-          data: { submitterID: null }
-        });
-      });
-
-      it('should respond with expanded map data using the thumbnail expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'thumbnail',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the images expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'images',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the stats expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'stats',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the leaderboards expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'leaderboards',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the zones expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'zones',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it('should respond with expanded map data using the info expand parameter', () =>
-        req.expandTest({
-          url: 'admin/maps/submissions',
-          expand: 'info',
-          paged: true,
-          validate: MapDto,
-          token: reviewerToken
-        }));
-
-      it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", async () => {
-        await prisma.mapFavorite.create({
-          data: { userID: user.id, mapID: pubMap1.id }
-        });
-      });
-
-      describe('Reviewer checks', () => {
-        it('should respond with public testing and CONTENT_APPROVAL maps if the reviewer has no special relations', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 3 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: caMap.id })
-            ])
-          );
-        });
-
-        it('should include private testing maps for which the user has an accepted invite', async () => {
-          await prisma.mapTestingRequest.create({
-            data: {
-              userID: reviewer.id,
-              mapID: privMap.id,
-              state: MapTestingRequestState.ACCEPTED
-            }
-          });
-
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 4 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: caMap.id }),
-              expect.objectContaining({ id: privMap.id })
-            ])
-          );
-        });
-
-        it('should not include a private testing map if the user has an declined invite', async () => {
-          await prisma.mapTestingRequest.create({
-            data: {
-              userID: reviewer.id,
-              mapID: privMap.id,
-              state: MapTestingRequestState.DECLINED
-            }
-          });
-
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 3 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: caMap.id })
-            ])
-          );
-        });
-
-        it('should include private testing maps for which the user is in the credits', async () => {
-          await prisma.mapCredit.create({
-            data: {
-              userID: reviewer.id,
-              mapID: privMap.id,
-              type: MapCreditType.TESTER
-            }
-          });
-
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 4 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: caMap.id }),
-              expect.objectContaining({ id: privMap.id })
-            ])
-          );
-        });
-
-        it('should include private testing maps for which the user is the submitter', async () => {
-          await prisma.mMap.update({
-            where: { id: privMap.id },
-            data: { submitter: { connect: { id: reviewer.id } } }
-          });
-
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 4 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: caMap.id }),
-              expect.objectContaining({ id: privMap.id })
-            ])
-          );
-
-          await prisma.mMap.update({
-            where: { id: privMap.id },
-            data: { submitter: { disconnect: true } }
-          });
-        });
-
-        it('should filter by public maps when given the public filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.PUBLIC_TESTING },
-            validatePaged: { type: MapDto, count: 2 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id })
-            ])
-          );
-        });
-
-        it('should filter by private maps when given the private filter', async () => {
-          await prisma.mapTestingRequest.create({
-            data: {
-              mapID: privMap.id,
-              userID: reviewer.id,
-              state: MapTestingRequestState.ACCEPTED
-            }
-          });
-
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.PRIVATE_TESTING },
-            validatePaged: { type: MapDto, count: 1 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data[0]).toEqual(
-            expect.objectContaining({ id: privMap.id })
-          );
-        });
-
-        it('should filter by CONTENT_APPROVAL maps when given the CONTENT_APPROVAL filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.CONTENT_APPROVAL },
-            validatePaged: { type: MapDto, count: 1 },
-            token: reviewerToken
-          });
-
-          expect(res.body.data[0]).toEqual(
-            expect.objectContaining({ id: caMap.id })
-          );
-        });
-
-        // This is just because this endpoint is same for reviewer and admins.
-        it('should 403 if given the FINAL_APPROVAL filter', async () => {
-          await req.get({
-            url: 'admin/maps/submissions',
-            status: 403,
-            query: { filter: MapStatusNew.FINAL_APPROVAL },
-            token: reviewerToken
-          });
-        });
-      });
-
-      describe('Mod/Admin checks', () => {
-        it('should respond with maps of all submission statuses by default for mods', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 5 },
-            token: modToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: privMap.id }),
-              expect.objectContaining({ id: caMap.id }),
-              expect.objectContaining({ id: faMap.id })
-            ])
-          );
-        });
-
-        // Role.ADMIN and Role.MODERATOR are treated exactly the same in code,
-        // so just this should be sufficient to test
-        it('should respond the same way for admins', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            validatePaged: { type: MapDto, count: 5 },
-            token: adminToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id }),
-              expect.objectContaining({ id: privMap.id }),
-              expect.objectContaining({ id: caMap.id }),
-              expect.objectContaining({ id: faMap.id })
-            ])
-          );
-        });
-
-        it('should filter by public maps when given the public filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.PUBLIC_TESTING },
-            validatePaged: { type: MapDto, count: 2 },
-            token: adminToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: pubMap1.id }),
-              expect.objectContaining({ id: pubMap2.id })
-            ])
-          );
-        });
-
-        it('should filter by private maps when given the private filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.PRIVATE_TESTING },
-            validatePaged: { type: MapDto, count: 1 },
-            token: adminToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({ id: privMap.id })
-            ])
-          );
-        });
-
-        it('should filter by CONTENT_APPROVAL maps when given the CONTENT_APPROVAL filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.CONTENT_APPROVAL },
-            validatePaged: { type: MapDto, count: 1 },
-            token: adminToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([expect.objectContaining({ id: caMap.id })])
-          );
-        });
-
-        it('should filter by FINAL_APPROVAL maps when given the FINAL_APPROVAL filter', async () => {
-          const res = await req.get({
-            url: 'admin/maps/submissions',
-            status: 200,
-            query: { filter: MapStatusNew.FINAL_APPROVAL },
-            validatePaged: { type: MapDto, count: 1 },
-            token: adminToken
-          });
-
-          expect(res.body.data).toEqual(
-            expect.arrayContaining([expect.objectContaining({ id: faMap.id })])
-          );
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/maps/submissions', 'get'));
-    });
-  });
-
   describe('admin/maps/{mapID}', () => {
     describe('PATCH', () => {
       const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
@@ -1666,15 +964,14 @@ describe('Admin', () => {
           ]);
 
         createMapData = {
-          name: 'map',
-          fileName: 'surf_map',
+          name: 'surf_map',
           submitter: { connect: { id: u1.id } },
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
               dates: [
                 {
-                  status: MapStatusNew.PRIVATE_TESTING,
+                  status: MapStatus.PRIVATE_TESTING,
                   date: new Date().toJSON()
                 }
               ],
@@ -1684,7 +981,7 @@ describe('Admin', () => {
                   trackType: TrackType.MAIN,
                   trackNum: 0,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.IN_SUBMISSION
                 }
               ],
               versions: {
@@ -1711,30 +1008,32 @@ describe('Admin', () => {
         ])
       );
 
-      for (const status of Enum.values(MapStatusNew)) {
-        it(`should allow an admin to update map data during ${MapStatusNew[status]}`, async () => {
+      for (const status of Enum.values(MapStatus)) {
+        it(`should allow an admin to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
             url: `admin/maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_dogs',
-              name: 'dogs',
+              name: 'surf_dogs',
               info: {
                 description:
                   'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
                 youtubeID: 'Rt460jKi4Bk'
               },
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.CONC,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
+              finalLeaderboards:
+                status === MapStatus.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined,
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
             token: adminToken
@@ -1746,8 +1045,7 @@ describe('Admin', () => {
           });
 
           expect(changedMap).toMatchObject({
-            name: 'dogs',
-            fileName: 'surf_dogs',
+            name: 'surf_dogs',
             info: {
               description:
                 'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
@@ -1758,44 +1056,45 @@ describe('Admin', () => {
                 {
                   trackNum: 0,
                   trackType: TrackType.MAIN,
-                  gamemode: Gamemode.CONC,
+                  gamemode: Gamemode.RJ,
                   tier: 1,
-                  ranked: true
+                  type: LeaderboardType.IN_SUBMISSION
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
-          expect(
-            await adminActivityWasCreated(admin.id, [
-              AdminActivityType.MAP_UPDATE
-            ])
-          ).toBe(true);
+          await expectAdminActivityWasCreated(
+            admin.id,
+            AdminActivityType.MAP_UPDATE
+          );
         });
 
-        it(`should allow a mod to update map data during ${MapStatusNew[status]}`, async () => {
+        it(`should allow a mod to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await req.patch({
             url: `admin/maps/${map.id}`,
             status: 204,
             body: {
-              fileName: 'surf_whelks',
-              name: 'whelks',
+              name: 'surf_whelks',
               info: {
                 description:
                   'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
                 youtubeID: 'IUfBBCkl_QI'
               },
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.BHOP,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
+              finalLeaderboards:
+                status === MapStatus.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined,
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
             token: modToken
@@ -1807,34 +1106,23 @@ describe('Admin', () => {
           });
 
           expect(changedMap).toMatchObject({
-            name: 'whelks',
-            fileName: 'surf_whelks',
+            name: 'surf_whelks',
             info: {
               description:
                 'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
               youtubeID: 'IUfBBCkl_QI'
             },
             submission: {
-              suggestions: [
-                {
-                  trackNum: 0,
-                  trackType: TrackType.MAIN,
-                  gamemode: Gamemode.BHOP,
-                  tier: 1,
-                  ranked: true
-                }
-              ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
           });
-          expect(
-            await adminActivityWasCreated(mod.id, [
-              AdminActivityType.MAP_UPDATE
-            ])
-          ).toBe(true);
+          await expectAdminActivityWasCreated(
+            mod.id,
+            AdminActivityType.MAP_UPDATE
+          );
         });
 
-        it(`should not allow a reviewer to update map data during ${MapStatusNew[status]}`, async () => {
+        it(`should not allow a reviewer to update map data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
@@ -1842,39 +1130,78 @@ describe('Admin', () => {
           await req.patch({
             url: `admin/maps/${map.id}`,
             status: 403,
-            body: { fileName: 'surf_albatross' },
+            body: {
+              name: 'surf_albatross',
+              finalLeaderboards:
+                status === MapStatus.FINAL_APPROVAL
+                  ? [
+                      {
+                        gamemode: Gamemode.RJ,
+                        trackType: TrackType.MAIN,
+                        trackNum: 0,
+                        tier: 5,
+                        type: LeaderboardType.UNRANKED
+                      }
+                    ]
+                  : undefined
+            },
             token: reviewerToken
+          });
+        });
+
+        it('should not allow an admin to update suggestions during submission', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatus.PUBLIC_TESTING
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: {
+              name: 'surf_asbestos',
+              suggestions: [
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.BHOP,
+                  tier: 1,
+                  type: LeaderboardType.UNRANKED
+                }
+              ]
+            },
+            token: adminToken
           });
         });
       }
 
-      const statuses = Enum.values(MapStatusNew);
+      const statuses = Enum.values(MapStatus);
       //prettier-ignore
       const validChanges = new Set([
-        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.REVIEWER}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.MODERATOR}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.MODERATOR}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
-        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.PRIVATE_TESTING },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
-        `${MapStatusNew.DISABLED        },${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`
+        `${MapStatus.APPROVED        },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.APPROVED        },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PRIVATE_TESTING },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PRIVATE_TESTING },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.REVIEWER}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.CONTENT_APPROVAL},${Role.MODERATOR}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.PUBLIC_TESTING  },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.APPROVED        },${Role.MODERATOR}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.APPROVED        },${Role.ADMIN}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.APPROVED        },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.PRIVATE_TESTING },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatus.DISABLED        },${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`
       ]);
 
       for (const s1 of statuses) {
@@ -1888,8 +1215,8 @@ describe('Admin', () => {
                 : role === Role.MODERATOR
                   ? 'mod'
                   : 'reviewer'
-            } to change a map from ${MapStatusNew[s1]} to ${
-              MapStatusNew[s2]
+            } to change a map from ${MapStatus[s1]} to ${
+              MapStatus[s2]
             }`, async () => {
               const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
 
@@ -1928,14 +1255,14 @@ describe('Admin', () => {
                 body: {
                   status: s2,
                   finalLeaderboards:
-                    s2 === MapStatusNew.APPROVED
+                    s2 === MapStatus.APPROVED
                       ? [
                           {
                             gamemode: Gamemode.RJ,
                             trackNum: 0,
                             trackType: 0,
                             tier: 1,
-                            ranked: false
+                            type: LeaderboardType.RANKED
                           }
                         ]
                       : undefined
@@ -1983,7 +1310,7 @@ describe('Admin', () => {
               ]
             }
           },
-          status: MapStatusNew.FINAL_APPROVAL
+          status: MapStatus.FINAL_APPROVAL
         });
 
         await prisma.mapSubmission.update({
@@ -2007,7 +1334,7 @@ describe('Admin', () => {
                 trackType: TrackType.MAIN,
                 trackNum: 0,
                 tier: 1,
-                ranked: true
+                type: LeaderboardType.UNRANKED
               }
             ]
           },
@@ -2038,14 +1365,20 @@ describe('Admin', () => {
             trackType: TrackType.MAIN,
             trackNum: 0,
             tier: 5,
-            ranked: true
+            type: LeaderboardType.UNRANKED
+          },
+          {
+            gamemode: Gamemode.DEFRAG_VQ3,
+            trackType: TrackType.BONUS,
+            trackNum: 0,
+            tier: 5,
+            type: LeaderboardType.RANKED
           },
           {
             gamemode: Gamemode.DEFRAG_CPM,
             trackType: TrackType.BONUS,
             trackNum: 0,
-            tier: 10,
-            ranked: false
+            type: LeaderboardType.HIDDEN
           }
         ];
 
@@ -2066,7 +1399,7 @@ describe('Admin', () => {
                 }
               }
             },
-            status: MapStatusNew.FINAL_APPROVAL
+            status: MapStatus.FINAL_APPROVAL
           });
 
           const vmfZip = new Zip();
@@ -2086,7 +1419,7 @@ describe('Admin', () => {
             data: ZonesStubLeaderboards.map((lb) => ({
               mapID: map.id,
               style: 0,
-              ranked: false,
+              type: LeaderboardType.IN_SUBMISSION,
               ...lb
             }))
           });
@@ -2108,7 +1441,7 @@ describe('Admin', () => {
           });
 
           expect(updatedMap).toMatchObject({
-            status: MapStatusNew.APPROVED,
+            status: MapStatus.APPROVED,
             hash: bspHash,
             hasVmf: true
           });
@@ -2125,12 +1458,12 @@ describe('Admin', () => {
           ).toBeFalsy();
 
           expect(
-            createSha1Hash(await fileStore.get(`maps/${map.fileName}.bsp`))
+            createSha1Hash(await fileStore.get(`maps/${map.name}.bsp`))
           ).toBe(bspHash);
 
           expect(
             createSha1Hash(
-              new Zip(await fileStore.get(`maps/${map.fileName}_VMFs.zip`))
+              new Zip(await fileStore.get(`maps/${map.name}_VMFs.zip`))
                 .getEntry('map.vmf')
                 .getData()
             )
@@ -2214,7 +1547,7 @@ describe('Admin', () => {
                 linear: false,
                 style: 0,
                 tier: 5,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
                 tags: []
               },
               {
@@ -2224,7 +1557,7 @@ describe('Admin', () => {
                 trackNum: 0,
                 linear: null,
                 tier: null,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
                 style: 0,
                 tags: []
               },
@@ -2235,7 +1568,18 @@ describe('Admin', () => {
                 trackNum: 1,
                 linear: null,
                 tier: null,
-                ranked: true,
+                type: LeaderboardType.UNRANKED,
+                style: 0,
+                tags: []
+              },
+              {
+                mapID: map.id,
+                gamemode: Gamemode.DEFRAG_VQ3,
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                linear: null,
+                tier: 5,
+                type: LeaderboardType.RANKED,
                 style: 0,
                 tags: []
               },
@@ -2245,15 +1589,15 @@ describe('Admin', () => {
                 trackType: TrackType.BONUS,
                 trackNum: 0,
                 linear: null,
-                tier: 10,
-                ranked: false,
+                tier: null,
+                type: LeaderboardType.HIDDEN,
                 style: 0,
                 tags: []
               }
             ])
           );
 
-          expect(leaderboards).toHaveLength(4);
+          expect(leaderboards).toHaveLength(5);
 
           expect(
             await prisma.leaderboardRun.findMany({
@@ -2266,6 +1610,79 @@ describe('Admin', () => {
               where: { mapID: map.id, gamemode: Gamemode.CONC }
             })
           ).toHaveLength(0);
+        });
+
+        it('should delete any map review assets after map status changed from FA to approved', async () => {
+          const assetPath = mapReviewAssetPath('1');
+
+          await prisma.mapReview.create({
+            data: {
+              mainText:
+                'This map doesn’t scrape the bottom of the barrel. ' +
+                'This map isn’t the bottom of the barrel. ' +
+                'This map isn’t below the bottom of the barrel. ' +
+                'This map doesn’t deserve to be mentioned in the same sentence with barrels.',
+              resolved: true,
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await fileStore.add(assetPath, Buffer.alloc(1024));
+          expect(await fileStore.exists(assetPath)).toBe(true);
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+
+          expect(await fileStore.exists(assetPath)).toBe(false);
+        });
+
+        it('should 400 if map has unresolved reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: false,
+              mainText:
+                'I hated this map. ' +
+                'Hated hated hated hated hated this map. Hated it. ' +
+                'Hated every simpering stupid vacant player-insulting stage of it',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+        });
+
+        it('should succeed if map has resolved=null reviews', async () => {
+          await prisma.mapReview.create({
+            data: {
+              resolved: null,
+              mainText:
+                'Was there no one connected with this project who read the ' +
+                'screenplay, considered the story, evaluated the proposed map and vomited?',
+              imageIDs: ['1'],
+              mmap: { connect: { id: map.id } },
+              reviewer: { connect: { id: mod.id } }
+            }
+          });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
         });
 
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
@@ -2298,7 +1715,7 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, admin, adminToken, u1, u1Token, m1;
+      let modToken, admin, adminToken, u1, u1Token, map, imgID;
 
       beforeAll(async () => {
         [modToken, [admin, adminToken], [u1, u1Token]] = await Promise.all([
@@ -2313,70 +1730,77 @@ describe('Admin', () => {
       );
 
       beforeEach(async () => {
-        m1 = await db.createMap({
+        imgID = db.uuid();
+        map = await db.createMap({
           submitter: { connect: { id: u1.id } },
-          images: { create: {} }
+          images: [imgID]
         });
-        await db.createLbRun({ map: m1, user: u1, time: 1, rank: 1 });
+        await db.createLbRun({ map: map, user: u1, time: 1, rank: 1 });
       });
 
       afterEach(() => db.cleanup('mMap'));
 
-      it('should successfully delete the map and related stored data', async () => {
+      it('should successfully disable the map and related stored data', async () => {
         const fileName = 'my_cool_map';
-        await prisma.mMap.update({ where: { id: m1.id }, data: { fileName } });
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { name: fileName }
+        });
 
         await fileStore.add(
           `maps/${fileName}.bsp`,
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
-        const img = await prisma.mapImage.findFirst({
-          where: { mapID: m1.id }
-        });
         for (const size of ['small', 'medium', 'large']) {
           await fileStore.add(
-            `img/${img.id}-${size}.jpg`,
+            `img/${imgID}-${size}.jpg`,
             readFileSync(__dirname + '/../files/image_jpg.jpg')
           );
         }
 
+        for (const size of ['small', 'medium', 'large']) {
+          expect(
+            await fileStore.exists(`img/${imgID}-${size}.jpg`)
+          ).toBeTruthy();
+        }
+
         const run = await prisma.leaderboardRun.findFirst({
-          where: { mapID: m1.id }
+          where: { mapID: map.id }
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
         await req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 204,
           token: adminToken
         });
 
-        expect(
-          await prisma.mMap.findFirst({ where: { id: m1.id } })
-        ).toBeNull();
+        const updated = await prisma.mMap.findFirst({ where: { id: map.id } });
+        expect(updated).toMatchObject({
+          status: MapStatus.DISABLED,
+          hash: null
+        });
+
         expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
+        // We used to delete these, check we don't anymore
         const relatedRuns = await prisma.leaderboardRun.findMany({
-          where: { mapID: m1.id }
+          where: { mapID: map.id }
         });
-        expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        expect(relatedRuns).toHaveLength(1);
+        expect(await fileStore.exists(runPath(run.replayHash))).toBeTruthy();
 
-        const relatedImages = await prisma.mapImage.findMany({
-          where: { mapID: m1.id }
-        });
-        expect(relatedImages).toHaveLength(0);
         for (const size of ['small', 'medium', 'large']) {
           expect(
-            await fileStore.exists(`img/${img.id}-${size}.jpg`)
+            await fileStore.exists(`img/${imgID}-${size}.jpg`)
           ).toBeFalsy();
         }
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.MAP_DELETE
-          ])
-        ).toBe(true);
+
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.MAP_CONTENT_DELETE
+        );
       });
 
       it('should return 404 if map not found', () =>
@@ -2388,20 +1812,230 @@ describe('Admin', () => {
 
       it('should return 403 if a non admin access token is given', () =>
         req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 403,
           token: u1Token
         }));
 
       it('should return 403 if a mod access token is given', () =>
         req.del({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 403,
           token: modToken
         }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/maps/1', 'del'));
+    });
+  });
+
+  describe('admin/map-review/{reviewID}', () => {
+    describe('PATCH', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'im sick today so cba to think of silly messages',
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow admin to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: adminToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow mod to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: modToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should allow reviewer to update resolved status', async () => {
+        const res = await req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 200,
+          body: { resolved: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        expect(res.body.resolved).toBe(true);
+      });
+
+      it('should not allow review author to access', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          body: { resolved: true },
+          token: u1Token
+        }));
+
+      it('should 400 for bad update data', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 400,
+          body: { mainText: "admins cant rewrite people's reviews" },
+          token: adminToken
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.patch({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          body: { resolved: true },
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'patch'));
+    });
+
+    describe('DELETE', () => {
+      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+      const assetPath = mapReviewAssetPath('1');
+
+      beforeAll(async () => {
+        [[u1, u1Token], adminToken, modToken, reviewerToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } })
+          ]);
+
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      beforeEach(async () => {
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'auuaghauguhhh!!',
+            imageIDs: ['1'],
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.AHOP,
+                tier: 10,
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: false
+          }
+        });
+
+        await fileStore.add(assetPath, Buffer.alloc(1024));
+      });
+
+      afterEach(() => db.cleanup('mapReview'));
+
+      it('should allow an admin to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should delete any stored assets', async () => {
+        expect(await fileStore.exists(assetPath)).toBe(true);
+
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        expect(await fileStore.exists(assetPath)).toBe(false);
+      });
+
+      it('should allow a mod to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 204,
+          token: modToken
+        });
+
+        expect(
+          await prisma.mapReview.findUnique({ where: { id: review.id } })
+        ).toBeNull();
+      });
+
+      it('should not allow a reviewer to delete a map review', async () => {
+        await req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: reviewerToken
+        });
+      });
+
+      it('should not allow review author to delete a map review (via this endpoint)', () =>
+        req.del({
+          url: `admin/map-review/${review.id}`,
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should return 404 for missing review', () =>
+        req.del({
+          url: `admin/map-review/${NULL_ID}`,
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/map-review/1', 'del'));
     });
   });
 
@@ -2581,11 +2215,10 @@ describe('Admin', () => {
         expect(changedReport.resolved).toBe(true);
         expect(changedReport.resolutionMessage).toBe('resolved');
         expect(changedReport.resolverID).toBe(admin.id);
-        expect(
-          await adminActivityWasCreated(admin.id, [
-            AdminActivityType.REPORT_RESOLVE
-          ])
-        ).toBe(true);
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.REPORT_RESOLVE
+        );
       });
 
       it('should return 404 if targeting a nonexistent report', () =>
@@ -2674,7 +2307,10 @@ describe('Admin', () => {
           status: 200,
           token: adminToken,
           query: {
-            filter: `${AdminActivityType.MAP_UPDATE},${AdminActivityType.USER_UPDATE_BIO}`
+            filter: [
+              AdminActivityType.MAP_UPDATE,
+              AdminActivityType.USER_UPDATE_BIO
+            ]
           },
           validatePaged: { type: AdminActivityDto, count: 2 }
         });

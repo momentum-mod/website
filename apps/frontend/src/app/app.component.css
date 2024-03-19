@@ -10,31 +10,50 @@
   position: fixed;
   z-index: -10;
 
-  background: url('/assets/images/BGDarkGray.png') no-repeat center center fixed;
-  background-size: cover;
-}
+  & * {
+    position: absolute;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    scrollbar-gutter: stable;
+  }
 
-:root {
-  /* These vars need to be global so are set in styles.css.
-     layout.service.ts handles flipping between the underlying vars. */
-  --sidenav-width: var(--sidenav-width-wide);
+  & .default {
+    background-image: url('/assets/images/BGDarkGray.png');
+    z-index: 0;
+  }
+
+  & .custom {
+    z-index: 1;
+
+    filter: blur(4px) contrast(0.675) brightness(0.7);
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-in-out;
+  }
 }
 
 .chungus {
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
 
   display: grid;
   grid-template-areas:
     'head head'
     'side main';
   grid-template-rows: 5rem 1fr;
-  grid-template-columns: var(--sidenav-width) 1fr;
+  /* Remember, 1fr is equiv to minmax(auto, 1fr), so anything that can't fit on
+     main will expand out to the right. Looks bad if this happens, but site is
+     still usable, and better that clip/squishing etc. */
+  grid-template-columns: auto 1fr;
 }
 
 m-header {
   grid-area: head;
-  position: fixed;
 
   display: block;
   height: 5rem;
@@ -49,20 +68,22 @@ m-header {
 
 m-sidenav {
   grid-area: side;
-  position: sticky;
   display: block;
-
-  height: 100%;
 }
 
 main {
   grid-area: main;
+  display: block;
 
-  width: 100%;
-  max-width: 1800px;
-  margin: 3rem auto;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
 
+  padding: 36px 48px;
+}
+
+.scroll-container {
   display: flex;
   flex-direction: column;
-  padding: 0 64px;
+  margin: 0 auto;
+  max-width: 1800px;
 }

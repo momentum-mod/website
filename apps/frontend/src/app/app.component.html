@@ -1,9 +1,24 @@
 <p-toast />
-<div class="bg-image"></div>
+<p-confirmDialog />
+<div class="bg-image">
+  <!-- Two backgrounds are needed so we can smoothly transition between between
+       them - some browsers support it (not FF), but transitioning
+       background-image is not officially in the W3 spec. -->
+  <div
+    class="custom"
+    [ngStyle]="{
+      'background-image': customBackgroundImage,
+      opacity: customBackgroundOpacity
+    }"
+  ></div>
+  <div class="default"></div>
+</div>
 <div class="chungus">
   <m-header />
   <m-sidenav />
   <main>
-    <router-outlet />
+    <div class="scroll-container">
+      <router-outlet />
+    </div>
   </main>
 </div>

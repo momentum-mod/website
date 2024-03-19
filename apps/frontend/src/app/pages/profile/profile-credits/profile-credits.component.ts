@@ -51,7 +51,7 @@ export class ProfileCreditsComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap(() =>
           this.usersService.getMapCredits(this.userID, {
-            expand: ['map', 'info', 'thumbnail'],
+            expand: ['map', 'info'],
             take: this.rows,
             skip: this.first
           })

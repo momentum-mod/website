@@ -12,6 +12,7 @@ import {
   LeaderboardRun,
   MapCredit,
   MapSubmission,
+  MapSubmissionVersion,
   MMap,
   Prisma
 } from '@prisma/client';
@@ -23,15 +24,17 @@ import {
   Ban,
   CombinedMapStatuses,
   CombinedRoles,
+  LeaderboardType,
   MapCreditType,
   MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
   MapStatusChangers,
-  MapStatusNew,
+  MapStatus,
+  MapSubmissionApproval,
   MapSubmissionDate,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
-  MapTestingRequestState,
+  MapTestInviteState,
   MapZones,
   Role,
   submissionBspPath,
@@ -49,9 +52,10 @@ import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
-import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
+import { JsonValue, Merge, MergeExclusive } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
+  SuggestionType,
   SuggestionValidationError,
   validateSuggestions,
   validateZoneFile,
@@ -72,7 +76,6 @@ import {
   MapInfoDto,
   MapsGetAllAdminQueryDto,
   MapsGetAllQueryDto,
-  MapsGetAllSubmissionAdminQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
   MapZonesDto,
@@ -81,14 +84,14 @@ import {
   UpdateMapDto
 } from '../../dto';
 import { FileStoreService } from '../filestore/file-store.service';
-import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
-import { MapTestingRequestService } from './map-testing-request.service';
+import { MapTestInviteService } from './map-test-invite.service';
 import { MapImageService } from './map-image.service';
 import {
   LeaderboardHandler,
   LeaderboardProps
 } from './leaderboard-handler.util';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
+import { MapReviewService } from '../map-review/map-review.service';
 
 @Injectable()
 export class MapsService {
@@ -96,47 +99,45 @@ export class MapsService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly config: ConfigService,
     private readonly fileStoreService: FileStoreService,
-    @Inject(forwardRef(() => LeaderboardRunsService))
-    private readonly leaderboardRunService: LeaderboardRunsService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
-    @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapTestingRequestService: MapTestingRequestService,
+    @Inject(forwardRef(() => MapTestInviteService))
+    private readonly mapTestInviteService: MapTestInviteService,
+    @Inject(forwardRef(() => MapReviewService))
+    private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService
   ) {}
 
   private readonly baseMapsSelect: Prisma.MMapSelect = {
     id: true,
     name: true,
-    fileName: true,
     status: true,
     hash: true,
     hasVmf: true,
+    images: true,
     createdAt: true,
     updatedAt: true,
-    submitterID: true,
-    thumbnailID: true
+    submitterID: true
   };
 
   //#region Gets
 
-  //
   async getAll(
     userID: number,
     query:
       | MapsGetAllQueryDto
       | MapsGetAllAdminQueryDto
       | MapsGetAllSubmissionQueryDto
-      | MapsGetAllSubmissionAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
-    if (query.fileName) where.fileName = { startsWith: query.fileName };
+    if (query.searchStartsWith)
+      where.name = { startsWith: query.searchStartsWith };
     if (query.submitterID) where.submitterID = query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
-      where.status = MapStatusNew.APPROVED;
+      where.status = MapStatus.APPROVED;
 
       const leaderboardSome: Prisma.LeaderboardWhereInput = {
         // These extra params allow apply to main tracks for now - I'm not sure
@@ -145,8 +146,10 @@ export class MapsService {
         trackType: TrackType.MAIN
       };
 
+      // Gamemode 0 doesn't exist, so non-zero check makes sense here
       if (query.gamemode) {
         leaderboardSome.gamemode = query.gamemode;
+        leaderboardSome.type = { not: LeaderboardType.HIDDEN };
       }
 
       if (query.difficultyHigh && query.difficultyLow) {
@@ -160,7 +163,7 @@ export class MapsService {
         leaderboardSome.tier = { lt: query.difficultyHigh };
       }
 
-      if (typeof query.linear === 'boolean') {
+      if (query.linear != null) {
         leaderboardSome.linear = query.linear;
       }
 
@@ -168,10 +171,25 @@ export class MapsService {
       if (Object.keys(leaderboardSome).length > 1) {
         where.leaderboards = { some: leaderboardSome };
       }
-    } else if (
-      query instanceof MapsGetAllSubmissionQueryDto ||
-      query instanceof MapsGetAllSubmissionAdminQueryDto
-    ) {
+
+      if (query.favorite != null) {
+        if (!userID)
+          throw new ForbiddenException(
+            'favorite param is invalid without a login'
+          );
+        where.favorites = { [query.favorite ? 'some' : 'none']: { userID } };
+      }
+
+      if (query.PB != null) {
+        if (!userID)
+          throw new ForbiddenException('PB param is invalid without a login');
+        const quantifier = query.PB ? 'some' : 'none';
+        where.leaderboardRuns = { [quantifier]: { userID } };
+        if (query.gamemode) {
+          where.leaderboardRuns[quantifier].gamemode = query.gamemode;
+        }
+      }
+    } else if (query instanceof MapsGetAllSubmissionQueryDto) {
       const user = await this.db.user.findUnique({
         where: { id: userID },
         select: { roles: true }
@@ -193,38 +211,35 @@ export class MapsService {
       } else if (Bitflags.has(Role.REVIEWER, roles)) {
         const adminFilter = filter as MapsGetAllSubmissionAdminFilter;
         if (adminFilter?.length > 0) {
-          if (adminFilter?.includes(MapStatusNew.FINAL_APPROVAL))
+          if (adminFilter?.includes(MapStatus.FINAL_APPROVAL))
             throw new ForbiddenException();
 
           const ORs = [];
-          if (adminFilter?.includes(MapStatusNew.PUBLIC_TESTING)) {
-            if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
+          if (adminFilter?.includes(MapStatus.PUBLIC_TESTING)) {
+            if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
               ORs.push({
                 status: {
-                  in: [
-                    MapStatusNew.PUBLIC_TESTING,
-                    MapStatusNew.CONTENT_APPROVAL
-                  ]
+                  in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
                 }
               });
             } else {
-              ORs.push({ status: MapStatusNew.PUBLIC_TESTING });
+              ORs.push({ status: MapStatus.PUBLIC_TESTING });
             }
-          } else if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
-            ORs.push({ status: MapStatusNew.CONTENT_APPROVAL });
+          } else if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
+            ORs.push({ status: MapStatus.CONTENT_APPROVAL });
           }
 
-          if (adminFilter?.includes(MapStatusNew.PRIVATE_TESTING)) {
+          if (adminFilter?.includes(MapStatus.PRIVATE_TESTING)) {
             ORs.push({
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -237,19 +252,19 @@ export class MapsService {
           where.OR = [
             {
               status: {
-                in: [MapStatusNew.PUBLIC_TESTING, MapStatusNew.CONTENT_APPROVAL]
+                in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
               }
             },
             {
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -260,19 +275,19 @@ export class MapsService {
         }
       } else {
         // Regular user filters can only be public, private, both or none (last two are equiv)
-        if (filter?.[0] === MapStatusNew.PUBLIC_TESTING) {
-          where.status = MapStatusNew.PUBLIC_TESTING;
-        } else if (filter?.[0] === MapStatusNew.PRIVATE_TESTING) {
+        if (filter?.[0] === MapStatus.PUBLIC_TESTING) {
+          where.status = MapStatus.PUBLIC_TESTING;
+        } else if (filter?.[0] === MapStatus.PRIVATE_TESTING) {
           where.AND = {
             AND: [
-              { status: MapStatusNew.PRIVATE_TESTING },
+              { status: MapStatus.PRIVATE_TESTING },
               {
                 OR: [
                   { submitterID: userID },
                   { credits: { some: { userID } } },
                   {
-                    testingRequests: {
-                      some: { userID, state: MapTestingRequestState.ACCEPTED }
+                    testInvites: {
+                      some: { userID, state: MapTestInviteState.ACCEPTED }
                     }
                   }
                 ]
@@ -281,17 +296,17 @@ export class MapsService {
           };
         } else {
           where.OR = [
-            { status: MapStatusNew.PUBLIC_TESTING },
+            { status: MapStatus.PUBLIC_TESTING },
             {
               AND: [
-                { status: MapStatusNew.PRIVATE_TESTING },
+                { status: MapStatus.PRIVATE_TESTING },
                 {
                   OR: [
                     { submitterID: userID },
                     { credits: { some: { userID } } },
                     {
-                      testingRequests: {
-                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      testInvites: {
+                        some: { userID, state: MapTestInviteState.ACCEPTED }
                       }
                     }
                   ]
@@ -300,19 +315,19 @@ export class MapsService {
             },
             {
               AND: {
-                status: MapStatusNew.CONTENT_APPROVAL,
+                status: MapStatus.CONTENT_APPROVAL,
                 submitterID: userID
               }
             },
             {
               AND: {
-                status: MapStatusNew.FINAL_APPROVAL,
+                status: MapStatus.FINAL_APPROVAL,
                 submitterID: userID
               }
             },
             {
               AND: {
-                status: MapStatusNew.DISABLED,
+                status: MapStatus.DISABLED,
                 submitterID: userID
               }
             }
@@ -326,66 +341,86 @@ export class MapsService {
       }
     }
 
-    const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
-      query.expand,
-      {
-        only: ['currentVersion', 'versions'],
-        mappings: [
-          {
-            expand: 'versions',
-            model: 'versions',
-            value: {
-              select: {
-                hash: true,
-                hasVmf: true,
-                versionNum: true,
-                id: true,
-                createdAt: true,
-                // Changelog and zones are quite large structures so not worth
-                // ever including on the paginated query - make clients query
-                // for a specific submission if they want all that stuff
-                zones: false,
-                changelog: false
-              }
-            }
-          }
-        ]
-      }
-    );
+    let incPB = false,
+      incWR = false;
 
     // Select (and include)
-    const select: Prisma.MMapSelect = {
-      ...this.baseMapsSelect,
-      submission: isEmpty(submissionInclude)
-        ? true
-        : { include: submissionInclude },
-      ...expandToIncludes(query.expand, {
-        without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
-        mappings: [
-          { expand: 'credits', value: { include: { user: true } } },
-          {
-            expand: 'inFavorites',
-            model: 'favorites',
-            value: { where: { userID: userID } }
-          },
-          {
-            expand: 'inLibrary',
-            model: 'libraryEntries',
-            value: { where: { userID: userID } }
-          }
-        ]
-      })
-    };
+    // For admins we don't need dynamic expands, just give em everything.
+    let select: Prisma.MMapSelect;
+    if (query instanceof MapsGetAllAdminQueryDto) {
+      select = {
+        ...this.baseMapsSelect,
+        submission: { include: { currentVersion: true, versions: true } },
+        info: true,
+        leaderboards: true,
+        images: true,
+        submitter: true,
+        credits: { include: { user: true } }
+      };
+    } else {
+      const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
+        query.expand,
+        {
+          only: ['currentVersion', 'versions'],
+          mappings: [
+            {
+              expand: 'versions',
+              model: 'versions',
+              value: {
+                select: {
+                  hash: true,
+                  hasVmf: true,
+                  versionNum: true,
+                  id: true,
+                  createdAt: true,
+                  // Changelog and zones are quite large structures so not worth
+                  // ever including on the paginated query - make clients query
+                  // for a specific submission if they want all that stuff
+                  zones: false,
+                  changelog: false
+                }
+              }
+            }
+          ]
+        }
+      );
 
-    let incPB: boolean, incWR: boolean;
+      select = {
+        ...this.baseMapsSelect,
+        submission: isEmpty(submissionInclude)
+          ? true
+          : { include: submissionInclude },
+        ...expandToIncludes(query.expand, {
+          without: [
+            'currentVersion',
+            'versions',
+            'personalBest',
+            'worldRecord'
+          ],
+          mappings: [
+            { expand: 'credits', value: { include: { user: true } } },
+            {
+              expand: 'inFavorites',
+              model: 'favorites',
+              value: { where: { userID: userID } }
+            },
+            {
+              expand: 'inLibrary',
+              model: 'libraryEntries',
+              value: { where: { userID: userID } }
+            }
+          ]
+        })
+      };
 
-    if (
-      query instanceof MapsGetAllQueryDto ||
-      query instanceof MapsGetAllSubmissionQueryDto
-    ) {
-      incPB = query.expand?.includes('personalBest');
-      incWR = query.expand?.includes('worldRecord');
-      this.handleMapGetIncludes(select, incPB, incWR, userID);
+      if (
+        query instanceof MapsGetAllQueryDto ||
+        query instanceof MapsGetAllSubmissionQueryDto
+      ) {
+        incPB = query.expand?.includes('personalBest');
+        incWR = query.expand?.includes('worldRecord');
+        this.handleMapGetIncludes(select, incPB, incWR, userID);
+      }
     }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
@@ -415,6 +450,7 @@ export class MapsService {
         without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
         mappings: [
           { expand: 'credits', value: { include: { user: true } } },
+          { expand: 'testInvites', value: { include: { user: true } } },
           {
             expand: 'inFavorites',
             model: 'favorites',
@@ -542,10 +578,13 @@ export class MapsService {
 
     await this.checkMapCompression(bspFile);
 
-    this.checkMapFiles(dto.fileName, bspFile, vmfFiles);
-    this.checkMapFileNames(dto.name, dto.fileName);
+    this.checkMapFiles(bspFile, vmfFiles);
 
-    this.checkSuggestionsAndZones(dto.suggestions, dto.zones);
+    this.checkSuggestionsAndZones(
+      dto.suggestions,
+      dto.zones,
+      SuggestionType.SUBMISSION
+    );
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -565,7 +604,7 @@ export class MapsService {
           mapID: map.id,
           ...obj,
           style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
-          ranked: false
+          type: LeaderboardType.IN_SUBMISSION
         }))
       });
 
@@ -574,7 +613,7 @@ export class MapsService {
       const tasks: Promise<unknown>[] = [
         (async () => {
           const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(dto.fileName, 1, vmfFiles)
+            ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
             : undefined;
 
           return this.uploadMapSubmissionVersionFiles(
@@ -589,7 +628,7 @@ export class MapsService {
 
       if (dto.wantsPrivateTesting && dto.testInvites?.length > 0) {
         tasks.push(
-          this.mapTestingRequestService.createOrUpdatePrivateTestingInvites(
+          this.mapTestInviteService.createOrUpdatePrivateTestingInvites(
             tx,
             map.id,
             dto.testInvites
@@ -612,7 +651,9 @@ export class MapsService {
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: { include: { currentVersion: true } } }
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
     });
 
     if (!map) {
@@ -621,6 +662,12 @@ export class MapsService {
 
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the map submitter');
+
+    // This should never happen but stops someone flooding S3 storage with
+    // garbage.
+    if (map.submission.versions?.length > 100) {
+      throw new ForbiddenException('Reached map version limit');
+    }
 
     const { bans: userBans } = await this.db.user.findUnique({
       where: { id: userID },
@@ -640,7 +687,7 @@ export class MapsService {
 
     await this.checkMapCompression(bspFile);
 
-    this.checkMapFiles(map.fileName, bspFile, vmfFiles);
+    this.checkMapFiles(bspFile, vmfFiles);
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -675,10 +722,30 @@ export class MapsService {
         zones
       );
 
+      if (dto.resetLeaderboards === true) {
+        // If it's been approved before, deleting runs is a majorly destructive
+        // action that we probably don't want to allow the submitter to do.
+        // If the submitter is fixing the maps in a significant enough way to
+        // still require a leaderboard reset, they should just get an admin to
+        // do it.
+        if (
+          (map.submission.dates as unknown as MapSubmissionDate[]).some(
+            (date) => date.status === MapStatus.APPROVED
+          )
+        ) {
+          throw new ForbiddenException(
+            'Cannot reset leaderboards on a previously approved map.' +
+              ' Talk about it with an admin!'
+          );
+        }
+
+        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
+      }
+
       await parallel(
         async () => {
           const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
+            ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
             : undefined;
 
           await this.uploadMapSubmissionVersionFiles(
@@ -731,15 +798,8 @@ export class MapsService {
       );
     }
 
-    // Don't allow maps with same filename unless existing one is disabled.
-    if (
-      await this.db.mMap.exists({
-        where: {
-          fileName: dto.fileName,
-          NOT: { status: MapStatusNew.DISABLED }
-        }
-      })
-    )
+    // Don't allow maps with same name, ever.
+    if (await this.db.mMap.exists({ where: { name: dto.name } }))
       throw new ConflictException('Map with this file name already exists');
 
     if (!(dto.credits?.length > 0 || dto.placeholders?.length > 0)) {
@@ -757,8 +817,8 @@ export class MapsService {
     hasVmf: boolean
   ) {
     const status = createMapDto.wantsPrivateTesting
-      ? MapStatusNew.PRIVATE_TESTING
-      : MapStatusNew.CONTENT_APPROVAL;
+      ? MapStatus.PRIVATE_TESTING
+      : MapStatus.CONTENT_APPROVAL;
 
     // Prisma doesn't let you do nested createMany https://github.com/prisma/prisma/issues/5455)
     // so we have to do this shit in parts... Fortunately this doesn't run often.
@@ -766,7 +826,6 @@ export class MapsService {
       data: {
         submitter: { connect: { id: submitterID } },
         name: createMapDto.name,
-        fileName: createMapDto.fileName,
         submission: {
           create: {
             type: createMapDto.submissionType,
@@ -834,10 +893,8 @@ export class MapsService {
       include: {
         info: true,
         stats: true,
-        submission: { include: { currentVersion: true } },
+        submission: { include: { currentVersion: true, versions: true } },
         submitter: true,
-        images: true,
-        thumbnail: true,
         credits: { include: { user: true } }
       }
     });
@@ -880,7 +937,7 @@ export class MapsService {
           mapID,
           ...obj,
           style: 0, // TODO: Styles
-          ranked: false
+          type: LeaderboardType.IN_SUBMISSION
         }))
       });
 
@@ -921,11 +978,8 @@ export class MapsService {
     });
   }
 
-  private checkMapFiles(fileName: string, bspFile: File, vmfFiles: File[]) {
-    if (
-      !bspFile.originalname.startsWith(fileName) ||
-      !bspFile.originalname.endsWith('.bsp')
-    )
+  private checkMapFiles(bspFile: File, vmfFiles: File[]) {
+    if (!bspFile.originalname.endsWith('.bsp'))
       throw new BadRequestException('Bad BSP name');
 
     for (const file of vmfFiles ?? []) {
@@ -984,10 +1038,13 @@ export class MapsService {
     if (isEmpty(dto)) {
       throw new BadRequestException('Empty body');
     }
+
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: true }
-    })) as MapWithSubmission;
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
+    })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) throw new NotFoundException('Map does not exist');
 
@@ -997,10 +1054,26 @@ export class MapsService {
     if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
       throw new ForbiddenException('Map can only be edited during submission');
 
+    // Force the submitter to keep their suggestions in sync with their zones.
+    // If this requests has new suggestions, use those, otherwise use the
+    // existing ones.
+    //
+    // A map submission version could've updated the zones to something that
+    // doesn't work with the current suggestions, in this case, the submitter
+    // will be forced to update suggestions next time they do a general
+    // update, including if they want to change the map status. Frontend
+    // explains this to the user.
+    const suggs =
+      dto.suggestions ??
+      (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
+    const zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+
+    this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
+
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
     await this.db.$transaction(async (tx) => {
-      const generalUpdate = this.getGeneralMapDataUpdate(map, dto);
+      const generalUpdate = this.getGeneralMapDataUpdate(dto);
       const statusUpdate = await this.mapStatusUpdateHandler(
         tx,
         map,
@@ -1014,27 +1087,9 @@ export class MapsService {
         data: deepmerge()(generalUpdate, statusUpdate) as Prisma.MMapUpdateInput
       });
 
-      const mapDB = await this.db.mapSubmission.findUnique({
-        where: { mapID: map.id },
-        include: { currentVersion: true }
-      });
-
       if (dto.suggestions) {
-        const zones = mapDB.currentVersion.zones as unknown as MapZones; // TODO: #855
-        try {
-          validateSuggestions(dto.suggestions, zones);
-        } catch (error) {
-          if (error instanceof SuggestionValidationError) {
-            throw new BadRequestException(
-              `Invalid suggestions: ${error.message}`
-            );
-          } else {
-            throw error;
-          }
-        }
-
         // It's very uncommon we actually need to do this, but someone *could*
-        // change their suggestions from one mode to another *incompatible mode),
+        // change their suggestions from one mode to another incompatible mode),
         // so leaderboards would change. Usually there won't be any changes
         // required though.
         await this.generateSubmissionLeaderboards(
@@ -1043,26 +1098,6 @@ export class MapsService {
           dto.suggestions,
           zones
         );
-      }
-
-      if (dto.resetLeaderboards === true) {
-        // If it's been approved before, deleting runs is a majorly destructive
-        // action that we probably don't want to allow the submitter to do.
-        // If the submitter is fixing the maps in a significant enough way to
-        // still require a leaderboard reset, they should just get an admin to
-        // do it.
-        if (
-          map.submission.dates.some(
-            (date) => date.status === MapStatusNew.APPROVED
-          )
-        ) {
-          throw new ForbiddenException(
-            'Cannot reset leaderboards on a previously approved map.' +
-              ' Talk about it with an admin!'
-          );
-        }
-
-        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
       }
     });
   }
@@ -1075,10 +1110,13 @@ export class MapsService {
     if (isEmpty(dto)) {
       throw new BadRequestException('Empty body');
     }
+
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: true }
-    })) as MapWithSubmission;
+      include: {
+        submission: { include: { currentVersion: true, versions: true } }
+      }
+    })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) {
       throw new NotFoundException('Map does not exist');
@@ -1091,7 +1129,7 @@ export class MapsService {
         // The *only* things reviewer is allowed is to go from
         // content approval -> public testing or rejected
         if (
-          dto.status !== MapStatusNew.PUBLIC_TESTING || // updating to status other public testing
+          dto.status !== MapStatus.PUBLIC_TESTING || // updating to status other public testing
           Object.values(dto).filter((x) => x !== undefined).length !== 1 // anything else on the DTO
         ) {
           throw new ForbiddenException(
@@ -1123,7 +1161,7 @@ export class MapsService {
         update.submitter = { connect: { id: dto.submitterID } };
       }
 
-      const generalChanges = this.getGeneralMapDataUpdate(map, dto);
+      const generalChanges = this.getGeneralMapDataUpdate(dto);
       const statusChanges = await this.mapStatusUpdateHandler(
         tx,
         map,
@@ -1152,18 +1190,11 @@ export class MapsService {
   }
 
   private getGeneralMapDataUpdate(
-    map: MapWithSubmission,
     dto: UpdateMapDto | UpdateMapAdminDto
   ): Prisma.MMapUpdateInput {
     const update: Prisma.MMapUpdateInput = {};
 
-    if (dto.name || dto.fileName) {
-      this.checkMapFileNames(
-        dto.name ?? dto.fileName,
-        dto.fileName ?? map.fileName
-      );
-
-      update.fileName = dto.fileName;
+    if (dto.name) {
       update.name = dto.name;
     }
 
@@ -1177,13 +1208,18 @@ export class MapsService {
       };
     }
 
-    if (dto.placeholders || dto.suggestions) {
-      update.submission = {
-        update: {
-          placeholders: dto.placeholders,
-          suggestions: dto.suggestions
-        }
-      };
+    if (dto.submissionType != null) {
+      update.submission = { update: { type: dto.submissionType } };
+    }
+
+    if (dto.placeholders) {
+      update.submission ??= { update: {} };
+      update.submission.update.placeholders = dto.placeholders;
+    }
+
+    if ('suggestions' in dto && dto.suggestions) {
+      update.submission ??= { update: {} };
+      update.submission.update.suggestions = dto.suggestions;
     }
 
     return update;
@@ -1220,13 +1256,13 @@ export class MapsService {
 
     // Call functions for specific status changes
     if (
-      oldStatus === MapStatusNew.PUBLIC_TESTING &&
-      newStatus === MapStatusNew.FINAL_APPROVAL
+      oldStatus === MapStatus.PUBLIC_TESTING &&
+      newStatus === MapStatus.FINAL_APPROVAL
     ) {
       await this.updateStatusFromPublicToFA(map);
     } else if (
-      oldStatus === MapStatusNew.FINAL_APPROVAL &&
-      newStatus === MapStatusNew.APPROVED
+      oldStatus === MapStatus.FINAL_APPROVAL &&
+      newStatus === MapStatus.APPROVED
     ) {
       await this.updateStatusFromFAToApproved(tx, map, dto);
     }
@@ -1251,16 +1287,17 @@ export class MapsService {
     // If it's met the criteria to go to FA once, allowed to skip these checks
     if (
       map.submission.dates.some(
-        (date) => date.status === MapStatusNew.FINAL_APPROVAL
+        (date) => date.status === MapStatus.FINAL_APPROVAL
       )
     ) {
       return;
     }
+
     // Ensure it's been in testing for minimum period,
     // if it's never been to FINAL_APPROVAL before.
     const currentTime = Date.now();
     const latestPubTestDate = map.submission.dates
-      .filter((x) => x.status === MapStatusNew.PUBLIC_TESTING)
+      .filter((x) => x.status === MapStatus.PUBLIC_TESTING)
       .sort(
         ({ date: dateA }, { date: dateB }) =>
           new Date(dateA).getTime() - new Date(dateB).getTime()
@@ -1302,6 +1339,13 @@ export class MapsService {
     map: MapWithSubmission,
     dto: UpdateMapAdminDto
   ) {
+    // Check we don't have any unresolved reviews. Even admins shouldn't be able
+    // to bypass this, if needed they can just go in and resolve those reviews!
+    const reviews = await tx.mapReview.findMany({ where: { mapID: map.id } });
+    if (reviews.some((review) => review.resolved === false)) {
+      throw new BadRequestException('Map has unresolved reviews!');
+    }
+
     // Create placeholder users for all the users the submitter requested
     // Can't use createMany due to nesting (thanks Prisma!!)
     for (const placeholder of map.submission.placeholders ?? []) {
@@ -1335,7 +1379,6 @@ export class MapsService {
       )
     });
 
-    // Copy final MapSubmissionVersion BSP and VMFs to maps/
     const {
       currentVersion: { id: currentVersionID, hash, hasVmf, zones: dbZones },
       versions
@@ -1345,28 +1388,6 @@ export class MapsService {
     });
     const zones = dbZones as unknown as MapZones; // TODO: #855
 
-    const [bspSuccess, vmfSuccess] = await parallel(
-      this.fileStoreService.copyFile(
-        submissionBspPath(currentVersionID),
-        approvedBspPath(map.fileName)
-      ),
-      hasVmf
-        ? this.fileStoreService.copyFile(
-            submissionVmfsPath(currentVersionID),
-            approvedVmfsPath(map.fileName)
-          )
-        : () => Promise.resolve(true)
-    );
-
-    if (!bspSuccess)
-      throw new InternalServerErrorException(
-        `BSP file for map submission version ${currentVersionID} not in object store`
-      );
-    if (!vmfSuccess)
-      throw new InternalServerErrorException(
-        `VMF file for map submission version ${currentVersionID} not in object store`
-      );
-
     // Set hash of MMap to final version BSP's hash, and hasVmf is just whether
     // final version had a VMF.
     await tx.mMap.update({
@@ -1374,31 +1395,19 @@ export class MapsService {
       data: { hash, hasVmf, zones: dbZones } // TODO: e2e test zoines
     });
 
-    // Delete all the submission files - these would take up a LOT of space otherwise
-    try {
-      await this.fileStoreService.deleteFiles(
-        versions.flatMap((v) => [
-          submissionBspPath(v.id),
-          submissionVmfsPath(v.id)
-        ])
-      );
-    } catch (error) {
-      error.message = `Failed to delete map submission version file for ${map.fileName}: ${error.message}`;
-      throw new InternalServerErrorException(error);
-    }
-
     // Is it getting approved for first time?
     if (
-      !map.submission.dates.some(
-        (date) => date.status === MapStatusNew.APPROVED
-      )
+      !map.submission.dates.some((date) => date.status === MapStatus.APPROVED)
     ) {
       if (!dto.finalLeaderboards || dto.finalLeaderboards.length === 0)
         throw new BadRequestException('Missing finalized leaderboards');
 
-      // Shouldn't be possible that zones are invalid but doesn't hurt to
-      // re-check
-      this.checkSuggestionsAndZones(dto.finalLeaderboards, zones);
+      // Check final approval data
+      this.checkSuggestionsAndZones(
+        dto.finalLeaderboards,
+        zones,
+        SuggestionType.APPROVAL
+      );
 
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
@@ -1434,40 +1443,104 @@ export class MapsService {
 
       this.checkZones(zones);
     }
+
+    // Do S3 stuff last in case something errors - this is well tested and
+    // *should* behave well in production, but it's still complex stuff and
+    // we can't rollback S3 operations like we can a Postgres transaction.
+
+    // Copy final MapSubmissionVersion BSP and VMFs to maps/
+    const [bspSuccess, vmfSuccess] = await parallel(
+      this.fileStoreService.copyFile(
+        submissionBspPath(currentVersionID),
+        approvedBspPath(map.name)
+      ),
+      hasVmf
+        ? this.fileStoreService.copyFile(
+            submissionVmfsPath(currentVersionID),
+            approvedVmfsPath(map.name)
+          )
+        : () => Promise.resolve(true)
+    );
+
+    if (!bspSuccess)
+      throw new InternalServerErrorException(
+        `BSP file for map submission version ${currentVersionID} not in object store`
+      );
+    if (!vmfSuccess)
+      throw new InternalServerErrorException(
+        `VMF file for map submission version ${currentVersionID} not in object store`
+      );
+
+    // Delete all the submission files - these would take up a LOT of space otherwise
+    await parallel(
+      this.fileStoreService
+        .deleteFiles(
+          versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        )
+        .catch((error) => {
+          error.message = `Failed to delete map submission version file for ${map.name}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        }),
+      this.mapReviewService
+        .deleteAllReviewAssetsForMap(map.id)
+        .catch((error) => {
+          error.message = `Failed to delete map review files for ${map.name}: ${error.message}`;
+          throw new InternalServerErrorException(error);
+        })
+    );
   }
 
   //#endregion
 
   //#region Deletions
 
-  async delete(mapID: number, adminID?: number): Promise<void> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
+  async delete(mapID: number, adminID: number): Promise<void> {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { submission: { include: { versions: true } } }
+    });
 
     if (!map) throw new NotFoundException('No map found');
 
-    // Delete all stored map images
-    const images = await this.db.mapImage.findMany({ where: { mapID } });
+    // Set hashes to null to give frontend easy to tell files have been deleted
+    await this.db.mMap.update({
+      where: { id: mapID },
+      data: { status: MapStatus.DISABLED, hash: null }
+    });
+
+    await this.db.mapSubmissionVersion.updateMany({
+      where: { submissionID: mapID },
+      data: { hash: null }
+    });
+
+    // Delete any stored map files. Doesn't matter if any of these don't exist.
     await Promise.all(
-      images.map((img) => this.mapImageService.deleteStoredMapImage(img.id))
+      [
+        this.fileStoreService.deleteFile(approvedBspPath(map.name)),
+        this.fileStoreService.deleteFile(approvedVmfsPath(map.name)),
+        this.fileStoreService.deleteFiles(
+          map.submission.versions.flatMap((v) => [
+            submissionBspPath(v.id),
+            submissionVmfsPath(v.id)
+          ])
+        ),
+        ...map.images.map((imageID) =>
+          this.mapImageService.deleteStoredMapImage(imageID)
+        ),
+        this.mapReviewService.deleteAllReviewAssetsForMap(map.id)
+      ].map((promise) => promise.catch(() => void 0))
     );
 
-    // Delete all run files
-    await this.leaderboardRunService.deleteStoredMapRuns(mapID);
-
-    // Delete stored map file
-    await this.fileStoreService.deleteFile(approvedBspPath(map.fileName));
-
-    await this.db.mMap.delete({ where: { id: mapID } });
-
-    if (adminID) {
-      await this.adminActivityService.create(
-        adminID,
-        AdminActivityType.MAP_DELETE,
-        mapID,
-        {},
-        map
-      );
-    }
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.MAP_CONTENT_DELETE,
+      mapID,
+      {},
+      map
+    );
   }
 
   //#endregion
@@ -1519,6 +1592,9 @@ export class MapsService {
    * can do the desired fetch for you - hence the types having to be a little
    * insane.
    *
+   * If `submissionOnly: true` is given, throws if map is not in submission,
+   * except for mods and admins
+   *
    * @throws ForbiddenException
    */
   async getMapAndCheckReadAccess<
@@ -1526,7 +1602,7 @@ export class MapsService {
     S extends Prisma.MMapSelect,
     I extends Prisma.MMapInclude
   >(
-    args: { userID: number } & MergeExclusive<
+    args: { userID: number; submissionOnly?: boolean } & MergeExclusive<
       { map: M },
       { mapID: number | string } & MergeExclusive<
         { select?: S },
@@ -1543,6 +1619,9 @@ export class MapsService {
             : { name: args.mapID },
         include: args.include,
         select: args.select
+          ? // Required by below code
+            { id: true, status: true, ...args.select }
+          : undefined
       }));
 
     if (!map) {
@@ -1557,8 +1636,8 @@ export class MapsService {
 
     // If APPROVED/PUBLIC_TESTING, anyone can access.
     if (
-      map.status === MapStatusNew.APPROVED ||
-      map.status === MapStatusNew.PUBLIC_TESTING
+      (map.status === MapStatus.APPROVED && !args?.submissionOnly) ||
+      map.status === MapStatus.PUBLIC_TESTING
     ) {
       return map as GetMMapUnique<S, I>;
     }
@@ -1567,12 +1646,23 @@ export class MapsService {
     const user = await this.db.user.findUnique({ where: { id: args.userID } });
 
     switch (map.status) {
+      // APPROVED, always allow unless:
+      // - submissionOnly is true, and not mod/admin
+      case MapStatus.APPROVED: {
+        if (
+          !args?.submissionOnly ||
+          Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+        )
+          return map as GetMMapUnique<S, I>;
+
+        break;
+      }
       // PRIVATE_TESTING, only allow:
       // - The submitter
       // - Moderator/Admin
       // - in the credits
-      // - Has an accepted MapTestingRequest
-      case MapStatusNew.PRIVATE_TESTING: {
+      // - Has an accepted MapTestInvite
+      case MapStatus.PRIVATE_TESTING: {
         if (
           map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
@@ -1580,11 +1670,11 @@ export class MapsService {
           return map as GetMMapUnique<S, I>;
 
         if (
-          await this.db.mapTestingRequest.exists({
+          await this.db.mapTestInvite.exists({
             where: {
               mapID,
               userID: args.userID,
-              state: MapTestingRequestState.ACCEPTED
+              state: MapTestInviteState.ACCEPTED
             }
           })
         )
@@ -1603,8 +1693,8 @@ export class MapsService {
       // - The submitter
       // - Moderator/Admin
       // - Reviewer
-      case MapStatusNew.CONTENT_APPROVAL:
-      case MapStatusNew.FINAL_APPROVAL: {
+      case MapStatus.CONTENT_APPROVAL:
+      case MapStatus.FINAL_APPROVAL: {
         if (
           map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE)
@@ -1615,7 +1705,7 @@ export class MapsService {
       }
       // DISABLED, only allow:
       // - Moderator/Admin
-      case MapStatusNew.DISABLED: {
+      case MapStatus.DISABLED: {
         if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN))
           return map as GetMMapUnique<S, I>;
         break;
@@ -1626,24 +1716,7 @@ export class MapsService {
   }
 
   /**
-   *  Simple checks that the name on the DTO and the uploaded File match up,
-   *  and a length check. All instances of `fileName` will have already passed
-   *  an IsMapName validator so is only be alphanumeric, dashes and underscores.
-   *  @throws BadRequestException
-   */
-  checkMapFileNames(name: string, fileName: string) {
-    // Simple checks that the name on the DTO and the uploaded File match up,
-    // and a length check. All instances of `fileName` will have passed an
-    // IsMapName validator so is only be alphanumeric, dashes and underscores.
-    if (name.length < 3 || fileName.length < 3)
-      throw new BadRequestException('Name/Filename is too short (< 3)');
-
-    if (!fileName.includes(name))
-      throw new BadRequestException("Filename must contain the map's name");
-  }
-
-  /**
-   * Validate both suggestion and zone validation, throw if either fails
+   * Validates zone data, throw if fails
    * @throws BadRequestException
    */
   checkZones(zones: MapZones) {
@@ -1663,12 +1736,13 @@ export class MapsService {
    * @throws BadRequestException
    */
   checkSuggestionsAndZones(
-    suggestions: MapSubmissionSuggestion[],
-    zones: MapZones
+    suggestions: MapSubmissionSuggestion[] | MapSubmissionApproval[],
+    zones: MapZones,
+    type: SuggestionType
   ) {
     try {
       validateZoneFile(zones);
-      validateSuggestions(suggestions, zones);
+      validateSuggestions(suggestions, zones, type);
     } catch (error) {
       if (error instanceof ZoneValidationError) {
         throw new BadRequestException(`Invalid zone files: ${error.message}`);
@@ -1703,16 +1777,19 @@ export class MapsService {
 }
 
 type MapWithSubmission = MMap & {
-  submission: OverrideProperties<
+  submission: Merge<
     MapSubmission,
     {
       dates: MapSubmissionDate[];
       placeholders: MapSubmissionPlaceholder[];
+      suggestions: MapSubmissionSuggestion[];
+      currentVersion: MapSubmissionVersion;
+      versions: MapSubmissionVersion[];
     }
   >;
 };
 
-type GetMMapUnique<S, I> = Prisma.Result<
+type GetMMapUnique<S, I> = { id: number; status: MapStatus } & Prisma.Result<
   ExtendedPrismaService['mMap'],
   { select: S; include: I },
   'findUnique'

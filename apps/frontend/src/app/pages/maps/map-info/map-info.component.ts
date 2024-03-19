@@ -1,55 +1,80 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { switchMap, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Component, DestroyRef, OnInit } from '@angular/core';
+import { switchMap, tap } from 'rxjs/operators';
 import {
-  MMap,
+  CombinedMapStatuses,
+  CombinedRoles,
+  DateString,
+  MapCreditNames,
+  MapCreditType,
   MapImage,
   MapNotify,
-  CombinedRoles,
-  ReportType
+  MapStatusName,
+  MapStatus,
+  MMap,
+  ReportType,
+  YOUTUBE_ID_REGEXP
 } from '@momentum/constants';
-import { PartialDeep } from 'type-fest';
-import {
-  Gallery,
-  GalleryComponent,
-  GalleryRef,
-  ImageItem,
-  YoutubeItem
-} from 'ng-gallery';
-import { GallerizeDirective } from 'ng-gallery/lightbox';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TabViewModule } from 'primeng/tabview';
 import {
-  ReportButtonComponent,
-  CardHeaderComponent,
+  AvatarComponent,
+  CardBodyComponent,
   CardComponent,
-  AvatarComponent
+  CardHeaderComponent,
+  ReportButtonComponent,
+  SpinnerComponent,
+  TabComponent,
+  TabDirective,
+  TabsComponent
 } from '../../../components';
-import { TooltipDirective } from '../../../directives';
+import {
+  SpinnerDirective,
+  TooltipDirective,
+  FontSizeLerpDirective
+} from '../../../directives';
 import { SharedModule } from '../../../shared.module';
-import { LocalUserService, MapsService } from '../../../services';
-import { PluralPipe, ThousandsSuffixPipe } from '../../../pipes';
+import {
+  LayoutService,
+  LocalUserService,
+  MapsService
+} from '../../../services';
+import {
+  PluralPipe,
+  ThousandsSuffixPipe,
+  UnsortedKeyvaluePipe
+} from '../../../pipes';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
-import { MapInfoDescriptionComponent } from './map-info-description/map-info-description.component';
-import { MapInfoCreditsComponent } from './map-info-credits/map-info-credits.component';
-import { MapInfoStatsComponent } from './map-info-stats/map-info-stats.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
+import { GalleriaModule } from 'primeng/galleria';
+import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
+import { Enum } from '@momentum/enum';
+import { MapSubmissionComponent } from './map-submission/map-submission.component';
+import { extractPrefixFromMapName } from '@momentum/util-fn';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitleService } from '../../../services/title.service';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { downloadZoneFile } from '../../../util/download-zone-file.util';
+
+/**
+ * Using an m-tabs for this page doesn't work with the layout, we use this to
+ * explicitly enumerate possible RHS sections.
+ */
+enum MapInfoSection {
+  SUBMISSION = 1,
+  LEADERBOARDS = 2
+}
 
 @Component({
   selector: 'm-map-info',
   templateUrl: './map-info.component.html',
-  styleUrls: ['./map-info.component.css'],
   standalone: true,
   imports: [
     SharedModule,
-    GalleryComponent,
-    GallerizeDirective,
     MapLeaderboardComponent,
-    MapInfoDescriptionComponent,
-    MapInfoCreditsComponent,
-    MapInfoStatsComponent,
+    MapSubmissionComponent,
     ReportButtonComponent,
     CardHeaderComponent,
     CardComponent,
@@ -57,26 +82,50 @@ import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-e
     TabViewModule,
     AvatarComponent,
     PluralPipe,
-    ThousandsSuffixPipe
+    ThousandsSuffixPipe,
+    TabsComponent,
+    GalleriaModule,
+    CardBodyComponent,
+    TabDirective,
+    TabComponent,
+    UnsortedKeyvaluePipe,
+    SpinnerDirective,
+    SpinnerComponent,
+    FontSizeLerpDirective,
+    OverlayPanelModule
   ]
 })
-export class MapInfoComponent implements OnInit, OnDestroy {
+export class MapInfoComponent implements OnInit {
   protected readonly ReportType = ReportType;
+  protected readonly MapStatus = MapStatus;
+  protected readonly MapCreditType = MapCreditType;
+  protected readonly MapCreditNames = MapCreditNames;
+  protected readonly MapInfoSection = MapInfoSection;
+  protected readonly MapStatusName = MapStatusName;
+  protected readonly downloadZoneFile = downloadZoneFile;
 
-  private ngUnsub = new Subject<void>();
+  protected loading = false;
+  protected displayFullscreenGallery = false;
 
-  @Input() previewMap: PartialDeep<
-    { map: MMap; images: MapImage[] },
-    { recurseIntoArrays: true }
-  >;
   map: MMap;
-  mapNotify: MapNotify;
-  mapNotifications = false;
-  mapInLibrary = false;
-  mapInFavorites = false;
+
+  name: string;
+  prefix: string | null;
+  leaderboards: GroupedMapLeaderboards;
+  credits: GroupedMapCredits;
+  images: Array<{ full: string; thumb: string } | { youtube: true }>;
+  youtubeID?: SafeUrl;
+  youtubeThumbnail?: SafeUrl;
+
+  notify: MapNotify;
+  notifications = false;
+  inFavorites = false;
   isSubmitter: boolean;
-  isAdmin: boolean;
   isModerator: boolean;
+  inSubmission: boolean;
+
+  currentSection?: MapInfoSection = null;
+  sections = Enum.values(MapInfoSection);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -85,125 +134,130 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
     private readonly dialogService: DialogService,
-    private readonly gallery: Gallery
+    private readonly layoutService: LayoutService,
+    private readonly sanitizer: DomSanitizer,
+    private readonly destroyRef: DestroyRef,
+    private readonly titleService: TitleService
   ) {}
 
   ngOnInit() {
-    const galleryRef = this.gallery.ref('image-gallery');
-    const lightboxRef = this.gallery.ref('lightbox');
+    this.layoutService.reserveBackgroundUrl(
+      /\/maps\/(?!beta|submissions)[\w-]+\/?$/
+    );
 
-    galleryRef.setConfig({
-      loadingStrategy: 'lazy',
-      imageSize: 'cover',
-      thumbHeight: 68,
-      counter: false
-    });
-    lightboxRef.setConfig({
-      loadingStrategy: 'preload',
-      thumb: false,
-      counter: false,
-      imageSize: 'contain',
-      dots: true
-    });
-
-    if (this.previewMap) {
-      this.map = this.previewMap.map as MMap;
-      this.updateGallery(
-        galleryRef,
-        this.previewMap.images as MapImage[],
-        this.previewMap.map.info.youtubeID
-      );
-    } else {
-      this.route.paramMap
-        .pipe(
-          switchMap((params: ParamMap) =>
-            this.mapService.getMap(Number(params.get('id')), {
-              expand: [
-                'info',
-                'zones',
-                'leaderboards',
-                'credits',
-                'submitter',
-                'stats',
-                'images',
-                'inFavorites',
-                'inLibrary'
-              ]
-            })
-          )
-        )
-        .subscribe((map) => {
-          this.map = map;
-          this.localUserService.checkMapNotify(this.map.id).subscribe({
-            next: (resp) => {
-              this.mapNotify = resp;
-              if (resp) this.mapNotifications = true;
-            },
-            error: (error) => {
-              if (error.status !== 404)
-                this.messageService.add({
-                  severity: 'error',
-                  summary: 'Could not check if following',
-                  detail: error.message
-                });
-            }
-          });
-          if (this.map.favorites && this.map.favorites.length > 0)
-            this.mapInFavorites = true;
-          if (this.map.libraryEntries && this.map.libraryEntries.length > 0)
-            this.mapInLibrary = true;
-          this.updateGallery(galleryRef, map.images, map.info.youtubeID);
-          this.localUserService.localUserSubject
-            .pipe(takeUntil(this.ngUnsub))
-            .subscribe((locUser) => {
-              this.isModerator = this.localUserService.hasRole(
-                CombinedRoles.MOD_OR_ADMIN
-              );
-              this.isSubmitter = this.map.submitterID === locUser.id;
-            });
-        });
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
-  }
-
-  onLibraryUpdate() {
-    if (this.mapInLibrary) {
-      this.localUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
-        this.mapInLibrary = false;
-        this.map.stats.subscriptions--;
-      });
-    } else {
-      this.localUserService.addMapToLibrary(this.map.id).subscribe({
-        next: () => {
-          this.mapInLibrary = true;
-          this.map.stats.subscriptions++;
-        },
-        error: (error) =>
-          this.messageService.add({
-            severity: 'danager',
-            summary: 'Cannot add map to library',
-            detail: error.message
+    this.route.paramMap
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap((params: ParamMap) =>
+          this.mapService.getMap(params.get('name'), {
+            expand: [
+              'info',
+              'zones',
+              'leaderboards',
+              'credits',
+              'submitter',
+              'stats',
+              'inFavorites',
+              'inLibrary',
+              'submission',
+              'versions',
+              'currentVersion'
+            ]
           })
+        ),
+        tap(() => (this.loading = false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (map) => this.setMap(map),
+        error: () => this.router.navigate(['/404'])
       });
+  }
+
+  setMap(map: MMap) {
+    this.map = map;
+
+    if (!map) this.router.navigate(['/404']);
+
+    this.titleService.setTitle(this.map.name);
+
+    const [name, prefix] = extractPrefixFromMapName(map.name);
+    this.name = name;
+    this.prefix = prefix;
+    this.credits = new GroupedMapCredits(
+      this.map.credits ?? [],
+      this.map.submission?.placeholders ?? []
+    );
+    this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(map.status);
+    // Show Review section first if in review, otherwise leaderboards (and the
+    // tab view won't be visible anyway).
+    this.currentSection = this.inSubmission
+      ? MapInfoSection.SUBMISSION
+      : MapInfoSection.LEADERBOARDS;
+
+    this.setImages(this.map.images, this.map.info.youtubeID);
+
+    this.layoutService.setBackgroundImage(this.map.thumbnail?.large);
+
+    this.localUserService.checkMapNotify(this.map.id).subscribe({
+      next: (resp) => {
+        this.notify = resp;
+        if (resp) this.notifications = true;
+      },
+      error: (error) => {
+        if (error.status !== 404)
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not check if following',
+            detail: error.message
+          });
+      }
+    });
+
+    // In favourites iff num mapfavorites entries for user > 0. sorry
+    this.inFavorites = this.map.favorites?.length > 0;
+
+    this.isModerator = this.localUserService.hasRole(
+      CombinedRoles.MOD_OR_ADMIN
+    );
+
+    this.isSubmitter =
+      this.map.submitterID === this.localUserService.localUser.id;
+
+    const youtubeID = this.map?.info?.youtubeID;
+    if (youtubeID && YOUTUBE_ID_REGEXP.test(youtubeID)) {
+      this.youtubeID = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `https://www.youtube.com/embed/${youtubeID}`
+      );
+      this.youtubeThumbnail = this.sanitizer.bypassSecurityTrustResourceUrl(
+        `https://img.youtube.com/vi/${youtubeID}/default.jpg`
+      );
     }
   }
 
-  onFavoriteUpdate() {
-    if (this.mapInFavorites) {
+  setImages(images: MapImage[], youtubeID?: string) {
+    this.images = images.map(({ small, large }) => ({
+      thumb: small,
+      full: large
+    }));
+
+    if (youtubeID) {
+      this.images.unshift({ youtube: true });
+    }
+  }
+
+  toggleFavorite() {
+    if (this.inFavorites) {
       this.localUserService
         .removeMapFromFavorites(this.map.id)
         .subscribe(() => {
-          this.mapInFavorites = false;
+          this.inFavorites = false;
           this.map.stats.favorites--;
         });
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
-          this.mapInFavorites = true;
+          this.inFavorites = true;
           this.map.stats.favorites++;
         },
         error: (error) =>
@@ -221,17 +275,17 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       .open(MapNotifyEditComponent, {
         header: 'Edit map notification',
         data: {
-          flags: this.mapNotify ? this.mapNotify.notifyOn : 0
+          flags: this.notify ? this.notify.notifyOn : 0
         }
       })
       .onClose.subscribe((response) => {
         if (!response) return;
         if (response.newFlags === 0) {
-          if (!this.mapNotify) return;
+          if (!this.notify) return;
           this.localUserService.disableMapNotify(this.map.id).subscribe({
             next: () => {
-              this.mapNotify.notifyOn = 0;
-              this.mapNotifications = false;
+              this.notify.notifyOn = 0;
+              this.notifications = false;
             },
             error: (error) =>
               this.messageService.add({
@@ -245,9 +299,9 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             .updateMapNotify(this.map.id, response.newFlags)
             .subscribe({
               next: (response) => {
-                this.mapNotifications = true;
-                if (!this.mapNotify) this.mapNotify = response;
-                else this.mapNotify.notifyOn = response.newFlags;
+                this.notifications = true;
+                if (!this.notify) this.notify = response;
+                else this.notify.notifyOn = response.newFlags;
               },
               error: (error) =>
                 this.messageService.add({
@@ -260,30 +314,14 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       });
   }
 
-  updateGallery(
-    galleryRef: GalleryRef,
-    mapImages: MapImage[],
-    youtubeID?: string
-  ) {
-    const galleryItems = [];
-
-    if (youtubeID) {
-      galleryItems.push(new YoutubeItem({ src: youtubeID }));
-    }
-
-    for (const mapImage of mapImages) {
-      galleryItems.push(
-        new ImageItem({
-          src: mapImage.large,
-          thumb: mapImage.small
-        })
-      );
-    }
-
-    galleryRef.load(galleryItems);
+  toggleMapBackground(): void {
+    this.layoutService.toggleBackgroundEnable();
   }
 
-  onEditMap() {
-    this.router.navigate(['/maps/' + this.map.id + '/edit']);
+  // TODO: https://github.com/momentum-mod/website/issues/903
+  getLatestStatusChangeDate(status: MapStatus): DateString {
+    return this.map.submission.dates
+      .filter((date) => date.status === status)
+      .at(-1)?.date;
   }
 }

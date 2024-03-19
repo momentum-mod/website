@@ -1,0 +1,78 @@
+<div #searchMain class="relative flex w-full items-center gap-2">
+  <input
+    class="textinput min-w-[15rem] flex-grow"
+    [mSpinner]="search.status === 'PENDING'"
+    [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
+    [formControl]="search"
+    type="text"
+  />
+  <m-icon
+    class="absolute right-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
+    [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
+    mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
+    icon="steam"
+    pack="si"
+    (click)="searchBySteam = !searchBySteam"
+  />
+</div>
+<ng-template #results>
+  <div class="flex min-h-[3.75rem] flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }">
+    @if (search.status === 'INVALID' && search.value?.length > 0 && found.length === 0) {
+      <p class="p-2 text-center text-lg text-gray-200">
+        {{ getFirstError() }}
+      </p>
+    } @else if (search.value?.length > 0) {
+      @for (user of found; track user) {
+        <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
+          <div class="flex items-center">
+            <img class="h-12 w-12 rounded" [src]="user.avatarURL" />
+            <div class="ml-4 mt-1 w-full">
+              <div class="flex w-full leading-4">
+                <p class="mr-1 font-bold leading-4">{{ user.alias }}</p>
+                <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
+                @if (showProfileButton) {
+                  <a
+                    [routerLink]="'/profile/' + user.id"
+                    (click)="$event.stopPropagation()"
+                    target="_blank"
+                    class="m-link ml-auto self-center text-sm italic text-gray-200"
+                  >
+                    View Profile
+                  </a>
+                }
+              </div>
+              @if (!hasRole(Role.PLACEHOLDER, user)) {
+                <a
+                  (click)="$event.stopPropagation()"
+                  class="text-sm italic leading-4"
+                  target="_blank"
+                  href="http://steamcommunity.com/profiles/{{ user.steamID }}"
+                >
+                  {{ user.steamID }}
+                </a>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <m-spinner />
+      }
+      <p-paginator
+        class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
+        (onPageChange)="pageChange.next($event)"
+        [first]="first"
+        [rows]="rows"
+        [totalRecords]="totalRecords"
+        [showCurrentPageReport]="true"
+        [alwaysShow]="false"
+      />
+    }
+  </div>
+</ng-template>
+@if (useOverlay) {
+  <p-overlayPanel #searchOverlay>
+    <ng-container *ngTemplateOutlet="results" />
+  </p-overlayPanel>
+} @else {
+  <ng-container *ngTemplateOutlet="results" />
+}

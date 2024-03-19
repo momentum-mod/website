@@ -1,19 +1,42 @@
 import { Route } from '@angular/router';
-import { MapBrowserComponent } from './map-browser/map-browser.component';
-import { MapSubmissionStatusComponent } from './submission-status/map-submission-status.component';
+import { MapBrowserComponent } from './browsers/map-browser.component';
 import { MapSubmissionFormComponent } from './submission-form/map-submission-form.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
+import { DeactivateConfirmGuard } from '../../guards/component-can-deactivate.guard';
+import { MapSubmissionBrowserComponent } from './browsers/map-submission-browser.component';
+import { UserMapsBrowserComponent } from './browsers/user-maps-browser.component';
 
 export default [
-  { path: '', pathMatch: 'full', component: MapBrowserComponent },
+  {
+    path: '',
+    component: MapBrowserComponent,
+    title: 'Maps'
+  },
+  {
+    path: 'beta',
+    component: MapSubmissionBrowserComponent,
+    title: 'Beta Maps'
+  },
   {
     path: 'submissions',
     children: [
-      { path: '', component: MapSubmissionStatusComponent },
-      { path: 'submit', component: MapSubmissionFormComponent }
+      { path: '', component: UserMapsBrowserComponent, title: 'Your Maps' },
+      {
+        path: 'submit',
+        component: MapSubmissionFormComponent,
+        title: 'Submit Map',
+        canDeactivate: [DeactivateConfirmGuard]
+      }
     ]
   },
-  { path: ':id', component: MapInfoComponent },
-  { path: ':id/edit', component: MapEditComponent }
+  {
+    path: ':name',
+    component: MapInfoComponent
+  },
+  {
+    path: ':name/edit',
+    component: MapEditComponent,
+    canDeactivate: [DeactivateConfirmGuard]
+  }
 ] satisfies Route[];

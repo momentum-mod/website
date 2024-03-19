@@ -3,8 +3,7 @@ import {
   Component,
   HostBinding,
   Input,
-  OnChanges,
-  OnInit
+  OnChanges
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IconService } from './icon.service';
@@ -16,7 +15,7 @@ import { DEFAULT_ICON_PACK, Icon, IconPack } from './index';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class IconComponent implements OnInit, OnChanges {
+export class IconComponent implements OnChanges {
   @Input({ required: true }) icon!: Icon | null;
   @Input() pack: IconPack = DEFAULT_ICON_PACK;
 
@@ -27,10 +26,6 @@ export class IconComponent implements OnInit, OnChanges {
     private readonly iconService: IconService,
     private readonly sanitzer: DomSanitizer
   ) {}
-
-  ngOnInit() {
-    this.renderIcon();
-  }
 
   ngOnChanges() {
     this.renderIcon();

@@ -5,6 +5,7 @@ import { SteamModule } from '../steam/steam.module';
 import { MapsModule } from '../maps/maps.module';
 import { LeaderboardRunsService } from './leaderboard-runs.service';
 import { PastRunsService } from './past-runs.service';
+import { LeaderboardService } from './leaderboard.service';
 import { RunsController } from './runs.controller';
 
 @Module({
@@ -14,8 +15,8 @@ import { RunsController } from './runs.controller';
     FileStoreModule,
     SteamModule
   ],
-  providers: [LeaderboardRunsService, PastRunsService],
-  exports: [LeaderboardRunsService, PastRunsService],
+  providers: [LeaderboardRunsService, PastRunsService, LeaderboardService],
+  exports: [LeaderboardRunsService, PastRunsService, LeaderboardService],
   controllers: [RunsController]
 })
 export class RunsModule {}

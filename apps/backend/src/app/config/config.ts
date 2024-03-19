@@ -1,18 +1,17 @@
 ﻿import {
-  MAX_IMAGE_SIZE,
-  MAX_MAP_IMAGE_UPLOADS,
+  MAX_MAP_IMAGES,
   MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
-  MAX_PENDING_MAPS,
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
-  MAX_TESTING_REQUESTS,
+  MAX_TEST_INVITES,
   MIN_PUBLIC_TESTING_DURATION,
   MAX_CREDITS_EXCEPT_TESTERS,
   STEAM_APPIDS,
   JWT_GAME_EXPIRY_TIME,
   JWT_WEB_EXPIRY_TIME,
-  JWT_REFRESH_EXPIRY_TIME
+  JWT_REFRESH_EXPIRY_TIME,
+  MAX_MAP_IMAGE_SIZE
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
 
@@ -58,15 +57,14 @@ export const ConfigFactory = (): ConfigInterface => {
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
-      mapImageUploads: MAX_MAP_IMAGE_UPLOADS,
-      pendingMaps: MAX_PENDING_MAPS,
+      mapImageUploads: MAX_MAP_IMAGES,
       // Keep low for tests, as we'll be generating buffers of slightly
       // above this size to test make file size validation
       bspSize: isTest ? 1e6 : MAX_BSP_SIZE,
       vmfSize: isTest ? 1e6 : MAX_VMF_SIZE,
-      imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE,
+      imageSize: isTest ? 1e6 : MAX_MAP_IMAGE_SIZE,
       reviewLength: MAX_REVIEW_LENGTH,
-      testingRequests: MAX_TESTING_REQUESTS,
+      testInvites: MAX_TEST_INVITES,
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
     }

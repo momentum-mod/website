@@ -1,12 +1,11 @@
-<p class="font-display text-8xl font-bold opacity-80">Map Submission</p>
+<p class="card-title text-8xl">Map Submission</p>
 @if (isMapperOrPorter || !hasMapInSubmission || true) {
-  <div class="prose mb-8 max-w-none rounded border-2 border-blue-800 bg-blue-900 p-5">
+  <m-alert class="alert--fancy my-8 bg-blue-700 bg-opacity-20">
     <h4>Welcome to the Momentum Mod map submission page!</h4>
     <p>
-      This is where you can submit maps to the game, and if your submission is approved, it'll be hosted by us and will appear in the
-      in-game map selector and leaderboards. We want to keep the maps in Momentum to high standard (higher than, say, some of the stuff on
-      Steam Workshop), so all maps go through a short review pipeline where community members and official testers can test you map and
-      bring up any issues.
+      This is where you can submit maps to the game, where it'll be hosted by us and appear in the in-game map selector and leaderboards. To
+      keep maps in Momentum to high standard (higher than e.g. Steam Workshop for some games), maps go through a short review pipeline where
+      community members and official testers test your map and report any issues.
     </p>
     <p>
       If this is your first time using the system, please check out our docs page (TODO: LINK!) to get a basic understanding of the
@@ -15,269 +14,151 @@
       questions in our
       <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
     </p>
-  </div>
-  <form [formGroup]="form">
-    <fieldset class="card grid gap-4 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+  </m-alert>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mt-4 flex flex-col">
+      <!--  Evil fake fieldset using negative margins. Backdrop-filter extends
+            to the header section of a real fieldset, looks like shite    -->
+      <div class="z-10 -mb-12 ml-4 mt-4 flex items-center gap-4">
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
-            [ngClass]="{ 'scale-100': isGroupValid(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsComplete(files) }"
             mTooltip="Section is complete!"
           />
           <m-icon
             class="scale-0 text-3xl text-red-500 transition-transform"
             [icon]="'alert-outline'"
-            [ngClass]="{ 'scale-100': isGroupInvalid(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsActuallyInvalid(files) }"
             mTooltip="Section contains invalid items!"
           />
           <m-icon
             class="scale-0 text-3xl text-blue-400 transition-transform"
             [icon]="'pencil-outline'"
-            [ngClass]="{ 'scale-100': isGroupAwaitingEditing(files) }"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsIncomplete(files) }"
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Files</span>
-      </legend>
-      <div class="flex flex-col">
-        <h5 class="mb-1 text-center">
-          BSP File
-          <m-icon icon="asterisk" class="mb-1 align-middle" mTooltip="Required" />
-        </h5>
-        <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
-          This is the main map file for your map. It should have all custom assets packed into it, and <i>must</i> be compressed.
-          <!-- TODO: Link to docs pages for these-->
-        </p>
-        <div>
-          @if (bsp.errors?.['required'] && bsp.dirty) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A BSP file is required.</p>
-          }
-          @if (bsp.errors?.['fileName']) {
-            <p class="mb-1 text-right text-lg text-red-400">
-              <b>Error: </b>File name must be alphanumeric + hyphens + underscores, and end in <b>.bsp</b>.
-            </p>
-          }
-          @if (bsp.errors?.['fileMaxSize']) {
-            <p class="mb-1 text-right text-lg text-red-400">
-              <b>Error: </b>Maximum allowed file size is {{ MAX_BSP_SIZE / (1024 * 1024) }} MB.
-            </p>
-          }
-          @if (bsp.errors?.['bspFileNotCompressed']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>BSP file is not compressed. TODO: Docs link!</p>
-          }
-          @if (bsp.errors?.['bspFileReadError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, are you sure it's a valid BSP?</p>
-          }
-          @if (bsp.errors?.['fileReadError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
-          }
-        </div>
-        <m-file-upload [formControl]="bsp" typeName="BSP" accept=".bsp" icon="land-plots" />
+        <p class="card-title ml-2 text-5xl">Files</p>
       </div>
-      <div class="flex flex-col">
-        <h5 class="mb-1 text-center">
-          Zones File
-          <m-icon icon="asterisk" class="mb-1 align-middle" mTooltip="Required" />
-        </h5>
-        <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">The zones for your map</p>
-        <div>
-          @if (zon.errors?.['required'] && zon.dirty) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A zone file is required.</p>
-          }
-          @if (zon.errors?.['zoneFileValidationError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b> {{ zon.errors?.['zoneFileValidationError'][0].message }}.</p>
-          }
-          @if (zon.errors?.['zonFileNotJsonError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not valid JSON!</p>
-          }
-          @if (zon.errors?.['fileReadError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
-          }
-        </div>
-        <m-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" accept=".zon.json" />
-      </div>
-      <div class="flex flex-col">
-        <h5 class="mb-1 text-center">VMF File(s)</h5>
-        <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
-          The VMF source files your map. Not required, but helps us archive file maps, and may be helpful for other mappers!
-        </p>
-        <div>
-          @if (vmfs.errors?.['fileExtension']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>File extension must end in <b>.vmf</b>.</p>
-          }
-          @if (zon.errors?.['fileMaxSize']) {
-            <p class="mb-1 text-right text-lg text-red-400">
-              <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
-            </p>
-          }
-          @if (zon.errors?.['vdfFileValidationError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!</p>
-          }
-          @if (zon.errors?.['fileReadError']) {
-            <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
-          }
-        </div>
-        <m-multi-file-upload [formControl]="vmfs" typeName="VMF" accept=".vmf" icon="hammer" [max]="20" />
-      </div>
-    </fieldset>
-
-    <fieldset class="card mt-10 pt-6" [formGroup]="info">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-          <m-icon
-            class="scale-0 text-3xl text-green-500 transition-transform"
-            [icon]="'check-outline'"
-            [ngClass]="{ 'scale-100': isGroupValid(info) }"
-            mTooltip="Section is complete!"
-          />
-          <m-icon
-            class="scale-0 text-3xl text-red-500 transition-transform"
-            [icon]="'alert-outline'"
-            [ngClass]="{ 'scale-100': isGroupInvalid(info) }"
-            mTooltip="Section contains invalid items!"
-          />
-          <m-icon
-            class="scale-0 text-3xl text-blue-400 transition-transform"
-            [icon]="'pencil-outline'"
-            [ngClass]="{ 'scale-100': isGroupAwaitingEditing(info) }"
-            mTooltip="Section is incomplete!"
-          />
-        </div>
-        <span class="mx-3 text-3xl">Details</span>
-      </legend>
-      <div class="flex gap-4 md:flex-wrap">
-        <div class="grid h-fit flex-grow gap-4 [grid-template-columns:auto_1fr]">
-          <div class="flex flex-col">
-            <label class="my-auto text-lg leading-4">
-              Map Name
-              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapNameInfo" />
-              <ng-template #mapNameInfo>
-                <div class="prose p-3">
-                  <p>
-                    Gamemode <b>prefixes</b> should typically be the primary gamemode they're made for, but may be omitted if the map plays
-                    well in multiple modes. E.g. <i>bhop_canals</i> plays well in many modes, so could be named just <i>canals</i>.
-                  </p>
-                  <p><b>Suffixes</b> must be <b>removed</b>, e.g. <i>surf_utopia_njv</i> should be <i>surf_utopia.</i></p>
-                  <p>
-                    This isn't required to match the exact name of your BSP file, but should be similar. So for
-                    <i>surf_utopia_njv.bsp</i>, the name should be <i>surf_utopia</i>.
-                  </p>
-                </div>
-              </ng-template>
-            </label>
-            <span class="text-sm italic leading-4 text-gray-500">Required</span>
-          </div>
-          <input
-            id="name"
-            class="m-textinput input-validated !max-w-full"
-            type="text"
-            mTooltip
-            tooltipContext="mapNameError"
-            tooltipEvent="noop"
-            [formControl]="name"
-          />
-          <div class="flex flex-col">
-            <label class="my-auto text-lg leading-4">
-              Submission Type
-              <m-icon
-                icon="tooltip-question-outline"
-                class="mb-[1px] ml-0.5 align-middle"
-                mTooltip="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
-              />
-            </label>
-            <span class="text-sm italic leading-4 text-gray-500">Required</span>
-          </div>
-          <select class="!max-w-full" [formControl]="submissionType">
-            <option [value]="MapSubmissionType.ORIGINAL">Original</option>
-            <option [value]="MapSubmissionType.PORT">Port</option>
-            @if (isModOrAdmin) {
-              <option [value]="MapSubmissionType.SPECIAL">Special</option>
+      <div class="card card--fancy mt-6 grid gap-4 p-4 pt-6 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
+        <div class="flex flex-col">
+          <p class="mt-2 text-center text-xl font-medium">
+            BSP File
+            <m-icon icon="asterisk" class="mb-1 p-0.5 align-middle" mTooltip="Required" />
+          </p>
+          <p class="text-balance mb-6 mt-3 block w-auto flex-grow px-3 text-center text-sm">
+            This is the main map file for your map. It should have all custom assets packed into it, and <i>must</i> be compressed.
+            <!-- TODO: Link to docs pages for these-->
+          </p>
+          <div>
+            @if (bsp.errors?.['required'] && bsp.dirty) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A BSP file is required.</p>
             }
-          </select>
-          <div class="flex flex-col">
-            <label for="creationDate" class="my-auto text-lg leading-4">
-              Creation Date
-              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapCreationDateInfo" />
-              <ng-template #mapCreationDateInfo>
-                <div class="prose p-3">
-                  <p>This is the date the map was first released, in any game, not just Momentum.</p>
-                  <p>
-                    If it's your map and you're first releasing for Momentum, use today's date. If the map is a port and was originally
-                    published on, say, GameBanana, use the exact date on GameBanana.
-                  </p>
-                  <p>
-                    If you don't know the exact date, just take a guess. For a Conc map published sometime around 2002, Jan 1st 2002 is
-                    fine.
-                  </p>
-                </div>
-              </ng-template>
-            </label>
-            <span class="text-sm italic leading-4 text-gray-500">Required</span>
+            @if (bsp.errors?.['fileName']) {
+              <p class="mb-1 text-right text-lg text-red-400">
+                <b>Error: </b>File name must be alphanumeric + hyphens + underscores, and end in <b>.bsp</b>.
+              </p>
+            }
+            @if (bsp.errors?.['fileMaxSize']) {
+              <p class="mb-1 text-right text-lg text-red-400">
+                <b>Error: </b>Maximum allowed file size is {{ MAX_BSP_SIZE / (1024 * 1024) }} MB.
+              </p>
+            }
+            @if (bsp.errors?.['bspFileNotCompressed']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>BSP file is not compressed. TODO: Docs link!</p>
+            }
+            @if (bsp.errors?.['bspFileReadError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, are you sure it's a valid BSP?</p>
+            }
+            @if (bsp.errors?.['fileReadError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+            }
           </div>
-          <p-calendar class="w-full [&>*]:w-full" [formControl]="creationDate" />
-          <label for="youtubeID" class="my-auto text-lg leading-4">
-            Youtube ID
-            <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
-            <ng-template #youtubeIDInfo>
-              <div class="prose p-3">
-                <p>An optional Youtube video showcasing your map.</p>
-                <p>Must be a single 11 character Youtube video ID.</p>
-              </div>
-            </ng-template>
-          </label>
-          <input
-            id="youtubeID"
-            type="text"
-            class="m-textinput input-validated !max-w-full"
-            [formControl]="youtubeID"
-            (change)="stripYoutubeUrl()"
-          />
+          <m-file-upload [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
         </div>
-        <div class="flex flex-grow-5 flex-col">
-          <div class="-mt-1 mb-1 flex">
-            <div class="my-auto -mt-1 mb-1 flex flex-grow items-center">
-              <label for="description" class="text-lg">
-                Description
-                <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="descriptionInfo" />
-                <ng-template #descriptionInfo>
-                  <div class="prose p-3">
-                    <p>
-                      A general description of your map. You can include pretty much anything you want here, just keep in mind we have
-                      dedicated sections for credits, including special thanks!
-                    </p>
-                    <p>
-                      If you can't think of anything at all, just do something super simple like
-                      <i>"A short bhop map based on the life and works of Anthony Hopkins"</i>.
-                    </p>
-                  </div>
-                </ng-template>
-              </label>
-              <span class="ml-2 text-sm italic text-gray-500">Required</span>
-            </div>
-            <span class="mr-2">{{ MAX_MAP_DESCRIPTION_LENGTH - description.value.length | plural: 'character' }} remaining</span>
+        <div class="flex flex-col">
+          <h5 class="mt-1 text-center text-xl font-medium">
+            Zones File
+            <m-icon icon="asterisk" class="mb-1 p-0.5 align-middle" mTooltip="Required" />
+          </h5>
+          <p class="text-balance mb-6 mt-3 block w-auto flex-grow px-3 text-center text-sm">The zones for your map</p>
+          <div>
+            @if (zon.errors?.['required'] && zon.dirty) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>A zone file is required.</p>
+            }
+            @if (zon.errors?.['zoneFileValidationError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b> {{ zon.errors?.['zoneFileValidationError'][0].message }}.</p>
+            }
+            @if (zon.errors?.['zonFileNotJsonError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not valid JSON!</p>
+            }
+            @if (zon.errors?.['fileReadError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+            }
           </div>
-          <textarea
-            id="description"
-            class="m-textinput m-textinput-validated flex-grow"
-            rows="4"
-            [formControl]="description"
-            [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
-          ></textarea>
+          <m-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" acceptExtensions=".zon.json" />
+        </div>
+        <div class="flex flex-col">
+          <p class="mt-1 text-center text-xl font-medium">VMF File(s)</p>
+          <p class="text-balance mb-6 mt-3 block w-auto flex-grow px-3 text-center text-sm">
+            The VMF source files your map. Not required, but helps us archive file maps, and may be helpful for other mappers!
+          </p>
+          <div>
+            @if (vmfs.errors?.['fileExtension']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>File extension must end in <b>.vmf</b>.</p>
+            }
+            @if (zon.errors?.['fileMaxSize']) {
+              <p class="mb-1 text-right text-lg text-red-400">
+                <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
+              </p>
+            }
+            @if (zon.errors?.['vdfFileValidationError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!</p>
+            }
+            @if (zon.errors?.['fileReadError']) {
+              <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+            }
+          </div>
+          <m-multi-file-upload [formControl]="vmfs" typeName="VMF" acceptExtensions=".vmf" icon="hammer" [max]="20" />
         </div>
       </div>
-    </fieldset>
+    </div>
 
-    <fieldset class="card mt-10 pt-6">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <div class="flex flex-col">
+      <div class="z-50 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <!--        TODO: VALIDATION NOT RIGHT D:<-->
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
+          <m-icon
+            class="scale-0 text-3xl text-green-500 transition-transform"
+            [icon]="'check-outline'"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsComplete(details) }"
+            mTooltip="Section is complete!"
+          />
+          <m-icon
+            class="scale-0 text-3xl text-red-500 transition-transform"
+            [icon]="'alert-outline'"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsActuallyInvalid(details) }"
+            mTooltip="Section contains invalid items!"
+          />
+          <m-icon
+            class="scale-0 text-3xl text-blue-400 transition-transform"
+            [icon]="'pencil-outline'"
+            [ngClass]="{ 'scale-100': FormUtils.groupIsIncomplete(details) }"
+            mTooltip="Section is incomplete!"
+          />
+        </div>
+        <p class="card-title ml-2 text-5xl">Details</p>
+      </div>
+      <div class="card card--fancy mt-6 p-4 pt-10">
+        <m-map-details-form [formGroup]="details" [isModOrAdmin]="isModOrAdmin" />
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="z-10 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -297,42 +178,47 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Images</span>
-      </legend>
-      <p class="mb-4">
-        A thumbnail, and up to four additional images. You can drag slected images around to change their order, make sure the image in the
-        thumbnail slot is your favorite, as it gets used very frequently in our UI.
-      </p>
-      <m-map-image-selection innerFormControlName="images" icon="image-multiple-outline" />
-      <div>
-        @if (images.errors?.['required'] && images.dirty) {
-          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Must include at least a thumbnail image.</p>
-        }
-        @if (images.errors?.['fileExtension']) {
-          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be PNG or JPEG.</p>
-        }
-        @if (images.errors?.['fileMaxSize']) {
-          <p class="mt-2 text-right text-lg text-red-400">
-            <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
-          </p>
-        }
-        @if (images.errors?.['imageFileDimensionsError']) {
-          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be 2560x1440 - TODO: Docs link!</p>
-        }
-        @if (bsp.errors?.['imageFileReadError']) {
-          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Bad image file.</p>
-        }
-        @if (bsp.errors?.['fileReadError']) {
-          <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
-        }
+        <span class="card-title ml-2 text-5xl">Images</span>
       </div>
-    </fieldset>
 
-    <fieldset class="card mt-10 pt-6">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+      <div class="card card--fancy mt-6 p-4 pt-10">
+        <p class="mb-2">
+          A thumbnail, and up to four additional images. Images <i>must </i> be 2560x1440px PNGs, you can use the TODO command ingame to
+          take one, even if you don't have a 1440p monitor.
+        </p>
+        <p class="mb-6">
+          Drag selected images around to change their order, make sure the image in the thumbnail slot is your favorite, as it gets used
+          very frequently in our UI.
+        </p>
+        <m-map-image-selection [formControlPassthrough]="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
+        <div>
+          @if (images.errors?.['required'] && images.dirty) {
+            <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Must include at least a thumbnail image.</p>
+          }
+          @if (images.errors?.['fileExtension']) {
+            <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be PNG.</p>
+          }
+          @if (images.errors?.['fileMaxSize']) {
+            <p class="mt-2 text-right text-lg text-red-400">
+              <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
+            </p>
+          }
+          @if (images.errors?.['imageFileDimensionsError']) {
+            <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be 2560x1440 - use the TODO!!! command!</p>
+          }
+          @if (images.errors?.['imageFileReadError']) {
+            <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Bad image file.</p>
+          }
+          @if (images.errors?.['fileReadError']) {
+            <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="z-10 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -352,43 +238,19 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Credits</span>
-        <m-icon icon="tooltip-question-outline" class="mr-3 align-middle" [mTooltip]="creditsInfo" />
-        <ng-template #creditsInfo>
-          <div class="prose p-3">
-            <p>Our credits system lets you link to the Momentum profile of everyone who's contributed to your map.</p>
-            <p>
-              If you know their Steam account but not their name in Momentum, search by their Steam Community ID - you can find that by
-              pasting the full URL of their Steam profile into a <a href="https://steamid.io/">steamid.io</a> and copying the
-              <b>steamID64</b> value.
-            </p>
-            <p>
-              Anyone who has ever played Momentum or signed in to our website should have a Momentum account. But if they don't, you can
-              submit a "placeholder" credit that will generate a placeholder user for the given alias, when the map is approved.
-            </p>
-            <p>Here are some general guidelines what user goes in what category:</p>
-            <ul>
-              <li>
-                <i>Authors: </i>the primary creator(s) of the map. Bonus creators should be included, but describe them as e.g. "Bonus 1",
-                and put them after main track authors.
-              </li>
-              <li><i>Contributors: TODO: IM BORED DOING TOMORROW</i></li>
-            </ul>
-          </div>
-        </ng-template>
-      </legend>
-      <p class="mb-4">
-        At least one author credit is required. For more info see the
-        <m-icon icon="tooltip-question-outline" class="mx-1 align-middle" /> icon!
-      </p>
-      <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
-    </fieldset>
 
-    <fieldset class="card mt-10 pt-2">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+        <span class="card-title ml-2 text-5xl">Credits</span>
+        <m-icon icon="tooltip-question" [mTooltip]="creditsTooltip" />
+        <ng-template #creditsTooltip><m-credits-info /> </ng-template>
+      </div>
+      <div class="card card--fancy mt-6 p-4 pt-10">
+        <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
+      </div>
+    </div>
+
+    <div class="flex flex-col">
+      <div class="z-10 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -414,25 +276,21 @@
             mTooltip="Add a zones file to enable leaderboard editing!"
           />
         </div>
-        <span class="mx-3 text-3xl">Leaderboards</span>
-        <m-icon icon="tooltip-question-outline" class="mr-2 align-middle" [mTooltip]="leaderboardsInfo" />
-        <ng-template #leaderboardsInfo>
-          <div class="prose p-3">
-            <p>wow</p>
-          </div>
-        </ng-template>
-      </legend>
-      <m-map-leaderboards-selection [formControl]="suggestions" />
-      @if (suggestions.dirty && suggestions.errors) {
-        <p class="mb-1 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
-      }
-    </fieldset>
+        <span class="card-title ml-2 text-5xl">Leaderboards</span>
+        <m-icon icon="tooltip-question" class="mr-2 align-middle" [mTooltip]="leaderboardsTooltip" />
+        <ng-template #leaderboardsTooltip><m-leaderboards-info /> </ng-template>
+      </div>
+      <div class="card card--fancy mt-6 p-4">
+        <m-map-leaderboards-selection [formControl]="suggestions" />
+        @if (suggestions.dirty && suggestions.errors) {
+          <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
+        }
+      </div>
+    </div>
 
-    <fieldset class="card mt-10 pt-2">
-      <legend
-        class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
-      >
-        <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+    <div class="flex flex-col">
+      <div class="z-10 -mb-12 ml-4 mt-12 flex items-center gap-4">
+        <div class="stack rounded border border-white border-opacity-20 bg-gray-800 bg-opacity-25 p-2 shadow backdrop-blur">
           <m-icon
             class="scale-0 text-3xl text-green-500 transition-transform"
             [icon]="'check-outline'"
@@ -452,65 +310,60 @@
             mTooltip="Section is incomplete!"
           />
         </div>
-        <span class="mx-3 text-3xl">Private Testing</span>
-      </legend>
-      <div class="flex gap-4" [formGroup]="privateTesting">
-        <div class="flex flex-col md:w-full lg:flex-grow">
-          <div class="prose max-w-none pt-4">
-            <p>
-              Private testing is an optional first phase of map submission wherein only players you personally invite can play and review
-              your map.
-            </p>
-            <p>
-              This is intended to make sharing and versioning your map files simpler - rather than sharing files over e.g. Discord and
-              requiring friends manually redownload files for each iteration, you can just submit new versions via this site and their game
-              clients will automatically update.
-            </p>
-            <p>
-              If you want to start in Private Testing, select the checkbox below. You can keep the submission in Private Testing for as long
-              as you still, so long as you're still actively working on the map. Once you're done, you can move the map forward to the
-              Content Approval stage (TODO: link). If you don't care about Private Testing, leave the box unchecked and the submission will
-              go straight to Content Approval.
-            </p>
-          </div>
-          <div class="ml-auto">
-            <div class="flex items-center justify-end">
-              <span class="mr-4 text-lg">Enable Private Testing</span>
-              <input type="checkbox" [formControl]="wantsPrivateTesting" />
+        <span class="card-title ml-2 text-5xl">Private Testing</span>
+      </div>
+      <div class="card card--fancy mt-6 p-4 pt-10">
+        <div class="flex gap-4" [formGroup]="privateTesting">
+          <div class="flex flex-col md:w-full lg:flex-grow">
+            <div class="prose max-w-none">
+              <p>
+                Private testing is an optional first phase of map submission wherein only players you personally invite can play and review
+                your map.
+              </p>
+              <p>
+                This is intended to make sharing and versioning your map files simpler - rather than sharing files over e.g. Discord and
+                requiring friends manually redownload files for each iteration, you can just submit new versions via this site and their
+                game clients will automatically update.
+              </p>
+              <p>
+                If you want to start in Private Testing, select the checkbox below. You can keep the submission in Private Testing for as
+                long as you still, so long as you're still actively working on the map. Once you're done, you can move the map forward to
+                the Content Approval stage (TODO: link). If you don't care about Private Testing, leave the box unchecked and the submission
+                will go straight to Content Approval.
+              </p>
             </div>
-            @if (testInvites.dirty && privateTesting.errors) {
-              <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>{{ privateTesting.errors['error'] }}</p>
-            }
+            <div class="ml-auto">
+              <div class="flex items-center justify-end">
+                <span class="mr-4 text-lg">Enable Private Testing</span>
+                <input type="checkbox" class="checkbox" [formControl]="wantsPrivateTesting" />
+              </div>
+              @if (testInvites.dirty && privateTesting.errors) {
+                <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>{{ privateTesting.errors['error'] }}</p>
+              }
+            </div>
           </div>
+          <span class="h-auto bg-gray-700 md:w-0 lg:w-[0.125rem]"></span>
+          <m-map-test-invite-selection [formControl]="testInvites" class="disabled:opacity-25 md:w-full lg:flex-grow" />
         </div>
-        <span class="h-auto bg-gray-700 md:w-0 lg:w-[0.125rem]"></span>
-        <m-map-testing-request-selection [formControl]="testInvites" class="disabled:opacity-25 md:w-full lg:flex-grow" />
       </div>
-    </fieldset>
-  </form>
-
-  <div class="mt-4 flex">
-    @if (isUploading) {
-      <div class="flex flex-grow flex-col">
-        <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
-        <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
-      </div>
-    }
-    <div class="ml-auto h-full">
-      <button
-        #submitButton
-        class="btn flex h-auto items-center bg-green-500 !pl-4 text-xl disabled:bg-gray-500 disabled:opacity-50"
-        type="button"
-        [disabled]="form.invalid || isUploading"
-        (click)="onSubmit()"
-      >
-        Submit Map
-        <m-icon class="ml-1 text-3xl" icon="upload" />
-      </button>
     </div>
-  </div>
+    <div class="mt-4 flex">
+      @if (isUploading) {
+        <div class="my-auto flex flex-grow flex-col">
+          <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
+          <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+        </div>
+      }
+      <div class="ml-auto h-full">
+        <button class="btn btn-green gap-2 px-4 text-xl" type="submit" [disabled]="form.invalid || isUploading">
+          Submit Map
+          <m-icon class="text-3xl" icon="upload" />
+        </button>
+      </div>
+    </div>
+  </form>
 } @else {
-  <div class="card prose max-w-none">
+  <div class="card prose max-w-none p-4">
     <p>
       You currently have a map in submission. As you don't yet have any approved maps, you are only allowed to have one map in submission at
       a time.
@@ -525,5 +378,3 @@
     </p>
   </div>
 }
-
-<!--<m-map-info *ngIf="stepper?.selectedIndex === stepper?.steps?.length - 1 && !isUploadingMap" [previewMap]="mapPreview"></m-map-info>-->

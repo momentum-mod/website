@@ -8,10 +8,10 @@ import { AdminModule } from '../admin/admin.module';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
 import { MapLibraryService } from './map-library.service';
-import { MapReviewService } from './map-review.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
-import { MapTestingRequestService } from './map-testing-request.service';
+import { MapTestInviteService } from './map-test-invite.service';
+import { MapReviewModule } from '../map-review/map-review.module';
 
 @Module({
   imports: [
@@ -20,16 +20,16 @@ import { MapTestingRequestService } from './map-testing-request.service';
     SteamModule,
     SessionModule,
     forwardRef(() => RunsModule),
-    forwardRef(() => AdminModule)
+    forwardRef(() => AdminModule),
+    forwardRef(() => MapReviewModule)
   ],
   controllers: [MapsController],
   providers: [
     MapsService,
     MapLibraryService,
-    MapReviewService,
     MapCreditsService,
     MapImageService,
-    MapTestingRequestService
+    MapTestInviteService
   ],
   exports: [MapsService, MapLibraryService]
 })

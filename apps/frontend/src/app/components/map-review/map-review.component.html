@@ -1,0 +1,181 @@
+<fieldset class="flex flex-col gap-2 rounded border border-white border-opacity-20 px-6 pb-6 pt-2">
+  <legend class="mb-2 flex w-full items-center px-1">
+    <m-user [user]="review.reviewer" class="mr-1" avatarClass="!h-8" aliasClass="font-medium" [badges]="true" badgesClass="!h-4" />
+    @if (review.resolved === false) {
+      <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
+      <m-icon icon="shield-star" class="text-orange-500" mTooltip="Review requires resolving. The map cannot be approved until resolved." />
+    } @else if (review.resolved === true) {
+      <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
+      <m-icon icon="check-outline" class="mr-1.5 text-green-500" />
+      <p class="mr-2 text-sm italic">Resolved by</p>
+      <m-user [user]="review.resolver" avatarClass="!h-5" aliasClass="font-normal text-sm mr-1" />
+    }
+    <div class="mr-1 h-[1px] flex-grow bg-white bg-opacity-20"></div>
+    <!-- TODO: We actually store the full edit history, but don't want to spend the time making
+               a component for displaying it. Not at all hard, low priority so leaving for now. -->
+    <!-- prettier-ignore -->
+    <p class="text-sm italic text-gray-100">
+      Posted <span 
+      class="font-medium">{{ review.createdAt | date:"MMM dd, hh:mm a"}}</span>@if 
+    (review.editHistory?.length > 1) {, edited <span 
+      class="font-medium">{{ review.editHistory.at(-1).date | 
+      date:"MMM dd, hh:mm a" }}</span>}
+    </p>
+    @if (isReviewAuthor()) {
+      <button class="ml-2" type="button" (click)="enableEditing()" mTooltip="Edit review">
+        <m-icon icon="pencil" class="my-auto block text-base text-blue-500 transition-colors hover:text-blue-400" />
+      </button>
+    }
+    @if (isModOrAdmin() || isReviewAuthor()) {
+      <button class="ml-2" type="button" (click)="deleteReview($event)" mTooltip="Delete review">
+        <m-icon icon="delete" class="text-shadow my-auto block text-base text-red-500 transition-colors hover:text-red-400" />
+      </button>
+    }
+  </legend>
+
+  @if (!editing) {
+    <div class="flex flex-col gap-4">
+      <p class="whitespace-pre-wrap">{{ review.mainText }}</p>
+      @if (suggestions?.size > 0) {
+        <div class="flex shrink flex-wrap gap-x-8 gap-y-3">
+          @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
+            <div class="grid grid-flow-col grid-rows-[repeat(3,1.25rem)] items-center gap-x-4">
+              <p class="font-bold text-gray-50">{{ GamemodeName.get(gamemode.key) }}</p>
+              <p class="all-small-caps text-gray-200">Tier</p>
+              <p class="all-small-caps text-gray-200">Rating</p>
+              @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
+                <p class="text-gray-50">Main</p>
+                <p class="text-sm">{{ mainSugg.tier ?? '' }}</p>
+                <p class="text-sm">{{ mainSugg.gameplayRating ?? '' }}</p>
+              }
+              @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
+                <p class="text-gray-50">B{{ bonus.trackNum + 1 }}</p>
+                <p class="text-sm">{{ bonus.tier ?? '' }}</p>
+                <p class="text-sm">{{ bonus.gameplayRating ?? '' }}</p>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (review.images?.length > 0) {
+        <div class="grid grid-cols-6 gap-2 rounded bg-black bg-opacity-20 p-1.5">
+          @for (image of review.images; track $index) {
+            <!-- Not doing any overlay thing for now. Just can't be fucked with
+                 dealing with PrimeNG gallery bullshit -->
+            <a class="hover-white-overlay rounded-sm shadow-lg" [href]="image" target="_blank">
+              <img [src]="image" />
+            </a>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <m-map-review-form
+      [map]="map"
+      [editing]="true"
+      [reviewID]="review.id"
+      (canceledEditing)="disableEditing()"
+      (reviewPosted)="updatedOrDeleted.next(); disableEditing()"
+    />
+  }
+
+  @if (review.comments.length > 0) {
+    <div class="my-2 h-[1px] w-full bg-white bg-opacity-10"></div>
+
+    @if (review.numComments > review.comments.length) {
+      <p class="px-1 text-sm italic text-gray-100">
+        {{ review.numComments - review.comments.length | plural: 'additional comment' }} -
+        <button type="button" class="link font-medium italic" (click)="loadComments.next()">Load more</button>
+      </p>
+    }
+
+    <div class="flex flex-col gap-3" [mSpinner]="loadingComments">
+      @for (comment of review.comments.slice().reverse(); track $index) {
+        <div class="ml-1 flex flex-col">
+          <div class="flex items-center gap-2">
+            <m-user
+              class="gap-1"
+              [user]="comment.user"
+              aliasClass="font-medium !text-base"
+              avatarClass="!h-4"
+              [badges]="true"
+              badgesClass="h-4"
+            />
+            <p class="self-end pb-[1px] text-sm italic text-gray-200">{{ comment.createdAt | date: 'MMM dd, yyyy hh:mm a' }}</p>
+            @if (isCommentAuthor(comment.user.id)) {
+              <button class="text-blue-500 transition-colors hover:text-blue-400" (click)="initEditComment(comment.id)" mTooltip="Edit">
+                <m-icon class="my-auto block text-lg" icon="pencil" />
+              </button>
+            }
+            @if (isModOrAdmin() || isCommentAuthor(comment.user.id)) {
+              <button
+                type="button"
+                class="text-red-500 transition-colors hover:text-red-400"
+                (click)="deleteComment($event, comment.id)"
+                mTooltip="Delete"
+              >
+                <m-icon class="my-auto block text-lg" icon="delete" />
+              </button>
+            }
+          </div>
+          @if (editModeComments.get(comment.id); as editForm) {
+            <textarea rows="1" [formControl]="editForm" placeholder="Update comment" class="textinput my-1 grow px-2 py-1"></textarea>
+            <div class="ml-auto flex gap-1">
+              <button
+                class="btn btn-red btn-thin ml-auto"
+                [disabled]="editForm.value.length === 0"
+                (click)="editModeComments.delete(comment.id)"
+              >
+                Cancel
+              </button>
+              <button class="btn btn-green btn-thin ml-auto" [disabled]="commentInput.invalid" (click)="editComment(comment.id)">
+                Update
+              </button>
+            </div>
+          } @else {
+            <p class="whitespace-pre-wrap">{{ comment.text }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <div class="mt-2 flex gap-2">
+    <textarea rows="1" [formControl]="commentInput" placeholder="Leave a comment" class="textinput grow px-2 py-1"></textarea>
+    @if (commentInput.dirty) {
+      <div>
+        <button class="btn btn-red btn-thin" [disabled]="commentInput.value.length === 0" (click)="commentInput.reset()">Cancel</button>
+      </div>
+      <div>
+        <button class="btn btn-green btn-thin" [disabled]="commentInput.invalid" (click)="postComment()">Post</button>
+      </div>
+    }
+  </div>
+
+  @if (isReviewer()) {
+    <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>
+    <div class="flex gap-2">
+      @switch (review.resolved) {
+        @case (null) {
+          <div class="flex justify-end gap-1">
+            <button class="btn btn-thin" (click)="updateResolvedStatus(false)">Mark as needs resolving</button>
+          </div>
+        }
+        @case (false) {
+          <div class="flex justify-end gap-1">
+            <button class="btn btn-thin" (click)="updateResolvedStatus(true)">Resolve review</button>
+          </div>
+          <div class="flex justify-end gap-1">
+            <button class="btn btn-thin" (click)="updateResolvedStatus(null)">Mark as doesn't need resolving</button>
+          </div>
+        }
+        @case (true) {
+          <div class="flex justify-end gap-1">
+            <button class="btn btn-thin" (click)="updateResolvedStatus(false)">Unresolve review</button>
+          </div>
+        }
+      }
+    </div>
+  }
+</fieldset>

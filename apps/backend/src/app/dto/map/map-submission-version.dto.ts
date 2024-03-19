@@ -1,15 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   CreateMapSubmissionVersion,
-  MapSubmissionVersion
+  MapSubmissionVersion,
+  MAX_CHANGELOG_LENGTH
 } from '@momentum/constants';
 import {
+  IsBoolean,
   IsHash,
   IsInt,
   IsOptional,
   IsString,
   IsUrl,
-  IsUUID
+  IsUUID,
+  MaxLength
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { CreatedAtProperty, NestedProperty } from '../decorators';
@@ -31,6 +34,7 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
 
   @ApiProperty()
   @IsString()
+  @MaxLength(MAX_CHANGELOG_LENGTH)
   @IsOptional()
   readonly changelog: string;
 
@@ -94,4 +98,9 @@ export class CreateMapSubmissionVersionDto
   @ApiProperty()
   @IsString()
   readonly changelog: string;
+
+  @ApiProperty({ description: 'Clear any existing leaderboards' })
+  @IsBoolean()
+  @IsOptional()
+  readonly resetLeaderboards?: boolean;
 }

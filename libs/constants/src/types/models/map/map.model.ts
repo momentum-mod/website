@@ -1,5 +1,5 @@
 import { MMap as PrismaMMap } from '@prisma/client';
-import { MapStatusNew } from '../../../enums/map-status.enum';
+import { MapStatus } from '../../../enums/map-status.enum';
 import { User } from '../user/user.model';
 import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
 import { LeaderboardRun } from '../run/leaderboard-run.model';
@@ -14,19 +14,23 @@ import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
 import { MapSubmissionApproval } from './map-submission-approval.model';
+import { MapSubmission } from './map-submission.model';
+import { MapTestInvite } from './map-test-invite.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
  * "Map" to avoid collision with the "Map" data structure.
  */
-export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'zones'> {
-  status: MapStatusNew;
+export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
+  status: MapStatus;
   downloadURL: string;
+  vmfDownloadURL?: string;
   thumbnail?: MapImage;
   info?: MapInfo;
   // Omit then redefine zones so can be nullable - even though it's a regular
   // field, we shouldn't SELECT for it unless requested with an expand param.
   zones?: MapZones;
+  submission?: MapSubmission;
   leaderboards?: Leaderboard[];
   submitter?: User;
   images?: MapImage[];
@@ -36,6 +40,7 @@ export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'zones'> {
   libraryEntries?: MapLibraryEntry[];
   worldRecords?: LeaderboardRun[];
   personalBests?: LeaderboardRun[];
+  testInvites?: MapTestInvite[];
 }
 
 export interface CreateMapWithFiles {
@@ -44,7 +49,7 @@ export interface CreateMapWithFiles {
   data: CreateMap;
 }
 
-export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
+export interface CreateMap extends Pick<MMap, 'name'> {
   submissionType: MapSubmissionType;
   suggestions: MapSubmissionSuggestion[];
   wantsPrivateTesting: boolean;
@@ -60,20 +65,20 @@ export interface UpdateMap
     Pick<
       CreateMap,
       | 'name'
-      | 'fileName'
       | 'suggestions'
       | 'placeholders'
       | 'testInvites'
       | 'credits'
+      | 'submissionType'
     >
   > {
-  status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+  status?: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
   info?: UpdateMapInfo;
   zones?: MapZones;
   resetLeaderboards?: boolean;
 }
 
 export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
-  status?: MapStatusNew;
+  status?: MapStatus;
   finalLeaderboards?: MapSubmissionApproval[];
 }

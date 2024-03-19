@@ -1,4 +1,4 @@
-<button class="m-btn m-btn-blue mb-3" (click)="showFilters = !showFilters">Filters</button>
+<button class="btn btn-blue mb-3" (click)="showFilters = !showFilters">Filters</button>
 <div
   class="overflow-hidden [transition:max-weight_0.2s_ease-out,margin-bottom_0.2s_ease-out_0.1s]"
   [ngClass]="{ 'mb-4': showFilters }"
@@ -6,16 +6,30 @@
   #filterContent
 >
   <div class="row-cols-md-3 flex flex-wrap items-center p-6" [formGroup]="filterFG">
-    <div class="pl-4 pr-4 md:w-1/5"><input type="checkbox" class="m-checkbox" formControlName="isPersonalBest" />Is PB</div>
+    <div class="pl-4 pr-4 md:w-1/5"><input type="checkbox" class="checkbox" formControlName="isPersonalBest" />Is PB</div>
     <div class="relative mb-2 text-left md:mb-0 md:flex-1 md:flex-grow md:text-center">
-      <input class="m-textinput" type="text" placeholder="Map" formControlName="map" />
+      <input class="textinput" type="text" placeholder="Map" formControlName="map" />
     </div>
     <div class="relative text-left md:flex-1 md:flex-grow md:text-center">
-      <p-dropdown formControlName="orderBy" [options]="OrderByDropdown" optionValue="value" optionLabel="label" placeholder="Sort by" />
-      <p-dropdown formControlName="order" [options]="OrderDropdown" optionValue="value" optionLabel="label" placeholder="Order" />
+      <p-dropdown
+        formControlName="orderBy"
+        [options]="OrderByDropdown"
+        optionValue="value"
+        optionLabel="label"
+        placeholder="Sort by"
+        appendTo="body"
+      />
+      <p-dropdown
+        formControlName="order"
+        [options]="OrderDropdown"
+        optionValue="value"
+        optionLabel="label"
+        placeholder="Order"
+        appendTo="body"
+      />
     </div>
     <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
-      <button class="m-btn m-btn-green" (click)="onFilterApply()">Apply</button>
+      <button class="btn btn-green" (click)="onFilterApply()">Apply</button>
     </div>
   </div>
 </div>

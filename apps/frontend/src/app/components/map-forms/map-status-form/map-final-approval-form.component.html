@@ -1,0 +1,89 @@
+<m-accordion>
+  @for (group of groupedLeaderboards | keyvalue: groupLbSortFn; track $index) {
+    <m-accordion-item title="{{ GamemodeName.get(group.key) }} - {{ group.value.totalRuns }} runs submitted">
+      <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-8 pt-6 shadow-inner">
+        @for (leaderboard of group.value.leaderboards; track $index) {
+          @if (leaderboard.trackType !== TrackType.STAGE) {
+            <div class="grid grid-cols-[auto_20rem_20rem] gap-12">
+              <div class="flex flex-col gap-2">
+                <p>
+                  <span class="text-xl font-medium">
+                    {{ TTName.get(leaderboard.trackType) }}
+                    @if (leaderboard.trackType !== TrackType.MAIN) {
+                      {{ leaderboard.trackNum + 1 }}
+                    }
+                  </span>
+                  <span class="ml-2 text-sm italic">{{ leaderboard.totalRuns | plural: 'player' }} submitted runs</span>
+                </p>
+                <div class="grid grid-flow-col grid-cols-[auto_auto_1fr] grid-rows-[repeat(4,auto)] gap-x-8">
+                  @if (leaderboard.subSugg) {
+                    <p class="text-sm font-medium text-gray-200">Submitter Tier</p>
+                    <p class="font-medium">{{ leaderboard.subSugg.tier }}</p>
+                  } @else {
+                    <span class="row-span-2"></span>
+                  }
+                  <p class="mt-2 text-sm font-medium text-gray-200">
+                    Average Tier <m-icon class="ml-1 pt-0.5 text-sm" icon="help-circle" mTooltip="Includes the submitter's tier" />
+                  </p>
+
+                  <p class="font-medium">{{ leaderboard.averageTier ?? 'N/A' }}</p>
+                  @if (leaderboard.subSugg) {
+                    <p class="text-sm font-medium text-gray-200">Submitter Requested Ranked</p>
+                    <p class="font-medium">{{ leaderboard.subSugg.type === LeaderboardType.RANKED ? 'Yes' : 'No' }}</p>
+                  } @else {
+                    <span class="row-span-2"></span>
+                  }
+                  <p class="mt-2 text-sm font-medium text-gray-200">Average Gameplay Rating</p>
+                  <p class="font-medium">{{ leaderboard.averageRating ?? 'N/A' }}</p>
+
+                  @if (leaderboard.subSugg?.comment?.length > 0) {
+                    <p class="text-sm font-medium text-gray-200">Submitter Comment</p>
+                    <p class="text-sm">{{ leaderboard.subSugg.comment }}</p>
+                  } @else {
+                    <span class="row-span-2"></span>
+                  }
+
+                  <div class="row-span-2 mt-auto flex items-center gap-4">
+                    <p class="mr-auto text-sm font-medium text-gray-200">Final Values</p>
+
+                    <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
+                    <input
+                      type="number"
+                      class="textinput w-16 px-2"
+                      min="1"
+                      [(ngModel)]="leaderboard.tier"
+                      max="10"
+                      step="1"
+                      (change)="onChange(value)"
+                      [disabled]="leaderboard.type === LeaderboardType.HIDDEN"
+                    />
+
+                    <p>Type</p>
+                    <p-dropdown
+                      class="w-32"
+                      type="radio"
+                      [(ngModel)]="leaderboard.type"
+                      [options]="LeaderboardTypeDropdown"
+                      optionValue="type"
+                      optionLabel="label"
+                      placeholder="Select Type"
+                      [disabled]="disabled"
+                      (onChange)="onChange(value)"
+                      appendTo="body"
+                    />
+                  </div>
+                </div>
+              </div>
+              @if (leaderboard.averageTier) {
+                <p-chart type="bar" [data]="leaderboard.graphs.tiers" [options]="TierChartOptions" />
+              }
+              @if (leaderboard.averageRating) {
+                <p-chart type="bar" [data]="leaderboard.graphs.ratings" [options]="RatingChartOptions" />
+              }
+            </div>
+          }
+        }
+      </div>
+    </m-accordion-item>
+  }
+</m-accordion>

@@ -1,0 +1,52 @@
+<div [formGroup]="form" class="flex flex-col">
+  <div class="mb-4 flex gap-2">
+    <textarea [formControl]="mainText" class="textinput grow" rows="6"></textarea>
+    @if (!editing) {
+      <m-multi-file-upload
+        class="h-auto max-w-[20%]"
+        [formControl]="images"
+        icon="panorama"
+        typeName="image"
+        [showSelected]="true"
+        [max]="MAX_REVIEW_IMAGES"
+        acceptExtensions=".jpg,.jpeg,.png"
+        [enableClipboard]="true"
+        [acceptMimeTypes]="['image/jpeg', 'image/png']"
+      />
+    }
+  </div>
+
+  <m-map-review-suggestions-form #suggs [formControl]="suggestions" [map]="map" />
+  @if (suggestions.invalid) {
+    <p class="medium mb-2 ml-auto font-medium italic text-red-500">{{ suggestions.errors['error'] }}</p>
+  }
+
+  <div class="flex items-center justify-end gap-2">
+    @if (isReviewer && !editing) {
+      <p>Require resolving</p>
+      <m-icon
+        icon="tooltip-question-outline"
+        mTooltip="Mark this review as requiring resolving before the map can be approved. This option is only available to official reviewers."
+      />
+      <input type="checkbox" class="checkbox" [formControl]="needsResolving" />
+    }
+    @if (editing) {
+      <button type="submit" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
+    }
+    <div class="flex items-center justify-end gap-2">
+      <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
+        Add Tier/Ranking Suggestions
+        <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
+      </button>
+      <ng-template #suggestionInfo>
+        <div class="prose">
+          <p>Your suggestions for the tier and/or gameplay quality of each track.</p>
+          <p><b>Tier</b> is used to decide the final tier, and <b>gameplay rating</b> for whether the track should provide rank points.</p>
+        </div>
+      </ng-template>
+    </div>
+    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine" (click)="submit()">
+      Post
+    </button>
+  </div>
+</div>

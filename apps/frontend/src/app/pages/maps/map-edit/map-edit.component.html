@@ -1,79 +1,155 @@
-<m-card title="Edit Map">
-  <button header class="m-btn" [routerLink]="'/maps/' + map?.id">Return to Map</button>
-  <p-tabView class="overflow-hidden">
-    <p-tabPanel header="Info">
-      <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
-        <div class="mb-4 mt-2">
-          <h5>YouTube URL / ID</h5>
-          <input class="m-textinput m-textinput-validated min-w-[24rem]" formControlName="youtubeID" type="text" />
-        </div>
-        <div class="mb-4">
-          <h5>Map Description</h5>
-          <textarea
-            rows="6"
-            class="m-textinput m-textinput-validated mb-1 w-full"
-            formControlName="description"
-            type="description"
-            [ngClass]="{ 'form-control-danger': description.invalid }"
-          ></textarea>
-          @if (description.hasError('maxlength')) {
-            <div class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Text cannot exceed 1000 characters.</div>
-          }
-          <span class="mr-2 mt-2 block justify-end">{{ 1000 - description.value.length | plural: 'character' }} remaining</span>
-        </div>
-        <button class="m-btn m-btn-blue" type="submit" [disabled]="infoForm.invalid">Save info</button>
-      </form>
-    </p-tabPanel>
-    <p-tabPanel header="Images">
-      <form (ngSubmit)="onImagesSubmit()">
-        <div class="mt-2 overflow-auto text-center">
-          <div class="mb-3 inline-block text-left">
-            <h5 class="font-weight-lighter mx-2">
-              <div class="thumb-text inline-block font-normal">Thumbnail&nbsp;</div>
-              <div class="inline-block">Extra Images</div>
-            </h5>
-            <div class="inline-flex items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
-              @for (img of images; track img) {
-                <div class="map-image-cont mx-2" cdkDrag>
-                  <img class="map-image" [ngSrc]="img.small" width="192" height="108" />
-                  <button class="m-btn m-btn-red" (click)="removeMapImage(img)">
-                    <m-icon class="full" icon="close"></m-icon>
-                  </button>
-                </div>
-              }
-              @if (images.length < imagesLimit) {
-                <div class="upload-box mx-2">
-                  <m-file-upload (change)="onMapImageSelected()" accept=".jpg,.jpeg" />
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-        <div class="submit-btn inline-flex items-center">
-          <button class="m-btn m-btn-blue mr-2" type="submit">Save images</button>
-          <m-icon class="text-yellow-500" icon="alert" title="Under Construction"></m-icon>
-          <!-- TODO: Remove when images submitting is added -->
-        </div>
-      </form>
-    </p-tabPanel>
-    <p-tabPanel header="Credits">
-      <form [formGroup]="creditsForm">
-        <div class="mt-2">
-          <m-map-credits [credits]="credits" [editable]="true" (creditChange)="onCreditChanged()" />
-        </div>
-        <button class="m-btn m-btn-blue" type="submit" [disabled]="creditsForm.invalid" (click)="onCreditsSubmit($event)">
-          Save credits
-        </button>
-      </form>
-    </p-tabPanel>
-    @if ((isAdmin || isModerator) && map) {
-      <p-tabPanel tabTitle="Admin Map Settings">
-        <form [formGroup]="adminForm">
-          <div class="text-right">
-            <button class="m-btn m-btn-red" (click)="showMapDeleteDialog()">Delete Map</button>
-          </div>
-        </form>
-      </p-tabPanel>
+<m-card-header titleSize="5" title="Edit Map">
+  <button class="btn -mb-4" [routerLink]="'/maps/' + map?.name">Return to Map</button>
+</m-card-header>
+
+<!-- Using `display: none` instead of ngIf to hide stuff as this component
+     uses ViewChilds, which are a nightmare when not static -->
+
+<form
+  [formGroup]="versionForm"
+  (ngSubmit)="submitVersionForm()"
+  [mSpinner]="loading"
+  class="card card--fancy my-8 flex-col overflow-visible p-4"
+  [ngClass]="isSubmitter ? '!flex' : '!hidden'"
+>
+  <div class="card-title -mt-10 mb-2 text-5xl">Submit New Version</div>
+  <div class="flex gap-4">
+    <div class="flex w-1/3 grow flex-col gap-2">
+      <div class="prose">
+        <p>
+          Provide new BSP and zone files and list of changes between the last version and this one. Players will automatically download the
+          new version when they next launch the map.
+        </p>
+        <p>
+          You can optionally reset the current map leaderboards each version. This is recommended if you've added new stages/checkpoints, or
+          significantly moved the geometry of the map. Replay files don't include map geometry, so if you don't reset you may end up with
+          players flying through walls / the void!
+        </p>
+      </div>
+      <div class="mt-auto flex items-center justify-end gap-2 self-end">
+        <span class="text-lg">Reset leaderboards</span>
+        <input type="checkbox" class="checkbox" [formControl]="resetLbs" />
+      </div>
+      <button type="submit" class="btn btn-green self-end" [disabled]="loading || versionForm.pristine || versionForm.invalid">
+        Submit
+      </button>
+    </div>
+    <div class="flex w-2/3 grow flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <p class="text-lg">Changelog</p>
+        <span class="text-sm italic text-gray-200">Required</span>
+      </div>
+      <textarea class="textinput textinput-validated mb-2 w-full" rows="8" [formControl]="changelog"></textarea>
+      <div class="flex gap-4">
+        <m-file-upload class="grow" [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
+        <m-file-upload class="grow" [formControl]="zon" typeName=".zon.json" icon="vector-polygon" acceptExtensions=".zon.json" />
+        <m-multi-file-upload class="grow" [formControl]="vmfs" typeName="VMF" acceptExtensions=".vmf" icon="hammer" [max]="20" />
+      </div>
+    </div>
+  </div>
+  @if (FormUtils.groupIsActuallyInvalid(versionForm)) {
+    <div class="mt-4">
+      <p class="my-auto block rounded bg-black bg-opacity-25 px-4 py-2 font-mono text-sm">
+        Error: {{ FormUtils.getAllErrors(versionForm) | json }}
+      </p>
+    </div>
+  }
+  @if (isUploading) {
+    <p-progressBar class="mb-2 mt-8" [value]="uploadPercentage" [showValue]="true" />
+    <p class="text-center italic">{{ uploadStatusDescription }}</p>
+  }
+</form>
+
+<div
+  [mSpinner]="loading"
+  class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
+  [ngClass]="isSubmitter && map.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
+>
+  <p class="card-title -mb-4 -mt-9 text-5xl">Invite Testers</p>
+  <m-map-test-invite-selection [formControl]="testInviteForm" />
+  <button
+    type="button"
+    (click)="submitTestInviteForm()"
+    class="btn btn-green self-end"
+    [disabled]="loading || testInviteForm.pristine || testInviteForm.invalid"
+  >
+    Update Invites
+  </button>
+</div>
+
+<form
+  [formGroup]="mainForm"
+  (ngSubmit)="submitMainForm()"
+  [mSpinner]="loading"
+  class="card card--fancy my-8 flex-col gap-8 overflow-visible p-4"
+  [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'"
+>
+  <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>
+
+  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+    <legend class="font-display text-4xl font-bold">Details</legend>
+    <m-map-details-form [formGroup]="details" [isModOrAdmin]="isAdmin || isMod" />
+  </fieldset>
+
+  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+    <legend class="font-display text-4xl font-bold">Images</legend>
+    <m-map-image-selection [formControlPassthrough]="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
+    @if (images.errors?.['required'] && images.dirty) {
+      <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Must include at least a thumbnail image.</p>
     }
-  </p-tabView>
-</m-card>
+    @if (images.errors?.['fileExtension']) {
+      <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be PNG.</p>
+    }
+    @if (images.errors?.['fileMaxSize']) {
+      <p class="mt-2 text-right text-lg text-red-400">
+        <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
+      </p>
+    }
+    @if (images.errors?.['imageFileDimensionsError']) {
+      <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>All images must be 2560x1440 - use the TODO!!! command!</p>
+    }
+    @if (images.errors?.['imageFileReadError']) {
+      <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Bad image file.</p>
+    }
+    @if (images.errors?.['fileReadError']) {
+      <p class="mt-2 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
+    }
+  </fieldset>
+
+  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+    <legend class="font-display text-4xl font-bold">Credits</legend>
+    <m-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
+  </fieldset>
+
+  <fieldset class="card-inset flex flex-col" [ngClass]="isSubmitter ? '!block' : '!hidden'">
+    <legend class="font-display text-4xl font-bold">Leaderboards</legend>
+    <m-map-leaderboards-selection [formControl]="suggestions" />
+    @if (suggestions.dirty && suggestions.errors) {
+      <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
+    } @else if (suggestions.pristine && suggestions.errors) {
+      <p class="mb-1 ml-auto text-right text-lg text-red-400">
+        <span class="font-medium"
+          >Your latest zones don't match with your suggestions, you'll need to update them before you can update the map. </span
+        ><b>Error: </b> >{{ suggestions.errors['error'] }}
+      </p>
+    }
+  </fieldset>
+
+  <fieldset class="card-inset flex flex-col gap-2">
+    <legend class="font-display text-4xl font-bold">Status Update</legend>
+    <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" [adm]="isAdmin" [mod]="isMod" [rev]="isReviewer" />
+  </fieldset>
+
+  <div class="-mt-4 flex gap-4">
+    @if (mainForm.invalid) {
+      <p class="my-auto block rounded bg-black bg-opacity-25 px-4 py-2 font-mono text-sm">
+        Error: {{ FormUtils.getAllErrors(mainForm) | json }}
+      </p>
+    }
+    <button class="btn btn-green ml-auto" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
+  </div>
+</form>
+
+@if (isAdmin) {
+  <button class="btn btn-red ml-auto" type="button" (click)="deleteMap()">Disable map and delete files</button>
+}

@@ -10,13 +10,12 @@
             @if (!isLocal) {
               <m-report-button [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
             }
+
             @if (canEdit()) {
-              <div>
-                <button class="m-btn m-btn-blue ml-2" type="button" (click)="onEditProfile()">
-                  <span class="hidden md:inline-block">Edit Profile</span>
-                  <m-icon class="inline-block md:hidden" icon="note-edit" />
-                </button>
-              </div>
+              <button class="btn btn-blue ml-2" type="button" (click)="onEditProfile()">
+                <span class="hidden md:inline-block">Edit Profile</span>
+                <m-icon class="inline-block md:hidden" icon="note-edit" />
+              </button>
             }
           </div>
 
@@ -72,8 +71,8 @@
             </div>
           </div>
         </div>
-        <p-tabView>
-          <p-tabPanel header="Info">
+        <m-tabs>
+          <m-tab tabName="Info">
             @if (!user.profile?.bio || user.profile?.bio?.length === 0) {
               <h5 class="m-0 text-center">
                 <i>No bio found</i>
@@ -84,9 +83,9 @@
                 {{ user?.profile?.bio }}
               </p>
             }
-          </p-tabPanel>
+          </m-tab>
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
-            <p-tabPanel header="Following ({{ followingUsers.length }})">
+            <m-tab tabName="Following ({{ followingUsers.length }})">
               @if (followingUsers.length === 0) {
                 <h5 class="m-0 text-center">
                   <i>Not following anyone</i>
@@ -102,9 +101,9 @@
                   </li>
                 }
               </ul>
-            </p-tabPanel>
+            </m-tab>
           }
-          <p-tabPanel header="Followers ({{ followedByUsers.length }})">
+          <m-tab tabName="Followers ({{ followedByUsers.length }})">
             @if (followedByUsers.length === 0) {
               <h5 class="m-0 text-center">
                 <i>No followers</i>
@@ -120,9 +119,9 @@
                 </li>
               }
             </ul>
-          </p-tabPanel>
+          </m-tab>
           @if (user.userStats) {
-            <p-tabPanel header="Stats">
+            <m-tab tabName="Stats">
               <div class="flex flex-wrap justify-around text-center">
                 <div class="base m-1">
                   <h6>Maps Completed</h6>
@@ -145,17 +144,17 @@
                   <h2>{{ user.userStats.cosXP }}</h2>
                 </div>
               </div>
-            </p-tabPanel>
+            </m-tab>
           }
           @if (!hasRole(Role.PLACEHOLDER)) {
-            <p-tabPanel header="Runs">
+            <m-tab tabName="Runs">
               <m-profile-run-history [userSubject]="userSubject" />
-            </p-tabPanel>
+            </m-tab>
           }
-          <p-tabPanel header="Credits">
+          <m-tab tabName="Credits">
             <m-profile-credits [userSubject]="userSubject" />
-          </p-tabPanel>
-        </p-tabView>
+          </m-tab>
+        </m-tabs>
       </m-card>
     }
   </div>

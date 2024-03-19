@@ -3,18 +3,17 @@ import { Gamemode } from '../enums/gamemode.enum';
 import { GamemodeName } from '../maps/gamemode-name.map';
 
 /**
- * Alphabetically ordered array of gamemode that we use frequently in frontend.
+ * Alphabetically ordered array of gamemode that we use in the frontend
  */
 export const ORDERED_GAMEMODES: Array<{
-  value: Gamemode | undefined;
+  value: Gamemode | null;
   text: string;
 }> = [
-  { value: undefined, text: 'All' },
   ...Enum.values(Gamemode)
     .map(
       (status) =>
         ({ value: status, text: GamemodeName.get(status) }) as {
-          value: Gamemode | undefined;
+          value: Gamemode | null;
           text: string;
         }
     )

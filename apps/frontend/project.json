@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "momentum",
   "sourceRoot": "apps/frontend/src",
-  "tags": [],
+  "tags": ["frontend"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser-esbuild",
@@ -33,7 +33,7 @@
             {
               "type": "initial",
               "maximumWarning": "500kb",
-              "maximumError": "1.5mb"
+              "maximumError": "2mb"
             },
             {
               "type": "anyComponentStyle",
@@ -46,7 +46,6 @@
         "development": {
           "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
           "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true

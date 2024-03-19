@@ -5,7 +5,8 @@ import { IconComponent } from '../../icons';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 
 /**
- * A form control for file selection/uploading with support for drag and drop.
+ * A form control for file selection/uploading with support for drag and drop
+ * and fetching from clipboard.
  */
 @Component({
   selector: 'm-file-upload',
@@ -43,10 +44,17 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     // don't think that could ever actually happen
     if (useItems && (item as DataTransferItem).kind !== 'file') return;
 
-    this.value = useItems
+    const file = useItems
       ? (item as DataTransferItem).getAsFile()
       : (item as File);
 
+    if (
+      this.acceptMimeTypes?.length > 0 &&
+      !this.acceptMimeTypes.includes(file.type)
+    )
+      return;
+
+    this.value = file;
     this.onChange(this.value);
   }
 
@@ -56,6 +64,38 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     this.onChange(this.value);
 
     (event.target as HTMLInputElement).value = '';
+  }
+
+  async addFromClipboard(event: Event) {
+    event.stopPropagation();
+
+    if (!this.enableClipboard) return;
+
+    this.onTouched();
+
+    let items: ClipboardItems;
+    try {
+      items = await navigator.clipboard.read();
+    } catch {
+      return;
+    }
+
+    for (const clipboardItem of items) {
+      const matchingType = clipboardItem.types.find(
+        (type) => this.acceptMimeTypes?.includes(type)
+      );
+
+      if (!matchingType) continue;
+
+      const blob = await clipboardItem.getType(matchingType);
+      this.value = new File(
+        [blob],
+        `ClipboardItem.${matchingType.split('/').at(-1)}`
+      );
+
+      this.onChange(this.value);
+      return;
+    }
   }
 
   writeValue(value: File): void {

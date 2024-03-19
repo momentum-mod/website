@@ -1,0 +1,28 @@
+<div class="header">
+  <div class="item">
+    <m-icon (click)="toggleSidenav()" icon="menu" class="item" />
+  </div>
+  <a routerLink="/" class="item mr-auto flex items-center px-4">
+    <img src="assets/images/logo.svg" width="310" height="50" alt="Momentum Mod Logo" />
+  </a>
+
+  <p-overlayPanel #searchOverlay>
+    <m-multisearch (selected)="searchOverlay.hide()" />
+  </p-overlayPanel>
+  <div class="item">
+    <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
+  </div>
+
+  <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
+  <div class="item">
+    @if (unreadNotificationCount > 0) {
+      <p class="badge badge-blue absolute bottom-2 right-2">
+        {{ unreadNotificationCount.toString() }}
+      </p>
+    }
+    <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
+    </m-icon>
+  </div>
+  <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
+  <m-player-card (click)="userMenu.toggle($event)" />
+</div>

@@ -1,7 +1,6 @@
 ﻿import {
   Leaderboard,
   LeaderboardRun,
-  MapImage,
   MapInfo,
   MapStats,
   MapSubmission,
@@ -13,17 +12,22 @@
   User
 } from '@prisma/client';
 import { CamelCase, JsonValue, PartialDeep } from 'type-fest';
+import { v4 as uuid4 } from 'uuid';
 import { merge } from 'lodash'; // TODO: Replace with fastify deepmerge when everything is passing!
 import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
 import {
   Gamemode,
+  LeaderboardType,
   MapStatus,
+  MapSubmissionType,
   RunStats,
   Style,
   TrackType
 } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
+import { createSha1Hash } from './crypto.util';
+import { arrayFrom } from '@momentum/util-fn';
 
 export const NULL_ID = 999999999;
 
@@ -48,6 +52,10 @@ export class DbUtil {
   private readonly auth: AuthUtil;
   private users: number;
   private maps: number;
+
+  uuid(): string {
+    return uuid4();
+  }
 
   cleanup(...models: CamelCase<Prisma.ModelName>[]) {
     return this.prisma.$transaction(
@@ -81,9 +89,7 @@ export class DbUtil {
   }
 
   createUsers(count: number, args: CreateUserArgs = {}): Promise<User[]> {
-    return Promise.all(
-      Array.from({ length: count }, () => this.createUser(args))
-    );
+    return Promise.all(arrayFrom(count, () => this.createUser(args)));
   }
 
   async createAndLoginUser(args?: CreateUserArgs): Promise<[User, string]> {
@@ -121,8 +127,6 @@ export class DbUtil {
     MMap & {
       info: MapInfo;
       stats: MapStats;
-      images: MapImage[];
-      thumbnail: MapImage;
       leaderboards: Leaderboard[];
       submission: MapSubmission & { versions: MapSubmissionVersion[] };
     }
@@ -131,14 +135,41 @@ export class DbUtil {
       data: {
         ...merge(
           {
-            name: `map${++this.maps}`,
+            name: `ahop_map${++this.maps}`,
             zones: ZonesStub,
-            fileName: `ahop_map${this.maps}`,
             status: MapStatus.APPROVED,
             hash: randomHash(),
-            info: { create: { creationDate: new Date() } },
-            images: mmap?.images ?? { create: {} },
+            info: {
+              create: {
+                creationDate: new Date(),
+                description: 'Maps have a minimum description length now!!'
+              }
+            },
+            images: mmap?.images ?? [],
             stats: mmap?.stats ?? { create: {} },
+            submission: mmap?.submission ?? {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                suggestions: [
+                  {
+                    gamemode: Gamemode.AHOP,
+                    trackType: TrackType.MAIN,
+                    trackNum: 0,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  }
+                ],
+                versions: {
+                  create: {
+                    versionNum: 1,
+                    changelog: 'hello',
+                    hash: createSha1Hash(Math.random().toString()),
+                    zones: ZonesStub
+                  }
+                }
+              }
+            },
+            submitter: mmap?.submitter ?? { create: this.createUserData() },
             // Just creating the one leaderboard here, most maps will have more,
             // but isn't needed or worth the test perf hit
             leaderboards:
@@ -152,22 +183,19 @@ export class DbUtil {
                       style: 0,
                       tier: 1,
                       linear: true,
-                      ranked: true
+                      type: LeaderboardType.RANKED
                     }
                   }
           } as CreateMapMMapArgs,
           mmap
         )
       } as any,
-      include: { images: true, submission: { include: { versions: true } } }
+      include: { submission: { include: { versions: true } } }
     });
 
     return this.prisma.mMap.update({
       where: { id: createdMap.id },
       data: {
-        thumbnail: createdMap.images[0]
-          ? { connect: { id: createdMap.images[0].id } }
-          : undefined,
         submission: createdMap?.submission?.versions?.[0]
           ? {
               update: {
@@ -180,9 +208,7 @@ export class DbUtil {
       },
       include: {
         info: true,
-        images: true,
         stats: true,
-        thumbnail: true,
         leaderboards: true,
         submission: { include: { versions: true, currentVersion: true } }
       }
@@ -197,15 +223,11 @@ export class DbUtil {
       MMap & {
         info: MapInfo;
         stats: MapStats;
-        images: MapImage[];
-        thumbnail: MapImage;
         leaderboards: Leaderboard[];
       }
     >
   > {
-    return Promise.all(
-      Array.from({ length: count }, () => this.createMap(map))
-    );
+    return Promise.all(arrayFrom(count, () => this.createMap(map)));
   }
 
   /**
@@ -228,21 +250,21 @@ export class DbUtil {
               style: 0,
               tier: 1,
               linear: true,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.STAGE,
               trackNum: 0,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.STAGE,
               trackNum: 1,
               style: 0,
-              ranked: true
+              type: LeaderboardType.RANKED
             },
             {
               gamemode: Gamemode.AHOP,
@@ -250,7 +272,7 @@ export class DbUtil {
               trackNum: 0,
               style: 0,
               tier: 5,
-              ranked: true
+              type: LeaderboardType.RANKED
             }
           ]
         }

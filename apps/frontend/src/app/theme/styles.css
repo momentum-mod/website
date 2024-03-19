@@ -7,25 +7,25 @@
 @import '@fontsource/roboto/700.css';
 @import '@fontsource/roboto/700-italic.css';
 
+@import './primeng-theme-nolayers.css';
+@import './primeng-nolayers.css';
+@import './primeng-overrides.css';
+
 @import './shared_styling/fonts/BebasNeue/300.css';
 @import './shared_styling/fonts/BebasNeue/400.css';
 @import './shared_styling/fonts/BebasNeue/700.css';
-
-@import './primeng-theme-nolayers.css';
-@import './primeng-nolayers.css';
+@import './shared_styling/colors/colors-css-vars.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --sidenav-width-wide: 15rem;
-    --sidenav-width-smol: 4rem;
-  }
-
   html {
     scroll-behavior: smooth;
+    height: 100vh;
+    width: 100vw;
+    color: theme('colors.gray.50');
   }
 
   /* If the user prefers dark mode, we of course apply color-scheme: dark, as usual */
@@ -59,78 +59,226 @@
     }
   }
 
-  .m-card {
+  .card,
+  .alert {
+    display: flex;
+    flex-direction: column;
     border-radius: 0.25rem;
-    padding: 1rem;
-    background-color: rgb(20, 20, 20, 0.75);
-    border: 1px solid #252525;
-    box-shadow: 4px 4px 24px rgb(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
+    background-color: rgb(50 50 50 / 0.9);
+    @apply border border-white border-opacity-5;
+    box-shadow:
+      1px 3px 4px rgb(0 0 0 / 0.2),
+      2px 4px 24px rgb(0 0 0 / 0.2);
+    backdrop-filter: none;
+    overflow: hidden;
   }
 
-  .m-btn {
+  .card--fancy,
+  .alert--fancy {
+    background-color: rgb(255 255 255 / 0.0625);
+    backdrop-filter: blur(100px) brightness(0.9);
+  }
+
+  .card-header {
+    background-color: rgb(0 0 0 / 0.175);
+    border-bottom: 1px solid rgb(0 0 0 / 0.1);
+    padding: 0.75rem 1rem;
+  }
+
+  .card-title {
+    @apply font-display;
+    font-weight: 700;
+    opacity: 0.875;
+    line-height: 1;
+    filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
+      drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
+      drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
+  }
+
+  .card-body {
+    display: block;
+    padding: 1rem;
+    border-top: 1px solid rgba(255 255 255 / 0.0375);
+  }
+
+  .card-inset {
+    padding: 1rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0 0 0 / 0.15);
+    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+    border: 1px solid rgba(255 255 255 / 0.1);
+
+    &:is(fieldset) {
+      padding: 0.25rem 1rem 1rem 1rem;
+    }
+  }
+
+  .alert {
+    display: block;
+    position: relative;
+    padding: 1.5rem;
+  }
+
+  .link {
+    color: rgb(var(--blue-400));
+    transition: color ease-out 0.15s;
+
+    &:hover {
+      color: rgb(var(--blue-300));
+      filter: drop-shadow(0 1px 3px rgb(var(--blue-700)));
+    }
+  }
+
+  .btn {
     display: flex;
-    justify-content: center;
+    position: relative;
     padding: 0.5rem 0.75rem;
+    justify-content: center;
+    align-items: center;
     border-radius: 0.25rem;
     font-weight: 500;
-    box-shadow: inset 0 1px 1px white;
-    background-color: theme('colors.gray.500');
+    /* This fixes a weird issue with box model insanity
+       https://stackoverflow.com/a/31120774 */
+    background-origin: border-box !important;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background-color: rgb(var(--gray-500) / 100);
 
-    @apply bg-gray-600 hover:bg-gray-500 shadow-lg transition-colors;
+    transition: background-color ease-out 0.15s;
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.3);
+    & > icon {
+      filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2));
+    }
+
+    box-shadow:
+      0 2px 8px rgb(0 0 0 / 0.15),
+      0 1px 2px rgb(0 0 0 / 0.2);
 
     &:disabled {
       pointer-events: none;
-      filter: contrast(0.3) brightness(0.5);
+      filter: contrast(0.5) brightness(0.5);
+    }
+
+    /* Gross way to do hover anims. I miss Sass! */
+    &::after {
+      content: ' ';
+      position: absolute;
+      overflow: hidden;
+      /* Stupid way to get this to overlap well with button. Again, this
+         approach sucks but can't think of anything better rn */
+      border-radius: 0.175rem;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      transition: background-color ease-out 0.15s;
+      background-color: rgb(255 255 255 / 0);
+    }
+
+    &:hover::after {
+      background-color: rgb(255 255 255 / 0.1);
     }
   }
 
-  .m-btn-blue {
-    @apply bg-blue-500 hover:bg-blue-400;
+  .btn-thin {
+    padding: 0.375rem 0.625rem;
   }
 
-  .m-btn-red {
-    @apply bg-red-500 hover:bg-red-400;
+  .btn-blue {
+    background: linear-gradient(
+      rgb(var(--blue-500)),
+      color-mix(in srgb, rgb(var(--blue-500)), rgb(var(--blue-600)))
+    );
   }
 
-  .m-btn-green {
-    @apply bg-green-400 hover:bg-green-500;
+  .btn-pale {
+    background: linear-gradient(
+      rgb(var(--pale-500)),
+      color-mix(in srgb, rgb(var(--pale-500)), rgb(var(--pale-600)))
+    );
   }
 
-  .m-btn-orange {
-    @apply bg-orange-400 hover:bg-orange-500;
+  .btn-red {
+    background: linear-gradient(
+      rgb(var(--red-500)),
+      color-mix(in srgb, rgb(var(--red-500)), rgb(var(--red-600)))
+    );
   }
 
-  .m-textinput {
-    padding: 0.5rem 1rem;
-    /*line-height: 1.25rem;*/
+  .btn-green {
+    background: linear-gradient(
+      rgb(var(--green-500)),
+      color-mix(in srgb, rgb(var(--green-500)), rgb(var(--green-600)))
+    );
+  }
+
+  .btn-orange {
+    background: linear-gradient(
+      rgb(var(--orange-500)),
+      color-mix(in srgb, rgb(var(--orange-500)), 75% rgb(var(--orange-600)))
+    );
+  }
+
+  .btn-pink {
+    background: linear-gradient(
+      rgb(var(--pink-500)),
+      color-mix(in srgb, rgb(var(--pink-500)), rgb(var(--pink-600)))
+    );
+  }
+
+  .btn-purple {
+    background: linear-gradient(
+      rgb(var(--purple-500)),
+      color-mix(in srgb, rgb(var(--purple-500)), rgb(var(--purple-600)))
+    );
+  }
+
+  .btn-yellow {
+    /* Yellow is a bastard */
+    border: 1px solid rgb(255 255 255 / 0.25);
+    background: linear-gradient(rgb(var(--yellow-500)), rgb(var(--yellow-600)));
+  }
+
+  .inputlike,
+  .textinput,
+  .radio,
+  .checkbox,
+  m-file-upload,
+  m-multi-file-upload {
     border-radius: 0.25rem;
 
-    @apply border border-white border-opacity-[0.025];
-
     transition-duration: 0.1s;
-    transition-property: border, background-color, color, box-shadow;
+    transition-property: border, background-color, color, box-shadow, opacity;
     transition-timing-function: ease-out;
 
-    @apply bg-gray-700 bg-opacity-50;
+    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
 
-    &:hover {
-      @apply bg-opacity-100 border-opacity-[0.05];
+    /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+    @apply border border-white border-opacity-10 bg-black bg-opacity-25;
+
+    &:not(:disabled):hover,
+    &.dragging:not(:disabled) {
+      @apply bg-opacity-30 border-opacity-[0.15];
     }
 
-    &:focus {
+    &:not(:disabled):focus {
+      @apply bg-opacity-[0.35] border-opacity-[0.15];
       outline: none !important;
-      @apply bg-opacity-100 border-opacity-[0.1];
+    }
+
+    &:disabled {
+      opacity: 0.5;
     }
   }
 
-  .m-textinput-validated {
-    /*
-    // Making valid go green feels a bit much
+  .textinput {
+    padding: 0.5rem 1rem;
+  }
+
+  .textinput-validated {
     &.ng-valid.ng-dirty {
       @apply border-green-500 !important;
     }
-    */
 
     &.ng-invalid.ng-dirty {
       @apply border-red-500 !important;
@@ -141,8 +289,8 @@
     }
   }
 
-  /* Using techniques from https://moderncss.dev/pure-css-custom-checkbox-style/ */
-  .m-checkbox {
+  /* Using techniques from https://moderncss.dev/pure-css-custocheckbox-style/ */
+  .checkbox {
     vertical-align: middle;
     height: 1.5rem;
     aspect-ratio: 1 / 1;
@@ -156,19 +304,6 @@
     border-radius: 0.25rem;
     position: relative;
     float: left;
-
-    @apply border border-white border-opacity-[0.05];
-    @apply bg-gray-800;
-
-    &:hover {
-      @apply bg-gray-700;
-      @apply border-opacity-[0.05];
-    }
-
-    &:focus {
-      outline: none !important;
-      @apply border-opacity-[0.1];
-    }
 
     &::before {
       position: absolute;
@@ -189,7 +324,7 @@
     }
   }
 
-  .m-radio {
+  .radio {
     padding: 0.75rem;
     -webkit-appearance: none;
     appearance: none;
@@ -200,19 +335,6 @@
     border-radius: 50%;
     position: relative;
     float: left;
-
-    @apply border border-gray-300 border-opacity-[0.15];
-    @apply bg-gray-800;
-
-    &:hover {
-      @apply bg-gray-700;
-      @apply border-opacity-[0.2];
-    }
-
-    &:focus {
-      outline: none !important;
-      @apply border-opacity-[0.225];
-    }
 
     &::before {
       position: absolute;
@@ -233,7 +355,7 @@
     }
   }
 
-  .m-badge {
+  .badge {
     pointer-events: none;
     border-radius: 1rem;
     text-align: center;
@@ -249,28 +371,65 @@
     @apply bg-gray-600;
   }
 
-  .m-badge-blue {
+  .badge-blue {
     @apply bg-blue-600;
   }
 
-  .m-badge-red {
+  .badge-red {
     @apply bg-red-600 hover:bg-red-400;
   }
 
-  .m-badge-green {
+  .badge-green {
     @apply bg-green-400 hover:bg-green-500;
   }
 
-  .m-badge-orange {
+  .badge-orange {
     @apply bg-orange-400 hover:bg-orange-500;
   }
 
-  .m-spinner-container:not(.m-spinner-container--active) > m-spinner {
+  .spinner-container:not(.spinner-container--active) > m-spinner {
     display: none;
   }
 
-  .m-spinner-container--active > *:not(m-spinner) {
+  .spinner-container--active > *:not(m-spinner) {
     opacity: 0.8;
+  }
+
+  m-file-upload,
+  m-multi-file-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    text-align: center;
+
+    border: 2px dashed rgb(255 255 255 / 0.15);
+
+    transition-property: color, border-color;
+    transition-timing-function: ease-out;
+    transition-duration: 150ms;
+
+    &:not(:disabled) {
+      cursor: pointer;
+
+      &:hover {
+        border-color: rgb(255 255 255 / 0.15);
+      }
+    }
+
+    &.dragging:not(:disabled) {
+      border-color: rgb(255 255 255 / 0.5);
+    }
+
+    &:disabled {
+      filter: contrast(0.5) brightness(0.5);
+    }
+
+    .ng-invalid.ng-dirty > &.hasSelection {
+      @apply border-red-500;
+    }
   }
 }
 
@@ -286,9 +445,38 @@
     }
   }
 
+  .hover-white-overlay {
+    display: flex;
+    position: relative;
+
+    &::after {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      height: 100%;
+      width: 100%;
+      background-color: rgb(255 255 255 / 0);
+      content: '';
+      transition: 0.1s ease-in-out;
+    }
+
+    &:hover::after {
+      background-color: rgb(255 255 255 / 0.1);
+    }
+  }
+
   /*TODO: Tailwind almost supports this, remove me once we're on a release with it has it!*/
   .text-balance {
     text-wrap: balance;
+  }
+
+  .small-caps {
+    font-variant: small-caps;
+  }
+
+  .all-small-caps {
+    font-variant: all-small-caps;
   }
 
   /**
@@ -298,6 +486,27 @@
    */
   .prose {
     @apply prose-invert;
+    color: theme('colors.gray.50');
+    & :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      &:not(:first-child) {
+        margin-top: 1rem;
+      }
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+
+    &
+      :where(h1, h2, h3, h4, h5, h6):not(
+        :where([class~='not-prose'], [class~='not-prose'] *)
+      ) {
+      &:not(:first-child) {
+        margin-top: 0.5rem;
+      }
+      &:not(:last-child) {
+        margin-bottom: 0.5rem;
+      }
+    }
   }
 
   .scroll-thin::-webkit-scrollbar {
@@ -308,5 +517,15 @@
   .scroll-thin::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.3);
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .text-shadow-strong {
+    text-shadow:
+      0 1px 6px rgba(0, 0, 0, 0.15),
+      0 2px 1px rgba(0, 0, 0, 0.2);
   }
 }

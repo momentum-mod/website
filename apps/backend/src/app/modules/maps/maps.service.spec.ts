@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatusNew, Role } from '@momentum/constants';
+import { CombinedRoles, MapStatus, Role } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
@@ -13,6 +13,7 @@ import {
   PrismaMock
 } from '../../../../test/prisma-mock.const';
 import { MapsService } from './maps.service';
+import { Bitflags } from '@momentum/bitflags';
 
 describe('MapsService', () => {
   let service: MapsService, db: PrismaMock;
@@ -46,16 +47,44 @@ describe('MapsService', () => {
 
       await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(InternalServerErrorException);
     });
+    
+    it('should only allow mod and admins to access APPROVED maps when submissionOnly is true', async () => {
+      for (const role of Enum.values(Role)) {
+        db.user.findUnique.mockResolvedValueOnce({ id: 1, roles: role } as any);
+        db.mMap.findUnique.mockResolvedValueOnce({
+          id: 1,
+          status: MapStatus.APPROVED
+        } as any);
+
+        if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, role)) {
+          expect(
+            await service.getMapAndCheckReadAccess({
+              mapID: 1,
+              userID: 1,
+              submissionOnly: true
+            })
+          ).toBeTruthy();
+        } else {
+          await expect(
+            service.getMapAndCheckReadAccess({
+              mapID: 1,
+              userID: 1,
+              submissionOnly: true
+            })
+          ).rejects.toThrow(ForbiddenException);
+        }
+      }
+    })
 
     // Map of what states should PASS access checks for each MapStatus,
     // otherwise should fail. Below code performs each check against each state.
     const tests = {
-      [MapStatusNew.APPROVED]: 'any',
-      [MapStatusNew.PUBLIC_TESTING]: 'any',
-      [MapStatusNew.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
-      [MapStatusNew.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
-      [MapStatusNew.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
-      [MapStatusNew.DISABLED]: ['admin', 'moderator']
+      [MapStatus.APPROVED]: 'any',
+      [MapStatus.PUBLIC_TESTING]: 'any',
+      [MapStatus.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
+      [MapStatus.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
+      [MapStatus.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
+      [MapStatus.DISABLED]: ['admin', 'moderator']
     };
 
     const expects = async (pass: boolean, map: any, userID = 1) =>
@@ -65,11 +94,11 @@ describe('MapsService', () => {
     
     const mockMapValue = (map) => db.mMap.findUnique.mockResolvedValueOnce(map);
     const mockUserValue = (user) => db.user.findUnique.mockResolvedValueOnce(user);
-    const mockTestingReqExists = (exists) => db.mapTestingRequest.exists.mockResolvedValueOnce(exists);
+    const mockTestInviteExists = (exists) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
     const mockMapCreditExists = (exists) => db.mapCredit.exists.mockResolvedValueOnce(exists);
 
-    for (const status of Enum.values(MapStatusNew)) {
-      describe(MapStatusNew[status], () => {
+    for (const status of Enum.values(MapStatus)) {
+      describe(MapStatus[status], () => {
         afterEach(() => jest.resetAllMocks());
 
         const conditions = tests[status];
@@ -92,7 +121,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.ADMIN });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -103,7 +132,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.MODERATOR });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -114,7 +143,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: Role.REVIEWER });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -126,18 +155,18 @@ describe('MapsService', () => {
           const submittedMap = { ...map, submitterID: 1 };
           mockMapValue(submittedMap);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(pass, submittedMap, 1);
         });
 
-        it(`should ${shouldPass('acceptedRequest')} a user with an accepted testing request`, async () => {
+        it(`should ${shouldPass('acceptedRequest')} a user with an accepted test invite`, async () => {
           const pass = passes('acceptedRequest');
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(true);
+          mockTestInviteExists(true);
           mockMapCreditExists(false);
 
           await expects(pass, map);
@@ -148,7 +177,7 @@ describe('MapsService', () => {
 
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(true);
 
           await expects(pass, map);
@@ -157,7 +186,7 @@ describe('MapsService', () => {
         it('should reject a user that does not match any above conditions', async () => {
           mockMapValue(map);
           mockUserValue({ id: 1, roles: 0 });
-          mockTestingReqExists(false);
+          mockTestInviteExists(false);
           mockMapCreditExists(false);
 
           await expects(false, map);
