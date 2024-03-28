@@ -66,20 +66,12 @@ export class MapBrowserComponent implements OnInit {
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
-  protected isLoggedIn: boolean;
-
   constructor(
-    private readonly localUserService: LocalUserService,
+    protected readonly localUserService: LocalUserService,
     private readonly mapsService: MapsService,
     private readonly messageService: MessageService,
     private readonly destroyRef: DestroyRef
-  ) {
-    this.isLoggedIn = this.localUserService.isLoggedIn();
-
-    this.localUserService.localUserSubject.subscribe((user) => {
-      this.isLoggedIn = !!user;
-    });
-  }
+  ) {}
 
   ngOnInit() {
     this.gamemode.valueChanges

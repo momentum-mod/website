@@ -13,7 +13,7 @@
     <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
   </div>
 
-  @if (user) {
+  @if (localUserService.user | async) {
     <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
     <div class="item">
       @if (unreadNotificationCount > 0) {

@@ -18,7 +18,7 @@ export class ProfileRedirectComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const localUser = this.localUserService.localUser;
+    const localUser = this.localUserService.user.value;
 
     await this.router.navigate([
       localUser?.id ? `/profile/${localUser.id}` : '/'

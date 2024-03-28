@@ -22,7 +22,7 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    // Redirects to maps browser page, since it's the main page used by unauthroized user
+    // Redirects to maps browser page, since it's the main page used by unauthorized user
     this.router.navigateByUrl('/maps');
   }
 

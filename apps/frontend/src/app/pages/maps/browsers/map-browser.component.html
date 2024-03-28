@@ -38,7 +38,7 @@
       <input class="textinput ml-auto h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
     </div>
     <div class="flex items-center gap-2">
-      @if (isLoggedIn) {
+      @if (localUserService.user | async) {
         <p class="font-display text-24">Favorites</p>
         <m-n-state-button
           class="mr-4 h-8 w-8 p-0"

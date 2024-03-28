@@ -1,5 +1,5 @@
-<nav class="scroll-thin" [ngClass]="{ smol: collapsed }">
-  @for (category of menuItems; track category.title) {
+<nav class="scroll-thin" [ngClass]="{ smol: collapsed | async }">
+  @for (category of menuItems | async; track category.title) {
     <p class="category">{{ category.title }}</p>
     @for (item of category.items; track item.title) {
       @if (item.external) {

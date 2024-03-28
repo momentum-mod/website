@@ -173,7 +173,7 @@ export class MapReviewComponent {
       message:
         'Are you sure you want to delete this review? This action is irreversible!',
       accept: () =>
-        (this.isReviewAuthor()
+        (this.isReviewAuthor
           ? this.mapsService.deleteMapReview(this._review.id)
           : this.adminService.deleteMapReview(this._review.id)
         )
@@ -287,19 +287,19 @@ export class MapReviewComponent {
     });
   }
 
-  isReviewer(): boolean {
+  get isReviewer(): boolean {
     return this.localUserService.hasRole(CombinedRoles.REVIEWER_AND_ABOVE);
   }
 
-  isModOrAdmin(): boolean {
+  get isModOrAdmin(): boolean {
     return this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN);
   }
 
-  isReviewAuthor(): boolean {
-    return this.localUserService.localUser.id === this._review.reviewerID;
+  get isReviewAuthor(): boolean {
+    return this.localUserService.user.value?.id === this._review.reviewerID;
   }
 
   isCommentAuthor(commentAuthorID: number): boolean {
-    return this.localUserService.localUser.id === commentAuthorID;
+    return this.localUserService.user.value?.id === commentAuthorID;
   }
 }

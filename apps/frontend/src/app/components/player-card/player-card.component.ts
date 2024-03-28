@@ -16,7 +16,7 @@ import {
   styleUrl: './player-card.component.css'
 })
 export class PlayerCardComponent implements OnInit {
-  protected user?: FullUser;
+  protected user: FullUser;
   protected level: number;
   protected xp: number;
   protected currLevelXp: number;
@@ -29,9 +29,10 @@ export class PlayerCardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.localUserService.localUserSubject
+    this.localUserService.user
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user: FullUser) => {
+      .subscribe((user: FullUser | null) => {
+        if (!user) return;
         this.user = user;
         this.level = user.userStats.level;
         this.xp = user.userStats.cosXP as number;
