@@ -176,9 +176,6 @@ describe('Users', () => {
         for (const user of res.body.data)
           expect([users[0].id, users[1].id]).toContain(user.id);
       });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users', 'get'));
     });
   });
 
@@ -232,9 +229,6 @@ describe('Users', () => {
 
       it('should 404 if the user is not found', () =>
         req.get({ url: `users/${NULL_ID}`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users/1', 'get'));
     });
   });
 
@@ -263,9 +257,6 @@ describe('Users', () => {
 
     it('should 404 if the profile is not found', () =>
       req.get({ url: `users/${NULL_ID}/profile`, status: 404, token }));
-
-    it('should 401 when no access token is provided', () =>
-      req.unauthorizedTest('users/1/profile', 'get'));
   });
 
   describe('GET /api/users/{userID}/activities', () => {
@@ -373,9 +364,6 @@ describe('Users', () => {
       for (const act of res.body.data)
         expect(act.type).not.toBe(ActivityType.REPORT_FILED);
     });
-
-    it('should 401 when no access token is provided', () =>
-      req.unauthorizedTest('users/1/activities', 'get'));
   });
 
   describe('users/{userID}/follows', () => {
@@ -435,9 +423,6 @@ describe('Users', () => {
           validatePaged: { type: FollowDto, count: 0 },
           token: u1Token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users/1/follows', 'get'));
     });
   });
 
@@ -506,9 +491,6 @@ describe('Users', () => {
           validatePaged: { type: FollowDto, count: 0 },
           token: u1Token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users/1/followers', 'get'));
     });
   });
 
@@ -566,9 +548,6 @@ describe('Users', () => {
           paged: true,
           token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users/1/credits', 'get'));
     });
   });
 });

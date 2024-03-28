@@ -123,11 +123,11 @@ export class MapsService {
   //#region Gets
 
   async getAll(
-    userID: number,
     query:
       | MapsGetAllQueryDto
       | MapsGetAllAdminQueryDto
-      | MapsGetAllSubmissionQueryDto
+      | MapsGetAllSubmissionQueryDto,
+    userID?: number
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
@@ -1547,7 +1547,7 @@ export class MapsService {
 
   //#region Info
 
-  async getInfo(mapID: number, userID: number): Promise<MapInfoDto> {
+  async getInfo(mapID: number, userID?: number): Promise<MapInfoDto> {
     // Checks need to fetch map anyway and we have no includes on mapInfo, so
     // may as well just have this function include mapInfo and pull that off the
     // return value.
@@ -1602,7 +1602,7 @@ export class MapsService {
     S extends Prisma.MMapSelect,
     I extends Prisma.MMapInclude
   >(
-    args: { userID: number; submissionOnly?: boolean } & MergeExclusive<
+    args: { userID?: number; submissionOnly?: boolean } & MergeExclusive<
       { map: M },
       { mapID: number | string } & MergeExclusive<
         { select?: S },
@@ -1640,6 +1640,11 @@ export class MapsService {
       map.status === MapStatus.PUBLIC_TESTING
     ) {
       return map as GetMMapUnique<S, I>;
+    }
+
+    // Don't allow unauthorized users access non public maps
+    if (args.userID === undefined) {
+      throw new ForbiddenException('User is not authorized');
     }
 
     // For any other state, we need to know roles

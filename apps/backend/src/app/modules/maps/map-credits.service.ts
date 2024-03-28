@@ -32,8 +32,8 @@ export class MapCreditsService {
 
   async getCredits(
     mapID: number,
-    loggedInUserID: number,
-    expand: MapCreditsGetExpand
+    loggedInUserID?: number,
+    expand?: MapCreditsGetExpand
   ): Promise<MapCreditDto[]> {
     await this.mapsService.getMapAndCheckReadAccess({
       mapID,
@@ -51,8 +51,8 @@ export class MapCreditsService {
   async getCredit(
     mapID: number,
     userID: number,
-    loggedInUserID: number,
-    expand: MapCreditsGetExpand
+    loggedInUserID?: number,
+    expand?: MapCreditsGetExpand
   ): Promise<MapCreditDto> {
     await this.mapsService.getMapAndCheckReadAccess({
       mapID,

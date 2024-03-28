@@ -8,10 +8,12 @@
 export const LoggedInUser = createParamDecorator(
   (data: string | undefined, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
-    return data
-      ? data === 'steamID'
-        ? BigInt(request.user[data])
-        : request.user[data]
-      : { ...request.user, steamID: BigInt(request.user.steamID) };
+    return request.user
+      ? data
+        ? data === 'steamID'
+          ? BigInt(request.user[data])
+          : request.user[data]
+        : { ...request.user, steamID: BigInt(request.user.steamID) }
+      : undefined;
   }
 );

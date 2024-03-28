@@ -286,9 +286,6 @@ describe('Runs', () => {
           sortFn: (n1, n2) => n1.ticks - n2.ticks,
           token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('runs', 'get'));
     });
   });
 
@@ -389,9 +386,6 @@ describe('Runs', () => {
 
       it('should 404 when no run is found', () =>
         req.get({ url: `runs/${NULL_ID}`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('runs/1', 'get'));
     });
   });
 });

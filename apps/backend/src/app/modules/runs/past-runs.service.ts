@@ -20,8 +20,8 @@ export class PastRunsService {
   ) {}
 
   async getAll(
-    userID: number,
-    query: PastRunsGetAllQueryDto
+    query: PastRunsGetAllQueryDto,
+    userID?: number
   ): Promise<PagedResponseDto<PastRunDto>> {
     if (query.userID && query.userIDs)
       throw new BadRequestException(
@@ -93,7 +93,7 @@ export class PastRunsService {
   async get(
     pastRunID: number,
     query: RunsGetQuery,
-    userID: number
+    userID?: number
   ): Promise<PastRunDto> {
     const include: Prisma.PastRunInclude = {
       user: query?.expand?.includes('user') ? true : undefined,
