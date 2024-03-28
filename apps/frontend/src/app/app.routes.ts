@@ -9,13 +9,11 @@ export const APP_ROUTES: Route[] = [
   {
     path: '',
     component: HomeComponent,
-    title: 'Dashboard',
-    canActivate: [AuthGuard]
+    title: 'Dashboard'
   },
   {
     path: 'maps',
-    loadChildren: () => import('./pages/maps/routes-user-facing'),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/maps/routes-user-facing')
   },
   {
     path: 'map-edit',
@@ -24,13 +22,11 @@ export const APP_ROUTES: Route[] = [
   },
   {
     path: 'community',
-    loadChildren: () => import('./pages/community/routes'),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/community/routes')
   },
   {
     path: 'profile',
-    loadChildren: () => import('./pages/profile/routes'),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./pages/profile/routes')
   },
   {
     path: 'admin',

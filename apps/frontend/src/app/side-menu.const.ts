@@ -3,12 +3,14 @@ import { Icon, IconPack } from './icons';
 export const SIDENAV_ITEMS: Array<{
   title: string;
   needsMod?: boolean;
+  isPublic?: boolean;
   items: Array<{
     title: string;
     external?: boolean;
     link: string;
     icon: Icon;
     pack?: IconPack;
+    isPublic?: boolean;
   }>;
 }> = [
   {
@@ -17,7 +19,8 @@ export const SIDENAV_ITEMS: Array<{
       {
         title: 'Browser',
         link: '/maps',
-        icon: 'panorama-outline'
+        icon: 'panorama-outline',
+        isPublic: true
       },
       {
         title: 'Beta Maps',
@@ -33,6 +36,7 @@ export const SIDENAV_ITEMS: Array<{
   },
   {
     title: 'Community',
+    isPublic: true,
     items: [
       {
         title: 'Streams',
@@ -75,6 +79,7 @@ export const SIDENAV_ITEMS: Array<{
   },
   {
     title: 'External',
+    isPublic: true,
     items: [
       {
         title: 'Steam',

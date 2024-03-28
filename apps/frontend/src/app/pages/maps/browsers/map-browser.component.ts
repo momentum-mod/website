@@ -25,6 +25,7 @@ import { MapListItemComponent } from '../../../components/map-list/map-list-item
 import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
 import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -65,11 +66,20 @@ export class MapBrowserComponent implements OnInit {
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
+  protected isLoggedIn: boolean;
+
   constructor(
+    private readonly localUserService: LocalUserService,
     private readonly mapsService: MapsService,
     private readonly messageService: MessageService,
     private readonly destroyRef: DestroyRef
-  ) {}
+  ) {
+    this.isLoggedIn = this.localUserService.isLoggedIn();
+
+    this.localUserService.localUserSubject.subscribe((user) => {
+      this.isLoggedIn = !!user;
+    });
+  }
 
   ngOnInit() {
     this.gamemode.valueChanges

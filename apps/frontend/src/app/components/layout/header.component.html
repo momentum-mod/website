@@ -13,16 +13,22 @@
     <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
   </div>
 
-  <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
-  <div class="item">
-    @if (unreadNotificationCount > 0) {
-      <p class="badge badge-blue absolute bottom-2 right-2">
-        {{ unreadNotificationCount.toString() }}
-      </p>
-    }
-    <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
-    </m-icon>
-  </div>
-  <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
-  <m-player-card (click)="userMenu.toggle($event)" />
+  @if (user) {
+    <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
+    <div class="item">
+      @if (unreadNotificationCount > 0) {
+        <p class="badge badge-blue absolute bottom-2 right-2">
+          {{ unreadNotificationCount.toString() }}
+        </p>
+      }
+      <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
+      </m-icon>
+    </div>
+    <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
+    <m-player-card (click)="userMenu.toggle($event)" />
+  } @else {
+    <div class="flex h-full cursor-pointer items-center justify-center p-2">
+      <img (click)="localUserService.login()" src="/assets/images/steam-login-green-large.png" class="login-button" />
+    </div>
+  }
 </div>

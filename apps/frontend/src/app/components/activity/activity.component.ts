@@ -94,6 +94,7 @@ export class ActivityComponent implements OnInit {
           this.activityService.getLocalUserActivity(...args);
         // Whenever LU updates, reset the component and refresh.
         extraListener = this.localUserService.localUserSubject.pipe(
+          filter(Boolean),
           tap(() => this.clearActivities())
         );
         break;
@@ -143,7 +144,10 @@ export class ActivityComponent implements OnInit {
           this.page = Math.max(0, this.page - 1);
         }
       });
-    this.load.next();
+
+    if (this.localUserService.isLoggedIn()) {
+      this.load.next();
+    }
   }
 
   protected filterActivities(): void {

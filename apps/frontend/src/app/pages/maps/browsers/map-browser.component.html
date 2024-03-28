@@ -38,26 +38,28 @@
       <input class="textinput ml-auto h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
     </div>
     <div class="flex items-center gap-2">
-      <p class="font-display text-24">Favorites</p>
-      <m-n-state-button
-        class="mr-4 h-8 w-8 p-0"
-        [states]="[
-          { icon: 'star', color: null },
-          { icon: 'star', color: 'blue' },
-          { icon: 'star', color: 'red' }
-        ]"
-        formControlName="favorites"
-      />
-      <p class="font-display text-24">Completed</p>
-      <m-n-state-button
-        class="mr-4 h-8 w-8 p-0"
-        [states]="[
-          { icon: 'flag-outline', color: null },
-          { icon: 'flag-outline', color: 'blue' },
-          { icon: 'flag-outline', color: 'red' }
-        ]"
-        formControlName="pb"
-      />
+      @if (isLoggedIn) {
+        <p class="font-display text-24">Favorites</p>
+        <m-n-state-button
+          class="mr-4 h-8 w-8 p-0"
+          [states]="[
+            { icon: 'star', color: null },
+            { icon: 'star', color: 'blue' },
+            { icon: 'star', color: 'red' }
+          ]"
+          formControlName="favorites"
+        />
+        <p class="font-display text-24">Completed</p>
+        <m-n-state-button
+          class="mr-4 h-8 w-8 p-0"
+          [states]="[
+            { icon: 'flag-outline', color: null },
+            { icon: 'flag-outline', color: 'blue' },
+            { icon: 'flag-outline', color: 'red' }
+          ]"
+          formControlName="pb"
+        />
+      }
       <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
       <m-slider
         #slider
