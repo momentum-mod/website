@@ -5,15 +5,17 @@
       [src]="map.thumbnail?.small"
       class="h-full w-full rounded-t border-b border-black border-opacity-5 transition-all group-hover:brightness-110"
     />
-    <button
-      type="button"
-      class="m-2 mb-auto ml-auto text-white opacity-80 drop-shadow-lg transition-opacity"
-      [ngClass]="{ 'opacity-100': inFavorites }"
-      (click)="toggleMapInFavorites($event)"
-      [mTooltip]="inFavorites ? 'Remove map from favorite' : 'Add map to favorites'"
-    >
-      <m-icon class="h-8 w-8" [icon]="inFavorites ? 'star' : 'star-outline'" />
-    </button>
+    @if (isLoggedIn) {
+      <button
+        type="button"
+        class="m-2 mb-auto ml-auto text-white opacity-80 drop-shadow-lg transition-opacity"
+        [ngClass]="{ 'opacity-100': inFavorites }"
+        (click)="toggleMapInFavorites($event)"
+        [mTooltip]="inFavorites ? 'Remove map from favorite' : 'Add map to favorites'"
+      >
+        <m-icon class="h-8 w-8" [icon]="inFavorites ? 'star' : 'star-outline'" />
+      </button>
+    }
     @if (isReleasedMap(map) && !isAdminPage) {
       @if (map.currentModeLeaderboards; as lb) {
         <div class="m-2 ml-auto mt-auto flex flex-wrap gap-2">

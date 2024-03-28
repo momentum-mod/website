@@ -95,6 +95,7 @@ export class MapInfoComponent implements OnInit {
   isSubmitter: boolean;
   isModerator: boolean;
   inSubmission: boolean;
+  protected isLoggedIn: boolean;
 
   currentSection?: MapInfoSection = null;
   sections = Enum.values(MapInfoSection);
@@ -110,7 +111,9 @@ export class MapInfoComponent implements OnInit {
     private readonly sanitizer: DomSanitizer,
     private readonly destroyRef: DestroyRef,
     private readonly titleService: TitleService
-  ) {}
+  ) {
+    this.isLoggedIn = this.localUserService.isLoggedIn();
+  }
 
   ngOnInit() {
     this.layoutService.reserveBackgroundUrl(
@@ -171,20 +174,22 @@ export class MapInfoComponent implements OnInit {
 
     this.layoutService.setBackgroundImage(this.map.thumbnail?.large);
 
-    this.localUserService.checkMapNotify(this.map.id).subscribe({
-      next: (resp) => {
-        this.notify = resp;
-        if (resp) this.notifications = true;
-      },
-      error: (error) => {
-        if (error.status !== 404)
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Could not check if following',
-            detail: error.message
-          });
-      }
-    });
+    if (this.isLoggedIn) {
+      this.localUserService.checkMapNotify(this.map.id).subscribe({
+        next: (resp) => {
+          this.notify = resp;
+          if (resp) this.notifications = true;
+        },
+        error: (error) => {
+          if (error.status !== 404)
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Could not check if following',
+              detail: error.message
+            });
+        }
+      });
+    }
 
     // In favourites iff num mapfavorites entries for user > 0. sorry
     this.inFavorites = this.map.favorites?.length > 0;
@@ -194,7 +199,7 @@ export class MapInfoComponent implements OnInit {
     );
 
     this.isSubmitter =
-      this.map.submitterID === this.localUserService.localUser.id;
+      this.map.submitterID === this.localUserService.localUser?.id;
 
     const youtubeID = this.map?.info?.youtubeID;
     if (youtubeID && YOUTUBE_ID_REGEXP.test(youtubeID)) {

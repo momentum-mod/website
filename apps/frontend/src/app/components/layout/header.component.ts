@@ -49,7 +49,7 @@ export class HeaderComponent implements OnInit {
   protected unreadNotificationCount = 0;
 
   constructor(
-    private readonly localUserService: LocalUserService,
+    protected readonly localUserService: LocalUserService,
     private readonly layoutService: LayoutService,
     private readonly notificationService: NotificationsService,
     private readonly destroyRef: DestroyRef

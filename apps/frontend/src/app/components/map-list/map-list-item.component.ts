@@ -48,10 +48,18 @@ export class MapListItemComponent implements OnChanges {
   prefix: string;
   tierStyle: string;
 
+  protected isLoggedIn: boolean;
+
   constructor(
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService
-  ) {}
+  ) {
+    this.isLoggedIn = this.localUserService.isLoggedIn();
+
+    this.localUserService.localUserSubject.subscribe((user) => {
+      this.isLoggedIn = !!user;
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['map']) return;

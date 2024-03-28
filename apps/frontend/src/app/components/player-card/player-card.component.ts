@@ -16,7 +16,7 @@ import {
   styleUrl: './player-card.component.css'
 })
 export class PlayerCardComponent implements OnInit {
-  protected user: FullUser;
+  protected user?: FullUser;
   protected level: number;
   protected xp: number;
   protected currLevelXp: number;

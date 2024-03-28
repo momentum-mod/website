@@ -25,6 +25,7 @@ import {
 import { Bitflags } from '@momentum/bitflags';
 import { AuthService } from './auth.service';
 import { HttpService } from './http.service';
+import { env } from '../../env/environment';
 
 export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 
@@ -46,12 +47,13 @@ export class LocalUserService {
   }
 
   public refreshLocalUser(): void {
-    this.getLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
-      (user) => {
-        this.localUserSubject.next(user as FullUser);
-        localStorage.setItem('user', JSON.stringify(user));
-      }
-    );
+    this.isLoggedIn() &&
+      this.getLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
+        (user) => {
+          this.localUserSubject.next(user as FullUser);
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+      );
   }
 
   public get localUser(): FullUser | null {
@@ -62,17 +64,20 @@ export class LocalUserService {
     return this.authService.isAuthenticated();
   }
 
+  public login() {
+    window.location.href = env.auth + '/web';
+  }
+
   public logout() {
     this.authService.logout();
+    this.localUserSubject.next(null);
+    localStorage.removeItem('user');
   }
 
   public hasRole(roles: Role, user?: User): boolean {
-    if (!user && !this.isLoggedIn())
-      throw new Error(
-        'LocalUserService.hasRole: called with no logged in user'
-      );
+    if (!user && !this.isLoggedIn()) return false;
     user ??= this.localUser as User;
-    return user.roles ? Bitflags.has(roles, user.roles) : false;
+    return user?.roles ? Bitflags.has(roles, user.roles) : false;
   }
 
   public hasBan(bans: Ban, user?: User): boolean {
@@ -81,7 +86,7 @@ export class LocalUserService {
         'LocalUserService.hasRole: called with no logged in user'
       );
     user ??= this.localUser as User;
-    return user.roles ? Bitflags.has(bans, user.bans) : false;
+    return user?.roles ? Bitflags.has(bans, user.bans) : false;
   }
 
   private getLocalUser(query?: UsersGetQuery): Observable<User> {

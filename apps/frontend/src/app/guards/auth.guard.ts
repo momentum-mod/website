@@ -1,6 +1,5 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { env } from '../env/environment';
 import { LocalUserService } from '../services/data/local-user.service';
 
 const POST_AUTH_REDIRECT_KEY = 'postAuthLocation';
@@ -31,6 +30,6 @@ export const AuthGuard: CanActivateFn = () => {
   if (window.location.pathname !== '/')
     sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, window.location.pathname);
 
-  window.location.href = env.auth + '/web';
+  userService.login();
   return false;
 };

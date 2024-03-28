@@ -22,10 +22,8 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    // Redirects to frontpage for now, once we remove that from this project,
-    // we've have to do an ugly `window.location.href` redirect, at least until
-    // we have sections of the dashboard than can be used without a login.
-    this.router.navigateByUrl('/');
+    // Redirects to maps browser page, since it's the main page used by unauthroized user
+    this.router.navigateByUrl('/maps');
   }
 
   public isAuthenticated(): boolean {

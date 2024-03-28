@@ -54,24 +54,26 @@
             </p-overlayPanel>
           </a>
         }
-        <button
-          class="btn btn-yellow"
-          type="button"
-          (click)="toggleFavorite()"
-          mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
-        >
-          <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
-        </button>
-        <button
-          class="btn btn-orange"
-          type="button"
-          (click)="editNotificationSettings()"
-          mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
-        >
-          <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
-        </button>
-        @if (!isSubmitter && !isModerator) {
-          <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+        @if (isLoggedIn) {
+          <button
+            class="btn btn-yellow"
+            type="button"
+            (click)="toggleFavorite()"
+            mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
+          >
+            <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+          </button>
+          <button
+            class="btn btn-orange"
+            type="button"
+            (click)="editNotificationSettings()"
+            mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+          >
+            <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
+          </button>
+          @if (!isSubmitter && !isModerator) {
+            <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
+          }
         }
       </div>
     </div>

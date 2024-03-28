@@ -45,3 +45,12 @@
       drop-shadow(1px 2px 8px rgba(0, 0, 0, 0.35));
   }
 }
+
+.login-button {
+  opacity: 0.75;
+  transition: opacity 0.1s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+}

@@ -16,6 +16,7 @@ export class SidenavComponent implements OnInit {
   protected collapsed = false;
   protected isLoggedIn = false;
   protected isMod = false;
+  protected menuItems: typeof SIDENAV_ITEMS;
 
   constructor(
     private readonly localUserService: LocalUserService,
@@ -37,9 +38,17 @@ export class SidenavComponent implements OnInit {
   handleLoggedInState() {
     this.isLoggedIn = this.localUserService.isLoggedIn();
     this.isMod = this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN);
+    this.menuItems = this.getMenuItems();
   }
 
-  getMenuItems(): typeof SIDENAV_ITEMS {
-    return SIDENAV_ITEMS.filter(({ needsMod }) => !needsMod || this.isMod);
+  private getMenuItems(): typeof SIDENAV_ITEMS {
+    return SIDENAV_ITEMS.filter(
+      ({ needsMod, isPublic }) => isPublic || !needsMod || this.isMod
+    ).map((entry) => ({
+      ...entry,
+      items: entry.items.filter(
+        (item) => entry.isPublic || item.isPublic || this.isLoggedIn
+      )
+    }));
   }
 }
