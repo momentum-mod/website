@@ -696,9 +696,6 @@ describe('Maps', () => {
           token: u1Token
         });
       });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps', 'get'));
     });
 
     describe('POST', () => {
@@ -1706,9 +1703,6 @@ describe('Maps', () => {
 
       it('should 404 if the map is not found', () =>
         req.get({ url: `maps/${NULL_ID}`, status: 404, token: u1Token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1', 'get'));
     });
 
     describe('POST', () => {

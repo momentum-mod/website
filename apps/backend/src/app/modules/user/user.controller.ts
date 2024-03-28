@@ -548,10 +548,13 @@ export class UserController {
     @LoggedInUser('id') userID: number,
     @Query() query?: MapsGetAllUserSubmissionQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(userID, {
-      ...query,
-      submitterID: userID
-    } as MapsGetAllSubmissionQueryDto);
+    return this.mapsService.getAll(
+      {
+        ...query,
+        submitterID: userID
+      } as MapsGetAllSubmissionQueryDto,
+      userID
+    );
   }
 
   @Get('/maps/summary')

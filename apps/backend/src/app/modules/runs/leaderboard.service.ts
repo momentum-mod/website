@@ -13,7 +13,7 @@ export class LeaderboardService {
 
   async getLeaderboardStats(
     mapID: number,
-    userID: number
+    userID?: number
   ): Promise<LeaderboardStatsDto[]> {
     const map = await this.mapsService.getMapAndCheckReadAccess({
       userID,

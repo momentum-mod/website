@@ -41,7 +41,7 @@ export class MapImageService {
 
   async getImages(
     mapID: number,
-    loggedInUserID: number
+    loggedInUserID?: number
   ): Promise<MapImageDto[]> {
     const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,

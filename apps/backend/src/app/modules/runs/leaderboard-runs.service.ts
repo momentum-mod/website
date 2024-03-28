@@ -5,7 +5,8 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  ServiceUnavailableException
+  ServiceUnavailableException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { runPath } from '@momentum/constants';
@@ -57,8 +58,8 @@ export class LeaderboardRunsService {
   async getRuns(
     mapID: number,
     query: MapLeaderboardGetQueryDto,
-    loggedInUserID: number,
-    loggedInUserSteamID: bigint
+    loggedInUserID?: number,
+    loggedInUserSteamID?: bigint
   ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
     // TODO: Doing this check is an extra query, for an endpoint we care greatly
     // about optimising. May be worth trying to speed up in the future.
@@ -91,6 +92,7 @@ export class LeaderboardRunsService {
     let take = query.take;
 
     if (query.filter?.length > 1) throw new BadRequestException();
+    if (query.filter?.[0] && !loggedInUserID) throw new UnauthorizedException();
     // Potentially a faster way of doing this in one query in raw SQL, something
     // to investigate when we move to that/query builder.
     if (query.filter?.[0] === 'around') {
@@ -159,7 +161,7 @@ export class LeaderboardRunsService {
   async getRun(
     mapID: number,
     query: MapLeaderboardGetRunQueryDto,
-    loggedInUserID: number
+    loggedInUserID?: number
   ): Promise<LeaderboardRunDto> {
     const where: Prisma.LeaderboardRunWhereInput = {
       mapID,

@@ -75,7 +75,7 @@ import {
   VALIDATION_PIPE_CONFIG,
   UpdateMapImagesDto
 } from '../../dto';
-import { LoggedInUser, Roles } from '../../decorators';
+import { LoggedInUser, Roles, BypassJwtAuth } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
@@ -109,16 +109,18 @@ export class MapsController {
   //#region Maps
 
   @Get()
+  @BypassJwtAuth()
   @ApiOperation({ summary: 'Retrieve a paginated list of approved maps' })
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
-    @LoggedInUser('id') userID: number,
+    @LoggedInUser('id') userID?: number,
     @Query() query?: MapsGetAllQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(userID, query);
+    return this.mapsService.getAll(query, userID);
   }
 
   @Get('/:mapID')
+  @BypassJwtAuth()
   @ApiOperation({ summary: 'Find a single map, by either ID or name' })
   @ApiParam({
     name: 'mapID',
@@ -129,8 +131,8 @@ export class MapsController {
   @ApiOkResponse({ type: MapDto, description: 'The found map' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   getMap(
-    @LoggedInUser('id') userID: number,
     @Param('mapID') mapParam: number | string,
+    @LoggedInUser('id') userID?: number,
     @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
     // Use a string ID and we'll search by map name.
@@ -169,7 +171,7 @@ export class MapsController {
     @Query() query: MapsGetAllSubmissionQueryDto,
     @LoggedInUser('id') userID: number
   ) {
-    return this.mapsService.getAll(userID, query);
+    return this.mapsService.getAll(query, userID);
   }
 
   @Post()
@@ -314,6 +316,7 @@ export class MapsController {
 
   //#region Credits
   @Get('/:mapID/credits')
+  @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a single map's credits" })
   @ApiParam({
     name: 'mapID',
@@ -327,13 +330,14 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   getCredits(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number,
-    @Query() query?: MapCreditsGetQueryDto
+    @Query() query: MapCreditsGetQueryDto,
+    @LoggedInUser('id') userID?: number
   ): Promise<MapCreditDto[]> {
     return this.mapCreditsService.getCredits(mapID, userID, query.expand);
   }
 
   @Get('/:mapID/credits/:userID')
+  @BypassJwtAuth()
   @ApiOperation({
     summary: 'Gets a MapCredit for on a map for a specific user'
   })
@@ -354,7 +358,7 @@ export class MapsController {
   getCredit(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Param('userID', ParseIntSafePipe) userID: number,
-    @LoggedInUser('id') loggedInUserID: number,
+    @LoggedInUser('id') loggedInUserID?: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
     return this.mapCreditsService.getCredit(
@@ -412,6 +416,7 @@ export class MapsController {
   //#region Info
 
   @Get('/:mapID/info')
+  @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a single map's info" })
   @ApiParam({
     name: 'mapID',
@@ -423,7 +428,7 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   getInfo(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number
+    @LoggedInUser('id') userID?: number
   ): Promise<MapInfoDto> {
     return this.mapsService.getInfo(mapID, userID);
   }
@@ -433,6 +438,7 @@ export class MapsController {
   //#region Zones
 
   @Get('/:mapID/zones')
+  @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a single map's zones" })
   @ApiParam({
     name: 'mapID',
@@ -455,6 +461,7 @@ export class MapsController {
   //#region Images
 
   @Get('/:mapID/images')
+  @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a map's images" })
   @ApiOkResponse({ description: "The found map's images" })
   @ApiNotFoundResponse({ description: 'Map not found' })
@@ -466,7 +473,7 @@ export class MapsController {
   })
   getImages(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number
+    @LoggedInUser('id') userID?: number
   ): Promise<MapImageDto[]> {
     return this.mapImageService.getImages(mapID, userID);
   }
@@ -545,6 +552,7 @@ export class MapsController {
   //#region Runs
 
   @Get('/:mapID/leaderboard')
+  @BypassJwtAuth()
   @ApiOperation({
     summary:
       "Returns a paginated list of a leaderboard's runs. Some data the client " +
@@ -573,13 +581,14 @@ export class MapsController {
   })
   getLeaderboards(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser() { id, steamID }: UserJwtAccessPayload,
+    @LoggedInUser() user?: UserJwtAccessPayload,
     @Query() query?: MapLeaderboardGetQueryDto
   ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
-    return this.runsService.getRuns(mapID, query, id, steamID);
+    return this.runsService.getRuns(mapID, query, user?.id, user?.steamID);
   }
 
   @Get('/:mapID/leaderboard/run')
+  @BypassJwtAuth()
   @ApiOperation({ summary: 'Returns the data for a specific leaderboard run' })
   @ApiParam({
     name: 'mapID',
@@ -592,20 +601,21 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Run not found' })
   getLeaderboardRun(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number,
+    @LoggedInUser('id') userID?: number,
     @Query() query?: MapLeaderboardGetRunQueryDto
   ): Promise<LeaderboardRunDto> {
     return this.runsService.getRun(mapID, query, userID);
   }
 
   @Get('/:mapID/leaderboardStats')
+  @BypassJwtAuth()
   @ApiOperation({
     description: 'Get stats of for all the leaderboards on a map'
   })
   @ApiOkResponse({ type: LeaderboardStatsDto, isArray: true })
   getLeaderboardStats(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number
+    @LoggedInUser('id') userID?: number
   ) {
     return this.leaderboardService.getLeaderboardStats(mapID, userID);
   }

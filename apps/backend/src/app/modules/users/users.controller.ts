@@ -25,8 +25,10 @@ import {
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
 import { UsersService } from './users.service';
+import { BypassJwtAuth } from '../../decorators';
 
 @Controller('users')
+@BypassJwtAuth()
 @ApiTags('Users')
 @ApiBearerAuth()
 @ApiExtraModels(PagedResponseDto)

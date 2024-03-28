@@ -111,9 +111,6 @@ describe('Maps Part 2', () => {
 
       it('should return 404 if the map is not found', () =>
         req.get({ url: `maps/${NULL_ID}/info`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/info', 'get'));
     });
   });
 
@@ -205,9 +202,6 @@ describe('Maps Part 2', () => {
           status: 404,
           token: u1Token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/credits', 'get'));
     });
 
     describe('PUT', () => {
@@ -703,9 +697,6 @@ describe('Maps Part 2', () => {
           status: 404,
           token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/credits/${user.id}`, 'get'));
     });
   });
 
@@ -737,9 +728,6 @@ describe('Maps Part 2', () => {
 
       it('should 404 if the map does not exist', () =>
         req.get({ url: `maps/${NULL_ID}/zones`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/zones', 'get'));
     });
   });
 
@@ -801,9 +789,6 @@ describe('Maps Part 2', () => {
 
       it('should 404 if map does not exist', () =>
         req.get({ url: `maps/${NULL_ID}/images`, status: 404, token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/images', 'get'));
     });
 
     describe('PUT', () => {
@@ -1258,9 +1243,6 @@ describe('Maps Part 2', () => {
           status: 404,
           token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/leaderboard', 'get'));
     });
 
     describe("GET - 'around' filter", () => {
@@ -1316,6 +1298,13 @@ describe('Maps Part 2', () => {
 
         expect(res.body.data[0].userID).toBe(u7.id);
       });
+
+      it('should 401 when no access token is provided', () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'around' },
+          status: 401
+        }));
     });
 
     describe("GET - 'friends' filter", () => {
@@ -1381,6 +1370,13 @@ describe('Maps Part 2', () => {
           token
         });
       });
+
+      it('should 401 when no access token is provided', () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'friends' },
+          status: 401
+        }));
     });
   });
 
@@ -1524,9 +1520,6 @@ describe('Maps Part 2', () => {
           status: 404,
           token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/leaderboard/run', 'get'));
     });
   });
 
@@ -1568,9 +1561,6 @@ describe('Maps Part 2', () => {
           }
         }
       });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/leaderboardStats', 'get'));
     });
   });
 
@@ -1788,9 +1778,6 @@ describe('Maps Part 2', () => {
           status: 404,
           token: u1Token
         }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/reviews', 'get'));
     });
 
     describe('POST', () => {

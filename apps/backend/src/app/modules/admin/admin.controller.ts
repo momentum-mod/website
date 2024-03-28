@@ -163,7 +163,7 @@ export class AdminController {
     @LoggedInUser('id') userID: number,
     @Query() query: MapsGetAllAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(userID, query);
+    return this.mapsService.getAll(query, userID);
   }
 
   @Patch('/maps/:mapID')
