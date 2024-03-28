@@ -1,11 +1,11 @@
 <div class="bg-image"></div>
 <div class="pointer-events-none flex h-full gap-2 p-2">
   <img [src]="user.avatarURL" class="aspect-square h-full rounded-sm shadow-md" />
-  <div class="ml-2 flex flex-grow flex-col">
-    <p class="mb-auto text-lg">{{ user.alias }}</p>
-    <p class="text-sm">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
+  <div class="ml-2 flex h-full flex-grow flex-col py-0.5">
+    <p class="mb-auto text-18 leading-none">{{ user.alias }}</p>
+    <p class="text-sm leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
     <p-progressBar
-      class="playercard__progressbar mt-auto h-2"
+      class="playercard__progressbar mt-1 h-2"
       [showValue]="false"
       [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)"
     />

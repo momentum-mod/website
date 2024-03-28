@@ -6,7 +6,7 @@
 /* This isn't a pointless div, it's needed for variable sidenav width (seriously) */
 .header {
   width: 100%;
-  height: 5rem;
+  height: 4.5rem;
 
   display: flex;
   align-items: center;
@@ -38,19 +38,10 @@
   }
 
   & m-icon {
-    padding: 1rem;
-    width: 5rem;
+    padding: 0.875rem;
+    width: 4.5rem;
 
     filter: drop-shadow(0px 1px 0px rgba(0, 0, 0, 0.9))
       drop-shadow(1px 2px 8px rgba(0, 0, 0, 0.35));
-  }
-}
-
-.login-button {
-  opacity: 0.75;
-  transition: opacity 0.1s ease;
-
-  &:hover {
-    opacity: 1;
   }
 }
