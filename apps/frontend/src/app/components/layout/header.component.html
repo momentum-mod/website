@@ -3,7 +3,7 @@
     <m-icon (click)="toggleSidenav()" icon="menu" class="item" />
   </div>
   <a routerLink="/" class="item mr-auto flex items-center px-4">
-    <img src="assets/images/logo.svg" width="310" height="50" alt="Momentum Mod Logo" />
+    <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" />
   </a>
 
   <p-overlayPanel #searchOverlay>
@@ -27,8 +27,8 @@
     <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
   } @else {
-    <div class="flex h-full cursor-pointer items-center justify-center p-2">
-      <img (click)="localUserService.login()" src="/assets/images/steam-login-green-large.png" class="login-button" />
-    </div>
+    <button class="ml-2 mr-3 transition-all hover:brightness-110" (click)="localUserService.login()">
+      <img src="/assets/images/steam-login-green-large.png" />
+    </button>
   }
 </div>

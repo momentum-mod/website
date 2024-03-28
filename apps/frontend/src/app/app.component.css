@@ -45,7 +45,7 @@
   grid-template-areas:
     'head head'
     'side main';
-  grid-template-rows: 5rem 1fr;
+  grid-template-rows: 4.5rem 1fr;
   /* Remember, 1fr is equiv to minmax(auto, 1fr), so anything that can't fit on
      main will expand out to the right. Looks bad if this happens, but site is
      still usable, and better that clip/squishing etc. */
@@ -56,7 +56,7 @@ m-header {
   grid-area: head;
 
   display: block;
-  height: 5rem;
+  height: 4.5rem;
   top: 0;
   left: 0;
   right: 0;
