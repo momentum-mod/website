@@ -26,7 +26,7 @@
         }
       }
       <div class="ml-auto flex items-end gap-2">
-        @if (isSubmitter || isModerator) {
+        @if (isSubmitter || localUserService.isModOrAdmin) {
           <a [routerLink]="'/map-edit/' + map.name" class="btn btn-green">Edit Map</a>
         }
         <button class="btn btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">
@@ -54,7 +54,7 @@
             </p-overlayPanel>
           </a>
         }
-        @if (isLoggedIn) {
+        @if (localUserService.isLoggedIn) {
           <button
             class="btn btn-yellow"
             type="button"
@@ -71,7 +71,7 @@
           >
             <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
           </button>
-          @if (!isSubmitter && !isModerator) {
+          @if (!isSubmitter && !localUserService.isModOrAdmin) {
             <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
           }
         }

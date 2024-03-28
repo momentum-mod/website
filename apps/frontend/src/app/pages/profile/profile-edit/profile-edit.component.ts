@@ -121,14 +121,14 @@ export class ProfileEditComponent implements OnInit {
     this.route.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
-          if (!this.localUserService.isLoggedIn()) {
+          if (!this.localUserService.isLoggedIn) {
             this.router.navigateByUrl('/');
             return EMPTY;
           }
 
           if (params.has('id')) {
             const id = Number(params.get('id'));
-            if (this.localUserService.localUser?.id !== id) {
+            if (this.localUserService.user.value?.id !== id) {
               this.isLocal = false;
               return merge(
                 this.usersService
@@ -144,7 +144,7 @@ export class ProfileEditComponent implements OnInit {
 
           this.isLocal = true;
           this.localUserService.refreshLocalUser();
-          return this.localUserService.localUserSubject.pipe(
+          return this.localUserService.user.pipe(
             tap((user) => {
               this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
               this.isModerator = this.localUserService.hasRole(

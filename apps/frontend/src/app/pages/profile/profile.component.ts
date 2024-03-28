@@ -89,8 +89,8 @@ export class ProfileComponent implements OnInit {
           if (params.has('id')) {
             const id = Number(params.get('id'));
             if (
-              !this.localUserService.isLoggedIn() ||
-              this.localUserService.localUser?.id !== id
+              !this.localUserService.isLoggedIn ||
+              this.localUserService.user.value?.id !== id
             ) {
               this.isLocal = false;
               return this.usersService.getUser(id, {
@@ -100,7 +100,7 @@ export class ProfileComponent implements OnInit {
           }
           this.isLocal = true;
           this.localUserService.refreshLocalUser();
-          return this.localUserService.localUserSubject;
+          return this.localUserService.user;
         }),
         takeUntilDestroyed(this.destroyRef)
       )

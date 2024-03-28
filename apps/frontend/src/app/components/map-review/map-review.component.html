@@ -21,12 +21,12 @@
       class="font-medium">{{ review.editHistory.at(-1).date | 
       date:"MMM dd, hh:mm a" }}</span>}
     </p>
-    @if (isReviewAuthor()) {
+    @if (isReviewAuthor) {
       <button class="ml-2" type="button" (click)="enableEditing()" mTooltip="Edit review">
         <m-icon icon="pencil" class="my-auto block text-base text-blue-500 transition-colors hover:text-blue-400" />
       </button>
     }
-    @if (isModOrAdmin() || isReviewAuthor()) {
+    @if (isModOrAdmin || isReviewAuthor) {
       <button class="ml-2" type="button" (click)="deleteReview($event)" mTooltip="Delete review">
         <m-icon icon="delete" class="text-shadow my-auto block text-base text-red-500 transition-colors hover:text-red-400" />
       </button>
@@ -108,7 +108,7 @@
                 <m-icon class="my-auto block text-lg" icon="pencil" />
               </button>
             }
-            @if (isModOrAdmin() || isCommentAuthor(comment.user.id)) {
+            @if (isModOrAdmin || isCommentAuthor(comment.user.id)) {
               <button
                 type="button"
                 class="text-red-500 transition-colors hover:text-red-400"
@@ -153,7 +153,7 @@
     }
   </div>
 
-  @if (isReviewer()) {
+  @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>
     <div class="flex gap-2">
       @switch (review.resolved) {

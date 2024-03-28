@@ -19,11 +19,16 @@ export class HomeComponent {
     private readonly localUserService: LocalUserService,
     private readonly router: Router
   ) {
-    if (!this.localUserService.isLoggedIn()) {
-      this.router.navigate(['/maps']);
-    }
-    this.localUserService.localUserSubject.subscribe({
-      next: (response) => (this.user = response),
+    this.localUserService.user.subscribe({
+      next: (user) => {
+        if (user == null) {
+          // Dashboard page doesn't make sense from non-logged-in-users yet,
+          // so for now just redirect to the map browser.
+          this.router.navigate(['/maps']);
+        } else {
+          this.user = user;
+        }
+      },
       error: (error) => console.error(error)
     });
   }

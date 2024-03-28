@@ -102,6 +102,6 @@ export class MapReviewListComponent implements OnChanges {
   ngOnChanges(): void {
     this.load.next();
     this.isSubmitter =
-      this.localUserService.localUser.id === this.map.submitterID;
+      this.localUserService.user.value?.id === this.map.submitterID;
   }
 }

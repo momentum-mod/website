@@ -3,7 +3,6 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   CombinedMapStatuses,
-  CombinedRoles,
   DateString,
   MapCreditNames,
   MapCreditType,
@@ -93,27 +92,23 @@ export class MapInfoComponent implements OnInit {
   notifications = false;
   inFavorites = false;
   isSubmitter: boolean;
-  isModerator: boolean;
   inSubmission: boolean;
-  protected isLoggedIn: boolean;
 
   currentSection?: MapInfoSection = null;
   sections = Enum.values(MapInfoSection);
 
   constructor(
+    protected readonly localUserService: LocalUserService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly mapService: MapsService,
-    private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
     private readonly dialogService: DialogService,
     private readonly layoutService: LayoutService,
     private readonly sanitizer: DomSanitizer,
     private readonly destroyRef: DestroyRef,
     private readonly titleService: TitleService
-  ) {
-    this.isLoggedIn = this.localUserService.isLoggedIn();
-  }
+  ) {}
 
   ngOnInit() {
     this.layoutService.reserveBackgroundUrl(
@@ -174,7 +169,7 @@ export class MapInfoComponent implements OnInit {
 
     this.layoutService.setBackgroundImage(this.map.thumbnail?.large);
 
-    if (this.isLoggedIn) {
+    if (this.localUserService.isLoggedIn) {
       this.localUserService.checkMapNotify(this.map.id).subscribe({
         next: (resp) => {
           this.notify = resp;
@@ -194,12 +189,8 @@ export class MapInfoComponent implements OnInit {
     // In favourites iff num mapfavorites entries for user > 0. sorry
     this.inFavorites = this.map.favorites?.length > 0;
 
-    this.isModerator = this.localUserService.hasRole(
-      CombinedRoles.MOD_OR_ADMIN
-    );
-
     this.isSubmitter =
-      this.map.submitterID === this.localUserService.localUser?.id;
+      this.map.submitterID === this.localUserService.user.value?.id;
 
     const youtubeID = this.map?.info?.youtubeID;
     if (youtubeID && YOUTUBE_ID_REGEXP.test(youtubeID)) {

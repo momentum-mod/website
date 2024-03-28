@@ -35,7 +35,6 @@ import {
   MAX_VMF_SIZE,
   MIN_MAP_NAME_LENGTH,
   MMap,
-  Role,
   UpdateMap,
   UpdateMapAdmin,
   User,
@@ -254,10 +253,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(async (map: MMap) => {
-        this.isAdmin = this.localUserService.hasRole(Role.ADMIN);
-        this.isMod = this.localUserService.hasRole(Role.MODERATOR);
+        this.isAdmin = this.localUserService.isAdmin;
+        this.isMod = this.localUserService.isMod;
         this.isSubmitter =
-          map.submitterID === this.localUserService.localUser.id;
+          map.submitterID === this.localUserService.user.value?.id;
         this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(
           map.status
         );

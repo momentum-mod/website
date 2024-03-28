@@ -206,7 +206,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
         value ? this.testInvites.enable() : this.testInvites.disable()
       );
 
-    this.localUserService.localUserSubject
+    this.localUserService.user
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.isMapperOrPorter = this.localUserService.hasRole(

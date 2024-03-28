@@ -12,7 +12,7 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
 
   // Passes iff user logged in and has one of the roles in data.roles.
   if (
-    userService.isLoggedIn() &&
+    userService.isLoggedIn &&
     allowedRoles.some((role) => userService.hasRole(role))
   ) {
     return true;

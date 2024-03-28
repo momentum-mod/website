@@ -21,7 +21,7 @@ export const AuthGuard: CanActivateFn = () => {
 
   // This guard passes iff the client is logged in (essentially, if they
   // have an access token in local storage).
-  if (userService.isLoggedIn()) {
+  if (userService.isLoggedIn) {
     return true;
   }
 

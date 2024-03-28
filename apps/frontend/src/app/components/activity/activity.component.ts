@@ -93,7 +93,7 @@ export class ActivityComponent implements OnInit {
         fetchFn = (...args) =>
           this.activityService.getLocalUserActivity(...args);
         // Whenever LU updates, reset the component and refresh.
-        extraListener = this.localUserService.localUserSubject.pipe(
+        extraListener = this.localUserService.user.pipe(
           filter(Boolean),
           tap(() => this.clearActivities())
         );
@@ -145,7 +145,7 @@ export class ActivityComponent implements OnInit {
         }
       });
 
-    if (this.localUserService.isLoggedIn()) {
+    if (this.localUserService.isLoggedIn) {
       this.load.next();
     }
   }
