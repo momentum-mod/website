@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   Ban,
+  CombinedRoles,
   Follow,
   FollowStatus,
   MapCredit,
@@ -31,37 +32,33 @@ export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 
 @Injectable({ providedIn: 'root' })
 export class LocalUserService {
-  public readonly localUserSubject: BehaviorSubject<FullUser | null>;
-
   constructor(
     private authService: AuthService,
     private http: HttpService
   ) {
     const storedUser =
-      this.isLoggedIn() && localStorage.getItem('user')
+      this.isLoggedIn && localStorage.getItem('user')
         ? (JSON.parse(localStorage.getItem('user') as string) as FullUser)
         : null;
 
-    this.localUserSubject = new BehaviorSubject(storedUser);
+    this.user = new BehaviorSubject(storedUser);
     this.refreshLocalUser();
   }
 
+  public readonly user: BehaviorSubject<FullUser | null>;
+
+  public get isLoggedIn(): boolean {
+    return this.authService.isAuthenticated();
+  }
+
   public refreshLocalUser(): void {
-    this.isLoggedIn() &&
-      this.getLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
+    this.isLoggedIn &&
+      this.fetchLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
         (user) => {
-          this.localUserSubject.next(user as FullUser);
+          this.user.next(user as FullUser);
           localStorage.setItem('user', JSON.stringify(user));
         }
       );
-  }
-
-  public get localUser(): FullUser | null {
-    return this.localUserSubject.getValue();
-  }
-
-  public isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
   }
 
   public login() {
@@ -70,26 +67,39 @@ export class LocalUserService {
 
   public logout() {
     this.authService.logout();
-    this.localUserSubject.next(null);
+    this.user.next(null);
     localStorage.removeItem('user');
   }
 
   public hasRole(roles: Role, user?: User): boolean {
-    if (!user && !this.isLoggedIn()) return false;
-    user ??= this.localUser as User;
+    if (!user && !this.isLoggedIn) return false;
+    user ??= this.user.value as User;
     return user?.roles ? Bitflags.has(roles, user.roles) : false;
   }
 
+  public get isMod() {
+    return this.hasRole(Role.MODERATOR);
+  }
+
+  public get isAdmin() {
+    return this.hasRole(Role.ADMIN);
+  }
+
+  public get isModOrAdmin() {
+    return this.hasRole(CombinedRoles.MOD_OR_ADMIN);
+  }
+
   public hasBan(bans: Ban, user?: User): boolean {
-    if (!user && !this.isLoggedIn())
+    if (!user && !this.isLoggedIn)
       throw new Error(
         'LocalUserService.hasRole: called with no logged in user'
       );
-    user ??= this.localUser as User;
+
+    user ??= this.user.value as User;
     return user?.roles ? Bitflags.has(bans, user.bans) : false;
   }
 
-  private getLocalUser(query?: UsersGetQuery): Observable<User> {
+  private fetchLocalUser(query?: UsersGetQuery): Observable<User> {
     return this.http.get<User>('user', { query });
   }
 
