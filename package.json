@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "nx run db:generate",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "serve:backend": "nx serve backend",
+    "serve:frontend": "nx serve frontend"
   },
   "dependencies": {
     "@angular/animations": "17.0.4",
