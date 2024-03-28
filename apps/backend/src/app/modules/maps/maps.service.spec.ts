@@ -75,6 +75,18 @@ describe('MapsService', () => {
         }
       }
     })
+    
+     it('should only non-logged in requests to access APPROVED and PUBLIC_TESTING maps', async () => {
+       for (const status of Enum.values(MapStatus)) {
+           db.mMap.findUnique.mockResolvedValueOnce({id: 1, status } as any);
+
+           if ([MapStatus.APPROVED, MapStatus.PUBLIC_TESTING].includes(status)) {
+             expect(await service.getMapAndCheckReadAccess({ mapID: 1, })).toBeTruthy();
+           } else {
+             await expect(service.getMapAndCheckReadAccess({ mapID: 1 })).rejects.toThrow(ForbiddenException);
+           }
+       }
+     });
 
     // Map of what states should PASS access checks for each MapStatus,
     // otherwise should fail. Below code performs each check against each state.
