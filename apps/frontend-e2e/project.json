@@ -3,6 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/frontend-e2e/src",
   "projectType": "application",
+  "tags": [],
+  "implicitDependencies": ["frontend"],
   "targets": {
     "e2e": {
       "executor": "@nx/cypress:cypress",
@@ -33,7 +35,5 @@
         "command": "nx e2e frontend-e2e --watch"
       }
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["frontend"]
+  }
 }
