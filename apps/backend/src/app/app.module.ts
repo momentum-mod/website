@@ -1,9 +1,8 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
-import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { ConfigFactory, validate } from './config';
 import { SentryModule } from './modules/sentry/sentry.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -60,11 +59,4 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
     }
   ]
 })
-export class AppModule implements NestModule {
-  public configure(consumer: MiddlewareConsumer): void {
-    consumer
-      // Add the http logger to these paths
-      .apply(HTTPLoggerMiddleware)
-      .forRoutes('*');
-  }
-}
+export class AppModule {}
