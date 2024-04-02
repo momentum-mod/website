@@ -74,8 +74,8 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
       httpAdapter.reply(context.getResponse(), responseBody, status);
     } catch (error) {
       this.logger.error(
-        'Exception filter errored, not throwing to avoid infinite loop!\n',
-        error
+        error,
+        'Exception filter errored, not throwing to avoid infinite loop!\n'
       );
     }
   }

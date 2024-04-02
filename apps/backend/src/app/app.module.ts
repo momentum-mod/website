@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
-import { ConfigFactory, validate } from './config';
+import { ConfigFactory, Environment, validate } from './config';
 import { SentryModule } from './modules/sentry/sentry.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
@@ -34,6 +35,28 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
           dsn: config.getOrThrow('sentry.dsn'),
           debug: false,
           tracesSampleRate: 1
+        }
+      }),
+      inject: [ConfigService]
+    }),
+
+    // Pino is a highly performant logger that outputs logs as JSON, which we
+    // then export to Grafana Loki. This module sets up `pino-http` which logs
+    // all HTTP requests (so no need for a Nest interceptor).
+    // In dev mode, outputs as more human-readable strings using `pino-pretty`.
+    LoggerModule.forRootAsync({
+      // TODO: We want this.logger.error to also send to Sentry!!
+      // Can probably override nestjs-pino's error method?
+      useFactory: async (config: ConfigService) => ({
+        pinoHttp: {
+          customProps: (_req, _res) => ({ context: 'HTTP' }),
+          transport:
+            config.getOrThrow('env') !== Environment.PRODUCTION
+              ? {
+                  target: 'pino-pretty',
+                  options: { singleLine: true }
+                }
+              : undefined
         }
       }),
       inject: [ConfigService]

@@ -14,6 +14,7 @@ import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import { FastifyReply } from 'fastify';
+import { Logger } from 'nestjs-pino';
 import { Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
@@ -29,9 +30,13 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
     {
+      bufferLogs: true, // Buffer logs until Pino is attached
       rawBody: true // So we can use RawBodyRequest
     }
   );
+
+  // Use Pino as our logger
+  app.useLogger(app.get(Logger));
 
   const configService = app.get(ConfigService);
   const env: Environment = configService.getOrThrow('env');
