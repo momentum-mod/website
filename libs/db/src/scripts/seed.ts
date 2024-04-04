@@ -71,8 +71,8 @@ const defaultVars = {
   submissionVersions: { min: 1, max: 5 },
   runsPerLeaderboard: { min: 1, max: 30 },
   pastRunsPerLeaderboard: { min: 1, max: 100 },
-  userReportChance: { min: 0.05, max: 0.05 }, // Chance that u1 reports u2 (this game is TOXIC)
-  userFollowChance: { min: 0.01, max: 0.01 },
+  userReports: { min: 50, max: 50 },
+  userFollows: { min: 50, max: 50 },
   mapReportChance: { min: 0.005, max: 0.005 },
   mapFollowChance: { min: 0.05, max: 0.05 },
   mapFavoriteChance: { min: 0.05, max: 0.05 }
@@ -285,12 +285,28 @@ prismaWrapper(async (prisma: PrismaClient) => {
   //#region Interactions
 
   console.log('Creating user interactions');
+
+  await Promise.all(
+    Random.uniquePairs(userIDs, randRange(vars.userFollows)).flatMap(
+      ([id1, id2]) =>
+        prisma.follow
+          .create({
+            data: {
+              followeeID: id1,
+              followedID: id2,
+              notifyOn: Random.int(0, 127),
+              ...Random.createdUpdatedDates()
+            }
+          })
+          .catch(() => {})
+    )
+  );
+
   await promiseAllSync(
-    userIDs.flatMap((id1) =>
-      userIDs.map((id2) => async () => {
-        if (id1 === id2) return;
-        if (Random.chance(randRange(vars.userFollowChance)))
-          await prisma.follow
+    Random.uniquePairs(userIDs, randRange(vars.userFollows)).flatMap(
+      ([id1, id2]) =>
+        () =>
+          prisma.follow
             .create({
               data: {
                 followeeID: id1,
@@ -299,10 +315,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 ...Random.createdUpdatedDates()
               }
             })
-            .catch(() => {});
+            .catch(() => {})
+    )
+  );
 
-        if (Random.chance(randRange(vars.userReportChance)))
-          await prisma.report
+  await promiseAllSync(
+    Random.uniquePairs(userIDs, randRange(vars.userReports)).flatMap(
+      ([id1, id2]) =>
+        () =>
+          prisma.report
             .create({
               data: {
                 type: ReportType.USER_PROFILE_REPORT,
@@ -317,8 +338,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 )
               }
             })
-            .catch(() => {});
-      })
+            .catch(() => {})
     )
   );
 
