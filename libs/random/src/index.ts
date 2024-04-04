@@ -21,6 +21,38 @@ export function element<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
+export function uniquePair<T>(
+  array: readonly T[],
+  identityFn = (a: T, b: T): boolean => a === b
+): [T, T] {
+  if (array.length < 2)
+    throw new Error('uniquePair called with a array size 1 (dont do that lol)');
+  const first = element(array);
+  let second;
+  while (identityFn(first, (second = element(array))));
+  return [first, second];
+}
+
+export function uniquePairs<T>(
+  array: readonly T[],
+  count: number,
+  identityFn = (a: T[], b: T[]): boolean => a[0] === b[0] && a[1] === b[1]
+): [T, T][] {
+  const n = array.length;
+  if (count > (n * (n - 1)) / 2)
+    throw new Error('Array contains fewer possible pairs than count requested');
+
+  const out: [T, T][] = [];
+  while (out.length < count) {
+    const pair = uniquePair(array);
+    // This is stupidly slow for small arrays relative to count, only use for tests/tools
+    if (!out.some((pair2) => identityFn(pair, pair2))) {
+      out.push(pair);
+    }
+  }
+  return out;
+}
+
 export function weighted<T>(choices: [T, number][]): T {
   const len = choices.length;
   const summedWeights = [choices[0][1]];
