@@ -419,11 +419,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       };
 
       const versions = arrayFrom(randRange(vars.submissionVersions), (i) => ({
-        // TODO: We'd have to upload the same BSP 50 or so times
-        // for submissions here, since submissions use the UUID
-        // of this entry. If we really want to test BSP downloads
-        // for map submission ingame, copy 'maps/dev_flatgrid' to
-        // `submissions/${uuid of each submission version}.bsp`
         versionNum: i + 1,
         hash: mapHash,
         hasVmf: false, // Could add a VMF if we really want but leaving for now
@@ -638,7 +633,16 @@ prismaWrapper(async (prisma: PrismaClient) => {
             submission: { include: { versions: true } },
             reviews: { include: { comments: true } }
           }
-        })
+        }),
+        status === MapStatus.APPROVED
+          ? s3.send(
+              new PutObjectCommand({
+                Bucket: s3BucketName,
+                Key: approvedBspPath(name),
+                Body: mapBuffer
+              })
+            )
+          : Promise.resolve()
       );
 
       const lastVersion = map.submission.versions.at(-1);
@@ -646,6 +650,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
         where: { mapID: map.id },
         data: { currentVersion: { connect: { id: lastVersion.id } } }
       });
+
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: s3BucketName,
+          Key: submissionBspPath(lastVersion.id),
+          Body: mapBuffer
+        })
+      );
 
       if ([MapStatus.APPROVED, MapStatus.DISABLED].includes(map.status))
         await prisma.mMap.update({
