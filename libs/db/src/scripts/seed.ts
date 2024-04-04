@@ -33,7 +33,10 @@ import {
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
-  AdminActivityType,imgXlPath
+  AdminActivityType,
+  imgXlPath,
+  approvedBspPath,
+  submissionBspPath
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
@@ -175,11 +178,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
     large: Buffer;
     xl: Buffer;
   }>;
-  
+
   const s3EndpointUrl = process.env['STORAGE_ENDPOINT_URL'];
   const s3BucketName = process.env['STORAGE_BUCKET_NAME'];
   const s3Url = (str: string) => `${s3EndpointUrl}/${s3BucketName}/${str}`;
-  
+
   const s3 = new S3Client({
     region: process.env['STORAGE_REGION'],
     endpoint: s3EndpointUrl,
@@ -519,7 +522,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 const id = `${uuidv4()}.jpeg`;
                 await s3.send(
                   new PutObjectCommand({
-                    Bucket: process.env['STORAGE_BUCKET_NAME'],
+                    Bucket: s3BucketName,
                     Key: mapReviewAssetPath(id),
                     Body: Random.element(imageBuffers).medium
                   })
@@ -577,7 +580,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
                   ['small', 'medium', 'large', 'xl'].map((size) =>
                     s3.send(
                       new PutObjectCommand({
-                        Bucket: process.env['STORAGE_BUCKET_NAME'],
+                        Bucket: s3BucketName,
                         Key: `img/${id}-${size}.jpg`,
                         Body: buffer[size]
                       })
@@ -1015,98 +1018,106 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   // Now that we FINALLY have every map added, generate the static map lists
   // Code here is derived from map-list.service.ts
-  if (doFileUploads)
-    for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
-      const maps = await prisma.mMap.findMany({
-        where: {
-          status:
-            type === FlatMapList.APPROVED
-              ? MapStatusNew.APPROVED
-              : { in: CombinedMapStatuses.IN_SUBMISSION }
-        },
-        select: {
-          id: true,
-          name: true,
-          fileName: true,
-          hash: true,
-          status: true,
-          images: true,
-          thumbnail: true,
-          info: true,
-          leaderboards: true,
-          createdAt: true,
-          credits: {
-            select: {
-              type: true,
-              description: true,
-              user: {
-                select: { id: true, alias: true, avatar: true, steamID: true }
-              }
+  for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
+    const maps = await prisma.mMap.findMany({
+      where: {
+        status:
+          type === FlatMapList.APPROVED
+            ? MapStatus.APPROVED
+            : { in: [MapStatus.PUBLIC_TESTING] }
+      },
+      select: {
+        id: true,
+        name: true,
+        hash: true,
+        status: true,
+        images: true,
+        info: true,
+        leaderboards: true,
+        createdAt: true,
+        credits: {
+          select: {
+            type: true,
+            description: true,
+            user: {
+              select: { id: true, alias: true, avatar: true, steamID: true }
             }
-          },
-          submission:
-            type === FlatMapList.SUBMISSION
-              ? {
-                  select: {
-                    currentVersion: {
-                      select: {
-                        versionNum: true,
-                        hash: true,
-                        changelog: true,
-                        zones: true,
-                        createdAt: true
-                      }
-                    },
-                    type: true,
-                    placeholders: true,
-                    suggestions: true,
-                    dates: true
-                  }
+          }
+        },
+        submission:
+          type === FlatMapList.SUBMISSION
+            ? {
+                select: {
+                  currentVersion: {
+                    select: {
+                      id: true,
+                      versionNum: true,
+                      hash: true,
+                      changelog: true,
+                      zones: true,
+                      createdAt: true
+                    }
+                  },
+                  type: true,
+                  placeholders: true,
+                  suggestions: true,
+                  dates: true
                 }
-              : undefined
-        }
-      });
+              }
+            : undefined
+      }
+    });
 
-      // Unless we illegally cross some module boundaries, we can't use
-      // class-transformer @Transform/@Expose/@Excludes here. Trust me, I tried
-      // getting CT working, but doesn't even seem possible with ESBuild.
-      for (const map of maps) {
-        delete map.info.mapID;
+    // Unless we illegally cross some module boundaries, we can't use
+    // class-transformer @Transform/@Expose/@Excludes here. Trust me, I tried
+    // getting CT working, but doesn't even seem possible with esbuild.
+    for (const map of maps as any[]) {
+      delete map.info.mapID;
 
-        for (const image of map.images as any[]) {
-          image.small = s3Url(imgSmallPath(image));
-          image.medium = s3Url(imgMediumPath(image));
-          image.large = s3Url(imgLargePath(image));
-          image.xl = s3Url(imgXlPath(image));
-        }
+      map.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${approvedBspPath(
+        map.fileName
+      )}`;
 
-        for (const credit of map.credits as any[]) {
-          credit.user.steamID = credit.user.steamID.toString();
-          credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}`;
-          delete credit.user.avatar;
-          delete credit.mapID;
-        }
-
-        for (const leaderboard of map.leaderboards) {
-          delete leaderboard.mapID;
-        }
+      if (map.submission) {
+        map.submission.currentVersion.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${submissionBspPath(
+          map.submission.currentVersion.id
+        )}`;
       }
 
-      const mapListJson = JSON.stringify(maps);
+      for (const image of map.images as any[]) {
+        image.small = s3Url(imgSmallPath(image));
+        image.medium = s3Url(imgMediumPath(image));
+        image.large = s3Url(imgLargePath(image));
+        image.xl = s3Url(imgXlPath(image));
+      }
 
-      // Uncomment below line and import writeFileSync to write this out to disk
-      // if you want to debug output of this.
-      // writeFileSync(`./map-list-${type}.json`, mapListJson);
+      for (const credit of map.credits as any[]) {
+        credit.user.steamID = credit.user.steamID?.toString();
+        credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}`;
+        delete credit.user.avatar;
+        delete credit.mapID;
+      }
 
-      const compressed = await promisify(zlib.deflate)(mapListJson);
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: s3BucketName,
-          Key: mapListPath(type, 1),
-          Body: compressed
-        })
-      );
+      for (const leaderboard of map.leaderboards) {
+        delete leaderboard.mapID;
+      }
     }
+
+    const mapListJson = JSON.stringify(maps);
+
+    // Uncomment below line and import writeFileSync to write this out to disk
+    // if you want to debug output of this.
+    // writeFileSync(`./map-list-${type}.json`, mapListJson);
+
+    const compressed = await promisify(zlib.deflate)(mapListJson);
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: s3BucketName,
+        Key: mapListPath(type, 1),
+        Body: compressed
+      })
+    );
+  }
 
   //#region Make me admin
 
