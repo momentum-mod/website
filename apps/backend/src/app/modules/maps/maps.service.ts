@@ -27,7 +27,6 @@ import {
   FlatMapList,
   LeaderboardType,
   MapCreditType,
-  MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
   MapStatusChangers,
   MapStatus,
@@ -205,6 +204,18 @@ export class MapsService {
       // Logic here is a nightmare, for a breakdown of permissions see
       // MapsService.getMapAndCheckReadAccess.
       const filter = query.filter;
+      const subCredOrTesterOR = {
+        OR: [
+          { submitterID: userID },
+          { credits: { some: { userID } } },
+          {
+            testInvites: {
+              some: { userID, state: MapTestInviteState.ACCEPTED }
+            }
+          }
+        ]
+      };
+
       if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, roles)) {
         where.status = {
           in: filter
@@ -212,27 +223,21 @@ export class MapsService {
             : CombinedMapStatuses.IN_SUBMISSION
         };
       } else if (Bitflags.has(Role.REVIEWER, roles)) {
-        const adminFilter = filter as MapsGetAllSubmissionAdminFilter;
-        if (adminFilter?.length > 0) {
-          if (adminFilter?.includes(MapStatus.FINAL_APPROVAL))
-            throw new ForbiddenException();
-
+        if (filter?.length > 0) {
           const ORs = [];
-          if (adminFilter?.includes(MapStatus.PUBLIC_TESTING)) {
-            if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
-              ORs.push({
-                status: {
-                  in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
-                }
-              });
-            } else {
-              ORs.push({ status: MapStatus.PUBLIC_TESTING });
-            }
-          } else if (adminFilter?.includes(MapStatus.CONTENT_APPROVAL)) {
-            ORs.push({ status: MapStatus.CONTENT_APPROVAL });
+          const easyORs = intersection(filter, [
+            MapStatus.PUBLIC_TESTING,
+            MapStatus.FINAL_APPROVAL,
+            MapStatus.CONTENT_APPROVAL
+          ]);
+
+          if (easyORs.length > 1) {
+            ORs.push({ status: { in: easyORs } });
+          } else if (easyORs.length === 1) {
+            ORs.push({ status: easyORs[0] });
           }
 
-          if (adminFilter?.includes(MapStatus.PRIVATE_TESTING)) {
+          if (filter?.includes(MapStatus.PRIVATE_TESTING)) {
             ORs.push({
               AND: [
                 { status: MapStatus.PRIVATE_TESTING },
@@ -255,84 +260,53 @@ export class MapsService {
           where.OR = [
             {
               status: {
-                in: [MapStatus.PUBLIC_TESTING, MapStatus.CONTENT_APPROVAL]
+                in: [
+                  MapStatus.PUBLIC_TESTING,
+                  MapStatus.FINAL_APPROVAL,
+                  MapStatus.CONTENT_APPROVAL
+                ]
               }
             },
             {
-              AND: [
-                { status: MapStatus.PRIVATE_TESTING },
-                {
-                  OR: [
-                    { submitterID: userID },
-                    { credits: { some: { userID } } },
-                    {
-                      testInvites: {
-                        some: { userID, state: MapTestInviteState.ACCEPTED }
-                      }
-                    }
-                  ]
-                }
-              ]
+              AND: [{ status: MapStatus.PRIVATE_TESTING }, subCredOrTesterOR]
             }
           ];
         }
       } else {
-        // Regular user filters can only be public, private, both or none (last two are equiv)
-        if (filter?.[0] === MapStatus.PUBLIC_TESTING) {
-          where.status = MapStatus.PUBLIC_TESTING;
-        } else if (filter?.[0] === MapStatus.PRIVATE_TESTING) {
-          where.AND = {
-            AND: [
-              { status: MapStatus.PRIVATE_TESTING },
-              {
-                OR: [
-                  { submitterID: userID },
-                  { credits: { some: { userID } } },
-                  {
-                    testInvites: {
-                      some: { userID, state: MapTestInviteState.ACCEPTED }
-                    }
-                  }
-                ]
-              }
-            ]
-          };
+        // Regular users
+        if (filter?.length > 0) {
+          const ORs = [];
+          const easyORs = intersection(filter, [
+            MapStatus.PUBLIC_TESTING,
+            MapStatus.FINAL_APPROVAL
+          ]);
+
+          if (easyORs.length > 1) {
+            ORs.push({ status: { in: easyORs } });
+          } else if (easyORs.length === 1) {
+            ORs.push({ status: easyORs[0] });
+          }
+
+          if (filter.includes(MapStatus.CONTENT_APPROVAL)) {
+            ORs.push({
+              AND: [{ status: MapStatus.CONTENT_APPROVAL }, subCredOrTesterOR]
+            });
+          }
+          if (filter.includes(MapStatus.PRIVATE_TESTING)) {
+            ORs.push({
+              AND: [{ status: MapStatus.PRIVATE_TESTING }, subCredOrTesterOR]
+            });
+          }
+          where.OR = ORs;
         } else {
           where.OR = [
             { status: MapStatus.PUBLIC_TESTING },
+            { status: MapStatus.FINAL_APPROVAL },
             {
-              AND: [
-                { status: MapStatus.PRIVATE_TESTING },
-                {
-                  OR: [
-                    { submitterID: userID },
-                    { credits: { some: { userID } } },
-                    {
-                      testInvites: {
-                        some: { userID, state: MapTestInviteState.ACCEPTED }
-                      }
-                    }
-                  ]
-                }
-              ]
+              AND: [{ status: MapStatus.PRIVATE_TESTING }, subCredOrTesterOR]
             },
             {
-              AND: {
-                status: MapStatus.CONTENT_APPROVAL,
-                submitterID: userID
-              }
-            },
-            {
-              AND: {
-                status: MapStatus.FINAL_APPROVAL,
-                submitterID: userID
-              }
-            },
-            {
-              AND: {
-                status: MapStatus.DISABLED,
-                submitterID: userID
-              }
+              AND: [{ status: MapStatus.CONTENT_APPROVAL }, subCredOrTesterOR]
             }
           ];
         }

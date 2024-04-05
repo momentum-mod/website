@@ -3203,11 +3203,11 @@ describe('Maps', () => {
           submission: submissionCreate
         });
         faMap = await db.createMap({
-          status: MapStatus.CONTENT_APPROVAL,
+          status: MapStatus.FINAL_APPROVAL,
           submission: submissionCreate
         });
         caMap = await db.createMap({
-          status: MapStatus.FINAL_APPROVAL,
+          status: MapStatus.CONTENT_APPROVAL,
           submission: submissionCreate
         });
 
@@ -3527,18 +3527,19 @@ describe('Maps', () => {
         await db.cleanup('leaderboardRun');
       });
 
-      it('should respond with only public testing maps if the user has no special relations', async () => {
+      it('should respond with only pub and fa maps if the user has no special relations', async () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 2 },
+          validatePaged: { type: MapDto, count: 3 },
           token: u1Token
         });
 
         expect(res.body.data).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id })
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id })
           ])
         );
       });
@@ -3555,7 +3556,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 3 },
+          validatePaged: { type: MapDto, count: 4 },
           token: u1Token
         });
 
@@ -3563,6 +3564,7 @@ describe('Maps', () => {
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
             expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
             expect.objectContaining({ id: privMap.id })
           ])
         );
@@ -3580,14 +3582,15 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 2 },
+          validatePaged: { type: MapDto, count: 3 },
           token: u1Token
         });
 
         expect(res.body.data).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id })
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id })
           ])
         );
       });
@@ -3604,7 +3607,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 3 },
+          validatePaged: { type: MapDto, count: 4 },
           token: u1Token
         });
 
@@ -3612,6 +3615,7 @@ describe('Maps', () => {
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
             expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
             expect.objectContaining({ id: privMap.id })
           ])
         );
@@ -3626,7 +3630,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 3 },
+          validatePaged: { type: MapDto, count: 4 },
           token: u1Token
         });
 
@@ -3634,6 +3638,7 @@ describe('Maps', () => {
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
             expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
             expect.objectContaining({ id: privMap.id })
           ])
         );
@@ -3644,10 +3649,39 @@ describe('Maps', () => {
         });
       });
 
-      it('should include final approval maps for which the user is the submitter', async () => {
-        await prisma.mMap.update({
-          where: { id: faMap.id },
-          data: { submitter: { connect: { id: u1.id } } }
+      it('should include content approval maps for which the user has an accepted invite', async () => {
+        await prisma.mapTestInvite.create({
+          data: {
+            userID: u1.id,
+            mapID: caMap.id,
+            state: MapTestInviteState.ACCEPTED
+          }
+        });
+
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          validatePaged: { type: MapDto, count: 4 },
+          token: u1Token
+        });
+
+        expect(res.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: pubMap1.id }),
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
+            expect.objectContaining({ id: caMap.id })
+          ])
+        );
+      });
+
+      it('should not include content approval maps if the user has an declined invite', async () => {
+        await prisma.mapTestInvite.create({
+          data: {
+            userID: u1.id,
+            mapID: caMap.id,
+            state: MapTestInviteState.DECLINED
+          }
         });
 
         const res = await req.get({
@@ -3664,11 +3698,32 @@ describe('Maps', () => {
             expect.objectContaining({ id: faMap.id })
           ])
         );
+      });
 
-        await prisma.mMap.update({
-          where: { id: faMap.id },
-          data: { submitter: { disconnect: true } }
+      it('should include content approval maps for which the user is in the credits', async () => {
+        await prisma.mapCredit.create({
+          data: {
+            userID: u1.id,
+            mapID: caMap.id,
+            type: MapCreditType.TESTER
+          }
         });
+
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          validatePaged: { type: MapDto, count: 4 },
+          token: u1Token
+        });
+
+        expect(res.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: pubMap1.id }),
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
+            expect.objectContaining({ id: caMap.id })
+          ])
+        );
       });
 
       it('should include content approval maps for which the user is the submitter', async () => {
@@ -3680,7 +3735,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps/submissions',
           status: 200,
-          validatePaged: { type: MapDto, count: 3 },
+          validatePaged: { type: MapDto, count: 4 },
           token: u1Token
         });
 
@@ -3688,6 +3743,7 @@ describe('Maps', () => {
           expect.arrayContaining([
             expect.objectContaining({ id: pubMap1.id }),
             expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id }),
             expect.objectContaining({ id: caMap.id })
           ])
         );
@@ -3734,6 +3790,44 @@ describe('Maps', () => {
 
         expect(res.body.data[0]).toEqual(
           expect.objectContaining({ id: privMap.id })
+        );
+      });
+
+      it('should filter by content approval maps when given the content approval filter', async () => {
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: Role.REVIEWER }
+        });
+
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { filter: MapStatus.CONTENT_APPROVAL },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0]).toEqual(
+          expect.objectContaining({ id: caMap.id })
+        );
+
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: 0 }
+        });
+      });
+
+      it('should filter by final approval maps when given the final approval filter', async () => {
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { filter: MapStatus.FINAL_APPROVAL },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0]).toEqual(
+          expect.objectContaining({ id: faMap.id })
         );
       });
 
