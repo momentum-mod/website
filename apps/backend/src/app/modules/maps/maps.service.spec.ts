@@ -80,7 +80,7 @@ describe('MapsService', () => {
        for (const status of Enum.values(MapStatus)) {
            db.mMap.findUnique.mockResolvedValueOnce({id: 1, status } as any);
 
-           if ([MapStatus.APPROVED, MapStatus.PUBLIC_TESTING].includes(status)) {
+           if ([MapStatus.APPROVED, MapStatus.PUBLIC_TESTING, MapStatus.FINAL_APPROVAL].includes(status)) {
              expect(await service.getMapAndCheckReadAccess({ mapID: 1, })).toBeTruthy();
            } else {
              await expect(service.getMapAndCheckReadAccess({ mapID: 1 })).rejects.toThrow(ForbiddenException);
@@ -94,8 +94,8 @@ describe('MapsService', () => {
       [MapStatus.APPROVED]: 'any',
       [MapStatus.PUBLIC_TESTING]: 'any',
       [MapStatus.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
-      [MapStatus.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
-      [MapStatus.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
+      [MapStatus.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer',  'acceptedRequest', 'inCredits'],
+      [MapStatus.FINAL_APPROVAL]: 'any',
       [MapStatus.DISABLED]: ['admin', 'moderator']
     };
 

@@ -1705,10 +1705,11 @@ export class MapsService {
       throw new InternalServerErrorException('Invalid map data');
     }
 
-    // If APPROVED/PUBLIC_TESTING, anyone can access.
+    // If APPROVED/PUBLIC_TESTING/FINAL_APPROVAL, anyone can access.
     if (
       (map.status === MapStatus.APPROVED && !args?.submissionOnly) ||
-      map.status === MapStatus.PUBLIC_TESTING
+      map.status === MapStatus.PUBLIC_TESTING ||
+      map.status === MapStatus.FINAL_APPROVAL
     ) {
       return map as GetMMapUnique<S, I>;
     }
@@ -1765,15 +1766,34 @@ export class MapsService {
 
         break;
       }
-      // CONTENT_APPROVAL/FINAL_APPROVAL, only allow:
+      // CONTENT_APPROVAL, only allow:
       // - The submitter
       // - Moderator/Admin
       // - Reviewer
-      case MapStatus.CONTENT_APPROVAL:
-      case MapStatus.FINAL_APPROVAL: {
+      // - in the credits
+      // - Has an accepted MapTestInvite
+      case MapStatus.CONTENT_APPROVAL: {
         if (
           map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE)
+        )
+          return map as GetMMapUnique<S, I>;
+
+        if (
+          await this.db.mapTestInvite.exists({
+            where: {
+              mapID,
+              userID: args.userID,
+              state: MapTestInviteState.ACCEPTED
+            }
+          })
+        )
+          return map as GetMMapUnique<S, I>;
+
+        if (
+          await this.db.mapCredit.exists({
+            where: { mapID, userID: args.userID }
+          })
         )
           return map as GetMMapUnique<S, I>;
 
