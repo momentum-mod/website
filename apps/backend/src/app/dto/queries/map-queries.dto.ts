@@ -148,8 +148,10 @@ export class MapsGetAllSubmissionQueryDto
   readonly expand?: MapsGetAllSubmissionExpand;
 
   @EnumFilterQueryProperty([
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.CONTENT_APPROVAL,
     MapStatus.PUBLIC_TESTING,
-    MapStatus.PRIVATE_TESTING
+    MapStatus.FINAL_APPROVAL
   ])
   readonly filter?: MapsGetAllSubmissionFilter;
 }

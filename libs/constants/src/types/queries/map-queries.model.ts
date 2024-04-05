@@ -58,7 +58,10 @@ export type MapsGetAllAdminQuery = MapsGetAllBaseQuery & {
 };
 
 export type MapsGetAllSubmissionFilter = Array<
-  MapStatus.PUBLIC_TESTING | MapStatus.PRIVATE_TESTING
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
 >;
 
 export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
@@ -69,13 +72,6 @@ export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
 export type MapsGetAllUserSubmissionQuery = Omit<
   MapsGetAllSubmissionQuery,
   'submitterID'
->;
-
-export type MapsGetAllSubmissionAdminFilter = Array<
-  | MapStatus.PUBLIC_TESTING
-  | MapStatus.PRIVATE_TESTING
-  | MapStatus.CONTENT_APPROVAL
-  | MapStatus.FINAL_APPROVAL
 >;
 
 //#endregion
