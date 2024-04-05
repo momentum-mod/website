@@ -1084,12 +1084,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
         )}`;
       }
 
-      for (const image of map.images as any[]) {
-        image.small = s3Url(imgSmallPath(image));
-        image.medium = s3Url(imgMediumPath(image));
-        image.large = s3Url(imgLargePath(image));
-        image.xl = s3Url(imgXlPath(image));
-      }
+      map.images = map.images.map((image) => ({
+        id: image,
+        small: s3Url(imgSmallPath(image)),
+        medium: s3Url(imgMediumPath(image)),
+        large: s3Url(imgLargePath(image)),
+        xl: s3Url(imgXlPath(image))
+      }));
+
+      map.thumbnail = map.images[0];
 
       for (const credit of map.credits as any[]) {
         credit.user.steamID = credit.user.steamID?.toString();
