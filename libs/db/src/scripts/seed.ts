@@ -1075,7 +1075,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       delete map.info.mapID;
 
       map.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${approvedBspPath(
-        map.fileName
+        map.name
       )}`;
 
       if (map.submission) {
