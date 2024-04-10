@@ -55,6 +55,18 @@ export class ConfigValidation {
   @IsOptionalWithEmptyString()
   readonly SENTRY_DSN?: string;
 
+  @IsOptional()
+  @IsBoolean()
+  readonly SENTRY_ENABLE_TRACING?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  readonly SENTRY_TRACE_SAMPLE_RATE?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  readonly SENTRY_TRACE_PRISMA?: boolean;
+
   @IsUrl({ require_tld: false, protocols: ['postgresql'] })
   readonly DATABASE_URL?: string;
 

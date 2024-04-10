@@ -4,13 +4,14 @@ import { Environment } from '../../config';
 
 export interface SentryModuleOptions {
   environment: Environment;
-  sentryOpts: Pick<NodeOptions, 'dsn' | 'debug' | 'tracesSampleRate'>;
+  enableTracing: boolean;
+  sentryOpts: NodeOptions;
 }
 
 export interface SentryModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
   inject?: any[];
-  useFactory?: (...args: any[]) => Promise<NodeOptions>;
+  useFactory?: (...args: any[]) => Promise<SentryModuleOptions>;
 }
 
 export type SentryInitState = boolean;

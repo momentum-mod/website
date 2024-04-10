@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
+import * as Sentry from '@sentry/node';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
@@ -18,6 +19,9 @@ import { UsersModule } from './modules/users/users.module';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { MapReviewModule } from './modules/map-review/map-review.module';
+import { ExtendedPrismaService } from './modules/database/prisma.extension';
+import { EXTENDED_PRISMA_SERVICE } from './modules/database/db.constants';
+import { DbModule } from './modules/database/db.module';
 
 @Module({
   imports: [
@@ -28,25 +32,37 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
       isGlobal: true,
       validate
     }),
+    // We use Sentry in production for error logging and performance tracing.
+    // This is a small wrapper module around @sentry/node that only inits in
+    // production if a valid DSN is set.
     SentryModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+      useFactory: async (
+        config: ConfigService,
+        prisma: ExtendedPrismaService
+      ) => ({
         environment: config.getOrThrow('env'),
+        // Whether to enable SentryInterceptor. If enabled, we run a transaction
+        // for the lifetime of tracesSampleRate * all HTTP requests. This
+        // provides more detailed error
+        enableTracing: config.getOrThrow('sentry.enableTracing'),
         sentryOpts: {
+          // If this isn't set in prod we won't init Sentry.
           dsn: config.getOrThrow('sentry.dsn'),
-          debug: false,
-          tracesSampleRate: 1
+          tracesSampleRate: config.getOrThrow('sentry.tracesSampleRate'),
+          integrations: config.getOrThrow('sentry.tracePrisma')
+            ? [new Sentry.Integrations.Prisma({ client: prisma })]
+            : undefined,
+          debug: false
         }
       }),
-      inject: [ConfigService]
+      imports: [DbModule.forRoot()],
+      inject: [ConfigService, EXTENDED_PRISMA_SERVICE]
     }),
-
     // Pino is a highly performant logger that outputs logs as JSON, which we
     // then export to Grafana Loki. This module sets up `pino-http` which logs
     // all HTTP requests (so no need for a Nest interceptor).
     // In dev mode, outputs as more human-readable strings using `pino-pretty`.
     LoggerModule.forRootAsync({
-      // TODO: We want this.logger.error to also send to Sentry!!
-      // Can probably override nestjs-pino's error method?
       useFactory: async (config: ConfigService) => ({
         pinoHttp: {
           customProps: (_req, _res) => ({ context: 'HTTP' }),
@@ -62,6 +78,7 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
       inject: [ConfigService]
     }),
     FastifyMulterModule,
+    DbModule,
     AuthModule,
     ActivitiesModule,
     AdminModule,

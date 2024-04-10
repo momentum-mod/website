@@ -315,7 +315,7 @@ export class RunSessionService {
     // ever about to happen.
     const currentCosXp = Number(userStats.cosXP);
     if (currentCosXp >= Number.MAX_SAFE_INTEGER)
-      this.logger.error(
+      throw new InternalServerErrorException(
         `User ${submittedRun.userID} is exceeding the maximum cosmetic XP a JS number can handle accurately!!`
       );
 

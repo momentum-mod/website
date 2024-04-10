@@ -1,13 +1,13 @@
 import { DynamicModule, Logger, Module, Provider } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Environment } from '../../config';
-import { SentryService } from './sentry.service';
 import {
   SentryInitState,
   SentryModuleAsyncOptions,
   SentryModuleOptions
 } from './sentry.interface';
 import { SENTRY_INIT_STATE, SENTRY_MODULE_OPTIONS } from './sentry.const';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor';
 
 @Module({})
 export class SentryModule {
@@ -16,7 +16,7 @@ export class SentryModule {
     const optionsProvider: Provider = {
       provide: SENTRY_MODULE_OPTIONS,
       useFactory: options.useFactory,
-      inject: options.inject || []
+      inject: options.inject ?? []
     };
 
     return {
@@ -26,39 +26,43 @@ export class SentryModule {
         optionsProvider,
         {
           inject: [SENTRY_MODULE_OPTIONS],
+          // Tracks whether we initialised Sentry and provides it to the
+          // below provider and other modules
           provide: SENTRY_INIT_STATE,
-
           // Instantiates Sentry, if in production and DSN is set
-          useFactory: (opts: SentryModuleOptions): SentryInitState => {
-            const logger = new Logger('Sentry');
-            let enabled = false;
+          useFactory: ({
+            environment,
+            sentryOpts
+          }: SentryModuleOptions): SentryInitState => {
+            const logger = new Logger('Sentry Module Setup');
 
-            if (opts.environment === Environment.PRODUCTION) {
-              if (!opts.sentryOpts.dsn) {
-                logger.error('Sentry DSN not set');
-              } else {
-                Sentry.init(opts);
-                enabled = true;
-                logger.log(
-                  `Initialised Sentry with ${JSON.stringify(opts.sentryOpts)}`
-                );
-              }
+            if (environment !== Environment.PRODUCTION) {
+              return false;
             }
 
-            // Tracks whether we initialised Sentry and provides it to the
-            // below provider and other modules
-            return enabled;
+            if (!sentryOpts?.dsn) {
+              logger.warn('Sentry DSN not set, not initializing!');
+              return false;
+            }
+
+            Sentry.init(sentryOpts);
+            logger.log(`Initialised Sentry with ${JSON.stringify(sentryOpts)}`);
+            return true;
           }
         },
         {
-          inject: [SENTRY_INIT_STATE],
-          provide: SentryService,
-          // Only actually instantiate the service if we initialised Sentry
-          useFactory: (initState: SentryInitState) =>
-            initState ? new SentryService() : undefined
+          inject: [SENTRY_MODULE_OPTIONS, SENTRY_INIT_STATE],
+          provide: SentryInterceptor,
+          // Only actually instantiate the service if we initialised Sentry and
+          // have tracing enabled
+          useFactory: (
+            { enableTracing }: SentryModuleOptions,
+            initState: SentryInitState
+          ) =>
+            enableTracing && initState ? new SentryInterceptor() : undefined
         }
       ],
-      exports: [SentryService, SENTRY_INIT_STATE]
+      exports: [SentryInterceptor, SENTRY_INIT_STATE]
     };
   }
 }
