@@ -1,16 +1,17 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
-  HttpStatus,
-  Logger,
+  Catch,
+  ExceptionFilter,
   HttpException,
-  Inject
+  HttpStatus,
+  Inject,
+  Logger
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
-import { SentryService } from '../modules/sentry/sentry.service';
+import '@sentry/tracing'; // Required according to https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
+import * as Sentry from '@sentry/node';
 import { SENTRY_INIT_STATE } from '../modules/sentry/sentry.const';
 import { SentryInitState } from '../modules/sentry/sentry.interface';
 import { Environment } from '../config';
@@ -20,7 +21,6 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
     private readonly configService: ConfigService,
-    private readonly sentryService: SentryService,
     @Inject(SENTRY_INIT_STATE) private readonly sentryEnabled: SentryInitState
   ) {}
 
@@ -33,7 +33,7 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
       const path = httpAdapter.getRequestUrl(context.getRequest());
       const env = this.configService.get('env');
 
-      let status, responseBody, eventID;
+      let status: number, responseBody: Record<string, any>, eventID: string;
 
       if (exception instanceof HttpException) {
         status = exception.getStatus();
@@ -51,49 +51,57 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         };
       }
 
-      // In production, send to Sentry so long as it's enabled (if the DSN is
-      // invalid/empty it'll be disabled).
-      if (env === Environment.PRODUCTION) {
-        if (this.sentryEnabled) {
-          eventID = this.sentryService.sendError(exception);
+      const isProd = env === Environment.PRODUCTION;
+      const isActualError = !status || status >= 500;
+      if (isProd) {
+        // Don't do anything for 4xxs in prod, they're not actual errors and
+        // they'll get logged by pino-http like any other response.
+        if (isActualError) {
+          // Dupe code, but don't want to make a pointless object for 4xxs in prod (very common)
+          const msg: any = {
+            path,
+            name: exception.name,
+            message: exception.message
+          };
 
-          this.log(exception, path, false, eventID);
+          // In production, send to Sentry so long as it's enabled (if the DSN is
+          // invalid/empty it'll be disabled).
+          if (this.sentryEnabled) {
+            eventID = Sentry.captureException(exception);
+            msg.eventID = eventID;
+          }
+
+          this.logger.error(msg);
+        }
+      } else {
+        const msg: any = {
+          path,
+          name: exception.name,
+          message: exception.message,
+          stack: exception.stack // Stack is useful in dev, waste in prod, Sentry has all that.
+        };
+        // We're in development, print actual errors (non-HttpException and 500s)
+        // as errors and the rest as debug
+        if (isActualError) {
+          this.logger.error(msg);
         } else {
-          this.log(exception, path);
+          this.logger.debug(msg);
         }
       }
-      // We're in development, print actual errors (non-HttpException and 500s)
-      // as errors and the rest as debug
-      else this.log(exception, path, status && status >= 500);
 
-      // Add timestamp, path
+      // Add timestamp, path to response body
       responseBody.timestamp = new Date().toISOString();
       responseBody.path = path;
       if (eventID) responseBody.errorCode = eventID;
 
+      // Send it back
       httpAdapter.reply(context.getResponse(), responseBody, status);
     } catch (error) {
-      this.logger.error(
-        error,
-        'Exception filter errored, not throwing to avoid infinite loop!\n'
-      );
+      this.logger.fatal({
+        message:
+          'Exception filter errored, not throwing to avoid infinite loop!\n',
+        error
+      });
     }
-  }
-
-  private log(
-    exception: Error,
-    path: string,
-    debug?: boolean,
-    eventID?: string
-  ) {
-    let str =
-      `\n${exception.name ?? 'Error'}\n` +
-      `\tPath:\t${path}\n` +
-      `\tMessage:\t${exception.message}\n` +
-      `\tStack:\t${exception.stack}\n`;
-
-    if (eventID) str += `\tEvent ID:\t${eventID}\n`;
-
-    !debug ?? true ? this.logger.debug(str) : this.logger.error(str);
   }
 }

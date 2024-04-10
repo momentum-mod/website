@@ -32,6 +32,9 @@ export interface ConfigInterface {
   };
   sentry: {
     dsn: string;
+    enableTracing: boolean;
+    tracesSampleRate: number;
+    tracePrisma: boolean;
   };
   limits: {
     dailyReports: number;

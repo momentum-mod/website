@@ -35,7 +35,10 @@ export const ConfigFactory = (): ConfigInterface => {
       refreshExpTime: JWT_REFRESH_EXPIRY_TIME
     },
     sentry: {
-      dsn: process.env['SENTRY_DSN'] ?? ''
+      dsn: process.env['SENTRY_DSN'] || '',
+      enableTracing: process.env['SENTRY_ENABLE_TRACING'] === 'true' || false,
+      tracesSampleRate: +process.env['SENTRY_TRACE_SAMPLE_RATE'] || 0,
+      tracePrisma: process.env['SENTRY_TRACE_PRISMA'] === 'true' || false
     },
     sessionSecret: process.env['SESSION_SECRET'] ?? '',
     steam: {
