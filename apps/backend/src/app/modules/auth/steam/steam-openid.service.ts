@@ -24,7 +24,7 @@ export class SteamOpenIDService {
     private readonly config: ConfigService,
     private readonly steam: SteamService
   ) {
-    const authUrl = `${this.config.getOrThrow('url')}/auth`;
+    const authUrl = `${this.config.getOrThrow('domain')}/auth`;
     const apiKey = this.config.getOrThrow('steam.webAPIKey');
 
     this.relyingParty = new openid.RelyingParty(

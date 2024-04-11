@@ -1,6 +1,8 @@
-﻿import {
-  IsDefined,
+import {
+  IsBoolean,
   IsEnum,
+  IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
@@ -31,14 +33,13 @@ export class ConfigValidation {
     message:
       'A valid (dev, prod, test) NODE_ENV environment variable must be set'
   })
-  @IsDefined()
-  readonly NODE_ENV?: Environment;
+  readonly NODE_ENV: Environment;
 
-  @IsDefined()
-  readonly NODE_PORT?: number;
+  @IsInt()
+  readonly NEST_PORT: number;
 
-  @IsOptional()
   @IsUrl({ require_tld: false })
+  @IsOptionalWithEmptyString()
   readonly ROOT_URL?: string;
 
   @IsString({
@@ -61,7 +62,7 @@ export class ConfigValidation {
 
   @IsOptional()
   @IsNumber()
-  readonly SENTRY_TRACE_SAMPLE_RATE?: string;
+  readonly SENTRY_TRACE_SAMPLE_RATE?: number;
 
   @IsOptional()
   @IsBoolean()

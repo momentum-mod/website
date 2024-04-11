@@ -14,22 +14,22 @@
   MAX_MAP_IMAGE_SIZE
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
+import * as process from 'node:process';
 
 export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;
-  const port: number = +(process.env['NODE_PORT'] ?? 3000);
+  const port: number = +(process.env['NEST_PORT'] || 3000);
 
   const isProd = env === Environment.PRODUCTION;
   const isTest = env === Environment.TEST;
 
   return {
-    env: env,
-    port: port,
-    url: process.env['BASE_URL'] ?? `http://localhost:${port}`,
-    domain: isProd ? 'momentum-mod.org' : 'localhost',
+    env,
+    port,
+    domain: process.env['ROOT_URL'] || `http://localhost:${port}`,
     appIDs: STEAM_APPIDS,
     jwt: {
-      secret: process.env['JWT_SECRET'] ?? '',
+      secret: process.env['JWT_SECRET'] || '',
       expTime: JWT_WEB_EXPIRY_TIME,
       gameExpTime: JWT_GAME_EXPIRY_TIME,
       refreshExpTime: JWT_REFRESH_EXPIRY_TIME
@@ -40,23 +40,23 @@ export const ConfigFactory = (): ConfigInterface => {
       tracesSampleRate: +process.env['SENTRY_TRACE_SAMPLE_RATE'] || 0,
       tracePrisma: process.env['SENTRY_TRACE_PRISMA'] === 'true' || false
     },
-    sessionSecret: process.env['SESSION_SECRET'] ?? '',
+    sessionSecret: process.env['SESSION_SECRET'] || '',
     steam: {
-      webAPIKey: process.env['STEAM_WEB_API_KEY'] ?? "This won't work!!",
-      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' ?? true,
+      webAPIKey: process.env['STEAM_WEB_API_KEY'] || "This won't work!!",
+      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' || true,
       useSteamTicketLibrary:
-        process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' ?? false,
-      ticketsSecretKey: ''
+        process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' || false,
+      ticketsSecretKey: process.env['STEAM_TICKETS_SECRET']
     },
     storage: {
       endpointUrl:
         process.env['IS_DOCKERIZED_API'] === 'true'
-          ? process.env['STORAGE_ENDPOINT_URL_DOCKERIZED'] ?? ''
-          : process.env['STORAGE_ENDPOINT_URL'] ?? '',
-      region: process.env['STORAGE_REGION'] ?? '',
-      bucketName: process.env['STORAGE_BUCKET_NAME'] ?? '',
-      accessKeyID: process.env['STORAGE_ACCESS_KEY_ID'] ?? '',
-      secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] ?? ''
+          ? process.env['STORAGE_ENDPOINT_URL_DOCKERIZED'] || ''
+          : process.env['STORAGE_ENDPOINT_URL'] || '',
+      region: process.env['STORAGE_REGION'] || '',
+      bucketName: process.env['STORAGE_BUCKET_NAME'] || '',
+      accessKeyID: process.env['STORAGE_ACCESS_KEY_ID'] || '',
+      secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] || ''
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
@@ -74,4 +74,6 @@ export const ConfigFactory = (): ConfigInterface => {
   };
 };
 
+// Export the actual Config object so DTOs can use it - we don't have any way
+// for them to use Nest's ConfigModule
 export const Config: ConfigInterface = ConfigFactory();

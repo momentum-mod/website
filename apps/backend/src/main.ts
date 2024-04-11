@@ -94,7 +94,7 @@ async function bootstrap() {
   await app.register(cors, {
     origin:
       env === Environment.PRODUCTION
-        ? this.config.getOrThrow('url')
+        ? configService.getOrThrow('domain')
         : 'http://localhost:4200',
     allowedHeaders: [
       'Origin',
