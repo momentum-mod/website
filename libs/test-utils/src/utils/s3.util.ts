@@ -20,10 +20,7 @@ export class FileStoreUtil {
   constructor() {
     this.s3 = new S3Client({
       region: process.env['STORAGE_REGION'] ?? '',
-      endpoint:
-        process.env['IS_DOCKERIZED_API'] === 'true'
-          ? process.env['STORAGE_ENDPOINT_URL_DOCKERIZED'] ?? ''
-          : process.env['STORAGE_ENDPOINT_URL'] ?? '',
+      endpoint: process.env['STORAGE_ENDPOINT_URL'] ?? '',
       credentials: {
         accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'] ?? '',
         secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] ?? ''
