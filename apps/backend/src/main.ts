@@ -137,4 +137,4 @@ async function bootstrap() {
   await app.listen(configService.getOrThrow('port'));
 }
 
-bootstrap().then();
+void bootstrap();
