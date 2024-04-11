@@ -26,7 +26,6 @@ import { DbModule } from './modules/database/db.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // envFilePath: '../.env',
       load: [ConfigFactory],
       cache: true,
       isGlobal: true,

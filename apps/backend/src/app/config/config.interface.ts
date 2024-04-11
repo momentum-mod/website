@@ -6,7 +6,6 @@
 
 export interface ConfigInterface {
   env: Environment;
-  url: string;
   domain: string;
   port: number;
   appIDs: number[];
