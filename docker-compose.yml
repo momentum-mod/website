@@ -1,16 +1,15 @@
 version: '3.8'
 
 services:
-  db:
-    container_name: Postgres
+  postgres:
+    container_name: postgres
     image: postgres:15-alpine
     restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"
-        ]
-      interval: 5s
-      timeout: 10s
-      retries: 3
+  minio:
+    image: minio/minio
+    container_name: minio
+  createbuckets:
+    image: minio/mc
+    container_name: minio_create_buckets
+    depends_on:
+      - minio

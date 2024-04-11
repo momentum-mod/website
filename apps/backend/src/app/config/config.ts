@@ -46,13 +46,10 @@ export const ConfigFactory = (): ConfigInterface => {
       preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' || true,
       useSteamTicketLibrary:
         process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' || false,
-      ticketsSecretKey: process.env['STEAM_TICKETS_SECRET']
+      ticketsSecretKey: process.env['STEAM_TICKETS_SECRET'] ?? ''
     },
     storage: {
-      endpointUrl:
-        process.env['IS_DOCKERIZED_API'] === 'true'
-          ? process.env['STORAGE_ENDPOINT_URL_DOCKERIZED'] || ''
-          : process.env['STORAGE_ENDPOINT_URL'] || '',
+      endpointUrl: process.env['STORAGE_ENDPOINT_URL'] || '',
       region: process.env['STORAGE_REGION'] || '',
       bucketName: process.env['STORAGE_BUCKET_NAME'] || '',
       accessKeyID: process.env['STORAGE_ACCESS_KEY_ID'] || '',
