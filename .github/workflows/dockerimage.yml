@@ -1,24 +1,39 @@
 name: Publish Backend Docker
+
 on: workflow_dispatch
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Resolve Yarn Cache Directory
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Cache Yarn Cache Directory
-        uses: actions/cache@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        id: node_cache
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./server/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+          path: node_modules
+          key: modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: npm install
+        if: steps.node_cache.outputs.cache-hit != 'true'
+        run: npm ci --no-scripts
+        
+      - name: Build
+        run: npx nx run backend:build:production
+      
       - name: Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@3.04
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: momentum-mod/website/mmod-website
+          name: momentum-mod/nest-monolith
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
-          workdir: server
+          workdir: .
