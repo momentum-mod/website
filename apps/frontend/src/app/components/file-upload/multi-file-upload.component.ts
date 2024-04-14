@@ -112,8 +112,8 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 
     let added = false;
     for (const clipboardItem of items) {
-      const matchingType = clipboardItem.types.find(
-        (type) => this.acceptMimeTypes?.includes(type)
+      const matchingType = clipboardItem.types.find((type) =>
+        this.acceptMimeTypes?.includes(type)
       );
 
       if (!matchingType) continue;
