@@ -21,24 +21,25 @@ export class JwtGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      if (
-        this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-          context.getHandler(),
-          context.getClass()
-        ])
-      ) {
-        return true;
-      }
+      if (this.isPublic(context)) return true;
       throw new UnauthorizedException();
     }
 
     try {
       request.user = await this.jwtService.verifyAsync(token);
     } catch {
+      if (this.isPublic(context)) return true;
       throw new UnauthorizedException();
     }
 
     return true;
+  }
+
+  isPublic(context: ExecutionContext): boolean {
+    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass()
+    ]);
   }
 
   private extractTokenFromHeader(request: FastifyRequest): string | undefined {
