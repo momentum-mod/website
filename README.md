@@ -35,9 +35,10 @@ The backend runs on [NodeJS](https://nodejs.org/), with
 - [Prisma](https://www.prisma.io/): an ORM,
 - [Postgres](https://www.postgresql.org/): the underlying database
 
-This repo is a monorepo, using [Nx](https://nx.dev) for organization and tooling.
-Application code (such as frontend/backend) lives in respective directories in `apps/`,
-and anything shared between applications lives in `libs/`.
+This repo is a monorepo, using [Nx](https://nx.dev) for organization and
+tooling. Application code (such as frontend/backend) lives in respective
+directories in `apps/`, and anything shared between applications lives in
+`libs/`.
 
 We use npm as our package manager.
 

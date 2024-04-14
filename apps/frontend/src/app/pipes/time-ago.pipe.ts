@@ -27,14 +27,13 @@ export class TimeAgoPipe implements PipeTransform, OnDestroy {
 
     if (Number.isNaN(seconds)) return '';
 
-    this.timer = this.ngZone.runOutsideAngular(
-      () =>
-        window?.setTimeout(
-          () => this.ngZone.run(() => this.changeDetectorRef.markForCheck()),
-          Number.isNaN(seconds)
-            ? 1000
-            : this.getSecondsUntilUpdate(seconds) * 1000
-        )
+    this.timer = this.ngZone.runOutsideAngular(() =>
+      window?.setTimeout(
+        () => this.ngZone.run(() => this.changeDetectorRef.markForCheck()),
+        Number.isNaN(seconds)
+          ? 1000
+          : this.getSecondsUntilUpdate(seconds) * 1000
+      )
     );
 
     const minutes = Math.round(Math.abs(seconds / 60));
