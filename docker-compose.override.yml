@@ -3,6 +3,8 @@ version: '3.8'
 services:
   postgres:
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     expose:
@@ -21,6 +23,8 @@ services:
   minio:
     restart: unless-stopped
     command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    env_file:
+      - .env
     environment:
       - MINIO_SITE_REGION=${STORAGE_REGION}
     ports:
@@ -36,6 +40,8 @@ services:
     volumes:
      - ./data/minio:/data
   createbuckets:
+    env_file:
+      - .env
     entrypoint: >
      bash -c "
        mc alias set momentum_minio http://minio:${MINIO_SERVER_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
@@ -44,6 +50,8 @@ services:
      "
   pgadmin:
     container_name: pgadmin
+    env_file:
+      - .env
     image: dpage/pgadmin4
     restart: always
     profiles:
