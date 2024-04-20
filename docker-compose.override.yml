@@ -18,6 +18,8 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
+    env_file:
+      - .env
   minio:
     restart: unless-stopped
     command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
@@ -35,6 +37,8 @@ services:
       retries: 3
     volumes:
      - ./data/minio:/data
+    env_file:
+      - .env
   createbuckets:
     entrypoint: >
      bash -c "
