@@ -38,9 +38,17 @@ export class ConfigValidation {
   @IsInt()
   readonly NEST_PORT: number;
 
+  @IsString()
+  @IsOptionalWithEmptyString()
+  readonly ROOT_DOMAIN?: string;
+
   @IsUrl({ require_tld: false })
   @IsOptionalWithEmptyString()
-  readonly ROOT_URL?: string;
+  readonly FRONTEND_URL?: string;
+
+  @IsUrl({ require_tld: false })
+  @IsOptionalWithEmptyString()
+  readonly BACKEND_URL?: string;
 
   @IsString({
     message:
