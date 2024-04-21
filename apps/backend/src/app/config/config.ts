@@ -26,7 +26,11 @@ export const ConfigFactory = (): ConfigInterface => {
   return {
     env,
     port,
-    domain: process.env['ROOT_URL'] || `http://localhost:${port}`,
+    domain: process.env['ROOT_DOMAIN'] || 'localhost',
+    url: {
+      backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,
+      frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200'
+    },
     appIDs: STEAM_APPIDS,
     jwt: {
       secret: process.env['JWT_SECRET'] || '',

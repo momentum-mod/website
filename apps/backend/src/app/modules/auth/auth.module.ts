@@ -15,7 +15,7 @@ import { SteamOpenIDService } from './steam/steam-openid.service';
     JwtModule.registerAsync({
       useFactory: async (config: ConfigService) => ({
         secret: config.getOrThrow('jwt.secret'),
-        signOptions: { issuer: config.getOrThrow('domain') }
+        signOptions: { issuer: config.getOrThrow('url.backend') }
       }),
       inject: [ConfigService]
     }),

@@ -88,13 +88,11 @@ async function bootstrap() {
     contentSecurityPolicy: env === Environment.PRODUCTION
   });
 
-  // We use a pretty strict CORS policy, so register these headers
-  // In production this allows https://momentum-mod.org to communicate with
-  // https://api.momentum-mod.org/
+  // CORS policy to allow browsers to access the backend from dashboard.momentum-mod.org
   await app.register(cors, {
     origin:
       env === Environment.PRODUCTION
-        ? configService.getOrThrow('domain')
+        ? configService.getOrThrow('url.frontend')
         : 'http://localhost:4200',
     allowedHeaders: [
       'Origin',

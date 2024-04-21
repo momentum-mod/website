@@ -7,6 +7,10 @@
 export interface ConfigInterface {
   env: Environment;
   domain: string;
+  url: {
+    backend: string;
+    frontend: string;
+  };
   port: number;
   appIDs: number[];
   jwt: {

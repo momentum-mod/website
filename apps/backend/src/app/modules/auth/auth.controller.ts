@@ -48,15 +48,17 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly steamOpenID: SteamOpenIDService
   ) {
+    // We only need cookies as a secure mechanism to transfer JWTs back to the
+    // client, we can't transfer a body since /web/return is part of a chain
+    // of OpenID redirects. Instead, we set very short-lived but JS-readable
+    // cookies, which the  frontend keeps in local storage.
     this.cookieOptions = {
       domain: this.configService.getOrThrow('domain'),
-      // The value on the cookies gets transferred to local storage immediately,
-      // so just use a short lifetime of 10s.
-      maxAge: 10000,
+      maxAge: 10,
+      httpOnly: false,
       path: '/',
-      // So frontend can access. Cookie is deleted immediately so never
-      // retrurned to the backend, so no CSRF risk.
-      httpOnly: false
+      sameSite: 'strict',
+      secure: true
     };
   }
 
