@@ -3,6 +3,7 @@ import { CombinedMapStatuses, MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LocalUserService } from '../../../services/data/local-user.service';
+import { filter, switchMap } from 'rxjs';
 
 @Component({
   selector: 'm-home-user-maps',
@@ -23,9 +24,12 @@ export class HomeUserMapsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.userService
-      .getSubmittedMapSummary()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.userService.user
+      .pipe(
+        filter(Boolean),
+        switchMap(() => this.userService.getSubmittedMapSummary()),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response) => {
           this.loading = false;
