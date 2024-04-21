@@ -102,7 +102,6 @@ async function bootstrap() {
       'Content-Type',
       'Authorization'
     ],
-    exposedHeaders: 'Location',
     methods: ['GET', 'PUT', 'OPTIONS', 'POST', 'DELETE', 'PATCH']
   });
 
@@ -111,25 +110,31 @@ async function bootstrap() {
     secret: configService.getOrThrow('sessionSecret')
   });
 
-  await app.enableShutdownHooks();
+  app.enableShutdownHooks();
 
   // Swagger stuff
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Momentum Mod API')
-    .setDescription(
-      'The Momentum Mod API - https://github.com/momentum-mod/website'
-    )
-    .addBearerAuth()
-    .setVersion('1.0')
-    .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api-docs', app, swaggerDocument, {
-    customSiteTitle: 'Momentum Mod API Docs',
-    customfavIcon: 'https://momentum-mod.org/favicon.ico',
-    swaggerOptions: {
-      persistAuthorization: true
+  SwaggerModule.setup(
+    'api-docs',
+    app,
+    SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder()
+        .setTitle('Momentum Mod API')
+        .setDescription(
+          'The Momentum Mod API - https://github.com/momentum-mod/website'
+        )
+        .addBearerAuth()
+        .setVersion('1.0')
+        .build()
+    ),
+    {
+      customSiteTitle: 'Momentum Mod API Docs',
+      customfavIcon: 'https://momentum-mod.org/favicon.ico',
+      swaggerOptions: {
+        persistAuthorization: true
+      }
     }
-  });
+  );
 
   // Here we fucking go!!!
   await app.listen(configService.getOrThrow('port'));
