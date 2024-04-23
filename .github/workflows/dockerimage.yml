@@ -4,6 +4,8 @@ on: workflow_dispatch
 
 jobs:
   build:
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
