@@ -9,7 +9,7 @@ import {
   PagedResponse,
   TrackType
 } from '@momentum/constants';
-import { mapHttpError } from '@momentum/util-fn';
+import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';

@@ -11,7 +11,7 @@ import {
 import { AdminActivityEntryHeaderComponent } from './admin-activity-entry/admin-activity-entry-header.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
-import { mapHttpError } from '@momentum/util-fn';
+import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
 import { UserSearchComponent } from '../../../components/search/user-search.component';
