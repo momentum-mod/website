@@ -15,4 +15,6 @@ RUN chown -R backend:backend .
 RUN npm --omit=dev -f install
 RUN node_modules/.bin/prisma generate --schema schema.prisma && rm schema.prisma
 
+EXPOSE 3000
+USER backend
 CMD [ "node", "main.js" ]
