@@ -13,7 +13,6 @@ COPY libs/db/src/prisma/schema.prisma schema.prisma
 RUN chown -R backend:backend .
 
 RUN npm --omit=dev -f install
-RUN node_modules/.bin/prisma generate --schema schema.prisma
-RUN rm schema.prisma
+RUN node_modules/.bin/prisma generate --schema schema.prisma && rm schema.prisma
 
 CMD [ "node", "main.js" ]
