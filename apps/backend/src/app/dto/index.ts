@@ -43,6 +43,7 @@ export * from './user/socials.dto';
 export * from './user/admin-activity-dto';
 export * from './queries/pagination.dto';
 export * from './queries/map-queries.dto';
+export * from './queries/notifications-queries.dto';
 export * from './queries/run-queries.dto';
 export * from './queries/user-queries.dto';
 export * from './queries/admin-queries.dto';
