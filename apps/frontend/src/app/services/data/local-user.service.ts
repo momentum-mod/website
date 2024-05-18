@@ -12,11 +12,9 @@ import {
   MapsGetAllUserSubmissionQuery,
   MapSummary,
   MMap,
-  Notification,
   PagedResponse,
   Profile,
   Role,
-  UpdateNotification,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
@@ -111,21 +109,6 @@ export class LocalUserService {
 
   public deleteUser(): Observable<void> {
     return this.http.delete('user');
-  }
-
-  public getNotifications(): Observable<PagedResponse<Notification>> {
-    return this.http.get<PagedResponse<Notification>>('user/notifications');
-  }
-
-  public updateNotification(
-    notifID: number,
-    body: UpdateNotification
-  ): Observable<void> {
-    return this.http.patch(`user/notifications/${notifID}`, { body });
-  }
-
-  public deleteNotification(notifID: number): Observable<void> {
-    return this.http.delete(`user/notifications/${notifID}`);
   }
 
   public getMapFavorites(
