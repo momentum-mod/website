@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, inject, Renderer2 } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
-import { NotificationsService } from './services/notifications.service';
 import { LayoutService, SidenavState } from './services/layout.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { HeaderComponent } from './components/layout/header.component';
@@ -26,13 +25,10 @@ export class AppComponent implements AfterViewInit {
   protected customBackgroundImage = '';
   protected customBackgroundOpacity = 0;
 
-  private readonly notificationService = inject(NotificationsService);
   private readonly layoutService = inject(LayoutService);
   private readonly renderer = inject(Renderer2);
 
   constructor() {
-    this.notificationService.inject();
-
     this.layoutService.sidenavToggled.subscribe(
       (state) => (this.sideNavState = state)
     );
