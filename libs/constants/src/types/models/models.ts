@@ -94,13 +94,14 @@ export interface Activity {
 
 export interface Notification {
   id: number;
-  read: boolean;
-  userID: number;
+  type: number;
+  notifiedUser: User;
+  message: string | null;
   user?: User;
-  activityID: number;
-  activity?: Activity;
+  map?: MMap;
+  run?: PastRun;
+  review?: MapReview;
   createdAt: DateString;
-  updatedAt: DateString;
 }
 
 export interface Follow {
