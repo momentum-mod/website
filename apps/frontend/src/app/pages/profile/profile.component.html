@@ -1,166 +1,182 @@
-<div class="flex flex-wrap">
-  <div class="w-full pl-4 pr-4 xl:w-3/5">
-    @if (user) {
-      <m-card>
-        <div class="overflow-hidden">
-          @if (user.country && user.country.length === 2) {
-            <span [title]="countryDisplayName" class="rounded flg fi fi-{{ user.country.toLowerCase() }}"></span>
-          }
-          <div class="top-right-toolbar flex items-center">
-            @if (!isLocal) {
-              <m-report-button [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
-            }
-
-            @if (canEdit()) {
-              <button class="btn btn-blue ml-2" type="button" (click)="onEditProfile()">
-                <span class="hidden md:inline-block">Edit Profile</span>
-                <m-icon class="inline-block md:hidden" icon="note-edit" />
-              </button>
-            }
-          </div>
-
-          <div class="mt-4 flex flex-wrap">
-            <div class="col-auto mb-2">
-              @if (avatarLoaded) {
-                <div class="user-image ml-2 md:ml-6" [ngStyle]="{ 'background-image': 'url(' + avatarUrl + ')' }"></div>
+@if (user) {
+  <div class="grid grid-cols-5 gap-4">
+    <div class="col-span-full flex flex-col xl:col-span-3">
+      <div
+        class="mb-4 flex gap-4 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-4 text-xl"
+        style="background-image: url('/assets/images/playercard_bg.png')"
+      >
+        @if (avatarLoaded) {
+          <div
+            class="h-40 w-40 rounded-2xl bg-cover bg-no-repeat"
+            [ngStyle]="{
+              'background-image': 'url(' + avatarUrl + ')'
+            }"
+          ></div>
+        }
+        <div class="flex flex-grow flex-col justify-between">
+          <div class="flex gap-1">
+            <h1
+              class="flex flex-grow items-center gap-2 font-medium"
+              [fontSizeLerp]="{ chars: user.alias.length, maxChars: 29, startAt: 16, baseRem: 2.25, minRem: 1.5 }"
+            >
+              {{ user.alias }}
+              @if (user.country && user.country.length === 2) {
+                <span [title]="countryDisplayName" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
               }
-            </div>
-            <div class="relative mb-2 max-w-full flex-1 flex-grow px-4">
-              <div class="justify-content-evenly flex h-full flex-col">
-                <div class="flex items-center">
-                  <h1>{{ user.alias }}</h1>
-                  @if (hasRole(Role.VERIFIED)) {
-                    <img
-                      class="verified h-6"
-                      src="assets/images/badges/roles/Verified.svg"
-                      mTooltip="Verified"
-                      width="49"
-                      height="49"
-                      alt="Verified Badge"
-                    />
-                  }
-                </div>
-                <m-role-badges class="h-8 gap-2" [roles]="user.roles" [ignored]="[Role.VERIFIED]" />
-                @if (!hasRole(Role.DELETED)) {
-                  <div>
-                    <h4 class="text">Level {{ user.userStats?.level }}</h4>
-                  </div>
+              <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
+                <m-icon class="h-7 w-7 text-gray-50 transition duration-100 ease-out hover:text-blue-500" icon="steam" pack="si" />
+              </a>
+            </h1>
+            <div class="flex gap-1">
+              @if (!isLocal && localUserService.user | async) {
+                <m-report-button
+                  class="aspect-square p-2"
+                  mTooltip="Report Profile"
+                  [reportType]="ReportType.USER_PROFILE_REPORT"
+                  [reportData]="user.id.toString()"
+                />
+                <button
+                  class="btn btn-green stack aspect-square p-2"
+                  [mTooltip]="(localFollowStatus | async) ? 'Unfollow' : 'Follow'"
+                  (click)="toggleFollow()"
+                >
+                  <m-icon
+                    class="opacity-100 transition-opacity [:hover>&]:opacity-0"
+                    [icon]="(localFollowStatus | async) ? 'heart' : 'heart-outline'"
+                  />
+                  <m-icon
+                    class="opacity-0 transition-opacity [:hover>&]:opacity-100"
+                    [icon]="(localFollowStatus | async) ? 'heart-broken' : 'heart'"
+                  />
+                </button>
+                @if (localFollowStatus | async) {
+                  <button class="btn btn-blue aspect-square p-2" mTooltip="Edit Notifications" (click)="editFollowNotifications()">
+                    <m-icon [icon]="(localFollowStatus | async).notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
+                  </button>
                 }
-                <div class="socials">
-                  <div>
-                    <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam">
-                      <m-icon icon="steam" pack="si" />
-                    </a>
-                  </div>
-                  @for (social of user.profile.socials | unsortedKeyvalue; track social) {
-                    <div>
-                      @if (social.value) {
-                        <a href="https://{{ SocialsData[social.key].url }}/{{ social.value }}" target="_blank" [mTooltip]="social.key">
-                          <m-icon [icon]="SocialsData[social.key].icon" pack="si" />
-                        </a>
-                      }
-                    </div>
-                  }
-                  @if (!isLocal) {
-                    <div class="ml-auto">
-                      <m-profile-follow [userSubject]="userSubject" />
-                    </div>
-                  }
-                </div>
-              </div>
+              }
+              @if (isLocal || localUserService.isModOrAdmin) {
+                <button class="btn btn-purple aspect-square p-2" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
+                  <m-icon icon="note-edit" />
+                </button>
+              }
             </div>
           </div>
+          <m-role-badges class="h-10 gap-2" [roles]="user.roles" />
+          @if (!hasRole(Role.DELETED)) {
+            <div class="flex w-full gap-2 font-display text-2xl">
+              <div class="flex-grow">
+                <p class="pb-1 leading-none">{{ currXp }} / {{ nextXp }} xp</p>
+                <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * currXp) / nextXp" />
+              </div>
+              <p class="mt-auto rounded bg-gray-500 px-2 shadow">{{ user.userStats.level }}</p>
+            </div>
+          }
         </div>
-        <m-tabs>
-          <m-tab tabName="Info">
-            @if (!user.profile?.bio || user.profile?.bio?.length === 0) {
-              <h5 class="m-0 text-center">
-                <i>No bio found</i>
-              </h5>
-            }
-            @if (user.profile?.bio?.length > 0) {
-              <p class="bio">
-                {{ user?.profile?.bio }}
-              </p>
-            }
-          </m-tab>
-          @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
-            <m-tab tabName="Following ({{ followingUsers.length }})">
-              @if (followingUsers.length === 0) {
-                <h5 class="m-0 text-center">
-                  <i>Not following anyone</i>
-                </h5>
+      </div>
+      <div class="card gap-5 p-4 [&>*:not(.card-inset)]:px-2">
+        @if (user.profile?.bio?.length > 0) {
+          <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
+        }
+        @if ((user.profile.socials | unsortedKeyvalue).length) {
+          <div class="grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+            @for (social of user.profile.socials | unsortedKeyvalue; track social) {
+              @if (social.value) {
+                <a
+                  class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
+                  href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
+                  target="_blank"
+                  [mTooltip]="social.key"
+                >
+                  <m-icon class="mr-1 h-7 w-7 align-middle text-white" [icon]="SocialsData[social.key].icon" pack="si" />
+                  {{ social.value }}
+                </a>
               }
-              <ul>
-                @for (usr of followingUsers; track usr) {
-                  <li>
-                    <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
-                      <m-avatar [url]="usr.followed?.avatarURL" />
-                      <p>{{ usr.followed?.alias }}</p>
+            }
+          </div>
+        }
+
+        <div class="flex flex-wrap gap-4">
+          <div class="flex-grow basis-0">
+            <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
+            @if (followedByUsers.length === 0) {
+              <h5 class="m-0">
+                <i>No followers</i>
+              </h5>
+            } @else {
+              <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
+                @for (usr of followedByUsers; track usr) {
+                  <li class="py-1">
+                    <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
+                      <m-avatar class="mr-2 h-12" [url]="usr.followee?.avatarURL" />
+                      <p>
+                        {{ usr.followee?.alias }}<br />
+                        <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
+                      </p>
                     </a>
                   </li>
                 }
               </ul>
-            </m-tab>
-          }
-          <m-tab tabName="Followers ({{ followedByUsers.length }})">
-            @if (followedByUsers.length === 0) {
-              <h5 class="m-0 text-center">
-                <i>No followers</i>
-              </h5>
             }
-            <ul>
-              @for (usr of followedByUsers; track usr) {
-                <li>
-                  <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
-                    <m-avatar [url]="usr.followee?.avatarURL" />
-                    <p>{{ usr.followee?.alias }}</p>
-                  </a>
-                </li>
+          </div>
+          @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
+            <div class="w-[1px] bg-gray-400"></div>
+            <div class="flex-grow basis-0">
+              <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
+              @if (followingUsers.length === 0) {
+                <h5 class="m-0">
+                  <i>Not following anyone</i>
+                </h5>
+              } @else {
+                <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
+                  @for (usr of followingUsers; track usr) {
+                    <li class="py-1">
+                      <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
+                        <m-avatar class="mr-2 h-12" [url]="usr.followed?.avatarURL" />
+                        <p>
+                          {{ usr.followed?.alias }}<br />
+                          <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
+                        </p>
+                      </a>
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
-          </m-tab>
-          @if (user.userStats) {
-            <m-tab tabName="Stats">
-              <div class="flex flex-wrap justify-around text-center">
-                <div class="base m-1">
-                  <h6>Maps Completed</h6>
-                  <h2>{{ user.userStats.mapsCompleted }}</h2>
-                </div>
-                <div class="base m-1">
-                  <h6>Total Jumps</h6>
-                  <h2>{{ user.userStats.totalJumps }}</h2>
-                </div>
-                <div class="base m-1">
-                  <h6>Total Strafes</h6>
-                  <h2>{{ user.userStats.totalStrafes }}</h2>
-                </div>
-                <div class="base m-1">
-                  <h6>Runs Submitted</h6>
-                  <h2>{{ user.userStats.runsSubmitted }}</h2>
-                </div>
-                <div class="base m-1">
-                  <h6>Cosmetic XP</h6>
-                  <h2>{{ user.userStats.cosXP }}</h2>
-                </div>
-              </div>
-            </m-tab>
+            </div>
           }
-          @if (!hasRole(Role.PLACEHOLDER)) {
-            <m-tab tabName="Runs">
-              <m-profile-run-history [userSubject]="userSubject" />
-            </m-tab>
+        </div>
+
+        <div [mSpinner]="!credits">
+          @if (credits && credits.length > 0) {
+            <h3 class="font-display font-bold">Credits</h3>
+            <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+              @for (type of MapCreditType | enumValue; track $index) {
+                @if (creditMap[type]) {
+                  <div>
+                    <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                      {{ MapCreditNames.get(type) }}
+                    </p>
+                    @for (credit of creditMap[type]; track $index) {
+                      <a routerLink="/maps/{{ credit.map?.id }}">
+                        <p class="font-sm text-gray-200">
+                          {{ credit.map?.name }}
+                        </p>
+                      </a>
+                    }
+                  </div>
+                }
+              }
+            </div>
           }
-          <m-tab tabName="Credits">
-            <m-profile-credits [userSubject]="userSubject" />
-          </m-tab>
-        </m-tabs>
-      </m-card>
-    }
+        </div>
+      </div>
+    </div>
+    <div class="col-span-full flex flex-col max-xl:row-start-2 xl:col-span-2">
+      @if (user) {
+        <m-activity headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" class="h-full" />
+      }
+    </div>
   </div>
-  <div class="w-full pl-4 pr-4 xl:w-2/5">
-    @if (user) {
-      <m-activity headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" />
-    }
-  </div>
-</div>
+} @else {
+  <m-spinner />
+}

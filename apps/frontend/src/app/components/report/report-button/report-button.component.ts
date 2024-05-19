@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, HostListener, Input } from '@angular/core';
 import { ReportType } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CreateReportDialogComponent } from '../create-report-dialog/create-report-dialog.component';
@@ -8,11 +8,7 @@ import { IconComponent } from '../../../icons';
   selector: 'm-report-button',
   standalone: true,
   imports: [IconComponent],
-  template: `
-    <button class="btn btn-red" (click)="onClick()">
-      <m-icon icon="flag-outline"></m-icon>
-    </button>
-  `
+  template: '<m-icon icon="flag-outline"/>'
 })
 export class ReportButtonComponent {
   @Input() reportType: ReportType;
@@ -20,6 +16,11 @@ export class ReportButtonComponent {
 
   constructor(private readonly dialogService: DialogService) {}
 
+  @HostBinding('class') get classes() {
+    return 'btn btn-red';
+  }
+
+  @HostListener('click')
   onClick() {
     this.dialogService.open(CreateReportDialogComponent, {
       header: 'Submit Report',

@@ -2,8 +2,6 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap, take, tap } from 'rxjs/operators';
-import { EMPTY, merge, Subject } from 'rxjs';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
@@ -197,7 +195,6 @@ export class ProfileEditComponent implements OnInit {
       (update as AdminUpdateUser).bans = this.user.bans;
       this.adminService.updateUser(this.user.id, update).subscribe({
         next: () => {
-          this.localUserService.refreshLocalUser();
           this.messageService.add({
             severity: 'success',
             detail: 'Updated user profile!'
