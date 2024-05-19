@@ -95,4 +95,165 @@ describe('Notifications', () => {
     it('should 401 when no access token is provided', () =>
       req.unauthorizedTest('notifications', 'get'));
   });
+
+  describe('notifications/markAsRead DELETE', () => {
+    it('should delete a list of notifications', async () => {
+      const notifs = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user.id
+        }
+      });
+
+      const toDelete = [notifs[0].id, notifs[1].id];
+
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 204,
+        query: { notifIDs: toDelete.join(',') },
+        token: userToken
+      });
+
+      const newNotifs = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user.id
+        }
+      });
+
+      expect(newNotifs).toMatchObject([
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.ANNOUNCEMENT,
+          message: 'web dev needed urgently'
+        },
+
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.MAP_TEST_INVITE,
+          mapID: map.id,
+          userID: user2.id
+        }
+      ]);
+    });
+    it('should not delete a map testing request notification', async () => {
+      const notif = await prisma.notification.findFirst({
+        where: {
+          notifiedUserID: user.id,
+          type: NotificationType.MAP_TEST_INVITE
+        }
+      });
+
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 204,
+        query: { notifIDs: notif.id.toString() },
+        token: userToken
+      });
+
+      const notifs = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user.id
+        }
+      });
+
+      expect(notifs).toMatchObject([
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.ANNOUNCEMENT,
+          message: 'Game will explode in 10 minutes'
+        },
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.ANNOUNCEMENT,
+          message: 'nvm game is fine'
+        },
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.ANNOUNCEMENT,
+          message: 'web dev needed urgently'
+        },
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.MAP_TEST_INVITE,
+          mapID: map.id,
+          userID: user2.id
+        }
+      ]);
+    });
+
+    it('should not delete a notification targeting another user', async () => {
+      const notif = await prisma.notification.findFirst({
+        where: {
+          notifiedUserID: user2.id
+        }
+      });
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 204,
+        query: { notifIDs: notif.id.toString() },
+        token: userToken
+      });
+
+      const newNotifs = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user2.id
+        }
+      });
+
+      expect(newNotifs).toMatchObject([
+        {
+          notifiedUserID: user2.id,
+          type: NotificationType.ANNOUNCEMENT,
+          message: 'this is just for u <3'
+        }
+      ]);
+    });
+
+    it('should delete all non-testing request notifications', async () => {
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 204,
+        query: { all: true },
+        token: userToken
+      });
+
+      const notifs = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user.id
+        }
+      });
+
+      expect(notifs).toMatchObject([
+        {
+          notifiedUserID: user.id,
+          type: NotificationType.MAP_TEST_INVITE,
+          mapID: map.id,
+          userID: user2.id
+        }
+      ]);
+    });
+
+    it('should 400 if not given the correct query', async () => {
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 400,
+        query: { notifIDs: '2,119,bob,1137' },
+        token: userToken
+      });
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 400,
+        query: { notifIDs: 'guh' },
+        token: userToken
+      });
+      await req.del({
+        url: 'notifications/markAsRead',
+        status: 400,
+        query: { notTheRightQuery: '123,456' },
+        token: userToken
+      });
+    });
+
+    it('should 401 when no access token is provided', () =>
+      req.unauthorizedTest('notifications/markAsRead', 'del'));
+  });
 });
