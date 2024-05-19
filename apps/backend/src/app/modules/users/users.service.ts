@@ -15,6 +15,8 @@ import {
   ActivityType,
   AdminActivityType,
   Ban,
+  CombinedRoles,
+  MapStatus,
   Role,
   UserMapLibraryGetExpand
 } from '@momentum/constants';
@@ -729,9 +731,14 @@ export class UsersService {
     userID: number,
     expand?: string[],
     skip?: number,
-    take?: number
+    take?: number,
+    localUserID?: number
   ): Promise<PagedResponseDto<MapCreditDto>> {
     let include: Prisma.MapCreditInclude;
+    const where: Prisma.MapCreditWhereInput = {
+      userID,
+      mmap: { status: MapStatus.APPROVED }
+    };
     if (expand?.length > 0) {
       include = {};
       // Other expands are nested properties of the map, if anything but just
@@ -744,8 +751,21 @@ export class UsersService {
       }
     }
 
+    const localUser = localUserID
+      ? await this.db.user.findUnique({
+        where: { id: localUserID }
+      })
+      : null;
+
+    if (
+      localUserID === userID ||
+      (localUserID && Bitflags.has(localUser.roles, CombinedRoles.MOD_OR_ADMIN))
+) {
+        delete where.mmap;
+    }
+
     const dbResponse = await this.db.mapCredit.findManyAndCount({
-      where: { userID },
+      where,
       include,
       skip,
       take

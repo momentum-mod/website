@@ -25,7 +25,7 @@ import {
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
 import { UsersService } from './users.service';
-import { BypassJwtAuth } from '../../decorators';
+import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -171,13 +171,15 @@ export class UsersController {
   })
   getMapCredits(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: UsersGetCreditsQueryDto
+    @Query() query: UsersGetCreditsQueryDto,
+    @LoggedInUser('id') localUserID?: number
   ): Promise<PagedResponseDto<MapCreditDto>> {
     return this.usersService.getMapCredits(
       userID,
       query.expand,
       query.skip,
-      query.take
+      query.take,
+      localUserID
     );
   }
 
