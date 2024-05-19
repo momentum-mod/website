@@ -37,6 +37,7 @@ import {
   MapSubmissionSuggestion,
   MapTestInviteState,
   MapZones,
+  NotificationType,
   Role,
   TrackType,
   vmfsPath,
@@ -1617,6 +1618,8 @@ export class MapsService {
       throw new ForbiddenException(
         "Can't approve a disabled map that has never been approved before"
       );
+    } else if (oldStatus === MapStatus.PRIVATE_TESTING) {
+      await this.updateStatusFromPrivate(tx, map);
     }
 
     return [
@@ -1841,6 +1844,20 @@ export class MapsService {
           throw new InternalServerErrorException(error);
         })
     );
+  }
+  /**
+   * Private Testing -> Anything Else
+   */
+  private async updateStatusFromPrivate(
+    tx: ExtendedPrismaServiceTransaction,
+    map: MapWithSubmission
+  ) {
+    await tx.mapTestInvite.deleteMany({
+      where: { mapID: map.id, state: MapTestInviteState.UNREAD }
+    });
+    await tx.notification.deleteMany({
+      where: { type: NotificationType.MAP_TEST_INVITE, mapID: map.id }
+    });
   }
 
   //#endregion
