@@ -15,6 +15,7 @@ import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { DiscordModule } from '../discord/discord.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { DiscordModule } from '../discord/discord.module';
     forwardRef(() => AdminModule),
     forwardRef(() => MapReviewModule),
     KillswitchModule,
-    DiscordModule
+    DiscordModule,
+    NotificationsModule
   ],
   controllers: [MapsController],
   providers: [
