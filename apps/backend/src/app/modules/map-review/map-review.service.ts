@@ -13,6 +13,7 @@ import {
   mapReviewAssetPath,
   MapReviewSuggestion,
   MapStatuses,
+  NotificationType,
   Role
 } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@momentum/db';
@@ -47,6 +48,7 @@ import {
   JsonObject
 } from '@prisma/client/runtime/library';
 import { MapDiscordNotifications } from '../maps/map-discord-notifications.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MapReviewService {
@@ -56,7 +58,8 @@ export class MapReviewService {
     private readonly mapsService: MapsService,
     private readonly fileStoreService: FileStoreService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly discordNotificationService: MapDiscordNotifications
+    private readonly discordNotificationService: MapDiscordNotifications,
+    private readonly notifService: NotificationsService
   ) {}
 
   async getAllReviews(
@@ -171,6 +174,7 @@ export class MapReviewService {
       mapID,
       userID,
       select: {
+        submitter: true,
         status: true,
         currentVersion: { select: { zones: true } }
       },
@@ -245,19 +249,33 @@ export class MapReviewService {
     }
 
     const [dbResponse] = await parallel(
-      this.db.mapReview.create({
-        data: {
-          reviewer: { connect: { id: userID } },
-          mmap: { connect: { id: mapID } },
-          imageIDs: images.map(([id]) => id),
-          mainText: body.mainText,
-          ...newData,
-          editHistory: [{ ...newData, editorID: userID, date: new Date() }]
-        },
-        include: {
-          mmap: true,
-          reviewer: true
-        }
+      this.db.$transaction(async (tx) => {
+        const newReview = await tx.mapReview.create({
+          data: {
+            reviewer: { connect: { id: userID } },
+            mmap: { connect: { id: mapID } },
+            imageIDs: images.map(([id]) => id),
+            mainText: body.mainText,
+            ...newData,
+            editHistory: [{ ...newData, editorID: userID, date: new Date() }]
+          },
+          include: {
+            mmap: true,
+            reviewer: true
+          }
+        });
+
+        await this.notifService.sendNotifications(
+          [map.submitter.id],
+          {
+            type: NotificationType.REVIEW_POSTED,
+            reviewerID: userID,
+            reviewID: newReview.id,
+            mapID: mapID
+          },
+          tx
+        );
+        return newReview;
       }),
       ...images.map(([id, file]) =>
         this.fileStoreService.storeFile(
@@ -459,7 +477,12 @@ export class MapReviewService {
     }
 
     await parallel(
-      this.db.mapReview.delete({ where: { id: reviewID } }),
+      this.db.$transaction([
+        this.db.mapReview.delete({ where: { id: reviewID } }),
+        this.db.notification.deleteMany({
+          where: { type: NotificationType.REVIEW_POSTED, reviewID: reviewID }
+        })
+      ]),
       this.fileStoreService.deleteFiles(
         review.imageIDs.map((id) => mapReviewAssetPath(id))
       )
