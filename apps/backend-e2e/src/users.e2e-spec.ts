@@ -15,7 +15,12 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
-import { ActivityType, MapCreditType } from '@momentum/constants';
+import {
+  ActivityType,
+  MapCreditType,
+  MapStatus,
+  Role
+} from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,
@@ -496,25 +501,44 @@ describe('Users', () => {
 
   describe('users/{userID}/credits', () => {
     describe('GET', () => {
-      let user, token;
+      let user, token, modToken;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
+        modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         await db.createMaps(2, {
           credits: { create: { type: MapCreditType.AUTHOR, userID: user.id } }
+        });
+        await db.createMap({
+          credits: { create: { type: MapCreditType.AUTHOR, userID: user.id } },
+          status: MapStatus.PRIVATE_TESTING
         });
       });
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      it('should respond with a list of map credits for a specific user', () => {
+      it('should respond with a list of map credits for approved maps for a specific user', () =>
         req.get({
           url: `users/${user.id}/credits`,
           status: 200,
-          validatePaged: { type: MapCreditDto, count: 2 },
+          validatePaged: { type: MapCreditDto, count: 2 }
+        }));
+
+      it('should respond with a full list of map credits if local user is the same as requested user', () =>
+        req.get({
+          url: `users/${user.id}/credits`,
+          status: 200,
+          validatePaged: { type: MapCreditDto, count: 3 },
           token
-        });
-      });
+        }));
+
+      it('should respond with a full list of map credits if local user is admin or mod', () =>
+        req.get({
+          url: `users/${user.id}/credits`,
+          status: 200,
+          validatePaged: { type: MapCreditDto, count: 3 },
+          token: modToken
+        }));
 
       it('should respond with limited list of credits with take parameter', () =>
         req.takeTest({
