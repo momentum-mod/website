@@ -30,6 +30,7 @@ import { AdminService } from '../../../services/data/admin.service';
 import { AuthService } from '../../../services/data/auth.service';
 import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../components/dialogs/delete-user-dialog.component';
+import { EMPTY, switchMap } from 'rxjs';
 
 @Component({
   selector: 'm-profile-edit',
@@ -67,14 +68,14 @@ export class ProfileEditComponent implements OnInit {
     return this.form.get('socials');
   }
 
-  user: User = null;
-  mergeUser: User = null;
-  mergeErr = null;
-  isLocal = false;
-  isAdmin = false;
-  isModerator: boolean;
+  protected user: User = null;
+  protected mergeUser: User = null;
+  protected mergeErr = null;
+  protected isLocal = false;
+  protected isAdmin = false;
+  protected isModOrAdmin = false;
 
-  refreshCurrentUser = new Subject<void>();
+  protected readonly MAX_BIO_LENGTH = MAX_BIO_LENGTH;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -118,46 +119,33 @@ export class ProfileEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.localUserService.user.subscribe(() => {
+      this.isAdmin = this.localUserService.isAdmin;
+      this.isModOrAdmin = this.localUserService.isModOrAdmin;
+    });
+
     this.route.paramMap
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         switchMap((params: ParamMap) => {
           if (!this.localUserService.isLoggedIn) {
             this.router.navigateByUrl('/');
             return EMPTY;
           }
 
-          if (params.has('id')) {
-            const id = Number(params.get('id'));
-            if (this.localUserService.user.value?.id !== id) {
-              this.isLocal = false;
-              return merge(
-                this.usersService
-                  .getUser(id, { expand: ['profile', 'userStats'] })
-                  .pipe(
-                    take(1),
-                    tap((user) => this.setUser(user))
-                  ),
-                this.refreshCurrentUser
-              );
-            }
+          const id = Number(params.get('id') ?? -1);
+          if (params.has('id') && this.localUserService.user.value?.id !== id) {
+            this.isLocal = false;
+            return this.usersService.getUser(id, {
+              expand: ['profile', 'userStats']
+            });
           }
 
           this.isLocal = true;
-          this.localUserService.refreshLocalUser();
-          return this.localUserService.user.pipe(
-            tap((user) => {
-              this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
-              this.isModerator = this.localUserService.hasRole(
-                Role.MODERATOR,
-                user
-              );
-              this.setUser(user);
-            })
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef)
+          return this.localUserService.user;
+        })
       )
-      .subscribe();
+      .subscribe((user) => this.setUser(user));
   }
 
   setUser(user: User) {
@@ -209,11 +197,7 @@ export class ProfileEditComponent implements OnInit {
       (update as AdminUpdateUser).bans = this.user.bans;
       this.adminService.updateUser(this.user.id, update).subscribe({
         next: () => {
-          if (this.isLocal) {
-            this.localUserService.refreshLocalUser();
-          } else {
-            this.refreshCurrentUser.next();
-          }
+          this.localUserService.refreshLocalUser();
           this.messageService.add({
             severity: 'success',
             detail: 'Updated user profile!'
@@ -264,10 +248,10 @@ export class ProfileEditComponent implements OnInit {
       admin: this.hasRole(Role.ADMIN)
     };
 
-    permStatus.banAlias && !(this.isAdmin || this.isModerator)
+    permStatus.banAlias && !this.isModOrAdmin
       ? this.alias.disable()
       : this.alias.enable();
-    permStatus.banBio && !(this.isAdmin || this.isModerator)
+    permStatus.banBio && !this.isModOrAdmin
       ? this.bio.disable()
       : this.bio.enable();
 
