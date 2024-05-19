@@ -1,5 +1,5 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
-import { switchMap } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import {
@@ -11,14 +11,13 @@ import {
   SocialsData,
   Follow,
   User,
-  CombinedRoles
+  MapCreditNames,
+  MapCreditType,
+  MapCredit
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { SharedModule } from '../../shared.module';
-import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
-import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
-import { Bitflags } from '@momentum/bitflags';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
 import { ActivityComponent } from '../../components/activity/activity.component';
@@ -29,22 +28,26 @@ import { TabComponent } from '../../components/tabs/tab.component';
 import { Icon } from '../../icons';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { UsersService } from '../../services/data/users.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { XpSystemsService } from '../../services/xp-systems.service';
+import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 
 @Component({
   selector: 'm-user-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css'],
   standalone: true,
   imports: [
     SharedModule,
     ActivityComponent,
     ReportButtonComponent,
-    ProfileFollowComponent,
     ProfileRunHistoryComponent,
-    ProfileCreditsComponent,
     RoleBadgesComponent,
     TabsComponent,
-    TabComponent
+    TabComponent,
+    ProgressBarModule,
+    FontSizeLerpDirective
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -63,6 +66,9 @@ export class ProfileComponent implements OnInit {
       }
     >
   >;
+  protected readonly MapCreditNames = MapCreditNames;
+  protected readonly MapCreditType = MapCreditType;
+
   userSubject = new BehaviorSubject<User>(null);
   user: User;
   isLocal = true;
@@ -71,15 +77,22 @@ export class ProfileComponent implements OnInit {
   countryDisplayName = '';
   followingUsers: Follow[] = [];
   followedByUsers: Follow[] = [];
+  localFollowStatus = new BehaviorSubject<Follow>(null);
+  currXp: number;
+  nextXp: number;
+  protected credits: MapCredit[];
+  protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly localUserService: LocalUserService,
+    protected readonly localUserService: LocalUserService,
     private readonly usersService: UsersService,
     private readonly messageService: MessageService,
     private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService
+    private readonly titleService: TitleService,
+    private readonly xpService: XpSystemsService,
+    private readonly dialogService: DialogService
   ) {}
 
   ngOnInit() {
@@ -112,11 +125,17 @@ export class ProfileComponent implements OnInit {
           }
           this.user.profile.socials ??= {}; // So we can ngFor over this safely
           this.userSubject.next(user);
-          if (!this.hasBan(Ban.AVATAR) && this.user.avatarURL)
-            this.avatarUrl = this.user.avatarURL;
+          if (this.user.avatarURL) this.avatarUrl = this.user.avatarURL;
 
           this.avatarLoaded = true;
           this.countryDisplayName = ISOCountryCode[this.user.country];
+          this.currXp =
+            (user.userStats.cosXP as number) -
+            this.xpService.getCosmeticXpForLevel(user.userStats.level);
+          this.nextXp =
+            this.xpService.getCosmeticXpForLevel(user.userStats.level + 1) -
+            this.xpService.getCosmeticXpForLevel(user.userStats.level);
+
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
             error: (error) =>
@@ -126,14 +145,51 @@ export class ProfileComponent implements OnInit {
                 detail: error.message
               })
           });
-          this.usersService.getFollowersOfUser(this.user).subscribe({
-            next: (response) => (this.followedByUsers = response.data),
-            error: (error) =>
+
+          this.usersService
+            .getMapCredits(this.user.id, {
+              expand: ['map', 'info'],
+              take: 100
+            })
+            .subscribe({
+              next: (response) => {
+                this.credits = response.data;
+                this.creditMap = Object.groupBy<MapCreditType, MapCredit>(
+                  response.data,
+                  (credit) => credit.type
+                );
+              },
+              error: (error) =>
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Cannot get user map credits',
+                  detail: error.message
+                })
+            });
+
+          this.localFollowStatus
+            .pipe(
+              switchMap(() => this.usersService.getFollowersOfUser(this.user))
+            )
+            .subscribe({
+              next: (response) => (this.followedByUsers = response.data),
+              error: (error) =>
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Could not retrieve user following',
+                  detail: error.message
+                })
+            });
+
+          this.localUserService.checkFollowStatus(this.user).subscribe({
+            next: (response) => this.localFollowStatus.next(response.local),
+            error: (error) => {
               this.messageService.add({
                 severity: 'error',
-                detail: error.message,
-                summary: 'Could not retrieve user following'
-              })
+                summary: 'Could not check follow status',
+                detail: error.message
+              });
+            }
           });
         },
         error: (error) =>
@@ -161,21 +217,50 @@ export class ProfileComponent implements OnInit {
     ]);
   }
 
-  canEdit(): boolean {
-    return (
-      this.isLocal || this.localUserService.hasRole(Role.MODERATOR | Role.ADMIN)
-    );
+  toggleFollow() {
+    const observer = {
+      next: (follow?: Follow | void) =>
+        this.localFollowStatus.next(follow || null),
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not toggle follow',
+          detail: error.message
+        });
+      }
+    };
+
+    if (this.localFollowStatus.value) {
+      this.localUserService.unfollowUser(this.user).subscribe(observer);
+    } else {
+      this.localUserService.followUser(this.user).subscribe(observer);
+    }
   }
 
-  onAdminActivity() {
-    this.router.navigate([`/admin/admin-activity/${this.user.id}/`]);
-  }
-
-  canSeeAdminActivity(): boolean {
-    return (
-      this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN) &&
-      (this.isLocal ||
-        Bitflags.has(CombinedRoles.MOD_OR_ADMIN, this.user.roles))
-    );
+  editFollowNotifications() {
+    if (!this.localFollowStatus) return;
+    this.dialogService
+      .open(ProfileNotifyEditComponent, {
+        header: 'Edit Notification Settings',
+        data: { flags: this.localFollowStatus.value.notifyOn }
+      })
+      .onClose.pipe(filter(Boolean))
+      .subscribe((response) => {
+        this.localUserService
+          .updateFollowStatus(this.user, response.newFlags)
+          .subscribe({
+            next: () =>
+              this.localFollowStatus.next({
+                ...this.localFollowStatus.value,
+                notifyOn: response.newFlags
+              }),
+            error: (error) =>
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Could not update follow status',
+                detail: error.message
+              })
+          });
+      });
   }
 }

@@ -16,6 +16,8 @@
 @import './shared_styling/fonts/BebasNeue/700.css';
 @import './shared_styling/colors/colors-css-vars.css';
 
+@import '../../../../../node_modules/flag-icons/css/flag-icons.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

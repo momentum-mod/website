@@ -80,5 +80,8 @@ export {
   mdiEye,
   mdiEyeClosed,
   mdiEyeOff,
-  mdiNumericOff
+  mdiNumericOff,
+  mdiHeart,
+  mdiHeartOutline,
+  mdiHeartBroken
 } from '@mdi/js';
