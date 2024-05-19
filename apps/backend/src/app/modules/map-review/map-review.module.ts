@@ -7,6 +7,7 @@ import { MapReviewController } from './map-review.controller';
 import { MapReviewCommentService } from './map-review-comment.service';
 import { AdminModule } from '../admin/admin.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
     FileStoreModule,
     KillswitchModule,
     forwardRef(() => MapsModule),
-    forwardRef(() => AdminModule)
+    forwardRef(() => AdminModule),
+    NotificationsModule
   ],
   controllers: [MapReviewController],
   providers: [MapReviewService, MapReviewCommentService],
