@@ -38,4 +38,31 @@ export class NotificationsService {
     });
     return new PagedResponseDto(NotificationDto, dbResponse);
   }
+
+  async markAsRead(
+    userID: number,
+    query: NotifsMarkAsReadQueryDto
+  ): Promise<void> {
+    if (query.all) {
+      await this.db.notification.deleteMany({
+        where: {
+          notifiedUserID: userID,
+          type: { not: NotificationType.MAP_TEST_INVITE }
+        }
+      });
+    } else {
+      if (!query.notifIDs)
+        throw new BadRequestException('notifIDs required if all is false');
+      for (const notifID of query.notifIDs)
+        if (Number.isNaN(notifID))
+          throw new BadRequestException('notifIDs must contain numbers only');
+      await this.db.notification.deleteMany({
+        where: {
+          id: { in: query.notifIDs },
+          notifiedUserID: userID,
+          type: { not: NotificationType.MAP_TEST_INVITE }
+        }
+      });
+    }
+  }
 }

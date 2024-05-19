@@ -41,4 +41,19 @@ export class NotificationsController {
   ): Promise<PagedResponseDto<NotificationDto>> {
     return this.notifsService.getNotifications(userID, query);
   }
+
+  @Delete('/markAsRead')
+  @ApiOperation({ description: 'Marks the given notifications as read.' })
+  @ApiQuery({ type: NotifsMarkAsReadQueryDto })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'Notifications marked as read successfully'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid notifIDs' })
+  async markNotificationsAsRead(
+    @LoggedInUser('id') userID: number,
+    @Query() query: NotifsMarkAsReadQueryDto
+  ): Promise<void> {
+    return this.notifsService.markAsRead(userID, query);
+  }
 }
