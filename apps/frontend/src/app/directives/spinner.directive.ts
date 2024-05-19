@@ -4,9 +4,10 @@ import {
   ElementRef,
   OnInit,
   Renderer2,
-  ViewContainerRef,
   HostBinding,
-  Input
+  Input,
+  createComponent,
+  ApplicationRef
 } from '@angular/core';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
 
@@ -31,13 +32,15 @@ export class SpinnerDirective implements OnInit {
   protected active = false;
 
   constructor(
-    private vcRef: ViewContainerRef,
+    private appRef: ApplicationRef,
     private renderer: Renderer2,
     private directiveElement: ElementRef
   ) {}
 
   ngOnInit() {
-    this.spinner = this.vcRef.createComponent(SpinnerComponent);
+    this.spinner = createComponent(SpinnerComponent, {
+      environmentInjector: this.appRef.injector
+    });
     this.spinner.changeDetectorRef.detectChanges();
     (this.directiveElement.nativeElement as HTMLElement).style.position =
       'relative';
