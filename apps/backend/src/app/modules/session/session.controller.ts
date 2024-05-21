@@ -75,7 +75,7 @@ export class SessionController {
     required: true
   })
   @ApiBody({ type: UpdateRunSessionDto })
-  @ApiNoContentResponse({ description: 'Timestamp subitted successfully' })
+  @ApiNoContentResponse({ description: 'Timestamp submitted successfully' })
   @ApiBadRequestResponse({ description: 'Session does not exist' })
   @ApiBadRequestResponse({ description: 'Timestamps are invalid' })
   @ApiForbiddenResponse({ description: 'Session does not belong to user' })
