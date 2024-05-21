@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiTags
@@ -17,6 +18,7 @@ export class ReportsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a report' })
+  @ApiBody({ type: CreateReportDto, required: true })
   @ApiOkResponse({ type: ReportDto, description: 'The newly created report' })
   createReport(
     @LoggedInUser('id') submitter: number,

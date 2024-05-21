@@ -45,6 +45,7 @@ export class SessionController {
   @Post('/run')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Starts a run' })
+  @ApiBody({ type: CreateRunSessionDto })
   @ApiOkResponse({
     type: RunSessionDto,
     description:
@@ -73,6 +74,7 @@ export class SessionController {
     description: 'Target Session ID',
     required: true
   })
+  @ApiBody({ type: UpdateRunSessionDto })
   @ApiNoContentResponse({ description: 'Timestamp subitted successfully' })
   @ApiBadRequestResponse({ description: 'Session does not exist' })
   @ApiBadRequestResponse({ description: 'Timestamps are invalid' })

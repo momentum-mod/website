@@ -152,6 +152,7 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
+  @ApiBody({ type: UpdateMapDto, required: true })
   @ApiNoContentResponse({ description: 'Map updated successfully' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
@@ -290,6 +291,7 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
+  @ApiBody({ type: CreateMapTestInviteDto, required: true })
   async updateTestInvites(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Body() body: CreateMapTestInviteDto,
@@ -525,6 +527,7 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
+  @ApiBody({ type: UpdateMapImagesDto, required: true })
   @ApiConsumes('multipart/form-data')
   updateImages(
     @LoggedInUser('id') userID: number,
