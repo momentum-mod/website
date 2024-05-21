@@ -176,6 +176,7 @@ export class AdminController {
     description: 'ID of the map to update',
     required: true
   })
+  @ApiBody({ type: UpdateMapAdminDto, required: true })
   @ApiNoContentResponse({ description: 'The map was updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid map update data' })
   updateMap(
