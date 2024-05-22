@@ -873,10 +873,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   for (let i = 0; i < adminActivitiesToCreate; i++) {
     const adminID = Random.element(userIDs);
     const type = Random.element([
-      AdminActivityType.USER_UPDATE_ROLES,
-      AdminActivityType.USER_UPDATE_BANS,
-      AdminActivityType.USER_UPDATE_ALIAS,
-      AdminActivityType.USER_UPDATE_BIO,
+      AdminActivityType.USER_UPDATE,
       AdminActivityType.USER_CREATE_PLACEHOLDER,
       // AdminActivityType.USER_MERGE, // I don't want to simulate the whole merge logic
       AdminActivityType.USER_DELETE,
@@ -884,68 +881,75 @@ prismaWrapper(async (prisma: PrismaClient) => {
       AdminActivityType.MAP_CONTENT_DELETE,
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE
+      // AdminActivityType.REVIEW_DELETED,
+      // AdminActivityType.REVIEW_COMMENT_DELETED
     ]);
 
     let target = 0;
     let oldData: any = {};
     let newData: any = {};
     switch (type) {
-      case AdminActivityType.USER_UPDATE_ROLES:
-        oldData = Random.element(users.filter((u) => u.id !== adminID));
-        target = oldData.id;
-        newData = await prisma.user.update({
-          where: { id: oldData.id },
-          data: {
-            roles: Bitflags.join(
-              Random.chance(0.1) ? Role.VERIFIED : 0,
-              Random.chance(0.1) ? Role.ADMIN : 0,
-              Random.chance(0.1) ? Role.MODERATOR : 0
-            )
-          }
-        });
-        break;
-      case AdminActivityType.USER_UPDATE_BANS:
-        oldData = Random.element(users.filter((u) => u.id !== adminID));
-        target = oldData.id;
-        newData = await prisma.user.update({
-          where: { id: oldData.id },
-          data: {
-            bans: Bitflags.join(
-              Random.chance(0.1) ? Ban.BIO : 0,
-              Random.chance(0.1) ? Ban.AVATAR : 0,
-              Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
-              Random.chance(0.1) ? Ban.ALIAS : 0
-            )
-          }
-        });
-        break;
-      case AdminActivityType.USER_UPDATE_ALIAS:
-        oldData = Random.element(users.filter((u) => u.id !== adminID));
-        target = oldData.id;
-        newData = await prisma.user.update({
-          where: { id: oldData.id },
-          data: {
-            alias: faker.internet.userName()
-          }
-        });
-        break;
-      case AdminActivityType.USER_UPDATE_BIO:
-        oldData = Random.element(users.filter((u) => u.id !== adminID));
-        target = oldData.id;
-        newData = await prisma.user.update({
-          where: { id: oldData.id },
-          data: {
-            profile: {
-              update: {
-                bio: faker.lorem
-                  .paragraphs({ min: 1, max: 2 })
-                  .slice(0, MAX_BIO_LENGTH)
+      case AdminActivityType.USER_UPDATE:
+        switch (Random.int(3)) {
+          case 0:
+            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            target = oldData.id;
+            newData = await prisma.user.update({
+              where: { id: oldData.id },
+              data: {
+                roles: Bitflags.join(
+                  Random.chance(0.1) ? Role.VERIFIED : 0,
+                  Random.chance(0.1) ? Role.ADMIN : 0,
+                  Random.chance(0.1) ? Role.MODERATOR : 0
+                )
               }
-            }
-          },
-          include: { profile: true }
-        });
+            });
+            break;
+          case 1:
+            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            target = oldData.id;
+            newData = await prisma.user.update({
+              where: { id: oldData.id },
+              data: {
+                bans: Bitflags.join(
+                  Random.chance(0.1) ? Ban.BIO : 0,
+                  Random.chance(0.1) ? Ban.AVATAR : 0,
+                  Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
+                  Random.chance(0.1) ? Ban.ALIAS : 0
+                )
+              }
+            });
+            break;
+          case 2:
+            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            target = oldData.id;
+            newData = await prisma.user.update({
+              where: { id: oldData.id },
+              data: {
+                alias: faker.internet.userName()
+              }
+            });
+            break;
+          case 3:
+            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            target = oldData.id;
+            newData = await prisma.user.update({
+              where: { id: oldData.id },
+              data: {
+                profile: {
+                  update: {
+                    bio: faker.lorem
+                      .paragraphs({ min: 1, max: 2 })
+                      .slice(0, MAX_BIO_LENGTH)
+                  }
+                }
+              },
+              include: { profile: true }
+            });
+            break;
+        }
         break;
+
       case AdminActivityType.USER_CREATE_PLACEHOLDER:
         newData = await prisma.user.create({
           data: {
