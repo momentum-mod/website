@@ -192,7 +192,7 @@ export class UsersService {
     }
   }
 
-  async update(userID: number, update: UpdateUserDto) {
+  async update(userID: number, update: UpdateUserDto, asAdmin?: boolean) {
     if (isEmpty(update)) {
       throw new BadRequestException('Empty body');
     }
@@ -205,7 +205,7 @@ export class UsersService {
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
-      if (Bitflags.has(user.bans, Ban.ALIAS)) {
+      if (Bitflags.has(user.bans, Ban.ALIAS) && !asAdmin) {
         throw new ForbiddenException(
           'User is banned from updating their alias'
         );
@@ -229,8 +229,9 @@ export class UsersService {
       }
     }
 
-    if (update.bio) {
-      if (Bitflags.has(user.bans, Ban.BIO)) {
+    // Same as above
+    if (update.bio !== undefined) {
+      if (Bitflags.has(user.bans, Ban.BIO) && !asAdmin) {
         throw new ForbiddenException('User is banned from updating their bio');
       } else {
         updateInput.profile = { update: { bio: update.bio } };
@@ -257,7 +258,11 @@ export class UsersService {
       }
     }
 
-    await this.db.user.update({ where: { id: userID }, data: updateInput });
+    return await this.db.user.update({
+      where: { id: userID },
+      data: updateInput,
+      include: { profile: true }
+    });
   }
 
   async delete(userID: number, adminID?: number) {
@@ -753,15 +758,15 @@ export class UsersService {
 
     const localUser = localUserID
       ? await this.db.user.findUnique({
-        where: { id: localUserID }
-      })
+          where: { id: localUserID }
+        })
       : null;
 
     if (
       localUserID === userID ||
       (localUserID && Bitflags.has(localUser.roles, CombinedRoles.MOD_OR_ADMIN))
-) {
-        delete where.mmap;
+    ) {
+      delete where.mmap;
     }
 
     const dbResponse = await this.db.mapCredit.findManyAndCount({

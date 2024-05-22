@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -21,12 +20,14 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from './admin-activity.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AdminService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly usersService: UsersService
   ) {}
 
   async createPlaceholderUser(
@@ -195,16 +196,11 @@ export class AdminService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    const activities = [];
-
     const updateInput: Prisma.UserUpdateInput = {};
 
     if (update.bans !== undefined && user.bans !== update.bans) {
       updateInput.bans = update.bans;
-      activities.push(AdminActivityType.USER_UPDATE_BANS);
     }
-
-    let newRoles: number;
 
     if (update.roles !== undefined && user.roles !== update.roles) {
       const admin = await this.db.user.findUnique({
@@ -243,47 +239,20 @@ export class AdminService {
 
       // If all we make it through all these checks, finally we can update the flags
       updateInput.roles = update.roles;
-      activities.push(AdminActivityType.USER_UPDATE_ROLES);
-
-      newRoles = update.roles;
-    } else {
-      newRoles = user.roles;
     }
 
-    if (update.alias && update.alias !== user.alias) {
-      if (Bitflags.has(newRoles, Role.VERIFIED)) {
-        const sameNameMatches = await this.db.user.findMany({
-          where: { alias: update.alias },
-          select: { roles: true }
-        });
-        if (
-          sameNameMatches.some((user) =>
-            Bitflags.has(user.roles, Role.VERIFIED)
-          )
-        )
-          throw new ConflictException(
-            'Alias is in use by another verified user'
-          );
-      }
-
-      updateInput.alias = update.alias;
-      activities.push(AdminActivityType.USER_UPDATE_ALIAS);
+    if (updateInput.bans !== undefined || updateInput.roles !== undefined) {
+      await this.db.user.update({
+        where: { id: userID },
+        data: updateInput
+      });
     }
 
-    if (update.bio && user.profile.bio !== update.bio) {
-      updateInput.profile = { update: { bio: update.bio } };
-      activities.push(AdminActivityType.USER_UPDATE_BIO);
-    }
-
-    const updatedUser = await this.db.user.update({
-      where: { id: userID },
-      data: updateInput,
-      include: { profile: true }
-    });
+    const updatedUser = await this.usersService.update(userID, update, true);
 
     await this.adminActivityService.create(
       adminID,
-      activities,
+      AdminActivityType.USER_UPDATE,
       userID,
       updatedUser,
       user

@@ -85,11 +85,11 @@ export class UserController {
   })
   @ApiNoContentResponse({ description: 'The user was successfully updated' })
   @ApiBadRequestResponse({ description: 'Invalid update data' })
-  updateUser(
+  async updateUser(
     @LoggedInUser('id') userID: number,
     @Body() updateDto: UpdateUserDto
   ) {
-    return this.usersService.update(userID, updateDto);
+    await this.usersService.update(userID, updateDto);
   }
 
   @Delete()

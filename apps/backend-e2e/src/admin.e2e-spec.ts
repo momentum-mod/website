@@ -339,7 +339,7 @@ describe('Admin', () => {
         expect(res.body.alias).toBe('Barry 2');
         await expectAdminActivityWasCreated(
           admin.id,
-          AdminActivityType.USER_UPDATE_ALIAS
+          AdminActivityType.USER_UPDATE
         );
       });
 
@@ -385,7 +385,7 @@ describe('Admin', () => {
         expect(res.body.bio).toBe(bio);
         await expectAdminActivityWasCreated(
           admin.id,
-          AdminActivityType.USER_UPDATE_BIO
+          AdminActivityType.USER_UPDATE
         );
       });
 
@@ -404,7 +404,7 @@ describe('Admin', () => {
         expect(userDB.bans).toBe(bans);
         await expectAdminActivityWasCreated(
           admin.id,
-          AdminActivityType.USER_UPDATE_BANS
+          AdminActivityType.USER_UPDATE
         );
       });
 
@@ -421,7 +421,7 @@ describe('Admin', () => {
         expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
         await expectAdminActivityWasCreated(
           admin.id,
-          AdminActivityType.USER_UPDATE_ROLES
+          AdminActivityType.USER_UPDATE
         );
       });
 
@@ -2385,7 +2385,7 @@ describe('Admin', () => {
         });
         await prisma.adminActivity.create({
           data: {
-            type: AdminActivityType.USER_UPDATE_ALIAS,
+            type: AdminActivityType.USER_UPDATE,
             target: u1.id,
             oldData: {},
             newData: { profile: { alias: 'yes' } },
@@ -2394,10 +2394,10 @@ describe('Admin', () => {
         });
         await prisma.adminActivity.create({
           data: {
-            type: AdminActivityType.USER_UPDATE_BIO,
+            type: AdminActivityType.USER_DELETE,
             target: u1.id,
             oldData: {},
-            newData: { profile: { bio: 'yes' } },
+            newData: { roles: Role.DELETED },
             user: { connect: { id: admin.id } }
           }
         });
@@ -2416,10 +2416,10 @@ describe('Admin', () => {
         expect(adminActivities.body).toHaveProperty('data');
 
         expect(adminActivities.body.data[0].type).toEqual(
-          AdminActivityType.USER_UPDATE_BIO
+          AdminActivityType.USER_DELETE
         );
         expect(adminActivities.body.data[1].type).toEqual(
-          AdminActivityType.USER_UPDATE_ALIAS
+          AdminActivityType.USER_UPDATE
         );
       });
 
@@ -2431,7 +2431,7 @@ describe('Admin', () => {
           query: {
             filter: [
               AdminActivityType.MAP_UPDATE,
-              AdminActivityType.USER_UPDATE_BIO
+              AdminActivityType.USER_UPDATE
             ]
           },
           validatePaged: { type: AdminActivityDto, count: 2 }
@@ -2440,7 +2440,7 @@ describe('Admin', () => {
         expect(adminActivities.body).toHaveProperty('data');
 
         expect(adminActivities.body.data[0].type).toEqual(
-          AdminActivityType.USER_UPDATE_BIO
+          AdminActivityType.USER_UPDATE
         );
         expect(adminActivities.body.data[1].type).toEqual(
           AdminActivityType.MAP_UPDATE
@@ -2499,7 +2499,7 @@ describe('Admin', () => {
         expect(adminActivities.body).toHaveProperty('data');
 
         const userUpdateActivity = adminActivities.body.data.find(
-          (activity) => activity.type == AdminActivityType.USER_UPDATE_ALIAS
+          (activity) => activity.type == AdminActivityType.USER_UPDATE
         );
 
         expect(userUpdateActivity.oldData).toEqual(
