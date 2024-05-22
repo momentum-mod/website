@@ -63,62 +63,15 @@ export class AdminActivityEntryComponent implements OnInit {
     activity: AdminActivity & { oldData: any; newData: any }
   ): AdminActivityEntryData {
     switch (activity.type) {
-      case AdminActivityType.USER_UPDATE_ROLES:
+      case AdminActivityType.USER_UPDATE:
         return {
-          actionText: 'updated roles for user',
+          actionText: 'updated user',
           targetName: activity.newData.alias,
           targetLink: '/profile/' + activity.target,
-          diff: {
-            roles: [
-              Enum.values(Role)
-                .filter((role) => Bitflags.has(activity.oldData.roles, role))
-                .map((role) => RoleNames.get(role))
-                .join(', ') || null,
-              Enum.values(Role)
-                .filter((role) => Bitflags.has(activity.newData.roles, role))
-                .map((role) => RoleNames.get(role))
-                .join(', ') || null
-            ]
-          }
-        };
-
-      case AdminActivityType.USER_UPDATE_BANS:
-        return {
-          actionText: 'updated bans for user',
-          targetName: activity.newData.alias,
-          targetLink: '/profile/' + activity.target,
-          diff: {
-            bans: [
-              Enum.values(Ban)
-                .filter((ban) => Bitflags.has(activity.oldData.bans, ban))
-                .map((ban) => BanNames.get(ban))
-                .join(', ') || null,
-              Enum.values(Ban)
-                .filter((ban) => Bitflags.has(activity.newData.bans, ban))
-                .map((ban) => BanNames.get(ban))
-                .join(', ') || null
-            ]
-          }
-        };
-
-      case AdminActivityType.USER_UPDATE_ALIAS:
-        return {
-          actionText: 'updated alias for user',
-          targetName: activity.newData.alias,
-          targetLink: '/profile/' + activity.target,
-          diff: {
-            alias: [activity.oldData.alias, activity.newData.alias]
-          }
-        };
-
-      case AdminActivityType.USER_UPDATE_BIO:
-        return {
-          actionText: 'updated bio for user',
-          targetName: activity.newData.alias,
-          targetLink: '/profile/' + activity.target,
-          diff: {
-            bio: [activity.oldData.profile?.bio, activity.newData.profile?.bio]
-          }
+          diff: AdminActivityEntryComponent.calculateUserDiff(
+            activity.oldData,
+            activity.newData
+          )
         };
 
       case AdminActivityType.USER_CREATE_PLACEHOLDER:
@@ -171,6 +124,18 @@ export class AdminActivityEntryComponent implements OnInit {
           targetName: 'ID ' + activity.target
         };
 
+      case AdminActivityType.REVIEW_DELETED:
+        return {
+          actionText: 'deleted review',
+          targetName: 'ID ' + activity.target
+        };
+
+      case AdminActivityType.REVIEW_COMMENT_DELETED:
+        return {
+          actionText: 'deleted review comment',
+          targetName: 'ID ' + activity.target
+        };
+
       default:
         return {
           actionText: 'did unknown activity',
@@ -204,6 +169,55 @@ export class AdminActivityEntryComponent implements OnInit {
         }
       }
     );
+
+    return result;
+  }
+
+  static calculateUserDiff(oldUser, newUser) {
+    const result: AdminActivityEntryData['diff'] = {};
+
+    const getBitflagNames = (eEnum, nameMap: ReadonlyMap<any, string>, value) =>
+      Enum.values(eEnum)
+        .filter((x) => Bitflags.has(value, x))
+        .map((x) => nameMap.get(x))
+        .join(', ') || null;
+
+    if (oldUser.alias !== newUser.alias) {
+      result['alias'] = [oldUser.alias, newUser.alias];
+    }
+
+    if (oldUser.profile?.bio !== newUser.profile?.bio) {
+      result['bio'] = [oldUser.profile?.bio, newUser.profile?.bio];
+    }
+
+    if (oldUser.country !== newUser.country) {
+      result['country'] = [oldUser.country, newUser.country];
+    }
+
+    if (oldUser.bans !== newUser.bans) {
+      result['bans'] = [oldUser.bans, newUser.bans].map((bans) =>
+        getBitflagNames(Ban, BanNames, bans)
+      ) as [string, string];
+    }
+
+    if (oldUser.roles !== newUser.roles) {
+      result['roles'] = [oldUser.roles, newUser.roles].map((roles) =>
+        getBitflagNames(Role, RoleNames, roles)
+      ) as [string, string];
+    }
+
+    if (
+      JSON.stringify(oldUser.profile?.socials) !==
+      JSON.stringify(newUser.profile?.socials)
+    ) {
+      Object.assign(
+        result,
+        AdminActivityEntryComponent.calculateDiff(
+          oldUser.profile?.socials || {},
+          newUser.profile?.socials || {}
+        )
+      );
+    }
 
     return result;
   }
