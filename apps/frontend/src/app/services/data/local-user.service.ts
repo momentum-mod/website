@@ -90,13 +90,9 @@ export class LocalUserService {
   }
 
   public hasBan(bans: Ban, user?: User): boolean {
-    if (!user && !this.isLoggedIn)
-      throw new Error(
-        'LocalUserService.hasRole: called with no logged in user'
-      );
-
+    if (!user && !this.isLoggedIn) return false;
     user ??= this.user.value as User;
-    return user?.roles ? Bitflags.has(bans, user.bans) : false;
+    return user?.bans ? Bitflags.has(bans, user.bans) : false;
   }
 
   private fetchLocalUser(query?: UsersGetQuery): Observable<User> {

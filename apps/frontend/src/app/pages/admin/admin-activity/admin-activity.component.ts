@@ -36,17 +36,16 @@ export class AdminActivityComponent implements OnInit {
   // prettier-ignore
   protected readonly AdminActivitiesFilters = [
     { value: undefined, text: 'All' },
-    { value: AdminActivityType.USER_UPDATE_ROLES, text: 'Roles update' },
-    { value: AdminActivityType.USER_UPDATE_BANS, text: 'Bans update' },
-    { value: AdminActivityType.USER_UPDATE_ALIAS, text: 'Alias update' },
-    { value: AdminActivityType.USER_UPDATE_BIO, text: 'Bio update' },
+    { value: AdminActivityType.USER_UPDATE, text: 'User update' },
     { value: AdminActivityType.USER_CREATE_PLACEHOLDER, text: 'Placeholder created' },
     { value: AdminActivityType.USER_MERGE, text: 'User merged' },
     { value: AdminActivityType.USER_DELETE, text: 'User deleted' },
     { value: AdminActivityType.MAP_UPDATE, text: 'Map update' },
     { value: AdminActivityType.MAP_CONTENT_DELETE, text: 'Map deleted' },
     { value: AdminActivityType.REPORT_UPDATE, text: 'Report update' },
-    { value: AdminActivityType.REPORT_RESOLVE, text: 'Report resolve' }
+    { value: AdminActivityType.REPORT_RESOLVE, text: 'Report resolve' },
+    { value: AdminActivityType.REVIEW_DELETED, text: 'Review deleted' }, 
+    { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' }
   ];
 
   protected activities: Array<{
