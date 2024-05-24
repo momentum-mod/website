@@ -232,19 +232,20 @@ export class DbUtil {
 
   /**
    * Create a map with all the leaderboards that would be generated from
-   * ZonesStub, in Ahop
+   * ZonesStub, in the given modes (defaults to just ahop)
    */
   createMapWithFullLeaderboards(
-    mmap?: Omit<CreateMapMMapArgs, 'leaderboards' | 'zones'>
+    mmap?: Omit<CreateMapMMapArgs, 'leaderboards' | 'zones'>,
+    gamemodes = [Gamemode.AHOP]
   ) {
     return this.createMap({
       ...mmap,
       zones: ZonesStub,
       leaderboards: {
         createMany: {
-          data: [
+          data: gamemodes.flatMap((gamemode) => [
             {
-              gamemode: Gamemode.AHOP,
+              gamemode,
               trackType: TrackType.MAIN,
               trackNum: 0,
               style: 0,
@@ -253,28 +254,28 @@ export class DbUtil {
               type: LeaderboardType.RANKED
             },
             {
-              gamemode: Gamemode.AHOP,
+              gamemode,
               trackType: TrackType.STAGE,
               trackNum: 0,
               style: 0,
               type: LeaderboardType.RANKED
             },
             {
-              gamemode: Gamemode.AHOP,
+              gamemode,
               trackType: TrackType.STAGE,
               trackNum: 1,
               style: 0,
               type: LeaderboardType.RANKED
             },
             {
-              gamemode: Gamemode.AHOP,
+              gamemode,
               trackType: TrackType.BONUS,
               trackNum: 0,
               style: 0,
               tier: 5,
               type: LeaderboardType.RANKED
             }
-          ]
+          ])
         }
       }
     });
