@@ -309,25 +309,46 @@ describe('Session', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      afterEach(() => db.cleanup('user'));
 
-      it('should delete the users run session', async () => {
-        await req.del({ url: 'session/run', status: 204, token });
+      it('should delete the run session', async () => {
+        await req.del({
+          url: `session/run/${s1.id}`,
+          status: 204,
+          token: u1Token
+        });
 
-        expect(await prisma.runSession.findFirst()).toBeNull();
+        expect(await prisma.runSession.findMany()).toMatchObject([s2]);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.del({ url: 'session/run', status: 401 }));
+      it("should 400 if session doesn't exist", async () => {
+        await req.del({
+          url: `session/run/${NULL_ID}`,
+          status: 400,
+          token: u1Token
+        });
+      });
+
+      it('should 400 if trying to delete a session belonging to another user', async () => {
+        await req.del({
+          url: `session/run/${s1.id}`,
+          status: 400,
+          token: u2Token
+        });
+      });
 
       it('should return 403 if not using a game API key', async () => {
         const nonGameToken = await db.loginNewUser();
 
-        await req.del({ url: 'session/run', status: 403, token: nonGameToken });
+        await req.del({
+          url: `session/run/${s1.id}`,
+          status: 403,
+          token: nonGameToken
+        });
       });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('session/run', 'del'));
+        req.unauthorizedTest(`session/run/${s1.id}`, 'del'));
     });
   });
 

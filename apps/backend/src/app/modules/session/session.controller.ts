@@ -60,10 +60,24 @@ export class SessionController {
     return this.runSessionService.createSession(userID, body);
   }
 
-  @Delete('/run')
+  @Delete('/run/:sessionID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  invalidateSession(@LoggedInUser('id') userID: number): Promise<void> {
-    return this.runSessionService.invalidateSession(userID);
+  @ApiParam({
+    type: Number,
+    description: 'Target Session ID',
+    name: 'sessionID',
+    required: true
+  })
+  @ApiNoContentResponse({ description: 'Session deleted successfully' })
+  @ApiBadRequestResponse({ description: 'Session does not exist' })
+  @ApiBadRequestResponse({
+    description: 'Session does not belong to that user'
+  })
+  invalidateSession(
+    @LoggedInUser('id') userID: number,
+    @Param('sessionID', ParseIntSafePipe) sessionID: number
+  ): Promise<void> {
+    return this.runSessionService.invalidateSession(userID, sessionID);
   }
 
   @Post('/run/:sessionID')

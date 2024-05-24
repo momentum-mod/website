@@ -34,6 +34,7 @@ import {
 import { MapsService } from '../../maps/maps.service';
 import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 import { RunProcessor } from './run-processor.class';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class RunSessionService {
@@ -135,8 +136,21 @@ export class RunSessionService {
 
   //#region Invalidate Session
 
-  async invalidateSession(userID: number): Promise<void> {
-    await this.db.runSession.deleteMany({ where: { userID } });
+  async invalidateSession(userID: number, sessionID: number): Promise<void> {
+    try {
+      await this.db.runSession.delete({ where: { userID, id: sessionID } });
+    } catch (error) {
+      // Save a DB call to check user matches session - if we hit a P2025 (https://www.prisma.io/docs/orm/reference/error-reference#p2025)
+      // either (a) session doesn't exist, or (b) it doesn't belong to that user.
+      // 400 is okay in both cases there, we don't need to show anything different
+      // on the client
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new BadRequestException();
+      else throw error;
+    }
   }
 
   //#endregion
