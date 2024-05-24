@@ -2,8 +2,6 @@ import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
   ClassSerializerInterceptor,
-  Logger,
-  LogLevel,
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
@@ -44,25 +42,17 @@ export async function setupE2ETestEnvironment(
     return this.toString();
   };
 
-  const logger = new Logger().localInstance;
-  const logLevel: LogLevel[] = ['error'];
-  // Env var for heavier debugging. In WebStorm it's useful to have this in the
-  // env var settings for your default configuration but *not* your main test
-  // configuration so it doesn't spam when running everything, but is enabled
-  // for when you run specific tests.
-  if (process.env.TEST_LOG_DEBUG === 'true') logLevel.push('debug', 'warn');
-  logger.setLogLevels(logLevel);
-
   let moduleBuilder = Test.createTestingModule({
     imports: [AppModule]
-  }).setLogger(logger);
+  });
   if (moduleOverrides) moduleBuilder = moduleOverrides(moduleBuilder);
   const moduleRef = await moduleBuilder.compile();
 
   const app = moduleRef.createNestApplication<NestFastifyApplication>(
     new FastifyAdapter(),
-    { rawBody: true }
+    { bufferLogs: true, rawBody: true }
   );
+
   app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 
   app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });

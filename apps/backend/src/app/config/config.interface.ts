@@ -1,4 +1,6 @@
-﻿export enum Environment {
+﻿import * as pino from 'pino';
+
+export enum Environment {
   DEVELOPMENT = 'dev',
   PRODUCTION = 'prod',
   TEST = 'test'
@@ -50,4 +52,5 @@ export interface ConfigInterface {
     minPublicTestingDuration: number;
     maxCreditsExceptTesters: number;
   };
+  logLevel: pino.LevelWithSilent;
 }
