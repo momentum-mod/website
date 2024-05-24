@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -13,6 +14,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { IsOptionalWithEmptyString } from '../validators';
 import { Environment } from './config.interface';
+import * as pino from 'pino';
 
 export function validate(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(ConfigValidation, config, {
@@ -102,4 +104,9 @@ export class ConfigValidation {
   @IsString()
   @Length(32, 32)
   readonly SESSION_SECRET?: string;
+
+  @IsString()
+  @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+  @IsOptional()
+  readonly LOG_LEVEL?: pino.LevelWithSilent;
 }

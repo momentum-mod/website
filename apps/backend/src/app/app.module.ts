@@ -65,6 +65,7 @@ import { DbModule } from './modules/database/db.module';
       useFactory: async (config: ConfigService) => ({
         pinoHttp: {
           customProps: (_req, _res) => ({ context: 'HTTP' }),
+          level: config.getOrThrow('logLevel'),
           transport:
             config.getOrThrow('env') !== Environment.PRODUCTION
               ? {

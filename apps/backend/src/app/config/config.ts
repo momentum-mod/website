@@ -15,6 +15,7 @@
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
 import * as process from 'node:process';
+import * as pino from 'pino';
 
 export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;
@@ -71,7 +72,10 @@ export const ConfigFactory = (): ConfigInterface => {
       testInvites: MAX_TEST_INVITES,
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
-    }
+    },
+    logLevel: (process.env['LOG_LEVEL'] ?? isTest
+      ? 'warn'
+      : 'info') as pino.LevelWithSilent
   };
 };
 
