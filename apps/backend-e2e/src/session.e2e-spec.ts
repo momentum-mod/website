@@ -38,10 +38,13 @@ describe('Session', () => {
     req = env.req;
     db = env.db;
 
-    map = await db.createMapWithFullLeaderboards({
-      name: 'ahop_eazy',
-      status: MapStatus.APPROVED
-    });
+    map = await db.createMapWithFullLeaderboards(
+      {
+        name: 'ahop_eazy',
+        status: MapStatus.APPROVED
+      },
+      [Gamemode.AHOP, Gamemode.BHOP]
+    );
   });
 
   afterAll(async () => {
@@ -53,11 +56,11 @@ describe('Session', () => {
     describe('POST', () => {
       let user, token;
 
-      beforeAll(
+      beforeEach(
         async () => ([user, token] = await db.createAndLoginGameUser())
       );
 
-      afterAll(() => db.cleanup('user'));
+      afterEach(() => db.cleanup('user'));
 
       it('should return a valid run DTO', async () => {
         for (const [trackType, trackNum] of [
@@ -82,6 +85,81 @@ describe('Session', () => {
           expect(res.body).toBeValidDto(RunSessionDto);
           expect(res.body.userID).toBe(user.id);
         }
+      });
+
+      it('should delete any sessions not matching the given mapID or gamemode', async () => {
+        const otherMap = await db.createMapWithFullLeaderboards(
+          {
+            name: 'bhop_hello_panzer',
+            status: MapStatus.APPROVED
+          },
+          [Gamemode.AHOP, Gamemode.BHOP]
+        );
+
+        // Diff map, same gamemode - should die
+        await prisma.runSession.create({
+          data: {
+            userID: user.id,
+            mapID: otherMap.id,
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          }
+        });
+
+        // Same map, diff gamemode - should die
+        await prisma.runSession.create({
+          data: {
+            userID: user.id,
+            mapID: map.id,
+            gamemode: Gamemode.BHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          }
+        });
+
+        // Same map, same gamemode, just different trackType - should live!
+        await prisma.runSession.create({
+          data: {
+            userID: user.id,
+            mapID: map.id,
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          }
+        });
+
+        await req.post({
+          url: 'session/run',
+          status: 200,
+          token,
+          body: {
+            mapID: map.id,
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.STAGE,
+            trackNum: 0,
+            segment: 0
+          }
+        });
+
+        const sessions = await prisma.runSession.findMany();
+        expect(sessions).toHaveLength(2);
+        expect(sessions).toMatchObject([
+          expect.objectContaining({
+            userID: user.id,
+            mapID: map.id,
+            trackType: TrackType.MAIN,
+            gamemode: Gamemode.AHOP,
+            trackNum: 0
+          }),
+          expect.objectContaining({
+            userID: user.id,
+            mapID: map.id,
+            trackType: TrackType.STAGE,
+            gamemode: Gamemode.AHOP,
+            trackNum: 0
+          })
+        ]);
       });
 
       it('should 400 if not given a proper body', () =>
@@ -204,14 +282,15 @@ describe('Session', () => {
     });
 
     describe('DELETE', () => {
-      let user, token;
+      let u1, u1Token, u2, u2Token, s1, s2;
 
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginGameUser();
+      beforeEach(async () => {
+        [u1, u1Token] = await db.createAndLoginGameUser();
+        [u2, u2Token] = await db.createAndLoginGameUser();
 
-        await prisma.runSession.create({
+        s1 = await prisma.runSession.create({
           data: {
-            userID: user.id,
+            userID: u1.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
             trackNum: 0,
@@ -219,9 +298,9 @@ describe('Session', () => {
           }
         });
 
-        await prisma.runSession.create({
+        s2 = await prisma.runSession.create({
           data: {
-            userID: user.id,
+            userID: u1.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.STAGE,
             trackNum: 0,
