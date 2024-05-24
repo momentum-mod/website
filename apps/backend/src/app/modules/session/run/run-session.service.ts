@@ -65,10 +65,22 @@ export class RunSessionService {
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
       throw new BadRequestException('Leaderboard does not exist');
 
-    // Delete rather than upsert to cascade delete any existing sessions and
-    // their timestamps.
+    // Delete any sessions not on this map and gamemode.
+    // Delete rather than upsert so we cascade delete those sessions and their
+    // timestamps.
+    // This is all pretty slow, but we just have to put up with that until we
+    // move to in-memory sessions.
     await this.db.runSession.deleteMany({
-      where: { userID, ...leaderboardData }
+      where: {
+        AND: {
+          userID,
+          OR: [
+            { ...leaderboardData },
+            { mapID: { not: body.mapID } },
+            { gamemode: { not: body.gamemode } }
+          ]
+        }
+      }
     });
 
     return DtoFactory(
