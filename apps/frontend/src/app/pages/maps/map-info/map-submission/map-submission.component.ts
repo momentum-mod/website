@@ -45,7 +45,6 @@ export class MapSubmissionComponent {
     this.suggestions = groupMapSuggestions(
       map.submission.suggestions as MapSubmissionSuggestion[] // Cast until I can remove Jsonify<> bullshit
     );
-    // @ts-expect-error - we don't have toReversed yet!!
     this.versions = map?.submission?.versions.toReversed();
     this.visibleVersions = 2;
   }
