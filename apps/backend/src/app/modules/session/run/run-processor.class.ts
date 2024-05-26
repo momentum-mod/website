@@ -52,10 +52,10 @@ export class RunProcessor {
     if (this.trackType !== TrackType.MAIN) {
       if (this.timestamps.length === 0) return;
 
-      const { minorRequired, zones } =
-        this.trackType === TrackType.STAGE
+      const { /*minorRequired, */ zones } =
+        /*this.trackType === TrackType.STAGE
           ? this.zones.tracks.stages[this.trackNum]
-          : this.zones.tracks.bonuses[this.trackNum];
+          :*/ this.zones.tracks.bonuses[this.trackNum];
 
       let prevCP = -1;
       for (const timestamp of this.timestamps) {
@@ -63,23 +63,23 @@ export class RunProcessor {
         if (timestamp.segment !== 0) throw err;
 
         // Stages/bonuses are only minor CPs so always ordered
-        if (minorRequired) {
-          if (timestamp.checkpoint !== prevCP + 1) throw err;
-        } else {
-          if (timestamp.checkpoint <= prevCP) throw err;
-        }
+        // if (minorRequired) {
+        //   if (timestamp.checkpoint !== prevCP + 1) throw err;
+        // } else {
+        //   if (timestamp.checkpoint <= prevCP) throw err;
+        // }
         prevCP = timestamp.checkpoint;
       }
 
       // Check that you didn't skip the last minor checkpoint
-      if (minorRequired && prevCP !== zones.segments[0].checkpoints.length - 1)
-        throw err;
+      // if (minorRequired && prevCP !== zones.segments[0].checkpoints.length - 1)
+      //   throw err;
 
       return;
     }
 
     // Main track run
-    const { majorOrdered, minorRequired, zones } = this.zones.tracks.main;
+    const { /*majorOrdered, minorRequired, */ zones } = this.zones.tracks.main;
 
     let prevTime = -1,
       prevSeg = -1,
@@ -103,11 +103,11 @@ export class RunProcessor {
         // Minor checkpoints are always ordered. So if minorRequired is true
         // this checkpoint must be the one after the previous one, otherwise it
         // must just be in increasing order.
-        if (minorRequired) {
-          if (timestamp.checkpoint !== prevCP + 1) throw err;
-        } else {
-          if (timestamp.checkpoint <= prevCP) throw err;
-        }
+        // if (minorRequired) {
+        //   if (timestamp.checkpoint !== prevCP + 1) throw err;
+        // } else {
+        //   if (timestamp.checkpoint <= prevCP) throw err;
+        // }
         prevCP = timestamp.checkpoint;
       }
       // In a new segment
@@ -122,14 +122,14 @@ export class RunProcessor {
         // Check that you didn't skip the last minor checkpoint of last segment,
         // if minorRequired is true. Minor CPs are also ordered, so this should
         // be final item in the array
-        if (
-          prevSeg !== -1 &&
-          minorRequired &&
-          prevCP !== zones.segments[prevSeg].checkpoints.length - 1
-        )
-          throw err;
+        // if (
+        //   prevSeg !== -1 &&
+        //   minorRequired &&
+        //   prevCP !== zones.segments[prevSeg].checkpoints.length - 1
+        // )
+        //   throw err;
 
-        if (majorOrdered && !(timestamp.segment === prevSeg + 1)) throw err;
+        // if (majorOrdered && !(timestamp.segment === prevSeg + 1)) throw err;
 
         prevCP = 0; // == timestamp.checkpoint
         if (prevSeg !== -1) completedMajorCPs.push(prevSeg);

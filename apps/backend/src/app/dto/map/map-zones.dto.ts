@@ -1,13 +1,13 @@
 import {
   MapZones,
   Region,
-  Tracks,
+  MapTracks,
   Vector2D,
   Vector,
-  Volume,
   Zone,
-  Track,
-  TrackEx
+  MainTrack,
+  BonusTrack,
+  TrackZones
 } from '@momentum/constants';
 import {
   ArrayMaxSize,
@@ -25,10 +25,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   MAX_BONUS_TRACKS,
   MAX_SEGMENT_CHECKPOINTS,
-  MAX_STAGE_TRACKS,
   MAX_TRACK_SEGMENTS,
-  MAX_ZONE_REGION_POINTS,
-  MAX_ZONES_ALL_TRACKS
+  MAX_ZONE_REGION_POINTS
 } from '@momentum/formats/zone';
 import { IsVector } from '../../validators';
 import { NestedProperty } from '../decorators';
@@ -68,7 +66,7 @@ export class RegionDto /* extends JsonifiableDto */ implements Region {
   })
   @IsVector(3)
   @IsOptional()
-  readonly teleportPos?: Vector;
+  readonly teleDestPos?: Vector;
 
   @ApiProperty({
     description:
@@ -80,7 +78,7 @@ export class RegionDto /* extends JsonifiableDto */ implements Region {
   @Min(-360)
   @Max(360)
   @IsOptional()
-  readonly teleportYaw?: number;
+  readonly teleDestYaw?: number;
 
   @ApiProperty({
     description:
@@ -92,27 +90,18 @@ export class RegionDto /* extends JsonifiableDto */ implements Region {
   readonly safeHeight?: number;
 }
 
-export class VolumeDto /* extends JsonifiableDto */ implements Volume {
-  @NestedProperty(RegionDto, {
-    isArray: true,
-    description:
-      'A collection of regions. In most cases just a single region, but the format is structured this way so multiple are possible.'
-  })
-  readonly regions: RegionDto[];
-}
-
 export class ZoneDto /* extends JsonifiableDto */ implements Zone {
   @ApiProperty({ description: '`targetname` of a filter entity on the map.' })
   @IsString()
   @IsOptional()
   readonly filterName: string;
 
-  @ApiProperty({
+  @NestedProperty(RegionDto, {
+    isArray: true,
     description:
-      'Index into the `volumes` array picking out the volume representing the region(s) of space the zone occupies.'
+      'A collection of regions. In most cases just a single region, but the format is structured this way so multiple are possible.'
   })
-  @IsInt()
-  readonly volumeIndex: number;
+  readonly regions: RegionDto[];
 }
 
 export class SegmentDto /* extends JsonifiableDto */ implements SegmentDto {
@@ -123,65 +112,63 @@ export class SegmentDto /* extends JsonifiableDto */ implements SegmentDto {
   @IsBoolean()
   readonly limitStartGroundSpeed: boolean;
 
+  @ApiProperty({
+    description: 'Whether the checkpoints must be hit'
+  })
+  @IsBoolean()
+  readonly checkpointsRequired: boolean;
+
+  @ApiProperty({
+    description: 'Whether the checkpoints have a logical order.'
+  })
+  @IsBoolean()
+  readonly checkpointsOrdered: boolean;
+
   @NestedProperty(ZoneDto, {
     isArray: true,
     description: 'A collection of checkpoint zones'
   })
   @ArrayMaxSize(MAX_SEGMENT_CHECKPOINTS)
   readonly checkpoints: ZoneDto[];
+
+  @NestedProperty(ZoneDto, { isArray: true })
+  readonly cancel: ZoneDto[];
+
+  @ApiProperty({
+    description: 'An optional name for the track',
+    example: "Panzer's Bonus"
+  })
+  @IsString()
+  @MaxLength(64)
+  @IsOptional()
+  readonly name?: string;
 }
 
-class TrackZonesDto /* extends JsonifiableDto */ {
+class TrackZonesDto /* extends JsonifiableDto */ implements TrackZones {
   @NestedProperty(SegmentDto, { isArray: true })
   @ArrayMaxSize(MAX_TRACK_SEGMENTS)
   readonly segments: SegmentDto[];
 
   @NestedProperty(ZoneDto, { description: 'The end zone of the track' })
   readonly end: ZoneDto;
-
-  @NestedProperty(ZoneDto, { isArray: true })
-  readonly cancel: ZoneDto[];
 }
 
-export class TrackDto /* extends JsonifiableDto */ implements Track {
-  @ApiProperty({
-    description: 'Whether the major zones must be hit in required order'
-  })
-  @IsBoolean()
-  @IsOptional()
-  readonly majorOrdered: boolean;
-
-  @ApiProperty({ description: "Whether it's possible to skip a minor zone" })
-  @IsBoolean()
-  @IsOptional()
-  readonly minorRequired: boolean;
-
-  @ApiProperty({
-    description: 'An optional name for the track',
-    example: '' // TODO: We haven't fully figured out naming yet
-  })
-  @IsString()
-  @MaxLength(64)
-  @IsOptional()
-  readonly name?: string;
-
+export class MainTrackDto /* extends JsonifiableDto */ implements MainTrack {
   @NestedProperty(TrackZonesDto)
   readonly zones: TrackZonesDto;
+
+  @ApiProperty({
+    required: true,
+    description:
+      'Whether the stage end zones are generated using the next stage start zones'
+  })
+  @IsBoolean()
+  readonly stagesEndAtStageStarts: boolean;
 }
 
-export class TrackExDto
-  extends TrackDto /* extends JsonifiableDto */
-  implements TrackEx
-{
-  @ApiProperty({
-    description: 'The sv_maxvelocity value set on the track',
-    default: 3500
-  })
-  @IsNumber()
-  @Min(2000)
-  @Max(1000000000)
-  @IsOptional()
-  readonly maxVelocity?: number;
+export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
+  @NestedProperty(TrackZonesDto)
+  readonly zones?: TrackZonesDto;
 
   @ApiProperty({ description: 'Defrag gameplay modifications' }) // TODO: Enum
   @IsInt()
@@ -189,30 +176,21 @@ export class TrackExDto
   readonly defragFlags?: number;
 }
 
-export class TracksDto /* extends JsonifiableDto */ implements Tracks {
-  @NestedProperty(TrackExDto, {
+export class MapTracksDto /* extends JsonifiableDto */ implements MapTracks {
+  @NestedProperty(MainTrackDto, {
     required: true,
     description: 'The main track of the map'
   })
-  readonly main: TrackExDto;
+  readonly main: MainTrackDto;
 
-  @NestedProperty(TrackDto, {
-    isArray: true,
-    required: true,
-    description: 'A collection of stage tracks'
-  })
-  @ArrayMinSize(0)
-  @ArrayMaxSize(MAX_STAGE_TRACKS)
-  readonly stages: TrackDto[];
-
-  @NestedProperty(TrackDto, {
+  @NestedProperty(BonusTrackDto, {
     isArray: true,
     required: false,
     description: 'A collection of bonus tracks'
   })
   @ArrayMinSize(0)
   @ArrayMaxSize(MAX_BONUS_TRACKS)
-  readonly bonuses: TrackExDto[];
+  readonly bonuses: BonusTrackDto[];
 }
 
 export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
@@ -224,14 +202,16 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
   @IsInt()
   readonly formatVersion: number;
 
-  @NestedProperty(TracksDto, { required: true })
-  readonly tracks: Tracks;
-
-  @NestedProperty(VolumeDto, {
-    required: true,
-    isArray: true
+  @ApiProperty({
+    description: 'The sv_maxvelocity value set on the track',
+    default: 3500
   })
-  @ArrayMinSize(0)
-  @ArrayMaxSize(MAX_ZONES_ALL_TRACKS)
-  readonly volumes: Volume[];
+  @IsNumber()
+  @Min(2000)
+  @Max(1000000000)
+  @IsOptional()
+  readonly maxVelocity?: number;
+
+  @NestedProperty(MapTracksDto, { required: true })
+  readonly tracks: MapTracksDto;
 }

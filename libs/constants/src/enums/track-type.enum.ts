@@ -8,13 +8,13 @@ export enum TrackType {
 
 export const TrackTypeName: ReadonlyMap<TrackType, string> = new Map([
   [TrackType.MAIN, 'Main'],
-  [TrackType.STAGE, 'Stage'],
+  //[TrackType.STAGE, 'Stage'],
   [TrackType.BONUS, 'Bonus']
 ]);
 
 export const TrackTypeKey: ReadonlyMap<TrackType, keyof MapZones['tracks']> =
   new Map([
     [TrackType.MAIN, 'main'],
-    [TrackType.STAGE, 'stages'],
+    //[TrackType.STAGE, 'stages'],
     [TrackType.BONUS, 'bonuses']
   ]);

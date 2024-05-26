@@ -2,8 +2,7 @@ import {
   MapZones,
   Region,
   Segment,
-  Tracks,
-  Volume,
+  MapTracks,
   Zone
 } from '@momentum/constants';
 import { arrayFrom } from '@momentum/util-fn';
@@ -47,32 +46,28 @@ export const ZoneUtil = {
         ],
         ...(isMajor
           ? {
-              teleportYaw: 0,
-              teleportPos: [x + zoneWidth / 2, y + zoneWidth / 2, 0]
+              teleDestYaw: 0,
+              teleDestPos: [x + zoneWidth / 2, y + zoneWidth / 2, 0]
             }
           : {})
       };
     };
 
-    const randomVolume = (isMajor?: boolean): Volume => ({
-      regions: [randomRegion(isMajor)]
-    });
-
     const randomZone = (isMajor = false): Zone => {
-      volumes.push(randomVolume(isMajor));
-      return { volumeIndex: volumes.length - 1 };
+      return { regions: [randomRegion(isMajor)] };
     };
 
     const doSegment = (numCPs: number): Segment => ({
       limitStartGroundSpeed: false,
-      checkpoints: arrayFrom(numCPs, (i) => randomZone(i === 0))
+      checkpointsRequired: true,
+      checkpointsOrdered: true,
+      checkpoints: arrayFrom(numCPs, (i) => randomZone(i === 0)),
+      cancel: []
     });
 
-    const volumes: Volume[] = [];
-    const tracks: Tracks = {
+    const tracks: MapTracks = {
       main: {
-        majorOrdered: true,
-        minorRequired: true,
+        stagesEndAtStageStarts: true,
         zones: {
           end: randomZone(),
           segments: arrayFrom(majorCheckpoints, (i) =>
@@ -85,27 +80,26 @@ export const ZoneUtil = {
           end: randomZone(),
           segments: [doSegment(Math.ceil(Math.random() * 4))]
         }
-      })),
-      stages: []
+      }))
     };
 
-    if (tracks.main.zones.segments.length > 1)
-      for (const [i, segment] of tracks.main.zones.segments.entries())
-        tracks.stages.push({
-          name: `Stage ${i + 1}`,
-          zones: {
-            segments: [
-              {
-                limitStartGroundSpeed: segment.limitStartGroundSpeed,
-                checkpoints: segment.checkpoints
-              }
-            ],
-            end:
-              tracks.main.zones.segments[i + 1]?.checkpoints[0] ??
-              tracks.main.zones.end
-          }
-        });
+    // if (tracks.main.zones.segments.length > 1)
+    //   for (const [i, segment] of tracks.main.zones.segments.entries())
+    //     tracks.stages.push({
+    //       name: `Stage ${i + 1}`,
+    //       zones: {
+    //         segments: [
+    //           {
+    //             limitStartGroundSpeed: segment.limitStartGroundSpeed,
+    //             checkpoints: segment.checkpoints
+    //           }
+    //         ],
+    //         end:
+    //           tracks.main.zones.segments[i + 1]?.checkpoints[0] ??
+    //           tracks.main.zones.end
+    //       }
+    //     });
 
-    return { tracks, volumes, formatVersion: 1, dataTimestamp: Date.now() };
+    return { tracks, formatVersion: 1, dataTimestamp: Date.now() };
   }
 };

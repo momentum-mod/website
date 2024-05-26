@@ -60,8 +60,8 @@ export class RunSessionService {
       trackType: body.trackType
     };
 
-    if (body.trackType !== TrackType.MAIN && body.segment !== 0)
-      throw new BadRequestException('Stage/bonus must be on segment 0');
+    // if (body.trackType !== TrackType.MAIN && body.segment !== 0)
+    //   throw new BadRequestException('Stage/bonus must be on segment 0');
 
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
       throw new BadRequestException('Leaderboard does not exist');
