@@ -19,180 +19,150 @@ export const ZonesStub: MapZones = {
   dataTimestamp: 1697451975363,
   tracks: {
     main: {
-      name: 'Main',
-      majorOrdered: true,
-      minorRequired: true,
+      stagesEndAtStageStarts: true,
       zones: {
         segments: [
           {
             limitStartGroundSpeed: true,
-            checkpoints: [{ volumeIndex: 0 }, { volumeIndex: 1 }]
+            checkpointsRequired: true,
+            checkpointsOrdered: true,
+            checkpoints: [
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    teleDestYaw: 0,
+                    teleDestPos: [256, 256, 0],
+                    points: [
+                      [0, 0],
+                      [0, 512],
+                      [512, 512],
+                      [512, 0]
+                    ]
+                  }
+                ]
+              },
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    points: [
+                      [1024, 0],
+                      [1024, 512],
+                      [1536, 512],
+                      [1536, 0]
+                    ]
+                  }
+                ]
+              }
+            ],
+            cancel: []
           },
           {
             limitStartGroundSpeed: true,
-            checkpoints: [{ volumeIndex: 2 }, { volumeIndex: 3 }]
+            checkpointsRequired: true,
+            checkpointsOrdered: true,
+            checkpoints: [
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    teleDestYaw: 0,
+                    teleDestPos: [2304, 256, 0],
+                    points: [
+                      [2048, 0],
+                      [2048, 512],
+                      [2560, 512],
+                      [2560, 0]
+                    ]
+                  }
+                ]
+              },
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    points: [
+                      [3072, 0],
+                      [3072, 512],
+                      [3584, 512],
+                      [3584, 0]
+                    ]
+                  }
+                ]
+              }
+            ],
+            cancel: []
           }
         ],
-        end: { volumeIndex: 4 }
+        end: {
+          regions: [
+            {
+              bottom: 0,
+              height: 512,
+              points: [
+                [4096, 0],
+                [4096, 512],
+                [4608, 512],
+                [4608, 0]
+              ]
+            }
+          ]
+        }
       }
     },
-    stages: [
-      {
-        name: 'Stage 1',
-        minorRequired: true,
-        zones: {
-          segments: [
-            {
-              limitStartGroundSpeed: true,
-              checkpoints: [{ volumeIndex: 0 }, { volumeIndex: 1 }]
-            }
-          ],
-          end: { volumeIndex: 2 }
-        }
-      },
-      {
-        name: 'Stage 2',
-        minorRequired: true,
-        zones: {
-          segments: [
-            {
-              limitStartGroundSpeed: true,
-              checkpoints: [{ volumeIndex: 2 }, { volumeIndex: 3 }]
-            }
-          ],
-          end: { volumeIndex: 4 }
-        }
-      }
-    ],
     bonuses: [
       {
-        name: 'Bonus 1',
-        minorRequired: true,
         zones: {
           segments: [
             {
+              name: 'Bonus 1',
               limitStartGroundSpeed: true,
-              checkpoints: [{ volumeIndex: 5 }]
+              checkpointsRequired: true,
+              checkpointsOrdered: true,
+              checkpoints: [
+                {
+                  regions: [
+                    {
+                      bottom: 0,
+                      height: 512,
+                      teleDestYaw: 0,
+                      teleDestPos: [256, 1028, 0],
+                      points: [
+                        [0, 1024],
+                        [0, 1536],
+                        [512, 1536],
+                        [512, 1024]
+                      ]
+                    }
+                  ]
+                }
+              ],
+              cancel: []
             }
           ],
-          end: { volumeIndex: 6 }
+          end: {
+            regions: [
+              {
+                bottom: 0,
+                height: 512,
+                points: [
+                  [1024, 2048],
+                  [1024, 2560],
+                  [1536, 2560],
+                  [1536, 2048]
+                ]
+              }
+            ]
+          }
         }
       }
     ]
-  },
-  // Not that geometry really matters, but these are layed out as 512hu cubes
-  // in the below shape in space,
-  //      Main/S2 End -> 4
-  //            S2 CP -> 3
-  //  S2 Start/S1 End -> 2
-  //            S1 CP -> 1 6 <- B2 End
-  //         S1 Start -> 0 5 <- B1 Start
-  volumes: [
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          teleportYaw: 0,
-          teleportPos: [256, 256, 0],
-          points: [
-            [0, 0],
-            [0, 512],
-            [512, 512],
-            [512, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [1024, 0],
-            [1024, 512],
-            [1536, 512],
-            [1536, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          teleportYaw: 0,
-          teleportPos: [2304, 256, 0],
-          points: [
-            [2048, 0],
-            [2048, 512],
-            [2560, 512],
-            [2560, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [3072, 0],
-            [3072, 512],
-            [3584, 512],
-            [3584, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [4096, 0],
-            [4096, 512],
-            [4608, 512],
-            [4608, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          teleportYaw: 0,
-          teleportPos: [256, 1028, 0],
-          points: [
-            [0, 1024],
-            [0, 1536],
-            [512, 1536],
-            [512, 1024]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [1024, 2048],
-            [1024, 2560],
-            [1536, 2560],
-            [1536, 2048]
-          ]
-        }
-      ]
-    }
-  ]
+  }
 };
 
 /**
@@ -223,66 +193,64 @@ export const BabyZonesStub: MapZones = {
   dataTimestamp: 1697451975363,
   tracks: {
     main: {
-      name: 'Main',
-      majorOrdered: true,
-      minorRequired: true,
+      stagesEndAtStageStarts: true,
       zones: {
         segments: [
           {
             limitStartGroundSpeed: true,
-            checkpoints: [{ volumeIndex: 0 }, { volumeIndex: 1 }]
+            checkpointsRequired: true,
+            checkpointsOrdered: true,
+            checkpoints: [
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    teleDestYaw: 0,
+                    teleDestPos: [256, 256, 0],
+                    points: [
+                      [0, 0],
+                      [0, 512],
+                      [512, 512],
+                      [512, 0]
+                    ]
+                  }
+                ]
+              },
+              {
+                regions: [
+                  {
+                    bottom: 0,
+                    height: 512,
+                    points: [
+                      [1024, 0],
+                      [1024, 512],
+                      [1536, 512],
+                      [1536, 0]
+                    ]
+                  }
+                ]
+              }
+            ],
+            cancel: []
           }
         ],
-        end: { volumeIndex: 2 }
+        end: {
+          regions: [
+            {
+              bottom: 0,
+              height: 512,
+              points: [
+                [1024, 0],
+                [1024, 512],
+                [1536, 512],
+                [1536, 0]
+              ]
+            }
+          ]
+        }
       }
     },
-    stages: [],
     bonuses: []
-  },
-  volumes: [
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          teleportYaw: 0,
-          teleportPos: [256, 256, 0],
-          points: [
-            [0, 0],
-            [0, 512],
-            [512, 512],
-            [512, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [1024, 0],
-            [1024, 512],
-            [1536, 512],
-            [1536, 0]
-          ]
-        }
-      ]
-    },
-    {
-      regions: [
-        {
-          bottom: 0,
-          height: 512,
-          points: [
-            [1024, 0],
-            [1024, 512],
-            [1536, 512],
-            [1536, 0]
-          ]
-        }
-      ]
-    }
-  ]
+  }
 };

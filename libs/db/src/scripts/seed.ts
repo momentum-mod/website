@@ -22,7 +22,7 @@ import {
   MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
-  MapZones,
+  Base,
   MAX_BIO_LENGTH,
   ReportCategory,
   ReportType,
@@ -435,7 +435,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
+      const zones = versions.at(-1).zones as unknown as Base; // TODO: #855
       const numModes = randRange(vars.modesPerLeaderboard);
       const modesSet = new Set<Gamemode>();
       while (modesSet.size < numModes) {
@@ -457,10 +457,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.MAIN,
             trackNum: 0
           },
-          ...arrayFrom(zones.tracks.stages.length, (i) => ({
-            trackType: TrackType.STAGE,
-            trackNum: i
-          })),
+          // ...arrayFrom(zones.tracks.stages.length, (i) => ({
+          //   trackType: TrackType.STAGE,
+          //   trackNum: i
+          // })),
           ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
             trackType: TrackType.BONUS,
             trackNum: i
