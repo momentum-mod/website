@@ -35,7 +35,7 @@ import {
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
   MapTestInviteState,
-  MapZones,
+  ZoneDef,
   Role,
   submissionBspPath,
   submissionVmfsPath,
@@ -79,7 +79,7 @@ import {
   MapsGetAllQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
-  MapZonesDto,
+  ZoneDefDto,
   PagedResponseDto,
   UpdateMapAdminDto,
   UpdateMapDto
@@ -670,12 +670,12 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
-    let zones: MapZones;
+    let zones: ZoneDef;
     if (dto.zones) {
       this.checkZones(dto.zones);
       zones = dto.zones;
     } else {
-      zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+      zones = map.submission.currentVersion.zones as unknown as ZoneDef; // TODO: #855
     }
 
     const oldVersion = map.submission.currentVersion;
@@ -892,7 +892,7 @@ export class MapsService {
     tx: ExtendedPrismaServiceTransaction,
     mapID: number,
     suggestions: MapSubmissionSuggestion[],
-    zones: MapZones
+    zones: ZoneDef
   ): Promise<void> {
     const existingLeaderboards: LeaderboardProps[] =
       await this.db.leaderboard.findMany({
@@ -1050,7 +1050,7 @@ export class MapsService {
     const suggs =
       dto.suggestions ??
       (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
-    const zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+    const zones = map.submission.currentVersion.zones as unknown as ZoneDef; // TODO: #855
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
@@ -1425,7 +1425,7 @@ export class MapsService {
       where: { mapID: map.id },
       include: { currentVersion: true, versions: true }
     });
-    const zones = dbZones as unknown as MapZones; // TODO: #855
+    const zones = dbZones as unknown as ZoneDef; // TODO: #855
 
     // Set hash of MMap to final version BSP's hash, and hasVmf is just whether
     // final version had a VMF.
@@ -1609,7 +1609,7 @@ export class MapsService {
 
   //#region Zones
 
-  async getZones(mapID: number): Promise<MapZonesDto> {
+  async getZones(mapID: number): Promise<ZoneDefDto> {
     const mapWithZones = await this.db.mMap.findUnique({
       where: { id: mapID },
       select: { zones: true }
@@ -1619,7 +1619,7 @@ export class MapsService {
       throw new NotFoundException('Map not found');
 
     return DtoFactory(
-      MapZonesDto,
+      ZoneDefDto,
       mapWithZones.zones as Record<string, unknown>
     );
   }
@@ -1789,7 +1789,7 @@ export class MapsService {
    * Validates zone data, throw if fails
    * @throws BadRequestException
    */
-  checkZones(zones: MapZones) {
+  checkZones(zones: ZoneDef) {
     try {
       validateZoneFile(zones);
     } catch (error) {
@@ -1807,7 +1807,7 @@ export class MapsService {
    */
   checkSuggestionsAndZones(
     suggestions: MapSubmissionSuggestion[] | MapSubmissionApproval[],
-    zones: MapZones,
+    zones: ZoneDef,
     type: SuggestionType
   ) {
     try {

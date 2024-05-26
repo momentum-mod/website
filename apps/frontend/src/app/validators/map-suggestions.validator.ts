@@ -3,7 +3,7 @@ import {
   MapReviewSuggestion,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
-  MapZones
+  ZoneDef
 } from '@momentum/constants';
 import {
   SuggestionType,
@@ -12,7 +12,7 @@ import {
 } from '@momentum/formats/zone';
 
 export function suggestionsValidator(
-  zoneGet: () => MapZones,
+  zoneGet: () => ZoneDef,
   type: SuggestionType
 ): ValidatorFn {
   return (

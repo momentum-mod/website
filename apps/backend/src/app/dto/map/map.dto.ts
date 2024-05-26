@@ -48,7 +48,7 @@ import { MapStatsDto } from './map-stats.dto';
 import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
-import { MapZonesDto } from './map-zones.dto';
+import { ZoneDefDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
 
@@ -72,11 +72,12 @@ export class MapDto implements MMap {
   @EnumProperty(MapStatus)
   readonly status: MapStatus;
 
-  @NestedProperty(MapZonesDto, {
-    required: false,
-    description: 'Zones for the map'
-  })
-  readonly zones: MapZonesDto;
+  // @NestedProperty(MapZonesDto, {
+  //   required: false,
+  //   description: 'Zones for the map'
+  // })
+  @IsDefined()
+  readonly zones: ZoneDefDto;
 
   @ApiProperty({ type: String, description: 'URL to BSP in storage' })
   @Expose()
@@ -224,11 +225,12 @@ export class CreateMapDto
   @NestedProperty(CreateMapInfoDto, { required: true })
   readonly info: CreateMapInfoDto;
 
-  @NestedProperty(MapZonesDto, {
-    required: true,
-    description: 'The contents of the map zone file as JSON'
-  })
-  readonly zones: MapZonesDto;
+  // @NestedProperty(MapZonesDto, {
+  //   required: true,
+  //   description: 'The contents of the map zone file as JSON'
+  // })
+  @IsDefined()
+  readonly zones: ZoneDefDto;
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()
@@ -296,11 +298,11 @@ export class UpdateMapAdminDto
   @IsOptional()
   readonly submitterID: number;
 
-  @NestedProperty(MapZonesDto, {
+  @NestedProperty(ZoneDefDto, {
     required: false,
     description: 'Zones for the map'
   })
-  readonly zones: MapZonesDto;
+  readonly zones: ZoneDefDto;
 
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)

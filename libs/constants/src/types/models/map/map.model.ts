@@ -12,7 +12,7 @@ import { MapFavorite } from './map-favorite.model';
 import { MapLibraryEntry } from './map-library-entry';
 import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
-import { MapZones } from './map-zones.model';
+import { ZoneDef } from './map-zones.model';
 import { MapSubmissionApproval } from './map-submission-approval.model';
 import { MapSubmission } from './map-submission.model';
 import { MapTestInvite } from './map-test-invite.model';
@@ -29,7 +29,7 @@ export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
   info?: MapInfo;
   // Omit then redefine zones so can be nullable - even though it's a regular
   // field, we shouldn't SELECT for it unless requested with an expand param.
-  zones?: MapZones;
+  zones?: ZoneDef;
   submission?: MapSubmission;
   leaderboards?: Leaderboard[];
   submitter?: User;
@@ -56,7 +56,7 @@ export interface CreateMap extends Pick<MMap, 'name'> {
   placeholders: MapSubmissionPlaceholder[];
   testInvites?: number[];
   info: CreateMapInfo;
-  zones: MapZones;
+  zones: ZoneDef;
   credits: CreateMapCredit[];
 }
 
@@ -74,7 +74,7 @@ export interface UpdateMap
   > {
   status?: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
   info?: UpdateMapInfo;
-  zones?: MapZones;
+  zones?: ZoneDef;
   resetLeaderboards?: boolean;
 }
 

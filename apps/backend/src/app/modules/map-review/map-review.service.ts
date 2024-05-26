@@ -13,7 +13,7 @@ import {
   mapReviewAssetPath,
   MapReviewEdit,
   MapReviewSuggestion,
-  MapZones,
+  ZoneDef,
   Role
 } from '@momentum/constants';
 import {
@@ -189,7 +189,7 @@ export class MapReviewService {
             map.submission as MapSubmission & {
               currentVersion: MapSubmissionVersion;
             }
-          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          ).currentVersion.zones as unknown as ZoneDef, // TODO: #855
           SuggestionType.REVIEW
         );
       } catch (error) {
@@ -306,7 +306,7 @@ export class MapReviewService {
             map.submission as MapSubmission & {
               currentVersion: MapSubmissionVersion;
             }
-          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          ).currentVersion.zones as unknown as ZoneDef, // TODO: #855
           SuggestionType.REVIEW
         );
       } catch (error) {

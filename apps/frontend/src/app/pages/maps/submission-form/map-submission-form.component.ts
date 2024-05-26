@@ -23,7 +23,7 @@ import {
   MAP_IMAGE_WIDTH,
   MapSubmissionSuggestion,
   MapSubmissionType,
-  MapZones,
+  ZoneDef,
   MAX_BSP_SIZE,
   MAX_MAP_DESCRIPTION_LENGTH,
   MAX_MAP_IMAGE_SIZE,
@@ -106,7 +106,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   uploadPercentage = 0;
   uploadStatusDescription = '';
 
-  protected zones: MapZones | null = null;
+  protected zones: ZoneDef | null = null;
 
   isMapperOrPorter: boolean;
   isModOrAdmin: boolean;
@@ -241,7 +241,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
   async onValidZoneFileSelected() {
     // This has been validated already
-    this.zones = JSON.parse(await this.zon.value.text()) as MapZones;
+    this.zones = JSON.parse(await this.zon.value.text()) as ZoneDef;
     this.lbSelection.zones = this.zones;
 
     // A zone file *coooould* have a different filename from the BSP so try the

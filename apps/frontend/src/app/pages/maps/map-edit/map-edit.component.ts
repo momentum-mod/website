@@ -26,7 +26,7 @@ import {
   MapSubmissionSuggestion,
   MapSubmissionType,
   MapTestInviteState,
-  MapZones,
+  ZoneDef,
   MAX_BSP_SIZE,
   MAX_CHANGELOG_LENGTH,
   MAX_MAP_DESCRIPTION_LENGTH,
@@ -492,7 +492,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             vmfs: this.vmfs.value,
             data: {
               zones: this.zon.value
-                ? (JSON.parse(await this.zon.value.text()) as MapZones)
+                ? (JSON.parse(await this.zon.value.text()) as ZoneDef)
                 : undefined,
               changelog: this.changelog.value,
               resetLeaderboards: this.resetLbs.value

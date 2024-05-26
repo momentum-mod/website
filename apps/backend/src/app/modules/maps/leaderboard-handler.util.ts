@@ -3,7 +3,7 @@ import {
   IncompatibleGamemodes,
   LeaderboardType,
   MapSubmissionSuggestion,
-  MapZones,
+  ZoneDef,
   TrackType
 } from '@momentum/constants';
 import { ZoneUtil } from '@momentum/formats/zone';
@@ -22,7 +22,7 @@ export const LeaderboardHandler = {
    */
   getMaximalLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[],
-    zones: MapZones
+    zones: ZoneDef
   ): LeaderboardProps[] =>
     LeaderboardHandler.getCompatibleLeaderboards([
       ...LeaderboardHandler.setLeaderboardLinearity(leaderboards, zones),
@@ -72,13 +72,13 @@ export const LeaderboardHandler = {
    */
   getStageLeaderboards: <T extends LeaderboardProps>(
     leaderboards: T[],
-    zones: MapZones
+    zones: ZoneDef
   ): T[] =>
     leaderboards
       .filter(({ trackType }) => trackType === TrackType.MAIN)
       .flatMap((lb: T) =>
         arrayFrom(
-          zones.tracks.stages.length,
+          zones.tracks.main.zones.segments.length,
           (i) =>
             ({
               gamemode: lb.gamemode,
@@ -103,7 +103,7 @@ export const LeaderboardHandler = {
    */
   setLeaderboardLinearity: <T extends LeaderboardProps>(
     leaderboards: T[],
-    zones: MapZones
+    zones: ZoneDef
   ): T[] =>
     leaderboards.map((lb) => ({
       ...lb,

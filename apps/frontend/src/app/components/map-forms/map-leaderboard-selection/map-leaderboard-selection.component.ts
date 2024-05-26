@@ -9,7 +9,7 @@ import {
   GamemodeName,
   LeaderboardType,
   MapSubmissionSuggestion,
-  MapZones,
+  ZoneDef,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
@@ -48,12 +48,12 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   protected disabled = false;
 
   availableBonusTracks: { label: number; value: number }[] = [];
-  private _zones: MapZones | null = null;
+  private _zones: ZoneDef | null = null;
   get zones() {
     return this._zones;
   }
 
-  set zones(zones: MapZones | null) {
+  set zones(zones: ZoneDef | null) {
     this._zones = zones;
     this.availableBonusTracks =
       zones?.tracks?.bonuses?.map((_, i) => ({

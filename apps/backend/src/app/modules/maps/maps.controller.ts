@@ -68,7 +68,7 @@ import {
   MapReviewsGetQueryDto,
   MapsGetAllQueryDto,
   MapsGetQueryDto,
-  MapZonesDto,
+  ZoneDefDto,
   MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
@@ -460,13 +460,13 @@ export class MapsController {
     required: true
   })
   @ApiOkResponse({
-    type: MapZonesDto,
+    type: ZoneDefDto,
     description: "The map's zones"
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getZones(
     @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<MapZonesDto> {
+  ): Promise<ZoneDefDto> {
     return this.mapsService.getZones(mapID);
   }
   //#endregion

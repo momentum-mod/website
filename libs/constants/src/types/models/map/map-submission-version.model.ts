@@ -1,9 +1,9 @@
 import { MapSubmissionVersion as PrismaMapSubmissionVersion } from '@prisma/client';
-import { MapZones } from './map-zones.model';
+import { ZoneDef } from './map-zones.model';
 
 export interface MapSubmissionVersion
   extends Omit<PrismaMapSubmissionVersion, 'zones'> {
-  zones: MapZones;
+  zones: ZoneDef;
   downloadURL: string;
   vmfDownloadURL?: string;
 }

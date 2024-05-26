@@ -20,7 +20,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { CreatedAtProperty, NestedProperty } from '../decorators';
 import { Config } from '../../config';
 import { MapSubmissionDto } from './map-submission.dto';
-import { MapZonesDto } from './map-zones.dto';
+import { ZoneDefDto } from './map-zones.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -40,12 +40,12 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @IsOptional()
   readonly changelog: string;
 
-  @NestedProperty(MapZonesDto, {
+  @NestedProperty(ZoneDefDto, {
     required: true,
     description: 'The contents of the map zone file as JSON'
   })
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
-  readonly zones: MapZonesDto;
+  readonly zones: ZoneDefDto;
 
   @Exclude()
   readonly submission: MapSubmissionDto;
@@ -91,11 +91,11 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
 export class CreateMapSubmissionVersionDto
   implements CreateMapSubmissionVersion
 {
-  @NestedProperty(MapZonesDto, {
+  @NestedProperty(ZoneDefDto, {
     required: false,
     description: 'The contents of the map zone file as JSON'
   })
-  readonly zones: MapZonesDto;
+  readonly zones: ZoneDefDto;
 
   @ApiProperty()
   @IsString()

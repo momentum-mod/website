@@ -6,7 +6,7 @@ import {
   MapReviewSuggestion,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
-  MapZones,
+  ZoneDef,
   TrackType as TT,
   TrackType,
   TrackTypeName as TTName
@@ -51,7 +51,7 @@ export function validateSuggestions(
     | MapSubmissionSuggestion[]
     | MapSubmissionApproval[]
     | MapReviewSuggestion[],
-  zoneData: MapZones,
+  zoneData: ZoneDef,
   type: SuggestionType
 ) {
   let hasMainTrack = false;
