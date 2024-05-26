@@ -78,7 +78,7 @@ export const LeaderboardHandler = {
       .filter(({ trackType }) => trackType === TrackType.MAIN)
       .flatMap((lb: T) =>
         arrayFrom(
-          zones.tracks.stages.length,
+          zones.tracks.main.zones.segments.length,
           (i) =>
             ({
               gamemode: lb.gamemode,

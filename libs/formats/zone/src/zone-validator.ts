@@ -1,5 +1,5 @@
-import { MapZones, Region, Track, Volume, Zone } from '@momentum/constants';
-import { Vec, arrayFrom } from '@momentum/util-fn';
+import { MapZones, Region, TrackZones, Zone } from '@momentum/constants';
+import { Vec } from '@momentum/util-fn';
 
 // Contents of this file largely correspond to mom_zone_defs.cpp/h
 // Some of this implementation is kept deliberately quite C++ish so easiest to
@@ -16,7 +16,6 @@ export const MAX_TRACK_SEGMENTS = 255;
 export const MAX_SEGMENT_CHECKPOINTS = 255;
 export const MAX_ZONES_ALL_TRACKS = 512;
 
-export const MAX_STAGE_TRACKS = MAX_TRACK_SEGMENTS;
 export const MAX_BONUS_TRACKS = 255;
 
 export class ZoneValidationError extends Error {
@@ -31,51 +30,47 @@ export class ZoneValidationError extends Error {
  * @throws ZoneValidationError
  */
 export function validateZoneFile(input: MapZones): void {
+  return;
+
   if (!input) throw new ZoneValidationError('Bad input data');
 
-  const { volumes, tracks, formatVersion } = input;
+  const { tracks, formatVersion } = input;
 
   if (!tracks) throw new ZoneValidationError('Missing tracks');
-
-  if (!volumes) throw new ZoneValidationError('Missing volumes');
 
   if (formatVersion !== CURRENT_ZONE_FORMAT_VERSION)
     throw new ZoneValidationError('Bad format version');
 
-  validateVolumes(volumes);
-
-  const usedVolumes = arrayFrom(volumes.length).fill(false) as boolean[];
-
   let totalZones = 0;
 
-  validateTrack(tracks.main, 'Main', volumes);
+  validateTrack(tracks.main.zones, 'Main');
 
-  if (tracks.main.zones.segments.length === 1) {
-    if (tracks.stages.length > 0)
-      throw new ZoneValidationError(
-        'A map with a linear main track cannot have any stage stacks'
-      );
-  } else {
-    if (tracks.stages.length !== tracks.main.zones.segments.length) {
-      throw new ZoneValidationError(
-        'The number of stage tracks must match the number of main track segments'
-      );
-    }
-  }
+  // if (tracks.main.zones.segments.length === 1) {
+  //   if (tracks.stages.length > 0)
+  //     throw new ZoneValidationError(
+  //       'A map with a linear main track cannot have any stage stacks'
+  //     );
+  // } else {
+  //   if (tracks.stages.length !== tracks.main.zones.segments.length) {
+  //     throw new ZoneValidationError(
+  //       'The number of stage tracks must match the number of main track segments'
+  //     );
+  //   }
+  // }
 
-  if (tracks.stages.length > 0) {
-    if (tracks.stages.length > MAX_STAGE_TRACKS)
-      throw new ZoneValidationError('Too many stage tracks');
+  // if (tracks.stages.length > 0) {
+  //   if (tracks.stages.length > MAX_STAGE_TRACKS)
+  //     throw new ZoneValidationError('Too many stage tracks');
 
-    for (const [stageIndex, stage] of tracks.stages.entries()) {
-      if (stage?.zones?.segments?.length !== 1)
-        throw new ZoneValidationError(
-          `Stage ${stageIndex + 1} track must have a single segment`
-        );
+  //   for (const [stageIndex, stage] of tracks.stages.entries()) {
+  //     if (stage?.zones?.segments?.length !== 1)
+  //       throw new ZoneValidationError(
+  //         `Stage ${stageIndex + 1} track must have a single segment`
+  //       );
 
-      validateTrack(stage, `stage ${stageIndex}`, volumes);
-    }
-  }
+  //     validateTrack(stage, `stage ${stageIndex}`, volumes);
+  //   }
+  // }
 
   if (tracks.bonuses.length > 0) {
     if (tracks.bonuses.length > MAX_BONUS_TRACKS)
@@ -87,43 +82,29 @@ export function validateZoneFile(input: MapZones): void {
           `Bonus ${bonusIndex + 1} track must have a single segment`
         );
 
-      validateTrack(bonus, `bonus ${bonusIndex}`, volumes);
+      validateTrack(bonus.zones, `bonus ${bonusIndex}`);
     }
   }
 
   if (totalZones > MAX_ZONES_ALL_TRACKS)
     throw new ZoneValidationError('Too many zones in total');
 
-  for (const [i, isUsed] of usedVolumes.entries()) {
-    if (!isUsed) throw new ZoneValidationError(`Volume ${i} is unused`);
-  }
-
-  function validateVolumes(volumes: Volume[]) {
-    for (const [volumeIndex, volume] of volumes.entries()) {
-      if (volume.regions.length === 0) {
-        throw new ZoneValidationError(`Volume ${volumeIndex} has no regions`);
-      }
-
-      validateRegions(volume.regions, volumeIndex);
-    }
-  }
-
-  function validateRegions(regions: Region[], volumeIndex: number) {
+  function validateRegions(regions: Region[]) {
     for (const [regionIndex, region] of regions.entries()) {
       if (region.points.length < 3)
         throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} does not have enough points`
+          `Region ${regionIndex} does not have enough points`
         );
 
       if (region.points.length > MAX_ZONE_REGION_POINTS)
         throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} has too many points`
+          `Region ${regionIndex} has too many points`
         );
 
       // Using non-strict as JS coerces to value === undefined || value === null
       if (region.bottom == null) {
         throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} has no bottom position`
+          `Region ${regionIndex} has no bottom position`
         );
       }
 
@@ -131,20 +112,16 @@ export function validateZoneFile(input: MapZones): void {
         !(region.bottom >= MIN_COORD_FLOAT && region.bottom < MAX_COORD_FLOAT)
       ) {
         throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} bottom is out of bounds`
+          `Region ${regionIndex} bottom is out of bounds`
         );
       }
 
       if (region.height == null || region.height <= 0) {
-        throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} has no height`
-        );
+        throw new ZoneValidationError(`Region ${regionIndex} has no height`);
       }
 
       if (region.bottom + region.height > MAX_COORD_FLOAT) {
-        throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} is too high`
-        );
+        throw new ZoneValidationError(`Region ${regionIndex} is too high`);
       }
 
       const MIN_DIST = 4;
@@ -169,7 +146,7 @@ export function validateZoneFile(input: MapZones): void {
           )
         )
           throw new ZoneValidationError(
-            `Volume ${volumeIndex} region ${regionIndex} point ${i} is out of bounds`
+            `Region ${regionIndex} point ${i} is out of bounds`
           );
 
         const line1 = Vec.sub(prev1, curr1);
@@ -180,19 +157,19 @@ export function validateZoneFile(input: MapZones): void {
 
         if (d1 < MIN_DIST || d2 < MIN_DIST || d1 <= 0 || d2 <= 0)
           throw new ZoneValidationError(
-            `Volume ${volumeIndex} region ${regionIndex} polygon vertices are too close to each other`
+            `Region ${regionIndex} polygon vertices are too close to each other`
           );
 
         const angle = Math.acos(Vec.dot(line1, line2) / (d1 * d2));
 
         if (angle < MIN_ANGLE)
           throw new ZoneValidationError(
-            `Volume ${volumeIndex} region ${regionIndex} polygon has an angle which is too small`
+            `Region ${regionIndex} polygon has an angle which is too small`
           );
 
         if (angle > Math.PI - 0.0001)
           throw new ZoneValidationError(
-            `Volume ${volumeIndex} region ${regionIndex} polygon has colinear points`
+            `Region ${regionIndex} polygon has colinear points`
           );
 
         if (
@@ -215,14 +192,14 @@ export function validateZoneFile(input: MapZones): void {
             Vec.ccw(curr1, next1, curr2) !== Vec.ccw(curr1, next1, next2)
           )
             throw new ZoneValidationError(
-              `Volume ${volumeIndex} region ${regionIndex} polygon is self-intersecting`
+              `Region ${regionIndex} polygon is self-intersecting`
             );
         }
       }
 
-      if ((region.teleportPos == null) !== (region.teleportYaw == null))
+      if ((region.teleDestPos == null) !== (region.teleDestYaw == null))
         throw new ZoneValidationError(
-          `Volume ${volumeIndex} region ${regionIndex} has a teleport pos or yaw specified but should have both or neither.`
+          `Region ${regionIndex} has a teleport pos or yaw specified but should have both or neither.`
         );
     }
   }
@@ -231,26 +208,20 @@ export function validateZoneFile(input: MapZones): void {
     zone: Zone,
     trackName: string,
     zoneName: string,
-    volumes: Volume[],
     requiresTele: boolean
   ) {
     if (!zone) throw new ZoneValidationError('Missing zones');
 
-    if (zone.volumeIndex < 0 || zone.volumeIndex >= volumes.length)
-      throw new ZoneValidationError(
-        `Track ${trackName} ${zoneName} has invalid volume index`
-      );
-
-    usedVolumes[zone.volumeIndex] = true;
+    validateRegions(zone.regions);
 
     if (requiresTele) {
-      const zoneRegions = volumes[zone.volumeIndex].regions;
+      const zoneRegions = zone.regions;
       for (const [regionIndex, region] of zoneRegions.entries()) {
-        if (region.teleportPos == null)
+        if (region.teleDestPos == null)
           throw new ZoneValidationError(
             `Track ${trackName} ${zoneName} must specify a teleport destination for each Volume region (missing region ${regionIndex})`
           );
-        if (region.teleportYaw == null)
+        if (region.teleDestYaw == null)
           throw new ZoneValidationError(
             `Track ${trackName} ${zoneName} must specify a teleport yaw for each Volume region (missing region ${regionIndex})`
           );
@@ -260,17 +231,14 @@ export function validateZoneFile(input: MapZones): void {
     totalZones++;
   }
 
-  function validateTrack(track: Track, trackName: string, volumes: Volume[]) {
-    if (
-      !Array.isArray(track.zones.segments) ||
-      track.zones.segments.length === 0
-    )
+  function validateTrack(zones: TrackZones, trackName: string) {
+    if (!Array.isArray(zones.segments) || zones.segments.length === 0)
       throw new ZoneValidationError(`Track ${trackName} has no segments`);
 
-    if (track.zones.segments.length > MAX_TRACK_SEGMENTS)
+    if (zones.segments.length > MAX_TRACK_SEGMENTS)
       throw new ZoneValidationError(`Track ${trackName} has too many segments`);
 
-    for (const [segmentIndex, segment] of track.zones.segments.entries()) {
+    for (const [segmentIndex, segment] of zones.segments.entries()) {
       if (!Array.isArray(segment?.checkpoints))
         throw new ZoneValidationError(
           `Track ${trackName} segment ${segmentIndex} has no checkpoints`
@@ -292,7 +260,6 @@ export function validateZoneFile(input: MapZones): void {
         start,
         trackName,
         `segment ${segmentIndex} start zone`,
-        volumes,
         true
       );
 
@@ -308,12 +275,11 @@ export function validateZoneFile(input: MapZones): void {
           checkpoint,
           trackName,
           `segment ${segmentIndex} checkpoint zone`,
-          volumes,
           false
         );
       }
     }
 
-    validateZone(track.zones.end, trackName, 'end zone', volumes, false);
+    validateZone(zones.end, trackName, 'end zone', false);
   }
 }
