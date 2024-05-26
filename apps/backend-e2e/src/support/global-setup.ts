@@ -5,8 +5,19 @@ import {
   S3Client
 } from '@aws-sdk/client-s3';
 import { faker } from '@faker-js/faker';
+import * as dotenv from 'dotenv';
+import path from 'node:path';
 
-module.exports = async function () {
+export default async function () {
+  // Load .env file in project root. Nx does this automatically, but this helps
+  // in cases where running the Jest config directly (e.g. through WebStorm Jest
+  // plugin). Annoyingly, WebStorm likes to set the cwd to /apps/backend-e2e.
+  if (/apps([/\\])backend-e2e/.test(path.resolve(process.cwd()))) {
+    dotenv.config({ path: '../../.env' });
+  } else {
+    dotenv.config({ path: './.env' });
+  }
+
   // Seed faker for consistent random number generation
   faker.seed(1);
 
@@ -19,8 +30,8 @@ module.exports = async function () {
   // Explicitly set test environment. When running this Nx it seems to be 'dev',
   // probably because it's loading .env later. So it probably doesn't matter in
   // CI, just in local dev.
-  (process.env as any).NODE_ENV = 'test';
-};
+  process.env['NODE_ENV'] = 'test';
+}
 
 // Nx is having an issue resolving paths from this file, after trying to solve
 // for hours I'm just stuffing @momentum/db's nuke() in here. Sorry!
