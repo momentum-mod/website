@@ -125,19 +125,26 @@
             }
           </div>
           @if (editModeComments.get(comment.id); as editForm) {
-            <textarea rows="1" [formControl]="editForm" placeholder="Update comment" class="textinput my-1 grow px-2 py-1"></textarea>
-            <div class="ml-auto flex gap-1">
-              <button
-                class="btn btn-red btn-thin ml-auto"
-                [disabled]="editForm.value.length === 0"
-                (click)="editModeComments.delete(comment.id)"
-              >
-                Cancel
-              </button>
-              <button class="btn btn-green btn-thin ml-auto" [disabled]="commentInput.invalid" (click)="editComment(comment.id)">
-                Update
-              </button>
-            </div>
+            <form [formGroup]="editForm" (ngSubmit)="editComment(comment.id)" class="contents">
+              <textarea
+                rows="1"
+                (keydown.control.enter)="editComment(comment.id)"
+                [formControl]="editForm.controls.textInput"
+                placeholder="Update comment"
+                class="textinput my-1 grow px-2 py-1"
+              ></textarea>
+              <div class="ml-auto flex gap-1">
+                <button
+                  type="button"
+                  class="btn btn-red btn-thin ml-auto"
+                  [disabled]="editForm.controls.textInput.value.length === 0"
+                  (click)="editModeComments.delete(comment.id)"
+                >
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-green btn-thin ml-auto" [disabled]="commentInput.invalid">Update</button>
+              </div>
+            </form>
           } @else {
             <p class="whitespace-pre-wrap">{{ comment.text }}</p>
           }
@@ -146,17 +153,30 @@
     </div>
   }
 
-  <div class="mt-2 flex gap-2">
-    <textarea rows="1" [formControl]="commentInput" placeholder="Leave a comment" class="textinput grow px-2 py-1"></textarea>
+  <form [formGroup]="commentInput" (ngSubmit)="postComment()" class="mt-2 flex gap-2">
+    <textarea
+      rows="1"
+      (keydown.control.enter)="postComment()"
+      [formControl]="commentInput.controls.textInput"
+      placeholder="Leave a comment"
+      class="textinput grow px-2 py-1"
+    ></textarea>
     @if (commentInput.dirty) {
       <div>
-        <button class="btn btn-red btn-thin" [disabled]="commentInput.value.length === 0" (click)="commentInput.reset()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-red btn-thin"
+          [disabled]="commentInput.controls.textInput.value.length === 0"
+          (click)="commentInput.reset()"
+        >
+          Cancel
+        </button>
       </div>
       <div>
-        <button class="btn btn-green btn-thin" [disabled]="commentInput.invalid" (click)="postComment()">Post</button>
+        <button type="submit" class="btn btn-green btn-thin" [disabled]="commentInput.invalid">Post</button>
       </div>
     }
-  </div>
+  </form>
 
   @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>

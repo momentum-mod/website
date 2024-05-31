@@ -1,6 +1,6 @@
-<div [formGroup]="form" class="flex flex-col">
+<form [formGroup]="form" class="flex flex-col" (ngSubmit)="submit()">
   <div class="mb-4 flex gap-2">
-    <textarea [formControl]="mainText" class="textinput grow" rows="6"></textarea>
+    <textarea [formControl]="mainText" class="textinput grow" rows="6" (keydown.control.enter)="submit()"></textarea>
     @if (!editing) {
       <m-multi-file-upload
         class="h-auto max-w-[20%]"
@@ -31,7 +31,7 @@
       <input type="checkbox" class="checkbox" [formControl]="needsResolving" />
     }
     @if (editing) {
-      <button type="submit" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
+      <button type="button" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
     }
     <div class="flex items-center justify-end gap-2">
       <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
@@ -45,8 +45,6 @@
         </div>
       </ng-template>
     </div>
-    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine" (click)="submit()">
-      Post
-    </button>
+    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine">Post</button>
   </div>
-</div>
+</form>
