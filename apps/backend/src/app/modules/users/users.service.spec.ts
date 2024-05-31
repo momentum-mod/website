@@ -223,9 +223,9 @@ describe('UserService', () => {
         roles: 0,
         bans: 0,
         steamID: BigInt(123456789),
-        alias: '',
+        alias: 'old alias',
         avatar: '',
-        country: '',
+        country: 'QA',
         createdAt: undefined
       };
       db.user.findUnique.mockResolvedValueOnce(existingUser as any);
@@ -246,9 +246,9 @@ describe('UserService', () => {
       expect(spy).toHaveBeenCalledWith({
         where: { id: existingUser.id },
         data: {
-          alias: userData.alias,
+          alias: existingUser.alias,
           avatar: userData.avatar.replace('_full.jpg', ''),
-          country: userData.country
+          country: existingUser.country
         },
         select: { id: true, steamID: true }
       });
