@@ -122,6 +122,10 @@ module.exports = {
           'warn',
           { ignoreParameters: true }
         ],
+        // TypeScript's type narrowing isn't infallible, quite common to have
+        // cases of this, I don't find the warning helpful, better to bring
+        // up in review.
+        '@typescript-eslint/no-non-null-assertion': ['off'],
         // Way too sensitive. Most cases it catches are silly, and bad naming is
         // easy to flag in review.
         'unicorn/prevent-abbreviations': ['off'],
