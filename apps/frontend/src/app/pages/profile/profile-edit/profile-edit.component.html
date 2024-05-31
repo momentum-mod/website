@@ -1,6 +1,6 @@
 @if (user) {
   <m-card title="Edit Profile">
-    <button header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>
+    <button type="button" header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>
     <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="mb-4 flex flex-col gap-4">
         <div [ngClass]="{ 'has-error': !alias.valid }">

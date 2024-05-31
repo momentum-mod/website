@@ -36,6 +36,7 @@
                   [reportData]="user.id.toString()"
                 />
                 <button
+                  type="button"
                   class="btn btn-green stack aspect-square p-2"
                   [mTooltip]="(localFollowStatus | async) ? 'Unfollow' : 'Follow'"
                   (click)="toggleFollow()"
@@ -50,7 +51,12 @@
                   />
                 </button>
                 @if (localFollowStatus | async) {
-                  <button class="btn btn-blue aspect-square p-2" mTooltip="Edit Notifications" (click)="editFollowNotifications()">
+                  <button
+                    type="button"
+                    class="btn btn-blue aspect-square p-2"
+                    mTooltip="Edit Notifications"
+                    (click)="editFollowNotifications()"
+                  >
                     <m-icon [icon]="(localFollowStatus | async).notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
                   </button>
                 }

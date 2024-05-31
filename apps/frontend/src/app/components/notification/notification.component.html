@@ -20,6 +20,7 @@
         {{ notification.activity.createdAt | timeAgo }}
       </div>
       <button
+        type="button"
         class="btn btn-blue [:hover>&]:opacity-1 absolute right-[0.4rem] top-[0.4rem] px-[3px] py-[1px] pt-[2px] opacity-0 transition-opacity"
         (click)="removeNotif(notification)"
       >

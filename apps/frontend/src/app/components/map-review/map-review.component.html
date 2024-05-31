@@ -104,7 +104,12 @@
             />
             <p class="self-end pb-[1px] text-sm italic text-gray-200">{{ comment.createdAt | date: 'MMM dd, yyyy hh:mm a' }}</p>
             @if (isCommentAuthor(comment.user.id)) {
-              <button class="text-blue-500 transition-colors hover:text-blue-400" (click)="initEditComment(comment.id)" mTooltip="Edit">
+              <button
+                type="button"
+                class="text-blue-500 transition-colors hover:text-blue-400"
+                (click)="initEditComment(comment.id)"
+                mTooltip="Edit"
+              >
                 <m-icon class="my-auto block text-lg" icon="pencil" />
               </button>
             }
@@ -159,20 +164,20 @@
       @switch (review.resolved) {
         @case (null) {
           <div class="flex justify-end gap-1">
-            <button class="btn btn-thin" (click)="updateResolvedStatus(false)">Mark as needs resolving</button>
+            <button type="button" class="btn btn-thin" (click)="updateResolvedStatus(false)">Mark as needs resolving</button>
           </div>
         }
         @case (false) {
           <div class="flex justify-end gap-1">
-            <button class="btn btn-thin" (click)="updateResolvedStatus(true)">Resolve review</button>
+            <button type="button" class="btn btn-thin" (click)="updateResolvedStatus(true)">Resolve review</button>
           </div>
           <div class="flex justify-end gap-1">
-            <button class="btn btn-thin" (click)="updateResolvedStatus(null)">Mark as doesn't need resolving</button>
+            <button type="button" class="btn btn-thin" (click)="updateResolvedStatus(null)">Mark as doesn't need resolving</button>
           </div>
         }
         @case (true) {
           <div class="flex justify-end gap-1">
-            <button class="btn btn-thin" (click)="updateResolvedStatus(false)">Unresolve review</button>
+            <button type="button" class="btn btn-thin" (click)="updateResolvedStatus(false)">Unresolve review</button>
           </div>
         }
       }

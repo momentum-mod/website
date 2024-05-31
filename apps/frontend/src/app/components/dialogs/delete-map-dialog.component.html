@@ -10,6 +10,6 @@
   <input (keyup)="onCodeInput($event)" type="text" class="textinput mb-1" placeholder="Verification code" />
 </div>
 <div class="grid grid-cols-2 gap-2">
-  <button class="btn" (click)="ref.close(false)">Cancel</button>
-  <button class="btn btn-red" (click)="submit()" [disabled]="!this.isCodeValid">Delete</button>
+  <button type="button" class="btn" (click)="ref.close(false)">Cancel</button>
+  <button type="button" class="btn btn-red" (click)="submit()" [disabled]="!this.isCodeValid">Delete</button>
 </div>

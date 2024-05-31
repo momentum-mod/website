@@ -1,4 +1,4 @@
-<button class="btn btn-blue mb-3" (click)="showFilters = !showFilters">Filters</button>
+<button type="button" class="btn btn-blue mb-3" (click)="showFilters = !showFilters">Filters</button>
 <div
   class="overflow-hidden [transition:max-weight_0.2s_ease-out,margin-bottom_0.2s_ease-out_0.1s]"
   [ngClass]="{ 'mb-4': showFilters }"
@@ -29,7 +29,7 @@
       />
     </div>
     <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
-      <button class="btn btn-green" (click)="onFilterApply()">Apply</button>
+      <button type="button" class="btn btn-green" (click)="onFilterApply()">Apply</button>
     </div>
   </div>
 </div>
