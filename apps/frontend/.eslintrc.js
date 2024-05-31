@@ -41,7 +41,8 @@ module.exports = {
         '@angular-eslint/template/eqeqeq': [
           'error',
           { allowNullOrUndefined: true }
-        ]
+        ],
+        '@angular-eslint/template/button-has-type': ['error']
       }
     }
   ]
