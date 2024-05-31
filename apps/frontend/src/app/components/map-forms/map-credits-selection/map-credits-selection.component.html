@@ -26,7 +26,7 @@
           <div class="flex flex-grow flex-col">
             <div class="flex">
               <span class="mr-3 flex-grow">{{ credit.alias }}</span>
-              <button (click)="removeUser(type.key, credit.userID)">
+              <button type="button" (click)="removeUser(type.key, credit.userID)">
                 <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
               </button>
             </div>
@@ -44,7 +44,9 @@
     <div class="flex">
       <input [formControl]="placeholderInputs.get(type.key)" class="textinput flex-grow" placeholder="Create placeholder..." />
       @if (placeholderInputs.get(type.key).value?.length >= 3) {
-        <button class="btn btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">Add</button>
+        <button type="button" class="btn btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">
+          Add
+        </button>
       }
       <m-icon
         class="my-auto ml-4 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"

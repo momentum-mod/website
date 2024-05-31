@@ -27,7 +27,7 @@
     <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
   } @else {
-    <button class="ml-2 mr-3 transition-all hover:brightness-110" (click)="localUserService.login()">
+    <button type="button" class="ml-2 mr-3 transition-all hover:brightness-110" (click)="localUserService.login()">
       <img src="/assets/images/steam-login-green-large.png" />
     </button>
   }

@@ -3,7 +3,7 @@
     <p class="card-title -mb-4 text-48">Browse Maps</p>
     <div class="flex flex-wrap items-end gap-4">
       <ng-template #gm let-mode="mode" let-name="name" let-size="size">
-        <button (click)="gamemode.setValue(mode)">
+        <button type="button" (click)="gamemode.setValue(mode)">
           <p
             class="font-display text-32 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50"
             [ngClass]="{

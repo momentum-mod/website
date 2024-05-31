@@ -5,8 +5,12 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
   selector: 'm-confirm-dialog',
   template: `<p>{{ message }}</p>
     <div class="grid grid-cols-2 gap-2">
-      <button class="btn" (click)="ref.close(false)">Close</button>
-      <button class="btn btn-blue" (click)="ref.close(true)">Submit</button>
+      <button type="button" class="btn" (click)="ref.close(false)">
+        Close
+      </button>
+      <button type="button" class="btn btn-blue" (click)="ref.close(true)">
+        Submit
+      </button>
     </div>`,
   standalone: true
 })
