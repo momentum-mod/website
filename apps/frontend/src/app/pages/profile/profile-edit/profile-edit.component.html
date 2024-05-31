@@ -19,6 +19,9 @@
           @if (alias.hasError('maxlength')) {
             <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Username cannot exceed 32 characters.</p>
           }
+          @if (alias.hasError('pattern')) {
+            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Invalid alias.</p>
+          }
           @if (alias.hasError('required') && alias.dirty) {
             <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Username is required.</p>
           }

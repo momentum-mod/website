@@ -11,7 +11,8 @@ import {
   ISOCountryCode,
   Role,
   Socials,
-  SocialsData
+  SocialsData,
+  NON_WHITESPACE_REGEXP
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { omit } from '@momentum/util-fn';
@@ -96,7 +97,12 @@ export class ProfileEditComponent implements OnInit {
     this.form = this.fb.group({
       alias: [
         '',
-        [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(32),
+          Validators.pattern(NON_WHITESPACE_REGEXP)
+        ]
       ],
       bio: ['', [Validators.maxLength(MAX_BIO_LENGTH)]],
       country: [''],

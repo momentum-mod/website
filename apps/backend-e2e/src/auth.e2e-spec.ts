@@ -171,7 +171,13 @@ describe('Auth', () => {
         let user;
 
         beforeAll(async () => {
-          user = await db.createUser({ data: { steamID: steamID } });
+          user = await db.createUser({
+            data: {
+              steamID: steamID,
+              alias: steamData.personaname,
+              avatar: steamData.avatarhash
+            }
+          });
 
           response = await request();
         });
@@ -392,7 +398,7 @@ describe('Auth', () => {
         const updatedUserDB = await prisma.user.findFirst();
         expect(updatedUserDB).toMatchObject({
           steamID: userDB.steamID,
-          alias: userSteamSummary.personaname,
+          alias: userDB.alias,
           country: userSteamSummary.loccountrycode,
           avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240'
         });
@@ -599,8 +605,8 @@ describe('Auth', () => {
         const updatedUserDB = await prisma.user.findFirst();
         expect(updatedUserDB).toMatchObject({
           steamID: userDB.steamID,
-          alias: userSteamSummary.personaname,
-          country: userSteamSummary.loccountrycode,
+          alias: userDB.alias, // Alias should not change after logging in if Alias is defined.
+          country: userDB.country, // Country should not change after logging in if Country is defined.
           avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240'
         });
       });

@@ -41,3 +41,4 @@ export * from './types/utils/';
 export * from './regexp/youtube-id.regexp';
 export * from './regexp/map-name.regexp';
 export * from './regexp/iso-8601.regexp';
+export * from './regexp/non-whitespace.regexp';

@@ -4,7 +4,8 @@ import {
   MergeUser,
   Role,
   STEAM_MISSING_AVATAR,
-  User
+  User,
+  NON_WHITESPACE_REGEXP
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
@@ -12,6 +13,7 @@ import {
   IsISO31661Alpha2,
   IsOptional,
   IsString,
+  Matches,
   MaxLength
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
@@ -45,6 +47,7 @@ export class UserDto implements User {
   })
   @IsString()
   @MaxLength(32)
+  @Matches(NON_WHITESPACE_REGEXP)
   readonly alias: string;
 
   @ApiPropertyOptional({

@@ -18,6 +18,7 @@ import {
   CombinedRoles,
   MapStatus,
   Role,
+  NON_WHITESPACE_REGEXP,
   UserMapLibraryGetExpand
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
@@ -162,10 +163,12 @@ export class UsersService {
       where: { steamID: userData.steamID }
     });
 
+    const isValidAlias = user ? NON_WHITESPACE_REGEXP.test(user?.alias) : false;
+
     const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
-      alias: userData.alias,
+      alias: isValidAlias ? user.alias : userData.alias,
       avatar: userData.avatar.replace('_full.jpg', ''),
-      country: userData.country
+      country: user?.country || userData.country
     };
 
     if (user) {
@@ -205,6 +208,9 @@ export class UsersService {
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
+      if (!NON_WHITESPACE_REGEXP.test(update.alias)) {
+        throw new BadRequestException('Invalid alias');
+      }
       if (Bitflags.has(user.bans, Ban.ALIAS) && !asAdmin) {
         throw new ForbiddenException(
           'User is banned from updating their alias'

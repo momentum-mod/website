@@ -118,6 +118,25 @@ describe('User', () => {
         expect(updatedUser.alias).toBe(newAlias);
       });
 
+      it("should fail to update the authenticated user's alias", async () => {
+        const [user, token] = await db.createAndLoginUser();
+        const newAlias = '    ';
+
+        await req.patch({
+          url: 'user',
+          status: 400,
+          body: { alias: newAlias },
+          token
+        });
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id },
+          include: { profile: true }
+        });
+
+        expect(updatedUser.alias).not.toBe(newAlias);
+      });
+
       it("should update the authenticated user's bio", async () => {
         const [user, token] = await db.createAndLoginUser();
         const newBio = 'I Love Donkey Kong';
@@ -1468,7 +1487,7 @@ describe('User', () => {
           data: { userID: user.id, mapID: map.id }
         });
 
-        const res = await req.get({
+        await req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
           status: 204
