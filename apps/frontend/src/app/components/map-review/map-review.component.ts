@@ -21,7 +21,7 @@ import {
   groupMapSuggestions
 } from '../../util/grouped-map-suggestions.util';
 import { PaginatorModule } from 'primeng/paginator';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { switchMap, take, tap } from 'rxjs/operators';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
@@ -72,19 +72,25 @@ export class MapReviewComponent {
   protected activeImageDialogIndex = 0;
 
   // Extremely annoying that we need this, but review editing needs this, this
-  // is the least spaghetti way I can think of structing everything rn.
+  // is the least spaghetti way I can think of structuring everything rn.
   @Input({ required: true }) map!: MMap;
   @Output() public readonly updatedOrDeleted = new EventEmitter<void>();
 
-  protected readonly commentInput = new FormControl<string>('', {
-    validators: [
-      Validators.minLength(1),
-      Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
-    ]
+  protected readonly commentInput = new FormGroup({
+    textInput: new FormControl<string>('', {
+      validators: [
+        Validators.minLength(1),
+        Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
+      ]
+    })
   });
+
   protected loadComments = new Subject<void>();
   protected loadingComments = false;
-  protected editModeComments: Map<number, FormControl<string>> = new Map();
+  protected editModeComments: Map<
+    number,
+    FormGroup<{ textInput: FormControl<string> }>
+  > = new Map();
 
   protected editing = false;
 
@@ -193,7 +199,10 @@ export class MapReviewComponent {
   postComment(): void {
     this.loadingComments = true;
     this.mapsService
-      .postMapReviewComment(this._review.id, this.commentInput.value)
+      .postMapReviewComment(
+        this._review.id,
+        this.commentInput.get('textInput').value
+      )
       .pipe(
         take(1),
         tap(() => (this.loadingComments = false))
@@ -218,15 +227,17 @@ export class MapReviewComponent {
 
     this.editModeComments.set(
       commentID,
-      new FormControl<string>(
-        this._review.comments.find(({ id }) => id === commentID).text,
-        {
-          validators: [
-            Validators.minLength(1),
-            Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
-          ]
-        }
-      )
+      new FormGroup({
+        textInput: new FormControl<string>(
+          this._review.comments.find(({ id }) => id === commentID).text,
+          {
+            validators: [
+              Validators.minLength(1),
+              Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
+            ]
+          }
+        )
+      })
     );
   }
 
@@ -235,7 +246,7 @@ export class MapReviewComponent {
     this.mapsService
       .updateMapReviewComment(
         commentID,
-        this.editModeComments.get(commentID).value
+        this.editModeComments.get(commentID).get('textInput').value
       )
       .pipe(
         take(1),
