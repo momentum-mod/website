@@ -8,7 +8,6 @@ import {
   MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
-  NotificationDto,
   ProfileDto,
   UserDto
 } from '../../backend/src/app/dto';
@@ -426,12 +425,6 @@ describe('User', () => {
           data: {
             type: ActivityType.MAP_APPROVED,
             data: 123,
-            notifications: {
-              create: {
-                read: true,
-                user: { connect: { id: user.id } }
-              }
-            },
             user: { connect: { id: user.id } }
           }
         });
@@ -1739,156 +1732,6 @@ describe('User', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/maps/summary', 'get'));
-    });
-  });
-
-  describe('user/notifications', () => {
-    describe('GET', () => {
-      let user, token, activities;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-
-        activities = await Promise.all([
-          prisma.activity.create({
-            data: { data: 1n, type: ActivityType.ALL, userID: user.id }
-          }),
-          prisma.activity.create({
-            data: { data: 2n, type: ActivityType.ALL, userID: user.id }
-          })
-        ]);
-
-        await prisma.notification.create({
-          data: { userID: user.id, activityID: activities[0].id, read: false }
-        });
-        await prisma.notification.create({
-          data: { userID: user.id, activityID: activities[1].id, read: true }
-        });
-      });
-
-      afterAll(() => db.cleanup('user'));
-
-      it('should respond with a list of notifications for the local user', async () => {
-        const res = await req.get({
-          url: 'user/notifications',
-          status: 200,
-          validatePaged: { type: NotificationDto, count: 2 },
-          token
-        });
-
-        expect(res.body.data).toMatchObject([{ read: false }, { read: true }]);
-      });
-
-      it('should respond with a limited list of notifications for the user when using the take query param', () =>
-        req.takeTest({
-          url: 'user/notifications',
-          validate: NotificationDto,
-          token
-        }));
-
-      it('should respond with a different list of notifications for the user when using the skip query param', () =>
-        req.skipTest({
-          url: 'user/notifications',
-          validate: NotificationDto,
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifications', 'get'));
-    });
-  });
-
-  describe('user/notifications/{notifID}', () => {
-    describe('PATCH', () => {
-      let user, token, notification;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-
-        const activity = await prisma.activity.create({
-          data: { data: 1n, type: ActivityType.ALL, userID: user.id }
-        });
-
-        notification = await prisma.notification.create({
-          data: { userID: user.id, activityID: activity.id, read: false }
-        });
-      });
-
-      afterAll(() => db.cleanup('user'));
-
-      it('should update the notification', async () => {
-        await req.patch({
-          url: `user/notifications/${notification.id}`,
-          status: 204,
-          body: { read: true },
-          token
-        });
-
-        const updatedNotification = await prisma.notification.findFirst({
-          where: { userID: user.id }
-        });
-        expect(updatedNotification.read).toBe(true);
-      });
-
-      it('should 400 if the body is invalid', () =>
-        req.patch({
-          url: `user/notifications/${notification.id}`,
-          status: 400,
-          body: { read: 'horse' },
-          token
-        }));
-
-      it('should 404 if the notification does not exist', () =>
-        req.patch({
-          url: `user/notifications/${NULL_ID}`,
-          status: 404,
-          body: { read: true },
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifications/1', 'patch'));
-    });
-
-    describe('DELETE', () => {
-      let user, token, notification;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-
-        const activity = await prisma.activity.create({
-          data: { data: 1n, type: ActivityType.ALL, userID: user.id }
-        });
-
-        notification = await prisma.notification.create({
-          data: { userID: user.id, activityID: activity.id, read: false }
-        });
-      });
-
-      afterAll(() => db.cleanup('user'));
-
-      it('should delete the notification', async () => {
-        await req.del({
-          url: `user/notifications/${notification.id}`,
-          status: 204,
-          token
-        });
-
-        const updatedNotification = await prisma.notification.findFirst({
-          where: { userID: user.id }
-        });
-        expect(updatedNotification).toBeNull();
-      });
-
-      it('should 404 if the notification does not exist', () =>
-        req.del({
-          url: `user/notifications/${NULL_ID}`,
-          status: 404,
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifications/1', 'del'));
     });
   });
 });

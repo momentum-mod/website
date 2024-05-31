@@ -13,6 +13,7 @@ import { MapImageService } from './map-image.service';
 import { MapTestInviteService } from './map-test-invite.service';
 import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { MapReviewModule } from '../map-review/map-review.module';
     SessionModule,
     forwardRef(() => RunsModule),
     forwardRef(() => AdminModule),
-    forwardRef(() => MapReviewModule)
+    forwardRef(() => MapReviewModule),
+    NotificationsModule
   ],
   controllers: [MapsController],
   providers: [

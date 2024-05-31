@@ -35,6 +35,7 @@ import {
   MapStatus,
   MapTestInviteState,
   MAX_CREDITS_EXCEPT_TESTERS,
+  NotificationType,
   Role,
   TrackType
 } from '@momentum/constants';
@@ -1811,6 +1812,7 @@ describe('Maps Part 2', () => {
 
     describe('POST', () => {
       let normalToken,
+        normalUser,
         reviewerToken,
         miscUser,
         approvedMap,
@@ -1818,11 +1820,12 @@ describe('Maps Part 2', () => {
         privTestMap;
 
       beforeAll(async () => {
-        [normalToken, reviewerToken, miscUser] = await Promise.all([
-          db.loginNewUser(),
-          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
-          db.createUser()
-        ]);
+        [[normalUser, normalToken], reviewerToken, miscUser] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+            db.createUser()
+          ]);
 
         pubTestMap = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
@@ -1842,7 +1845,7 @@ describe('Maps Part 2', () => {
 
       afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(() => db.cleanup('mapReview', 'notification'));
 
       it('should successfully create a review', async () => {
         const imageBuffer = readFileSync(
@@ -1875,6 +1878,46 @@ describe('Maps Part 2', () => {
         const imageUrl = res.body.images[0];
         const image = await fileStore.downloadHttp(imageUrl);
         expect(createSha1Hash(image)).toBe(imageHash);
+      });
+
+      it('should create a REVIEW_POSTED notification for the submitter', async () => {
+        const res = await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: {
+            mainText:
+              'course 1 gave me an anuyresm anurism thing when ur braign pops',
+            suggestions: [
+              {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 0,
+                tier: 1,
+                gameplayRating: 1
+              }
+            ]
+          },
+          validate: MapReviewDto,
+          token: normalToken
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            notifiedUserID: miscUser.id,
+            type: NotificationType.REVIEW_POSTED,
+            userID: normalUser.id,
+            mapID: pubTestMap.id,
+            reviewID: res.body.id
+          }
+        });
+        expect(notifs).toMatchObject([
+          {
+            notifiedUserID: miscUser.id,
+            type: NotificationType.REVIEW_POSTED,
+            userID: normalUser.id,
+            mapID: pubTestMap.id,
+            reviewID: res.body.id
+          }
+        ]);
       });
 
       it('should succeed with no images', async () =>
@@ -1995,7 +2038,7 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mMap', 'user'));
+      afterEach(() => db.cleanup('mMap', 'user', 'notification'));
 
       it('should create MapTestInvites', async () => {
         await req.put({
@@ -2085,6 +2128,59 @@ describe('Maps Part 2', () => {
         ]);
       });
 
+      it('should create map testing request notifications for users', async () => {
+        await req.put({
+          url: `maps/${map.id}/testInvite`,
+          status: 204,
+          body: { userIDs: [u3.id, u4.id] },
+          token: u1Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: { type: NotificationType.MAP_TEST_INVITE }
+        });
+        expect(notifs).toMatchObject([
+          {
+            notifiedUserID: u3.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          },
+          {
+            notifiedUserID: u4.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        ]);
+      });
+
+      it('should delete map testing request notifications if users are uninvited', async () => {
+        await req.put({
+          url: `maps/${map.id}/testInvite`,
+          status: 204,
+          body: { userIDs: [u3.id, u4.id] },
+          token: u1Token
+        });
+        await req.put({
+          url: `maps/${map.id}/testInvite`,
+          status: 204,
+          body: { userIDs: [u4.id] },
+          token: u1Token
+        });
+        const notifs = await prisma.notification.findMany({
+          where: { type: NotificationType.MAP_TEST_INVITE }
+        });
+        expect(notifs).toMatchObject([
+          {
+            notifiedUserID: u4.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        ]);
+      });
+
       it('should 404 in the map does not exist', () =>
         req.put({
           url: `maps/${NULL_ID}/testInvite`,
@@ -2141,19 +2237,31 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/testInviteResponse', () => {
     describe('PATCH', () => {
-      let user, token, map;
+      let user, user2, token, map;
       beforeEach(async () => {
-        [user, token] = await db.createAndLoginUser();
+        [[user, token], [user2]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser()
+        ]);
 
         map = await db.createMap({
           status: MapStatus.PRIVATE_TESTING,
+          submitter: { connect: { id: user2.id } },
           testInvites: {
             create: { userID: user.id, state: MapTestInviteState.UNREAD }
           }
         });
+        await prisma.notification.create({
+          data: {
+            notifiedUserID: user.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        });
       });
 
-      afterEach(() => db.cleanup('mMap', 'user'));
+      afterEach(() => db.cleanup('mMap', 'user', 'notification'));
 
       it('should successfully accept a test invite', async () => {
         await req.patch({
@@ -2176,6 +2284,17 @@ describe('Maps Part 2', () => {
           body: { accept: false },
           token
         }));
+
+      it('should delete the notification corresponding to the testing request', async () => {
+        await req.patch({
+          url: `maps/${map.id}/testInviteResponse`,
+          status: 204,
+          body: { accept: true },
+          token
+        });
+        const notifs = await prisma.notification.findMany();
+        expect(notifs).toHaveLength(0);
+      });
 
       it('should 404 if the user does not have a test invite', async () => {
         await prisma.mapTestInvite.deleteMany();

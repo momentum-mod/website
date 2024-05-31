@@ -21,6 +21,8 @@ import {
   mapReviewAssetPath,
   MapStatus,
   MapSubmissionType,
+  MapTestInviteState,
+  NotificationType,
   ReportCategory,
   ReportType,
   Role,
@@ -648,12 +650,6 @@ describe('Admin', () => {
           data: {
             type: ActivityType.MAP_APPROVED,
             data: 123,
-            notifications: {
-              create: {
-                read: true,
-                user: { connect: { id: user.id } }
-              }
-            },
             user: { connect: { id: user.id } }
           }
         });
@@ -953,16 +949,26 @@ describe('Admin', () => {
         reviewerToken,
         u1,
         u1Token,
+        u2,
+        u3,
         createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
-        [[mod, modToken], [admin, adminToken], reviewerToken, [u1, u1Token]] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
-            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
-            db.createAndLoginUser()
-          ]);
+        [
+          [mod, modToken],
+          [admin, adminToken],
+          reviewerToken,
+          [u1, u1Token],
+          u2,
+          u3
+        ] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createUser()
+        ]);
 
         createMapData = {
           name: 'surf_map',
@@ -1003,7 +1009,7 @@ describe('Admin', () => {
 
       afterEach(() =>
         Promise.all([
-          db.cleanup('mMap', 'adminActivity'),
+          db.cleanup('mMap', 'adminActivity', 'notification'),
           fileStore.deleteDirectory('maps'),
           fileStore.deleteDirectory('submissions'),
           fileStore.deleteDirectory('maplist')
@@ -1357,6 +1363,55 @@ describe('Admin', () => {
             }
           ]
         });
+      });
+
+      it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to DISABLED', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PRIVATE_TESTING,
+          testInvites: {
+            createMany: {
+              data: [
+                {
+                  userID: u2.id,
+                  state: MapTestInviteState.UNREAD
+                },
+                {
+                  userID: u3.id,
+                  state: MapTestInviteState.ACCEPTED
+                }
+              ]
+            }
+          }
+        });
+        await prisma.notification.create({
+          data: {
+            notifiedUserID: u2.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        });
+        await req.patch({
+          url: `admin/maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.DISABLED },
+          token: adminToken
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id
+          }
+        });
+        expect(notifs).toHaveLength(0);
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { testInvites: true }
+        });
+        expect(updatedMap.testInvites).toMatchObject([
+          { userID: u3.id, state: MapTestInviteState.ACCEPTED }
+        ]);
       });
 
       describe('Map Approval', () => {

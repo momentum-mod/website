@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
-import { NotificationsService } from './services/notifications.service';
 import { LayoutService, SidenavState } from './services/layout.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { HeaderComponent } from './components/layout/header.component';
@@ -25,12 +24,7 @@ export class AppComponent {
   protected customBackgroundImage = '';
   protected customBackgroundOpacity = 0;
 
-  constructor(
-    private readonly notificationService: NotificationsService,
-    private readonly layoutService: LayoutService
-  ) {
-    this.notificationService.inject();
-
+  constructor(private readonly layoutService: LayoutService) {
     this.layoutService.sidenavToggled.subscribe(
       (state) => (this.sideNavState = state)
     );

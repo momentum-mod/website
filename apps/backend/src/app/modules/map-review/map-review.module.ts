@@ -6,13 +6,15 @@ import { MapReviewService } from './map-review.service';
 import { MapReviewController } from './map-review.controller';
 import { MapReviewCommentService } from './map-review-comment.service';
 import { AdminModule } from '../admin/admin.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     DbModule.forRoot(),
     FileStoreModule,
     forwardRef(() => MapsModule),
-    forwardRef(() => AdminModule)
+    forwardRef(() => AdminModule),
+    NotificationsModule
   ],
   controllers: [MapReviewController],
   providers: [MapReviewService, MapReviewCommentService],

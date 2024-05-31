@@ -34,7 +34,7 @@ export * from './user/follow.model';
 export * from './user/profile.model';
 export * from './user/activity.model';
 export * from './user/user-stats.model';
-export * from './user/notification.model';
+export * from './notification/notification.model';
 export * from './user/user-maps-summary.model';
 export * from './user/socials.model';
 export * from './user/admin-activity.model';

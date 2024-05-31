@@ -30,7 +30,7 @@ model User {
   follows           Follow[]           @relation("follow_follow")
   followers         Follow[]           @relation("follow_follower")
   mapNotifies       MapNotify[]
-  notifications     Notification[]
+  notifications     Notification[]      @relation("notifs_to")
   runSessions       RunSession[]
   leaderboardRuns   LeaderboardRun[]
   pastRuns          PastRun[]
@@ -41,6 +41,8 @@ model User {
   reviewsResolved   MapReview[]        @relation("mapreview_resolver")
   reviewComments    MapReviewComment[]
   adminActivities   AdminActivity[]
+
+  notifsAbout Notification[] @relation("notifs_about")
 
   createdAt DateTime @default(now())
 }
@@ -109,8 +111,6 @@ model Activity {
   /// determined by the value of `type`.
   data BigInt @db.BigInt
 
-  notifications Notification[]
-
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int
 
@@ -138,18 +138,28 @@ model Follow {
 model Notification {
   id Int @id @default(autoincrement())
 
-  read Boolean @default(false)
+  type Int /// notification-type.enum.ts
 
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
+  notifiedUser   User @relation("notifs_to", fields: [notifiedUserID], references: [id], onDelete: Cascade)
+  notifiedUserID Int
 
-  activity   Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
-  activityID Int
+  message String?
+
+  user   User? @relation("notifs_about", fields: [userID], references: [id], onDelete: Cascade)
+  userID Int?
+
+  map   MMap? @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int?
+
+  run   PastRun? @relation(fields: [runID], references: [id], onDelete: Cascade)
+  runID BigInt?
+
+  review   MapReview? @relation(fields: [reviewID], references: [id], onDelete: Cascade)
+  reviewID Int?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@index([activityID, userID])
+  @@index(notifiedUserID)
 }
 
 model MapNotify {
@@ -196,6 +206,8 @@ model MMap {
   reviews         MapReview[]
   submission      MapSubmission?
   testInvites     MapTestInvite[]
+
+  notifsAbout Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -347,6 +359,8 @@ model MapReview {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  notifsAbout Notification[]
 
   @@index([mapID])
 }
@@ -519,6 +533,7 @@ model PastRun {
   flags Int[] @db.SmallInt
 
   leaderboardRun LeaderboardRun?
+  notifsAbout    Notification[]
 
   createdAt DateTime @default(now())
 

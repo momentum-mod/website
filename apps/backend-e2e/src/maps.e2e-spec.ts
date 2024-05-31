@@ -16,10 +16,11 @@ import {
   MapSubmissionDate,
   MapSubmissionType,
   MapTestInviteState,
+  MapZones,
   MIN_PUBLIC_TESTING_DURATION,
+  NotificationType,
   Role,
   TrackType,
-  MapZones,
   LeaderboardType,
   FlatMapList
 } from '@momentum/constants';
@@ -2500,12 +2501,13 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, createMapData;
+      let user, token, u2, u2Token, u3, adminToken, createMapData;
 
       beforeAll(async () => {
-        [[user, token], [u2, u2Token], adminToken] = await Promise.all([
+        [[user, token], [u2, u2Token], u3, adminToken] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser(),
+          db.createUser(),
           db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
 
@@ -2731,6 +2733,55 @@ describe('Maps', () => {
           });
         }
       }
+
+      it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to CONTENT_APPROVAL', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PRIVATE_TESTING,
+          testInvites: {
+            createMany: {
+              data: [
+                {
+                  userID: u2.id,
+                  state: MapTestInviteState.UNREAD
+                },
+                {
+                  userID: u3.id,
+                  state: MapTestInviteState.ACCEPTED
+                }
+              ]
+            }
+          }
+        });
+        await prisma.notification.create({
+          data: {
+            notifiedUserID: u2.id,
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        });
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.CONTENT_APPROVAL },
+          token
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_TEST_INVITE,
+            mapID: map.id
+          }
+        });
+        expect(notifs).toHaveLength(0);
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { testInvites: true }
+        });
+        expect(updatedMap.testInvites).toMatchObject([
+          { userID: u3.id, state: MapTestInviteState.ACCEPTED }
+        ]);
+      });
 
       it("should allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's been in testing for required time period", async () => {
         const map = await db.createMap({
