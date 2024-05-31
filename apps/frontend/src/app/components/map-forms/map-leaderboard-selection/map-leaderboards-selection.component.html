@@ -1,4 +1,4 @@
-<button class="btn btn-blue -mb-6 ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
+<button type="button" class="btn btn-blue -mb-6 ml-auto" [ngClass]="{ 'pointer-events-none saturate-50': disabled }" (click)="addEmptyItem()">
   Add Leaderboard
 </button>
 <table
@@ -90,7 +90,7 @@
           />
         </td>
         <td>
-          <button class="btn btn-red" (click)="removeItem(i)">Delete</button>
+          <button type="button" class="btn btn-red" (click)="removeItem(i)">Delete</button>
         </td>
       </tr>
     }
