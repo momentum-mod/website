@@ -589,3 +589,11 @@ model AdminActivity {
 
   createdAt DateTime @default(now())
 }
+
+
+/// Not standard SQL practice but whatever, this is a solid way to persist
+/// config
+model Config {
+  id             String @id
+  value          Json
+}
