@@ -8,6 +8,7 @@ import {
   randomHash,
   randomSteamID,
   RequestUtil,
+  resetKillswitches,
   RunTester,
   RunTesterProps
 } from '@momentum/test-utils';
@@ -15,6 +16,7 @@ import {
   ActivityType,
   Gamemode,
   MapStatus,
+  Role,
   RunValidationErrorType,
   Tickrates,
   TrackType
@@ -279,6 +281,29 @@ describe('Session', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('session/run', 'post'));
+
+      it('should 503 if killswitch guard is active', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            RUN_SUBMISSION: true
+          },
+          token: adminToken
+        });
+
+        await req.post({
+          url: 'session/run',
+          status: 503,
+          token
+        });
+
+        await resetKillswitches(req, adminToken);
+      });
     });
 
     describe('DELETE', () => {
@@ -327,6 +352,29 @@ describe('Session', () => {
           status: 400,
           token: u1Token
         });
+      });
+
+      it('should 503 if killswitch guard is active for session/run', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            RUN_SUBMISSION: true
+          },
+          token: adminToken
+        });
+
+        await req.post({
+          url: 'session/run',
+          status: 503,
+          token: u1Token
+        });
+
+        await resetKillswitches(req, adminToken);
       });
 
       it('should 400 if trying to delete a session belonging to another user', async () => {

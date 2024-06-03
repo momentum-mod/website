@@ -6,13 +6,15 @@ import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewModule } from '../map-review/map-review.module';
+import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
     DbModule.forRoot(),
     forwardRef(() => MapsModule),
     forwardRef(() => UsersModule),
-    forwardRef(() => MapReviewModule)
+    forwardRef(() => MapReviewModule),
+    KillswitchModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService],

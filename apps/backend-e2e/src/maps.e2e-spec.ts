@@ -30,7 +30,8 @@ import {
   FILES_PATH,
   FileStoreUtil,
   NULL_ID,
-  RequestUtil
+  RequestUtil,
+  resetKillswitches
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
@@ -709,13 +710,18 @@ describe('Maps', () => {
         nozipBspBuffer,
         bspHash,
         vmfBuffer,
-        vmfHash;
+        vmfHash,
+        admin,
+        adminToken;
 
       const zones = structuredClone(ZonesStub);
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
+        [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
 
         bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
         bspHash = createSha1Hash(bspBuffer);
@@ -947,6 +953,44 @@ describe('Maps', () => {
           const invitees = invites.map((u) => u.userID);
           expect(invitees).toEqual(expect.arrayContaining([u2.id, u3.id]));
           expect(invitees).toHaveLength(2);
+        });
+
+        it('should 503 if killswitch guard is active', async () => {
+          await req.patch({
+            url: 'admin/killswitch',
+            status: 204,
+            body: {
+              MAP_SUBMISSION: true
+            },
+            token: adminToken
+          });
+
+          await db.createMap({
+            submitter: { connect: { id: user.id } },
+            status: CombinedMapStatuses.IN_SUBMISSION[1]
+          });
+
+          await req.postAttach({
+            url: 'maps',
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token: adminToken
+          });
+
+          await req.patch({
+            url: 'admin/killswitch',
+            status: 204,
+            body: {
+              NEW_SIGNUPS: false,
+              RUN_SUBMISSION: false,
+              MAP_SUBMISSION: false,
+              MAP_REVIEWS: false
+            },
+            token: adminToken
+          });
         });
       });
 
@@ -2014,6 +2058,36 @@ describe('Maps', () => {
             where: { mapID: map.id, gamemode: Gamemode.CONC }
           })
         ).toHaveLength(0);
+      });
+
+      it('should 503 if killswitch guard is active for maps/{mapID}', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        const changelog = 'Will delete map';
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_SUBMISSION: true
+          },
+          token: adminToken
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 503,
+          data: { changelog },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+
+        await resetKillswitches(req, adminToken);
       });
 
       it('should not update the map list version for private submissions', async () => {

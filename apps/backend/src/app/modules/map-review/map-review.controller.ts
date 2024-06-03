@@ -8,7 +8,8 @@ import {
   Param,
   Patch,
   Post,
-  Query
+  Query,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -36,6 +37,9 @@ import {
   UpdateMapReviewCommentDto,
   UpdateMapReviewDto
 } from '../../dto';
+import { KillswitchGuard } from '../killswitch/killswitch.guard';
+import { Killswitch } from '../killswitch/killswitch.decorator';
+import { KillswitchType } from '../killswitch/killswitch.enum';
 
 /**
  * These endpoints handle only individual reviews, paginated reviews and posting
@@ -51,6 +55,8 @@ export class MapReviewController {
   ) {}
 
   @Get('/:reviewID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @ApiOperation({ summary: 'Returns the requested review' })
   @ApiOkResponse({ description: 'The requested review of the map' })
   @ApiNotFoundResponse({
@@ -71,6 +77,8 @@ export class MapReviewController {
   }
 
   @Patch('/:reviewID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @ApiOperation({
     summary: "Update a review for a map. Doesn't yet support updating images."
   })
@@ -95,6 +103,8 @@ export class MapReviewController {
   }
 
   @Delete('/:reviewID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Allows the submitter'
@@ -141,6 +151,8 @@ export class MapReviewController {
   // Not bothered with single comment GET, can't imagine every needing it.
 
   @Post('/:reviewID/comments')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @ApiOperation({ summary: 'Post a comment on a review' })
   @ApiOkResponse({ type: MapReviewCommentDto })
   @ApiNotFoundResponse({ description: 'Review not found' })
@@ -161,6 +173,8 @@ export class MapReviewController {
   }
 
   @Patch('/comments/:commentID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @ApiOperation({ summary: 'Update an existing commment' })
   @ApiOkResponse({ type: MapReviewCommentDto })
   @ApiNotFoundResponse({ description: 'Comment not found' })
@@ -182,7 +196,9 @@ export class MapReviewController {
   }
 
   @Delete('/comments/:commentID')
-  @ApiOperation({ summary: 'Delete an existing commment' })
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
+  @ApiOperation({ summary: 'Delete an existing comment' })
   @ApiNoContentResponse({ description: 'Comment deleted successfully' })
   @ApiNotFoundResponse({ description: 'Comment not found' })
   @ApiForbiddenResponse({ description: 'Map is not in submission' })

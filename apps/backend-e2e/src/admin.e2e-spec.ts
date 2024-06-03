@@ -50,6 +50,8 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { KillswitchType } from '../../backend/src/app/modules/killswitch/killswitch.enum';
+import { Killswitches } from '../../backend/src/app/modules/killswitch/killswitch.service';
 
 describe('Admin', () => {
   let app,
@@ -2520,6 +2522,125 @@ describe('Admin', () => {
 
       it('should 403 when no access token is provided', () =>
         req.unauthorizedTest('admin/activities/' + admin.id, 'get'));
+    });
+  });
+
+  describe('admin/killswitch', () => {
+    describe('GET', () => {
+      let admin, adminToken, u1, u1Token;
+      beforeAll(async () => {
+        [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser()
+        ]);
+      });
+
+      afterAll(() => db.cleanup('user', 'adminActivity'));
+
+      it('should respond with all killswitches', async () => {
+        const response = await req.get({
+          url: 'admin/killswitch',
+          status: 200,
+          token: adminToken
+        });
+
+        const killswitches = Object.fromEntries(
+          Enum.values(KillswitchType).map((type: KillswitchType) => [
+            type,
+            false
+          ])
+        ) as Killswitches;
+
+        expect(response.body).toEqual(killswitches);
+      });
+
+      it('should respond with unauthorized', async () => {
+        await req.get({
+          url: 'admin/killswitch',
+          status: 403,
+          token: u1Token
+        });
+      });
+    });
+
+    describe('PATCH', () => {
+      let admin, adminToken, u1, u1Token;
+      beforeAll(async () => {
+        [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser()
+        ]);
+      });
+
+      afterAll(() => db.cleanup('user', 'adminActivity', 'config'));
+
+      it('should allow admin to patch killswitches', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_SUBMISSION: true
+          },
+          token: adminToken
+        });
+      });
+
+      it('should allow admin to patch multiple killswitches', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            NEW_SIGNUPS: true,
+            MAP_SUBMISSION: true
+          },
+          token: adminToken
+        });
+      });
+
+      it('should not allow admins to patch incorrect killswitches', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 400,
+          body: {
+            FAKE_SWITCH: true
+          },
+          token: adminToken
+        });
+      });
+
+      it('should fail if killswitch value is not a boolean', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 400,
+          body: {
+            MAP_SUBMISSION: 'this is a test'
+          },
+          token: adminToken
+        });
+      });
+
+      it('should fail if one killswitch is valid and one not', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 400,
+          body: {
+            NEW_SIGNUPS: true,
+            MAP_SUBMISSION: 'this is a test'
+          },
+          token: adminToken
+        });
+      });
+
+      it('should respond with unauthorized', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 403,
+          body: {
+            MAP_SUBMISSION: true
+          },
+          token: u1Token
+        });
+      });
     });
   });
 });

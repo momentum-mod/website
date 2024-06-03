@@ -22,6 +22,7 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
 import { ExtendedPrismaService } from './modules/database/prisma.extension';
 import { EXTENDED_PRISMA_SERVICE } from './modules/database/db.constants';
 import { DbModule } from './modules/database/db.module';
+import { KillswitchModule } from './modules/killswitch/killswitch.module';
 
 @Module({
   imports: [
@@ -90,7 +91,8 @@ import { DbModule } from './modules/database/db.module';
     UserModule,
     UsersModule,
     SessionModule,
-    XpSystemsModule
+    XpSystemsModule,
+    KillswitchModule
   ],
   providers: [
     {

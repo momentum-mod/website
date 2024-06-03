@@ -6,11 +6,13 @@ import { MapReviewService } from './map-review.service';
 import { MapReviewController } from './map-review.controller';
 import { MapReviewCommentService } from './map-review-comment.service';
 import { AdminModule } from '../admin/admin.module';
+import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
     DbModule.forRoot(),
     FileStoreModule,
+    KillswitchModule,
     forwardRef(() => MapsModule),
     forwardRef(() => AdminModule)
   ],
