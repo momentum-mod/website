@@ -34,6 +34,9 @@ import {
 import { LoggedInUser } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { RunSessionService } from './run/run-session.service';
+import { KillswitchGuard } from '../killswitch/killswitch.guard';
+import { Killswitch } from '../killswitch/killswitch.decorator';
+import { KillswitchType } from '../killswitch/killswitch.enum';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)
@@ -43,6 +46,8 @@ export class SessionController {
   constructor(private readonly runSessionService: RunSessionService) {}
 
   @Post('/run')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.RUN_SUBMISSION)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Starts a run' })
   @ApiBody({ type: CreateRunSessionDto })
@@ -61,6 +66,8 @@ export class SessionController {
   }
 
   @Delete('/run/:sessionID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.RUN_SUBMISSION)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({
     type: Number,

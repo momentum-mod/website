@@ -47,11 +47,15 @@ import { SteamUserSummaryData } from '../steam/steam.interface';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
+import { KillswitchService } from '../killswitch/killswitch.service';
+import { KillswitchType } from '../killswitch/killswitch.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    @Inject(KillswitchService)
+    private readonly killswitchService: KillswitchService,
     private readonly steamService: SteamService,
     private readonly config: ConfigService,
     private readonly adminActivityService: AdminActivityService
@@ -177,6 +181,10 @@ export class UsersService {
         data: input as Prisma.UserUpdateInput,
         select: { id: true, steamID: true }
       });
+    } else if (
+      this.killswitchService.checkKillswitch(KillswitchType.NEW_SIGNUPS)
+    ) {
+      throw new ConflictException('New signups are disabled temporarily');
     } else {
       if (
         this.config.getOrThrow('steam.preventLimited') &&

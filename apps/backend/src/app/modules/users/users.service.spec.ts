@@ -8,6 +8,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 import {
+  ConflictException,
   ForbiddenException,
   InternalServerErrorException,
   ServiceUnavailableException
@@ -15,18 +16,22 @@ import {
 import { User } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
+import { KillswitchService } from '../killswitch/killswitch.service';
 
 describe('UserService', () => {
   let usersService: UsersService;
+  let killswitchService: KillswitchService;
   let db: PrismaMock;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService, PRISMA_MOCK_PROVIDER]
+      providers: [UsersService, PRISMA_MOCK_PROVIDER, KillswitchService]
     })
       .useMocker(mockDeep)
       .compile();
     usersService = module.get(UsersService);
+    killswitchService = module.get(KillswitchService);
+    await killswitchService.onModuleInit();
     db = module.get(EXTENDED_PRISMA_SERVICE);
   });
 
@@ -251,6 +256,92 @@ describe('UserService', () => {
           country: existingUser.country
         },
         select: { id: true, steamID: true }
+      });
+    });
+
+    it('should not create a new  if the killswitch is active', async () => {
+      await killswitchService.updateKillswitches({
+        NEW_SIGNUPS: true,
+        MAP_REVIEWS: false,
+        MAP_SUBMISSION: false,
+        RUN_SUBMISSION: false
+      });
+
+      const fakeUser: User = undefined;
+      db.user.findUnique.mockResolvedValueOnce(fakeUser as any);
+
+      const userData = {
+        steamID: BigInt(123456789),
+        alias: 'alias',
+        avatar: 'avatar',
+        country: 'country'
+      };
+
+      await expect(usersService.findOrCreateUser(userData)).rejects.toThrow(
+        ConflictException
+      );
+
+      // reset killswitches
+      await killswitchService.updateKillswitches({
+        NEW_SIGNUPS: false,
+        MAP_REVIEWS: false,
+        MAP_SUBMISSION: false,
+        RUN_SUBMISSION: false
+      });
+    });
+
+    it('should allow existing users to login if killswitch is active', async () => {
+      const existingUser: User = {
+        id: 81237293,
+        roles: 0,
+        bans: 0,
+        steamID: BigInt(123456789),
+        alias: 'old alias',
+        avatar: '',
+        country: 'AQ',
+        createdAt: undefined
+      };
+
+      db.user.findUnique.mockResolvedValueOnce(existingUser as any);
+      const authUser: AuthenticatedUser = {
+        id: 81237293,
+        steamID: 123456799n
+      };
+
+      db.user.update.mockResolvedValueOnce(authUser as any);
+
+      const userData = {
+        steamID: BigInt(123456799n),
+        alias: 'new alias',
+        avatar: 'new avatar',
+        country: 'new country'
+      };
+
+      await killswitchService.updateKillswitches({
+        NEW_SIGNUPS: true,
+        MAP_REVIEWS: false,
+        MAP_SUBMISSION: false,
+        RUN_SUBMISSION: false
+      });
+
+      const spy = jest.spyOn(db['user'], 'update');
+      await usersService.findOrCreateUser(userData);
+      expect(spy).toHaveBeenCalledWith({
+        where: { id: existingUser.id },
+        data: {
+          alias: existingUser.alias,
+          avatar: userData.avatar.replace('_full.jpg', ''),
+          country: existingUser.country
+        },
+        select: { id: true, steamID: true }
+      });
+
+      // reset killswitches
+      await killswitchService.updateKillswitches({
+        NEW_SIGNUPS: false,
+        MAP_REVIEWS: false,
+        MAP_SUBMISSION: false,
+        RUN_SUBMISSION: false
       });
     });
 

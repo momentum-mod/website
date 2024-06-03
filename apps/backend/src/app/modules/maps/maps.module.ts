@@ -13,6 +13,7 @@ import { MapImageService } from './map-image.service';
 import { MapTestInviteService } from './map-test-invite.service';
 import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
+import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { MapReviewModule } from '../map-review/map-review.module';
     SessionModule,
     forwardRef(() => RunsModule),
     forwardRef(() => AdminModule),
-    forwardRef(() => MapReviewModule)
+    forwardRef(() => MapReviewModule),
+    KillswitchModule
   ],
   controllers: [MapsController],
   providers: [

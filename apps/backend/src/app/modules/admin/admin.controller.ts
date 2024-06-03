@@ -27,6 +27,10 @@ import { RolesGuard } from '../auth/roles.guard';
 import { NonGameAuthGuard } from '../auth/jwt/game.guard';
 import { LoggedInUser, Roles } from '../../decorators';
 import { MapsService } from '../maps/maps.service';
+import {
+  Killswitches,
+  KillswitchService
+} from '../killswitch/killswitch.service';
 import { UsersService } from '../users/users.service';
 import {
   AdminActivityDto,
@@ -63,8 +67,35 @@ export class AdminController {
     private readonly mapsService: MapsService,
     private readonly mapReviewService: MapReviewService,
     private readonly usersService: UsersService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly killswitchService: KillswitchService
   ) {}
+
+  @Patch('/killswitch')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Update active killswitches' })
+  @ApiNoContentResponse({
+    description: 'The switches were updated successfully'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid switches type' })
+  @ApiBody({
+    type: Object,
+    description: 'Object of type Record<KillswitchType, boolean>',
+    required: true
+  })
+  async updateKillSwitch(@Body() switches: Killswitches): Promise<void> {
+    await this.killswitchService.updateKillswitches(switches);
+  }
+
+  @Get('/killswitch')
+  @ApiOperation({ summary: 'Gets currently stored killswitches' })
+  @ApiNoContentResponse({
+    description: 'Found switches'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid switches type' })
+  getKillSwitches(): Promise<Killswitches> {
+    return this.killswitchService.getKillSwitches();
+  }
 
   @Post('/users')
   @ApiBody({

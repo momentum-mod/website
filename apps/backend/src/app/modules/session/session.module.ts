@@ -5,13 +5,15 @@ import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { MapsModule } from '../maps/maps.module';
 import { SessionController } from './session.controller';
 import { RunSessionService } from './run/run-session.service';
+import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
     DbModule.forRoot(),
     FileStoreModule,
     XpSystemsModule,
-    forwardRef(() => MapsModule)
+    forwardRef(() => MapsModule),
+    KillswitchModule
   ],
   controllers: [SessionController],
   providers: [RunSessionService]

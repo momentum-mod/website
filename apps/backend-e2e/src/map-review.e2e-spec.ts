@@ -7,7 +7,8 @@ import {
   DbUtil,
   FileStoreUtil,
   NULL_ID,
-  RequestUtil
+  RequestUtil,
+  resetKillswitches
 } from '@momentum/test-utils';
 import {
   Gamemode,
@@ -41,10 +42,13 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}', () => {
     describe('GET', () => {
-      let user, token, map, review;
+      let user, token, map, review, admin, adminToken;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.REVIEWER }
+        });
+        [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
         });
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
@@ -331,6 +335,29 @@ describe('Map Reviews', () => {
           token: token
         }));
 
+      it('should 503 if the killswitch is true', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_REVIEWS: true
+          },
+          token: adminToken
+        });
+
+        await req.del({
+          url: `map-review/${review.id}`,
+          status: 503,
+          token: token
+        });
+
+        await resetKillswitches(req, adminToken);
+      });
+
       it("should not allow another user to delete someone else's review", () =>
         req.del({
           url: `map-review/${review.id}`,
@@ -433,6 +460,172 @@ describe('Map Reviews', () => {
         });
 
         expect(res.body.data[0]).toHaveProperty('user');
+      });
+    });
+
+    describe('POST', () => {
+      let user, token, admin, adminToken, map, reviewID;
+
+      beforeAll(async () => {
+        [[user, token], [admin, adminToken]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+        ]);
+
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'DISGUSTING',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: user.id } },
+            resolved: false
+          }
+        });
+        reviewID = review.id;
+
+        await prisma.mapReviewComment.createMany({
+          data: [
+            { reviewID, userID: user.id, text: 'no it isnt!!' },
+            { reviewID, userID: user.id, text: 'we are the same person' },
+            { reviewID, userID: user.id, text: 'oh' }
+          ]
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should 503 if the killswitch is true', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_REVIEWS: true
+          },
+          token: adminToken
+        });
+
+        await req.post({
+          url: `map-review/${map.id}/comments`,
+          status: 503,
+          body: {
+            data: {
+              text: 'something'
+            }
+          },
+          token: token
+        });
+
+        await resetKillswitches(req, adminToken);
+      });
+    });
+
+    describe('PATCH', () => {
+      let user, token, admin, adminToken, map, reviewID;
+
+      beforeAll(async () => {
+        [[user, token], [admin, adminToken]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+        ]);
+
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'DISGUSTING',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: user.id } },
+            resolved: false
+          }
+        });
+        reviewID = review.id;
+
+        await prisma.mapReviewComment.createMany({
+          data: [
+            { reviewID, userID: user.id, text: 'no it isnt!!' },
+            { reviewID, userID: user.id, text: 'we are the same person' },
+            { reviewID, userID: user.id, text: 'oh' }
+          ]
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should 503 if the killswitch is true', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_REVIEWS: true
+          },
+          token: adminToken
+        });
+
+        await req.patch({
+          url: 'map-review/comments/1',
+          status: 503,
+          body: {
+            data: {
+              text: 'something newer'
+            }
+          },
+          token: token
+        });
+
+        await resetKillswitches(req, adminToken);
+      });
+    });
+
+    describe('DELETE', () => {
+      let user, token, admin, adminToken, map, reviewID;
+
+      beforeAll(async () => {
+        [[user, token], [admin, adminToken]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+        ]);
+
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'DISGUSTING',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: user.id } },
+            resolved: false
+          }
+        });
+        reviewID = review.id;
+
+        await prisma.mapReviewComment.createMany({
+          data: [
+            { reviewID, userID: user.id, text: 'no it isnt!!' },
+            { reviewID, userID: user.id, text: 'we are the same person' },
+            { reviewID, userID: user.id, text: 'oh' }
+          ]
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should 503 if the killswitch is true', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_REVIEWS: true
+          },
+          token: adminToken
+        });
+
+        await req.del({
+          url: 'map-review/comments/1',
+          status: 503,
+          token: token
+        });
+
+        await resetKillswitches(req, adminToken);
       });
     });
   });

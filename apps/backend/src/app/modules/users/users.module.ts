@@ -6,6 +6,7 @@ import { RunsModule } from '../runs/runs.module';
 import { AdminModule } from '../admin/admin.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersService } from './users.service';
     SteamModule,
     RunsModule,
     FileStoreModule,
+    KillswitchModule,
     forwardRef(() => AdminModule)
   ],
   controllers: [UsersController],

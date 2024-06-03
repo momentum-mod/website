@@ -389,6 +389,28 @@ export class RequestUtil {
   }
 }
 
+//#endregion
+//#region Misc utils
+
+// TODO: This is a very ugly lil util for using a HTTP request to reset
+// killswitches, since the state is currently stored directly in the Node app
+// at runtime. In the future this will be in Redis, so should add a function to
+// DbUtil instead.
+export function resetKillswitches(req: RequestUtil, adminToken: string) {
+  return req.patch({
+    url: 'admin/killswitch',
+    status: 204,
+    body: {
+      NEW_SIGNUPS: false,
+      RUN_SUBMISSION: false,
+      MAP_SUBMISSION: false,
+      MAP_REVIEWS: false
+    },
+    token: adminToken
+  });
+}
+
+//#endregion
 //#region Types
 
 type Query = Record<string, Primitive | Array<Primitive>>;

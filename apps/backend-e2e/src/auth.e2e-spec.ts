@@ -12,12 +12,18 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { PrismaClient } from '@prisma/client';
-import { DbUtil, ParsedResponse, RequestUtil } from '@momentum/test-utils';
+import {
+  DbUtil,
+  ParsedResponse,
+  RequestUtil,
+  resetKillswitches
+} from '@momentum/test-utils';
 import {
   JWTResponseGameDto,
   JWTResponseWebDto
 } from '../../backend/src/app/dto';
 import { setupE2ETestEnvironment } from './support/environment';
+import { Role } from '@momentum/constants';
 
 describe('Auth', () => {
   const testJwtService = new JwtService({
@@ -38,21 +44,6 @@ describe('Auth', () => {
   });
 
   afterAll(() => db.cleanup('user'));
-
-  describe('auth/web', () => {
-    describe('GET', () => {
-      it('should redirect to steam login', async () => {
-        const res = await req.get({
-          url: 'auth/web',
-          skipApiPrefix: true,
-          status: 302
-        });
-        expect(res.headers.location).toMatch(
-          /^https:\/\/steamcommunity.com\/openid\/login.+/
-        );
-      });
-    });
-  });
 
   describe('auth/web/return', () => {
     describe('GET', () => {
@@ -276,6 +267,31 @@ describe('Auth', () => {
         });
 
         await db.cleanup('user');
+      });
+
+      describe('when given a valid login, and killswitch is active', () => {
+        it('should fail if trying to login a new user', async () => {
+          const adminToken = await db.loginNewUser({
+            data: { roles: Role.ADMIN }
+          });
+
+          await req.patch({
+            url: 'admin/killswitch',
+            status: 204,
+            body: {
+              NEW_SIGNUPS: true
+            },
+            token: adminToken
+          });
+
+          response = await request();
+
+          expect(response.statusCode).toBe(409);
+
+          await resetKillswitches(req, adminToken);
+
+          db.cleanup('user');
+        });
       });
     });
   });
@@ -735,6 +751,29 @@ describe('Auth', () => {
       const newUserAuth = await prisma.userAuth.findFirst();
       expect(newUserAuth.refreshToken).toBe(res.body.refreshToken);
       expect(newUserAuth.refreshToken).not.toBe(originalRefreshToken);
+    });
+  });
+
+  describe('auth/web', () => {
+    let admin, adminToken;
+
+    beforeAll(async () => {
+      [admin, adminToken] = await db.createAndLoginUser({
+        data: { roles: Role.ADMIN }
+      });
+    });
+
+    describe('GET', () => {
+      it('should redirect to steam login', async () => {
+        const res = await req.get({
+          url: 'auth/web',
+          skipApiPrefix: true,
+          status: 302
+        });
+        expect(res.headers.location).toMatch(
+          /^https:\/\/steamcommunity.com\/openid\/login.+/
+        );
+      });
     });
   });
 });

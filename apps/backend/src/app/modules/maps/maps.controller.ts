@@ -35,6 +35,7 @@ import {
 } from '@nestjs/swagger';
 import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
 import {
+  ImageType,
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
   MAX_MAP_IMAGE_SIZE,
@@ -58,7 +59,6 @@ import {
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
-  MapsGetAllSubmissionQueryDto,
   MapImageDto,
   MapInfoDto,
   MapLeaderboardGetQueryDto,
@@ -66,17 +66,18 @@ import {
   MapListVersionDto,
   MapReviewDto,
   MapReviewsGetQueryDto,
+  MapsGetAllSubmissionQueryDto,
   MapsGetAllQueryDto,
   MapsGetQueryDto,
   MapZonesDto,
   MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
+  UpdateMapImagesDto,
   UpdateMapTestInviteDto,
-  VALIDATION_PIPE_CONFIG,
-  UpdateMapImagesDto
+  VALIDATION_PIPE_CONFIG
 } from '../../dto';
-import { LoggedInUser, Roles, BypassJwtAuth } from '../../decorators';
+import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
@@ -87,10 +88,12 @@ import { MapsService } from './maps.service';
 import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
 import { MapReviewService } from '../map-review/map-review.service';
-import { ImageType } from '@momentum/constants';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
 import { LeaderboardService } from '../runs/leaderboard.service';
 import { MapListService } from './map-list.service';
+import { KillswitchGuard } from '../killswitch/killswitch.guard';
+import { Killswitch } from '../killswitch/killswitch.decorator';
+import { KillswitchType } from '../killswitch/killswitch.enum';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -187,6 +190,8 @@ export class MapsController {
   }
 
   @Post()
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Submits a map' })
   @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
@@ -218,6 +223,8 @@ export class MapsController {
   // then this. Make sure that former completes before the latter. Yes this is an
   // upload so bound to take longer, but don't rely on that.
   @Post('/:mapID')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary:
@@ -329,6 +336,8 @@ export class MapsController {
 
   //#region Credits
   @Get('/:mapID/credits')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a single map's credits" })
   @ApiParam({
@@ -384,6 +393,8 @@ export class MapsController {
 
   @Put('/:mapID/credits')
   @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Updates the MapCredits on a map'
@@ -492,6 +503,8 @@ export class MapsController {
   }
 
   @Put('/:mapID/images')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'images', maxCount: MAX_MAP_IMAGES }]),
     FormDataJsonInterceptor('data')
@@ -656,6 +669,8 @@ export class MapsController {
   }
 
   @Post('/:mapID/reviews')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_REVIEWS)
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'images', maxCount: MAX_REVIEW_IMAGES }]),
     FormDataJsonInterceptor('data')

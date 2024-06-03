@@ -24,7 +24,8 @@ import {
   FileStoreUtil,
   futureDateOffset,
   NULL_ID,
-  RequestUtil
+  RequestUtil,
+  resetKillswitches
 } from '@momentum/test-utils';
 import {
   ActivityType,
@@ -290,6 +291,26 @@ describe('Maps Part 2', () => {
 
         const credit = await prisma.mapCredit.findFirst();
         expect(credit).toMatchObject({ userID: u2.id, mapID: map.id });
+      });
+
+      it('should 503 if killswitch guard is active for maps/{mapID}/credits PUT', async () => {
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_SUBMISSION: true
+          },
+          token: adminToken
+        });
+
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 503,
+          body: newMapCredit,
+          token: u1Token
+        });
+
+        await resetKillswitches(req, adminToken);
       });
 
       it('should delete an credits for the map not on the new DTO', async () => {
@@ -866,6 +887,33 @@ describe('Maps Part 2', () => {
             await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`)
           ).toBe(true);
         }
+      });
+
+      it('should 503 if killswitch guard is active for maps/{mapID}/images PUT', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_SUBMISSION: true
+          },
+          token: adminToken
+        });
+
+        await req.putAttach({
+          url: `maps/${map.id}/images`,
+          status: 503,
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.png' }
+          ],
+          data: { imageIDs: ['0'] },
+          token
+        });
+
+        await resetKillswitches(req, adminToken);
       });
 
       it('should reorder images correctly, and delete any unused ones', async () => {
@@ -1875,6 +1923,48 @@ describe('Maps Part 2', () => {
         const imageUrl = res.body.images[0];
         const image = await fileStore.downloadHttp(imageUrl);
         expect(createSha1Hash(image)).toBe(imageHash);
+      });
+
+      it('should 503 if killswitch guard is active for maps', async () => {
+        const [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: {
+            MAP_REVIEWS: true
+          },
+          token: adminToken
+        });
+
+        const imageBuffer = readFileSync(
+          path.join(FILES_PATH, 'image_jpg.jpg')
+        );
+
+        await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 503,
+          files: [
+            { file: imageBuffer, field: 'images', fileName: 'hello.jpg' }
+          ],
+          data: {
+            mainText: 'Please add conc',
+            suggestions: [
+              {
+                gamemode: Gamemode.AHOP,
+                trackType: 0,
+                trackNum: 0,
+                tier: 1,
+                gameplayRating: 1
+              }
+            ]
+          },
+          token: normalToken
+        });
+
+        await resetKillswitches(req, adminToken);
       });
 
       it('should succeed with no images', async () =>
