@@ -36,7 +36,7 @@ import { ParseIntSafePipe } from '../../pipes';
 import { RunSessionService } from './run/run-session.service';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
-import { KillswitchType } from '../killswitch/killswitch.enum';
+import { KillswitchType } from '@momentum/constants';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)

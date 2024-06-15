@@ -19,7 +19,8 @@ import {
   MapStatus,
   Role,
   NON_WHITESPACE_REGEXP,
-  UserMapLibraryGetExpand
+  UserMapLibraryGetExpand,
+  KillswitchType
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { expandToIncludes, isEmpty, undefinedIfEmpty } from '@momentum/util-fn';
@@ -48,7 +49,6 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
-import { KillswitchType } from '../killswitch/killswitch.enum';
 
 @Injectable()
 export class UsersService {

@@ -39,7 +39,7 @@ import {
 } from '../../dto';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
-import { KillswitchType } from '../killswitch/killswitch.enum';
+import { KillswitchType } from '@momentum/constants';
 
 /**
  * These endpoints handle only individual reviews, paginated reviews and posting

@@ -41,7 +41,8 @@ import {
   MAX_MAP_IMAGE_SIZE,
   MAX_MAP_IMAGES,
   MAX_REVIEW_IMAGES,
-  Role
+  Role,
+  KillswitchType
 } from '@momentum/constants';
 import { ConfigService } from '@nestjs/config';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
@@ -93,7 +94,6 @@ import { LeaderboardService } from '../runs/leaderboard.service';
 import { MapListService } from './map-list.service';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
-import { KillswitchType } from '../killswitch/killswitch.enum';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
