@@ -22,13 +22,12 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { Role as RolesEnum } from '@momentum/constants';
+import { Role as RolesEnum, Killswitches } from '@momentum/constants';
 import { RolesGuard } from '../auth/roles.guard';
 import { NonGameAuthGuard } from '../auth/jwt/game.guard';
 import { LoggedInUser, Roles } from '../../decorators';
 import { MapsService } from '../maps/maps.service';
 import {
-  Killswitches,
   KillswitchService
 } from '../killswitch/killswitch.service';
 import { UsersService } from '../users/users.service';

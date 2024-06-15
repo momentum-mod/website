@@ -7,10 +7,9 @@ import {
 } from '@nestjs/common';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { KillswitchType } from './killswitch.enum';
+import { KillswitchType, Killswitches } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
 
-export type Killswitches = Record<KillswitchType, boolean>;
 export const KILLSWITCH_CONFIG_ID = 'Killswitches';
 
 @Injectable()

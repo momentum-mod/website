@@ -25,6 +25,7 @@ export * from './enums/style.enum';
 export * from './enums/admin-activity-type.enum';
 export * from './enums/image-type.enum';
 export * from './enums/leaderboard-type.enum';
+export * from './enums/killswitch.enum';
 export * from './maps/gamemode-name.map';
 export * from './maps/gamemode-prefix.map';
 export * from './maps/gamemode-icon.map';
