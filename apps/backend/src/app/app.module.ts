@@ -23,6 +23,7 @@ import { ExtendedPrismaService } from './modules/database/prisma.extension';
 import { EXTENDED_PRISMA_SERVICE } from './modules/database/db.constants';
 import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
+import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 
 @Module({
   imports: [
@@ -92,7 +93,8 @@ import { KillswitchModule } from './modules/killswitch/killswitch.module';
     UsersModule,
     SessionModule,
     XpSystemsModule,
-    KillswitchModule
+    KillswitchModule,
+    HealthcheckModule
   ],
   providers: [
     {
