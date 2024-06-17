@@ -77,7 +77,7 @@ import { MapStatusFormComponent } from '../../../components/map-forms/map-status
 import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
 import { MapTestInviteSelectionComponent } from '../../../components/map-forms/map-test-invite-selection/map-test-invite-selection.component';
 import { ImageSelectionItem } from '../../../components/map-forms/map-image-selection/image-selection-item.class';
-import { DeleteUserDialogComponent } from '../../../components/dialogs/delete-user-dialog.component';
+import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -606,7 +606,17 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   deleteMap() {
     this.dialogService
-      .open(DeleteUserDialogComponent, { header: 'Delete map' })
+      .open(CodeVerifyDialogComponent, {
+        header: 'Delete map',
+        data: {
+          message: `
+            <p>This will set the map to disabled and delete all files.</p>
+            <p>
+              Effectively it deletes the map, and should only be used for cases like DMCAs, offensive content etc. If it has any chance of being
+              re-enabled, just set the map status to <b>disabled</b> instead.
+            </p>`
+        }
+      })
       .onClose.subscribe((response) => {
         if (!response) return;
         this.adminService.deleteMap(this.map.id).subscribe({
