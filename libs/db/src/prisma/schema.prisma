@@ -36,7 +36,7 @@ model User {
   pastRuns          PastRun[]
   reportSubmitted   Report[]           @relation("report_submitter")
   reportResolved    Report[]           @relation("report_resolver")
-  testInvites   MapTestInvite[]
+  testInvites       MapTestInvite[]
   reviewsSubmitted  MapReview[]        @relation("mapreview_reviewer")
   reviewsResolved   MapReview[]        @relation("mapreview_resolver")
   reviewComments    MapReviewComment[]
@@ -312,7 +312,7 @@ model MapSubmissionVersion {
 
   versionNum Int     @db.SmallInt
   changelog  String?
-  hash       String?  @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  hash       String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
   hasVmf     Boolean @default(false)
   zones      Json? /// map-zones.model.ts
 
@@ -390,7 +390,7 @@ model Leaderboard {
   // Optional as these don't necessarily apply to stages/bonuses
   tier   Int?     @db.SmallInt
   linear Boolean?
-  
+
   type Int @db.SmallInt // leaderboard-type.enum.ts
 
   tags Json @default("[]")
@@ -590,10 +590,9 @@ model AdminActivity {
   createdAt DateTime @default(now())
 }
 
-
 /// Not standard SQL practice but whatever, this is a solid way to persist
 /// config
 model Config {
-  id             String @id
-  value          Json
+  id    String @id
+  value Json
 }
