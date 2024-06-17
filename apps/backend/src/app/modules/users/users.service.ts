@@ -216,16 +216,25 @@ export class UsersService {
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
-      if (!NON_WHITESPACE_REGEXP.test(update.alias)) {
-        throw new BadRequestException('Invalid alias');
-      }
       if (Bitflags.has(user.bans, Ban.ALIAS) && !asAdmin) {
         throw new ForbiddenException(
           'User is banned from updating their alias'
         );
-      } else {
-        updateInput.alias = update.alias;
       }
+
+      // Reset alias to steam name
+      if (update.alias === '') {
+        const userData = await this.steamService.getSteamUserSummaryData(
+          user.steamID
+        );
+        update.alias = userData.personaname;
+      }
+
+      if (!NON_WHITESPACE_REGEXP.test(update.alias)) {
+        throw new BadRequestException('Invalid alias');
+      }
+
+      updateInput.alias = update.alias;
 
       if (Bitflags.has(user.roles, Role.VERIFIED)) {
         const sameNameMatches = await this.db.user.findMany({

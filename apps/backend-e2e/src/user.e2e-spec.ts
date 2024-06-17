@@ -37,6 +37,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 
 describe('User', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
@@ -135,6 +136,35 @@ describe('User', () => {
         });
 
         expect(updatedUser.alias).not.toBe(newAlias);
+      });
+
+      it("should reset the authenticated user's alias to steam alias", async () => {
+        const steamAlias = 'Bork';
+
+        const steamSummarySpy = jest.spyOn(
+          app.get(SteamService),
+          'getSteamUserSummaryData'
+        );
+        steamSummarySpy.mockResolvedValue({ personaname: steamAlias });
+
+        const [user, token] = await db.createAndLoginUser({
+          data: { alias: 'Not Bork' }
+        });
+
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { alias: '' },
+          token
+        });
+
+        steamSummarySpy.mockRestore();
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id }
+        });
+
+        expect(updatedUser.alias).toBe(steamAlias);
       });
 
       it("should update the authenticated user's bio", async () => {
