@@ -28,7 +28,7 @@ import { UsersService } from '../../../services/data/users.service';
 import { AdminService } from '../../../services/data/admin.service';
 import { AuthService } from '../../../services/data/auth.service';
 import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
-import { DeleteUserDialogComponent } from '../../../components/dialogs/delete-user-dialog.component';
+import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { EMPTY, switchMap } from 'rxjs';
 
 @Component({
@@ -267,7 +267,23 @@ export class ProfileEditComponent implements OnInit {
 
   deleteUser() {
     this.dialogService
-      .open(DeleteUserDialogComponent, { header: 'Delete user account' })
+      .open(CodeVerifyDialogComponent, {
+        header: 'Delete user account',
+        data: {
+          message: `
+            <p>
+              This will <b>permanently</b> and <b>irrevocably</b> delete your account. If you do so, you will <b><i>never</i></b> be able to sign up
+              from the same Steam account.
+            </p>
+            <p>
+              This feature only exists for privacy reasons, to give users the ability to delete all data identifiable to them from our systems. Unless
+              you really want to do that, don't use this feature!
+            </p>
+            <p>
+              Again, we are <b><i>not</i></b> going to help you recover your account if you do this.
+            </p>`
+        }
+      })
       .onClose.subscribe((response) => {
         if (!response) return;
         if (this.isLocal) this.deleteLocalUser();
