@@ -13,6 +13,7 @@ import {
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
+import { fastifyHealthcheck } from 'fastify-healthcheck';
 import { FastifyReply } from 'fastify';
 import { Logger } from 'nestjs-pino';
 import { Environment } from './app/config';
@@ -135,6 +136,9 @@ async function bootstrap() {
       }
     }
   );
+
+  // Add a health check for Docker and uptime status site, available at /health
+  await app.register(fastifyHealthcheck);
 
   // Here we fucking go!!!
   await app.listen(configService.getOrThrow('port'));
