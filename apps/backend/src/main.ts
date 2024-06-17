@@ -141,7 +141,10 @@ async function bootstrap() {
   await app.register(fastifyHealthcheck);
 
   // Here we fucking go!!!
-  await app.listen(configService.getOrThrow('port'));
+  await app.listen(
+    configService.getOrThrow('port'),
+    env === Environment.PRODUCTION ? '0.0.0.0' : '127.0.0.1'
+  );
 }
 
 void bootstrap();
