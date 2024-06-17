@@ -1,2 +1,2 @@
-export * from './prisma/utils';
-export * from './prisma/extended-client';
+export * from './prisma-utils/utils';
+export * from './prisma-utils/extended-client';

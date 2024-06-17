@@ -45,7 +45,7 @@ import axios from 'axios';
 import sharp from 'sharp';
 import { JsonValue } from 'type-fest';
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
-import { nuke } from '../prisma/utils';
+import { nuke } from '../prisma-utils/utils';
 import { prismaWrapper } from './prisma-wrapper';
 import path = require('node:path');
 import { v4 as uuidv4 } from 'uuid';

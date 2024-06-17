@@ -8,5 +8,5 @@
     "esModuleInterop": true
   },
   "exclude": ["src/prisma/**/*.ts"],
-  "include": ["src/scripts/**/*.ts", "src/prisma/utils/**/*.ts"]
+  "include": ["src/scripts/**/*.ts", "src/prisma-utils/utils/**/*.ts"]
 }
