@@ -139,7 +139,7 @@ async function bootstrap() {
   // Here we fucking go!!!
   await app.listen(
     configService.getOrThrow('port'),
-    env === Environment.PRODUCTION ? '0.0.0.0' : '127.0.0.1'
+    env === Environment.PRODUCTION ? '0.0.0.0' : 'localhost'
   );
 }
 
