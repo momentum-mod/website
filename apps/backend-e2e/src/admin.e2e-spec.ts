@@ -25,7 +25,9 @@ import {
   ReportType,
   Role,
   runPath,
-  TrackType
+  TrackType,
+  KillswitchType,
+  Killswitches
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
@@ -50,8 +52,6 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { KillswitchType } from '../../backend/src/app/modules/killswitch/killswitch.enum';
-import { Killswitches } from '../../backend/src/app/modules/killswitch/killswitch.service';
 
 describe('Admin', () => {
   let app,
@@ -2527,11 +2527,12 @@ describe('Admin', () => {
 
   describe('admin/killswitch', () => {
     describe('GET', () => {
-      let admin, adminToken, u1, u1Token;
+      let admin, adminToken, u1, u1Token, modToken;
       beforeAll(async () => {
-        [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+        [[admin, adminToken], [u1, u1Token], modToken] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser()
+          db.createAndLoginUser(),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });
 
@@ -2554,6 +2555,14 @@ describe('Admin', () => {
         expect(response.body).toEqual(killswitches);
       });
 
+      it('should 403 for moderators', async () => {
+        await req.get({
+          url: 'admin/killswitch',
+          status: 403,
+          token: modToken
+        });
+      });
+
       it('should respond with unauthorized', async () => {
         await req.get({
           url: 'admin/killswitch',
@@ -2564,11 +2573,12 @@ describe('Admin', () => {
     });
 
     describe('PATCH', () => {
-      let admin, adminToken, u1, u1Token;
+      let admin, adminToken, u1, u1Token, modToken;
       beforeAll(async () => {
-        [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+        [[admin, adminToken], [u1, u1Token], modToken] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser()
+          db.createAndLoginUser(),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });
 
@@ -2628,6 +2638,14 @@ describe('Admin', () => {
             MAP_SUBMISSION: 'this is a test'
           },
           token: adminToken
+        });
+      });
+
+      it('should 403 for moderators', async () => {
+        await req.get({
+          url: 'admin/killswitch',
+          status: 403,
+          token: modToken
         });
       });
 
