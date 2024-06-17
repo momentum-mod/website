@@ -1,8 +1,18 @@
 <m-card title="Utilities">
-  <div class="lg:mb-12">
+  <div class="flex flex-col gap-8">
     <form (ngSubmit)="createUser()" [formGroup]="userForm">
       <h4>Create Placeholder User</h4>
-      <input class="textinput" type="text" formControlName="alias" />
+      <input class="textinput my-2" type="text" formControlName="alias" />
+      <button class="btn btn-blue" type="submit">Submit</button>
+    </form>
+
+    <form (ngSubmit)="showKillswitchesVerifyDialog()" [formGroup]="killswitchForm">
+      <h4>Killswiches</h4>
+      <ul class="list-unstyled my-2 whitespace-nowrap">
+        @for (type of KillswitchTypes; track type) {
+          <li><input type="checkbox" class="checkbox mr-1" [formControlName]="type" />{{ type }}</li>
+        }
+      </ul>
       <button class="btn btn-blue" type="submit">Submit</button>
     </form>
   </div>
