@@ -7,7 +7,7 @@
           <p class="text-lg">Alias</p>
           <div class="relative flex w-full items-stretch">
             <input class="textinput mb-1" formControlName="alias" type="text" />
-            @if (hasBan(Ban.ALIAS)) {
+            @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
               <div class="input-group-append">
                 <button class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
               </div>
