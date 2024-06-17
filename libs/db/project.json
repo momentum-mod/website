@@ -32,6 +32,13 @@
         "cwd": "libs/db/src/prisma"
       }
     },
+    "create-migration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate dev --skip-seed --name",
+        "cwd": "libs/db/src/prisma"
+      }
+    },
     "build-scripts": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
