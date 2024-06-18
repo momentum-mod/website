@@ -2,6 +2,7 @@
 /coverage
 /data
 .angular
+.github
 
 # Prettier's YAML formatting is atrocious
 **/*.yml
