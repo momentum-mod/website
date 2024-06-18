@@ -38,7 +38,8 @@ module.exports = {
         'eslint',
         'formats',
         'discord',
-        'twitch'
+        'twitch',
+        'prod'
       ]
     ],
     'subject-case': [
