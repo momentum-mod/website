@@ -39,3 +39,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           workdir: .
+          dockerfile: ./prod/Dockerfile
