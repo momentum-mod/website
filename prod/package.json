@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "migrate": "prisma migrate deploy",
+    "start": "node main.js"
+  }
+}
