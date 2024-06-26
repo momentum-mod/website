@@ -128,7 +128,6 @@ export class MapInfoComponent implements OnInit {
               'submitter',
               'stats',
               'inFavorites',
-              'inLibrary',
               'submission',
               'versions',
               'currentVersion'

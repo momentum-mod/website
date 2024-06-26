@@ -5,7 +5,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapDto,
-  MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
   NotificationDto,
@@ -418,9 +417,6 @@ describe('User', () => {
               create: { type: MapCreditType.AUTHOR, mapID: map.id }
             },
             mapFavorites: { create: { mmap: { connect: { id: map.id } } } },
-            mapLibraryEntries: {
-              create: { mmap: { connect: { id: map.id } } }
-            },
             reviewsSubmitted: {
               create: {
                 mmap: { connect: { id: map.id } },
@@ -507,7 +503,6 @@ describe('User', () => {
             submittedMaps: true,
             mapCredits: true,
             mapFavorites: true,
-            mapLibraryEntries: true,
             leaderboardRuns: true,
             pastRuns: true,
             reviewsResolved: true,
@@ -538,7 +533,6 @@ describe('User', () => {
             submittedMaps: true,
             mapCredits: true,
             mapFavorites: true,
-            mapLibraryEntries: true,
             leaderboardRuns: true,
             pastRuns: true,
             reviewsSubmitted: true,
@@ -571,7 +565,6 @@ describe('User', () => {
           submittedMaps: userBeforeDeletion.submittedMaps,
           mapCredits: userBeforeDeletion.mapCredits,
           mapFavorites: [],
-          mapLibraryEntries: [],
           leaderboardRuns: userBeforeDeletion.leaderboardRuns,
           pastRuns: userBeforeDeletion.pastRuns,
           reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
@@ -1268,233 +1261,6 @@ describe('User', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/activities/followed', 'get'));
-    });
-  });
-
-  describe('user/maps/library', () => {
-    describe('GET', () => {
-      let user, token, maps;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-        maps = await db.createMaps(2, {
-          libraryEntries: { create: { userID: user.id } }
-        });
-      });
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      it('should retrieve the list of maps in the local users library', () =>
-        req.get({
-          url: 'user/maps/library',
-          status: 200,
-          token,
-          validatePaged: { type: MapLibraryEntryDto, count: 2 }
-        }));
-
-      it('should retrieve a filtered list of maps in the local users library using the take query', () =>
-        req.takeTest({
-          url: 'user/maps/library',
-          validate: MapLibraryEntryDto,
-          token
-        }));
-
-      it('should retrieve a filtered list of maps in the local users library using the skip query', () =>
-        req.skipTest({
-          url: 'user/maps/library',
-          validate: MapLibraryEntryDto,
-          token
-        }));
-
-      it('should retrieve a filtered list of maps in the local users library using the search query', async () => {
-        await prisma.mMap.update({
-          where: { id: maps[0].id },
-          data: { name: 'ahop_imsofuckingboredofwebdev' }
-        });
-
-        await req.searchTest({
-          url: 'user/maps/library',
-          token,
-          searchMethod: 'contains',
-          searchString: 'fuck',
-          searchPropertyName: 'map.name',
-          validate: { type: MapLibraryEntryDto, count: 1 }
-        });
-      });
-
-      it('should respond with expanded submitter data using the submitter expand parameter', async () => {
-        const u2 = await db.createUser();
-        await prisma.mMap.updateMany({
-          where: {},
-          data: { submitterID: u2.id }
-        });
-
-        await req.expandTest({
-          url: 'user/maps/library',
-          expand: 'submitter',
-          expectedPropertyName: 'map.submitter',
-          paged: true,
-          validate: MapLibraryEntryDto,
-          token
-        });
-      });
-
-      it('should respond with expanded mapfavorite data for maps the logged in user has favorited when using the inFavorite expansion', async () => {
-        await Promise.all(
-          maps.map((m) =>
-            prisma.mMap.update({
-              where: { id: m.id },
-              data: { favorites: { create: { userID: user.id } } }
-            })
-          )
-        );
-
-        await req.expandTest({
-          url: 'user/maps/library',
-          expand: 'inFavorites',
-          expectedPropertyName: 'map.favorites',
-          paged: true,
-          validate: MapLibraryEntryDto,
-          token
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/library', 'get'));
-    });
-  });
-
-  describe('user/maps/library/{mapID}', () => {
-    describe('GET', () => {
-      let user, token, map;
-
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      it('should 204 if a map exists in the local users library', async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: user.id, mapID: map.id }
-        });
-
-        await req.get({
-          url: `user/maps/library/${map.id}`,
-          status: 204,
-          token
-        });
-
-        await prisma.mapLibraryEntry.deleteMany();
-      });
-
-      it('should 404 if the map is not in the local users library', () =>
-        req.get({
-          url: `user/maps/library/${map.id}`,
-          status: 404,
-          token
-        }));
-
-      it('should 400 if the map is not in the database', () =>
-        req.get({
-          url: `user/maps/library/${NULL_ID}`,
-          status: 400,
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/library/1', 'get'));
-    });
-
-    describe('PUT', () => {
-      let user, token, map;
-
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      it('should add a new map to the local users library', async () => {
-        await req.put({
-          url: `user/maps/library/${map.id}`,
-          status: 204,
-          token
-        });
-
-        const entry = await prisma.mapLibraryEntry.findFirst({
-          where: { userID: user.id, mapID: map.id }
-        });
-        expect(entry).not.toBeNull();
-
-        await prisma.mapLibraryEntry.deleteMany();
-      });
-
-      it("should 404 if the map doesn't exist", () =>
-        req.put({
-          url: `user/maps/library/${NULL_ID}`,
-          status: 404,
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/library/1', 'put'));
-    });
-
-    describe('DELETE', () => {
-      let user, token, map;
-
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      it('should delete a map from the local users library', async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: user.id, mapID: map.id }
-        });
-
-        await req.del({
-          url: `user/maps/library/${map.id}`,
-          status: 204,
-          token
-        });
-
-        const entry = await prisma.mapLibraryEntry.findFirst({
-          where: { userID: user.id, mapID: map.id }
-        });
-        expect(entry).toBeNull();
-      });
-
-      it('should 404 if the map is not in the local users library', () =>
-        req.del({
-          url: `user/maps/library/${map.id}`,
-          status: 404,
-          token
-        }));
-
-      it('should 404 if the map is not in the database', () =>
-        req.del({
-          url: `user/maps/library/${NULL_ID}`,
-          status: 404,
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/library/1', 'del'));
     });
   });
 

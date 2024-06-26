@@ -9,7 +9,6 @@ import { CreateMapInfo, MapInfo, UpdateMapInfo } from './map-info.model';
 import { MapStats } from './map-stats.model';
 import { CreateMapCredit, MapCredit } from './map-credit.model';
 import { MapFavorite } from './map-favorite.model';
-import { MapLibraryEntry } from './map-library-entry';
 import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
@@ -37,7 +36,6 @@ export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
   stats?: MapStats;
   credits?: MapCredit[];
   favorites?: MapFavorite[];
-  libraryEntries?: MapLibraryEntry[];
   worldRecords?: LeaderboardRun[];
   personalBests?: LeaderboardRun[];
   testInvites?: MapTestInvite[];

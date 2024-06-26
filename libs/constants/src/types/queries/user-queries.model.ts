@@ -29,17 +29,10 @@ export type UsersGetCreditsQuery = PagedQuery & {
 
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
-export type UserMapLibraryGetExpand = ('submitter' | 'inFavorites')[];
-
-export type UserMapLibraryGetQuery = UserMapsBaseGetQuery & {
-  expand?: UserMapLibraryGetExpand;
-};
-
 export type UserMapFavoritesGetExpand = (
   | 'info'
   | 'credits'
   | 'submitter'
-  | 'inLibrary'
   | 'personalBest'
 )[];
 

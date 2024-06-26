@@ -380,11 +380,6 @@ export class MapsService {
               expand: 'inFavorites',
               model: 'favorites',
               value: { where: { userID: userID } }
-            },
-            {
-              expand: 'inLibrary',
-              model: 'libraryEntries',
-              value: { where: { userID: userID } }
             }
           ]
         })
@@ -431,11 +426,6 @@ export class MapsService {
           {
             expand: 'inFavorites',
             model: 'favorites',
-            value: { where: { userID: userID } }
-          },
-          {
-            expand: 'inLibrary',
-            model: 'libraryEntries',
             value: { where: { userID: userID } }
           }
         ]

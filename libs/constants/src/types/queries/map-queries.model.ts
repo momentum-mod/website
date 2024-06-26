@@ -15,17 +15,12 @@ type BaseMapsGetAllExpand =
   | 'credits';
 
 export type MapsGetAllExpand = Array<
-  | BaseMapsGetAllExpand
-  | 'inFavorites'
-  | 'inLibrary'
-  | 'personalBest'
-  | 'worldRecord'
+  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
 >;
 
 export type MapsGetAllSubmissionExpand = Array<
   | BaseMapsGetAllExpand
   | 'inFavorites'
-  | 'inLibrary'
   | 'personalBest'
   | 'worldRecord'
   | 'currentVersion'

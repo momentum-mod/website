@@ -599,9 +599,6 @@ describe('Admin', () => {
               create: { type: MapCreditType.AUTHOR, mapID: map.id }
             },
             mapFavorites: { create: { mmap: { connect: { id: map.id } } } },
-            mapLibraryEntries: {
-              create: { mmap: { connect: { id: map.id } } }
-            },
             reviewsSubmitted: {
               create: {
                 mmap: { connect: { id: map.id } },
@@ -682,7 +679,6 @@ describe('Admin', () => {
             submittedMaps: true,
             mapCredits: true,
             mapFavorites: true,
-            mapLibraryEntries: true,
             pastRuns: true,
             leaderboardRuns: true,
             reviewsResolved: true,
@@ -713,7 +709,6 @@ describe('Admin', () => {
             submittedMaps: true,
             mapCredits: true,
             mapFavorites: true,
-            mapLibraryEntries: true,
             pastRuns: true,
             leaderboardRuns: true,
             reviewsSubmitted: true,
@@ -746,7 +741,6 @@ describe('Admin', () => {
           submittedMaps: userBeforeDeletion.submittedMaps,
           mapCredits: userBeforeDeletion.mapCredits,
           mapFavorites: [],
-          mapLibraryEntries: [],
           reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
           activities: [],
           follows: [],

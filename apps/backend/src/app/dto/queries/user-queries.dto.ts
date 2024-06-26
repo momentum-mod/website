@@ -4,8 +4,6 @@ import { Type } from 'class-transformer';
 import {
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
-  UserMapLibraryGetExpand,
-  UserMapLibraryGetQuery,
   UsersGetActivitiesQuery,
   UsersGetAllExpand,
   UsersGetAllQuery,
@@ -134,14 +132,6 @@ class UserMapsBaseGetQuery extends PagedQueryDto {
   readonly search: string;
 }
 
-export class UserMapLibraryGetQueryDto
-  extends UserMapsBaseGetQuery
-  implements UserMapLibraryGetQuery
-{
-  @ExpandQueryProperty(['submitter', 'inFavorites'])
-  readonly expand: UserMapLibraryGetExpand;
-}
-
 export class UserMapFavoritesGetQueryDto
   extends UserMapsBaseGetQuery
   implements UserMapFavoritesGetQuery
@@ -151,7 +141,6 @@ export class UserMapFavoritesGetQueryDto
     'credits',
     'thumbnail',
     'submitter',
-    'inLibrary',
     'personalBest'
   ])
   readonly expand: UserMapFavoritesGetExpand;
