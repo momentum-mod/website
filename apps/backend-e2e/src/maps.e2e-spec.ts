@@ -972,25 +972,15 @@ describe('Maps', () => {
 
           await req.postAttach({
             url: 'maps',
+            status: 503,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token: adminToken
           });
 
-          await req.patch({
-            url: 'admin/killswitch',
-            status: 204,
-            body: {
-              NEW_SIGNUPS: false,
-              RUN_SUBMISSION: false,
-              MAP_SUBMISSION: false,
-              MAP_REVIEWS: false
-            },
-            token: adminToken
-          });
+          await resetKillswitches(req, adminToken);
         });
       });
 
