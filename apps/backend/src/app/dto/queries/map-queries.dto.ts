@@ -80,7 +80,6 @@ export class MapsGetAllQueryDto
     'submitter',
     'credits',
     'inFavorites',
-    'inLibrary',
     'personalBest',
     'worldRecord'
   ])
@@ -138,7 +137,6 @@ export class MapsGetAllSubmissionQueryDto
     'submitter',
     'credits',
     'inFavorites',
-    'inLibrary',
     'personalBest',
     'worldRecord',
     'currentVersion',
@@ -173,7 +171,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'stats',
     'tracks',
     'inFavorites',
-    'inLibrary',
     'personalBest',
     'worldRecord',
     'submission',

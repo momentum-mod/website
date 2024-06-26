@@ -19,7 +19,6 @@ import {
   MapStatus,
   Role,
   NON_WHITESPACE_REGEXP,
-  UserMapLibraryGetExpand,
   KillswitchType
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
@@ -31,7 +30,6 @@ import {
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
-  MapLibraryEntryDto,
   MapNotifyDto,
   NotificationDto,
   PagedResponseDto,
@@ -304,7 +302,6 @@ export class UsersService {
       country: null,
       profile: { update: { bio: '', socials: {} } },
       mapFavorites: { deleteMany: {} },
-      mapLibraryEntries: { deleteMany: {} },
       activities: { deleteMany: {} },
       follows: { deleteMany: {} },
       followers: { deleteMany: {} },
@@ -600,67 +597,6 @@ export class UsersService {
       throw new ForbiddenException('Notification does not belong to user');
 
     await this.db.notification.delete({ where: { id: notificationID } });
-  }
-
-  //#endregion
-
-  //#region Map Library
-
-  async getMapLibraryEntries(
-    userID: number,
-    skip: number,
-    take: number,
-    search: string,
-    expand: UserMapLibraryGetExpand
-  ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
-    const include: Prisma.MapLibraryEntryInclude = {
-      mmap: {
-        include: expandToIncludes(expand, {
-          mappings: [
-            {
-              expand: 'inFavorites',
-              model: 'favorites',
-              value: { where: { userID } }
-            }
-          ]
-        })
-      },
-      user: true
-    };
-
-    const where: Prisma.MapLibraryEntryWhereInput = { userID };
-    if (search) where.mmap = { name: { contains: search } };
-
-    const dbResponse = await this.db.mapLibraryEntry.findManyAndCount({
-      where,
-      include,
-      skip,
-      take
-    });
-
-    return new PagedResponseDto(MapLibraryEntryDto, dbResponse);
-  }
-
-  async addMapLibraryEntry(userID: number, mapID: number) {
-    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
-      throw new NotFoundException('Target map not found');
-
-    await this.db.mapLibraryEntry.upsert({
-      where: { mapID_userID: { userID, mapID } },
-      create: { userID, mapID },
-      update: {}
-    });
-  }
-
-  async removeMapLibraryEntry(userID: number, mapID: number) {
-    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
-      throw new NotFoundException("Target map doesn't exist");
-
-    await this.db.mapLibraryEntry
-      .delete({ where: { mapID_userID: { userID, mapID } } })
-      .catch(() => {
-        throw new NotFoundException('Target map not in users library');
-      });
   }
 
   //#endregion

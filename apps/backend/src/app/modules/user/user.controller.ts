@@ -29,7 +29,6 @@ import {
   ApiOkPagedResponse,
   FollowStatusDto,
   MapDto,
-  MapLibraryEntryDto,
   MapNotifyDto,
   MapSummaryDto,
   NotificationDto,
@@ -41,7 +40,6 @@ import {
   UpdateNotificationDto,
   UpdateUserDto,
   UserDto,
-  UserMapLibraryGetQueryDto,
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
   FollowDto,
@@ -49,7 +47,6 @@ import {
   MapsGetAllSubmissionQueryDto
 } from '../../dto';
 import { ParseIntSafePipe } from '../../pipes';
-import { MapLibraryService } from '../maps/map-library.service';
 import { UsersService } from '../users/users.service';
 import { MapsService } from '../maps/maps.service';
 
@@ -59,7 +56,6 @@ import { MapsService } from '../maps/maps.service';
 export class UserController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly mapLibraryService: MapLibraryService,
     private readonly mapsService: MapsService
   ) {}
 
@@ -383,86 +379,6 @@ export class UserController {
     @Param('notificationID', ParseIntSafePipe) notificationID: number
   ) {
     return this.usersService.deleteNotification(userID, notificationID);
-  }
-
-  //#endregion
-
-  //#region Map Library
-
-  @Get('/maps/library')
-  @ApiOperation({ summary: "Returns the maps in the local user's library" })
-  @ApiOkPagedResponse(MapLibraryEntryDto, {
-    description: 'Paginated list of the library entries'
-  })
-  getMapLibraryEntry(
-    @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapLibraryGetQueryDto
-  ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
-    return this.usersService.getMapLibraryEntries(
-      userID,
-      query.skip,
-      query.take,
-      query.search,
-      query.expand
-    );
-  }
-
-  @Get('/maps/library/:mapID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: "Return 204 if the map is in the user's library, 404 otherwise"
-  })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'ID of the map to check',
-    required: true
-  })
-  @ApiNoContentResponse({ description: 'Map is in the library' })
-  @ApiNotFoundResponse({ description: 'Map is not in the library' })
-  checkMapLibraryEntry(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<void> {
-    return this.mapLibraryService.isMapInLibrary(userID, mapID);
-  }
-
-  @Put('/maps/library/:mapID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Adds the given map to the local user's library" })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'ID of the map to add to the library',
-    required: true
-  })
-  @ApiNoContentResponse({ description: 'Map was added to the library' })
-  @ApiNotFoundResponse({ description: 'The map does not exist' })
-  addMapLibraryEntry(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ) {
-    return this.usersService.addMapLibraryEntry(userID, mapID);
-  }
-
-  @Delete('/maps/library/:mapID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: "Removes the given map from the local user's library"
-  })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'ID of the map to remove from the library',
-    required: true
-  })
-  @ApiNoContentResponse({ description: 'Map was removed from the library' })
-  @ApiNotFoundResponse({ description: 'The map does not exist' })
-  removeMapLibraryEntry(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ) {
-    return this.usersService.removeMapLibraryEntry(userID, mapID);
   }
 
   //#endregion

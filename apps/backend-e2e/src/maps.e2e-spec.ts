@@ -352,22 +352,6 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: u1.id, mapID: m1.id }
-        });
-
-        await req.expandTest({
-          url: 'maps',
-          expand: 'inLibrary',
-          paged: true,
-          validate: MapDto,
-          expectedPropertyName: 'libraryEntries',
-          token: u1Token,
-          some: true
-        });
-      });
-
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
           data: { userID: u1.id, mapID: m1.id }
@@ -1617,20 +1601,6 @@ describe('Maps', () => {
           expectedPropertyName: 'testInvites[0].user',
           token: u1Token
         }));
-
-      it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: u1.id, mapID: map.id }
-        });
-
-        await req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'inLibrary',
-          expectedPropertyName: 'libraryEntries',
-          token: u1Token
-        });
-      });
 
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
@@ -3459,22 +3429,6 @@ describe('Maps', () => {
           paged: true,
           validate: MapDto,
           expectedPropertyName: 'favorites',
-          token: u1Token,
-          some: true
-        });
-      });
-
-      it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
-        await prisma.mapLibraryEntry.create({
-          data: { userID: u1.id, mapID: pubMap1.id }
-        });
-
-        await req.expandTest({
-          url: 'maps/submissions',
-          expand: 'inLibrary',
-          paged: true,
-          validate: MapDto,
-          expectedPropertyName: 'libraryEntries',
           token: u1Token,
           some: true
         });

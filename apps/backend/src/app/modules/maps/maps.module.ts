@@ -7,7 +7,6 @@ import { RunsModule } from '../runs/runs.module';
 import { AdminModule } from '../admin/admin.module';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
-import { MapLibraryService } from './map-library.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
 import { MapTestInviteService } from './map-test-invite.service';
@@ -29,12 +28,11 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
   controllers: [MapsController],
   providers: [
     MapsService,
-    MapLibraryService,
     MapCreditsService,
     MapImageService,
     MapTestInviteService,
     MapListService
   ],
-  exports: [MapsService, MapLibraryService]
+  exports: [MapsService]
 })
 export class MapsModule {}

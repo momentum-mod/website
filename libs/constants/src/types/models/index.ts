@@ -4,7 +4,6 @@ export * from './map/map-image.model';
 export * from './map/map-stats.model';
 export * from './map/map-credit.model';
 export * from './map/map-notify.model';
-export * from './map/map-library-entry';
 export * from './map/map-favorite.model';
 export * from './map/map-submission.model';
 export * from './map/map-submission-approval.model';

@@ -42,7 +42,6 @@ import { MapImageDto } from './map-image.dto';
 import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
-import { MapLibraryEntryDto } from './map-library-entry';
 import { MapStatsDto } from './map-stats.dto';
 import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
@@ -156,9 +155,6 @@ export class MapDto implements MMap {
 
   @NestedProperty(MapFavoriteDto, { isArray: true })
   readonly favorites: MapFavoriteDto[];
-
-  @NestedProperty(MapLibraryEntryDto, { isArray: true })
-  readonly libraryEntries: MapLibraryEntryDto[];
 
   @NestedProperty(LeaderboardDto, { isArray: true })
   readonly leaderboards: LeaderboardDto[];
