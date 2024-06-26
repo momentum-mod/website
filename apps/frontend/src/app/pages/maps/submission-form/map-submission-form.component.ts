@@ -64,6 +64,7 @@ import { LeaderboardsInfoComponent } from '../../../components/tooltips/leaderbo
 import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -96,7 +97,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     private readonly localUserService: LocalUserService,
     private readonly messageService: MessageService,
     private readonly fb: FormBuilder,
-    private readonly destroyRef: DestroyRef
+    private readonly destroyRef: DestroyRef,
+    private readonly ngHttp: HttpClient
   ) {}
 
   @ViewChild(MapLeaderboardSelectionComponent)
@@ -296,6 +298,33 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     let mapID: number;
 
     try {
+      const { url: preSignedUrl } = await lastValueFrom(
+        this.mapsService.getPreSignedUrl(this.bsp.value.size)
+      );
+
+      await lastValueFrom(
+        this.ngHttp
+          .put(preSignedUrl, await this.bsp.value.arrayBuffer(), {
+            reportProgress: true,
+            observe: 'events'
+          })
+          .pipe(
+            tap((event: HttpEvent<string>) => {
+              switch (event.type) {
+                case HttpEventType.Sent:
+                  this.isUploading = true;
+                  this.uploadStatusDescription = 'Uploading BSP file...';
+                  break;
+                case HttpEventType.UploadProgress:
+                  this.uploadPercentage = Math.round(
+                    (event['loaded'] / event['total']) * 80
+                  );
+                  break;
+              }
+            })
+          )
+      );
+
       await lastValueFrom(
         this.mapsService
           .submitMap({
@@ -314,7 +343,6 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
                 creationDate: this.creationDate.value
               }
             },
-            bsp: this.bsp.value,
             vmfs: this.vmfs.value
           })
           .pipe(
@@ -322,16 +350,11 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
-                  // Okay, we already started senting the BSP file here since it's
-                  // all one request but whatever this looks good
                   this.uploadStatusDescription = 'Submitting map...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadStatusDescription = 'Uploading BSP file...';
-                  // Let this bar go 80% of the way, then images will be final 10%
-                  this.uploadPercentage = Math.round(
-                    (event['loaded'] / event['total']) * 80
-                  );
+                  this.uploadPercentage =
+                    80 + Math.round((event['loaded'] / event['total']) * 10);
                   break;
                 case HttpEventType.Response:
                   mapID = JSON.parse(event.body).id;

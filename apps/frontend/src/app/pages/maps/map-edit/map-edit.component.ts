@@ -54,7 +54,7 @@ import { firstValueFrom, lastValueFrom, merge, Subject } from 'rxjs';
 import { deepEquals, isEmpty } from '@momentum/util-fn';
 import { SuggestionType } from '@momentum/formats/zone';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpEventType } from '@angular/common/http';
 import { ConfirmDeactivate } from '../../../guards/component-can-deactivate.guard';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
@@ -222,7 +222,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     private readonly fb: FormBuilder,
     private readonly layoutService: LayoutService,
     private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService
+    private readonly titleService: TitleService,
+    private readonly ngHttp: HttpClient
   ) {}
 
   ngOnInit() {
@@ -484,11 +485,37 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   async submitVersionForm() {
     if (this.versionForm.invalid) return;
 
+    const { url: preSignedUrl } = await lastValueFrom(
+      this.mapsService.getPreSignedUrl(this.bsp.value.size)
+    );
+
+    await lastValueFrom(
+      this.ngHttp
+        .put(preSignedUrl, await this.bsp.value.arrayBuffer(), {
+          reportProgress: true,
+          observe: 'events'
+        })
+        .pipe(
+          tap((event: HttpEvent<string>) => {
+            switch (event.type) {
+              case HttpEventType.Sent:
+                this.isUploading = true;
+                this.uploadStatusDescription = 'Uploading BSP file...';
+                break;
+              case HttpEventType.UploadProgress:
+                this.uploadPercentage = Math.round(
+                  (event['loaded'] / event['total']) * 85
+                );
+                break;
+            }
+          })
+        )
+    );
+
     try {
       await lastValueFrom(
         this.mapsService
           .submitMapVersion(this.map.id, {
-            bsp: this.bsp.value,
             vmfs: this.vmfs.value,
             data: {
               zones: this.zon.value
@@ -506,10 +533,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
                   this.uploadStatusDescription = 'Submitting map version...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadStatusDescription = 'Uploading BSP file...';
-                  this.uploadPercentage = Math.round(
-                    (event['loaded'] / event['total']) * 100
-                  );
+                  this.uploadPercentage =
+                    85 + Math.round((event['loaded'] / event['total']) * 15);
                   break;
                 case HttpEventType.Response:
                   this.uploadStatusDescription = 'Upload complete!';

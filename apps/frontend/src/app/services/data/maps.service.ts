@@ -22,7 +22,8 @@ import {
   UpdateMap,
   UpdateMapImagesWithFiles,
   CreateMapSubmissionVersionWithFiles,
-  CreateMapTestInvite
+  CreateMapTestInvite,
+  MapPreSignedUrl
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -69,15 +70,16 @@ export class MapsService {
     return this.http.put<MapCredit[]>(`maps/${mapID}/credits`, { body });
   }
 
-  submitMap({
-    bsp,
-    data,
-    vmfs
-  }: CreateMapWithFiles): Observable<HttpEvent<string>> {
+  getPreSignedUrl(fileSize: number): Observable<MapPreSignedUrl> {
+    return this.http.get<MapPreSignedUrl>('maps/getMapUploadUrl', {
+      query: { fileSize }
+    });
+  }
+
+  submitMap({ data, vmfs }: CreateMapWithFiles): Observable<HttpEvent<string>> {
     const formData = new FormData();
 
     formData.append('data', JSON.stringify(data));
-    formData.append('bsp', bsp, bsp.name);
     for (const vmf of vmfs ?? []) formData.append('vmfs', vmf, vmf.name);
 
     return this.http.post('maps', {
@@ -90,12 +92,11 @@ export class MapsService {
 
   submitMapVersion(
     mapID: number,
-    { bsp, data, vmfs }: CreateMapSubmissionVersionWithFiles
+    { data, vmfs }: CreateMapSubmissionVersionWithFiles
   ): Observable<HttpEvent<string>> {
     const formData = new FormData();
 
     formData.append('data', JSON.stringify(data));
-    formData.append('bsp', bsp, bsp.name);
     for (const vmf of vmfs ?? []) formData.append('vmfs', vmf, vmf.name);
 
     return this.http.post(`maps/${mapID}`, {
