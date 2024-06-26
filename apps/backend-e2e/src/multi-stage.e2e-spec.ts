@@ -64,6 +64,17 @@ describe('Multi-stage E2E tests', () => {
     const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
     const vmfHash = createSha1Hash(vmfBuffer);
 
+    const preSignedUrlRes = await req.get({
+      url: 'maps/getMapUploadUrl',
+      query: {
+        fileSize: bspBuffer.length
+      },
+      status: 200,
+      token
+    });
+
+    await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, bspBuffer);
+
     const {
       body: { id: mapID }
     } = await req.postAttach({
@@ -93,7 +104,6 @@ describe('Multi-stage E2E tests', () => {
         zones: BabyZonesStub
       },
       files: [
-        { file: bspBuffer, field: 'bsp', fileName: 'surf_todd_howard.bsp' },
         {
           file: vmfBuffer,
           field: 'vmfs',
@@ -144,12 +154,22 @@ describe('Multi-stage E2E tests', () => {
     );
     const vmf2Hash = createSha1Hash(vmf2Buffer);
 
+    const preSignedUrl2Res = await req.get({
+      url: 'maps/getMapUploadUrl',
+      query: {
+        fileSize: bsp2Buffer.length
+      },
+      status: 200,
+      token
+    });
+
+    await fileStore.putToPreSignedUrl(preSignedUrl2Res.body.url, bsp2Buffer);
+
     await req.postAttach({
       url: `maps/${mapID}`,
       status: 201,
       data: { changelog: 'it just works' },
       files: [
-        { file: bsp2Buffer, field: 'bsp', fileName: 'surf_todd_howard.bsp' },
         {
           file: vmf2Buffer,
           field: 'vmfs',

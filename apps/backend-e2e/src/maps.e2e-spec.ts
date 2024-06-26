@@ -5,6 +5,7 @@ import { MapDto } from '../../backend/src/app/dto';
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import {
   ActivityType,
   Ban,
@@ -64,6 +65,19 @@ describe('Maps', () => {
     fileStore = env.fileStore;
     auth = env.auth;
   });
+
+  async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
+    const preSignedUrlRes = await req.get({
+      url: 'maps/getMapUploadUrl',
+      query: {
+        fileSize: bspBuffer.length
+      },
+      status: 200,
+      token
+    });
+
+    await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, bspBuffer);
+  }
 
   afterAll(() => teardownE2ETestEnvironment(app));
 
@@ -774,6 +788,7 @@ describe('Maps', () => {
         await db.cleanup('user', 'mMap');
         await fileStore.deleteDirectory('submissions');
         await fileStore.deleteDirectory('maplist');
+        await fileStore.deleteDirectory('upload_tmp');
       });
 
       describe('should submit a map', () => {
@@ -786,12 +801,13 @@ describe('Maps', () => {
             token: token
           });
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           res = await req.postAttach({
             url: 'maps',
             status: 201,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               {
                 file: vmfBuffer,
                 field: 'vmfs',
@@ -821,7 +837,7 @@ describe('Maps', () => {
         afterAll(() =>
           Promise.all([
             db.cleanup('mMap'),
-            fileStore.deleteDirectory('/maplist')
+            fileStore.deleteDirectory('maplist')
           ])
         );
 
@@ -972,15 +988,25 @@ describe('Maps', () => {
 
           await req.postAttach({
             url: 'maps',
-            status: 503,
             data: createMapObject,
             files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token: adminToken
           });
 
-          await resetKillswitches(req, adminToken);
+          await req.patch({
+            url: 'admin/killswitch',
+            status: 204,
+            body: {
+              NEW_SIGNUPS: false,
+              RUN_SUBMISSION: false,
+              MAP_SUBMISSION: false,
+              MAP_REVIEWS: false
+            },
+            token: adminToken
+          });
         });
       });
 
@@ -992,12 +1018,13 @@ describe('Maps', () => {
               status
             });
 
+            await uploadBspToPreSignedUrl(bspBuffer, token);
+
             await req.postAttach({
               url: 'maps',
               status: 403,
               data: createMapObject,
               files: [
-                { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
                 { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
               ],
               token
@@ -1024,12 +1051,13 @@ describe('Maps', () => {
                 status
               });
 
+              await uploadBspToPreSignedUrl(bspBuffer, token);
+
               await req.postAttach({
                 url: 'maps',
                 status: 201,
                 data: createMapObject,
                 files: [
-                  { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
                   { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
                 ],
                 token
@@ -1047,15 +1075,21 @@ describe('Maps', () => {
       });
 
       describe('Other tests', () => {
-        afterEach(() => db.cleanup('mMap'));
+        afterEach(() =>
+          Promise.all([
+            db.cleanup('mMap'),
+            fileStore.deleteDirectory('upload_tmp')
+          ])
+        );
 
         it("should put a map straight in CONTENT_APPROVAL if user doesn't request private testing", async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           const res = await req.postAttach({
             url: 'maps',
             status: 201,
             data: { ...createMapObject, wantsPrivateTesting: false },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1077,13 +1111,13 @@ describe('Maps', () => {
           const obj = structuredClone(createMapObject);
           delete obj.testInvites;
           delete obj.placeholders;
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 201,
             data: obj,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
           });
         });
@@ -1093,13 +1127,13 @@ describe('Maps', () => {
           // of either.
           const create = structuredClone(createMapObject);
           delete create.credits;
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 201,
             data: create,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
           });
         });
@@ -1107,13 +1141,13 @@ describe('Maps', () => {
         it('should accept a submission with credits but no placeholders', async () => {
           const create = structuredClone(createMapObject);
           delete create.placeholders;
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 201,
             data: create,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
           });
         });
@@ -1122,13 +1156,13 @@ describe('Maps', () => {
           const create = structuredClone(createMapObject);
           delete create.credits;
           delete create.placeholders;
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: create,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
           });
         });
@@ -1136,26 +1170,13 @@ describe('Maps', () => {
         it('should reject a submission with no suggestions', async () => {
           const obj = structuredClone(createMapObject);
           delete obj.suggestions;
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: obj,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
-            token
-          });
-        });
-
-        it('should 400 if a BSP filename does not end in .BSP', async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.zip' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
             token
           });
         });
@@ -1179,35 +1200,14 @@ describe('Maps', () => {
           });
         });
 
-        it("should 400 if BSP file is greater than the config's max bsp file size", async () => {
-          await req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: createMapObject,
-            files: [
-              {
-                file: Buffer.alloc(Config.limits.bspSize + 1),
-                field: 'bsp',
-                fileName: 'surf_map.bsp'
-              },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          });
-        });
-
         it('should 400 if a BSP file has invalid header', async () => {
+          await uploadBspToPreSignedUrl(Buffer.alloc(100), token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: createMapObject,
             files: [
-              {
-                file: Buffer.alloc(100),
-                field: 'bsp',
-                fileName: 'surf_map.bsp'
-              },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1215,36 +1215,38 @@ describe('Maps', () => {
         });
 
         it('should 400 if a BSP file was not compressed', async () => {
+          await uploadBspToPreSignedUrl(nozipBspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: createMapObject,
             files: [
-              { file: nozipBspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
           });
         });
 
-        it('should succeed if VMF file is missing', async () =>
-          req.postAttach({
+        it('should succeed if VMF file is missing', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
             url: 'maps',
             status: 201,
             data: createMapObject,
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
-          }));
+          });
+        });
 
-        it('should 400 if VMF file is invalid', () =>
-          req.postAttach({
+        it('should 400 if VMF file is invalid', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
             url: 'maps',
             status: 400,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               {
                 file: Buffer.from('{' + vmfBuffer.toString()),
                 field: 'vmfs',
@@ -1252,15 +1254,17 @@ describe('Maps', () => {
               }
             ],
             token
-          }));
+          });
+        });
 
-        it("should 400 if a VMF file is greater than the config's max vmf file size", () =>
-          req.postAttach({
+        it("should 400 if a VMF file is greater than the config's max vmf file size", async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
             url: 'maps',
             status: 400,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               {
                 file: Buffer.alloc(Config.limits.vmfSize + 1),
                 field: 'vmfs',
@@ -1268,15 +1272,17 @@ describe('Maps', () => {
               }
             ],
             token
-          }));
+          });
+        });
 
         it('should 400 if a VMF filename does not end in .vmf', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.blend' }
             ],
             token
@@ -1291,12 +1297,13 @@ describe('Maps', () => {
             status: MapStatus.APPROVED
           });
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 201,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1305,7 +1312,7 @@ describe('Maps', () => {
           await prisma.mMap.deleteMany();
         });
 
-        it('should 409 if the user has a MAP_SUBMISSION ban', async () => {
+        it('should 403 if the user has a MAP_SUBMISSION ban', async () => {
           await prisma.user.update({
             where: { id: user.id },
             data: { bans: Ban.MAP_SUBMISSION }
@@ -1316,7 +1323,6 @@ describe('Maps', () => {
             status: 403,
             data: createMapObject,
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1347,12 +1353,13 @@ describe('Maps', () => {
             ]
           });
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: { ...createMapObject, zones },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1364,12 +1371,13 @@ describe('Maps', () => {
 
           suggs[0].type = LeaderboardType.IN_SUBMISSION;
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: { ...createMapObject, suggestions: suggs },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1377,12 +1385,13 @@ describe('Maps', () => {
 
           suggs[0].type = LeaderboardType.HIDDEN;
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: { ...createMapObject, suggestions: suggs },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1405,12 +1414,13 @@ describe('Maps', () => {
             }
           );
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 400,
             data: { ...createMapObject, suggestions: suggs },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
@@ -1422,20 +1432,23 @@ describe('Maps', () => {
 
           await db.createMap({ name });
 
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
           await req.postAttach({
             url: 'maps',
             status: 409,
             data: { ...createMapObject, name },
             files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
           });
         });
 
-        it('should 400 if the zones are too large', async () =>
-          req.postAttach({
+        it('should 400 if the zones are too large', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
             url: 'maps',
             status: 400,
             data: {
@@ -1450,11 +1463,9 @@ describe('Maps', () => {
                 1024
               )
             },
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token
-          }));
+          });
+        });
 
         it('should 401 when no access token is provided', () =>
           req.unauthorizedTest('maps', 'post'));
@@ -1779,6 +1790,7 @@ describe('Maps', () => {
       afterAll(async () => {
         await db.cleanup('user');
         await fileStore.deleteDirectory('submissions');
+        await fileStore.deleteDirectory('upload_tmp');
       });
 
       beforeEach(async () => {
@@ -1820,19 +1832,22 @@ describe('Maps', () => {
       });
 
       afterEach(() =>
-        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
+        Promise.all([
+          db.cleanup('mMap'),
+          fileStore.deleteDirectory('maplist'),
+          fileStore.deleteDirectory('upload_tmp')
+        ])
       );
 
       it('should add a new map submission version', async () => {
         const changelog = 'Added walls, floors etc...';
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         const res = await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
         });
@@ -1860,14 +1875,13 @@ describe('Maps', () => {
       });
 
       it('should upload the BSP and VMF files', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         const res = await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'Added lights, spawn entity etc...' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
         });
@@ -2003,14 +2017,13 @@ describe('Maps', () => {
         // Nuke the bonus
         newZones.tracks.bonuses = [];
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'Added Stage 3, removed bonus', zones: newZones },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
         });
@@ -2087,14 +2100,13 @@ describe('Maps', () => {
           token: u1Token
         });
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'haha i am making ur thing update' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
 
@@ -2121,14 +2133,13 @@ describe('Maps', () => {
           token: u1Token
         });
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'haha i am making ur thing update' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
 
@@ -2152,8 +2163,10 @@ describe('Maps', () => {
         expect(submissionMapList[0]).not.toHaveProperty('zones');
       });
 
-      it('should 400 for bad zones', () =>
-        req.postAttach({
+      it('should 400 for bad zones', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: {
@@ -2179,48 +2192,7 @@ describe('Maps', () => {
               ]
             } as MapZones
           },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
-          token: u1Token
-        }));
-
-      it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
-        await req.postAttach({
-          url: `maps/${map.id}`,
-          status: 400,
-          data: { changelog: 'EEEE' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'bhop_map.vmf' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
-          token: u1Token
-        });
-      });
-
-      it('should succeed if BSP filename starts with but does not equal the fileName on the DTO', async () => {
-        await req.postAttach({
-          url: `maps/${map.id}`,
-          status: 201,
-          data: { changelog: 'mombo man' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map_a3.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
-          token: u1Token
-        });
-      });
-
-      it('should 400 if BSP filename does not end in .bsp', async () => {
-        await req.postAttach({
-          url: `maps/${map.id}`,
-          status: 400,
-          data: { changelog: 'dogecoin' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.com' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
       });
@@ -2230,10 +2202,7 @@ describe('Maps', () => {
           url: `maps/${NULL_ID}`,
           status: 404,
           data: { changelog: 'what is this' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u2Token
         }));
 
@@ -2242,10 +2211,7 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           status: 403,
           data: { changelog: 'let me touch your map' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u2Token
         }));
 
@@ -2259,10 +2225,7 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           status: 403,
           data: { changelog: 'guhhh' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
 
@@ -2289,40 +2252,25 @@ describe('Maps', () => {
         });
       });
 
-      it("should 400 if BSP file is greater than the config's max bsp file size", async () => {
+      it('should succeed if VMF file is missing', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
-          status: 400,
-          data: { changelog: 'so very bored' },
-          files: [
-            {
-              file: Buffer.alloc(Config.limits.bspSize + 1),
-              field: 'bsp',
-              fileName: 'surf_map.bsp'
-            },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          status: 201,
+          data: { changelog: 'who needs tests anyway' },
           token: u1Token
         });
       });
 
-      it('should succeed if VMF file is missing', async () =>
-        req.postAttach({
-          url: `maps/${map.id}`,
-          status: 201,
-          data: { changelog: 'who needs tests anyway' },
-          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
-          token: u1Token
-        }));
+      it('should 400 if VMF file is invalid', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
-      it('should 400 if VMF file is invalid', () =>
-        req.postAttach({
+        await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: { changelog: 'just hope it works' },
           files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
             {
               file: Buffer.from('{' + vmfBuffer.toString()),
               field: 'vmfs',
@@ -2330,28 +2278,29 @@ describe('Maps', () => {
             }
           ],
           token: u1Token
-        }));
+        });
+      });
 
       it('should 400 if a VMF filename does not end in .vmf', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: { changelog: 'shoutout to winrar' },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.rar' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.rar' }],
           token: u1Token
         });
       });
 
-      it("should 400 if a VMF file is greater than the config's max vmf file size", () =>
-        req.postAttach({
+      it("should 400 if a VMF file is greater than the config's max vmf file size", async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: { changelog: 'kill me' },
           files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
             {
               file: Buffer.alloc(Config.limits.vmfSize + 1),
               field: 'vmfs',
@@ -2359,19 +2308,20 @@ describe('Maps', () => {
             }
           ],
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 400 if the changelog is missing', () =>
-        req.postAttach({
+      it('should 400 if the changelog is missing', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: {},
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
-        }));
+        });
+      });
 
       for (const status of [MapStatus.APPROVED, MapStatus.DISABLED]) {
         it(`should 403 if the map status is ${MapStatus[status]}`, async () => {
@@ -2381,9 +2331,6 @@ describe('Maps', () => {
             url: `maps/${map.id}`,
             status: 403,
             data: { changelog: 'awoooooga' },
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
-            ],
             token: u1Token
           });
 
@@ -2420,11 +2367,12 @@ describe('Maps', () => {
           })
         ).toHaveLength(1);
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'all your runs SUCK', resetLeaderboards: true },
-          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
           validate: MapDto,
           token: u1Token
         });
@@ -2462,6 +2410,8 @@ describe('Maps', () => {
           })
         ).toHaveLength(1);
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
@@ -2469,16 +2419,16 @@ describe('Maps', () => {
             changelog: 'damn these runs are great. i love you guys',
             resetLeaderboards: false
           },
-          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
           validate: MapDto,
           token: u1Token
         });
+
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'im so happy right now' },
-          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
           validate: MapDto,
           token: u1Token
         });
@@ -2541,6 +2491,8 @@ describe('Maps', () => {
           })
         ).toHaveLength(1);
 
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 403,
@@ -2548,7 +2500,6 @@ describe('Maps', () => {
             changelog: 'PLEASE let me delete these runs',
             resetLeaderboards: true
           },
-          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
           token: u1Token
         });
 
@@ -2616,7 +2567,7 @@ describe('Maps', () => {
       afterAll(() => db.cleanup('user'));
 
       afterEach(() =>
-        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
+        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('maplist')])
       );
 
       for (const status of CombinedMapStatuses.IN_SUBMISSION) {
@@ -3897,6 +3848,96 @@ describe('Maps', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/submissions', 'get'));
+    });
+  });
+
+  describe('maps/getMapUploadUrl', () => {
+    describe('GET', () => {
+      let user, token;
+      beforeAll(async () => {
+        [user, token] = await db.createAndLoginUser();
+      });
+
+      afterAll(() => fileStore.deleteDirectory('upload_tmp'));
+
+      it('should create pre-signed url for file in upload_tmp directory', async () => {
+        const fileBuf = crypto.randomBytes(10);
+
+        const preSignedUrlRes = await req.get({
+          url: 'maps/getMapUploadUrl',
+          query: {
+            fileSize: fileBuf.length
+          },
+          status: 200,
+          token
+        });
+
+        await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, fileBuf);
+
+        const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
+        expect(userIDObjects.length).toBe(1);
+
+        const storedObject = await fileStore.get(userIDObjects[0]);
+        expect(storedObject).toEqual(fileBuf);
+      });
+
+      it('should delete old file when new url created', async () => {
+        await req.get({
+          url: 'maps/getMapUploadUrl',
+          query: {
+            fileSize: 10
+          },
+          status: 200,
+          token
+        });
+
+        const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
+        expect(userIDObjects.length).toBe(0);
+      });
+
+      it('should 400 for too big files', () =>
+        req.get({
+          url: 'maps/getMapUploadUrl',
+          query: {
+            fileSize: Config.limits.bspSize + 1
+          },
+          status: 400,
+          token
+        }));
+
+      it('should 400 if file size is not specified', () =>
+        req.get({
+          url: 'maps/getMapUploadUrl',
+          status: 400,
+          token
+        }));
+
+      it('should delete old file with next request errored', async () => {
+        const fileBuf = crypto.randomBytes(10);
+
+        const preSignedUrlRes = await req.get({
+          url: 'maps/getMapUploadUrl',
+          query: {
+            fileSize: fileBuf.length
+          },
+          status: 200,
+          token
+        });
+
+        await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, fileBuf);
+
+        await req.get({
+          url: 'maps/getMapUploadUrl',
+          status: 400,
+          token
+        });
+
+        const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
+        expect(userIDObjects.length).toBe(0);
+      });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/getMapUploadUrl', 'get'));
     });
   });
 });
