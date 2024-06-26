@@ -11,7 +11,8 @@
   JWT_GAME_EXPIRY_TIME,
   JWT_WEB_EXPIRY_TIME,
   JWT_REFRESH_EXPIRY_TIME,
-  MAX_MAP_IMAGE_SIZE
+  MAX_MAP_IMAGE_SIZE,
+  PRE_SIGNED_URL_EXPIRE_TIME
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
 import * as process from 'node:process';
@@ -71,7 +72,8 @@ export const ConfigFactory = (): ConfigInterface => {
       reviewLength: MAX_REVIEW_LENGTH,
       testInvites: MAX_TEST_INVITES,
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
-      maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
+      maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS,
+      preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
     },
     logLevel: (process.env['LOG_LEVEL'] ?? isTest
       ? 'warn'

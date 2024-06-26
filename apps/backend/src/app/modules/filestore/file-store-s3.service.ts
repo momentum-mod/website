@@ -8,6 +8,7 @@ import {
   DeleteObjectsCommand,
   ListObjectsV2Command
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '@nestjs/config';
 import { FileStoreFile } from './file-store.interface';
 import { FileStoreService } from './file-store.service';
@@ -125,6 +126,22 @@ export class FileStoreS3Service extends FileStoreService {
 
     if (response.KeyCount === 0 || !response.Contents) return [];
     return response.Contents.map(({ Key }) => Key);
+  }
+
+  async getPreSignedUrl(
+    fileKey: string,
+    fileSize: number,
+    urlExpires: number
+  ): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: fileKey,
+      ContentLength: fileSize
+    });
+
+    return await getSignedUrl(this.s3Client, command, {
+      expiresIn: urlExpires
+    });
   }
 
   private async isMissingHandler(

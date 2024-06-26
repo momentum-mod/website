@@ -51,6 +51,7 @@ export interface ConfigInterface {
     testInvites: number;
     minPublicTestingDuration: number;
     maxCreditsExceptTesters: number;
+    preSignedUrlExpTime: number;
   };
   logLevel: pino.LevelWithSilent;
 }

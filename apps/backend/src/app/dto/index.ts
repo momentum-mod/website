@@ -25,6 +25,7 @@ export * from './map/map-review-comment.dto';
 export * from './map/map-review-suggestions.dto';
 export * from './map/map-review-edit.dto';
 export * from './map/map-test-invite.dto';
+export * from './map/map-pre-signed-url.dto';
 export * from './report/report.dto';
 export * from './run/leaderboard-run.dto';
 export * from './run/past-run.dto';

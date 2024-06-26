@@ -14,7 +14,6 @@ export interface CreateMapSubmissionVersion
 }
 
 export interface CreateMapSubmissionVersionWithFiles {
-  bsp: File;
   vmfs: File[];
   data: CreateMapSubmissionVersion;
 }

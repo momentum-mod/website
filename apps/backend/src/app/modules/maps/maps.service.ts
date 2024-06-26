@@ -545,13 +545,42 @@ export class MapsService {
 
   //#region Submission
 
+  async getPreSignedUrl(userID: number, fileSize?: number) {
+    const userIDObjects = await this.fileStoreService.listFileKeys(
+      `upload_tmp/${userID}`
+    );
+
+    if (userIDObjects.length > 0) {
+      await this.fileStoreService.deleteFiles(userIDObjects);
+    }
+
+    if (!fileSize) {
+      throw new BadRequestException('File size is not specified');
+    }
+
+    const maxBspSize = this.config.getOrThrow('limits.bspSize');
+    if (fileSize > maxBspSize) {
+      throw new BadRequestException(`BSP file too large (> ${maxBspSize})`);
+    }
+
+    const randomID = Math.random().toString().slice(2, 10);
+    return {
+      url: await this.fileStoreService.getPreSignedUrl(
+        `upload_tmp/${userID}.${randomID}`,
+        fileSize,
+        this.config.getOrThrow('limits.preSignedUrlExpTime')
+      )
+    };
+  }
+
   async submitMap(
     dto: CreateMapDto,
     userID: number,
-    bspFile: File,
     vmfFiles?: File[]
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
+
+    const bspFile = await this.getBspFromTemp(userID);
 
     await this.checkMapCompression(bspFile);
 
@@ -624,7 +653,6 @@ export class MapsService {
     mapID: number,
     dto: CreateMapSubmissionVersionDto,
     userID: number,
-    bspFile: File,
     vmfFiles?: File[]
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
@@ -662,6 +690,8 @@ export class MapsService {
     if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
       throw new ForbiddenException('Map does not allow editing');
     }
+
+    const bspFile = await this.getBspFromTemp(userID);
 
     await this.checkMapCompression(bspFile);
 
@@ -1002,9 +1032,19 @@ export class MapsService {
     bspFile: File,
     vmfZip?: Buffer
   ) {
-    const storeFns: Promise<FileStoreFile>[] = [
-      this.fileStoreService.storeFile(bspFile.buffer, submissionBspPath(uuid))
-    ];
+    const storeFns: Promise<FileStoreFile | boolean>[] = [];
+
+    if (bspFile.path) {
+      storeFns.push(
+        this.fileStoreService
+          .copyFile(bspFile.path, submissionBspPath(uuid))
+          .then(() => this.fileStoreService.deleteFile(bspFile.path))
+      );
+    } else {
+      storeFns.push(
+        this.fileStoreService.storeFile(bspFile.buffer, submissionBspPath(uuid))
+      );
+    }
 
     if (vmfZip)
       storeFns.push(
@@ -1841,6 +1881,27 @@ export class MapsService {
 
     if (!header.isCompressed())
       throw new BadRequestException('BSP is not compressed');
+  }
+
+  async getBspFromTemp(userID: number): Promise<File> {
+    const userIDObjects = await this.fileStoreService.listFileKeys(
+      `upload_tmp/${userID}`
+    );
+
+    if (userIDObjects.length === 0) {
+      throw new BadRequestException('Missing BSP file');
+    }
+
+    const bspData = await this.fileStoreService.getFile(userIDObjects[0]);
+
+    return {
+      fieldname: 'bsp',
+      originalname: 'map.bsp',
+      encoding: '7bit',
+      mimetype: 'model/vnd.valve.source.compiled-map',
+      path: userIDObjects[0],
+      buffer: Buffer.from(bspData)
+    };
   }
 
   //#endregion
