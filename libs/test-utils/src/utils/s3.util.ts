@@ -96,6 +96,23 @@ export class FileStoreUtil {
     }
   }
 
+  async list(prefix: string): Promise<string[]> {
+    try {
+      const response = await this.s3.send(
+        new ListObjectsV2Command({
+          Bucket: process.env['STORAGE_BUCKET_NAME'] ?? '',
+          Delimiter: '/',
+          Prefix: prefix
+        })
+      );
+
+      if (response.KeyCount === 0 || !response.Contents) return [];
+      return response.Contents.map(({ Key }) => Key);
+    } catch {
+      return null;
+    }
+  }
+
   async exists(key: string): Promise<boolean> {
     try {
       return !!(await this.get(key));
@@ -127,6 +144,10 @@ export class FileStoreUtil {
     return axios
       .get(url, { responseType: 'arraybuffer' })
       .then((res) => Buffer.from(res.data, 'binary'));
+  }
+
+  async putToPreSignedUrl(url: string, data: Buffer) {
+    return await axios.put(url, data);
   }
 
   async getMapListVersion(type: FlatMapList, version: number) {
