@@ -19,3 +19,4 @@ export const MAX_MAP_DESCRIPTION_LENGTH = 1500;
 export const MIN_MAP_NAME_LENGTH = 3;
 export const MAX_MAP_NAME_LENGTH = 32; // Seems high but this is actually a constant in engine.
 export const MAX_MAP_SUGGESTION_COMMENT_LENGTH = 500;
+export const PRE_SIGNED_URL_EXPIRE_TIME = 5 * 60;

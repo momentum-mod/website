@@ -76,6 +76,7 @@ import {
   UpdateMapDto,
   UpdateMapImagesDto,
   UpdateMapTestInviteDto,
+  MapPreSignedUrlDto,
   VALIDATION_PIPE_CONFIG
 } from '../../dto';
 import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
@@ -189,6 +190,18 @@ export class MapsController {
     return this.mapsService.getAll(query, userID);
   }
 
+  @Get('/getMapUploadUrl')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.MAP_SUBMISSION)
+  @ApiOperation({ summary: 'Get pre-signed url for map upload' })
+  @ApiOkResponse({ type: MapPreSignedUrlDto })
+  getPreSignedUrl(
+    @LoggedInUser('id') userID: number,
+    @Query('fileSize') fileSize?: number
+  ) {
+    return this.mapsService.getPreSignedUrl(userID, fileSize);
+  }
+
   @Post()
   @UseGuards(KillswitchGuard)
   @Killswitch(KillswitchType.MAP_SUBMISSION)
@@ -201,22 +214,17 @@ export class MapsController {
     required: true
   })
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'bsp', maxCount: 1 },
-      { name: 'vmfs', maxCount: 40 }
-    ]),
+    FileFieldsInterceptor([{ name: 'vmfs', maxCount: 40 }]),
     FormDataJsonInterceptor('data')
   )
   async submitMap(
     @Body('data') data: CreateMapDto,
-    @UploadedFiles() files: { bsp: File[]; vmfs: File[] },
+    @UploadedFiles() files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
-    const bspFile = files.bsp?.[0];
+    this.mapSubmissionFileValidation(files.vmfs);
 
-    this.mapSubmissionFileValidation(bspFile, files.vmfs);
-
-    return this.mapsService.submitMap(data, userID, bspFile, files.vmfs);
+    return this.mapsService.submitMap(data, userID, files.vmfs);
   }
 
   // TODO FRONTEND: Frontend will likely multiple requests to  /:mapID PATCH,
@@ -238,36 +246,26 @@ export class MapsController {
   })
   @ApiOkResponse({ type: MapDto, description: 'Map with new version attached' })
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'bsp', maxCount: 1 },
-      { name: 'vmfs', maxCount: 40 }
-    ]),
+    FileFieldsInterceptor([{ name: 'vmfs', maxCount: 40 }]),
     FormDataJsonInterceptor('data')
   )
   submitMapVersion(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Body('data') data: CreateMapSubmissionVersionDto,
-    @UploadedFiles() files: { bsp: File[]; vmfs: File[] },
+    @UploadedFiles() files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
-    const bspFile = files.bsp?.[0];
-
-    this.mapSubmissionFileValidation(bspFile, files.vmfs);
+    this.mapSubmissionFileValidation(files.vmfs);
 
     return this.mapsService.submitMapSubmissionVersion(
       mapID,
       data,
       userID,
-      bspFile,
       files.vmfs
     );
   }
 
-  private mapSubmissionFileValidation(bspFile: File, vmfFiles: File[]) {
-    if (!bspFile || !Buffer.isBuffer(bspFile.buffer)) {
-      throw new BadRequestException('Missing BSP file');
-    }
-
+  private mapSubmissionFileValidation(vmfFiles: File[]) {
     // Don't see a way to apply FileSizeValidationPipe to files individually,
     // just doing it manually. We could grab the validations from
     // https://github.com/dmitriy-nz/nestjs-form-data/tree/master/src/decorators/validation
@@ -275,11 +273,6 @@ export class MapsController {
     // it doesn't seem worth the effort.
     //   spooky note from the future : We could figure out a way to do the above
     //   this using new ParseFilesPipe.
-
-    const maxBspSize = this.config.getOrThrow('limits.bspSize');
-    if (bspFile.size > maxBspSize) {
-      throw new BadRequestException(`BSP file too large (> ${maxBspSize})`);
-    }
 
     const maxVmfSize = this.config.getOrThrow('limits.vmfSize');
     for (const vmfFile of vmfFiles ?? []) {

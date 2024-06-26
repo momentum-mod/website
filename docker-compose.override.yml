@@ -46,7 +46,8 @@ services:
      bash -c "
        mc alias set momentum_minio http://minio:${MINIO_SERVER_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
        mc mb momentum_minio/${STORAGE_BUCKET_NAME} --ignore-existing &&
-       mc anonymous set public momentum_minio/${STORAGE_BUCKET_NAME}
+       mc anonymous set public momentum_minio/${STORAGE_BUCKET_NAME} &&
+       mc ilm rule add --prefix "upload_tmp/" --expire-days 1 momentum_minio/${STORAGE_BUCKET_NAME}
      "
   pgadmin:
     container_name: pgadmin

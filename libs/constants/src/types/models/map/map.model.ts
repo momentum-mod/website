@@ -44,7 +44,6 @@ export interface MMap extends Omit<PrismaMMap, 'zones' | 'images'> {
 }
 
 export interface CreateMapWithFiles {
-  bsp: File;
   vmfs: File[];
   data: CreateMap;
 }

@@ -52,6 +52,15 @@ export abstract class FileStoreService {
   abstract listFileKeys(prefix: string): Promise<string[]>;
 
   /**
+   * Get pre-signed url for an object with set key and size
+   */
+  abstract getPreSignedUrl(
+    fileKey: string,
+    fileSize: number,
+    urlExpires: number
+  ): Promise<string>;
+
+  /**
    * Get a SHA1 hash for a buffer.
    */
   static getHashForBuffer(buffer: Buffer): string {

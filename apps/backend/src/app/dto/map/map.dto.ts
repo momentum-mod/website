@@ -16,7 +16,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsDefined,
   IsHash,
   IsInt,
   IsOptional,
@@ -237,14 +236,6 @@ export class CreateMapDto
 }
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
-  @ApiProperty({
-    type: 'file',
-    format: 'binary',
-    description: 'BSP for the map. MUST be run through bspzip!'
-  })
-  @IsDefined()
-  readonly bsp: any;
-
   @ApiProperty({
     type: 'file array',
     format: 'binary',
