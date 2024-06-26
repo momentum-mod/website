@@ -25,7 +25,6 @@ model User {
   submittedMaps     MMap[]
   mapCredits        MapCredit[]
   mapFavorites      MapFavorite[]
-  mapLibraryEntries MapLibraryEntry[]
   activities        Activity[]
   follows           Follow[]           @relation("follow_follow")
   followers         Follow[]           @relation("follow_follower")
@@ -191,7 +190,6 @@ model MMap {
   runSessions     RunSession[]
   credits         MapCredit[]
   favorites       MapFavorite[]
-  libraryEntries  MapLibraryEntry[]
   notifies        MapNotify[]
   reviews         MapReview[]
   submission      MapSubmission?
@@ -243,21 +241,6 @@ model MapInfo {
   mapID Int  @unique
 
   @@id([mapID])
-}
-
-model MapLibraryEntry {
-  id Int @id @default(autoincrement())
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([mapID, userID])
 }
 
 model MapStats {
