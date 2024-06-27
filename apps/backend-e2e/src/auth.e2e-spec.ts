@@ -107,6 +107,8 @@ describe('Auth', () => {
               return '1m';
             case 'jwt.refreshExpTime':
               return '5m';
+            case 'url.frontend':
+              return 'dashboard.momentum-mod.org';
           }
         });
       });
@@ -122,7 +124,7 @@ describe('Auth', () => {
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('/');
+          expect(response.headers.location).toBe('dashboard.momentum-mod.org');
         });
 
         it('should create a new user', async () => {
@@ -177,7 +179,7 @@ describe('Auth', () => {
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('/');
+          expect(response.headers.location).toBe('dashboard.momentum-mod.org');
         });
 
         it('should create a new user', async () => {
