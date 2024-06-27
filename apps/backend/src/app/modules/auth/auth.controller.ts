@@ -76,7 +76,7 @@ export class AuthController {
   }
 
   @Get('/web/return')
-  @Redirect('/', HttpStatus.FOUND)
+  @Redirect('', HttpStatus.FOUND)
   @BypassJwtAuth()
   @UseGuards(SteamWebGuard)
   @ApiOperation({ summary: 'Assigns a JWT using OpenID data from Steam login' })
@@ -90,6 +90,8 @@ export class AuthController {
     res.setCookie('accessToken', jwt.accessToken, this.cookieOptions);
     res.setCookie('refreshToken', jwt.refreshToken, this.cookieOptions);
     res.setCookie('user', JSON.stringify(user), this.cookieOptions);
+
+    return { url: this.configService.getOrThrow('url.frontend') };
   }
 
   @Post('/game')
