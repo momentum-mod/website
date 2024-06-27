@@ -51,9 +51,8 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         };
       }
 
-      const isProd = env === Environment.PRODUCTION;
       const isActualError = !status || status >= 500;
-      if (isProd) {
+      if (env === Environment.PRODUCTION) {
         // Don't do anything for 4xxs in prod, they're not actual errors and
         // they'll get logged by pino-http like any other response.
         if (isActualError) {
@@ -80,11 +79,12 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
           message: exception.message,
           stack: exception.stack // Stack is useful in dev, waste in prod, Sentry has all that.
         };
-        // We're in development, print actual errors (non-HttpException and 500s)
-        // as errors and the rest as debug
-        if (isActualError) {
+        if (env === Environment.DEVELOPMENT) {
+          // In development, print actual errors (non-HttpException and 500s)
+          // as errors and the rest as debug.
           this.logger.error(msg);
         } else {
+          // In E2E tests, print everything as debug.
           this.logger.debug(msg);
         }
       }
