@@ -1,0 +1,17 @@
+name: Publish Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish_frontend:
+    uses: momentum-mod/website/.github/workflows/frontend_cf_pages.yml@main
+    with:
+      project_name: 'frontend-staging'
+    secrets: inherit
+
+  publish_backend:
+    uses: momentum-mod/website/.github/workflows/backend_docker_image.yml@main
+    secrets: inherit

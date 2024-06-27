@@ -1,6 +1,22 @@
 name: Publish Backend Docker
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to use for the docker image
+        default: 'latest'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        default: 'latest'
+        required: false
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   build:
@@ -40,3 +56,4 @@ jobs:
           registry: ghcr.io
           workdir: .
           dockerfile: ./prod/Dockerfile
+          tags: ${{ inputs.tag }}
