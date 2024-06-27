@@ -49,7 +49,7 @@ jobs:
         run: npx nx run db:generate
 
       - name: Build Frontend
-        run: nx run frontend:build:production
+        run: npx nx run frontend:build:production
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
