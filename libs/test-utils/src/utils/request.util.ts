@@ -10,7 +10,7 @@ import { FILES_PATH } from '../files-path.const';
 import { isEmpty } from '@momentum/util-fn';
 import { MergeExclusive, Primitive } from 'type-fest';
 
-export const URL_PREFIX = '/api/v1/';
+export const URL_PREFIX = '/v1/';
 
 export class RequestUtil {
   constructor(private readonly app: NestFastifyApplication) {}

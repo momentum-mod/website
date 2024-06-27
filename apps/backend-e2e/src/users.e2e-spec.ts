@@ -237,7 +237,7 @@ describe('Users', () => {
     });
   });
 
-  describe('GET /api/users/{userID}/profile', () => {
+  describe('GET /users/{userID}/profile', () => {
     let user, token;
 
     beforeAll(
@@ -264,7 +264,7 @@ describe('Users', () => {
       req.get({ url: `users/${NULL_ID}/profile`, status: 404, token }));
   });
 
-  describe('GET /api/users/{userID}/activities', () => {
+  describe('GET /users/{userID}/activities', () => {
     let user, token;
 
     beforeAll(async () => {
