@@ -55,7 +55,6 @@ export async function setupE2ETestEnvironment(
 
   app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 
-  app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',

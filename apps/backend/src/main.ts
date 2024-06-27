@@ -55,9 +55,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Prefix everything but auth/health with /api
-  app.setGlobalPrefix('api', { exclude: ['auth(.*)', 'health(.*)'] });
-
   // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by
   // default, versions can be incremented on a per-route basis upon future
   // versions
@@ -114,7 +111,7 @@ async function bootstrap() {
 
   // Swagger stuff
   SwaggerModule.setup(
-    'api-docs',
+    'docs',
     app,
     SwaggerModule.createDocument(
       app,
