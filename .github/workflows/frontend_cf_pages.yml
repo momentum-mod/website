@@ -45,7 +45,7 @@ jobs:
 
       - name: npm install
         if: steps.node_cache.outputs.cache-hit != 'true'
-        run: npm ci --no-scripts
+        run: npm ci --ignore-scripts
 
       - name: Prisma Generate
         run: npx nx run db:generate
