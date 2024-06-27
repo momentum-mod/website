@@ -13,5 +13,7 @@ jobs:
     secrets: inherit
 
   publish_backend:
+    permissions:
+      packages: write
     uses: momentum-mod/website/.github/workflows/backend_docker_image.yml@main
     secrets: inherit
