@@ -13,7 +13,6 @@ import {
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
-import { FastifyReply } from 'fastify';
 import { Logger } from 'nestjs-pino';
 import { Environment } from './app/config';
 import { AppModule } from './app/app.module';
@@ -63,20 +62,6 @@ async function bootstrap() {
     defaultVersion: '1',
     prefix: 'v'
   });
-
-  // In dev, serve a script to the client to handle redirecting after auth.
-  // Usually we'd let Nest handle routing, but doing a separate controller file
-  // would be silly, especially since this is developer-only.
-  if (env !== Environment.PRODUCTION) {
-    // Since TS 5 / Nest 10 this `any` cast has been necessary. May be possible
-    // to remove once `@nestjs/platform-fastify` is on latest `fastify`.
-    const fastify = app.getHttpAdapter().getInstance() as any as FastifyAdapter;
-    fastify.get('/', (_, reply: FastifyReply) =>
-      reply
-        .type('text/html')
-        .send("<script>window.location.port = '4200';</script>")
-    );
-  }
 
   // Enable @fastify/helmet header protections
   await app.register(helmet, {
