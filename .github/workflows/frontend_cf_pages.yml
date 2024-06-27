@@ -1,6 +1,24 @@
 name: Publish Frontend
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: The project name to publish the pages to
+        default: frontend
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      project_name:
+        description: The project name to publish the pages to
+        required: true
+        type: string
+    secrets:
+      CLOUDFLARE_PAGES_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
 
 jobs:
   publish:
@@ -38,5 +56,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: website
+          projectName: ${{ inputs.project_name }}
           directory: dist/apps/frontend
