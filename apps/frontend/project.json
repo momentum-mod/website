@@ -45,6 +45,30 @@
           ],
           "outputHashing": "all"
         },
+        "staging": {
+          "buildOptimizer": true,
+          "commonChunk": true,
+          "namedChunks": false,
+          "vendorChunk": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/frontend/src/app/env/environment.ts",
+              "with": "apps/frontend/src/app/env/environment.staging.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "1.25mb",
+              "maximumError": "1.5mb"
+            },
+            {
+              "type": "all",
+              "maximumError": "2mb"
+            }
+          ],
+          "outputHashing": "all"
+        },
         "development": {
           "buildOptimizer": false,
           "optimization": false,
