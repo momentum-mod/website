@@ -54,9 +54,8 @@ jobs:
         run: npx nx run frontend:build:${{ contains( inputs.project_name, 'staging' ) && 'staging' || 'production' }}
 
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ inputs.project_name }}
-          directory: dist/apps/frontend
+          command: pages deploy dist/apps/frontend --project-name=${{ inputs.project_name }} --commit-dirty=true
