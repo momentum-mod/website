@@ -8,24 +8,24 @@ jobs:
     name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Original node_modules Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: original_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: node_modules Cache with Prisma Client
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 20
           cache: 'npm'
 
       - name: npm install
@@ -40,14 +40,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
           submodules: 'true'
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -82,7 +82,7 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -107,7 +107,7 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
@@ -124,14 +124,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
@@ -164,14 +164,14 @@ jobs:
 #    runs-on: ubuntu-latest
 #    needs: install-deps
 #    steps:
-#      - uses: actions/checkout@v3
+#      - uses: actions/checkout@v4
 #        with:
 #          ref: ${{ github.event.pull_request.head.ref }}
 #          repository: ${{ github.event.pull_request.head.repo.full_name }}
 #          fetch-depth: 0
 #          submodules: 'true'
 #      - name: Cache node_modules
-#        uses: actions/cache@v3
+#        uses: actions/cache@v4
 #        with:
 #          path: node_modules
 #          key: modules-${{ github.run_id }}

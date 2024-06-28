@@ -22,19 +22,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: node_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
@@ -48,7 +48,7 @@ jobs:
 
       - name: Build
         run: npx nx run backend:build:production
-      
+
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
