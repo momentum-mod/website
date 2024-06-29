@@ -181,7 +181,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   const s3EndpointUrl = process.env['STORAGE_ENDPOINT_URL'];
   const s3BucketName = process.env['STORAGE_BUCKET_NAME'];
-  const s3Url = (str: string) => `${s3EndpointUrl}/${s3BucketName}/${str}`;
+  const cdnUrl = process.env['CDN_URL'] ?? `${s3EndpointUrl}/${s3BucketName}`;
+  const s3Url = (str: string) => `${cdnUrl}/${str}`;
 
   const s3 = new S3Client({
     region: process.env['STORAGE_REGION'],
@@ -1078,12 +1079,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
     for (const map of maps as any[]) {
       delete map.info.mapID;
 
-      map.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${approvedBspPath(
-        map.name
-      )}`;
+      map.downloadURL = `${cdnUrl}/${approvedBspPath(map.name)}`;
 
       if (map.submission) {
-        map.submission.currentVersion.downloadURL = `${s3EndpointUrl}/${s3BucketName}/${submissionBspPath(
+        map.submission.currentVersion.downloadURL = `${cdnUrl}/${submissionBspPath(
           map.submission.currentVersion.id
         )}`;
       }

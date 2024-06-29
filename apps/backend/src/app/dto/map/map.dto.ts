@@ -50,8 +50,7 @@ import { MapZonesDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
 
-const ENDPOINT_URL = Config.storage.endpointUrl;
-const BUCKET = Config.storage.bucketName;
+const CDN_URL = Config.url.cdn;
 
 export class MapDto implements MMap {
   @IdProperty()
@@ -83,7 +82,7 @@ export class MapDto implements MMap {
   @IsUrl({ require_tld: false })
   get downloadURL() {
     return this.status === MapStatus.APPROVED
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.name)}`
+      ? `${CDN_URL}/${approvedBspPath(this.name)}`
       : undefined;
   }
 
@@ -99,7 +98,7 @@ export class MapDto implements MMap {
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
     return this.status === MapStatus.APPROVED && this.hasVmf
-      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.name)}`
+      ? `${CDN_URL}/${approvedVmfsPath(this.name)}`
       : undefined;
   }
 

@@ -28,8 +28,7 @@ import {
 import { Config } from '../../config';
 import { LeaderboardDto } from './leaderboard.dto';
 
-const ENDPOINT_URL = Config.storage.endpointUrl;
-const BUCKET = Config.storage.bucketName;
+const CDN_URL = Config.url.cdn;
 
 export class LeaderboardRunDto implements LeaderboardRun {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })
@@ -66,7 +65,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return `${ENDPOINT_URL}/${BUCKET}/${runPath(this.replayHash)}`;
+    return `${CDN_URL}/${runPath(this.replayHash)}`;
   }
 
   @ApiProperty({

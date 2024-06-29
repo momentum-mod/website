@@ -22,7 +22,6 @@ export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;
   const port: number = +(process.env['NEST_PORT'] || 3000);
 
-  const isProd = env === Environment.PRODUCTION;
   const isTest = env === Environment.TEST;
 
   return {
@@ -31,7 +30,8 @@ export const ConfigFactory = (): ConfigInterface => {
     domain: process.env['ROOT_DOMAIN'] || 'localhost',
     url: {
       backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,
-      frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200'
+      frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200',
+      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest' // Includes /bucket
     },
     appIDs: STEAM_APPIDS,
     jwt: {

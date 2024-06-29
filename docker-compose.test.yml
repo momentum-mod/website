@@ -5,6 +5,9 @@ services:
     environment: &env
       NODE_ENV: test
       NEST_PORT: 3003
+      BACKEND_URL: http://localhost:3000
+      FRONTEND_URL: http://localhost:4200
+      CDN_URL: http://minio:9000/momtest
       POSTGRES_USER: root
       POSTGRES_DB: momentum
       POSTGRES_PASSWORD: root
