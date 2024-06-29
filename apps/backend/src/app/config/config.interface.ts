@@ -12,6 +12,7 @@ export interface ConfigInterface {
   url: {
     backend: string;
     frontend: string;
+    cdn: string;
   };
   port: number;
   appIDs: number[];

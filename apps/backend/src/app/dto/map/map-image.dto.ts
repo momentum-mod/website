@@ -13,8 +13,7 @@ import {
 import { Config } from '../../config';
 import { StringIdProperty } from '../decorators';
 
-const ENDPOINT_URL = Config.storage.endpointUrl;
-const BUCKET = Config.storage.bucketName;
+const CDN_URL = Config.url.cdn;
 
 export class MapImageDto implements MapImage {
   @StringIdProperty({ uuid: true })
@@ -27,7 +26,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get small(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${imgSmallPath(this.id)}`;
+    return `${CDN_URL}/${imgSmallPath(this.id)}`;
   }
 
   @ApiProperty({
@@ -37,7 +36,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get medium(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${imgMediumPath(this.id)}`;
+    return `${CDN_URL}/${imgMediumPath(this.id)}`;
   }
 
   @ApiProperty({
@@ -47,7 +46,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get large(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${imgLargePath(this.id)}`;
+    return `${CDN_URL}/${imgLargePath(this.id)}`;
   }
 
   @ApiProperty({
@@ -57,7 +56,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get xl(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${imgXlPath(this.id)}`;
+    return `${CDN_URL}/${imgXlPath(this.id)}`;
   }
 }
 

@@ -52,6 +52,10 @@ export class ConfigValidation {
   @IsOptionalWithEmptyString()
   readonly BACKEND_URL?: string;
 
+  @IsUrl({ require_tld: false })
+  @IsOptionalWithEmptyString()
+  readonly CDN_URL?: string;
+
   @IsString({
     message:
       'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
@@ -87,10 +91,6 @@ export class ConfigValidation {
   @IsUrl({ require_tld: false })
   @IsOptional()
   readonly STORAGE_ENDPOINT_URL?: string;
-
-  @IsUrl({ require_tld: false })
-  @IsOptional()
-  readonly STORAGE_ENDPOINT_URL_DOCKERIZED?: string;
 
   @IsString()
   readonly STORAGE_BUCKET_NAME?: string;

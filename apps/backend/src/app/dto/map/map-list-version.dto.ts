@@ -4,8 +4,7 @@ import { IsInt } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { Config } from '../../config';
 
-const ENDPOINT_URL = Config.storage.endpointUrl;
-const BUCKET = Config.storage.bucketName;
+const CDN_URL = Config.url.cdn;
 
 export class MapListVersionDto implements MapListVersion {
   @ApiProperty({ description: 'Latest version of the main map list' })
@@ -17,10 +16,7 @@ export class MapListVersionDto implements MapListVersion {
   })
   @Expose()
   get approvedURL(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${mapListPath(
-      FlatMapList.APPROVED,
-      this.approved
-    )}`;
+    return `${CDN_URL}/${mapListPath(FlatMapList.APPROVED, this.approved)}`;
   }
 
   @ApiProperty({ description: 'Latest version of the submission map list' })
@@ -33,7 +29,7 @@ export class MapListVersionDto implements MapListVersion {
   })
   @Expose()
   get submissionsURL(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/${mapListPath(
+    return `${CDN_URL}/${mapListPath(
       FlatMapList.SUBMISSION,
       this.submissions
     )}`;

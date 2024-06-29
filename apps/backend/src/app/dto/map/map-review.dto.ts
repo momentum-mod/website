@@ -22,8 +22,7 @@ import {
 } from '@momentum/constants';
 import { Config } from '../../config';
 
-const ENDPOINT_URL = Config.storage.endpointUrl;
-const BUCKET = Config.storage.bucketName;
+const CDN_URL = Config.url.cdn;
 
 export class MapReviewDto implements MapReview {
   @IdProperty()
@@ -71,7 +70,7 @@ export class MapReviewDto implements MapReview {
   @Expose()
   get images(): string[] {
     return this.imageIDs.map(
-      (id) => `${ENDPOINT_URL}/${BUCKET}/${mapReviewAssetPath(id.toString())}`
+      (id) => `${CDN_URL}/${mapReviewAssetPath(id.toString())}`
     );
   }
 
