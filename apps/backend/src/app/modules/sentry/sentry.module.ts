@@ -46,7 +46,7 @@ export class SentryModule {
             }
 
             Sentry.init(sentryOpts);
-            logger.log(`Initialised Sentry with ${JSON.stringify(sentryOpts)}`);
+            logger.log({ sentryOpts }, 'Initialised Sentry');
             return true;
           }
         },
