@@ -64,11 +64,7 @@ async function bootstrap() {
   });
 
   // Enable @fastify/helmet header protections
-  await app.register(helmet, {
-    global: true,
-    // Needed for ugly above redirect script to work.
-    contentSecurityPolicy: env === Environment.PRODUCTION
-  });
+  await app.register(helmet, { global: true });
 
   // CORS policy to allow browsers to access the backend from dashboard.momentum-mod.org
   await app.register(cors, {
