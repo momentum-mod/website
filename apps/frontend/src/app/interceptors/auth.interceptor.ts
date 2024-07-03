@@ -59,14 +59,14 @@ export class AuthInterceptor implements HttpInterceptor {
         // We only want to handle 401s (Unauthorized) which usually means the
         // access token has expired.
         if (error.status !== 401) {
-          return throwError(error);
+          return throwError(() => error);
         }
 
         if (req.url.includes('auth/refresh')) {
           // This was called from refreshAccessToken in handleRefresh. Just let
           // the error bubble up to that subscription, where we handle the case
           // of the *refresh* token being invalid.
-          return throwError(error);
+          return throwError(() => error);
         }
 
         // Okay, we need a new access token.
