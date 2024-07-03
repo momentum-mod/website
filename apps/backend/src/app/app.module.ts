@@ -19,8 +19,6 @@ import { UsersModule } from './modules/users/users.module';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { MapReviewModule } from './modules/map-review/map-review.module';
-import { ExtendedPrismaService } from './modules/database/prisma.extension';
-import { EXTENDED_PRISMA_SERVICE } from './modules/database/db.constants';
 import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
@@ -37,10 +35,7 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
     // This is a small wrapper module around @sentry/node that only inits in
     // production if a valid DSN is set.
     SentryModule.forRootAsync({
-      useFactory: async (
-        config: ConfigService,
-        prisma: ExtendedPrismaService
-      ) => ({
+      useFactory: async (config: ConfigService) => ({
         environment: config.getOrThrow('env'),
         // Whether to enable SentryInterceptor. If enabled, we run a transaction
         // for the lifetime of tracesSampleRate * all HTTP requests. This
@@ -51,13 +46,13 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
           dsn: config.getOrThrow('sentry.dsn'),
           tracesSampleRate: config.getOrThrow('sentry.tracesSampleRate'),
           integrations: config.getOrThrow('sentry.tracePrisma')
-            ? [new Sentry.Integrations.Prisma({ client: prisma })]
+            ? [Sentry.prismaIntegration()]
             : undefined,
           debug: false
         }
       }),
       imports: [DbModule.forRoot()],
-      inject: [ConfigService, EXTENDED_PRISMA_SERVICE]
+      inject: [ConfigService]
     }),
     // Pino is a highly performant logger that outputs logs as JSON, which we
     // then export to Grafana Loki. This module sets up `pino-http` which logs
