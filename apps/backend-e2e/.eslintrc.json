@@ -9,7 +9,10 @@
         // DTOs from the backend package, and occasionally specific services.
         // It's must easier to just handle these in review than fight with this
         // rule constantly.
-        "@nx/enforce-module-boundaries": ["off"]
+        "@nx/enforce-module-boundaries": ["off"],
+        // In some cases we want to use JSON.stringify specifically because of
+        // our bigint stringifying shenanigans.
+        "unicorn/prefer-structured-clone": ["off"]
       }
     }
   ]
