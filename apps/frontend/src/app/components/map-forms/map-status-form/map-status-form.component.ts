@@ -151,9 +151,9 @@ export class MapStatusFormComponent implements OnChanges {
     );
 
     this.firstEnteredPublicTesting = new Date(
-      this.map.submission.dates
-        .filter(({ status }) => status === MapStatus.PUBLIC_TESTING)
-        .at(-1)?.date
+      this.map.submission.dates.findLast(
+        ({ status }) => status === MapStatus.PUBLIC_TESTING
+      )?.date
     ).getTime();
     this.isBlockedForSubmissionTimeGate =
       Date.now() - this.firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION;
