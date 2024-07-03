@@ -169,7 +169,9 @@ module.exports = {
         // readable, often identical performance on V8.
         'unicorn/no-array-for-each': ['off'],
         // JS switches look terrible, hurts readability.
-        'unicorn/prefer-switch': ['off']
+        'unicorn/prefer-switch': ['off'],
+        // What the hell is wrong with .flat(2)
+        'unicorn/no-magic-array-flat-depth': ['off']
       }
     },
     {
