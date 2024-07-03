@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, Renderer2 } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 import { NotificationsService } from './services/notifications.service';
 import { LayoutService, SidenavState } from './services/layout.service';
@@ -20,14 +20,15 @@ import { SharedModule } from './shared.module';
     ConfirmDialogModule
   ]
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   protected sideNavState: SidenavState;
   protected customBackgroundImage = '';
   protected customBackgroundOpacity = 0;
 
   constructor(
     private readonly notificationService: NotificationsService,
-    private readonly layoutService: LayoutService
+    private readonly layoutService: LayoutService,
+    private readonly renderer: Renderer2
   ) {
     this.notificationService.inject();
 
@@ -50,5 +51,13 @@ export class AppComponent {
     this.layoutService.backgroundEnable.subscribe((enable: boolean) => {
       this.customBackgroundOpacity = enable ? 1 : 0;
     });
+  }
+
+  ngAfterViewInit() {
+    this.renderer.setStyle(
+      this.renderer.selectRootElement('#loading'),
+      'display',
+      'none'
+    );
   }
 }
