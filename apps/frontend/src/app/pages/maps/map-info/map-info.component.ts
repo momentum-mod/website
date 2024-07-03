@@ -287,8 +287,7 @@ export class MapInfoComponent implements OnInit {
 
   // TODO: https://github.com/momentum-mod/website/issues/903
   getLatestStatusChangeDate(status: MapStatus): DateString {
-    return this.map.submission.dates
-      .filter((date) => date.status === status)
-      .at(-1)?.date;
+    return this.map.submission.dates.findLast((date) => date.status === status)
+      ?.date;
   }
 }
