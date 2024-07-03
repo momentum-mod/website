@@ -7,5 +7,5 @@ export default {
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
   },
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)']
+  transformIgnorePatterns: [String.raw`node_modules/(?!.*\.mjs$)`]
 };
