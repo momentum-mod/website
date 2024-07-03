@@ -38,7 +38,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 })
 export class CodeVerifyDialogComponent implements OnInit {
   @Input() message: SafeHtml;
-  @Input() actionText: string = 'Delete';
+  @Input() actionText = 'Delete';
 
   protected randomCode: string;
   protected isCodeValid: boolean;
