@@ -8,7 +8,7 @@ import { faker } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
 import path from 'node:path';
 
-export default async function () {
+export default async function globalSetup() {
   // Load .env file in project root. Nx does this automatically, but this helps
   // in cases where running the Jest config directly (e.g. through WebStorm Jest
   // plugin). Annoyingly, WebStorm likes to set the cwd to /apps/backend-e2e.
