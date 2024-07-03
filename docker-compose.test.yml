@@ -54,7 +54,7 @@ services:
     # as some binaries are slightly different. About the same bandwidth for that
     # as to download the larger (Debian based) `node` image, and that's a bit
     # simpler.
-    image: node:18.16.1
+    image: node:20.15.0-alpine
     depends_on:
       - postgres
       - minio
