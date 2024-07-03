@@ -2,7 +2,7 @@ import {
   siDiscord,
   siSteam,
   siGithub,
-  siTwitter,
+  siX,
   siTwitch,
   siYoutube,
   siMastodon,
@@ -17,7 +17,7 @@ import {
 export const steam = siSteam.path;
 export const discord = siDiscord.path;
 export const github = siGithub.path;
-export const twitter = siTwitter.path;
+export const twitter = siX.path;
 export const twitch = siTwitch.path;
 export const youtube = siYoutube.path;
 export const mastodon = siMastodon.path;
