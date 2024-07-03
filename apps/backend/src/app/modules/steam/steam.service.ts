@@ -47,7 +47,7 @@ export class SteamService {
     if (
       !userSummary ||
       getPlayerResponse.response.error ||
-      !userSummary.personaname === undefined ||
+      userSummary.personaname === undefined ||
       !userSummary.avatarhash
     )
       throw new ServiceUnavailableException('Failed to get player summary');
