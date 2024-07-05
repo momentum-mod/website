@@ -1,8 +1,14 @@
 const { composePlugins, withNx } = require('@nx/webpack');
+const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
 
-// Nx plugins for webpack.
 module.exports = composePlugins(withNx(), (config) => {
-  // Update the webpack config as needed here.
-  // e.g. `config.plugins.push(new MyPlugin())`
+  config.plugins.push(
+    sentryWebpackPlugin({
+      org: process.env['SENTRY_ORG'],
+      project: process.env['SENTRY_PROJECT'],
+      authToken: process.env['SENTRY_AUTH_TOKEN']
+    })
+  );
+
   return config;
 });
