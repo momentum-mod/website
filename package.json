@@ -104,6 +104,7 @@
     "@nx/webpack": "19.4.0",
     "@nx/workspace": "19.4.0",
     "@schematics/angular": "18.0.6",
+    "@sentry/webpack-plugin": "2.20.1",
     "@tailwindcss/typography": "0.5.13",
     "@types/adm-zip": "0.5.5",
     "@types/chart.js": "2.9.41",
