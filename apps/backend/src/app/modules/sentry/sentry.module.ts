@@ -37,6 +37,7 @@ export class SentryModule {
             const logger = new Logger('Sentry Module Setup');
 
             if (environment !== Environment.PRODUCTION) {
+              logger.log(' Not in prod, not initing sentry');
               return false;
             }
 

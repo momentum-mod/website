@@ -35,22 +35,27 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
     // This is a small wrapper module around @sentry/node that only inits in
     // production if a valid DSN is set.
     SentryModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
-        environment: config.getOrThrow('sentry.env'),
+      useFactory: async (config: ConfigService) => {
         // Whether to enable SentryInterceptor. If enabled, we run a transaction
         // for the lifetime of tracesSampleRate * all HTTP requests. This
         // provides more detailed error
-        enableTracing: config.getOrThrow('sentry.enableTracing'),
-        sentryOpts: {
-          // If this isn't set in prod we won't init Sentry.
-          dsn: config.getOrThrow('sentry.dsn'),
-          tracesSampleRate: config.getOrThrow('sentry.tracesSampleRate'),
-          integrations: config.getOrThrow('sentry.tracePrisma')
-            ? [Sentry.prismaIntegration()]
-            : undefined,
-          debug: false
-        }
-      }),
+        const enableTracing = config.getOrThrow('sentry.enableTracing');
+        return {
+          environment: config.getOrThrow('env'),
+          enableTracing,
+          sentryOpts: {
+            // If this isn't set in prod we won't init Sentry.
+            dsn: config.getOrThrow('sentry.dsn'),
+            enableTracing,
+            environment: config.getOrThrow('sentry.env'),
+            tracesSampleRate: config.getOrThrow('sentry.tracesSampleRate'),
+            integrations: config.getOrThrow('sentry.tracePrisma')
+              ? [Sentry.prismaIntegration()]
+              : undefined,
+            debug: false
+          }
+        };
+      },
       imports: [DbModule.forRoot()],
       inject: [ConfigService]
     }),
