@@ -41,6 +41,7 @@ export interface ConfigInterface {
     enableTracing: boolean;
     tracesSampleRate: number;
     tracePrisma: boolean;
+    env: 'production' | 'staging';
   };
   limits: {
     dailyReports: number;

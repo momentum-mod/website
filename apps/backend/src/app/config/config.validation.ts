@@ -82,6 +82,10 @@ export class ConfigValidation {
   @IsBoolean()
   readonly SENTRY_TRACE_PRISMA?: boolean;
 
+  @IsOptional()
+  @IsIn(['production', 'staging'])
+  readonly SENTRY_ENV?: 'production' | 'staging';
+
   @IsUrl({ require_tld: false, protocols: ['postgresql'] })
   readonly DATABASE_URL?: string;
 

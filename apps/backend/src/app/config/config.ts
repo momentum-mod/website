@@ -44,7 +44,8 @@ export const ConfigFactory = (): ConfigInterface => {
       dsn: process.env['SENTRY_DSN'] || '',
       enableTracing: process.env['SENTRY_ENABLE_TRACING'] === 'true' || false,
       tracesSampleRate: +process.env['SENTRY_TRACE_SAMPLE_RATE'] || 0,
-      tracePrisma: process.env['SENTRY_TRACE_PRISMA'] === 'true' || false
+      tracePrisma: process.env['SENTRY_TRACE_PRISMA'] === 'true' || false,
+      env: (process.env['SENTRY_ENV'] || '') as 'production' | 'staging'
     },
     sessionSecret: process.env['SESSION_SECRET'] || '',
     steam: {
