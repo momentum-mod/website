@@ -40,8 +40,10 @@ export class SentryModule {
               return false;
             }
 
-            if (!sentryOpts?.dsn) {
-              logger.warn('Sentry DSN not set, not initializing!');
+            if (!sentryOpts?.dsn || !sentryOpts?.environment) {
+              logger.warn(
+                'Sentry DSN or environment not set, not initializing!'
+              );
               return false;
             }
 

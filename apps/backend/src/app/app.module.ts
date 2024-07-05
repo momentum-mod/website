@@ -36,7 +36,7 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
     // production if a valid DSN is set.
     SentryModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
-        environment: config.getOrThrow('env'),
+        environment: config.getOrThrow('sentry.env'),
         // Whether to enable SentryInterceptor. If enabled, we run a transaction
         // for the lifetime of tracesSampleRate * all HTTP requests. This
         // provides more detailed error
