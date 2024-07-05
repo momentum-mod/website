@@ -14,6 +14,11 @@ updates:
         dependency-type: "production"
       dev:
         dependency-type: "development"
+    ignore:
+      - dependency-name: "@nx*"
+      - dependency-name: "@angular*"
+      - dependency-name: "typescript"
+      - dependency-name: "*eslint*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
