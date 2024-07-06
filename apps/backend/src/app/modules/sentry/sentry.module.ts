@@ -8,6 +8,7 @@ import {
 } from './sentry.interface';
 import { SENTRY_INIT_STATE, SENTRY_MODULE_OPTIONS } from './sentry.const';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({})
 export class SentryModule {
@@ -55,7 +56,7 @@ export class SentryModule {
         },
         {
           inject: [SENTRY_MODULE_OPTIONS, SENTRY_INIT_STATE],
-          provide: SentryInterceptor,
+          provide: APP_INTERCEPTOR,
           // Only actually instantiate the service if we initialised Sentry and
           // have tracing enabled
           useFactory: (
@@ -65,7 +66,7 @@ export class SentryModule {
             enableTracing && initState ? new SentryInterceptor() : undefined
         }
       ],
-      exports: [SentryInterceptor, SENTRY_INIT_STATE]
+      exports: [SENTRY_INIT_STATE]
     };
   }
 }
