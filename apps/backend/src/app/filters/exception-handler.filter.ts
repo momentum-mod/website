@@ -4,24 +4,21 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  Inject,
-  Logger
+  Logger,
+  ServiceUnavailableException
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
 import '@sentry/tracing'; // Required according to https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import * as Sentry from '@sentry/node';
-import { SENTRY_INIT_STATE } from '../modules/sentry/sentry.const';
-import { SentryInitState } from '../modules/sentry/sentry.interface';
 import { Environment } from '../config';
 
 @Catch()
 export class ExceptionHandlerFilter implements ExceptionFilter {
   constructor(
     private readonly httpAdapterHost: HttpAdapterHost,
-    private readonly configService: ConfigService,
-    @Inject(SENTRY_INIT_STATE) private readonly sentryEnabled: SentryInitState
+    private readonly configService: ConfigService
   ) {}
 
   private readonly logger = new Logger('Exception Filter');
@@ -69,9 +66,9 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
             message: exception.message
           };
 
-          // In production, send to Sentry so long as it's enabled (if the DSN is
-          // invalid/empty it'll be disabled).
-          if (this.sentryEnabled) {
+          // In production, send to Sentry so long as it's enabled
+          // TODO: maybe still want to inject sentry init state token
+          if (Sentry.isInitialized()) {
             eventID = Sentry.captureException(exception);
             msg.eventID = eventID;
           }

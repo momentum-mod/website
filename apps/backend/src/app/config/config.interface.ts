@@ -36,13 +36,6 @@ export interface ConfigInterface {
     accessKeyID: string;
     secretAccessKey: string;
   };
-  sentry: {
-    dsn: string;
-    enableTracing: boolean;
-    tracesSampleRate: number;
-    tracePrisma: boolean;
-    env: 'production' | 'staging';
-  };
   limits: {
     dailyReports: number;
     mapImageUploads: number;

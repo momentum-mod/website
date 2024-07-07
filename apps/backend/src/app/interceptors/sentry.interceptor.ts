@@ -1,39 +1,35 @@
-import * as Sentry from '@sentry/node';
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
+  Logger,
   NestInterceptor
 } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
+import { getIsolationScope } from '@sentry/node';
+import { getDefaultIsolationScope } from '@sentry/core';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const { method, url } = request;
+    if (getIsolationScope() === getDefaultIsolationScope()) {
+      Logger.warn(
+        'Isolation scope is still the default isolation scope, skipping setting transactionName.'
+      );
+      return next.handle();
+    }
 
-    // Based on https://github.com/ericjeker/nestjs-sentry-example/blob/main/src/sentry/sentry.interceptor.ts,
-    // but updated for Sentry 7, which majorly changed how transactions/spans are handled.
-    return Sentry.startSpan(
-      {
-        op: 'http.server',
-        name: `${method} ${url}`
-      },
-      (rootSpan: Sentry.Span) =>
-        Sentry.startSpan(
-          {
-            op: 'http.handler',
-            name: `${context.getClass().name}.${context.getHandler().name}`
-          },
-          (span: Sentry.Span) =>
-            next.handle().pipe(
-              tap(() => {
-                span.end();
-                rootSpan.end();
-              })
-            )
-        )
-    );
+    if (context.getType() !== 'http') {
+      return next.handle();
+    }
+
+    const req = context.switchToHttp().getRequest();
+    if (req.route) {
+      getIsolationScope().setTransactionName(
+        `${req.method?.toUpperCase() ?? 'UNKNOWN'} ${req.route.path}`
+      );
+    }
+
+    return next.handle();
   }
 }
