@@ -1,5 +1,8 @@
 import { Vector, Vector2D } from '../../utils';
 
+// TypeScript equivalent of the C++ structs in mom_timer_defs.h
+// Note C++ has everything in a "ZoneDefs" namespace, and uses "Base" for our "MapZones".
+
 export interface MapZones {
   // extends JsonObject { // TODO: #855
   formatVersion: number;
@@ -21,7 +24,7 @@ export interface MainTrack {
 
 export interface BonusTrack {
   zones?: TrackZones;
-  defragFlags?: number;
+  defragModifiers?: number;
 }
 
 export interface TrackZones {
@@ -31,18 +34,18 @@ export interface TrackZones {
 
 export interface Segment {
   // extends JsonObject { // TODO: #855
-  limitStartGroundSpeed: boolean;
-  checkpointsRequired: boolean;
-  checkpointsOrdered: boolean;
   checkpoints: Zone[];
   cancel: Zone[];
   name?: string;
+  limitStartGroundSpeed: boolean;
+  checkpointsRequired: boolean;
+  checkpointsOrdered: boolean;
 }
 
 export interface Zone {
   // extends JsonObject { // TODO: #855
   regions: Region[];
-  filterName?: string;
+  filtername?: string;
 }
 
 export interface Region {
