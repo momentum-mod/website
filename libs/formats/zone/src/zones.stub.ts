@@ -9,6 +9,7 @@ import { Gamemode as GM, MapZones, TrackType } from '@momentum/constants';
  *    - start zone and
  *    - 1 minor checkpoint
  *   - end zone
+ *   - "stagesEndAtStageStarts" set to true
  * - 2 stage tracks, for both major checkpoints on main track
  * - 1 bonus, with just a start and end zone
  */

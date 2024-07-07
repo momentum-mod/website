@@ -1,7 +1,14 @@
-import { MapZones, Region, TrackZones, Zone } from '@momentum/constants';
+import {
+  MainTrack,
+  BonusTrack,
+  MapZones,
+  Zone,
+  TrackZones
+} from '@momentum/constants';
 import { Vec } from '@momentum/util-fn';
 
-// Contents of this file largely correspond to mom_zone_defs.cpp/h
+// Contents of this file largely correspond to mom_timer_defs.cpp/h
+// and `mom_zone_runtime_data.cpp/h
 // Some of this implementation is kept deliberately quite C++ish so easiest to
 // keep both in sync.
 
@@ -13,10 +20,17 @@ export const MIN_COORD_FLOAT = -MAX_COORD_FLOAT;
 export const MAX_ZONE_REGION_POINTS = 64;
 
 export const MAX_TRACK_SEGMENTS = 255;
-export const MAX_SEGMENT_CHECKPOINTS = 255;
-export const MAX_ZONES_ALL_TRACKS = 512;
-
+export const MAX_STAGE_TRACKS = MAX_TRACK_SEGMENTS;
 export const MAX_BONUS_TRACKS = 255;
+
+// Includes the segment start zone
+export const MAX_SEGMENT_CHECKPOINTS = 255;
+
+// From C++:
+// One segment start for max Main segments plus Main end zone plus start and end for each stage track.
+// The limit could be increased from here (barring region entity overload) but this is the bare minimum to allow for MAX_TRACK_SEGMENTS.
+export const MAX_ZONES_ALL_TRACKS =
+  MAX_TRACK_SEGMENTS + 1 + MAX_STAGE_TRACKS * 2;
 
 export class ZoneValidationError extends Error {
   constructor(message: string) {
@@ -25,13 +39,13 @@ export class ZoneValidationError extends Error {
   }
 }
 
+type Track = MainTrack | BonusTrack | { zones: TrackZones };
+
 /**
  * Validate a MapZones JavaScript Object
  * @throws ZoneValidationError
  */
 export function validateZoneFile(input: MapZones): void {
-  return;
-
   if (!input) throw new ZoneValidationError('Bad input data');
 
   const { tracks, formatVersion } = input;
@@ -43,85 +57,206 @@ export function validateZoneFile(input: MapZones): void {
 
   let totalZones = 0;
 
-  validateTrack(tracks.main.zones, 'Main');
+  const mainSegmentCount = tracks.main.zones.segments.length;
+  const stageTrackCount = mainSegmentCount > 1 ? mainSegmentCount : 0;
 
-  // if (tracks.main.zones.segments.length === 1) {
-  //   if (tracks.stages.length > 0)
-  //     throw new ZoneValidationError(
-  //       'A map with a linear main track cannot have any stage stacks'
-  //     );
-  // } else {
-  //   if (tracks.stages.length !== tracks.main.zones.segments.length) {
-  //     throw new ZoneValidationError(
-  //       'The number of stage tracks must match the number of main track segments'
-  //     );
-  //   }
-  // }
+  // Main track
+  if (mainSegmentCount === 0) {
+    throw new ZoneValidationError('The Main track has no segments');
+  }
 
-  // if (tracks.stages.length > 0) {
-  //   if (tracks.stages.length > MAX_STAGE_TRACKS)
-  //     throw new ZoneValidationError('Too many stage tracks');
+  validateTrack(tracks.main, 'Main');
 
-  //   for (const [stageIndex, stage] of tracks.stages.entries()) {
-  //     if (stage?.zones?.segments?.length !== 1)
-  //       throw new ZoneValidationError(
-  //         `Stage ${stageIndex + 1} track must have a single segment`
-  //       );
+  // Stages
+  for (let stageIndex = 0; stageIndex < stageTrackCount; stageIndex++) {
+    const currSegment = tracks.main.zones.segments[stageIndex];
 
-  //     validateTrack(stage, `stage ${stageIndex}`, volumes);
-  //   }
-  // }
+    const name = `Stage ${stageIndex + 1}`;
+    if (stageIndex + 1 < mainSegmentCount) {
+      if (tracks.main.stagesEndAtStageStarts) {
+        validateTrack(
+          {
+            zones: {
+              segments: [currSegment],
+              end: tracks.main.zones.segments[stageIndex + 1].checkpoints[0]
+            }
+          },
+          name
+        );
+      } else {
+        if (currSegment.checkpoints.length < 2)
+          // If stagesEndAtStageStarts is true, 1 checkpoint segments are fine,
+          // otherwise they make no sense.
+          throw new ZoneValidationError(
+            `${name} does not have a checkpoint to use as a ` +
+              'stage track end. Add a checkpoint or use stagesEndAtStageStarts.'
+          );
 
-  if (tracks.bonuses.length > 0) {
-    if (tracks.bonuses.length > MAX_BONUS_TRACKS)
-      throw new ZoneValidationError('Too many bonus tracks');
+        if (!currSegment.checkpointsOrdered)
+          throw new ZoneValidationError(
+            `Stage ${stageIndex + 1} wants to use its last checkpoint as the ` +
+              'stage track end but has checkpointsOrdered == false. ' +
+              'Enable at least one of checkpointsOrdered or stagesEndAtStageStarts.'
+          );
 
-    for (const [bonusIndex, bonus] of tracks.bonuses.entries()) {
-      if (bonus?.zones?.segments?.length !== 1)
+        validateTrack(
+          {
+            zones: {
+              segments: [
+                {
+                  ...currSegment,
+                  checkpoints: currSegment.checkpoints.slice(0, -1)
+                }
+              ],
+              end: currSegment.checkpoints.at(1)
+            }
+          },
+          name
+        );
+      }
+    } else {
+      validateTrack(
+        { zones: { segments: [currSegment], end: tracks.main.zones.end } },
+        name
+      );
+    }
+  }
+
+  if (tracks.bonuses.length > MAX_BONUS_TRACKS)
+    throw new ZoneValidationError('Too many bonus tracks');
+
+  for (const [bonusIndex, bonusTrack] of tracks.bonuses.entries()) {
+    if (Boolean(bonusTrack.zones) === Boolean(bonusTrack.defragModifiers))
+      throw new ZoneValidationError(
+        `Bonus ${bonusIndex + 1} track must specify exactly one of zones or defragModifiers`
+      );
+
+    if (bonusTrack.zones) {
+      if (bonusTrack.zones.segments.length !== 1)
         throw new ZoneValidationError(
           `Bonus ${bonusIndex + 1} track must have a single segment`
         );
-
-      validateTrack(bonus.zones, `bonus ${bonusIndex}`);
+    } else {
+      if (mainSegmentCount > 1)
+        throw new ZoneValidationError(
+          `Bonus ${bonusIndex + 1} track is a Defrag modifier bonus but modifiers can only be used when the Main track has one segment`
+        );
     }
+
+    validateTrack(bonusTrack, `bonus ${bonusIndex}`);
   }
 
   if (totalZones > MAX_ZONES_ALL_TRACKS)
     throw new ZoneValidationError('Too many zones in total');
 
-  function validateRegions(regions: Region[]) {
-    for (const [regionIndex, region] of regions.entries()) {
-      if (region.points.length < 3)
+  function validateTrack(track: Track, debugName: string) {
+    const { zones } = track;
+
+    if (!zones) return; // Defrag modifiers (already checked they exist)
+
+    if (zones.segments.length > MAX_TRACK_SEGMENTS)
+      throw new ZoneValidationError(`Track ${debugName} has too many segments`);
+
+    for (const [segmentIndex, segment] of zones.segments.entries()) {
+      const thr = (str: string) => {
         throw new ZoneValidationError(
-          `Region ${regionIndex} does not have enough points`
+          `Track ${debugName} segment ${segmentIndex + 1} ${str}`
+        );
+      };
+
+      if (!Array.isArray(segment?.checkpoints)) {
+        thr('has no checkpoints');
+      }
+
+      if (segment.checkpoints.length + 1 > MAX_SEGMENT_CHECKPOINTS) {
+        thr('has too many checkpoints');
+      }
+
+      if (!segment.checkpoints?.[0]) {
+        thr('has no start zone');
+      }
+
+      ['limitStartGroundSpeed', 'checkpointsRequired', 'checkpointsOrdered']
+        .filter((k) => !(segment[k] === true || segment[k] === false))
+        .forEach((k) => thr(`${k} must be a boolean`));
+
+      validateZone(
+        segment.checkpoints[0],
+        debugName,
+        `segment ${segmentIndex + 1} start zone`,
+        true
+      );
+
+      segment.checkpoints
+        .slice(1)
+        .forEach((checkpoint) =>
+          validateZone(
+            checkpoint,
+            debugName,
+            `segment ${segmentIndex + 1} checkpoint zone`,
+            false
+          )
         );
 
-      if (region.points.length > MAX_ZONE_REGION_POINTS)
-        throw new ZoneValidationError(
-          `Region ${regionIndex} has too many points`
-        );
+      segment.cancel.forEach((cancel) =>
+        validateZone(
+          cancel,
+          debugName,
+          `segment ${segmentIndex + 1} cancel zone`,
+          false
+        )
+      );
+    }
 
-      // Using non-strict as JS coerces to value === undefined || value === null
+    validateZone(zones.end, debugName, 'end zone', false);
+  }
+
+  function validateZone(
+    zone: Zone,
+    trackName: string,
+    zoneName: string,
+    requiresTele: boolean
+  ) {
+    if (!zone) throw new ZoneValidationError('Missing zones');
+
+    totalZones++;
+
+    if (zone.regions.length === 0)
+      throw new ZoneValidationError(
+        `Track ${trackName} ${zoneName} has no regions`
+      );
+
+    for (const [regionIndex, region] of zone.regions.entries()) {
+      const thr = (str: string) => {
+        throw new ZoneValidationError(
+          `Track ${trackName} ${zoneName} region ${regionIndex} ${str}`
+        );
+      };
+
+      if (region.points.length < 3) {
+        thr('does not have enough points');
+      }
+
+      if (region.points.length > MAX_ZONE_REGION_POINTS) {
+        thr('has too many points');
+      }
+
       if (region.bottom == null) {
-        throw new ZoneValidationError(
-          `Region ${regionIndex} has no bottom position`
-        );
+        thr('has no bottom position');
       }
 
       if (
         !(region.bottom >= MIN_COORD_FLOAT && region.bottom < MAX_COORD_FLOAT)
       ) {
-        throw new ZoneValidationError(
-          `Region ${regionIndex} bottom is out of bounds`
-        );
+        thr('bottom is out of bounds');
       }
 
       if (region.height == null || region.height <= 0) {
-        throw new ZoneValidationError(`Region ${regionIndex} has no height`);
+        thr('has no height');
       }
 
       if (region.bottom + region.height > MAX_COORD_FLOAT) {
-        throw new ZoneValidationError(`Region ${regionIndex} is too high`);
+        thr('is too high');
       }
 
       const MIN_DIST = 4;
@@ -144,10 +279,9 @@ export function validateZoneFile(input: MapZones): void {
             currY >= MIN_COORD_FLOAT &&
             currY <= MAX_COORD_FLOAT
           )
-        )
-          throw new ZoneValidationError(
-            `Region ${regionIndex} point ${i} is out of bounds`
-          );
+        ) {
+          thr(`point ${i} is out of bounds`);
+        }
 
         const line1 = Vec.sub(prev1, curr1);
         const line2 = Vec.sub(next1, curr1);
@@ -156,27 +290,20 @@ export function validateZoneFile(input: MapZones): void {
         const d2 = Vec.len(line2);
 
         if (d1 < MIN_DIST || d2 < MIN_DIST || d1 <= 0 || d2 <= 0)
-          throw new ZoneValidationError(
-            `Region ${regionIndex} polygon vertices are too close to each other`
-          );
+          thr('polygon vertices are too close to each other');
 
         const angle = Math.acos(Vec.dot(line1, line2) / (d1 * d2));
 
-        if (angle < MIN_ANGLE)
-          throw new ZoneValidationError(
-            `Region ${regionIndex} polygon has an angle which is too small`
-          );
+        if (angle < MIN_ANGLE) thr('polygon has an angle which is too small');
 
-        if (angle > Math.PI - 0.0001)
-          throw new ZoneValidationError(
-            `Region ${regionIndex} polygon has colinear points`
-          );
+        if (angle > Math.PI - 0.0001) thr('polygon has colinear points');
 
         if (
           count <= 3 || // Triangles can't self-intersect
           i === count - 1 // Skip a case we don't want to check
         )
           continue;
+
         // Loop through every line segment not connected to i, i + 1 segment
         for (let j = i + 2; j < count; j++) {
           // Skip another bad case
@@ -191,95 +318,32 @@ export function validateZoneFile(input: MapZones): void {
             Vec.ccw(curr1, curr2, next2) !== Vec.ccw(next1, curr2, next2) &&
             Vec.ccw(curr1, next1, curr2) !== Vec.ccw(curr1, next1, next2)
           )
-            throw new ZoneValidationError(
-              `Region ${regionIndex} polygon is self-intersecting`
-            );
+            thr('polygon is self-intersecting');
         }
       }
 
-      if ((region.teleDestPos == null) !== (region.teleDestYaw == null))
-        throw new ZoneValidationError(
-          `Region ${regionIndex} has a teleport pos or yaw specified but should have both or neither.`
-        );
-    }
-  }
-
-  function validateZone(
-    zone: Zone,
-    trackName: string,
-    zoneName: string,
-    requiresTele: boolean
-  ) {
-    if (!zone) throw new ZoneValidationError('Missing zones');
-
-    validateRegions(zone.regions);
-
-    if (requiresTele) {
-      const zoneRegions = zone.regions;
-      for (const [regionIndex, region] of zoneRegions.entries()) {
-        if (region.teleDestPos == null)
-          throw new ZoneValidationError(
-            `Track ${trackName} ${zoneName} must specify a teleport destination for each Volume region (missing region ${regionIndex})`
+      const isNum = (p: any) => typeof p === 'number' && !Number.isNaN(+p);
+      if (region.teleDestPos !== undefined) {
+        if (region.teleDestTargetname !== undefined)
+          thr(
+            'must not specify both a targetname-based and a custom position-based destination'
           );
-        if (region.teleDestYaw == null)
-          throw new ZoneValidationError(
-            `Track ${trackName} ${zoneName} must specify a teleport yaw for each Volume region (missing region ${regionIndex})`
+
+        if (region.teleDestYaw === undefined)
+          thr('must specify teleDestYaw if teleDestPos is specified');
+
+        if (region.teleDestPos.length !== 3 || !region.teleDestPos.every(isNum))
+          thr('teleDestPos must be a 3-tuple of numbers');
+
+        if (!isNum(region.teleDestYaw)) {
+          thr('teleDestYaw must be a number');
+        }
+      } else {
+        if (requiresTele && region.teleDestTargetname === undefined)
+          thr(
+            'must specify either a targetname-based or a custom position-based destination'
           );
       }
     }
-
-    totalZones++;
-  }
-
-  function validateTrack(zones: TrackZones, trackName: string) {
-    if (!Array.isArray(zones.segments) || zones.segments.length === 0)
-      throw new ZoneValidationError(`Track ${trackName} has no segments`);
-
-    if (zones.segments.length > MAX_TRACK_SEGMENTS)
-      throw new ZoneValidationError(`Track ${trackName} has too many segments`);
-
-    for (const [segmentIndex, segment] of zones.segments.entries()) {
-      if (!Array.isArray(segment?.checkpoints))
-        throw new ZoneValidationError(
-          `Track ${trackName} segment ${segmentIndex} has no checkpoints`
-        );
-
-      // We don't return the overall zone file currently this copy isn't
-      // strictly necessary, as but .shift modifies the underlying array,
-      // so safest to copy first just in case we care about final MapZones
-      // object in the future.
-      const checkpoints = structuredClone(segment.checkpoints);
-      const start = checkpoints.shift();
-
-      if (!start)
-        throw new ZoneValidationError(
-          `Track ${trackName} segment ${segmentIndex} has no start zone`
-        );
-
-      validateZone(
-        start,
-        trackName,
-        `segment ${segmentIndex} start zone`,
-        true
-      );
-
-      // +1 since .shift() removed the start zone, but that zone counts towards
-      // the overall limit.
-      if (checkpoints.length + 1 > MAX_SEGMENT_CHECKPOINTS)
-        throw new ZoneValidationError(
-          `Track ${trackName} segment ${segmentIndex} has too many checkpoints`
-        );
-
-      for (const checkpoint of checkpoints) {
-        validateZone(
-          checkpoint,
-          trackName,
-          `segment ${segmentIndex} checkpoint zone`,
-          false
-        );
-      }
-    }
-
-    validateZone(zones.end, trackName, 'end zone', false);
   }
 }
