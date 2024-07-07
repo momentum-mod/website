@@ -22,7 +22,7 @@ export const Vec = {
 
   /**
    * Get the orientation between three points
-   * Returns -1 for CCW, 1 for CW, 0 for colinear
+   * @returns -1 for CCW, 1 for CW, 0 for colinear
    */
   ccw([Ax, Ay]: Vector2D, [Bx, By]: Vector2D, [Cx, Cy]: Vector2D): -1 | 0 | 1 {
     const val = (Cy - Ay) * (Bx - Ax) - (By - Ay) * (Cx - Ax);

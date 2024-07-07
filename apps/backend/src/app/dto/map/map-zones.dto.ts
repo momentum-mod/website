@@ -94,7 +94,7 @@ export class ZoneDto /* extends JsonifiableDto */ implements Zone {
   @ApiProperty({ description: '`targetname` of a filter entity on the map.' })
   @IsString()
   @IsOptional()
-  readonly filterName: string;
+  readonly filtername: string;
 
   @NestedProperty(RegionDto, {
     isArray: true,
@@ -173,7 +173,7 @@ export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
   @ApiProperty({ description: 'Defrag gameplay modifications' }) // TODO: Enum
   @IsInt()
   @IsOptional()
-  readonly defragFlags?: number;
+  readonly defragModifiers?: number;
 }
 
 export class MapTracksDto /* extends JsonifiableDto */ implements MapTracks {
