@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
-import * as Sentry from '@sentry/node';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
-import { SentryModule } from './modules/sentry/sentry.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { AdminModule } from './modules/admin/admin.module';
@@ -22,6 +20,7 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
 import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
+import { setupNestInterceptor } from '../instrumentation';
 
 @Module({
   imports: [
@@ -30,34 +29,6 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
       cache: true,
       isGlobal: true,
       validate
-    }),
-    // We use Sentry in production for error logging and performance tracing.
-    // This is a small wrapper module around @sentry/node that only inits in
-    // production if a valid DSN is set.
-    SentryModule.forRootAsync({
-      useFactory: async (config: ConfigService) => {
-        // Whether to enable SentryInterceptor. If enabled, we run a transaction
-        // for the lifetime of tracesSampleRate * all HTTP requests. This
-        // provides more detailed error
-        const enableTracing = config.getOrThrow('sentry.enableTracing');
-        return {
-          environment: config.getOrThrow('env'),
-          enableTracing,
-          sentryOpts: {
-            // If this isn't set in prod we won't init Sentry.
-            dsn: config.getOrThrow('sentry.dsn'),
-            enableTracing,
-            environment: config.getOrThrow('sentry.env'),
-            tracesSampleRate: config.getOrThrow('sentry.tracesSampleRate'),
-            integrations: config.getOrThrow('sentry.tracePrisma')
-              ? [Sentry.prismaIntegration()]
-              : undefined,
-            debug: false
-          }
-        };
-      },
-      imports: [DbModule.forRoot()],
-      inject: [ConfigService]
     }),
     // Pino is a highly performant logger that outputs logs as JSON, which we
     // then export to Grafana Loki. This module sets up `pino-http` which logs
@@ -100,6 +71,10 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
     {
       provide: APP_FILTER,
       useClass: ExceptionHandlerFilter
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useFactory: setupNestInterceptor
     }
   ]
 })

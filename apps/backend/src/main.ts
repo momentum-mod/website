@@ -1,3 +1,4 @@
+import './instrumentation'; // This must be first import!!
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {

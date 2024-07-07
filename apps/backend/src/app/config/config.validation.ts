@@ -1,9 +1,7 @@
 import {
-  IsBoolean,
   IsEnum,
   IsIn,
   IsInt,
-  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
@@ -65,26 +63,6 @@ export class ConfigValidation {
   @IsString()
   @MinLength(20)
   readonly JWT_SECRET?: string;
-
-  @IsUrl()
-  @IsOptionalWithEmptyString()
-  readonly SENTRY_DSN?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  readonly SENTRY_ENABLE_TRACING?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  readonly SENTRY_TRACE_SAMPLE_RATE?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  readonly SENTRY_TRACE_PRISMA?: boolean;
-
-  @IsOptional()
-  @IsIn(['production', 'staging'])
-  readonly SENTRY_ENV?: 'production' | 'staging';
 
   @IsUrl({ require_tld: false, protocols: ['postgresql'] })
   readonly DATABASE_URL?: string;
