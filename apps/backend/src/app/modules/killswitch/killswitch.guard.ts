@@ -22,8 +22,14 @@ export class KillswitchGuard implements CanActivate {
       return true;
     }
 
-    if (this.killswitchService.checkKillswitch(type))
-      throw new ServiceUnavailableException('Endpoint is currently disabled');
+    if (this.killswitchService.checkKillswitch(type)) {
+      const exception = new ServiceUnavailableException(
+        'Endpoint is currently disabled'
+      );
+
+      exception.cause = 'Killswitch';
+      throw exception;
+    }
 
     return true;
   }

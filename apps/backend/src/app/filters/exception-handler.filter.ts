@@ -51,7 +51,13 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         };
       }
 
-      const isActualError = !status || status >= 500;
+      let isActualError = !status || status >= 500;
+      if (
+        exception instanceof ServiceUnavailableException &&
+        exception.cause === 'Killswitch'
+      )
+        isActualError = false;
+
       if (env === Environment.PRODUCTION) {
         // Don't do anything for 4xxs in prod, they're not actual errors and
         // they'll get logged by pino-http like any other response.
