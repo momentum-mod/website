@@ -5,7 +5,8 @@ import {
   MapZones,
   RunValidationErrorType as ErrorType,
   Tickrates,
-  TrackType
+  TrackType,
+  Segment
 } from '@momentum/constants';
 import { Replay, ReplayFileReader } from '@momentum/formats/replay';
 import { CompletedRunSession, ProcessedRun } from './run-session.interface';
@@ -40,109 +41,154 @@ export class RunProcessor {
     this.steamID = user.steamID;
   }
 
-  validateRunSession() {
+  validateTimestamps() {
     // Not giving specific reasons for throwing - if this ever happens they
     // an update timed out, the map zones are buggy, or someone's submitting
     // something nefarious. There's better ways to warn the user if they time
     // out, ideally as soon as it happens. If it's something nefarious don't
     // help them out with detailed errors.
-    const err = new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    //
+    // Note that that currently, the timestamps do NOT include hitting the end
+    // zone. The game is stupid and can't send a multipart form, and needs to
+    // send areplay file, so we determine the final time by parsing the replay,
+    // rather than a timestamp. This will probably change in the future!
 
-    // Stage or bonus run
+    if (this.timestamps.length === 0) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
+
+    // Check time is always increasing
+    for (let i = 1; i < this.timestamps.length; i++) {
+      if (this.timestamps[i].time < this.timestamps[i - 1].time) {
+        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      }
+    }
+
+    // Check for duplicates
+    if (
+      new Set(
+        this.timestamps.map(
+          // Random bitshift to combine segment and checkpoint into single
+          // unique number used by Set ctor's uniqueness comparison
+          ({ segment, checkpoint }) => (segment << 8) | checkpoint
+        )
+      ).size !== this.timestamps.length
+    ) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
+
+    // TODO: Ltos of -1s reqired in idnexes when changing trackNum to start at 1!
+    // Stage or bonus runs
     if (this.trackType !== TrackType.MAIN) {
-      if (this.timestamps.length === 0) return;
-
-      const { /*minorRequired, */ zones } =
-        /*this.trackType === TrackType.STAGE
-          ? this.zones.tracks.stages[this.trackNum]
-          :*/ this.zones.tracks.bonuses[this.trackNum];
-
-      let prevCP = -1;
-      for (const timestamp of this.timestamps) {
-        // Stagees/bonuses only have single segment entries
-        if (timestamp.segment !== 0) throw err;
-
-        // Stages/bonuses are only minor CPs so always ordered
-        // if (minorRequired) {
-        //   if (timestamp.checkpoint !== prevCP + 1) throw err;
-        // } else {
-        //   if (timestamp.checkpoint <= prevCP) throw err;
-        // }
-        prevCP = timestamp.checkpoint;
+      // Only one segment, and must match trackType
+      if (
+        !this.timestamps.every(
+          ({ segment }) => segment === this.trackNum /* - 1 */
+        )
+      ) {
+        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
 
-      // Check that you didn't skip the last minor checkpoint
-      // if (minorRequired && prevCP !== zones.segments[0].checkpoints.length - 1)
-      //   throw err;
+      const segment =
+        this.trackType === TrackType.STAGE
+          ? this.zones.tracks.main.zones.segments[this.trackNum /* - 1 */]
+          : this.zones.tracks.bonuses[this.trackNum /* - 1 */].zones
+              .segments[0];
+
+      this.validateSegment(segment, this.timestamps);
 
       return;
     }
 
-    // Main track run
-    const { /*majorOrdered, minorRequired, */ zones } = this.zones.tracks.main;
+    // Main track runs from here on out.
+    // Segments are always ordered and required!
+    const { zones } = this.zones.tracks.main;
 
-    let prevTime = -1,
-      prevSeg = -1,
-      prevCP = -1;
-    const completedMajorCPs = [];
+    // trackNum must always be 0 /* 1 */
+    if (this.trackNum !== 0 /* 1 */) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
 
-    // Timestamps are ordered oldest-first
-    for (const timestamp of this.timestamps) {
-      // Check time is always increasing
-      if (timestamp.time <= prevTime) throw err;
-      prevTime = timestamp.time;
-      // In same segment
-      if (timestamp.segment === prevSeg) {
-        // Does this checkpoint actually exist?
-        if (
-          timestamp.checkpoint >
-          zones.segments[timestamp.segment].checkpoints.length
-        )
-          throw err;
+    // Check first timestamp is in first segment and last timestamp is in last
+    if (
+      this.timestamps[0].segment !== 0 ||
+      this.timestamps.at(-1).segment !== zones.segments.length - 1
+    ) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
 
-        // Minor checkpoints are always ordered. So if minorRequired is true
-        // this checkpoint must be the one after the previous one, otherwise it
-        // must just be in increasing order.
-        // if (minorRequired) {
-        //   if (timestamp.checkpoint !== prevCP + 1) throw err;
-        // } else {
-        //   if (timestamp.checkpoint <= prevCP) throw err;
-        // }
-        prevCP = timestamp.checkpoint;
+    // Check ordered, validate segments as we go
+    let lastSegment = 0;
+    let segmentStartIndex = 0;
+    for (const [index, { segment }] of this.timestamps.entries()) {
+      if (segment === lastSegment) {
+        continue;
       }
-      // In a new segment
-      else {
-        // So we should be in start
-        if (timestamp.checkpoint !== 0) throw err;
 
-        // Has already entered this CP before (game shouldn't send a timestamp
-        // if this happens)
-        if (completedMajorCPs.includes(timestamp.segment)) throw err;
+      if (segment !== lastSegment + 1) {
+        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      }
 
-        // Check that you didn't skip the last minor checkpoint of last segment,
-        // if minorRequired is true. Minor CPs are also ordered, so this should
-        // be final item in the array
-        // if (
-        //   prevSeg !== -1 &&
-        //   minorRequired &&
-        //   prevCP !== zones.segments[prevSeg].checkpoints.length - 1
-        // )
-        //   throw err;
+      this.validateSegment(
+        zones.segments[lastSegment],
+        this.timestamps.slice(segmentStartIndex, index)
+      );
 
-        // if (majorOrdered && !(timestamp.segment === prevSeg + 1)) throw err;
+      lastSegment = segment;
+      segmentStartIndex = index;
+    }
 
-        prevCP = 0; // == timestamp.checkpoint
-        if (prevSeg !== -1) completedMajorCPs.push(prevSeg);
-        prevSeg = timestamp.segment;
+    // Validate last segment
+    this.validateSegment(
+      zones.segments.at(-1),
+      this.timestamps.slice(segmentStartIndex)
+    );
+
+    // Check required. Checking and this and that there's no duplicates
+    // establishes that every segment has been hit.
+    if (
+      new Set(this.timestamps.map(({ segment }) => segment)).size !==
+      zones.segments.length
+    ) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
+  }
+
+  private validateSegment(
+    { checkpoints, checkpointsRequired, checkpointsOrdered }: Segment,
+    timestamps: RunSessionTimestamp[]
+  ) {
+    // First checkpoint is always the start zone. It's never possible to skip a
+    // start zone.
+    if (timestamps[0].checkpoint !== 0) {
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    }
+
+    if (checkpointsOrdered) {
+      for (let i = 1; i < timestamps.length; i++) {
+        if (timestamps[i].checkpoint <= timestamps[i - 1].checkpoint) {
+          throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+        }
       }
     }
 
-    // Hitting end zone completels final major CP, but /end request doesn't
-    // create a timestamp.
-    completedMajorCPs.push(prevSeg);
+    let expectedTimestamps = checkpoints.length;
 
-    // Check ever major CPs was hit
-    if (completedMajorCPs.length !== zones.segments.length) throw err;
+    // If stagesEndAtStageStarts is true then then timestamps should
+    // contain every checkpoint, since the end zone is either the first cp
+    // of the next segment, or the main track's end zone.
+    // If false, the end zone is the final checkpoint of the current segment,
+    // so the timestamps should contain every checkpoint except the last.
+    // Remember, the /end request sent on hitting the end zone doesn't have a
+    // timestamp.
+    if (
+      this.trackType === TrackType.STAGE &&
+      !this.zones.tracks.main.stagesEndAtStageStarts
+    )
+      expectedTimestamps -= 1;
+
+    if (checkpointsRequired && timestamps.length !== expectedTimestamps)
+      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
   }
 
   processReplayFileHeader() {
