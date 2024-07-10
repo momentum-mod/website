@@ -210,7 +210,7 @@ export class RunSessionService {
     let processedRun: ProcessedRun;
     try {
       // First, check the timestamps are in order
-      processor.validateRunSession();
+      processor.validateTimestamps();
 
       // Parse the header of the replay file and validate against run data
       processor.processReplayFileHeader();
