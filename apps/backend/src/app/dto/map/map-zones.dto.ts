@@ -82,6 +82,15 @@ export class RegionDto /* extends JsonifiableDto */ implements Region {
 
   @ApiProperty({
     description:
+      'The name of the teleport destination entity that the player is teleported' +
+      ' to when teleported into the region.'
+  })
+  @IsString()
+  @IsOptional()
+  readonly teleDestTargetname?: string;
+
+  @ApiProperty({
+    description:
       'The "safe height" is the greatest height from the base of the region that the player is allowed to enter "primed" state from - see the docs for a detailed explanation.' +
       'If not included, the game uses a default value of -1, which indicates that the entire region is also the safe region.'
   })
@@ -128,6 +137,7 @@ export class SegmentDto /* extends JsonifiableDto */ implements SegmentDto {
     isArray: true,
     description: 'A collection of checkpoint zones'
   })
+  @ArrayMinSize(1)
   @ArrayMaxSize(MAX_SEGMENT_CHECKPOINTS)
   readonly checkpoints: ZoneDto[];
 
@@ -167,7 +177,7 @@ export class MainTrackDto /* extends JsonifiableDto */ implements MainTrack {
 }
 
 export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
-  @NestedProperty(TrackZonesDto)
+  @NestedProperty(TrackZonesDto, { required: false })
   readonly zones?: TrackZonesDto;
 
   @ApiProperty({ description: 'Defrag gameplay modifications' }) // TODO: Enum
@@ -203,7 +213,7 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
   readonly formatVersion: number;
 
   @ApiProperty({
-    description: 'The sv_maxvelocity value set on the track',
+    description: 'The sv_maxvelocity value set on the map',
     default: 3500
   })
   @IsNumber()
