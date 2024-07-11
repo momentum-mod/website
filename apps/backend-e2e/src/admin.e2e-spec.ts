@@ -777,20 +777,10 @@ describe('Admin', () => {
 
   describe('admin/maps', () => {
     describe('GET', () => {
-      let modToken,
-        adminToken,
-        reviewerToken,
-        u1,
-        u1Token,
-        m1,
-        m2,
-        m3,
-        m4,
-        caMap,
-        faMap;
+      let modToken, adminToken, reviewerToken, u1, u1Token, map1, caMap, faMap;
 
       beforeAll(async () => {
-        [modToken, adminToken, reviewerToken, [u1, u1Token], [m1, m2, m3, m4]] =
+        [modToken, adminToken, reviewerToken, [u1, u1Token], [map1]] =
           await Promise.all([
             db.loginNewUser({ data: { roles: Role.MODERATOR } }),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
@@ -857,8 +847,8 @@ describe('Admin', () => {
         }));
 
       it('should respond with filtered map data using the search parameter', async () => {
-        m2 = await prisma.mMap.update({
-          where: { id: m2.id },
+        map1 = await prisma.mMap.update({
+          where: { id: map1.id },
           data: { name: 'aaaaa' }
         });
 
@@ -874,7 +864,7 @@ describe('Admin', () => {
 
       it('should respond with filtered map data using the submitter id parameter', async () => {
         await prisma.mMap.update({
-          where: { id: m2.id },
+          where: { id: map1.id },
           data: { submitterID: u1.id }
         });
 
@@ -888,7 +878,7 @@ describe('Admin', () => {
 
         expect(res.body.data[0]).toMatchObject({
           submitterID: u1.id,
-          id: m2.id
+          id: map1.id
         });
       });
 
@@ -2591,11 +2581,11 @@ describe('Admin', () => {
 
   describe('admin/killswitch', () => {
     describe('GET', () => {
-      let admin, adminToken, u1, u1Token, modToken;
+      let adminToken, u1Token, modToken;
       beforeAll(async () => {
-        [[admin, adminToken], [u1, u1Token], modToken] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser(),
+        [adminToken, u1Token, modToken] = await Promise.all([
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser(),
           db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });
@@ -2637,11 +2627,11 @@ describe('Admin', () => {
     });
 
     describe('PATCH', () => {
-      let admin, adminToken, u1, u1Token, modToken;
+      let adminToken, u1Token, modToken;
       beforeAll(async () => {
-        [[admin, adminToken], [u1, u1Token], modToken] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser(),
+        [adminToken, u1Token, modToken] = await Promise.all([
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser(),
           db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });

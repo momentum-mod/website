@@ -314,7 +314,7 @@ describe('Runs', () => {
       afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'mMap', 'user'));
 
       it('should return a valid run', async () => {
-        const res = await req.get({
+        await req.get({
           url: `runs/${run1.id}`,
           status: 200,
           validate: PastRunDto,

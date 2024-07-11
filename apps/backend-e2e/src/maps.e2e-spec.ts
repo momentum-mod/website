@@ -20,12 +20,10 @@ import {
   MIN_PUBLIC_TESTING_DURATION,
   Role,
   TrackType,
-  MapZones,
   LeaderboardType,
   FlatMapList
 } from '@momentum/constants';
 import {
-  AuthUtil,
   createSha1Hash,
   DbUtil,
   FILES_PATH,
@@ -53,8 +51,7 @@ describe('Maps', () => {
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    fileStore: FileStoreUtil,
-    auth: AuthUtil;
+    fileStore: FileStoreUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -63,7 +60,6 @@ describe('Maps', () => {
     req = env.req;
     db = env.db;
     fileStore = env.fileStore;
-    auth = env.auth;
   });
 
   async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
@@ -709,7 +705,6 @@ describe('Maps', () => {
         bspHash,
         vmfBuffer,
         vmfHash,
-        admin,
         adminToken;
 
       const zones = structuredClone(ZonesStub);
@@ -717,7 +712,7 @@ describe('Maps', () => {
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
-        [admin, adminToken] = await db.createAndLoginUser({
+        adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -776,15 +771,9 @@ describe('Maps', () => {
       });
 
       describe('should submit a map', () => {
-        let res, createdMap, oldListVersion;
+        let res, createdMap;
 
         beforeAll(async () => {
-          oldListVersion = await req.get({
-            url: 'maps/maplistversion',
-            status: 200,
-            token: token
-          });
-
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
           res = await req.postAttach({
@@ -1734,15 +1723,7 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1,
-        u1Token,
-        u2Token,
-        map,
-        bspBuffer,
-        bspHash,
-        vmfBuffer,
-        vmfHash,
-        leaderboards;
+      let u1, u1Token, u2Token, map, bspBuffer, bspHash, vmfBuffer, vmfHash;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
@@ -1996,7 +1977,7 @@ describe('Maps', () => {
       });
 
       it('should 503 if killswitch guard is active for maps/{mapID}', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -2436,13 +2417,13 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, mod, modToken, createMapData;
+      let user, token, u2Token, adminToken, mod, modToken, createMapData;
 
       beforeAll(async () => {
-        [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
+        [[user, token], u2Token, adminToken, [mod, modToken]] =
           await Promise.all([
             db.createAndLoginUser(),
-            db.createAndLoginUser(),
+            db.loginNewUser(),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
             db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
           ]);
