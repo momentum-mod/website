@@ -7,6 +7,5 @@
     "types": ["node"],
     "esModuleInterop": true
   },
-  "exclude": ["src/scripts/**/*.ts"],
-  "include": ["src/prisma/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

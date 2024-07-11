@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "../../dist/out-tsc",
@@ -7,6 +7,5 @@
     "types": ["node"],
     "esModuleInterop": true
   },
-  "exclude": ["src/prisma/**/*.ts"],
-  "include": ["src/scripts/**/*.ts", "src/prisma-utils/utils/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }
