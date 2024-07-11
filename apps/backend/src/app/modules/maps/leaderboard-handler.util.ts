@@ -74,21 +74,23 @@ export const LeaderboardHandler = {
     leaderboards: T[],
     zones: MapZones
   ): T[] =>
-    leaderboards
-      .filter(({ trackType }) => trackType === TrackType.MAIN)
-      .flatMap((lb: T) =>
-        arrayFrom(
-          zones.tracks.main.zones.segments.length,
-          (i) =>
-            ({
-              gamemode: lb.gamemode,
-              // Whether is ranked depends on main Track, doesn't have a tier.
-              type: (lb as T & { type?: LeaderboardType }).type,
-              trackType: TrackType.STAGE,
-              trackNum: i
-            }) as unknown as T
-        )
-      ),
+    zones.tracks.main.zones.segments.length === 1
+      ? []
+      : leaderboards
+          .filter(({ trackType }) => trackType === TrackType.MAIN)
+          .flatMap((lb: T) =>
+            arrayFrom(
+              zones.tracks.main.zones.segments.length,
+              (i) =>
+                ({
+                  gamemode: lb.gamemode,
+                  // Whether is ranked depends on main Track, doesn't have a tier.
+                  type: (lb as T & { type?: LeaderboardType }).type,
+                  trackType: TrackType.STAGE,
+                  trackNum: i
+                }) as unknown as T
+            )
+          ),
 
   isEqual: <T extends LeaderboardProps, U extends LeaderboardProps>(
     x: T,
