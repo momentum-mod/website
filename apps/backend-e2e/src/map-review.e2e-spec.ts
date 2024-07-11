@@ -42,13 +42,10 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}', () => {
     describe('GET', () => {
-      let user, token, map, review, admin, adminToken;
+      let user, token, map, review;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.REVIEWER }
-        });
-        [admin, adminToken] = await db.createAndLoginUser({
-          data: { roles: Role.ADMIN }
         });
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
@@ -336,7 +333,7 @@ describe('Map Reviews', () => {
         }));
 
       it('should 503 if the killswitch is true', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -420,13 +417,10 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}/comments', () => {
     describe('GET', () => {
-      let user, token, mod, modToken, map, reviewID;
+      let user, token, map, reviewID;
 
       beforeAll(async () => {
-        [[user, token], [mod, modToken]] = await Promise.all([
-          db.createAndLoginUser(),
-          db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
-        ]);
+        [user, token] = await db.createAndLoginUser();
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
 
@@ -464,12 +458,12 @@ describe('Map Reviews', () => {
     });
 
     describe('POST', () => {
-      let user, token, admin, adminToken, map, reviewID;
+      let user, token, adminToken, map, reviewID;
 
       beforeAll(async () => {
-        [[user, token], [admin, adminToken]] = await Promise.all([
+        [[user, token], adminToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+          db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
@@ -521,12 +515,12 @@ describe('Map Reviews', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, admin, adminToken, map, reviewID;
+      let user, token, adminToken, map, reviewID;
 
       beforeAll(async () => {
-        [[user, token], [admin, adminToken]] = await Promise.all([
+        [[user, token], adminToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+          db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
@@ -578,12 +572,12 @@ describe('Map Reviews', () => {
     });
 
     describe('DELETE', () => {
-      let user, token, admin, adminToken, map, reviewID;
+      let user, token, adminToken, map, reviewID;
 
       beforeAll(async () => {
-        [[user, token], [admin, adminToken]] = await Promise.all([
+        [[user, token], adminToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+          db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });

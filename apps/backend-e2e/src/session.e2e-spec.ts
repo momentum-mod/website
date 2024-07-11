@@ -255,7 +255,7 @@ describe('Session', () => {
         req.unauthorizedTest('session/run', 'post'));
 
       it('should 503 if killswitch guard is active', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -279,11 +279,11 @@ describe('Session', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, u2, u2Token, s1, s2;
+      let u1, u1Token, u2Token, s1, s2;
 
       beforeEach(async () => {
         [u1, u1Token] = await db.createAndLoginGameUser();
-        [u2, u2Token] = await db.createAndLoginGameUser();
+        u2Token = await db.loginNewGameUser();
 
         s1 = await prisma.runSession.create({
           data: {
@@ -327,7 +327,7 @@ describe('Session', () => {
       });
 
       it('should 503 if killswitch guard is active for session/run', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
