@@ -171,7 +171,9 @@ module.exports = {
         // JS switches look terrible, hurts readability.
         'unicorn/prefer-switch': ['off'],
         // What the hell is wrong with .flat(2)
-        'unicorn/no-magic-array-flat-depth': ['off']
+        'unicorn/no-magic-array-flat-depth': ['off'],
+        // Stupid CJS/ESM complaints, don't care.
+        'unicorn/import-style': ['off']
       }
     },
     {
