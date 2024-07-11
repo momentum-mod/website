@@ -757,14 +757,6 @@ describe('Auth', () => {
   });
 
   describe('auth/web', () => {
-    let admin, adminToken;
-
-    beforeAll(async () => {
-      [admin, adminToken] = await db.createAndLoginUser({
-        data: { roles: Role.ADMIN }
-      });
-    });
-
     describe('GET', () => {
       it('should redirect to steam login', async () => {
         const res = await req.get({
@@ -772,6 +764,7 @@ describe('Auth', () => {
           skipApiPrefix: true,
           status: 302
         });
+
         expect(res.headers.location).toMatch(
           /^https:\/\/steamcommunity.com\/openid\/login.+/
         );
