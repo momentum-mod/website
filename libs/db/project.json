@@ -15,79 +15,42 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma format",
-        "cwd": "libs/db/src/prisma"
+        "cwd": "libs/db/src"
       }
     },
     "push": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma db push --accept-data-loss",
-        "cwd": "libs/db/src/prisma"
+        "cwd": "libs/db/src"
       }
     },
     "generate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma generate",
-        "cwd": "libs/db/src/prisma"
+        "cwd": "libs/db/src"
       }
     },
     "create-migration": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma migrate dev --skip-seed --name",
-        "cwd": "libs/db/src/prisma"
-      }
-    },
-    "build-scripts": {
-      "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "platform": "node",
-        "outputPath": "dist/libs/db/scripts",
-        "main": "libs/db/src/scripts/seed.ts",
-        "tsConfig": "libs/db/tsconfig.scripts.json",
-        "bundle": true,
-        "format": ["cjs"],
-        "additionalEntryPoints": [
-          "libs/db/src/scripts/reset.ts",
-          "libs/db/src/scripts/make-me-admin.ts"
-        ]
+        "cwd": "libs/db/src"
       }
     },
     "seed": {
       "executor": "nx:run-commands",
-      "dependsOn": ["build-scripts"],
       "options": {
-        "command": "node dist/libs/db/scripts/seed.cjs"
-      }
-    },
-    "reset": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build-scripts"],
-      "options": {
-        "command": "node dist/libs/db/scripts/reset.cjs"
-      }
-    },
-    "makemeadmin": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build-scripts"],
-      "options": {
-        "command": "node dist/libs/db/scripts/make-me-admin.cjs"
-      }
-    },
-    "addrealmap": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build-scripts"],
-      "options": {
-        "command": "node dist/libs/db/scripts/add-real-map.cjs"
+        "command": "nx run scripts:seed",
+        "cwd": "."
       }
     },
     "studio": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma studio",
-        "cwd": "libs/db/src/prisma"
+        "cwd": "libs/db/src"
       }
     }
   },
