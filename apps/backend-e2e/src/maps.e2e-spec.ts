@@ -1321,7 +1321,7 @@ describe('Maps', () => {
         it('should 400 if the map has invalid zones', async () => {
           const zones = structuredClone(ZonesStub);
           // Silly values that pass class-validator but get caught by zone-validator.ts
-          zones.volumes.push({
+          zones.tracks.main.zones.segments[0].checkpoints.push({
             regions: [
               {
                 points: [
@@ -1330,9 +1330,9 @@ describe('Maps', () => {
                   [4, 4]
                 ],
                 height: 4444,
-                teleportPos: [-4, -4, -4],
-                bottom: 100000000000,
-                teleportYaw: 4
+                teleDestPos: [-4, -4, -4],
+                teleDestYaw: 4,
+                bottom: 100000000000
               }
             ]
           });
@@ -1933,55 +1933,17 @@ describe('Maps', () => {
 
         const newZones = structuredClone(ZonesStub);
 
-        // Delete bonus volumes
-        newZones.volumes.pop();
-        newZones.volumes.pop();
-
-        // New S3 end
-        newZones.volumes.push({
-          regions: [
-            {
-              bottom: 0,
-              height: 512,
-              points: [
-                [5120, 0],
-                [5120, 256],
-                [5632, 512],
-                [5632, 0]
-              ]
-            }
-          ]
-        });
-
-        // S2 end is now also a start zone so needs this:
-        Object.assign(newZones.volumes[4].regions[0], {
-          teleportYaw: 0,
-          teleportPos: [4352, 256, 0]
-        });
-
-        // Major CP for main track
+        // Add 3rd major CP
         newZones.tracks.main.zones.segments.push({
+          cancel: [],
+          checkpointsRequired: true,
+          checkpointsOrdered: true,
           limitStartGroundSpeed: true,
-          checkpoints: [{ volumeIndex: 4 }]
-        });
-
-        // Main track end is now end of S3
-        newZones.tracks.main.zones.end.volumeIndex = 5;
-
-        // Stage 2's end zone becomes S3 start, not the old end zone
-        newZones.tracks.stages[1].zones.end.volumeIndex = 4;
-        newZones.tracks.stages.push({
-          name: 'Stage 3',
-          minorRequired: true,
-          zones: {
-            segments: [
-              {
-                limitStartGroundSpeed: true,
-                checkpoints: [{ volumeIndex: 4 }]
-              }
-            ],
-            end: { volumeIndex: 5 }
-          }
+          checkpoints: [
+            structuredClone(
+              newZones.tracks.main.zones.segments[0].checkpoints[0]
+            )
+          ]
         });
 
         // Nuke the bonus
@@ -2097,6 +2059,7 @@ describe('Maps', () => {
           where: { id: map.id },
           data: { status: MapStatus.PUBLIC_TESTING }
         });
+
         const oldListVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
@@ -2136,31 +2099,19 @@ describe('Maps', () => {
       it('should 400 for bad zones', async () => {
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
+        const zones = structuredClone(ZonesStub);
+        zones.tracks.main.zones.segments[0].checkpoints[0].regions[0].points = [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+          [1, 1]
+        ];
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: {
             changelog: 'done fucked it',
-            zones: {
-              ...ZonesStub,
-              volumes: [
-                ...ZonesStub.volumes,
-                {
-                  regions: [
-                    {
-                      bottom: 0,
-                      height: 100,
-                      points: [
-                        [-100000000, 0],
-                        [-100000000, 0],
-                        [1283764512678, 0.000000001],
-                        [5652345234537, 2]
-                      ]
-                    }
-                  ]
-                }
-              ]
-            } as MapZones
+            zones
           },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
