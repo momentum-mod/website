@@ -6,23 +6,23 @@
 
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import zlib from 'node:zlib';
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import * as Random from '@momentum/random';
-import { ZoneUtil } from '@momentum/formats/zone';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
   ActivityType,
   Ban,
   CombinedMapStatuses,
   Gamemode,
-  GamemodePrefix,
   LeaderboardType,
   MapCreditType,
   mapReviewAssetPath,
   MapStatus,
   MapSubmissionDate,
   MapSubmissionType,
-  Base,
   MAX_BIO_LENGTH,
   ReportCategory,
   ReportType,
@@ -36,21 +36,21 @@ import {
   AdminActivityType,
   imgXlPath,
   approvedBspPath,
-  submissionBspPath
+  submissionBspPath,
+  MapZones,
+  GamemodeInfo
 } from '@momentum/constants';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
+import { nuke } from '@momentum/db';
+import * as Random from '@momentum/random';
+import * as ZoneUtil from '@momentum/formats/zone';
 import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
+import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import axios from 'axios';
 import sharp from 'sharp';
 import { JsonValue } from 'type-fest';
-import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
-import { nuke } from '../prisma-utils/utils';
-import { prismaWrapper } from './prisma-wrapper';
-import path = require('node:path');
 import { v4 as uuidv4 } from 'uuid';
-import { promisify } from 'node:util';
-import zlib from 'node:zlib';
+import { prismaWrapper } from './prisma-wrapper.util';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M
@@ -168,7 +168,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     return;
   }
 
-  const dir = path.join(__dirname, '../../../../libs/db/src/scripts/assets');
+  const dir = path.join(__dirname, '../../scripts/assets');
   const mapBuffer = readFileSync(path.join(dir, '/flat_devgrid.bsp'));
   const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
 
@@ -358,18 +358,13 @@ prismaWrapper(async (prisma: PrismaClient) => {
       take: randRange(vars.usersThatSubmitMaps)
     })
   );
-  // () =>
-  //   s3.send(
-  //     new PutObjectCommand({
-  //       Bucket: s3BucketName,
-  //       Key: approvedBspPath('dev_flatgrid'),
-  //       Body: mapFile
-  //     })
-  //   )();
 
   const mapsToCreate = randRange(vars.maps);
   const existingMaps = await prisma.mMap.findMany();
   const usedNames = (existingMaps ?? []).map(({ name }) => name);
+  const prefixes = [
+    new Set([...GamemodeInfo.values()].map(({ prefix }) => prefix))
+  ];
   try {
     for (let i = 0; i < mapsToCreate; i++) {
       console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
@@ -377,7 +372,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       while (!name || usedNames.includes(name)) {
         // Most maps have a gamemode prefix, some don't, want to be able to test
         // with both.
-        const prefix = Random.element([...new Set(GamemodePrefix.values())]);
+        const prefix = Random.element(prefixes);
         name = faker.lorem.word();
         if (Random.chance(0.75)) {
           name = `${prefix}_${name}`;
@@ -391,7 +386,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
         ZoneUtil.generateRandomMapZones(
           majCps,
           arrayFrom(majCps, () => randRange(vars.minorCPs)),
-          randRange(vars.bonusesPerMap),
+          arrayFrom(randRange(vars.bonusesPerMap), (_) =>
+            randRange({ min: 1, max: 3 })
+          ),
           2 ** 16 - 64,
           1024,
           512
@@ -435,7 +432,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = versions.at(-1).zones as unknown as Base; // TODO: #855
+      const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
       const numModes = randRange(vars.modesPerLeaderboard);
       const modesSet = new Set<Gamemode>();
       while (modesSet.size < numModes) {
@@ -457,10 +454,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.MAIN,
             trackNum: 0
           },
-          // ...arrayFrom(zones.tracks.stages.length, (i) => ({
-          //   trackType: TrackType.STAGE,
-          //   trackNum: i
-          // })),
+          ...arrayFrom(zones.tracks.main.zones.segments.length, (i) => ({
+            trackType: TrackType.STAGE,
+            trackNum: i /* + 1 */
+          })),
           ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
             trackType: TrackType.BONUS,
             trackNum: i

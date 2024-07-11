@@ -18,8 +18,6 @@ export const prismaWrapper = (fn: (prisma: PrismaClient) => Promise<void>) => {
       })
       .finally(async () => {
         await prisma.$disconnect();
-        // This is a wrapper around CLI apps
-        // eslint-disable-next-line unicorn/no-process-exit
         process.exit(exitCode);
       });
   }

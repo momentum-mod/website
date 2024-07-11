@@ -1,0 +1,61 @@
+{
+  "name": "scripts",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "scripts/src",
+  "projectType": "application",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["scripts/src/**/*.ts"]
+      }
+    },
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/scripts",
+        "main": "scripts/src/seed.script.ts",
+        "tsConfig": "scripts/tsconfig.json",
+        "bundle": true,
+        "format": ["cjs"],
+        "additionalEntryPoints": [
+          "scripts/src/reset.script.ts",
+          "scripts/src/make-me-admin.script.ts",
+          "scripts/src/generate-zones.script.ts"
+        ]
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/seed.script.cjs"
+      }
+    },
+    "reset": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/reset.script.cjs"
+      }
+    },
+    "makemeadmin": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/make-me-admin.script.cjs"
+      }
+    },
+    "generate-zones": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/generate-zones.script.cjs"
+      }
+    }
+  },
+  "tags": []
+}
