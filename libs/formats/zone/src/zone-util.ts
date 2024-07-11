@@ -83,23 +83,6 @@ export const ZoneUtil = {
       }))
     };
 
-    // if (tracks.main.zones.segments.length > 1)
-    //   for (const [i, segment] of tracks.main.zones.segments.entries())
-    //     tracks.stages.push({
-    //       name: `Stage ${i + 1}`,
-    //       zones: {
-    //         segments: [
-    //           {
-    //             limitStartGroundSpeed: segment.limitStartGroundSpeed,
-    //             checkpoints: segment.checkpoints
-    //           }
-    //         ],
-    //         end:
-    //           tracks.main.zones.segments[i + 1]?.checkpoints[0] ??
-    //           tracks.main.zones.end
-    //       }
-    //     });
-
     return { tracks, formatVersion: 1, dataTimestamp: Date.now() };
   }
 };

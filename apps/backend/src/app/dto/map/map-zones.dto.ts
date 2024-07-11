@@ -128,6 +128,7 @@ export class SegmentDto /* extends JsonifiableDto */ implements SegmentDto {
     isArray: true,
     description: 'A collection of checkpoint zones'
   })
+  @ArrayMinSize(1)
   @ArrayMaxSize(MAX_SEGMENT_CHECKPOINTS)
   readonly checkpoints: ZoneDto[];
 
@@ -167,7 +168,7 @@ export class MainTrackDto /* extends JsonifiableDto */ implements MainTrack {
 }
 
 export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
-  @NestedProperty(TrackZonesDto)
+  @NestedProperty(TrackZonesDto, { required: false })
   readonly zones?: TrackZonesDto;
 
   @ApiProperty({ description: 'Defrag gameplay modifications' }) // TODO: Enum
