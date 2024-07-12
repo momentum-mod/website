@@ -7,7 +7,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import {
   ActivityType,
   CombinedMapStatuses,

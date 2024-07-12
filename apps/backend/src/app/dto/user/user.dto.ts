@@ -18,7 +18,7 @@ import {
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { Ban } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { IsSteamCommunityID } from '../../validators';
 import { ProfileDto } from './profile.dto';
@@ -85,11 +85,11 @@ export class UserDto implements User {
 
   @ApiProperty({ type: Number, description: "Bitfield of user's roles" })
   @IsInt()
-  readonly roles: Bitfield;
+  readonly roles: Bitfield<Role>;
 
   @ApiProperty({ type: Number, description: "Bitfield of user's bans" })
   @IsInt()
-  readonly bans: Bitfield;
+  readonly bans: Bitfield<Ban>;
 
   @CreatedAtProperty()
   readonly createdAt: Date;

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SharedModule } from '../../../../shared.module';
 

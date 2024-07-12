@@ -29,7 +29,7 @@ import {
   KillswitchType,
   Killswitches
 } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
 import {
   AuthUtil,
