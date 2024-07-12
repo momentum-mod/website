@@ -14,7 +14,7 @@ import {
   SocialsData,
   NON_WHITESPACE_REGEXP
 } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';

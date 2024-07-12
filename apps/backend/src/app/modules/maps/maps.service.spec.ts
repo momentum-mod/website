@@ -13,7 +13,7 @@ import {
   PrismaMock
 } from '../../../../test/prisma-mock.const';
 import { MapsService } from './maps.service';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 
 describe('MapsService', () => {
   let service: MapsService, db: PrismaMock;
