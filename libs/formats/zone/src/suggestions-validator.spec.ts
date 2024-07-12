@@ -19,9 +19,9 @@ describe('validateSuggestions', () => {
     // Ahop and Bhop mutually imcompatible, Ahop also incompatible with Surf,
     // nothing else is incompatible
     {
-      if (key === Gamemode.AHOP) return [Gamemode.BHOP, Gamemode.SURF];
-      else if (key === Gamemode.BHOP) return [Gamemode.AHOP];
-      else return [];
+      if (key === Gamemode.AHOP) return new Set([Gamemode.BHOP, Gamemode.SURF]);
+      else if (key === Gamemode.BHOP) return new Set([Gamemode.AHOP]);
+      else return new Set();
     }
   );
 

@@ -16,7 +16,7 @@ describe('LeaderboardHandler', () => {
       jest
         .spyOn(IncompatibleGamemodes, 'get')
         .mockImplementation((key) =>
-          key === Gamemode.AHOP ? [Gamemode.BHOP] : []
+          key === Gamemode.AHOP ? new Set([Gamemode.BHOP]) : new Set()
         );
 
       const inMain = {

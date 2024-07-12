@@ -4,10 +4,10 @@ import {
   MapSubmissionType,
   MapStatusName,
   MapSubmissionSuggestion,
-  GamemodeName,
   TrackType,
   MapSubmissionVersion,
-  LeaderboardType
+  LeaderboardType,
+  GamemodeInfo
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import {
@@ -28,7 +28,7 @@ export class MapSubmissionComponent {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly TrackType = TrackType;
   protected readonly LeaderboardType = LeaderboardType;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapStatusName = MapStatusName;
   protected readonly downloadZoneFile = downloadZoneFile;
 

@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {
   CombinedRoles,
-  GamemodeName,
+  GamemodeInfo,
   MapReview,
   MapSubmissionType,
   MAX_REVIEW_COMMENT_LENGTH,
@@ -56,7 +56,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class MapReviewComponent {
   protected readonly TrackType = TrackType;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
 
   private _review: MapReview;

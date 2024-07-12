@@ -17,7 +17,6 @@ import {
   Ban,
   CombinedRoles,
   Gamemode,
-  GamemodePrefix,
   LeaderboardType,
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
@@ -33,7 +32,8 @@ import {
   MIN_MAP_NAME_LENGTH,
   TrackType,
   YOUTUBE_ID_REGEXP,
-  MAP_NAME_REGEXP
+  MAP_NAME_REGEXP,
+  GamemodeInfo
 } from '@momentum/constants';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -283,8 +283,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     if (!fileName.includes('_')) return null;
 
     const fileNamePrefix = fileName.split('_')[0];
-    const modes = [...GamemodePrefix.entries()]
-      .filter(([_, prefix]) => fileNamePrefix === prefix)
+    const modes = [...GamemodeInfo.entries()]
+      .filter(([_, { prefix }]) => fileNamePrefix === prefix)
       .map(([mode]) => mode);
 
     return modes.length > 0 ? modes : null;

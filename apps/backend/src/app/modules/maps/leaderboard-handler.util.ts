@@ -42,7 +42,7 @@ export const LeaderboardHandler = {
         Enum.values(Gamemode) // Note: this will include `suggestion`
           .filter(
             (newGamemode) =>
-              !IncompatibleGamemodes.get(gamemode).includes(newGamemode)
+              !IncompatibleGamemodes.get(gamemode).has(newGamemode)
           )
           .map((newGamemode) => ({
             trackType,
