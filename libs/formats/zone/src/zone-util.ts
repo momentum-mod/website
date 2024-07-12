@@ -16,15 +16,15 @@ export const ZoneUtil = {
    * Generate a MapZones object with regions placed randomly on the z=0 plane.
    */
   generateRandomMapZones: function (
-    majorCheckpoints: number,
-    minorCheckpoints: number[],
-    numBonuses: number,
+    mainSegments: number,
+    mainCheckpoints: number[],
+    bonusCheckpoints: number[],
     mapWidth: number,
     zoneWidth: number,
     height: number
   ): MapZones {
-    if (majorCheckpoints !== minorCheckpoints.length)
-      throw new Error('Fuck you');
+    if (mainSegments !== mainCheckpoints.length)
+      throw new Error('segments must equal number of checkpoints');
 
     const safeWidth = mapWidth - zoneWidth;
     const randomBoundedPos = () =>
@@ -70,15 +70,15 @@ export const ZoneUtil = {
         stagesEndAtStageStarts: true,
         zones: {
           end: randomZone(),
-          segments: arrayFrom(majorCheckpoints, (i) =>
-            doSegment(minorCheckpoints[i])
+          segments: arrayFrom(mainSegments, (i) =>
+            doSegment(mainCheckpoints[i])
           )
         }
       },
-      bonuses: arrayFrom(numBonuses, () => ({
+      bonuses: bonusCheckpoints.map((numSegments) => ({
         zones: {
           end: randomZone(),
-          segments: [doSegment(Math.ceil(Math.random() * 4))]
+          segments: [doSegment(numSegments)]
         }
       }))
     };
