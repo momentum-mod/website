@@ -1441,7 +1441,7 @@ describe('Maps', () => {
               zones: ZoneUtil.generateRandomMapZones(
                 100,
                 arrayFrom(100, () => 100),
-                0,
+                [0],
                 1024 ** 2,
                 1024,
                 1024
