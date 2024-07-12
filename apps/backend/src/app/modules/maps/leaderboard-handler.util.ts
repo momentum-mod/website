@@ -6,9 +6,9 @@ import {
   MapZones,
   TrackType
 } from '@momentum/constants';
-import { ZoneUtil } from '@momentum/formats/zone';
 import { Enum } from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
+import { isLinearMainTrack } from '@momentum/formats/zone';
 
 export interface LeaderboardProps
   extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
@@ -110,8 +110,6 @@ export const LeaderboardHandler = {
     leaderboards.map((lb) => ({
       ...lb,
       linear:
-        lb.trackType === TrackType.MAIN
-          ? ZoneUtil.isLinearMainTrack(zones)
-          : undefined
+        lb.trackType === TrackType.MAIN ? isLinearMainTrack(zones) : undefined
     }))
 };
