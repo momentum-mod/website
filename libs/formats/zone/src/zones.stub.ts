@@ -174,13 +174,13 @@ export const ZonesStub: MapZones = {
  */
 // prettier-ignore
 export const ZonesStubLeaderboards = [
-  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3 ]
+  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
     .flatMap((gamemode) => [
       { gamemode, trackType: TrackType.MAIN,  trackNum: 0, linear: false },
       { gamemode, trackType: TrackType.STAGE, trackNum: 0, linear: null  },
       { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null  }
   ]),
-  ...[ GM.RJ, GM.SJ, GM.AHOP, GM.BHOP, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3 ]
+  ...[ GM.RJ, GM.SJ, GM.AHOP, GM.BHOP, GM.BHOP_HL1, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
     .map((gamemode) => (
       { gamemode, trackType: TrackType.BONUS, trackNum: 0, linear: null }))
 ].sort();

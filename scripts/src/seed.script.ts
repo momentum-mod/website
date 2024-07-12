@@ -363,7 +363,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const existingMaps = await prisma.mMap.findMany();
   const usedNames = (existingMaps ?? []).map(({ name }) => name);
   const prefixes = [
-    new Set([...GamemodeInfo.values()].map(({ prefix }) => prefix))
+    ...new Set([...GamemodeInfo.values()].map(({ prefix }) => prefix))
   ];
   try {
     for (let i = 0; i < mapsToCreate; i++) {

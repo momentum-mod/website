@@ -1,6 +1,6 @@
 <m-accordion>
   @for (group of groupedLeaderboards | keyvalue: groupLbSortFn; track $index) {
-    <m-accordion-item title="{{ GamemodeName.get(group.key) }} - {{ group.value.totalRuns }} runs submitted">
+    <m-accordion-item title="{{ GamemodeInfo.get(group.key).name }} - {{ group.value.totalRuns }} runs submitted">
       <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-8 pt-6 shadow-inner">
         @for (leaderboard of group.value.leaderboards; track $index) {
           @if (leaderboard.trackType !== TrackType.STAGE) {

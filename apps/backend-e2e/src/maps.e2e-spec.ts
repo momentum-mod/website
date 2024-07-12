@@ -1961,7 +1961,7 @@ describe('Maps', () => {
         });
 
         // prettier-ignore
-        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3]
+        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG]
           .flatMap((gamemode) => [
             { gamemode, trackType: TrackType.MAIN,  trackNum: 0, linear: false },
             { gamemode, trackType: TrackType.STAGE, trackNum: 0, linear: null },
