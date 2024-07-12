@@ -6,7 +6,7 @@ import {
 } from '@angular/forms';
 import {
   Gamemode,
-  GamemodeName,
+  GamemodeInfo,
   LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
@@ -33,7 +33,7 @@ import { DropdownModule } from 'primeng/dropdown';
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({
     gamemode,
-    label: GamemodeName.get(gamemode)
+    label: GamemodeInfo.get(gamemode).name
   }));
 
   protected readonly TrackType = TrackType;

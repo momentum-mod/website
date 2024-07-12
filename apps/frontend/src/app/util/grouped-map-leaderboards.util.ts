@@ -1,6 +1,6 @@
 import {
   Gamemode,
-  GamemodeName,
+  GamemodeInfo,
   Leaderboard,
   LeaderboardType,
   MapReview,
@@ -30,7 +30,7 @@ export function groupMapLeaderboards(
 ): GroupedMapLeaderboards {
   const arr = [];
   for (const lb of leaderboards) {
-    const gamemodeName = GamemodeName.get(lb.gamemode);
+    const gamemodeName = GamemodeInfo.get(lb.gamemode).name;
     let entry = arr.find((e) => e.gamemodeName === gamemodeName);
 
     if (!entry) {

@@ -5,7 +5,6 @@ import {
   LeaderboardType,
   MapsGetAllQuery,
   MMap,
-  ORDERED_GAMEMODES,
   PagedResponse
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -41,10 +40,6 @@ import { HttpErrorResponse } from '@angular/common/http';
   ]
 })
 export class MapBrowserComponent implements OnInit {
-  protected readonly ORDERED_GAMEMODES = [
-    { value: undefined, text: 'All modes' },
-    ...ORDERED_GAMEMODES
-  ];
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 

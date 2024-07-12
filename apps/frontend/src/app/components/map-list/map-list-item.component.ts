@@ -7,8 +7,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {
-  GamemodeIcon,
-  GamemodeName,
+  GamemodeInfo,
   LeaderboardType,
   MapCreditType,
   MapStatusName,
@@ -30,8 +29,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   imports: [SharedModule, FontSizeLerpDirective]
 })
 export class MapListItemComponent implements OnChanges {
-  protected readonly GamemodeIcon = GamemodeIcon;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MapStatus = MapStatus;

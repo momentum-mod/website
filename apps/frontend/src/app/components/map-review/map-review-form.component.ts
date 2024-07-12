@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
   CombinedRoles,
-  GamemodeName,
+  GamemodeInfo,
   MapReviewSuggestion,
   MapSubmissionType,
   MAX_MAP_IMAGE_SIZE,
@@ -37,7 +37,7 @@ import { LocalUserService } from '../../services/data/local-user.service';
 })
 export class MapReviewFormComponent {
   protected readonly TrackType = TrackType;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly MAX_REVIEW_IMAGES = MAX_REVIEW_IMAGES;
 

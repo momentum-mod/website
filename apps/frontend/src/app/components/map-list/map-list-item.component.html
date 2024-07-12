@@ -58,8 +58,8 @@
               <img
                 class="h-8 drop-shadow-sm"
                 [ngClass]="{ 'ml-auto': $first }"
-                [mTooltip]="GamemodeName.get(leaderboard.gamemode)"
-                [src]="GamemodeIcon.get(leaderboard.gamemode)"
+                [mTooltip]="GamemodeInfo.get(leaderboard.gamemode).name"
+                [src]="'assets/images/gamemodes/' + GamemodeInfo.get(leaderboard.gamemode).icon + '.png'"
               />
             }
           }
