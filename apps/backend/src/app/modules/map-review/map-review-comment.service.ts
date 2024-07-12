@@ -16,7 +16,7 @@ import {
 } from '../../dto';
 import { MapsService } from '../maps/maps.service';
 import { isEmpty, parallel } from '@momentum/util-fn';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityType, CombinedRoles } from '@momentum/constants';
 import { AdminActivityService } from '../admin/admin-activity.service';
 

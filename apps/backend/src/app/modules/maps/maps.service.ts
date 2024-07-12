@@ -41,7 +41,7 @@ import {
   submissionVmfsPath,
   TrackType
 } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import {
   expandToIncludes,
   intersection,

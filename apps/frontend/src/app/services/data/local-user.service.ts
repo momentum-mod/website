@@ -23,7 +23,7 @@ import {
   UsersGetQuery,
   UserStats
 } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { AuthService } from './auth.service';
 import { HttpService } from './http.service';
 import { env } from '../../env/environment';
