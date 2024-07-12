@@ -14,28 +14,28 @@
     "format": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma format",
+        "command": "prisma format",
         "cwd": "libs/db/src"
       }
     },
     "push": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma db push --accept-data-loss",
+        "command": "prisma db push --accept-data-loss",
         "cwd": "libs/db/src"
       }
     },
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma generate",
+        "command": "prisma generate",
         "cwd": "libs/db/src"
       }
     },
     "create-migration": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma migrate dev --skip-seed --name",
+        "command": "prisma migrate dev --skip-seed --name",
         "cwd": "libs/db/src"
       }
     },
@@ -49,7 +49,7 @@
     "studio": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npx prisma studio",
+        "command": "prisma studio",
         "cwd": "libs/db/src"
       }
     }
