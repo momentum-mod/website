@@ -1026,7 +1026,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         status:
           type === FlatMapList.APPROVED
             ? MapStatus.APPROVED
-            : { in: [MapStatus.PUBLIC_TESTING] }
+            : { in: [MapStatus.PUBLIC_TESTING, MapStatus.FINAL_APPROVAL] }
       },
       select: {
         id: true,
@@ -1078,7 +1078,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       map.downloadURL = `${cdnUrl}/${approvedBspPath(map.name)}`;
 
-      if (map.submission) {
+      if (map?.submission?.currentVersion) {
         map.submission.currentVersion.downloadURL = `${cdnUrl}/${submissionBspPath(
           map.submission.currentVersion.id
         )}`;
