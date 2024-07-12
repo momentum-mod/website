@@ -43,7 +43,7 @@ import {
 import * as Bitflags from '@momentum/bitflags';
 import { nuke } from '@momentum/db';
 import * as Random from '@momentum/random';
-import * as ZoneUtil from '@momentum/formats/zone';
+import * as Zone from '@momentum/formats/zone';
 import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import axios from 'axios';
@@ -383,7 +383,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       const majCps = randRange(vars.majorCPs);
       const randomZones = () =>
-        ZoneUtil.generateRandomMapZones(
+        Zone.generateRandomMapZones(
           majCps,
           arrayFrom(majCps, () => randRange(vars.minorCPs)),
           arrayFrom(randRange(vars.bonusesPerMap), (_) =>
@@ -470,7 +470,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             style: 0,
             linear:
               trackType === TrackType.MAIN
-                ? ZoneUtil.isLinearMainTrack(zones)
+                ? Zone.isLinearMainTrack(zones)
                 : undefined,
             tier:
               trackType !== TrackType.STAGE && !inSubmission
@@ -486,7 +486,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           };
 
           if (trackType === TrackType.MAIN) {
-            leaderboard.linear = ZoneUtil.isLinearMainTrack(zones);
+            leaderboard.linear = Zone.isLinearMainTrack(zones);
           }
 
           if (trackType !== TrackType.STAGE && !inSubmission) {

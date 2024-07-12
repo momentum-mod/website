@@ -38,9 +38,9 @@ import { PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
 import {
+  generateRandomMapZones,
   ZonesStub,
-  ZonesStubLeaderboards,
-  ZoneUtil
+  ZonesStubLeaderboards
 } from '@momentum/formats/zone';
 import { arrayFrom } from '@momentum/util-fn';
 import {
@@ -1438,7 +1438,7 @@ describe('Maps', () => {
             data: {
               ...createMapObject,
               // 10,000 zones :D
-              zones: ZoneUtil.generateRandomMapZones(
+              zones: generateRandomMapZones(
                 100,
                 arrayFrom(100, () => 100),
                 [0],
