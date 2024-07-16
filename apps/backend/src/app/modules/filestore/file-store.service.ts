@@ -9,7 +9,8 @@ export abstract class FileStoreService {
    */
   abstract storeFile(
     fileBuffer: Buffer,
-    fileKey: string
+    fileKey: string,
+    contentType?: string
   ): Promise<FileStoreFile>;
 
   /**

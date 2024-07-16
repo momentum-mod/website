@@ -522,7 +522,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
                   new PutObjectCommand({
                     Bucket: s3BucketName,
                     Key: mapReviewAssetPath(id),
-                    Body: Random.element(imageBuffers).medium
+                    Body: Random.element(imageBuffers).medium,
+                    ContentType: 'image/jpeg'
                   })
                 );
                 return id;
@@ -580,7 +581,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
                       new PutObjectCommand({
                         Bucket: s3BucketName,
                         Key: `img/${id}-${size}.jpg`,
-                        Body: buffer[size]
+                        Body: buffer[size],
+                        ContentType: 'image/jpeg'
                       })
                     )
                   )
