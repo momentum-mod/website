@@ -34,10 +34,10 @@
   </legend>
 
   @if (!editing) {
-    <div class="flex flex-col gap-4">
-      <p class="whitespace-pre-wrap">{{ review.mainText }}</p>
+    <div class="flex flex-col">
+      <p class="mb-4 whitespace-pre-wrap">{{ review.mainText }}</p>
       @if (suggestions?.size > 0) {
-        <div class="flex shrink flex-wrap gap-x-8 gap-y-3">
+        <div class="mb-4 flex shrink flex-wrap gap-x-8 gap-y-3">
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
             <div class="grid grid-flow-col grid-rows-[repeat(3,1.25rem)] items-center gap-x-4">
               <p class="font-bold text-gray-50">{{ GamemodeName.get(gamemode.key) }}</p>
@@ -59,13 +59,12 @@
       }
 
       @if (review.images?.length > 0) {
+        <m-gallery #gallery [items]="images" />
         <div class="grid grid-cols-6 gap-2 rounded bg-black bg-opacity-20 p-1.5">
-          @for (image of review.images; track $index) {
-            <!-- Not doing any overlay thing for now. Just can't be fucked with
-                 dealing with PrimeNG gallery bullshit -->
-            <a class="hover-white-overlay rounded-sm shadow-lg" [href]="image" target="_blank">
-              <img [src]="image" />
-            </a>
+          @for (image of images; track $index) {
+            <button type="button" class="hover-white-overlay rounded-sm shadow-lg" (click)="gallery.selectItem(image); gallery.show()">
+              <img [src]="image.thumbnail" />
+            </button>
           }
         </div>
       }

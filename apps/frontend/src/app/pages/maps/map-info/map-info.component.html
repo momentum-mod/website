@@ -80,34 +80,47 @@
     </div>
     <div #sideBar>
       <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
-        <!-- This double gallery setup is SO messy but I hate this component and
-             dont have time to write a custom one. -->
-        <p-galleria
-          #regularGallery
-          [showItemNavigatorsOnHover]="true"
-          [showThumbnails]="images.length > 1"
-          [showThumbnailNavigators]="false"
-          [value]="images"
-          [numVisible]="images.length"
-          (activeIndexChange)="fullscreenGallery.activeIndex = regularGallery.activeIndex"
-        >
-          <ng-template pTemplate="item" let-item>
-            @if (item.youtube) {
-              <iframe type="text/html" [width]="sideBar.offsetWidth" [height]="sideBar.offsetWidth / (16 / 9)" [src]="youtubeID"></iframe>
-            } @else {
-              <div (click)="displayFullscreenGallery = true">
-                <img [src]="item.full" />
+        <m-gallery #gallery [items]="images" [selectedItem]="selectedImage" (selectedItemChange)="selectedImage = $event" />
+        <div>
+          <div class="aspect-video">
+            @if (selectedImage && selectedImage.type === 'image') {
+              <button type="button" class="hover-white-overlay aspect-video cursor-zoom-in" (click)="gallery.show()">
+                <img [src]="selectedImage.full" />
+              </button>
+            } @else if (selectedImage && selectedImage.type === 'youtube') {
+              <div class="relative h-full w-full">
+                <!-- Silly way to align fullscreen icon over youtube embed's -->
+                <button type="button" (click)="gallery.show()" class="absolute bottom-[-3px] right-4 cursor-zoom-in">
+                  <m-icon icon="fullscreen" class="h-8 w-8" />
+                </button>
+                <!-- 
+                Note that between this and the m-gallery component, we create two
+                different youtube iframes. This really sucks, but I don't know how to
+                avoid it. ng-template + ngTemplateOutlet isn't helpful, just creates two
+                instances. Should be possible to move the iframe around the DOM based on
+                whether we have the fullscreen gallery open, but really really annoying
+                to do.
+                -->
+                <iframe
+                  class="h-full w-full"
+                  type="text/html"
+                  [width]="sideBar.offsetWidth"
+                  [height]="sideBar.offsetWidth * (9 / 16)"
+                  [src]="selectedImage.safeUrl"
+                ></iframe>
               </div>
             }
-          </ng-template>
-          <ng-template pTemplate="thumbnail" let-item>
-            @if (item.youtube) {
-              <img class="aspect-video max-h-[4rem]" [src]="youtubeThumbnail" />
-            } @else {
-              <img class="aspect-video max-h-[4rem]" [src]="item.thumb" />
-            }
-          </ng-template>
-        </p-galleria>
+          </div>
+          @if (images.length > 1) {
+            <div class="flex justify-center bg-black bg-opacity-20">
+              @for (image of images; track $index) {
+                <button type="button" class="hover-white-overlay aspect-video max-h-16" (click)="selectedImage = image">
+                  <img class="aspect-video max-h-16 min-w-0" [src]="image.type === 'image' ? image.thumbnail : image.safeThumbnail" />
+                </button>
+              }
+            </div>
+          }
+        </div>
         <div
           class="flex flex-wrap justify-between gap-4 bg-black bg-opacity-10 px-3.5 py-2 [border-bottom:1px_solid_rgb(0_0_0/0.1)] [border-inline:1px_solid_rgb(255_255_255/0.05)] [border-top:1px_solid_rgb(255_255_255/0.1)]"
         >
@@ -166,7 +179,7 @@
           </div>
         }
 
-        <div class="mt-4 flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
+        <div class="flex flex-col gap-2 border-x border-white border-opacity-[0.0675] px-5 py-4">
           <p class="text-shadow mb-2 whitespace-pre-wrap">{{ map.info.description }}</p>
           <div class="scroll-thin flex max-h-[100rem] flex-col gap-2">
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
@@ -227,31 +240,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Fullscreen gallery - if nested deeper in DOM it renders weirdly for some reason -->
-  <p-galleria #fullscreenGallery [(visible)]="displayFullscreenGallery" [fullScreen]="true" [value]="images" [numVisible]="5">
-    <ng-template pTemplate="item" let-item>
-      @if (item.youtube) {
-        <iframe
-          type="text/html"
-          [width]="fullscreenGallery.element.nativeElement.offsetWidth"
-          [height]="fullscreenGallery.element.nativeElement.offsetWidth / (16 / 9)"
-          [src]="youtubeID"
-        ></iframe>
-      } @else {
-        <div (click)="displayFullscreenGallery = true">
-          <img [src]="item.full" />
-        </div>
-      }
-    </ng-template>
-    <ng-template pTemplate="thumbnail" let-item>
-      @if (item.youtube) {
-        <img class="youtube" [src]="youtubeThumbnail" />
-      } @else {
-        <img [src]="item.thumb" />
-      }
-    </ng-template>
-  </p-galleria>
 } @else {
   <m-spinner />
 }
