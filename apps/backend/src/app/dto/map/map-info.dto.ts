@@ -15,6 +15,7 @@ import {
   MinLength,
   MaxLength
 } from 'class-validator';
+import { IsPastDate } from '../../validators/is-past-date';
 
 export class MapInfoDto implements MapInfo {
   @Exclude()
@@ -40,6 +41,7 @@ export class MapInfoDto implements MapInfo {
 
   @ApiProperty()
   @IsDateString()
+  @IsPastDate()
   readonly creationDate: Date;
 }
 
