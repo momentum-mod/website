@@ -139,4 +139,8 @@ export class MapDetailsFormComponent implements OnInit {
       'submissionType'
     ) as FormControl<MapSubmissionType>;
   }
+
+  get maxDate() {
+    return new Date();
+  }
 }

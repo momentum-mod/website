@@ -61,7 +61,7 @@
       </label>
       <span class="text-sm italic leading-4 text-gray-200">Required</span>
     </div>
-    <p-calendar class="w-full [&>*]:w-full" [formControl]="creationDate" appendTo="body" />
+    <p-calendar class="w-full [&>*]:w-full" [maxDate]="maxDate" [formControl]="creationDate" appendTo="body" />
     <label for="youtubeID" class="my-auto text-lg leading-4">
       Youtube ID
       <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
