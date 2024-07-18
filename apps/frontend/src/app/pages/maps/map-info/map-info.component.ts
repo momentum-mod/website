@@ -11,20 +11,18 @@ import {
   MapStatusName,
   MapStatus,
   MMap,
-  ReportType,
-  YOUTUBE_ID_REGEXP
+  ReportType
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { SharedModule } from '../../../shared.module';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { GalleriaModule } from 'primeng/galleria';
 import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
 import { Enum } from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -35,6 +33,10 @@ import {
   TabComponent,
   TabDirective
 } from '../../../components/tabs/tab.component';
+import {
+  GalleryComponent,
+  GalleryItem
+} from '../../../components/gallery/gallery.component';
 import { FontSizeLerpDirective } from '../../../directives/font-size-lerp.directive';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -60,10 +62,10 @@ enum MapInfoSection {
     ReportButtonComponent,
     TabsComponent,
     TabDirective,
-    GalleriaModule,
     TabComponent,
     FontSizeLerpDirective,
-    OverlayPanelModule
+    OverlayPanelModule,
+    GalleryComponent
   ]
 })
 export class MapInfoComponent implements OnInit {
@@ -84,9 +86,8 @@ export class MapInfoComponent implements OnInit {
   prefix: string | null;
   leaderboards: GroupedMapLeaderboards;
   credits: GroupedMapCredits;
-  images: Array<{ full: string; thumb: string } | { youtube: true }>;
-  youtubeID?: SafeUrl;
-  youtubeThumbnail?: SafeUrl;
+  images: GalleryItem[];
+  selectedImage: GalleryItem;
 
   notify: MapNotify;
   notifications = false;
@@ -190,27 +191,28 @@ export class MapInfoComponent implements OnInit {
 
     this.isSubmitter =
       this.map.submitterID === this.localUserService.user.value?.id;
-
-    const youtubeID = this.map?.info?.youtubeID;
-    if (youtubeID && YOUTUBE_ID_REGEXP.test(youtubeID)) {
-      this.youtubeID = this.sanitizer.bypassSecurityTrustResourceUrl(
-        `https://www.youtube.com/embed/${youtubeID}`
-      );
-      this.youtubeThumbnail = this.sanitizer.bypassSecurityTrustResourceUrl(
-        `https://img.youtube.com/vi/${youtubeID}/default.jpg`
-      );
-    }
   }
 
   setImages(images: MapImage[], youtubeID?: string) {
     this.images = images.map(({ small, large }) => ({
-      thumb: small,
-      full: large
+      type: 'image',
+      full: large,
+      thumbnail: small
     }));
 
     if (youtubeID) {
-      this.images.unshift({ youtube: true });
+      this.images.unshift({
+        type: 'youtube',
+        safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://www.youtube.com/embed/${youtubeID}`
+        ),
+        safeThumbnail: this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg`
+        )
+      });
     }
+
+    this.selectedImage = this.images[0];
   }
 
   toggleFavorite() {

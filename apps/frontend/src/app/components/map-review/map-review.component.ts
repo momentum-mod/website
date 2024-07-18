@@ -27,13 +27,16 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { GalleriaModule } from 'primeng/galleria';
 import { MapReviewFormComponent } from './map-review-form.component';
 import { DialogModule } from 'primeng/dialog';
 import { SharedModule } from '../../shared.module';
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { AdminService } from '../../services/data/admin.service';
+import {
+  GalleryComponent,
+  GalleryImageItem
+} from '../gallery/gallery.component';
 
 @Component({
   selector: 'm-map-review',
@@ -44,9 +47,9 @@ import { AdminService } from '../../services/data/admin.service';
     PaginatorModule,
     ConfirmPopupModule,
     ConfirmDialogModule,
-    GalleriaModule,
     MapReviewFormComponent,
-    DialogModule
+    DialogModule,
+    GalleryComponent
   ],
   templateUrl: './map-review.component.html'
 })
@@ -64,11 +67,15 @@ export class MapReviewComponent {
   set review(review: MapReview) {
     this._review = review;
     this.suggestions = groupMapSuggestions(review.suggestions);
-    this.images = [null, ...review.images];
+    this.images = review.images.map((image) => ({
+      type: 'image',
+      full: image,
+      thumbnail: image
+    }));
   }
 
   protected suggestions: GroupedMapReviewSuggestions;
-  protected images: Array<string | null>;
+  protected images: GalleryImageItem[];
   protected activeImageDialogIndex = 0;
 
   // Extremely annoying that we need this, but review editing needs this, this
