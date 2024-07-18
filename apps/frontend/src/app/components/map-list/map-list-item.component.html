@@ -8,8 +8,8 @@
     @if (localUserService.user | async) {
       <button
         type="button"
-        class="m-2 mb-auto ml-auto text-white opacity-80 drop-shadow-lg transition-opacity"
-        [ngClass]="{ 'opacity-100': inFavorites }"
+        class="m-2 mb-auto ml-auto text-white opacity-80 transition-opacity [filter:drop-shadow(0_1px_1px_rgb(0_0_0_/_0.5))_drop-shadow(0_2px_8px_rgb(0_0_0_/_0.7))]"
+        [ngClass]="{ '!opacity-90': inFavorites }"
         (click)="toggleMapInFavorites($event)"
         [mTooltip]="inFavorites ? 'Remove map from favorite' : 'Add map to favorites'"
       >
