@@ -9,6 +9,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 import { SharedModule } from '../../../shared.module';
 import { PastRunsService } from '../../../services/data/past-runs.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-profile-run-history',
@@ -97,11 +98,11 @@ export class ProfileRunHistoryComponent implements OnInit {
           this.totalRecords = response.totalCount;
           this.runs = response.data;
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Cannot get user runs',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
   }

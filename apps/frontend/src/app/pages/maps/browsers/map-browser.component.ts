@@ -26,6 +26,7 @@ import { NStateButtonComponent } from '../../../components/n-state-button/n-stat
 import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -155,11 +156,11 @@ export class MapBrowserComponent implements OnInit {
           );
           this.skip += res.returnCount;
         },
-        error: (err) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error fetching maps!',
-            detail: err.message
+            detail: httpError.error.message
           });
         }
       });

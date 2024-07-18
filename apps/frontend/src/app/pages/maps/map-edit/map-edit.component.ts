@@ -392,11 +392,11 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             this.adminService.updateMap(this.map.id, body as UpdateMapAdmin)
           );
         }
-      } catch (error) {
+      } catch (httpError) {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to update map!',
-          detail: JSON.stringify(error.error.message)
+          detail: JSON.stringify(httpError.error.message)
         });
         this.loading = false;
         return;

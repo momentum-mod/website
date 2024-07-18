@@ -10,6 +10,7 @@ import { MapReviewFormComponent } from './map-review-form.component';
 import { SharedModule } from '../../shared.module';
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 enum FilterType {
   NONE,
@@ -89,11 +90,11 @@ export class MapReviewListComponent implements OnChanges {
           this.reviews = res.data;
           this.totalRecords = res.totalCount;
         },
-        error: (err) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error fetching maps!',
-            detail: err.message
+            detail: httpError.error.message
           });
         }
       });

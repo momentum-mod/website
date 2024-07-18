@@ -131,20 +131,21 @@ export class MapReviewFormComponent {
           });
           this.form.reset();
         },
-        error: (error: HttpErrorResponse) => {
-          if (error.status === 409)
+        error: (httpError: HttpErrorResponse) => {
+          if (httpError.status === 409)
             this.messageService.add({
               severity: 'error',
               summary: 'Error: Duplicate suggestions',
               detail:
                 'You already have a review containing suggestions, please edit that one!'
             });
-          else
+          else {
             this.messageService.add({
               severity: 'error',
               summary: `Failed to ${this.editing ? 'post' : 'edit'} review`,
-              detail: error.message
+              detail: httpError.error.message
             });
+          }
         }
       });
   }

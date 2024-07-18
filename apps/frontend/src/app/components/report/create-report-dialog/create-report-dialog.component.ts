@@ -6,6 +6,7 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { SharedModule } from '../../../shared.module';
 import { ReportService } from '../../../services/data/report.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-create-report-dialog',
@@ -64,12 +65,11 @@ export class CreateReportDialogComponent implements OnInit {
             summary: 'Report submitted!'
           });
         },
-        error: (error) => {
-          console.error(error);
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: `Failed to submit report: ${error.error.error.message}`
+            detail: `Failed to submit report: ${httpError.error.message}`
           });
         }
       });

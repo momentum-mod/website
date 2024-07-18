@@ -16,6 +16,7 @@ import { AccordionComponent } from '../../../components/accordion/accordion.comp
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
 import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { AdminActivityService } from '../../../services/data/admin-activity.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-admin-activity',
@@ -106,12 +107,11 @@ export class AdminActivityComponent implements OnInit {
             entry: AdminActivityEntryComponent.getActivityData(activity)
           }));
         },
-        error: (error) => {
-          console.error(error);
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Failed to load admin activity',
-            detail: error.message
+            detail: httpError.error.message
           });
           this.activities = [];
           this.totalRecords = 0;

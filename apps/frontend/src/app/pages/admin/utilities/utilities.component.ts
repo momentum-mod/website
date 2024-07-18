@@ -7,6 +7,7 @@ import { Enum } from '@momentum/enum';
 import { KillswitchType, Killswitches } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-utilities',
@@ -42,10 +43,11 @@ export class UtilitiesComponent implements OnInit {
       next: (killswiches) => {
         this.killswitchForm.setValue(killswiches);
       },
-      error: () => {
+      error: (httpError: HttpErrorResponse) => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Failed to get killswitches!'
+          summary: 'Failed to get killswitches!',
+          detail: httpError.error.message
         });
       }
     });
@@ -87,10 +89,11 @@ export class UtilitiesComponent implements OnInit {
             summary: 'Successfully updated killswiches!'
           });
         },
-        error: () => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
-            summary: 'Failed to updated killswitches!'
+            summary: 'Failed to updated killswitches!',
+            detail: httpError.error.message
           });
         }
       });
@@ -108,10 +111,11 @@ export class UtilitiesComponent implements OnInit {
           this.userForm.reset();
         }
       },
-      error: () =>
+      error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
           severity: 'error',
-          summary: 'Failed to create user!'
+          summary: 'Failed to create user!',
+          detail: httpError.error.message
         })
     });
   }

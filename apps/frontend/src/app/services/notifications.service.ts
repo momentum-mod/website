@@ -13,6 +13,7 @@ import { Notification } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { AuthService } from './data/auth.service';
 import { LocalUserService } from './data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -68,11 +69,11 @@ export class NotificationsService {
       .updateNotification(notification.id, { read: true })
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Could not mark notification as read',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
   }
@@ -82,11 +83,11 @@ export class NotificationsService {
       .deleteNotification(notif.id)
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Could not dismiss notification',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
   }

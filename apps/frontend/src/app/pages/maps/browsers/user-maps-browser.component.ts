@@ -17,6 +17,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { LocalUserService } from '../../../services/data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -113,11 +114,11 @@ export class UserMapsBrowserComponent implements OnInit {
           this.maps.push(...res.data);
           this.skip += res.returnCount;
         },
-        error: (err) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error fetching maps!',
-            detail: err.message
+            detail: httpError.error.message
           });
         }
       });
