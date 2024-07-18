@@ -111,8 +111,6 @@ export function validateSuggestions(
       );
     }
 
-    // class-validator on backend will handle some annoying stuff like
-    // IsInt, as well as missing properties.
     if ('tier' in sugg) {
       if (
         type === SuggestionType.APPROVAL &&
@@ -123,7 +121,7 @@ export function validateSuggestions(
             `Hidden leaderboard ${leaderboardName(tt, tn, gm)} has a tier`
           );
         }
-      } else if (!tier || tier <= 0 || tier > 10) {
+      } else if (!tier || tier <= 0 || tier > 10 || !Number.isInteger(tier)) {
         throw new SuggestionValidationError(
           `Invalid tier ${tier} for ${leaderboardName(tt, tn, gm)}`
         );
@@ -135,7 +133,9 @@ export function validateSuggestions(
       // Buggy rule, destructuring above isn't type-safe.
       /* eslint-disable  unicorn/consistent-destructuring */
       sugg.gameplayRating != null &&
-      (sugg.gameplayRating <= 0 || sugg.gameplayRating > 10)
+      (sugg.gameplayRating <= 0 ||
+        sugg.gameplayRating > 10 ||
+        !Number.isInteger(sugg.gameplayRating))
     ) {
       throw new SuggestionValidationError(
         `Invalid gameplay rating ${sugg.gameplayRating} for ${leaderboardName(
