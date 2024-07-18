@@ -350,7 +350,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     }
     if (this.youtubeID.dirty) {
       body.info ??= {};
-      body.info.youtubeID = this.youtubeID.value;
+      body.info.youtubeID =
+        this.youtubeID.value.length > 0 ? this.youtubeID.value : null;
     }
     if (this.suggestions.dirty) body.suggestions = this.suggestions.value;
     if (this.status.dirty) {
