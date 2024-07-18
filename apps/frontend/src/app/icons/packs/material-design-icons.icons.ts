@@ -83,5 +83,6 @@ export {
   mdiNumericOff,
   mdiHeart,
   mdiHeartOutline,
-  mdiHeartBroken
+  mdiHeartBroken,
+  mdiFullscreen
 } from '@mdi/js';

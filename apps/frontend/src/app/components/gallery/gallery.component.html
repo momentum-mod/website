@@ -1,0 +1,39 @@
+<div #popover popover="auto" class="h-full w-full bg-transparent p-0">
+  <div class="relative flex h-screen w-screen flex-col items-center justify-center bg-black bg-opacity-50 p-[1.5vh] backdrop-blur">
+    <div
+      class="-z-1 absolute h-full w-full cursor-pointer bg-black bg-opacity-0 transition-colors duration-300 ease-in-out hover:bg-opacity-[0.15]"
+      (click)="popover.hidePopover()"
+    ></div>
+    <button
+      type="button"
+      class="absolute right-0 top-0 z-20 m-[1.5vh] h-16 w-16 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-10"
+      (click)="popover.hidePopover()"
+    >
+      <m-icon class="h-16 w-16 p-2" icon="close" />
+    </button>
+
+    <div #parent class="z-10 grid aspect-video min-h-0 basis-[87.5%] place-items-center">
+      @if (selectedItem && selectedItem.type === 'image') {
+        <img class="rounded shadow-lg" [src]="selectedItem.full" />
+      } @else if (selectedItem && selectedItem.type === 'youtube') {
+        <iframe class="h-full shadow-lg" type="text/html" [src]="selectedItem.safeUrl"></iframe>
+      }
+    </div>
+
+    @if (items.length > 1) {
+      <!-- Make sure high in z-order so clicking in between thumbnails doesn't trigger close (annoying!)-->
+      <div class="z-10 mt-[1.5vh] flex min-h-0 w-full basis-[12.5%] items-center justify-center gap-[1.5vh] overflow-x-auto">
+        @for (item of items; track $index) {
+          <!-- Needed for hover effect -->
+          <button
+            type="button"
+            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded shadow-lg"
+            (click)="selectItem(item)"
+          >
+            <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>
