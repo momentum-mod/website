@@ -1324,6 +1324,12 @@ describe('User', () => {
       afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should add a new map to the local users favorites', async () => {
+        let stats = await prisma.mapStats.findUnique({
+          where: { mapID: map.id }
+        });
+
+        expect(stats.favorites).toBe(0);
+
         await req.put({
           url: `user/maps/favorites/${map.id}`,
           status: 204,
@@ -1334,6 +1340,12 @@ describe('User', () => {
           where: { userID: user.id }
         });
         expect(favorite.mapID).toBe(map.id);
+
+        stats = await prisma.mapStats.findUnique({
+          where: { mapID: map.id }
+        });
+
+        expect(stats.favorites).toBe(1);
       });
 
       it("should 404 if the map doesn't exist", () =>
@@ -1372,6 +1384,11 @@ describe('User', () => {
           data: { userID: user.id, mapID: map.id }
         });
 
+        await prisma.mapStats.update({
+          where: { mapID: map.id },
+          data: { favorites: 1 }
+        });
+
         await req.del({
           url: `user/maps/favorites/${map.id}`,
           status: 204,
@@ -1382,6 +1399,12 @@ describe('User', () => {
           where: { userID: user.id, mapID: map.id }
         });
         expect(favorite).toBeNull();
+
+        const stats = await prisma.mapStats.findUnique({
+          where: { mapID: map.id }
+        });
+
+        expect(stats.favorites).toBe(0);
       });
 
       it('should 400 if the map is not in the local users favorites', () =>

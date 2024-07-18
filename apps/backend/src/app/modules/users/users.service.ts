@@ -622,6 +622,11 @@ export class UsersService {
         "Target map is already in the user's favorites"
       );
     });
+
+    await this.db.mapStats.update({
+      where: { mapID },
+      data: { favorites: { increment: 1 } }
+    });
   }
 
   async removeFavoritedMap(userID: number, mapID: number) {
@@ -633,6 +638,11 @@ export class UsersService {
       .catch(() => {
         throw new BadRequestException("Target map is not in user's favorites");
       });
+
+    await this.db.mapStats.update({
+      where: { mapID },
+      data: { favorites: { decrement: 1 } }
+    });
   }
 
   //#endregion
