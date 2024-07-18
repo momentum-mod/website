@@ -33,6 +33,7 @@ import { XpSystemsService } from '../../services/xp-systems.service';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-user-profile',
@@ -138,11 +139,11 @@ export class ProfileComponent implements OnInit {
 
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
-            error: (error) =>
+            error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
                 summary: 'Could not retrieve user follows',
-                detail: error.message
+                detail: httpError.error.message
               })
           });
 
@@ -159,11 +160,11 @@ export class ProfileComponent implements OnInit {
                   (credit) => credit.type
                 );
               },
-              error: (error) =>
+              error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Cannot get user map credits',
-                  detail: error.message
+                  detail: httpError.error.message
                 })
             });
 
@@ -173,30 +174,30 @@ export class ProfileComponent implements OnInit {
             )
             .subscribe({
               next: (response) => (this.followedByUsers = response.data),
-              error: (error) =>
+              error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Could not retrieve user following',
-                  detail: error.message
+                  detail: httpError.error.message
                 })
             });
 
           this.localUserService.checkFollowStatus(this.user).subscribe({
             next: (response) => this.localFollowStatus.next(response.local),
-            error: (error) => {
+            error: (httpError: HttpErrorResponse) => {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Could not check follow status',
-                detail: error.message
+                detail: httpError.error.message
               });
             }
           });
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Cannot get user details',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
   }
@@ -221,11 +222,11 @@ export class ProfileComponent implements OnInit {
     const observer = {
       next: (follow?: Follow | void) =>
         this.localFollowStatus.next(follow || null),
-      error: (error) => {
+      error: (httpError: HttpErrorResponse) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Could not toggle follow',
-          detail: error.message
+          detail: httpError.error.message
         });
       }
     };
@@ -254,11 +255,11 @@ export class ProfileComponent implements OnInit {
                 ...this.localFollowStatus.value,
                 notifyOn: response.newFlags
               }),
-            error: (error) =>
+            error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
                 summary: 'Could not update follow status',
-                detail: error.message
+                detail: httpError.error.message
               })
           });
       });

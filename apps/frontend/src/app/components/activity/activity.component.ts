@@ -14,6 +14,7 @@ import { ActivityContentComponent } from './activity-content.component';
 import { SharedModule } from '../../shared.module';
 import { ActivityService } from '../../services/data/activity.service';
 import { LocalUserService } from '../../services/data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-activity',
@@ -135,11 +136,11 @@ export class ActivityComponent implements OnInit {
           this.activities.push(...res.data);
           this.filterActivities();
         },
-        error: (err) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error fetching activities!',
-            detail: err.message
+            detail: httpError.error.message
           });
           this.page = Math.max(0, this.page - 1);
         }

@@ -21,6 +21,7 @@ import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
 import { SharedModule } from '../../shared.module';
 import { LocalUserService } from '../../services/data/local-user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-map-list-item',
@@ -90,10 +91,10 @@ export class MapListItemComponent implements OnChanges {
             detail: 'Removed map from favorites'
           });
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             summary: 'Failed to remove map from favorites',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
     } else {
@@ -106,11 +107,11 @@ export class MapListItemComponent implements OnChanges {
             detail: 'Added map to favorites'
           });
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Failed to add map to favorites',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
     }

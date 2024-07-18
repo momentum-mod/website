@@ -30,6 +30,7 @@ import { AuthService } from '../../../services/data/auth.service';
 import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { EMPTY, switchMap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-profile-edit',
@@ -189,11 +190,11 @@ export class ProfileEditComponent implements OnInit {
             detail: 'Updated user profile!'
           });
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Failed to update user profile!',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
     } else {
@@ -206,11 +207,11 @@ export class ProfileEditComponent implements OnInit {
             detail: 'Updated user profile!'
           });
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
             summary: 'Failed to update user profile!',
-            detail: error.message
+            detail: httpError.error.message
           })
       });
     }
@@ -300,11 +301,11 @@ export class ProfileEditComponent implements OnInit {
         });
         this.router.navigate(['/']);
       },
-      error: (error) =>
+      error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to delete user!',
-          detail: error.message
+          detail: httpError.error.message
         })
     });
   }
@@ -318,11 +319,11 @@ export class ProfileEditComponent implements OnInit {
         });
         this.authService.logout();
       },
-      error: (error) =>
+      error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to delete user!',
-          detail: error.message
+          detail: httpError.error.message
         })
     });
   }
@@ -358,11 +359,11 @@ export class ProfileEditComponent implements OnInit {
             this.router.navigate([`/profile/${this.mergeUser.id}`]);
             this.mergeUser = null;
           },
-          error: (error) =>
+          error: (httpError: HttpErrorResponse) =>
             this.messageService.add({
               severity: 'error',
               summary: 'Failed to merge users!',
-              detail: error.message
+              detail: httpError.error.message
             })
         });
       });
@@ -381,11 +382,11 @@ export class ProfileEditComponent implements OnInit {
           detail: 'Successfully reset alias to Steam name!'
         });
       },
-      error: (error) =>
+      error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to reset alias to Steam alias!',
-          detail: error.message
+          detail: httpError.error.message
         })
     });
   }

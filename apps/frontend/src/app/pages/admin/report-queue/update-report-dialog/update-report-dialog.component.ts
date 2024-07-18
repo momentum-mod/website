@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SharedModule } from '../../../../shared.module';
 import { AdminService } from '../../../../services/data/admin.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-update-report-dialog',
@@ -59,11 +60,11 @@ export class UpdateReportDialogComponent implements OnInit {
             summary: 'Report has been updated'
           });
         },
-        error: (error) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Failed to update the report',
-            detail: error.message
+            detail: httpError.error.message
           });
         }
       });

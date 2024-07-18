@@ -135,11 +135,11 @@ export class MapStatusFormComponent implements OnChanges {
           this.leaderboardsService.getLeaderboardStats(this.map.id)
         ])
       );
-    } catch (error) {
+    } catch (httpError) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error fetching map summary data!!',
-        detail: error.message
+        detail: httpError.error.message
       });
       this.loading = false;
       return;

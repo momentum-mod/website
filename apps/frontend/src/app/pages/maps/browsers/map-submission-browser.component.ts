@@ -16,6 +16,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { MapsService } from '../../../services/data/maps.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -109,11 +110,11 @@ export class MapSubmissionBrowserComponent implements OnInit {
           this.maps.push(...res.data);
           this.skip += res.returnCount;
         },
-        error: (err) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error fetching maps!',
-            detail: err.message
+            detail: httpError.error.message
           });
         }
       });

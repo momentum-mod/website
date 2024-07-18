@@ -37,6 +37,7 @@ import {
   GalleryComponent,
   GalleryImageItem
 } from '../gallery/gallery.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-map-review',
@@ -128,10 +129,10 @@ export class MapReviewComponent {
           this.loadingComments = false;
           this._review.comments.push(...res.data);
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
-            detail: error.message,
+            detail: httpError.error.message,
             summary: 'Failed to load comments!'
           })
       });
@@ -171,10 +172,10 @@ export class MapReviewComponent {
           this._review.resolverID = res.resolverID;
           this._review.resolved = res.resolved;
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
-            detail: error.message,
+            detail: httpError.error.message,
             summary: 'Failed to update review!'
           })
       });
@@ -193,10 +194,10 @@ export class MapReviewComponent {
           .pipe(take(1))
           .subscribe({
             next: () => this.updatedOrDeleted.next(),
-            error: (error) =>
+            error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
-                detail: error.message,
+                detail: httpError.error.message,
                 summary: 'Failed to delete review!'
               })
           })
@@ -219,10 +220,10 @@ export class MapReviewComponent {
           this._review.comments.unshift(res);
           this._review.numComments++;
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
-            detail: error.message,
+            detail: httpError.error.message,
             summary: 'Failed to post comment!'
           })
       });
@@ -265,10 +266,10 @@ export class MapReviewComponent {
           this._review.comments.find(({ id }) => id === commentID).text =
             res.text;
         },
-        error: (error) =>
+        error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
-            detail: error.message,
+            detail: httpError.error.message,
             summary: 'Failed to update comment!'
           })
       });
@@ -294,10 +295,10 @@ export class MapReviewComponent {
               );
               this._review.numComments--;
             },
-            error: (error) =>
+            error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
-                detail: error.message,
+                detail: httpError.error.message,
                 summary: 'Failed to delete comment!'
               })
           });
