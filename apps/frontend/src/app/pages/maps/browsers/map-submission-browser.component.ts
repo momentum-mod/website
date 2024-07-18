@@ -89,7 +89,13 @@ export class MapSubmissionBrowserComponent implements OnInit {
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
             take,
-            expand: ['info', 'credits', 'leaderboards', 'submitter']
+            expand: [
+              'info',
+              'credits',
+              'leaderboards',
+              'submitter',
+              'inFavorites'
+            ]
           };
           if (name) options.search = name;
           // TODO: Remove this `as any` once below endpoint supports all these
