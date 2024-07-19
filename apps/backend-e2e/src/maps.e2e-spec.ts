@@ -2485,14 +2485,16 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, createMapData;
+      let user, token, u2, u2Token, adminToken, mod, modToken, createMapData;
 
       beforeAll(async () => {
-        [[user, token], [u2, u2Token], adminToken] = await Promise.all([
-          db.createAndLoginUser(),
-          db.createAndLoginUser(),
-          db.loginNewUser({ data: { roles: Role.ADMIN } })
-        ]);
+        [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
+          ]);
 
         createMapData = {
           name: 'surf_map',
@@ -2815,6 +2817,55 @@ describe('Maps', () => {
           status: 403,
           body: { status: MapStatus.FINAL_APPROVAL },
           token
+        });
+      });
+
+      it("should allow a mod to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PUBLIC_TESTING,
+          submitter: { connect: { id: mod.id } },
+          submission: {
+            create: {
+              dates: [
+                {
+                  status: MapStatus.PUBLIC_TESTING,
+                  date: Date.now() - 1000
+                }
+              ],
+              type: MapSubmissionType.PORT,
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
+              }
+            }
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token: modToken
         });
       });
 
