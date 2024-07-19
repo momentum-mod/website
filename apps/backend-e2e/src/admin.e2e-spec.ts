@@ -1195,11 +1195,12 @@ describe('Admin', () => {
         `${MapStatus.FINAL_APPROVAL  },${MapStatus.APPROVED        },${Role.ADMIN}`,
         `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.MODERATOR}`,
         `${MapStatus.FINAL_APPROVAL  },${MapStatus.DISABLED        },${Role.ADMIN}`,
-        `${MapStatus.DISABLED        },${MapStatus.APPROVED        },${Role.ADMIN}`,
         `${MapStatus.DISABLED        },${MapStatus.PRIVATE_TESTING },${Role.ADMIN}`,
         `${MapStatus.DISABLED        },${MapStatus.CONTENT_APPROVAL},${Role.ADMIN}`,
         `${MapStatus.DISABLED        },${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
         `${MapStatus.DISABLED        },${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`
+        // Disabled -> Approved should fail if hasn't been approved once before.
+        // This isn't the case for this map, so should fail.
       ]);
 
       for (const s1 of statuses) {
@@ -1283,6 +1284,75 @@ describe('Admin', () => {
           }
         }
       }
+
+      // Above nonsense tested the inverse of this
+      it("should allow an admin to change a map from DISABLED to FINAL APPROVAL if it's been previously approved", async () => {
+        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+
+        const map = await db.createMap({
+          ...createMapData,
+          submission: {
+            create: {
+              ...createMapData.submission.create,
+              versions: {
+                create: {
+                  zones: BabyZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(bspBuffer)
+                }
+              }
+            }
+          },
+          status: MapStatus.DISABLED
+        });
+
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: {
+            currentVersionID: map.submission.versions[0].id,
+            dates: [
+              {
+                status: MapStatus.APPROVED,
+                date: new Date(Date.now() - 2000)
+              },
+              {
+                status: MapStatus.DISABLED,
+                date: new Date(Date.now() - 1000)
+              }
+            ]
+          }
+        });
+
+        // Annoying to have to do this for every test but FA -> Approved
+        // will throw otherwise.
+        await fileStore.add(
+          `submissions/${map.submission.versions[0].id}.bsp`,
+          bspBuffer
+        );
+
+        await req.patch({
+          url: `admin/maps/${map.id}`,
+          status: 204,
+          body: {
+            status: MapStatus.APPROVED,
+            finalLeaderboards: [
+              {
+                gamemode: Gamemode.RJ,
+                trackNum: 0,
+                trackType: 0,
+                tier: 1,
+                type: LeaderboardType.RANKED
+              }
+            ]
+          },
+          token: adminToken
+        });
+
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id }
+        });
+        expect(updatedMap.status).toBe(MapStatus.APPROVED);
+      });
 
       it('should create placeholder users after map status changed from FA to approved', async () => {
         const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));

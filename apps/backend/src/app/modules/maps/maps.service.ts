@@ -28,8 +28,8 @@ import {
   LeaderboardType,
   MapCreditType,
   MapsGetExpand,
-  MapStatusChangers,
   MapStatus,
+  MapStatusChangeRules,
   MapSubmissionApproval,
   MapSubmissionDate,
   MapSubmissionPlaceholder,
@@ -1294,7 +1294,7 @@ export class MapsService {
     tx: ExtendedPrismaServiceTransaction,
     map: MapWithSubmission,
     dto: UpdateMapDto | UpdateMapAdminDto,
-    roles: number,
+    userRoles: number,
     isSubmitter: boolean
   ): Promise<[Prisma.MMapUpdateInput, MapStatus, MapStatus] | undefined> {
     const oldStatus = map.status;
@@ -1326,12 +1326,20 @@ export class MapsService {
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
-      await this.updateStatusFromPublicToFA(map);
+      await this.updateStatusFromPublicToFA(map, userRoles);
     } else if (
       oldStatus === MapStatus.FINAL_APPROVAL &&
       newStatus === MapStatus.APPROVED
     ) {
       await this.updateStatusFromFAToApproved(tx, map, dto);
+    } else if (
+      oldStatus === MapStatus.DISABLED &&
+      newStatus === MapStatus.APPROVED &&
+      !map.submission.dates.some((date) => date.status === MapStatus.APPROVED)
+    ) {
+      throw new ForbiddenException(
+        "Can't approve a disabled map that has never been approved before"
+      );
     }
 
     return [
@@ -1383,8 +1391,9 @@ export class MapsService {
 
     const latestPubTestTime = new Date(latestPubTestDate).getTime();
     if (
+      !Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN) &&
       currentTime - latestPubTestTime <
-      this.config.getOrThrow('limits.minPublicTestingDuration')
+        this.config.getOrThrow('limits.minPublicTestingDuration')
     ) {
       throw new ForbiddenException(
         'Map has not been in public testing for mandatory time period'
