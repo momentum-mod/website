@@ -6,7 +6,7 @@ import {
   LeaderboardType,
   MapReview,
   MapReviewSuggestion,
-  MapStatusChangers,
+  MapStatusChangeRules,
   MapStatusName,
   MapStatus,
   MapSubmissionApproval,
@@ -293,7 +293,7 @@ export class MapStatusFormComponent implements OnChanges {
   populateStatuses() {
     this.possibleStatuses = [
       { label: 'No change', value: -1 },
-      ...MapStatusChangers.filter(
+      ...MapStatusChangeRules.filter(
         ({ from, roles }) =>
           this.status === from &&
           ((roles.includes(Role.ADMIN) && this.adm) ||

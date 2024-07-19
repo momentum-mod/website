@@ -18,7 +18,7 @@ import { MapStatus as S, Role as R } from '../';
  * frequently and I don't want to bother with some crazy multi-key Map)
  */
 //prettier-ignore
-export const MapStatusChangers: ReadonlyArray<{from: S; to: S; roles: Array<R | 'submitter'>}> = [
+export const MapStatusChangeRules: ReadonlyArray<{from: S; to: S; roles: Array<R | 'submitter'>}> = [
   { from: S.APPROVED,         to: S.APPROVED,         roles: []},
   { from: S.APPROVED,         to: S.PRIVATE_TESTING,  roles: []},
   { from: S.APPROVED,         to: S.CONTENT_APPROVAL, roles: []},
