@@ -33,7 +33,7 @@ export * from './maps/map-credit-name.map';
 export * from './maps/tickrates.map';
 export * from './maps/map-status-name.map';
 export * from './maps/incompatible-gamemodes.map';
-export * from './maps/map-status-changers.map';
+export * from './maps/map-status-change-rules.map';
 export * from './maps/role-names.map';
 export * from './maps/ban-names.map';
 export * from './types/models';

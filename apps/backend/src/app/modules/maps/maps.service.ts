@@ -1305,16 +1305,18 @@ export class MapsService {
     }
 
     // Check roles against allowed status changes
-    let isChangeAllowed = false;
-    for (const allowedRole of MapStatusChangers.find(
+    const { roles: allowedRoles } = MapStatusChangeRules.find(
       ({ from, to }) => from === oldStatus && to === newStatus
-    )?.roles ?? []) {
+    );
+
+    const isChangeAllowed = allowedRoles.some((allowedRole) => {
       if (allowedRole === 'submitter') {
-        if (isSubmitter) isChangeAllowed = true;
-      } else if (Bitflags.has(roles, allowedRole)) {
-        isChangeAllowed = true;
+        if (isSubmitter) return true;
+      } else if (Bitflags.has(userRoles, allowedRole)) {
+        return true;
       }
-    }
+      return false;
+    });
 
     if (!isChangeAllowed)
       throw new ForbiddenException('Map status change is not allowed');
