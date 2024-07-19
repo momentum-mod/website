@@ -156,7 +156,9 @@ export class MapInfoComponent implements OnInit {
     this.prefix = prefix;
     this.credits = new GroupedMapCredits(
       this.map.credits ?? [],
-      this.map.submission?.placeholders ?? []
+      CombinedMapStatuses.IN_SUBMISSION.includes(this.map.status)
+        ? (this.map.submission?.placeholders ?? [])
+        : []
     );
     this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(map.status);
     // Show Review section first if in review, otherwise leaderboards (and the
