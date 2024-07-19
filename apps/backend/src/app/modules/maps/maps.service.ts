@@ -1362,7 +1362,10 @@ export class MapsService {
   /**
    * Public Testing -> Final Approval
    */
-  private async updateStatusFromPublicToFA(map: MapWithSubmission) {
+  private async updateStatusFromPublicToFA(
+    map: MapWithSubmission,
+    roles: number
+  ) {
     // If it's met the criteria to go to FA once, allowed to skip these checks
     if (
       map.submission.dates.some(
@@ -1383,7 +1386,10 @@ export class MapsService {
       )
       .at(-1)?.date;
 
-    if (!latestPubTestDate) {
+    if (
+      !latestPubTestDate &&
+      !Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)
+    ) {
       throw new InternalServerErrorException(
         'Map is in PUBLIC_TESTING, but has no enteredPublicTesting value'
       );
