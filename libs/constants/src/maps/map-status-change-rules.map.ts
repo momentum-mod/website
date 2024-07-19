@@ -12,10 +12,9 @@ import { MapStatus as S, Role as R } from '../';
  * | Content Approval       |          | S               |                  | RAM            | AM             | AM       |
  * | Public Testing         |          |                 | AM               |                | S              | AM       |
  * | Final Approval         | AM       |                 |                  | S              |                | AM       |
- * | Disabled               | A        | A               | A                | A              | A              |          |
+ * | Disabled               | A†       | A               | A                | A              | A              |          |
  *
- * (no, this data structure is not very performant but this doesn't get used
- * frequently and I don't want to bother with some crazy multi-key Map)
+ * † Admins can only move from disabled to approved if the map has been approved once in the past
  */
 //prettier-ignore
 export const MapStatusChangeRules: ReadonlyArray<{from: S; to: S; roles: Array<R | 'submitter'>}> = [
