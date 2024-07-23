@@ -23,9 +23,11 @@
               @if (user.country && user.country.length === 2) {
                 <span [title]="countryDisplayName" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
               }
-              <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
-                <m-icon class="h-7 w-7 text-gray-50 transition duration-100 ease-out hover:text-blue-500" icon="steam" pack="si" />
-              </a>
+              @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
+                <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
+                  <m-icon class="h-7 w-7 text-gray-50 transition duration-100 ease-out hover:text-blue-500" icon="steam" pack="si" />
+                </a>
+              }
             </h1>
             <div class="flex gap-1">
               @if (!isLocal && localUserService.user | async) {
