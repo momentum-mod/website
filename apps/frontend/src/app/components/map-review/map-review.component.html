@@ -35,7 +35,7 @@
 
   @if (!editing) {
     <div class="flex flex-col">
-      <p class="mb-4 whitespace-pre-wrap">{{ review.mainText }}</p>
+      <p class="mb-4 whitespace-pre-wrap [word-wrap:anywhere]">{{ review.mainText }}</p>
       @if (suggestions?.size > 0) {
         <div class="mb-4 flex shrink flex-wrap gap-x-8 gap-y-3">
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
