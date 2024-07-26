@@ -1,10 +1,10 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { Bitfield, Role, RoleNames } from '@momentum/constants';
+import { Flags, Role, RoleNames } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
 /**
- * List of icons for each role on a Role bitfield in a simple flexbox layout.
+ * List of icons for each role in a simple flexbox layout.
  *
  * Has no nested divs, so CSS properties supplied in the outer template should
  * work well, e.g. `height` and `gap`.
@@ -26,7 +26,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   styles: ':host { display: flex; gap: 0.25rem; }'
 })
 export class RoleBadgesComponent implements OnChanges {
-  @Input({ required: true }) roles!: Bitfield<Role>;
+  @Input({ required: true }) roles!: Flags<Role>;
   @Input() ignored: Role[];
   private readonly available: Role[] = [
     Role.ADMIN,
