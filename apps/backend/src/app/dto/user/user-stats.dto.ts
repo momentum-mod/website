@@ -1,8 +1,8 @@
-﻿import { UserStats } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+﻿import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import { SafeBigIntToNumber } from '../decorators';
+import { UserStats } from '@momentum/constants';
 
 export class UserStatsDto implements UserStats {
   @Exclude()
@@ -11,7 +11,7 @@ export class UserStatsDto implements UserStats {
   @ApiProperty({ type: Number, description: "The user's total cosmetic XP" })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly cosXP: bigint;
+  readonly cosXP: number;
 
   @ApiProperty({ type: Number, description: "The user's level" })
   @IsInt()
@@ -31,7 +31,7 @@ export class UserStatsDto implements UserStats {
   })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly totalJumps: bigint;
+  readonly totalJumps: number;
 
   @ApiProperty({
     type: Number,
@@ -39,5 +39,5 @@ export class UserStatsDto implements UserStats {
   })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly totalStrafes: bigint;
+  readonly totalStrafes: number;
 }

@@ -33,7 +33,8 @@ import {
   TrackType,
   YOUTUBE_ID_REGEXP,
   MAP_NAME_REGEXP,
-  GamemodeInfo
+  GamemodeInfo,
+  DateString
 } from '@momentum/constants';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -340,7 +341,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
               info: {
                 description: this.description.value,
                 youtubeID: this.youtubeID.value || undefined,
-                creationDate: this.creationDate.value
+                creationDate:
+                  this.creationDate.value.toISOString() as DateString
               }
             },
             vmfs: this.vmfs.value

@@ -1,4 +1,4 @@
-﻿import { BaseStats } from '@momentum/constants';
+﻿import { BaseStats, DateString } from '@momentum/constants';
 import { IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -68,8 +68,8 @@ export class BaseStatsDto implements BaseStats {
   readonly velExit2D: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }

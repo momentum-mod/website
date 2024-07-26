@@ -3,6 +3,7 @@ import {
   approvedVmfsPath,
   CreateMap,
   CreateMapWithFiles,
+  DateString,
   MapStatus,
   MapSubmissionType,
   MAX_MAP_NAME_LENGTH,
@@ -168,10 +169,10 @@ export class MapDto implements MMap {
   readonly testInvites?: MapTestInviteDto[];
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class CreateMapDto

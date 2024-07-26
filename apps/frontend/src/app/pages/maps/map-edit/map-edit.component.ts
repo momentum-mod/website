@@ -17,6 +17,7 @@ import {
 import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import {
   CombinedMapStatuses,
+  DateString,
   LeaderboardType,
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
@@ -346,7 +347,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     }
     if (this.creationDate.dirty) {
       body.info ??= {};
-      body.info.creationDate = this.creationDate.value;
+      body.info.creationDate =
+        this.creationDate.value.toISOString() as DateString;
     }
     if (this.youtubeID.dirty) {
       body.info ??= {};

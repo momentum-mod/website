@@ -3,6 +3,7 @@ import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { UserDto } from '../user/user.dto';
 import {
   CreateMapReviewComment,
+  DateString,
   MapReviewComment,
   UpdateMapReviewComment
 } from '@momentum/constants';
@@ -25,10 +26,10 @@ export class MapReviewCommentDto implements MapReviewComment {
   readonly userID: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @CreatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class CreateMapReviewCommentDto

@@ -16,6 +16,7 @@ import {
   AdminUpdateMapReview,
   CreateMapReview,
   CreateMapReviewWithFiles,
+  DateString,
   MapReview,
   mapReviewAssetPath,
   UpdateMapReview
@@ -50,7 +51,7 @@ export class MapReviewDto implements MapReview {
   readonly suggestions: MapReviewSuggestionDto[];
 
   @NestedProperty(MapReviewEditDto, { lazy: true, isArray: true })
-  readonly editHistory?: MapReviewEditDto[];
+  readonly editHistory: MapReviewEditDto[];
 
   @NestedProperty(MapDto, { lazy: true, required: true })
   @Expose()
@@ -92,10 +93,10 @@ export class MapReviewDto implements MapReview {
   readonly resolverID: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class CreateMapReviewDto

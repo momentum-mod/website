@@ -2564,7 +2564,7 @@ describe('Admin', () => {
         expect(userUpdateActivity.newData).toEqual(
           JSON.parse(JSON.stringify(newUser))
         );
-        expect(userUpdateActivity.target).toBe(oldUser.id.toString());
+        expect(userUpdateActivity.target).toBe(oldUser.id);
       });
 
       it('should 403 when the user tries to get admin activities', () =>
