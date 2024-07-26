@@ -1,5 +1,5 @@
 import {
-  Bitfield,
+  Flags,
   MAX_BIO_LENGTH,
   MergeUser,
   Role,
@@ -83,13 +83,13 @@ export class UserDto implements User {
   })
   readonly userStats: UserStatsDto;
 
-  @ApiProperty({ type: Number, description: "Bitfield of user's roles" })
+  @ApiProperty({ type: Number, description: "Flags of user's roles" })
   @IsInt()
-  readonly roles: Bitfield<Role>;
+  readonly roles: Flags<Role>;
 
-  @ApiProperty({ type: Number, description: "Bitfield of user's bans" })
+  @ApiProperty({ type: Number, description: "Flags of user's bans" })
   @IsInt()
-  readonly bans: Bitfield<Ban>;
+  readonly bans: Flags<Ban>;
 
   @CreatedAtProperty()
   readonly createdAt: Date;
@@ -136,7 +136,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  roles?: Bitfield<Role>;
+  roles?: Flags<Role>;
 
   @ApiProperty({
     type: Number,
@@ -145,7 +145,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  bans?: Bitfield<Ban>;
+  bans?: Flags<Ban>;
 }
 
 export class MergeUserDto implements MergeUser {

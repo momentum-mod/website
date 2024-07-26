@@ -11,8 +11,8 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
 
-  roles Int @default(0) @db.SmallInt /// Bitfield of roles.enum.ts
-  bans  Int @default(0) @db.SmallInt /// Bitfield of bans.enum.ts
+  roles Int @default(0) @db.SmallInt /// Flags of roles.enum.ts
+  bans  Int @default(0) @db.SmallInt /// Flags of bans.enum.ts
 
   /// Optional because placeholders don't have SteamIDs
   steamID BigInt? @unique(map: "user_steamID") @db.BigInt
@@ -121,7 +121,7 @@ model Activity {
 }
 
 model Follow {
-  notifyOn Int @default(0) @db.SmallInt /// Bitfield of activity-type.enum.ts
+  notifyOn Int @default(0) @db.SmallInt /// Flags of activity-type.enum.ts
 
   followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
   followedID Int
@@ -153,7 +153,7 @@ model Notification {
 }
 
 model MapNotify {
-  notifyOn Int @db.SmallInt /// Bitfield of activity-type.enum.ts
+  notifyOn Int @db.SmallInt /// Flags of activity-type.enum.ts
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -434,7 +434,7 @@ model LeaderboardRun {
   // we care about size a great deal, though we expect the *majority* of runs
   // to not to have any non-zero flags.
   // If we need to cut back on the size of this table in the future, we could
-  // consider moving this to a bitfield (or adopting pguint for small values).
+  // consider moving this to a Flags (or adopting pguint for small values).
   // But most runs submitted will not to have any flags, so it's probably okay.
   flags Int[] @db.SmallInt
 
