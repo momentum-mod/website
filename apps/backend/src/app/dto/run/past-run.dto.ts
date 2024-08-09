@@ -1,4 +1,10 @@
-import { Gamemode, PastRun, Style, TrackType } from '@momentum/constants';
+import {
+  DateString,
+  Gamemode,
+  PastRun,
+  Style,
+  TrackType
+} from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsNumber, IsPositive } from 'class-validator';
 import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
@@ -76,5 +82,5 @@ export class PastRunDto implements PastRun {
   readonly mmap: MapDto;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }

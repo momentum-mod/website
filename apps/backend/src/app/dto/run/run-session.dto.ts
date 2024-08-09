@@ -1,5 +1,6 @@
 ﻿import {
   CreateRunSession,
+  DateString,
   Gamemode,
   RunSession,
   TrackType,
@@ -50,7 +51,7 @@ export class RunSessionDto implements RunSession {
   readonly userID: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class CreateRunSessionDto

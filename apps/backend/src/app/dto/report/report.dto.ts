@@ -1,4 +1,4 @@
-﻿import { Report } from '@momentum/constants';
+﻿import { DateString, Report } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
@@ -65,10 +65,10 @@ export class ReportDto implements Report {
   readonly resolver: UserDto;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class CreateReportDto extends PickType(ReportDto, [

@@ -21,7 +21,7 @@ import {
   NON_WHITESPACE_REGEXP,
   KillswitchType
 } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { expandToIncludes, isEmpty, undefinedIfEmpty } from '@momentum/util-fn';
 import { SteamService } from '../steam/steam.service';
 import {

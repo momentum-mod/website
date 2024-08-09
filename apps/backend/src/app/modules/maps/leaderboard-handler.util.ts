@@ -6,9 +6,9 @@ import {
   MapZones,
   TrackType
 } from '@momentum/constants';
-import { ZoneUtil } from '@momentum/formats/zone';
 import { Enum } from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
+import { isLinearMainTrack } from '@momentum/formats/zone';
 
 export interface LeaderboardProps
   extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
@@ -42,7 +42,7 @@ export const LeaderboardHandler = {
         Enum.values(Gamemode) // Note: this will include `suggestion`
           .filter(
             (newGamemode) =>
-              !IncompatibleGamemodes.get(gamemode).includes(newGamemode)
+              !IncompatibleGamemodes.get(gamemode).has(newGamemode)
           )
           .map((newGamemode) => ({
             trackType,
@@ -74,21 +74,23 @@ export const LeaderboardHandler = {
     leaderboards: T[],
     zones: MapZones
   ): T[] =>
-    leaderboards
-      .filter(({ trackType }) => trackType === TrackType.MAIN)
-      .flatMap((lb: T) =>
-        arrayFrom(
-          zones.tracks.stages.length,
-          (i) =>
-            ({
-              gamemode: lb.gamemode,
-              // Whether is ranked depends on main Track, doesn't have a tier.
-              type: (lb as T & { type?: LeaderboardType }).type,
-              trackType: TrackType.STAGE,
-              trackNum: i
-            }) as unknown as T
-        )
-      ),
+    zones.tracks.main.zones.segments.length === 1
+      ? []
+      : leaderboards
+          .filter(({ trackType }) => trackType === TrackType.MAIN)
+          .flatMap((lb: T) =>
+            arrayFrom(
+              zones.tracks.main.zones.segments.length,
+              (i) =>
+                ({
+                  gamemode: lb.gamemode,
+                  // Whether is ranked depends on main Track, doesn't have a tier.
+                  type: (lb as T & { type?: LeaderboardType }).type,
+                  trackType: TrackType.STAGE,
+                  trackNum: i
+                }) as unknown as T
+            )
+          ),
 
   isEqual: <T extends LeaderboardProps, U extends LeaderboardProps>(
     x: T,
@@ -108,8 +110,6 @@ export const LeaderboardHandler = {
     leaderboards.map((lb) => ({
       ...lb,
       linear:
-        lb.trackType === TrackType.MAIN
-          ? ZoneUtil.isLinearMainTrack(zones)
-          : undefined
+        lb.trackType === TrackType.MAIN ? isLinearMainTrack(zones) : undefined
     }))
 };

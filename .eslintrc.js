@@ -110,7 +110,7 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': 'off',
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
-          'warn',
+          'error',
           {
             vars: 'all',
             args: 'after-used',
@@ -171,7 +171,9 @@ module.exports = {
         // JS switches look terrible, hurts readability.
         'unicorn/prefer-switch': ['off'],
         // What the hell is wrong with .flat(2)
-        'unicorn/no-magic-array-flat-depth': ['off']
+        'unicorn/no-magic-array-flat-depth': ['off'],
+        // Stupid CJS/ESM complaints, don't care.
+        'unicorn/import-style': ['off']
       }
     },
     {

@@ -18,7 +18,7 @@ export class LeaderboardDto implements Leaderboard {
   @EnumProperty(TrackType, {
     description: 'The trackNum the run took place on'
   })
-  readonly trackType: number;
+  readonly trackType: TrackType;
 
   @ApiProperty({
     type: Number,

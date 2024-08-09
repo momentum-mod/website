@@ -1,4 +1,4 @@
-﻿import { RunSessionTimestamp } from '@momentum/constants';
+﻿import { DateString, RunSessionTimestamp } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumber } from 'class-validator';
 import { CreatedAtProperty, IdProperty } from '../decorators';
@@ -23,5 +23,5 @@ export class RunSessionTimestampDto implements RunSessionTimestamp {
   readonly sessionID: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }

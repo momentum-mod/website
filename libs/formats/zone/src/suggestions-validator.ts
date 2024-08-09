@@ -1,6 +1,6 @@
 import {
   Gamemode,
-  GamemodeName,
+  GamemodeInfo,
   IncompatibleGamemodes,
   LeaderboardType,
   MapReviewSuggestion,
@@ -31,7 +31,7 @@ function leaderboardName(
   trackNum: number,
   gamemode?: Gamemode
 ) {
-  let str = gamemode != null ? `${GamemodeName.get(gamemode)} ` : '';
+  let str = gamemode != null ? `${GamemodeInfo.get(gamemode).name} ` : '';
   str += TTName.get(trackType).toLowerCase();
   str += trackType === TrackType.MAIN ? ' track' : ` ${trackNum + 1}`;
   return str;
@@ -82,12 +82,12 @@ export function validateSuggestions(
         // So this check is quite weak, but not the end of the world as a
         // reviewer can just ignore/reject stupid suggestions.
         if (
-          IncompatibleGamemodes.get(gm).includes(gm2) &&
-          IncompatibleGamemodes.get(gm2).includes(gm)
+          IncompatibleGamemodes.get(gm).has(gm2) &&
+          IncompatibleGamemodes.get(gm2).has(gm)
         ) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
-              `${GamemodeName.get(gm)} and ${GamemodeName.get(gm2)} on ` +
+              `${GamemodeInfo.get(gm).name} and ${GamemodeInfo.get(gm2).name} on ` +
               leaderboardName(tt, tn)
           );
         }

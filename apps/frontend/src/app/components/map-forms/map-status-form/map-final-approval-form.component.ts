@@ -1,6 +1,6 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import {
-  GamemodeName,
+  GamemodeInfo,
   LeaderboardType,
   MapSubmissionApproval,
   TrackType,
@@ -46,7 +46,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     { type: LeaderboardType.HIDDEN, label: 'Hidden' }
   ];
   protected readonly TTName = TrackTypeName;
-  protected readonly GamemodeName = GamemodeName;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly TierChartOptions: ChartOptions;
   protected readonly RatingChartOptions: ChartOptions;
 

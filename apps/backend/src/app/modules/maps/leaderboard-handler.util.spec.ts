@@ -16,7 +16,7 @@ describe('LeaderboardHandler', () => {
       jest
         .spyOn(IncompatibleGamemodes, 'get')
         .mockImplementation((key) =>
-          key === Gamemode.AHOP ? [Gamemode.BHOP] : []
+          key === Gamemode.AHOP ? new Set([Gamemode.BHOP]) : new Set()
         );
 
       const inMain = {
@@ -57,8 +57,8 @@ describe('LeaderboardHandler', () => {
     });
   });
 
-  describe('getStageLeaderboardSuggestions', () => {
-    it('should return stage leaderboard suggestions', () => {
+  describe('getStageLeaderboard', () => {
+    it('should return stage leaderboards', () => {
       expect(
         LeaderboardHandler['getStageLeaderboards'](
           [
@@ -78,6 +78,17 @@ describe('LeaderboardHandler', () => {
         { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 0 },
         { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 1 }
       ]);
+    });
+
+    it('should return an empty array if there is only one stage', () => {
+      const zones = structuredClone(ZonesStub);
+      zones.tracks.main.zones.segments = [zones.tracks.main.zones.segments[0]];
+      expect(
+        LeaderboardHandler['getStageLeaderboards'](
+          [{ gamemode: Gamemode.AHOP, trackType: TrackType.MAIN, trackNum: 0 }],
+          zones
+        )
+      ).toEqual([]);
     });
   });
 });

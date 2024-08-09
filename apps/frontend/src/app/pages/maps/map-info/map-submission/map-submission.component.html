@@ -25,7 +25,7 @@
   <div class="flex flex-wrap gap-x-16 gap-y-4">
     @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
       <div class="grid grid-flow-col grid-rows-[auto_repeat(3,1.375rem)] items-center justify-items-center gap-x-5">
-        <p class="justify-self-start font-bold text-gray-50">{{ GamemodeName.get(gamemode.key) }}</p>
+        <p class="justify-self-start font-bold text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }}</p>
         <p class="justify-self-start text-sm uppercase text-gray-200">Tier</p>
         <p class="justify-self-start text-sm uppercase text-gray-200">Ranked</p>
         <p class="justify-self-start text-sm uppercase text-gray-200">Comment</p>

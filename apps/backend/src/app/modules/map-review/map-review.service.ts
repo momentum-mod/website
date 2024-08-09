@@ -30,7 +30,7 @@ import {
   parallel,
   undefinedIfEmpty
 } from '@momentum/util-fn';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import {
@@ -259,7 +259,13 @@ export class MapReviewService {
         }
       }),
       ...images.map(([id, file]) =>
-        this.fileStoreService.storeFile(file.buffer, mapReviewAssetPath(id))
+        this.fileStoreService.storeFile(
+          file.buffer,
+          mapReviewAssetPath(id),
+          (file.mimetype ?? file.filename.endsWith('png'))
+            ? 'image/png'
+            : 'image/jpeg'
+        )
       )
     );
 

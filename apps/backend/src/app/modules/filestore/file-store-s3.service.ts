@@ -34,12 +34,17 @@ export class FileStoreS3Service extends FileStoreService {
     this.bucket = this.config.getOrThrow('storage.bucketName');
   }
 
-  async storeFile(fileBuffer: Buffer, fileKey: string): Promise<FileStoreFile> {
+  async storeFile(
+    fileBuffer: Buffer,
+    fileKey: string,
+    contentType?: string
+  ): Promise<FileStoreFile> {
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: fileKey,
-        Body: fileBuffer
+        Body: fileBuffer,
+        ContentType: contentType
       })
     );
 

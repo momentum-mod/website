@@ -40,7 +40,7 @@
         <div class="mb-4 flex shrink flex-wrap gap-x-8 gap-y-3">
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
             <div class="grid grid-flow-col grid-rows-[repeat(3,1.25rem)] items-center gap-x-4">
-              <p class="font-bold text-gray-50">{{ GamemodeName.get(gamemode.key) }}</p>
+              <p class="font-bold text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }}</p>
               <p class="all-small-caps text-gray-200">Tier</p>
               <p class="all-small-caps text-gray-200">Rating</p>
               @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {

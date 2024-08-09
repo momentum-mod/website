@@ -20,12 +20,10 @@ import {
   MIN_PUBLIC_TESTING_DURATION,
   Role,
   TrackType,
-  MapZones,
   LeaderboardType,
   FlatMapList
 } from '@momentum/constants';
 import {
-  AuthUtil,
   createSha1Hash,
   DbUtil,
   FILES_PATH,
@@ -38,9 +36,9 @@ import { PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
 import {
+  generateRandomMapZones,
   ZonesStub,
-  ZonesStubLeaderboards,
-  ZoneUtil
+  ZonesStubLeaderboards
 } from '@momentum/formats/zone';
 import { arrayFrom } from '@momentum/util-fn';
 import {
@@ -53,8 +51,7 @@ describe('Maps', () => {
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    fileStore: FileStoreUtil,
-    auth: AuthUtil;
+    fileStore: FileStoreUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -63,7 +60,6 @@ describe('Maps', () => {
     req = env.req;
     db = env.db;
     fileStore = env.fileStore;
-    auth = env.auth;
   });
 
   async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
@@ -709,7 +705,6 @@ describe('Maps', () => {
         bspHash,
         vmfBuffer,
         vmfHash,
-        admin,
         adminToken;
 
       const zones = structuredClone(ZonesStub);
@@ -717,7 +712,7 @@ describe('Maps', () => {
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
-        [admin, adminToken] = await db.createAndLoginUser({
+        adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -776,15 +771,9 @@ describe('Maps', () => {
       });
 
       describe('should submit a map', () => {
-        let res, createdMap, oldListVersion;
+        let res, createdMap;
 
         beforeAll(async () => {
-          oldListVersion = await req.get({
-            url: 'maps/maplistversion',
-            status: 200,
-            token: token
-          });
-
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
           res = await req.postAttach({
@@ -1321,7 +1310,7 @@ describe('Maps', () => {
         it('should 400 if the map has invalid zones', async () => {
           const zones = structuredClone(ZonesStub);
           // Silly values that pass class-validator but get caught by zone-validator.ts
-          zones.volumes.push({
+          zones.tracks.main.zones.segments[0].checkpoints.push({
             regions: [
               {
                 points: [
@@ -1330,9 +1319,9 @@ describe('Maps', () => {
                   [4, 4]
                 ],
                 height: 4444,
-                teleportPos: [-4, -4, -4],
-                bottom: 100000000000,
-                teleportYaw: 4
+                teleDestPos: [-4, -4, -4],
+                teleDestYaw: 4,
+                bottom: 100000000000
               }
             ]
           });
@@ -1438,10 +1427,10 @@ describe('Maps', () => {
             data: {
               ...createMapObject,
               // 10,000 zones :D
-              zones: ZoneUtil.generateRandomMapZones(
+              zones: generateRandomMapZones(
                 100,
                 arrayFrom(100, () => 100),
-                0,
+                [0],
                 1024 ** 2,
                 1024,
                 1024
@@ -1734,15 +1723,7 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1,
-        u1Token,
-        u2Token,
-        map,
-        bspBuffer,
-        bspHash,
-        vmfBuffer,
-        vmfHash,
-        leaderboards;
+      let u1, u1Token, u2Token, map, bspBuffer, bspHash, vmfBuffer, vmfHash;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
@@ -1933,55 +1914,17 @@ describe('Maps', () => {
 
         const newZones = structuredClone(ZonesStub);
 
-        // Delete bonus volumes
-        newZones.volumes.pop();
-        newZones.volumes.pop();
-
-        // New S3 end
-        newZones.volumes.push({
-          regions: [
-            {
-              bottom: 0,
-              height: 512,
-              points: [
-                [5120, 0],
-                [5120, 256],
-                [5632, 512],
-                [5632, 0]
-              ]
-            }
-          ]
-        });
-
-        // S2 end is now also a start zone so needs this:
-        Object.assign(newZones.volumes[4].regions[0], {
-          teleportYaw: 0,
-          teleportPos: [4352, 256, 0]
-        });
-
-        // Major CP for main track
+        // Add 3rd major CP
         newZones.tracks.main.zones.segments.push({
+          cancel: [],
+          checkpointsRequired: true,
+          checkpointsOrdered: true,
           limitStartGroundSpeed: true,
-          checkpoints: [{ volumeIndex: 4 }]
-        });
-
-        // Main track end is now end of S3
-        newZones.tracks.main.zones.end.volumeIndex = 5;
-
-        // Stage 2's end zone becomes S3 start, not the old end zone
-        newZones.tracks.stages[1].zones.end.volumeIndex = 4;
-        newZones.tracks.stages.push({
-          name: 'Stage 3',
-          minorRequired: true,
-          zones: {
-            segments: [
-              {
-                limitStartGroundSpeed: true,
-                checkpoints: [{ volumeIndex: 4 }]
-              }
-            ],
-            end: { volumeIndex: 5 }
-          }
+          checkpoints: [
+            structuredClone(
+              newZones.tracks.main.zones.segments[0].checkpoints[0]
+            )
+          ]
         });
 
         // Nuke the bonus
@@ -1999,7 +1942,7 @@ describe('Maps', () => {
         });
 
         // prettier-ignore
-        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3]
+        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG]
           .flatMap((gamemode) => [
             { gamemode, trackType: TrackType.MAIN,  trackNum: 0, linear: false },
             { gamemode, trackType: TrackType.STAGE, trackNum: 0, linear: null },
@@ -2034,7 +1977,7 @@ describe('Maps', () => {
       });
 
       it('should 503 if killswitch guard is active for maps/{mapID}', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -2097,6 +2040,7 @@ describe('Maps', () => {
           where: { id: map.id },
           data: { status: MapStatus.PUBLIC_TESTING }
         });
+
         const oldListVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
@@ -2136,31 +2080,19 @@ describe('Maps', () => {
       it('should 400 for bad zones', async () => {
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
+        const zones = structuredClone(ZonesStub);
+        zones.tracks.main.zones.segments[0].checkpoints[0].regions[0].points = [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+          [1, 1]
+        ];
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
           data: {
             changelog: 'done fucked it',
-            zones: {
-              ...ZonesStub,
-              volumes: [
-                ...ZonesStub.volumes,
-                {
-                  regions: [
-                    {
-                      bottom: 0,
-                      height: 100,
-                      points: [
-                        [-100000000, 0],
-                        [-100000000, 0],
-                        [1283764512678, 0.000000001],
-                        [5652345234537, 2]
-                      ]
-                    }
-                  ]
-                }
-              ]
-            } as MapZones
+            zones
           },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
@@ -2485,13 +2417,13 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, mod, modToken, createMapData;
+      let user, token, u2Token, adminToken, mod, modToken, createMapData;
 
       beforeAll(async () => {
-        [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
+        [[user, token], u2Token, adminToken, [mod, modToken]] =
           await Promise.all([
             db.createAndLoginUser(),
-            db.createAndLoginUser(),
+            db.loginNewUser(),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
             db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
           ]);

@@ -1,6 +1,6 @@
 import { Component, DestroyRef, Input, OnChanges } from '@angular/core';
 import {
-  GamemodeIcon,
+  GamemodeInfo,
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
@@ -58,7 +58,7 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly TrackType = TrackType;
-  protected readonly GamemodeIcon = GamemodeIcon;
+  protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly floor = Math.floor;
   protected readonly LeaderboardFilterTypeDropdown = [
     { label: 'Top 10', type: LeaderboardFilterType.TOP10 },

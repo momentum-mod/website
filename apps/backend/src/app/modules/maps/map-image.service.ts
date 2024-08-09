@@ -26,7 +26,7 @@ import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityService } from '../admin/admin-activity.service';
 
 @Injectable()
@@ -179,7 +179,7 @@ export class MapImageService {
   ): Promise<FileStoreFile> {
     const jpeg = await this.jpegEncodeImageFile(buffer, width, height);
     try {
-      return this.fileStoreService.storeFile(jpeg, fileName);
+      return this.fileStoreService.storeFile(jpeg, fileName, 'image/jpeg');
     } catch {
       // This looks bad, but sharp is very non-specific about its errors
       throw new InternalServerErrorException('Failed to store image file');

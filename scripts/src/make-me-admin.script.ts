@@ -1,0 +1,20 @@
+import { PrismaClient } from '@prisma/client';
+import { Role } from '@momentum/constants';
+import { prismaWrapper } from './prisma-wrapper.util';
+
+prismaWrapper(async (prisma: PrismaClient) => {
+  const users = await prisma.user.findMany();
+  // seed.ts adds users with random SteamIDs below 100000000000, real Steam
+  // users seem always been more than that.
+  const realUsers = users.filter((user) => user.steamID > 100000000000);
+  if (!realUsers || realUsers.length === 0)
+    throw 'Could not find a genuine Steam user. Have you signed in before?';
+
+  for (const user of realUsers) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { roles: Role.ADMIN }
+    });
+    console.log(`Made ${user.alias} (${user.steamID}) an admin!`);
+  }
+});

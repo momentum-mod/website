@@ -1,11 +1,12 @@
 import {
-  Bitfield,
+  Flags,
   MAX_BIO_LENGTH,
   MergeUser,
   Role,
   STEAM_MISSING_AVATAR,
   User,
-  NON_WHITESPACE_REGEXP
+  NON_WHITESPACE_REGEXP,
+  DateString
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
@@ -18,7 +19,7 @@ import {
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { Ban } from '@momentum/constants';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { IsSteamCommunityID } from '../../validators';
 import { ProfileDto } from './profile.dto';
@@ -37,7 +38,7 @@ export class UserDto implements User {
   })
   @IsOptional() // Placeholder don't have SteamIDs
   @IsSteamCommunityID()
-  readonly steamID: bigint;
+  readonly steamID: string;
 
   @ApiProperty({
     type: String,
@@ -56,7 +57,7 @@ export class UserDto implements User {
   })
   @IsOptional()
   @IsISO31661Alpha2()
-  readonly country: string;
+  readonly country: string | null;
 
   @Exclude({ toPlainOnly: true })
   readonly avatar: string;
@@ -83,16 +84,16 @@ export class UserDto implements User {
   })
   readonly userStats: UserStatsDto;
 
-  @ApiProperty({ type: Number, description: "Bitfield of user's roles" })
+  @ApiProperty({ type: Number, description: "Flags of user's roles" })
   @IsInt()
-  readonly roles: Bitfield;
+  readonly roles: Flags<Role>;
 
-  @ApiProperty({ type: Number, description: "Bitfield of user's bans" })
+  @ApiProperty({ type: Number, description: "Flags of user's bans" })
   @IsInt()
-  readonly bans: Bitfield;
+  readonly bans: Flags<Ban>;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}
@@ -136,7 +137,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  roles?: Bitfield<Role>;
+  roles?: Flags<Role>;
 
   @ApiProperty({
     type: Number,
@@ -145,7 +146,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  bans?: Bitfield<Ban>;
+  bans?: Flags<Ban>;
 }
 
 export class MergeUserDto implements MergeUser {

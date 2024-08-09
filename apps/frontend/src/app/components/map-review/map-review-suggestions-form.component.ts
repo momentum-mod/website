@@ -2,7 +2,7 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   Gamemode,
-  GamemodeName,
+  GamemodeInfo,
   IncompatibleGamemodes,
   MapReviewSuggestion,
   MMap,
@@ -51,12 +51,12 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       .filter(
         (gamemode: Gamemode) =>
           !this._map.submission.suggestions.some((sugg) =>
-            IncompatibleGamemodes.get(sugg.gamemode).includes(gamemode)
+            IncompatibleGamemodes.get(sugg.gamemode).has(gamemode)
           )
       )
       .map((gamemode: Gamemode) => ({
         gamemode,
-        label: GamemodeName.get(gamemode)
+        label: GamemodeInfo.get(gamemode).name
       }));
     this.availableBonusTracks =
       (

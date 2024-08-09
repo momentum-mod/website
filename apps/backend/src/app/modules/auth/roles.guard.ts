@@ -6,7 +6,7 @@ import {
   Inject
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { ROLES_KEY } from '../../decorators';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';

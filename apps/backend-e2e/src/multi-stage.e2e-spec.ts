@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import {
+  DateString,
   Gamemode,
   LeaderboardType,
   MapCreditType,
@@ -200,7 +201,7 @@ describe('Multi-stage E2E tests', () => {
     const dates = tmpMap.dates as MapSubmissionDate[];
     dates.find((x) => x.status === MapStatus.PUBLIC_TESTING).date = new Date(
       Date.now() - MIN_PUBLIC_TESTING_DURATION
-    ).toJSON();
+    ).toISOString();
     await prisma.mapSubmission.update({ where: { mapID }, data: { dates } });
 
     await req.patch({

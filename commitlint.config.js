@@ -34,6 +34,7 @@ module.exports = {
         'db',
         'xpsys',
         'utils',
+        'scripts',
         'tools',
         'eslint',
         'formats',

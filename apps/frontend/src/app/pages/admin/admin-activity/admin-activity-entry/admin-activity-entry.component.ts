@@ -10,7 +10,7 @@ import {
 } from '@momentum/constants';
 import { RouterLink } from '@angular/router';
 import { NgStyle } from '@angular/common';
-import { Bitflags } from '@momentum/bitflags';
+import * as Bitflags from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
 
 @Component({

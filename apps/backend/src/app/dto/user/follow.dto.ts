@@ -1,21 +1,26 @@
-import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/constants';
+import {
+  DateString,
+  Flags,
+  Follow,
+  FollowStatus,
+  UpdateFollowStatus
+} from '@momentum/constants';
 import { PickType } from '@nestjs/swagger';
 import { ActivityType } from '@momentum/constants';
 import {
   CreatedAtProperty,
   EnumProperty,
   IdProperty,
-  NestedProperty,
-  UpdatedAtProperty
+  NestedProperty
 } from '../decorators';
 import { UserDto } from './user.dto';
 
 export class FollowDto implements Follow {
   @EnumProperty(ActivityType, {
     description:
-      'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
+      'The flags for the activities that the followee will be notified of when they are performed by the user they follow'
   })
-  readonly notifyOn: ActivityType;
+  readonly notifyOn: Flags<ActivityType>;
 
   @IdProperty({ description: 'ID of the user being followed' })
   readonly followedID: number;
@@ -32,10 +37,7 @@ export class FollowDto implements Follow {
   readonly followee: UserDto;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class FollowStatusDto implements FollowStatus {

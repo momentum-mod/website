@@ -890,7 +890,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 503 if killswitch guard is active for maps/{mapID}/images PUT', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 
@@ -1926,7 +1926,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 503 if killswitch guard is active for maps', async () => {
-        const [admin, adminToken] = await db.createAndLoginUser({
+        const adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
 

@@ -60,8 +60,8 @@ export class RunSessionService {
       trackType: body.trackType
     };
 
-    if (body.trackType !== TrackType.MAIN && body.segment !== 0)
-      throw new BadRequestException('Stage/bonus must be on segment 0');
+    // if (body.trackType !== TrackType.MAIN && body.segment !== 0)
+    //   throw new BadRequestException('Stage/bonus must be on segment 0');
 
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
       throw new BadRequestException('Leaderboard does not exist');
@@ -210,7 +210,7 @@ export class RunSessionService {
     let processedRun: ProcessedRun;
     try {
       // First, check the timestamps are in order
-      processor.validateRunSession();
+      processor.validateTimestamps();
 
       // Parse the header of the replay file and validate against run data
       processor.processReplayFileHeader();
