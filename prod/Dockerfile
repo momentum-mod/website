@@ -10,11 +10,11 @@ COPY ../libs/db/src/prisma/ ./prisma/
 
 RUN chown -R backend:backend .
 
+USER backend
 RUN npm --omit=dev --ignore-scripts install
 RUN node_modules/.bin/prisma generate --schema ./prisma/schema.prisma
 
 RUN rm package.json package-lock.json
-COPY ./prod/package.json .
+COPY --chown=backend ./prod/package.json .
 
-USER backend
 CMD [ "npm", "run", "start" ]
