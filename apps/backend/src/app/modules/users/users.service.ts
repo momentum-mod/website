@@ -52,7 +52,6 @@ import { KillswitchService } from '../killswitch/killswitch.service';
 export class UsersService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    @Inject(KillswitchService)
     private readonly killswitchService: KillswitchService,
     private readonly steamService: SteamService,
     private readonly config: ConfigService,
