@@ -130,7 +130,6 @@ model Follow {
   followeeID Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@id([followeeID, followedID])
 }
