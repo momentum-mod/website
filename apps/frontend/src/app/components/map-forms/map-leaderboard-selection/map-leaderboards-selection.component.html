@@ -7,7 +7,7 @@
   Add Leaderboard
 </button>
 <table
-  class="grid w-full border-collapse gap-1 [grid-template-columns:minmax(12rem,1fr)_minmax(10rem,1fr)_10rem_auto_auto_minmax(12rem,4fr)_auto]"
+  class="grid w-full border-collapse gap-1 [grid-template-columns:minmax(12rem,1fr)_minmax(10rem,1fr)_10rem_auto_minmax(1rem,auto)_minmax(12rem,4fr)_auto]"
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled
   }"
@@ -18,8 +18,8 @@
       <th class="text-center">Type</th>
       <th class="text-center">Track</th>
       <th class="text-center">Tier</th>
-      <!-- Making this not look ugly with budging it like this a nightmare -->
-      <th><span class="absolute -translate-x-5">Ranked</span></th>
+      <!-- Header text makes the column wider than the checkbox which looks crap, use an evil absolute to get it looking acceptable-->
+      <th class="relative"><span class="absolute left-0">Ranked</span></th>
       <th class="text-center">Comments</th>
       <th class="text-center"></th>
     </tr>
