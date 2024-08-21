@@ -1,7 +1,26 @@
 ﻿import { ActivitiesGetQuery } from './activity-queries.model';
 import { PagedQuery } from './pagination.model';
+import { Role, Ban, Flags, User, Socials, Follow } from '../../';
 
-export type UsersGetExpand = ('profile' | 'userStats')[];
+export type CreateUser = Pick<User, 'alias'>;
+
+export interface UpdateUser {
+  alias?: string;
+  bio?: string;
+  socials?: Socials;
+}
+
+export interface AdminUpdateUser extends UpdateUser {
+  roles?: Flags<Role>;
+  bans?: Flags<Ban>;
+}
+
+export interface MergeUser {
+  placeholderID: number;
+  userID: number;
+}
+
+export type UsersGetExpand = Array<'profile' | 'userStats'>;
 
 export type UsersGetQuery = {
   expand?: UsersGetExpand;
@@ -21,7 +40,9 @@ export type UsersGetAllQuery = PagedQuery & {
 
 export type UsersGetActivitiesQuery = Omit<ActivitiesGetQuery, 'userID'>;
 
-export type UsersGetCreditsExpand = ('map' | 'info')[];
+export type UpdateFollowStatus = Pick<Follow, 'notifyOn'>;
+
+export type UsersGetCreditsExpand = Array<'map' | 'info'>;
 
 export type UsersGetCreditsQuery = PagedQuery & {
   expand?: UsersGetCreditsExpand;
@@ -29,12 +50,9 @@ export type UsersGetCreditsQuery = PagedQuery & {
 
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
-export type UserMapFavoritesGetExpand = (
-  | 'info'
-  | 'credits'
-  | 'submitter'
-  | 'personalBest'
-)[];
+export type UserMapFavoritesGetExpand = Array<
+  'info' | 'credits' | 'submitter' | 'personalBest'
+>;
 
 export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapFavoritesGetExpand;

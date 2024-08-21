@@ -1,5 +1,5 @@
 // Very permissive regex for whenever exact criteria not avoilable online
-import { Socials } from '../types/models';
+import { Socials } from '../';
 
 const defaultRegex = /^[\w-]{3,40}$/;
 
