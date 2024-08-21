@@ -21,7 +21,7 @@ describe('RunProcessor', () => {
     mapZones = zones,
     timestamps = [] as Array<Partial<RunSessionTimestamp>>,
     trackType = TrackType.MAIN,
-    trackNum = 0,
+    trackNum = 1,
     mapHash = '0'.repeat(40),
     mapName = 'GREGG_WALLACES_WORLD_OF_FUN',
     startTime = Date.now() - 100000
@@ -77,10 +77,19 @@ describe('RunProcessor', () => {
         expectFail({});
       });
 
-      it('should throw if trackNum is not 0', () => {
-        // TODO: should be 1
+      it('should throw if trackNum is not 1', () => {
         expectFail({
-          trackNum: 1,
+          trackNum: 2,
+          timestamps: [
+            { time: 100, segment: 0, checkpoint: 0 },
+            { time: 200, segment: 0, checkpoint: 1 },
+            { time: 300, segment: 1, checkpoint: 0 },
+            { time: 400, segment: 1, checkpoint: 1 }
+          ]
+        });
+
+        expectFail({
+          trackNum: 0,
           timestamps: [
             { time: 100, segment: 0, checkpoint: 0 },
             { time: 200, segment: 0, checkpoint: 1 },
@@ -361,7 +370,7 @@ describe('RunProcessor', () => {
       it('should not throw for valid timestamps', () => {
         expectPass({
           trackType: TrackType.BONUS,
-          trackNum: 0,
+          trackNum: 1,
           timestamps: [
             { time: 100, segment: 0, checkpoint: 0 },
             { time: 200, segment: 0, checkpoint: 1 },
@@ -373,7 +382,7 @@ describe('RunProcessor', () => {
       it('should throw if trackNum does not match timestamp segment', () => {
         expectFail({
           trackType: TrackType.BONUS,
-          trackNum: 1,
+          trackNum: 2,
           timestamps: [
             { time: 100, segment: 0, checkpoint: 0 },
             { time: 200, segment: 0, checkpoint: 1 },

@@ -87,7 +87,7 @@ export const LeaderboardHandler = {
                   // Whether is ranked depends on main Track, doesn't have a tier.
                   type: (lb as T & { type?: LeaderboardType }).type,
                   trackType: TrackType.STAGE,
-                  trackNum: i
+                  trackNum: i + 1
                 }) as unknown as T
             )
           ),

@@ -28,7 +28,7 @@ describe('validateSuggestions', () => {
   const validSubmissionSuggestions: MapSubmissionSuggestion[] = [
     {
       trackType: TT.MAIN,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       comment: 'This track came to me in a dream',
@@ -36,7 +36,7 @@ describe('validateSuggestions', () => {
     },
     {
       trackType: TT.BONUS,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       comment: 'This track sucks',
@@ -47,14 +47,14 @@ describe('validateSuggestions', () => {
   const validApprovals: MapSubmissionApproval[] = [
     {
       trackType: TT.MAIN,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       type: LeaderboardType.UNRANKED
     },
     {
       trackType: TT.BONUS,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       type: LeaderboardType.RANKED
@@ -64,14 +64,14 @@ describe('validateSuggestions', () => {
   const validReviewSuggestions: MapReviewSuggestion[] = [
     {
       trackType: TT.MAIN,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       gameplayRating: 1
     },
     {
       trackType: TT.BONUS,
-      trackNum: 0,
+      trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
       gameplayRating: 10
@@ -123,7 +123,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.BONUS,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.BHOP,
             tier: 1,
             comment: 'This track doesnt exist',
@@ -141,7 +141,7 @@ describe('validateSuggestions', () => {
           ...validApprovals,
           {
             trackType: TT.BONUS,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.BHOP,
             tier: 1,
             type: LeaderboardType.RANKED
@@ -158,7 +158,7 @@ describe('validateSuggestions', () => {
           ...validReviewSuggestions,
           {
             trackType: TT.BONUS,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.BHOP,
             gameplayRating: 5
           }
@@ -207,7 +207,7 @@ describe('validateSuggestions', () => {
         [
           {
             trackType: TT.BONUS,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             comment: 'someComment',
@@ -224,7 +224,7 @@ describe('validateSuggestions', () => {
         [
           {
             trackType: TT.BONUS,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             type: LeaderboardType.RANKED
@@ -240,7 +240,7 @@ describe('validateSuggestions', () => {
         [
           {
             trackType: TT.BONUS,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             gameplayRating: 1
@@ -259,7 +259,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.AHOP,
             tier: 2,
             comment: 'someComment',
@@ -269,7 +269,7 @@ describe('validateSuggestions', () => {
         zones,
         SuggestionType.SUBMISSION
       )
-    ).toThrow('Multiple main tracks');
+    ).toThrow('Only one main track allowed, must be track 1');
 
     expect(() =>
       validateSuggestions(
@@ -277,7 +277,7 @@ describe('validateSuggestions', () => {
           ...validApprovals,
           {
             trackType: TT.MAIN,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.AHOP,
             tier: 2,
             type: LeaderboardType.RANKED
@@ -286,7 +286,7 @@ describe('validateSuggestions', () => {
         zones,
         SuggestionType.APPROVAL
       )
-    ).toThrow('Multiple main tracks');
+    ).toThrow('Only one main track allowed, must be track 1');
 
     expect(() =>
       validateSuggestions(
@@ -294,7 +294,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 1,
+            trackNum: 2,
             gamemode: Gamemode.AHOP,
             tier: 2
           }
@@ -302,7 +302,7 @@ describe('validateSuggestions', () => {
         zones,
         SuggestionType.REVIEW
       )
-    ).toThrow('Multiple main tracks');
+    ).toThrow('Only one main track allowed, must be track 1');
   });
 
   it('should throw error for stages in suggestions', () => {
@@ -312,7 +312,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.STAGE,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             comment: 'someComment',
@@ -330,7 +330,7 @@ describe('validateSuggestions', () => {
           ...validApprovals,
           {
             trackType: TT.STAGE,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             type: LeaderboardType.RANKED
@@ -347,7 +347,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.STAGE,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.AHOP,
             tier: 1,
             gameplayRating: 6
@@ -366,7 +366,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             // validSuggestions has ahop, we mocked IncompatibleGamemodes.get to be incomp with bhop
             gamemode: Gamemode.BHOP,
             tier: 1,
@@ -385,7 +385,7 @@ describe('validateSuggestions', () => {
           ...validApprovals,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.BHOP,
             tier: 1,
             type: LeaderboardType.RANKED
@@ -402,7 +402,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.BHOP,
             tier: 1,
             gameplayRating: 4
@@ -421,7 +421,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.SURF,
             tier: 1,
             comment: 'someComment',
@@ -439,7 +439,7 @@ describe('validateSuggestions', () => {
           ...validApprovals,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.SURF,
             tier: 1,
             type: LeaderboardType.RANKED
@@ -456,7 +456,7 @@ describe('validateSuggestions', () => {
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             gamemode: Gamemode.SURF,
             tier: 1,
             gameplayRating: 7
@@ -522,7 +522,7 @@ describe('validateSuggestions', () => {
           {
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             tier: 1,
             type: LeaderboardType.HIDDEN
           }
@@ -540,5 +540,20 @@ describe('validateSuggestions', () => {
     expect(() =>
       validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
     ).toThrow('Missing non-hidden leaderboards for main track');
+  });
+
+  it('should throw for trackNum of 0', () => {
+    const suggs = structuredClone(validApprovals);
+
+    suggs[0].trackNum = 0;
+    expect(() =>
+      validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
+    ).toThrow('Only one main track allowed, must be track 1');
+
+    suggs[0].trackNum = 1;
+    suggs.push({ ...suggs[1], trackNum: 0 });
+    expect(() =>
+      validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
+    ).toThrow('Suggestion refers to bonus track (0) that does not exist');
   });
 });

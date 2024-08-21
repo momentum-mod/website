@@ -10,7 +10,7 @@
                   <span class="text-xl font-medium">
                     {{ TTName.get(leaderboard.trackType) }}
                     @if (leaderboard.trackType !== TrackType.MAIN) {
-                      {{ leaderboard.trackNum + 1 }}
+                      {{ leaderboard.trackNum }}
                     }
                   </span>
                   <span class="ml-2 text-sm italic">{{ leaderboard.totalRuns | plural: 'player' }} submitted runs</span>

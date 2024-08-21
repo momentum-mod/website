@@ -37,7 +37,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected disabled = false;
 
   protected availableGamemodes: Array<{ gamemode: Gamemode; label: string }>;
-  protected availableBonusTracks: Array<{ trackNum: number; label: string }> =
+  protected availableBonusTracks: Array<{ trackNum: number; label: number }> =
     [];
   protected defaultMode: Gamemode;
   private _map: MMap;
@@ -62,8 +62,8 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       (
         map?.zones ?? map?.submission?.currentVersion?.zones
       )?.tracks?.bonuses?.map((_, i) => ({
-        trackNum: i,
-        label: (i + 1).toString()
+        trackNum: i + 1,
+        label: i + 1
       })) ?? [];
 
     // Use leaderboards as this has sorting stuff for trying to determine
@@ -81,7 +81,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       ({ trackType }) => trackType === TrackType.MAIN
     );
 
-    let trackNum = 0;
+    let trackNum = 1;
     let trackType: TrackType;
     if (!hasMainTrack) {
       trackType = TrackType.MAIN;
@@ -94,12 +94,8 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
           .map(({ trackNum }) => trackNum)
       );
 
-      for (let i = 0; bonusNums.size < 0; i++) {
-        if (!bonusNums.has(i)) {
-          trackNum = i;
-          break;
-        }
-      }
+      trackNum = 1;
+      while (bonusNums.has(trackNum)) trackNum++;
     }
 
     this.value.push({

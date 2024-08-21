@@ -452,15 +452,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
         [
           {
             trackType: TrackType.MAIN,
-            trackNum: 0
+            trackNum: 1
           },
           ...arrayFrom(zones.tracks.main.zones.segments.length, (i) => ({
             trackType: TrackType.STAGE,
-            trackNum: i /* + 1 */
+            trackNum: i + 1
           })),
           ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
             trackType: TrackType.BONUS,
-            trackNum: i
+            trackNum: i + 1
           }))
         ].map(({ trackType, trackNum }) => {
           const leaderboard = {

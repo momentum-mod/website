@@ -52,7 +52,7 @@ export function groupMapLeaderboards(
       // Bonuses
       if (!entry.bonuses) entry.bonuses = [];
       entry.bonuses.push({
-        num: lb.trackNum + 1, // trackNums start at 0
+        num: lb.trackNum,
         tier: lb.tier,
         type: lb.type
       });

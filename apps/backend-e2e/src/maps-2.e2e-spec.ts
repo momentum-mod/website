@@ -1611,7 +1611,7 @@ describe('Maps Part 2', () => {
           user,
           rank: 1,
           trackType: TrackType.MAIN,
-          trackNum: 0,
+          trackNum: 1,
           style: 0,
           gamemode: Gamemode.AHOP
         });
@@ -1631,7 +1631,7 @@ describe('Maps Part 2', () => {
           leaderboard: { trackType, trackNum },
           totalRuns
         } of res.body) {
-          if (trackType === TrackType.MAIN && trackNum === 0) {
+          if (trackType === TrackType.MAIN && trackNum === 1) {
             expect(totalRuns).toBe(1);
           } else {
             expect(totalRuns).toBe(0);
@@ -1662,7 +1662,7 @@ describe('Maps Part 2', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.SURF,
                 tier: 2,
                 comment: 'What',
@@ -1683,7 +1683,7 @@ describe('Maps Part 2', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.SURF,
                 tier: 9,
                 comment: 'The second ramp gave me cholera',
@@ -1910,7 +1910,7 @@ describe('Maps Part 2', () => {
               {
                 gamemode: Gamemode.AHOP,
                 trackType: 0,
-                trackNum: 0,
+                trackNum: 1,
                 tier: 1,
                 gameplayRating: 1
               }
@@ -1955,7 +1955,7 @@ describe('Maps Part 2', () => {
               {
                 gamemode: Gamemode.AHOP,
                 trackType: 0,
-                trackNum: 0,
+                trackNum: 1,
                 tier: 1,
                 gameplayRating: 1
               }
@@ -1977,7 +1977,7 @@ describe('Maps Part 2', () => {
               {
                 gamemode: Gamemode.AHOP,
                 trackType: 0,
-                trackNum: 0,
+                trackNum: 1,
                 tier: 1,
                 gameplayRating: 1
               }

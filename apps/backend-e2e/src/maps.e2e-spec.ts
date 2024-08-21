@@ -231,7 +231,7 @@ describe('Maps', () => {
             create: {
               gamemode,
               trackType: TrackType.MAIN,
-              trackNum: 0,
+              trackNum: 1,
               style: 0,
               type: LeaderboardType.RANKED
             }
@@ -247,14 +247,14 @@ describe('Maps', () => {
                 {
                   gamemode,
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   style: 0,
                   type: LeaderboardType.HIDDEN
                 },
                 {
                   gamemode: Gamemode.RJ,
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   style: 0,
                   type: LeaderboardType.RANKED
                 }
@@ -590,7 +590,7 @@ describe('Maps', () => {
             gamemode: Gamemode.RJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
           }
@@ -602,7 +602,7 @@ describe('Maps', () => {
             gamemode: Gamemode.SJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
           }
@@ -640,7 +640,7 @@ describe('Maps', () => {
             gamemode: Gamemode.RJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
           }
@@ -652,7 +652,7 @@ describe('Maps', () => {
             gamemode: Gamemode.SJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
           }
@@ -735,7 +735,7 @@ describe('Maps', () => {
           suggestions: [
             {
               trackType: TrackType.MAIN,
-              trackNum: 0,
+              trackNum: 1,
               gamemode: Gamemode.RJ,
               tier: 1,
               type: LeaderboardType.RANKED,
@@ -743,7 +743,7 @@ describe('Maps', () => {
             },
             {
               trackType: TrackType.BONUS,
-              trackNum: 0,
+              trackNum: 1,
               gamemode: Gamemode.DEFRAG_CPM,
               tier: 2,
               type: LeaderboardType.RANKED,
@@ -828,7 +828,7 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.RJ,
                   tier: 1,
                   type: LeaderboardType.RANKED,
@@ -836,7 +836,7 @@ describe('Maps', () => {
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 2,
                   type: LeaderboardType.RANKED,
@@ -1377,12 +1377,12 @@ describe('Maps', () => {
           suggs.push(
             {
               gamemode: Gamemode.SURF,
-              trackNum: 0,
+              trackNum: 1,
               trackType: TrackType.MAIN
             },
             {
               gamemode: Gamemode.BHOP,
-              trackNum: 0,
+              trackNum: 1,
               trackType: TrackType.MAIN
             }
           );
@@ -1464,7 +1464,7 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.SURF,
                   tier: 1,
                   type: LeaderboardType.RANKED,
@@ -1756,7 +1756,7 @@ describe('Maps', () => {
                 suggestions: [
                   {
                     trackType: TrackType.MAIN,
-                    trackNum: 0,
+                    trackNum: 1,
                     gamemode: Gamemode.RJ,
                     tier: 10,
                     type: LeaderboardType.RANKED
@@ -1883,7 +1883,7 @@ describe('Maps', () => {
           rank: 1,
           gamemode: Gamemode.RJ,
           trackType: TrackType.MAIN,
-          trackNum: 0
+          trackNum: 1
         });
 
         await db.createLbRun({
@@ -1892,7 +1892,7 @@ describe('Maps', () => {
           rank: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.BONUS,
-          trackNum: 0
+          trackNum: 1
         });
 
         expect(
@@ -1944,10 +1944,10 @@ describe('Maps', () => {
         // prettier-ignore
         const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG]
           .flatMap((gamemode) => [
-            { gamemode, trackType: TrackType.MAIN,  trackNum: 0, linear: false },
-            { gamemode, trackType: TrackType.STAGE, trackNum: 0, linear: null },
+            { gamemode, trackType: TrackType.MAIN,  trackNum: 1, linear: false },
             { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null },
-            { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null }
+            { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null },
+            { gamemode, trackType: TrackType.STAGE, trackNum: 3, linear: null }
           ]);
 
         const leaderboards = await prisma.leaderboard.findMany({
@@ -2249,7 +2249,7 @@ describe('Maps', () => {
             mmap: { connect: { id: map.id } },
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
@@ -2292,7 +2292,7 @@ describe('Maps', () => {
             mmap: { connect: { id: map.id } },
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
@@ -2373,7 +2373,7 @@ describe('Maps', () => {
             mmap: { connect: { id: map.id } },
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             style: 0,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
@@ -2443,14 +2443,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.RJ,
                   tier: 1,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.UNRANKED
@@ -2492,14 +2492,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.CONC,
                   tier: 1,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.UNRANKED
@@ -2527,14 +2527,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.CONC,
                   tier: 1,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.UNRANKED
@@ -2604,14 +2604,14 @@ describe('Maps', () => {
                   suggestions: [
                     {
                       trackType: TrackType.MAIN,
-                      trackNum: 0,
+                      trackNum: 1,
                       gamemode: Gamemode.CONC,
                       tier: 1,
                       rtype: LeaderboardType.RANKED
                     },
                     {
                       trackType: TrackType.BONUS,
-                      trackNum: 0,
+                      trackNum: 1,
                       gamemode: Gamemode.DEFRAG_CPM,
                       tier: 1,
                       type: LeaderboardType.RANKED
@@ -2667,14 +2667,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 10,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.RANKED
@@ -2720,14 +2720,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 10,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.RANKED
@@ -2769,14 +2769,14 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 10,
                   type: LeaderboardType.RANKED
                 },
                 {
                   trackType: TrackType.BONUS,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   type: LeaderboardType.RANKED
@@ -2853,14 +2853,14 @@ describe('Maps', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 10,
                 type: LeaderboardType.RANKED
               },
               {
                 trackType: TrackType.BONUS,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
                 type: LeaderboardType.RANKED
@@ -2984,7 +2984,7 @@ describe('Maps', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.DEFRAG_CPM,
                 comment: 'FUCK!!!!',
                 tier: 10,
@@ -3002,7 +3002,7 @@ describe('Maps', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.DEFRAG_CPM,
                 comment: 'FUCK!!!!',
                 tier: 10,
@@ -3010,7 +3010,7 @@ describe('Maps', () => {
               },
               {
                 trackType: TrackType.BONUS,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
                 type: LeaderboardType.IN_SUBMISSION
@@ -3040,7 +3040,7 @@ describe('Maps', () => {
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   gamemode: Gamemode.SURF,
                   tier: 10,
                   type: LeaderboardType.RANKED
@@ -3134,7 +3134,7 @@ describe('Maps', () => {
               {
                 track: 1,
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.CONC,
                 tier: 1,
                 type: LeaderboardType.RANKED,

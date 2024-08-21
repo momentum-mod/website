@@ -17,7 +17,7 @@ export type RunsGetAllQuery = PagedQuery & {
   mapName?: string;
   gamemode?: Gamemode;
   trackType?: TrackType; // Default 0
-  trackNum?: number; // Default 0
+  trackNum?: number; // Default 1
   style?: Style; // Default 0
   flags?: number[];
   userID?: number;

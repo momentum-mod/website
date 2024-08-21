@@ -58,7 +58,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.availableBonusTracks =
       zones?.tracks?.bonuses?.map((_, i) => ({
         label: i + 1,
-        value: i
+        value: i + 1
       })) ?? [];
   }
 
@@ -71,7 +71,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       ({ trackType }) => trackType === TrackType.MAIN
     );
 
-    let trackNum = 0;
+    let trackNum = 1;
     let trackType: TrackType;
     if (!hasMainTrack) {
       trackType = TrackType.MAIN;
@@ -84,12 +84,8 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
           .map(({ trackNum }) => trackNum)
       );
 
-      for (let i = 0; bonusNums.size < 0; i++) {
-        if (!bonusNums.has(i)) {
-          trackNum = i;
-          break;
-        }
-      }
+      trackNum = 1;
+      while (bonusNums.has(trackNum)) trackNum++;
     }
 
     this.value.push({
@@ -125,7 +121,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       // Default value with empty gamemode/track selections whilst component
       // is default before zone init
       this.value = [
-        { trackNum: 0, type: LeaderboardType.UNRANKED, tier: 1 } as any
+        { trackNum: 1, type: LeaderboardType.UNRANKED, tier: 1 } as any
       ];
     } else {
       this.value = value;

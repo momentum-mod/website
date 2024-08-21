@@ -57,7 +57,7 @@ describe('Map Reviews', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.RJ,
                 tier: 2,
                 comment: 'True',
@@ -156,7 +156,7 @@ describe('Map Reviews', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.AHOP,
                 tier: 10,
                 gameplayRating: 1
@@ -189,7 +189,7 @@ describe('Map Reviews', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.AHOP,
                 tier: 1,
                 gameplayRating: 10
@@ -211,7 +211,7 @@ describe('Map Reviews', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 1,
+                trackNum: 2,
                 gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
                 gameplayRating: 10

@@ -178,7 +178,7 @@ export type MapRunsGetFilter = 'around' | 'friends';
 export type MapLeaderboardGetQuery = PagedQuery & {
   gamemode: Gamemode;
   trackType?: TrackType; // Default 0
-  trackNum?: number; // Default 0
+  trackNum?: number; // Default 1
   style?: Style; // Default 0
   expand?: MapRunsGetExpand;
   filter?: MapRunsGetFilter;
@@ -189,7 +189,7 @@ export type MapLeaderboardGetQuery = PagedQuery & {
 export type MapLeaderboardGetRunQuery = PagedQuery & {
   gamemode: Gamemode;
   trackType?: TrackType; // Default 0
-  trackNum?: number; // Default 0
+  trackNum?: number; // Default 1
   style?: Style; // Default 0
   expand?: MapRunsGetExpand;
   userID?: number;

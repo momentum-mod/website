@@ -14,6 +14,7 @@ export class MapSubmissionApprovalDto implements MapSubmissionApproval {
 
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
+  @Min(1)
   readonly trackNum: number;
 
   @EnumProperty(TrackType, {
