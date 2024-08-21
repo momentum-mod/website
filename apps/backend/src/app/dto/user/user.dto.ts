@@ -5,7 +5,8 @@ import {
   Role,
   STEAM_MISSING_AVATAR,
   User,
-  NON_WHITESPACE_REGEXP
+  NON_WHITESPACE_REGEXP,
+  DateString
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
@@ -37,7 +38,7 @@ export class UserDto implements User {
   })
   @IsOptional() // Placeholder don't have SteamIDs
   @IsSteamCommunityID()
-  readonly steamID: bigint;
+  readonly steamID: string;
 
   @ApiProperty({
     type: String,
@@ -56,7 +57,7 @@ export class UserDto implements User {
   })
   @IsOptional()
   @IsISO31661Alpha2()
-  readonly country: string;
+  readonly country: string | null;
 
   @Exclude({ toPlainOnly: true })
   readonly avatar: string;
@@ -92,7 +93,7 @@ export class UserDto implements User {
   readonly bans: Flags<Ban>;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}

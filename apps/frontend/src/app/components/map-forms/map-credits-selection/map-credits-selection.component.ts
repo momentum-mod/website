@@ -80,7 +80,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       );
     } else {
       searchComponent.resetSearchBox();
-      this.value.add({ user, type });
+      this.value.add({ user, type, description: null });
       this.onChange(this.value);
     }
   }

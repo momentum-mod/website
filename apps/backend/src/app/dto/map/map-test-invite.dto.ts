@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ArrayMaxSize, IsArray, IsBoolean, IsInt } from 'class-validator';
 import {
   CreateMapTestInvite,
+  DateString,
   MapTestInvite,
   MapTestInviteState,
   MAX_TEST_INVITES,
@@ -30,10 +31,10 @@ export class MapTestInviteDto implements MapTestInvite {
   state: number;
 
   @CreatedAtProperty()
-  createdAt: Date;
+  createdAt: DateString;
 
   @UpdatedAtProperty()
-  updatedAt: Date;
+  updatedAt: DateString;
 }
 
 export class CreateMapTestInviteDto implements CreateMapTestInvite {

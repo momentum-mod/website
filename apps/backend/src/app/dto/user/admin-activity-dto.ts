@@ -1,16 +1,16 @@
-import { AdminActivity, AdminActivityType } from '@momentum/constants';
 import {
-  IsNumberString,
-  IsObject,
-  IsOptional,
-  IsString
-} from 'class-validator';
+  AdminActivity,
+  AdminActivityType,
+  DateString
+} from '@momentum/constants';
+import { IsObject, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   CreatedAtProperty,
   EnumProperty,
   IdProperty,
-  NestedProperty
+  NestedProperty,
+  SafeBigIntToNumber
 } from '../decorators';
 import { UserDto } from './user.dto';
 
@@ -30,10 +30,10 @@ export class AdminActivityDto implements AdminActivity {
 
   @ApiProperty({
     description: 'The ID of object changed on activity',
-    type: String
+    type: Number
   })
-  @IsNumberString()
-  target: bigint;
+  @SafeBigIntToNumber()
+  target: number;
 
   @ApiProperty({ description: 'Old state of object' })
   @IsObject()
@@ -52,5 +52,5 @@ export class AdminActivityDto implements AdminActivity {
   readonly user: UserDto;
 
   @CreatedAtProperty()
-  createdAt: Date;
+  createdAt: DateString;
 }

@@ -1,4 +1,4 @@
-﻿import { ActivityType } from '@momentum/constants';
+﻿import { ActivityType, DateString } from '@momentum/constants';
 import { MapNotify, UpdateMapNotify } from '@momentum/constants';
 import { PickType } from '@nestjs/swagger';
 import {
@@ -19,10 +19,10 @@ export class MapNotifyDto implements MapNotify {
   readonly userID: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class UpdateMapNotifyDto

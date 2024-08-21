@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   CreateMapSubmissionVersion,
+  DateString,
   MapSubmissionVersion,
   MAX_CHANGELOG_LENGTH,
   submissionBspPath,
@@ -84,7 +85,7 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   readonly hasVmf: boolean;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class CreateMapSubmissionVersionDto
