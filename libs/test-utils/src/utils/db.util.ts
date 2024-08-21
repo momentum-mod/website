@@ -173,7 +173,7 @@ export class DbUtil {
             // Just creating the one leaderboard here, most maps will have more,
             // but isn't needed or worth the test perf hit
             leaderboards:
-              mmap?.leaderboards ?? noLeaderboards
+              (mmap?.leaderboards ?? noLeaderboards)
                 ? undefined
                 : {
                     create: {
