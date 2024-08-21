@@ -1102,7 +1102,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       for (const credit of map.credits as any[]) {
         credit.user.steamID = credit.user.steamID?.toString();
-        credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}`;
+        credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}_full.jpg`;
         delete credit.user.avatar;
         delete credit.mapID;
       }
