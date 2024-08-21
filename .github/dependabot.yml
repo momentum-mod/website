@@ -20,6 +20,7 @@ updates:
       - dependency-name: "*angular*"
       - dependency-name: "typescript"
       - dependency-name: "*eslint*"
+      - dependency-name: "*prettier*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
