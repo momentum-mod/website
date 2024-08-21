@@ -24,7 +24,7 @@ and stats congregation/filtering.
 The vast majority of the codebase is written in
 [Typescript](https://www.typescriptlang.org/).
 
-The frontend runs on [Angular](https://angular.io) 17. We use
+The frontend runs on [Angular](https://angular.io). We use
 [Tailwind](https://tailwindcss.com/) for most styling,
 [PrimeNG](https://primeng.org/) for some components.
 
