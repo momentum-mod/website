@@ -1,4 +1,4 @@
-import { MapStatus as S, Role as R } from '../';
+import { MapStatus, Role } from '../';
 
 /**
  * Stores what changes between map statuses are allowed by what users
@@ -17,46 +17,46 @@ import { MapStatus as S, Role as R } from '../';
  * † Admins can only move from disabled to approved if the map has been approved once in the past
  */
 //prettier-ignore
-export const MapStatusChangeRules: ReadonlyArray<{from: S; to: S; roles: Array<R | 'submitter'>}> = [
-  { from: S.APPROVED,         to: S.APPROVED,         roles: []},
-  { from: S.APPROVED,         to: S.PRIVATE_TESTING,  roles: []},
-  { from: S.APPROVED,         to: S.CONTENT_APPROVAL, roles: []},
-  { from: S.APPROVED,         to: S.PUBLIC_TESTING,   roles: []},
-  { from: S.APPROVED,         to: S.FINAL_APPROVAL,   roles: []},
-  { from: S.APPROVED,         to: S.DISABLED,         roles: [R.ADMIN, R.MODERATOR]},
+export const MapStatusChangeRules: ReadonlyArray<{from: MapStatus; to: MapStatus; roles: Array<Role | 'submitter'>}> = [
+  { from: MapStatus.APPROVED,         to: MapStatus.APPROVED,         roles: []},
+  { from: MapStatus.APPROVED,         to: MapStatus.PRIVATE_TESTING,  roles: []},
+  { from: MapStatus.APPROVED,         to: MapStatus.CONTENT_APPROVAL, roles: []},
+  { from: MapStatus.APPROVED,         to: MapStatus.PUBLIC_TESTING,   roles: []},
+  { from: MapStatus.APPROVED,         to: MapStatus.FINAL_APPROVAL,   roles: []},
+  { from: MapStatus.APPROVED,         to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
-  { from: S.PRIVATE_TESTING,  to: S.APPROVED,         roles: []},
-  { from: S.PRIVATE_TESTING,  to: S.PRIVATE_TESTING,  roles: []},
-  { from: S.PRIVATE_TESTING,  to: S.CONTENT_APPROVAL, roles: ['submitter']},
-  { from: S.PRIVATE_TESTING,  to: S.PUBLIC_TESTING,   roles: []},
-  { from: S.PRIVATE_TESTING,  to: S.FINAL_APPROVAL,   roles: []},
-  { from: S.PRIVATE_TESTING,  to: S.DISABLED,         roles: [R.ADMIN, R.MODERATOR]},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.APPROVED,         roles: []},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.PRIVATE_TESTING,  roles: []},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.CONTENT_APPROVAL, roles: ['submitter']},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.PUBLIC_TESTING,   roles: []},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.FINAL_APPROVAL,   roles: []},
+  { from: MapStatus.PRIVATE_TESTING,  to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
-  { from: S.CONTENT_APPROVAL, to: S.APPROVED,         roles: []},
-  { from: S.CONTENT_APPROVAL, to: S.PRIVATE_TESTING,  roles: ['submitter']},
-  { from: S.CONTENT_APPROVAL, to: S.CONTENT_APPROVAL, roles: []},
-  { from: S.CONTENT_APPROVAL, to: S.PUBLIC_TESTING,   roles: [R.REVIEWER, R.ADMIN, R.MODERATOR]},
-  { from: S.CONTENT_APPROVAL, to: S.FINAL_APPROVAL,   roles: [R.ADMIN, R.MODERATOR]},
-  { from: S.CONTENT_APPROVAL, to: S.DISABLED,         roles: [R.ADMIN, R.MODERATOR]},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.APPROVED,         roles: []},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.PRIVATE_TESTING,  roles: ['submitter']},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.CONTENT_APPROVAL, roles: []},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.PUBLIC_TESTING,   roles: [Role.REVIEWER, Role.ADMIN, Role.MODERATOR]},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.FINAL_APPROVAL,   roles: [Role.ADMIN, Role.MODERATOR]},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
-  { from: S.PUBLIC_TESTING,   to: S.APPROVED,         roles: []},
-  { from: S.PUBLIC_TESTING,   to: S.PRIVATE_TESTING,  roles: []},
-  { from: S.PUBLIC_TESTING,   to: S.CONTENT_APPROVAL, roles: [R.ADMIN, R.MODERATOR]},
-  { from: S.PUBLIC_TESTING,   to: S.PUBLIC_TESTING,   roles: []},
-  { from: S.PUBLIC_TESTING,   to: S.FINAL_APPROVAL,   roles: ['submitter']},
-  { from: S.PUBLIC_TESTING,   to: S.DISABLED,         roles: [R.ADMIN, R.MODERATOR]},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.APPROVED,         roles: []},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.PRIVATE_TESTING,  roles: []},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.CONTENT_APPROVAL, roles: [Role.ADMIN, Role.MODERATOR]},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.PUBLIC_TESTING,   roles: []},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.FINAL_APPROVAL,   roles: ['submitter']},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
-  { from: S.FINAL_APPROVAL,   to: S.APPROVED,         roles: [R.ADMIN, R.MODERATOR]},
-  { from: S.FINAL_APPROVAL,   to: S.PRIVATE_TESTING , roles: []},
-  { from: S.FINAL_APPROVAL,   to: S.CONTENT_APPROVAL, roles: []},
-  { from: S.FINAL_APPROVAL,   to: S.PUBLIC_TESTING,   roles: ['submitter']},
-  { from: S.FINAL_APPROVAL,   to: S.FINAL_APPROVAL,   roles: []},
-  { from: S.FINAL_APPROVAL,   to: S.DISABLED,         roles: [R.ADMIN, R.MODERATOR]},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.APPROVED,         roles: [Role.ADMIN, Role.MODERATOR]},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.PRIVATE_TESTING , roles: []},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.CONTENT_APPROVAL, roles: []},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.PUBLIC_TESTING,   roles: ['submitter']},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.FINAL_APPROVAL,   roles: []},
+  { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
-  { from: S.DISABLED,         to: S.APPROVED,         roles: [R.ADMIN]},
-  { from: S.DISABLED,         to: S.PRIVATE_TESTING,  roles: [R.ADMIN]},
-  { from: S.DISABLED,         to: S.CONTENT_APPROVAL, roles: [R.ADMIN]},
-  { from: S.DISABLED,         to: S.PUBLIC_TESTING,   roles: [R.ADMIN]},
-  { from: S.DISABLED,         to: S.FINAL_APPROVAL,   roles: [R.ADMIN]},
-  { from: S.DISABLED,         to: S.DISABLED,         roles: []},
+  { from: MapStatus.DISABLED,         to: MapStatus.APPROVED,         roles: [Role.ADMIN]},
+  { from: MapStatus.DISABLED,         to: MapStatus.PRIVATE_TESTING,  roles: [Role.ADMIN]},
+  { from: MapStatus.DISABLED,         to: MapStatus.CONTENT_APPROVAL, roles: [Role.ADMIN]},
+  { from: MapStatus.DISABLED,         to: MapStatus.PUBLIC_TESTING,   roles: [Role.ADMIN]},
+  { from: MapStatus.DISABLED,         to: MapStatus.FINAL_APPROVAL,   roles: [Role.ADMIN]},
+  { from: MapStatus.DISABLED,         to: MapStatus.DISABLED,         roles: []},
 ];
