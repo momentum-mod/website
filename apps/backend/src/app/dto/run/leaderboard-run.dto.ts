@@ -1,4 +1,5 @@
 import {
+  DateString,
   Gamemode,
   LeaderboardRun,
   runPath,
@@ -110,7 +111,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
 
   @IdProperty()
   @IsOptional()
-  readonly mapID?: number;
+  readonly mapID: number;
 
   @NestedProperty(MapDto, { required: false })
   @Expose()
@@ -128,7 +129,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
   readonly leaderboard: LeaderboardDto;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 }
 
 export class MinimalLeaderboardRunDto extends OmitType(LeaderboardRunDto, [

@@ -1,5 +1,6 @@
 ﻿import {
   CreateMapInfo,
+  DateString,
   MapInfo,
   MAX_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_DESCRIPTION_LENGTH,
@@ -42,7 +43,7 @@ export class MapInfoDto implements MapInfo {
   @ApiProperty()
   @IsDateString()
   @IsPastDate()
-  readonly creationDate: Date;
+  readonly creationDate: DateString;
 }
 
 export class CreateMapInfoDto

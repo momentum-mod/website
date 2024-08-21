@@ -43,7 +43,7 @@ export class MapStatsDto implements MapStats {
   })
   @IsInt()
   @SafeBigIntToNumber()
-  readonly timePlayed: bigint;
+  readonly timePlayed: number;
 
   @NestedProperty(BaseStatsDto)
   readonly baseStats: BaseStatsDto;

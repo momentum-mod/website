@@ -1,4 +1,8 @@
-﻿import { Notification, UpdateNotification } from '@momentum/constants';
+﻿import {
+  DateString,
+  Notification,
+  UpdateNotification
+} from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
 import {
@@ -36,10 +40,10 @@ export class NotificationDto implements Notification {
   readonly activity: ActivityDto;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
 
 export class UpdateNotificationDto

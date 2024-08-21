@@ -1,4 +1,4 @@
-import { Activity } from '@momentum/constants';
+import { Activity, DateString } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import { IsPositive } from 'class-validator';
 import {
@@ -36,8 +36,8 @@ export class ActivityDto implements Activity {
   readonly data: number;
 
   @CreatedAtProperty()
-  readonly createdAt: Date;
+  readonly createdAt: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  readonly updatedAt: DateString;
 }
