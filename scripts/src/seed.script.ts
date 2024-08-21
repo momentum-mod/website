@@ -869,7 +869,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
   console.log('Creating admin activity');
   const maps = Random.shuffle(await prisma.mMap.findMany());
   const reports = Random.shuffle(await prisma.report.findMany());
-  const adminActivitiesToCreate = randRange(vars.adminActivities);
+  const adminActivitiesToCreate = users.some(
+    ({ roles }) => (roles & Role.ADMIN) !== 0
+  )
+    ? randRange(vars.adminActivities)
+    : 0;
   for (let i = 0; i < adminActivitiesToCreate; i++) {
     const adminID = Random.element(userIDs);
     const type = Random.element([
