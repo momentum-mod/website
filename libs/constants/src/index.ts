@@ -13,7 +13,7 @@ export * from './enums/report-type.enum';
 export * from './enums/activity-type.enum';
 export * from './enums/map-credit-type.enum';
 export * from './enums/report-category.enum';
-export * from './enums/bans.enum';
+export * from './enums/ban.enum';
 export * from './enums/country-codes.enum';
 export * from './enums/map-test-invite-state.enum';
 export * from './enums/map-submission-type.enum';
