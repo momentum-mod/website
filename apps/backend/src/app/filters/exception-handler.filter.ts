@@ -67,7 +67,6 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
           };
 
           // In production, send to Sentry so long as it's enabled
-          // TODO: maybe still want to inject sentry init state token
           if (Sentry.isInitialized()) {
             eventID = Sentry.captureException(exception);
             msg.eventID = eventID;
