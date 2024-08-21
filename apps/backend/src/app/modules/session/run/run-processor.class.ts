@@ -50,7 +50,7 @@ export class RunProcessor {
     //
     // Note that that currently, the timestamps do NOT include hitting the end
     // zone. The game is stupid and can't send a multipart form, and needs to
-    // send areplay file, so we determine the final time by parsing the replay,
+    // send a replay file, so we determine the final time by parsing the replay,
     // rather than a timestamp. This will probably change in the future!
 
     if (this.timestamps.length === 0) {
@@ -77,23 +77,19 @@ export class RunProcessor {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 
-    // TODO: Ltos of -1s reqired in idnexes when changing trackNum to start at 1!
     // Stage or bonus runs
     if (this.trackType !== TrackType.MAIN) {
       // Only one segment, and must match trackType
       if (
-        !this.timestamps.every(
-          ({ segment }) => segment === this.trackNum /* - 1 */
-        )
+        !this.timestamps.every(({ segment }) => segment === this.trackNum - 1)
       ) {
         throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
 
       const segment =
         this.trackType === TrackType.STAGE
-          ? this.zones.tracks.main.zones.segments[this.trackNum /* - 1 */]
-          : this.zones.tracks.bonuses[this.trackNum /* - 1 */].zones
-              .segments[0];
+          ? this.zones.tracks.main.zones.segments[this.trackNum - 1]
+          : this.zones.tracks.bonuses[this.trackNum - 1].zones.segments[0];
 
       this.validateSegment(segment, this.timestamps);
 
@@ -104,8 +100,8 @@ export class RunProcessor {
     // Segments are always ordered and required!
     const { zones } = this.zones.tracks.main;
 
-    // trackNum must always be 0 /* 1 */
-    if (this.trackNum !== 0 /* 1 */) {
+    // trackNum must always be 1
+    if (this.trackNum !== 1) {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 

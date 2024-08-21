@@ -474,7 +474,7 @@ export class MapsService {
       };
     } else if (PB) {
       select.leaderboardRuns.where = {
-        trackType: TrackType.MAIN, // Probs fastest to omit trackNum here (can't be != 0)
+        trackType: TrackType.MAIN, // Probs fastest to omit trackNum here (can't be != 1)
         style: 0,
         userID: userID
       };

@@ -33,7 +33,7 @@ function leaderboardName(
 ) {
   let str = gamemode != null ? `${GamemodeInfo.get(gamemode).name} ` : '';
   str += TTName.get(trackType).toLowerCase();
-  str += trackType === TrackType.MAIN ? ' track' : ` ${trackNum + 1}`;
+  str += trackType === TrackType.MAIN ? ' track' : ` ${trackNum}`;
   return str;
 }
 
@@ -96,10 +96,12 @@ export function validateSuggestions(
 
     // Must have one and only one main track (in at least one gamemode)
     if (tt === TT.MAIN) {
-      if (tn === 0) {
+      if (tn === 1) {
         hasMainTrack = true;
       } else {
-        throw new SuggestionValidationError('Multiple main tracks');
+        throw new SuggestionValidationError(
+          'Only one main track allowed, must be track 1'
+        );
       }
     }
 
@@ -131,7 +133,7 @@ export function validateSuggestions(
     if (
       'gameplayRating' in sugg &&
       // Buggy rule, destructuring above isn't type-safe.
-      /* eslint-disable  unicorn/consistent-destructuring */
+      /* eslint-disable unicorn/consistent-destructuring */
       sugg.gameplayRating != null &&
       (sugg.gameplayRating <= 0 ||
         sugg.gameplayRating > 10 ||
@@ -170,14 +172,14 @@ export function validateSuggestions(
     // Zone and suggestions must have main tracks per their respective validators,
     // and we don't do suggestions for stages, so all that's left is to check that
     // all bonus tracks have suggestions:
-    for (let i = 0; i < zoneData.tracks.bonuses.length; i++) {
+    for (let i = 1; i < zoneData.tracks.bonuses.length + 1; i++) {
       if (
         !suggestions.some(
           ({ trackType, trackNum }) => trackType === TT.BONUS && trackNum === i
         )
       ) {
         throw new SuggestionValidationError(
-          `Bonus track ${i + 1} has no suggestions`
+          `Bonus track ${i} has no suggestions`
         );
       }
     }
@@ -185,8 +187,11 @@ export function validateSuggestions(
 
   if (type === SuggestionType.APPROVAL) {
     [
-      [TrackType.MAIN, 0],
-      ...arrayFrom(zoneData.tracks.bonuses.length, (i) => [TrackType.BONUS, i])
+      [TrackType.MAIN, 1],
+      ...arrayFrom(zoneData.tracks.bonuses.length, (i) => [
+        TrackType.BONUS,
+        i + 1
+      ])
     ].forEach(([trackType, trackNum]) => {
       if (
         !suggestions.some(
@@ -209,11 +214,9 @@ export function validateSuggestions(
   suggestions
     .filter(({ trackType }) => trackType === TrackType.BONUS)
     .forEach(({ trackNum }) => {
-      if (!zoneData.tracks.bonuses[trackNum]) {
+      if (!zoneData.tracks.bonuses[trackNum - 1]) {
         throw new SuggestionValidationError(
-          `Suggestion refers to bonus track (${
-            trackNum + 1
-          }) that does not exist`
+          `Suggestion refers to bonus track (${trackNum}) that does not exist`
         );
       }
     });

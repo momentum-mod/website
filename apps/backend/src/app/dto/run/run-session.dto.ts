@@ -7,7 +7,7 @@
   UpdateRunSession
 } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt, IsPositive, Min } from 'class-validator';
 import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
 
 export class RunSessionDto implements RunSession {
@@ -40,6 +40,7 @@ export class RunSessionDto implements RunSession {
     required: true
   })
   @IsInt()
+  @Min(1)
   readonly trackNum: number;
 
   @ApiProperty({

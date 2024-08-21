@@ -630,7 +630,7 @@ describe('Admin', () => {
               create: {
                 mapID: map.id,
                 gamemode: Gamemode.AHOP,
-                trackNum: 1,
+                trackNum: 2,
                 trackType: TrackType.MAIN
               }
             }
@@ -966,7 +966,7 @@ describe('Admin', () => {
                 {
                   gamemode: Gamemode.RJ,
                   trackType: TrackType.MAIN,
-                  trackNum: 0,
+                  trackNum: 1,
                   tier: 1,
                   type: LeaderboardType.IN_SUBMISSION
                 }
@@ -1016,7 +1016,7 @@ describe('Admin', () => {
                       {
                         gamemode: Gamemode.RJ,
                         trackType: TrackType.MAIN,
-                        trackNum: 0,
+                        trackNum: 1,
                         tier: 5,
                         type: LeaderboardType.UNRANKED
                       }
@@ -1042,7 +1042,7 @@ describe('Admin', () => {
             submission: {
               suggestions: [
                 {
-                  trackNum: 0,
+                  trackNum: 1,
                   trackType: TrackType.MAIN,
                   gamemode: Gamemode.RJ,
                   tier: 1,
@@ -1077,7 +1077,7 @@ describe('Admin', () => {
                       {
                         gamemode: Gamemode.RJ,
                         trackType: TrackType.MAIN,
-                        trackNum: 0,
+                        trackNum: 1,
                         tier: 5,
                         type: LeaderboardType.UNRANKED
                       }
@@ -1126,7 +1126,7 @@ describe('Admin', () => {
                       {
                         gamemode: Gamemode.RJ,
                         trackType: TrackType.MAIN,
-                        trackNum: 0,
+                        trackNum: 1,
                         tier: 5,
                         type: LeaderboardType.UNRANKED
                       }
@@ -1150,7 +1150,7 @@ describe('Admin', () => {
               name: 'surf_asbestos',
               suggestions: [
                 {
-                  trackNum: 0,
+                  trackNum: 1,
                   trackType: TrackType.MAIN,
                   gamemode: Gamemode.BHOP,
                   tier: 1,
@@ -1248,7 +1248,7 @@ describe('Admin', () => {
                       ? [
                           {
                             gamemode: Gamemode.RJ,
-                            trackNum: 0,
+                            trackNum: 1,
                             trackType: 0,
                             tier: 1,
                             type: LeaderboardType.RANKED
@@ -1328,7 +1328,7 @@ describe('Admin', () => {
             finalLeaderboards: [
               {
                 gamemode: Gamemode.RJ,
-                trackNum: 0,
+                trackNum: 1,
                 trackType: 0,
                 tier: 1,
                 type: LeaderboardType.RANKED
@@ -1390,7 +1390,7 @@ describe('Admin', () => {
               {
                 gamemode: Gamemode.RJ,
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 tier: 1,
                 type: LeaderboardType.UNRANKED
               }
@@ -1421,21 +1421,21 @@ describe('Admin', () => {
           {
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             tier: 5,
             type: LeaderboardType.UNRANKED
           },
           {
             gamemode: Gamemode.DEFRAG_VQ3,
             trackType: TrackType.BONUS,
-            trackNum: 0,
+            trackNum: 1,
             tier: 5,
             type: LeaderboardType.RANKED
           },
           {
             gamemode: Gamemode.DEFRAG_CPM,
             trackType: TrackType.BONUS,
-            trackNum: 0,
+            trackNum: 1,
             type: LeaderboardType.HIDDEN
           }
         ];
@@ -1561,7 +1561,7 @@ describe('Admin', () => {
             rank: 1,
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
-            trackNum: 0
+            trackNum: 1
           });
 
           await db.createLbRun({
@@ -1570,7 +1570,7 @@ describe('Admin', () => {
             rank: 1,
             gamemode: Gamemode.CONC,
             trackType: TrackType.MAIN,
-            trackNum: 0
+            trackNum: 1
           });
 
           expect(
@@ -1601,22 +1601,11 @@ describe('Admin', () => {
                 mapID: map.id,
                 gamemode: Gamemode.RJ,
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 linear: false,
                 style: 0,
                 tier: 5,
                 type: LeaderboardType.UNRANKED,
-                tags: []
-              },
-              {
-                mapID: map.id,
-                gamemode: Gamemode.RJ,
-                trackType: TrackType.STAGE,
-                trackNum: 0,
-                linear: null,
-                tier: null,
-                type: LeaderboardType.UNRANKED,
-                style: 0,
                 tags: []
               },
               {
@@ -1632,9 +1621,20 @@ describe('Admin', () => {
               },
               {
                 mapID: map.id,
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.STAGE,
+                trackNum: 2,
+                linear: null,
+                tier: null,
+                type: LeaderboardType.UNRANKED,
+                style: 0,
+                tags: []
+              },
+              {
+                mapID: map.id,
                 gamemode: Gamemode.DEFRAG_VQ3,
                 trackType: TrackType.BONUS,
-                trackNum: 0,
+                trackNum: 1,
                 linear: null,
                 tier: 5,
                 type: LeaderboardType.RANKED,
@@ -1645,7 +1645,7 @@ describe('Admin', () => {
                 mapID: map.id,
                 gamemode: Gamemode.DEFRAG_CPM,
                 trackType: TrackType.BONUS,
-                trackNum: 0,
+                trackNum: 1,
                 linear: null,
                 tier: null,
                 type: LeaderboardType.HIDDEN,
@@ -2032,7 +2032,7 @@ describe('Admin', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.AHOP,
                 tier: 10,
                 gameplayRating: 1
@@ -2137,7 +2137,7 @@ describe('Admin', () => {
             suggestions: [
               {
                 trackType: TrackType.MAIN,
-                trackNum: 0,
+                trackNum: 1,
                 gamemode: Gamemode.AHOP,
                 tier: 10,
                 gameplayRating: 1

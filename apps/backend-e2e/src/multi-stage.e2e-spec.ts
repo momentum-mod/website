@@ -92,7 +92,7 @@ describe('Multi-stage E2E tests', () => {
           {
             gamemode: Gamemode.SURF,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             tier: 1,
             type: LeaderboardType.RANKED
           }
@@ -123,7 +123,7 @@ describe('Multi-stage E2E tests', () => {
         expect.objectContaining({
           gamemode: Gamemode.SURF,
           trackType: TrackType.MAIN,
-          trackNum: 0
+          trackNum: 1
         })
       ])
     );
@@ -220,7 +220,7 @@ describe('Multi-stage E2E tests', () => {
           {
             gamemode: Gamemode.BHOP,
             trackType: TrackType.MAIN,
-            trackNum: 0,
+            trackNum: 1,
             tier: 10,
             type: LeaderboardType.UNRANKED
           }
@@ -255,7 +255,7 @@ describe('Multi-stage E2E tests', () => {
         {
           gamemode: Gamemode.BHOP,
           trackType: TrackType.MAIN,
-          trackNum: 0,
+          trackNum: 1,
           linear: true,
           style: 0,
           tier: 10,

@@ -15,7 +15,8 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  IsUrl
+  IsUrl,
+  Min
 } from 'class-validator';
 import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
@@ -44,6 +45,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
     type: Number,
     description: 'The trackNum the run took place on'
   })
+  @Min(1)
   readonly trackNum: number;
 
   @EnumProperty(Style, { description: 'The trackNum the run took place on' })

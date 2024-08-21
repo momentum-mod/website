@@ -3,7 +3,6 @@ import {
   MMap,
   MapSubmissionType,
   MapStatusName,
-  MapSubmissionSuggestion,
   TrackType,
   MapSubmissionVersion,
   LeaderboardType,
@@ -42,9 +41,7 @@ export class MapSubmissionComponent {
   }
   @Input({ required: true }) set map(map: MMap) {
     this._map = map;
-    this.suggestions = groupMapSuggestions(
-      map.submission.suggestions as MapSubmissionSuggestion[] // Cast until I can remove Jsonify<> bullshit
-    );
+    this.suggestions = groupMapSuggestions(map.submission.suggestions);
     this.versions = map?.submission?.versions.toReversed();
     this.visibleVersions = 2;
   }

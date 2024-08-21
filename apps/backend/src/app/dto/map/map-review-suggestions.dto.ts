@@ -6,6 +6,7 @@ import { EnumProperty } from '../decorators';
 export class MapReviewSuggestionDto implements MapReviewSuggestion {
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
+  @Min(1)
   readonly trackNum: number;
 
   @ApiProperty({ description: 'Track type the suggestion refers to' })

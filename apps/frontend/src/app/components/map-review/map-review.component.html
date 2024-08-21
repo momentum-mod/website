@@ -49,7 +49,7 @@
                 <p class="text-sm">{{ mainSugg.gameplayRating ?? '' }}</p>
               }
               @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-                <p class="text-gray-50">B{{ bonus.trackNum + 1 }}</p>
+                <p class="text-gray-50">B{{ bonus.trackNum }}</p>
                 <p class="text-sm">{{ bonus.tier ?? '' }}</p>
                 <p class="text-sm">{{ bonus.gameplayRating ?? '' }}</p>
               }

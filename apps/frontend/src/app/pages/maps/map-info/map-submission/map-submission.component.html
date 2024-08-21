@@ -42,7 +42,7 @@
         }
 
         @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-          <p class="w-[1.75rem] text-center font-medium text-gray-50">B{{ bonus.trackNum + 1 }}</p>
+          <p class="w-[1.75rem] text-center font-medium text-gray-50">B{{ bonus.trackNum }}</p>
           <p class="font-medium">{{ bonus.tier ?? '' }}</p>
           @if (bonus.type === LeaderboardType.RANKED) {
             <m-icon class="text-xl" icon="check" />

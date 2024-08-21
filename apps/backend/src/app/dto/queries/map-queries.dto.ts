@@ -207,7 +207,7 @@ export class MapLeaderboardGetQueryDto
   trackType = TrackType.MAIN;
 
   @IntQueryProperty({ required: false })
-  trackNum = 0;
+  trackNum = 1;
 
   @EnumQueryProperty(Style, { required: false })
   style = Style.NONE;
@@ -243,7 +243,7 @@ export class MapLeaderboardGetRunQueryDto
   trackType = TrackType.MAIN;
 
   @IntQueryProperty({ required: false })
-  trackNum = 0;
+  trackNum = 1;
 
   @EnumQueryProperty(Style, { required: false })
   style = Style.NONE;

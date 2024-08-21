@@ -154,7 +154,7 @@ export class DbUtil {
                   {
                     gamemode: Gamemode.AHOP,
                     trackType: TrackType.MAIN,
-                    trackNum: 0,
+                    trackNum: 1,
                     tier: 1,
                     type: LeaderboardType.RANKED
                   }
@@ -179,7 +179,7 @@ export class DbUtil {
                     create: {
                       gamemode: Gamemode.AHOP,
                       trackType: TrackType.MAIN,
-                      trackNum: 0,
+                      trackNum: 1,
                       style: 0,
                       tier: 1,
                       linear: true,
@@ -247,17 +247,10 @@ export class DbUtil {
             {
               gamemode,
               trackType: TrackType.MAIN,
-              trackNum: 0,
+              trackNum: 1,
               style: 0,
               tier: 1,
               linear: true,
-              type: LeaderboardType.RANKED
-            },
-            {
-              gamemode,
-              trackType: TrackType.STAGE,
-              trackNum: 0,
-              style: 0,
               type: LeaderboardType.RANKED
             },
             {
@@ -269,8 +262,15 @@ export class DbUtil {
             },
             {
               gamemode,
+              trackType: TrackType.STAGE,
+              trackNum: 2,
+              style: 0,
+              type: LeaderboardType.RANKED
+            },
+            {
+              gamemode,
               trackType: TrackType.BONUS,
-              trackNum: 0,
+              trackNum: 1,
               style: 0,
               tier: 5,
               type: LeaderboardType.RANKED
@@ -319,7 +319,7 @@ export class DbUtil {
               mapID: map.id,
               gamemode: args?.gamemode ?? Gamemode.AHOP,
               trackType: args?.trackType ?? TrackType.MAIN,
-              trackNum: args?.trackNum ?? 0,
+              trackNum: args?.trackNum ?? 1,
               style: args?.style ?? 0
             }
           }
@@ -330,7 +330,7 @@ export class DbUtil {
             user: { connect: { id: user.id } },
             gamemode: args?.gamemode ?? Gamemode.AHOP,
             trackType: args?.trackType ?? TrackType.MAIN,
-            trackNum: args?.trackNum ?? 0,
+            trackNum: args?.trackNum ?? 1,
             style: args?.style ?? 0,
             time: args?.time ?? 1
           }
@@ -364,8 +364,8 @@ export class DbUtil {
         user: { connect: { id: user.id } },
         mmap: { connect: { id: map.id } },
         gamemode: args?.gamemode ?? Gamemode.AHOP,
-        trackNum: args?.trackNum ?? 0,
-        trackType: args?.trackType ?? 0,
+        trackNum: args?.trackNum ?? 1,
+        trackType: args?.trackType ?? TrackType.MAIN,
         style: args?.style ?? 0,
         time: args?.time ?? 1,
         flags: args?.flags ?? [0],
@@ -383,8 +383,8 @@ export class DbUtil {
                     mapID_gamemode_trackType_trackNum_style: {
                       mapID: map.id,
                       gamemode: args?.gamemode ?? Gamemode.AHOP,
-                      trackNum: args?.trackNum ?? 0,
-                      trackType: args?.trackType ?? 0,
+                      trackNum: args?.trackNum ?? 1,
+                      trackType: args?.trackType ?? TrackType.MAIN,
                       style: args?.style ?? 0
                     }
                   }
