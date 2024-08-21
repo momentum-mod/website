@@ -92,7 +92,7 @@ export class RequestUtil {
       accept: 'application/json'
     };
     injectOptions.url =
-      (options.skipApiPrefix ?? false ? '/' : URL_PREFIX) + options.url;
+      ((options.skipApiPrefix ?? false) ? '/' : URL_PREFIX) + options.url;
 
     if (options.query) {
       if (typeof options.query === 'string') {
@@ -146,7 +146,7 @@ export class RequestUtil {
         Object.assign(injectOptions.headers, form.getHeaders());
         injectOptions.payload = form;
       } else {
-        injectOptions.payload = 'body' in options ? options.body ?? {} : {};
+        injectOptions.payload = 'body' in options ? (options.body ?? {}) : {};
       }
     }
 
