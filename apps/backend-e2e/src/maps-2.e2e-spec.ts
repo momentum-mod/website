@@ -39,7 +39,7 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
 import { ZonesStub } from '@momentum/formats/zone';
 import {

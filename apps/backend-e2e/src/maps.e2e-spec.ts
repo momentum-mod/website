@@ -34,7 +34,7 @@ import {
 } from '@momentum/test-utils';
 import { PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import {
   generateRandomMapZones,
   ZonesStub,

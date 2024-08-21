@@ -6,7 +6,7 @@ import {
   MapZones,
   TrackType
 } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
 import { isLinearMainTrack } from '@momentum/formats/zone';
 

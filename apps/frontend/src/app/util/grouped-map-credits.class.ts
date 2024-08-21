@@ -5,7 +5,7 @@ import {
   MapSubmissionPlaceholder,
   STEAM_MISSING_AVATAR_URL
 } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 
 /**
  * Either a MapCredit with just the parts we need to handle filtering/editing

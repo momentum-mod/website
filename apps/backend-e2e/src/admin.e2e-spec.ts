@@ -30,7 +30,7 @@ import {
   Killswitches
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import {
   AuthUtil,
   createSha1Hash,

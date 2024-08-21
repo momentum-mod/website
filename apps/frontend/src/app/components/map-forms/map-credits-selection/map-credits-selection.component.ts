@@ -13,7 +13,7 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { KeyValuePipe } from '@angular/common';
 import { UserSearchComponent } from '../../search/user-search.component';
 import { GroupedMapCredits } from '../../../util';

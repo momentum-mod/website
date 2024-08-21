@@ -11,7 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { NgStyle } from '@angular/common';
 import * as Bitflags from '@momentum/bitflags';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 
 @Component({
   selector: 'm-admin-activity-entry',

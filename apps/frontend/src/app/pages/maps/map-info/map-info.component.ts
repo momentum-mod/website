@@ -19,7 +19,7 @@ import { SharedModule } from '../../../shared.module';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { DomSanitizer } from '@angular/platform-browser';

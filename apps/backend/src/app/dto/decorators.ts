@@ -24,7 +24,7 @@ import {
   IsUUID
 } from 'class-validator';
 import { intersection } from '@momentum/util-fn';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { IsBigInt } from '../validators';
 
 /**
