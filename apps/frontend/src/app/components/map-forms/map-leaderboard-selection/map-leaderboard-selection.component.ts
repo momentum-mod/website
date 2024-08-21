@@ -14,7 +14,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { CommonModule } from '@angular/common';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
 
 @Component({

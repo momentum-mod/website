@@ -6,7 +6,7 @@ import {
   MMap,
   PagedResponse
 } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
 import { EMPTY, merge, of, Subject } from 'rxjs';

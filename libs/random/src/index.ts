@@ -1,4 +1,4 @@
-import { Enum, HeteroEnum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 
 export function chance(probabilityOfTrue = 0.5): boolean {
   return Math.random() < probabilityOfTrue;
@@ -73,11 +73,11 @@ export function weighted<T>(choices: [T, number][]): T {
   return choices[i][0];
 }
 
-export function enumKey<T extends HeteroEnum<T>>(enum_: T): keyof T {
+export function enumKey<T extends Enum.HeteroEnum<T>>(enum_: T): keyof T {
   return element(Enum.keys(enum_)) as keyof T;
 }
 
-export function enumValue<T extends HeteroEnum<T>>(enum_: T): T[keyof T] {
+export function enumValue<T extends Enum.HeteroEnum<T>>(enum_: T): T[keyof T] {
   return enum_[enumKey(enum_)];
 }
 

@@ -6,7 +6,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { CombinedRoles, MapStatus, Role } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   PRISMA_MOCK_PROVIDER,

@@ -1,4 +1,4 @@
-import { Enum } from './enum';
+import * as Enum from './';
 
 enum NumericEnum {
   A = 1,
@@ -71,6 +71,8 @@ describe('Enum', () => {
     expect(Enum.keys(StringEnum)).toEqual(['A', 'B', 'C']);
     expect(Enum.keys(HeteroEnum)).toEqual(['A', 'B']);
     expect(Enum.keys(EmptyEnum)).toEqual([]);
+    expect(Enum.fastKeysNumeric(NumericEnum)).toEqual(['A', 'B', 'C', 'D']);
+    expect(Enum.fastKeysString(StringEnum)).toEqual(['A', 'B', 'C']);
 
     enum NaNTest {
       A,
@@ -84,6 +86,13 @@ describe('Enum', () => {
     expect(Enum.values(NumericEnum)).toEqual([1, 2, 3, 4]);
     expect(Enum.values(StringEnum)).toEqual(['Apple', 'Banana', 'Cauliflower']);
     expect(Enum.values(HeteroEnum)).toEqual([1, 'DONTUSETHESE']);
+
+    expect(Enum.fastValuesNumeric(NumericEnum)).toEqual([1, 2, 3, 4]);
+    expect(Enum.fastValuesString(StringEnum)).toEqual([
+      'Apple',
+      'Banana',
+      'Cauliflower'
+    ]);
   });
 
   it('should return an empty array for the values of an empty enum', () => {
@@ -107,17 +116,18 @@ describe('Enum', () => {
       ['B', 'DONTUSETHESE']
     ]);
     expect(Enum.entries(EmptyEnum)).toEqual([]);
-  });
 
-  it('should return an iterator for the keys of the enum', () => {
-    expect([...Enum.iterKeys(NumericEnum)]).toEqual(['A', 'B', 'C', 'D']);
-    expect([...Enum.iterKeys(StringEnum)]).toEqual(['A', 'B', 'C']);
-    expect([...Enum.iterKeys(HeteroEnum)]).toEqual(['A', 'B']);
-    expect([...Enum.iterKeys(EmptyEnum)]).toEqual([]);
+    expect(Enum.fastEntriesNumeric(NumericEnum)).toEqual([
+      ['A', 1],
+      ['B', 2],
+      ['C', 3],
+      ['D', 4]
+    ]);
 
-    // Just to check I actually got the construction of the iterator right...
-    const result = [];
-    for (const key of Enum.iterKeys(NumericEnum)) result.push(key);
-    expect(result).toEqual(['A', 'B', 'C', 'D']);
+    expect(Enum.fastEntriesString(StringEnum)).toEqual([
+      ['A', 'Apple'],
+      ['B', 'Banana'],
+      ['C', 'Cauliflower']
+    ]);
   });
 });

@@ -8,7 +8,7 @@ import {
   MMap,
   TrackType
 } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
 import { groupMapLeaderboards } from '../../util';
 import { SharedModule } from '../../shared.module';

@@ -8,7 +8,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { KillswitchType, Killswitches } from '@momentum/constants';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 
 export const KILLSWITCH_CONFIG_ID = 'Killswitches';
 

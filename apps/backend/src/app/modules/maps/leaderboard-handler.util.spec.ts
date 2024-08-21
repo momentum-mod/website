@@ -1,4 +1,3 @@
-import { Enum } from '@momentum/enum';
 import {
   Gamemode,
   IncompatibleGamemodes,
@@ -10,9 +9,10 @@ import { LeaderboardHandler } from './leaderboard-handler.util';
 describe('LeaderboardHandler', () => {
   describe('getCompatibleSuggestions', () => {
     it('should expand an array of suggestions to everything compatible', () => {
-      jest
-        .spyOn(Enum, 'values')
-        .mockReturnValue([Gamemode.AHOP, Gamemode.BHOP, Gamemode.SURF]);
+      jest.mock('@momentum/enum', () => ({
+        values: jest.fn().mockReturnValue([Gamemode.AHOP, Gamemode.BHOP])
+      }));
+
       jest
         .spyOn(IncompatibleGamemodes, 'get')
         .mockImplementation((key) =>

@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { SharedModule } from '../../../shared.module';
 import { AdminService } from '../../../services/data/admin.service';
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { KillswitchType, Killswitches } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';

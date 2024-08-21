@@ -1,4 +1,4 @@
-import { Enum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export class ExtendededValidators {

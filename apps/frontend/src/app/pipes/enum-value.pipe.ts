@@ -1,9 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Enum, NumericEnum } from '@momentum/enum';
+import * as Enum from '@momentum/enum';
 
 @Pipe({ name: 'enumValue', standalone: true })
 export class EnumValuePipe implements PipeTransform {
-  transform(input: NumericEnum<unknown>): number[] {
+  transform(input: Enum.NumericEnum<unknown>): number[] {
     return Enum.values(input);
   }
 }
