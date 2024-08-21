@@ -12,17 +12,17 @@
       <m-icon class="h-16 w-16 p-2" icon="close" />
     </button>
 
-    <div #parent class="z-10 grid aspect-video min-h-0 basis-[87.5%] place-items-center">
+    <div #parent class="pointer-events-none z-10 grid aspect-video min-h-0 basis-[87.5%] place-items-center">
       @if (selectedItem && selectedItem.type === 'image') {
-        <img class="rounded shadow-lg" [src]="selectedItem.full" />
+        <img class="pointer-events-auto rounded shadow-lg" [src]="selectedItem.full" />
       } @else if (selectedItem && selectedItem.type === 'youtube') {
-        <iframe class="h-full shadow-lg" type="text/html" [src]="selectedItem.safeUrl"></iframe>
+        <iframe class="pointer-events-auto h-full shadow-lg" type="text/html" [src]="selectedItem.safeUrl"></iframe>
       }
     </div>
 
     @if (items.length > 1) {
       <!-- Make sure high in z-order so clicking in between thumbnails doesn't trigger close (annoying!)-->
-      <div class="z-10 mt-[1.5vh] flex min-h-0 w-full basis-[12.5%] items-center justify-center gap-[1.5vh] overflow-x-auto">
+      <div class="z-10 mt-[1.5vh] flex min-h-0 basis-[12.5%] items-center justify-center gap-[1.5vh] overflow-x-auto">
         @for (item of items; track $index) {
           <!-- Needed for hover effect -->
           <button
