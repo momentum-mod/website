@@ -42,7 +42,7 @@
     "passport-twitter": "1.0.4",
     "sequelize": "6.29.0",
     "sharp": "0.30.5",
-    "steam-appticket": "^1.0.1",
+    "steam-appticket": "2.0.0-beta.1",
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
     "typescript": "^4.4.4",
