@@ -217,7 +217,7 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
     default: 3500
   })
   @IsNumber()
-  @Min(2000)
+  @Min(1)
   @Max(1000000000)
   @IsOptional()
   readonly maxVelocity?: number;
