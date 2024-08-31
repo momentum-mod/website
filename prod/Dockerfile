@@ -6,7 +6,8 @@ RUN addgroup --system backend && \
     adduser --system -G backend backend
 
 COPY ../dist/apps/backend .
-COPY ../libs/db/src/prisma/ ./prisma/
+COPY ../libs/db/src/schema.prisma ./prisma/
+COPY ../libs/db/src/migrations/ ./prisma/migrations/
 
 RUN chown -R backend:backend .
 
