@@ -389,8 +389,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
           arrayFrom(randRange(vars.bonusesPerMap), (_) =>
             randRange({ min: 1, max: 3 })
           ),
-          2 ** 16 - 64,
-          1024,
+          8192,
+          512,
           512
         );
 
@@ -1114,9 +1114,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     const mapListJson = JSON.stringify(maps);
 
-    // Uncomment below line and import writeFileSync to write this out to disk
-    // if you want to debug output of this.
-    // writeFileSync(`./map-list-${type}.json`, mapListJson);
+    // Uncomment below line to write this out to disk if you want to debug output of this.
+    // eslint-disable-next-line unicorn/no-await-expression-member
+    (await import('node:fs')).writeFileSync(
+      `./map-list-${type}.json`,
+      mapListJson
+    );
 
     const compressed = await promisify(zlib.deflate)(mapListJson);
     await s3.send(
