@@ -109,15 +109,15 @@
             @if (vmfs.errors?.['fileExtension']) {
               <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>File extension must end in <b>.vmf</b>.</p>
             }
-            @if (zon.errors?.['fileMaxSize']) {
+            @if (vmfs.errors?.['fileMaxSize']) {
               <p class="mb-1 text-right text-lg text-red-400">
                 <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
               </p>
             }
-            @if (zon.errors?.['vdfFileValidationError']) {
+            @if (vmfs.errors?.['vdfFileValidationError']) {
               <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!</p>
             }
-            @if (zon.errors?.['fileReadError']) {
+            @if (vmfs.errors?.['fileReadError']) {
               <p class="mb-1 text-right text-lg text-red-400"><b>Error: </b>Could not read file.</p>
             }
           </div>
