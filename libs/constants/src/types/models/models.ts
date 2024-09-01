@@ -376,7 +376,7 @@ export interface MapZones {
 
 export interface MapTracks {
   main: MainTrack;
-  bonuses: BonusTrack[];
+  bonuses?: BonusTrack[];
 }
 
 export interface MainTrack {
@@ -396,7 +396,7 @@ export interface TrackZones {
 
 export interface Segment {
   checkpoints: Zone[];
-  cancel: Zone[];
+  cancel?: Zone[];
   name?: string;
   limitStartGroundSpeed: boolean;
   checkpointsRequired: boolean;

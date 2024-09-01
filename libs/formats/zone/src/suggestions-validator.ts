@@ -31,8 +31,8 @@ function leaderboardName(
   trackNum: number,
   gamemode?: Gamemode
 ) {
-  let str = gamemode != null ? `${GamemodeInfo.get(gamemode).name} ` : '';
-  str += TTName.get(trackType).toLowerCase();
+  let str = gamemode != null ? `${GamemodeInfo.get(gamemode)!.name} ` : '';
+  str += TTName.get(trackType)!.toLowerCase();
   str += trackType === TrackType.MAIN ? ' track' : ` ${trackNum}`;
   return str;
 }
@@ -82,12 +82,12 @@ export function validateSuggestions(
         // So this check is quite weak, but not the end of the world as a
         // reviewer can just ignore/reject stupid suggestions.
         if (
-          IncompatibleGamemodes.get(gm).has(gm2) &&
-          IncompatibleGamemodes.get(gm2).has(gm)
+          IncompatibleGamemodes.get(gm)!.has(gm2) &&
+          IncompatibleGamemodes.get(gm2)!.has(gm)
         ) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
-              `${GamemodeInfo.get(gm).name} and ${GamemodeInfo.get(gm2).name} on ` +
+              `${GamemodeInfo.get(gm)!.name} and ${GamemodeInfo.get(gm2)!.name} on ` +
               leaderboardName(tt, tn)
           );
         }
@@ -165,6 +165,7 @@ export function validateSuggestions(
     }
   }
 
+  const numBonuses = zoneData.tracks.bonuses?.length ?? 0;
   if (type === SuggestionType.SUBMISSION || type === SuggestionType.APPROVAL) {
     if (!hasMainTrack)
       throw new SuggestionValidationError('Missing main track');
@@ -172,7 +173,7 @@ export function validateSuggestions(
     // Zone and suggestions must have main tracks per their respective validators,
     // and we don't do suggestions for stages, so all that's left is to check that
     // all bonus tracks have suggestions:
-    for (let i = 1; i < zoneData.tracks.bonuses.length + 1; i++) {
+    for (let i = 1; i < numBonuses + 1; i++) {
       if (
         !suggestions.some(
           ({ trackType, trackNum }) => trackType === TT.BONUS && trackNum === i
@@ -188,14 +189,11 @@ export function validateSuggestions(
   if (type === SuggestionType.APPROVAL) {
     [
       [TrackType.MAIN, 1],
-      ...arrayFrom(zoneData.tracks.bonuses.length, (i) => [
-        TrackType.BONUS,
-        i + 1
-      ])
+      ...arrayFrom(numBonuses, (i) => [TrackType.BONUS, i + 1])
     ].forEach(([trackType, trackNum]) => {
       if (
-        !suggestions.some(
-          (sugg: MapSubmissionApproval) =>
+        !(suggestions as MapSubmissionApproval[]).some(
+          (sugg) =>
             sugg.trackType === trackType &&
             sugg.trackNum === trackNum &&
             (sugg.type === LeaderboardType.UNRANKED ||
@@ -214,7 +212,7 @@ export function validateSuggestions(
   suggestions
     .filter(({ trackType }) => trackType === TrackType.BONUS)
     .forEach(({ trackNum }) => {
-      if (!zoneData.tracks.bonuses[trackNum - 1]) {
+      if (!zoneData.tracks.bonuses?.[trackNum - 1]) {
         throw new SuggestionValidationError(
           `Suggestion refers to bonus track (${trackNum}) that does not exist`
         );
