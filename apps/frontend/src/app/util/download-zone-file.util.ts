@@ -22,7 +22,7 @@ export function downloadZoneFile(map: MMap) {
   document.body.append(a);
   a.setAttribute('style', 'display: none');
   a.href = url;
-  a.download = `${map.name}.zon.json`;
+  a.download = `${map.name}.json`;
   a.click();
 
   URL.revokeObjectURL(url);
