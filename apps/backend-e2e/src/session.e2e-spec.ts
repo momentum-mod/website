@@ -997,7 +997,7 @@ describe('Session', () => {
 
       it('should reject if the run does not fall within the run timestamps', async () => {
         const res = await submitWithOverrides({
-          beforeSave: (self) => (self.replay.header.stopTick *= 2)
+          beforeSave: (self) => (self.replay.header.stopTick *= 20)
         });
 
         expect(res.statusCode).toBe(400);
