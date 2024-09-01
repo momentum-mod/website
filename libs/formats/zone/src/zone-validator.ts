@@ -108,7 +108,7 @@ export function validateZoneFile(input: MapZones): void {
                   checkpoints: currSegment.checkpoints.slice(0, -1)
                 }
               ],
-              end: currSegment.checkpoints.at(1)
+              end: currSegment.checkpoints.at(-1)!
             }
           },
           name
@@ -122,10 +122,10 @@ export function validateZoneFile(input: MapZones): void {
     }
   }
 
-  if (tracks.bonuses.length > MAX_BONUS_TRACKS)
+  if ((tracks.bonuses?.length ?? 0) > MAX_BONUS_TRACKS)
     throw new ZoneValidationError('Too many bonus tracks');
 
-  for (const [bonusIndex, bonusTrack] of tracks.bonuses.entries()) {
+  for (const [bonusIndex, bonusTrack] of tracks.bonuses?.entries() ?? []) {
     if (Boolean(bonusTrack.zones) === Boolean(bonusTrack.defragModifiers))
       throw new ZoneValidationError(
         `Bonus ${bonusIndex + 1} track must specify exactly one of zones or defragModifiers`
@@ -176,7 +176,13 @@ export function validateZoneFile(input: MapZones): void {
         thr('has no start zone');
       }
 
-      ['limitStartGroundSpeed', 'checkpointsRequired', 'checkpointsOrdered']
+      (
+        [
+          'limitStartGroundSpeed',
+          'checkpointsRequired',
+          'checkpointsOrdered'
+        ] as const
+      )
         .filter((k) => !(segment[k] === true || segment[k] === false))
         .forEach((k) => thr(`${k} must be a boolean`));
 
@@ -198,7 +204,7 @@ export function validateZoneFile(input: MapZones): void {
           )
         );
 
-      segment.cancel.forEach((cancel) =>
+      segment.cancel?.forEach((cancel) =>
         validateZone(
           cancel,
           debugName,
@@ -221,7 +227,7 @@ export function validateZoneFile(input: MapZones): void {
 
     totalZones++;
 
-    if (zone.regions.length === 0)
+    if (!Array.isArray(zone.regions) || zone.regions.length === 0)
       throw new ZoneValidationError(
         `Track ${trackName} ${zoneName} has no regions`
       );
@@ -232,6 +238,10 @@ export function validateZoneFile(input: MapZones): void {
           `Track ${trackName} ${zoneName} region ${regionIndex} ${str}`
         );
       };
+
+      if (!Array.isArray(region.points)) {
+        thr('has no points');
+      }
 
       if (region.points.length < 3) {
         thr('does not have enough points');
