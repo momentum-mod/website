@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["tracing"]
 }
 
@@ -20,27 +20,27 @@ model User {
   avatar  String?
   country String? @db.Char(2)
 
-  userAuth          UserAuth?
-  profile           Profile?
-  userStats         UserStats?
-  submittedMaps     MMap[]
-  mapCredits        MapCredit[]
-  mapFavorites      MapFavorite[]
-  activities        Activity[]
-  follows           Follow[]           @relation("follow_follow")
-  followers         Follow[]           @relation("follow_follower")
-  mapNotifies       MapNotify[]
-  notifications     Notification[]
-  runSessions       RunSession[]
-  leaderboardRuns   LeaderboardRun[]
-  pastRuns          PastRun[]
-  reportSubmitted   Report[]           @relation("report_submitter")
-  reportResolved    Report[]           @relation("report_resolver")
-  testInvites       MapTestInvite[]
-  reviewsSubmitted  MapReview[]        @relation("mapreview_reviewer")
-  reviewsResolved   MapReview[]        @relation("mapreview_resolver")
-  reviewComments    MapReviewComment[]
-  adminActivities   AdminActivity[]
+  userAuth         UserAuth?
+  profile          Profile?
+  userStats        UserStats?
+  submittedMaps    MMap[]
+  mapCredits       MapCredit[]
+  mapFavorites     MapFavorite[]
+  activities       Activity[]
+  follows          Follow[]           @relation("follow_follow")
+  followers        Follow[]           @relation("follow_follower")
+  mapNotifies      MapNotify[]
+  notifications    Notification[]
+  runSessions      RunSession[]
+  leaderboardRuns  LeaderboardRun[]
+  pastRuns         PastRun[]
+  reportSubmitted  Report[]           @relation("report_submitter")
+  reportResolved   Report[]           @relation("report_resolver")
+  testInvites      MapTestInvite[]
+  reviewsSubmitted MapReview[]        @relation("mapreview_reviewer")
+  reviewsResolved  MapReview[]        @relation("mapreview_resolver")
+  reviewComments   MapReviewComment[]
+  adminActivities  AdminActivity[]
 
   createdAt DateTime @default(now())
 }
