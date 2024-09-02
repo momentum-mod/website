@@ -269,6 +269,12 @@ export function validateZoneFile(input: MapZones): void {
         thr('is too high');
       }
 
+      for (const [i, point] of region.points.entries()) {
+        if (point.length !== 2 || !point.every((p) => !Number.isNaN(+p))) {
+          thr(`point ${i} is not a 2-tuple`);
+        }
+      }
+
       const MIN_DIST = 4;
       const MIN_ANGLE = Math.PI * (15 / 180);
 
