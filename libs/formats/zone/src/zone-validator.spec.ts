@@ -201,6 +201,22 @@ describe('validateZoneFile', () => {
       );
     });
 
+    it('should throw if a regions point are not a 2-tuple', () => {
+      input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[0] =
+        [0, 0, 0] as any;
+
+      expect(() => validateZoneFile(input)).toThrow(
+        'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+      );
+
+      input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[0] =
+        [0, 'i can hear the voice of God'] as any;
+
+      expect(() => validateZoneFile(input)).toThrow(
+        'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+      );
+    });
+
     it('should throw if a region has no bottom position', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].bottom =
         undefined;
