@@ -4,7 +4,7 @@
   MapInfo,
   MapStats,
   MapSubmission,
-  MapSubmissionVersion,
+  MapVersion,
   MMap,
   PastRun,
   Prisma,
@@ -68,12 +68,14 @@ export class DbUtil {
 
   //#region Users
 
-  private createUserData() {
+  getNewUserCreateData() {
     return {
-      steamID: randomSteamID(),
-      alias: `User ${++this.users}`,
-      profile: { create: {} },
-      userStats: { create: {} }
+      create: {
+        steamID: randomSteamID(),
+        alias: `User ${++this.users}`,
+        profile: { create: {} },
+        userStats: { create: {} }
+      }
     };
   }
 
@@ -81,7 +83,7 @@ export class DbUtil {
     return this.prisma.user.create(
       merge(
         {
-          data: this.createUserData()
+          data: this.getNewUserCreateData().create
         },
         args
       ) as Prisma.UserCreateArgs
@@ -128,89 +130,87 @@ export class DbUtil {
       info: MapInfo;
       stats: MapStats;
       leaderboards: Leaderboard[];
-      submission: MapSubmission & { versions: MapSubmissionVersion[] };
+      currentVersion: MapVersion;
+      versions: MapVersion[];
+      submission: MapSubmission;
     }
   > {
     const createdMap = await this.prisma.mMap.create({
       data: {
-        ...merge(
-          {
-            name: `ahop_map${++this.maps}`,
-            zones: ZonesStub,
-            status: MapStatus.APPROVED,
-            hash: randomHash(),
-            info: {
-              create: {
-                creationDate: new Date(),
-                description: 'Maps have a minimum description length now!!'
-              }
-            },
-            images: mmap?.images ?? [],
-            stats: mmap?.stats ?? { create: {} },
-            submission: mmap?.submission ?? {
-              create: {
-                type: MapSubmissionType.ORIGINAL,
-                suggestions: [
-                  {
+        ...({
+          name: `ahop_map${++this.maps}`,
+          status: MapStatus.APPROVED,
+          info: {
+            create: {
+              creationDate: new Date(),
+              description: 'Maps have a minimum description length now!!'
+            }
+          },
+          images: [],
+          stats: { create: {} },
+          versions: {
+            create: {
+              versionNum: 1,
+              changelog: 'hello',
+              submitter: this.getNewUserCreateData(),
+              bspHash: createSha1Hash(Math.random().toString()),
+              zones: ZonesStub as unknown as JsonValue, // TODO: #855
+              zoneHash: createSha1Hash(JSON.stringify(ZonesStub))
+            }
+          },
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              suggestions: [
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                }
+              ]
+            }
+          },
+          submitter: this.getNewUserCreateData(),
+          // Just creating the one leaderboard here, most maps will have more,
+          // but isn't needed or worth the test perf hit
+          leaderboards:
+            (mmap?.leaderboards ?? noLeaderboards)
+              ? undefined
+              : {
+                  create: {
                     gamemode: Gamemode.AHOP,
                     trackType: TrackType.MAIN,
                     trackNum: 1,
+                    style: 0,
                     tier: 1,
+                    linear: true,
                     type: LeaderboardType.RANKED
                   }
-                ],
-                versions: {
-                  create: {
-                    versionNum: 1,
-                    changelog: 'hello',
-                    hash: createSha1Hash(Math.random().toString()),
-                    zones: ZonesStub
-                  }
                 }
-              }
-            },
-            submitter: mmap?.submitter ?? { create: this.createUserData() },
-            // Just creating the one leaderboard here, most maps will have more,
-            // but isn't needed or worth the test perf hit
-            leaderboards:
-              (mmap?.leaderboards ?? noLeaderboards)
-                ? undefined
-                : {
-                    create: {
-                      gamemode: Gamemode.AHOP,
-                      trackType: TrackType.MAIN,
-                      trackNum: 1,
-                      style: 0,
-                      tier: 1,
-                      linear: true,
-                      type: LeaderboardType.RANKED
-                    }
-                  }
-          } as CreateMapMMapArgs,
-          mmap
-        )
+        } as CreateMapMMapArgs),
+        // Spread will replace any default values above with given values
+        ...mmap
       } as any,
-      include: { submission: { include: { versions: true } } }
+      include: { versions: true }
     });
 
+    const latestVersion = createdMap?.versions?.at(-1)?.id;
     return this.prisma.mMap.update({
       where: { id: createdMap.id },
       data: {
-        submission: createdMap?.submission?.versions?.[0]
-          ? {
-              update: {
-                currentVersion: {
-                  connect: { id: createdMap.submission.versions[0].id }
-                }
-              }
-            }
+        currentVersion: latestVersion
+          ? { connect: { id: latestVersion } }
           : undefined
       },
       include: {
         info: true,
         stats: true,
+        versions: true,
+        currentVersion: true,
         leaderboards: true,
-        submission: { include: { versions: true, currentVersion: true } }
+        submission: true
       }
     });
   }
@@ -240,7 +240,16 @@ export class DbUtil {
   ) {
     return this.createMap({
       ...mmap,
-      zones: ZonesStub,
+      versions: {
+        create: {
+          versionNum: 1,
+          changelog: 'hello',
+          submitter: this.getNewUserCreateData(),
+          bspHash: createSha1Hash(Math.random().toString()),
+          zones: ZonesStub as unknown as JsonValue, // TODO: #855
+          zoneHash: createSha1Hash(JSON.stringify(ZonesStub))
+        }
+      },
       leaderboards: {
         createMany: {
           data: gamemodes.flatMap((gamemode) => [
@@ -403,6 +412,6 @@ export class DbUtil {
 //#region Types
 
 type CreateUserArgs = PartialDeep<Prisma.UserCreateArgs>;
-type CreateMapMMapArgs = PartialDeep<Prisma.MMapCreateInput>;
+type CreateMapMMapArgs = Partial<Prisma.MMapCreateInput>;
 
 //#endregion

@@ -127,12 +127,12 @@ assertTypeCorrespondence<
   { mapID: OmitMe; currentVersionID: OmitMe }
 >();
 
-import { MapSubmissionVersion } from './models';
-import { MapSubmissionVersion as PMapSubmissionVersion } from '@prisma/client';
+import { MapVersion } from './models';
+import { MapVersion as PMapVersion } from '@prisma/client';
 assertTypeCorrespondence<
-  MapSubmissionVersion,
-  PMapSubmissionVersion,
-  { hasVmf: OmitMe; submissionID: OmitMe }
+  MapVersion,
+  PMapVersion,
+  { hasVmf: OmitMe; mapID: OmitMe }
 >();
 
 //#endregion

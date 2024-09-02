@@ -18,7 +18,7 @@ export * from './map/map-submission.dto';
 export * from './map/map-submission-approval.dto';
 export * from './map/map-submission-placeholder.dto';
 export * from './map/map-submission-suggestion.dto';
-export * from './map/map-submission-version.dto';
+export * from './map/map-version.dto';
 export * from './map/map-review.dto';
 export * from './map/map-review-comment.dto';
 export * from './map/map-review-suggestions.dto';

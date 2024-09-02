@@ -174,13 +174,12 @@ export interface MMap {
   id: number;
   name: string;
   status: MapStatus;
-  downloadURL: string;
-  hash: string;
-  vmfDownloadURL: string;
   submitterID: number;
   createdAt: DateString;
   updatedAt: DateString;
-  zones: MapZones;
+  currentVersion: MapVersion;
+  currentVersionID: string;
+  versions: MapVersion[];
   info: MapInfo;
   submission: MapSubmission;
   submitter: User;
@@ -193,6 +192,19 @@ export interface MMap {
   worldRecords: LeaderboardRun[];
   personalBests: LeaderboardRun[];
   testInvites?: MapTestInvite[];
+}
+
+export interface MapVersion {
+  id: string;
+  versionNum: number;
+  submitterID: number | null;
+  changelog: string;
+  zones: MapZones;
+  bspHash: string;
+  zoneHash: string;
+  downloadURL: string;
+  vmfDownloadURL?: string;
+  createdAt: DateString;
 }
 
 export interface MapInfo {
@@ -309,8 +321,6 @@ export interface MapSubmission {
   suggestions: MapSubmissionSuggestion[];
   placeholders: MapSubmissionPlaceholder[];
   dates: MapSubmissionDate[];
-  currentVersion: MapSubmissionVersion;
-  versions: MapSubmissionVersion[];
 }
 
 export interface MapSubmissionApproval {
@@ -340,17 +350,6 @@ export interface MapSubmissionSuggestion {
   type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
   comment?: string;
   //  TODO: Tags!
-}
-
-export interface MapSubmissionVersion {
-  id: string;
-  versionNum: number;
-  changelog: string;
-  zones: MapZones;
-  hash: string;
-  downloadURL: string;
-  vmfDownloadURL?: string;
-  createdAt: DateString;
 }
 
 export type MapTags = string[];

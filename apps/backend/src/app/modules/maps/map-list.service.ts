@@ -69,7 +69,6 @@ export class MapListService implements OnModuleInit {
       select: {
         id: true,
         name: true,
-        hash: true,
         status: true,
         images: true,
         info: true,
@@ -83,28 +82,11 @@ export class MapListService implements OnModuleInit {
             }
           }
         },
-        submission:
-          type === FlatMapList.SUBMISSION
-            ? {
-                select: {
-                  currentVersion: {
-                    select: {
-                      id: true,
-                      versionNum: true,
-                      hash: true,
-                      changelog: true,
-                      zones: true,
-                      createdAt: true
-                    }
-                  },
-                  type: true,
-                  placeholders: true,
-                  suggestions: true,
-                  dates: true
-                }
-              }
-            : undefined,
-        createdAt: true
+        createdAt: true,
+        currentVersion: { omit: { zones: true, changelog: true } },
+        ...(type === FlatMapList.SUBMISSION
+          ? { submission: true, versions: { omit: { zones: true } } }
+          : {})
       }
     });
 

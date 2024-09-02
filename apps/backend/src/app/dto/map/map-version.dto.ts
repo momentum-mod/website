@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  CreateMapSubmissionVersion,
+  bspPath,
+  CreateMapVersion,
   DateString,
-  MapSubmissionVersion,
+  MapVersion,
   MAX_CHANGELOG_LENGTH,
-  submissionBspPath,
-  submissionVmfsPath
+  vmfsPath
 } from '@momentum/constants';
 import {
   IsBoolean,
@@ -18,14 +18,13 @@ import {
   MaxLength
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
-import { CreatedAtProperty, NestedProperty } from '../decorators';
+import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { Config } from '../../config';
-import { MapSubmissionDto } from './map-submission.dto';
 import { MapZonesDto } from './map-zones.dto';
 
 const CDN_URL = Config.url.cdn;
 
-export class MapSubmissionVersionDto implements MapSubmissionVersion {
+export class MapVersionDto implements MapVersion {
   @ApiProperty()
   @IsUUID()
   readonly id: string;
@@ -47,12 +46,6 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
   readonly zones: MapZonesDto;
 
-  @Exclude()
-  readonly submission: MapSubmissionDto;
-
-  @Exclude()
-  readonly submissionID: number;
-
   @ApiProperty({ type: String, description: 'URL to BSP in cloud storage' })
   @Expose()
   @IsOptional()
@@ -62,13 +55,18 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
     // We store BSPs relative to their UUID and don't expose maps to submission
     // to users that don't have permission (see MapsService.getMapAndCheckReadAccces)
     // so this is a reasonably secure way to keep maps hidden from most users.
-    return `${CDN_URL}/${submissionBspPath(this.id)}`;
+    return `${CDN_URL}/${bspPath(this.id)}`;
   }
 
   @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
   @IsHash('sha1')
   @IsOptional()
-  readonly hash: string;
+  readonly bspHash: string;
+
+  @ApiProperty({ description: 'SHA1 hash of the zones', type: String })
+  @IsHash('sha1')
+  @IsOptional()
+  readonly zoneHash: string;
 
   @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
   @Expose()
@@ -76,21 +74,20 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @IsString()
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
-    return this.hasVmf
-      ? `${CDN_URL}/${submissionVmfsPath(this.id)}`
-      : undefined;
+    return this.hasVmf ? `${CDN_URL}/${vmfsPath(this.id)}` : undefined;
   }
 
   @Exclude()
   readonly hasVmf: boolean;
 
+  @IdProperty()
+  readonly submitterID: number;
+
   @CreatedAtProperty()
   readonly createdAt: DateString;
 }
 
-export class CreateMapSubmissionVersionDto
-  implements CreateMapSubmissionVersion
-{
+export class CreateMapVersionDto implements CreateMapVersion {
   @NestedProperty(MapZonesDto, {
     required: false,
     description: 'The contents of the map zone file as JSON'

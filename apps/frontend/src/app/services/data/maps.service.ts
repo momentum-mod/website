@@ -21,7 +21,7 @@ import {
   UpdateMapReview,
   UpdateMap,
   UpdateMapImagesWithFiles,
-  CreateMapSubmissionVersionWithFiles,
+  CreateMapVersionWithFiles,
   CreateMapTestInvite,
   MapPreSignedUrl
 } from '@momentum/constants';
@@ -92,7 +92,7 @@ export class MapsService {
 
   submitMapVersion(
     mapID: number,
-    { data, vmfs }: CreateMapSubmissionVersionWithFiles
+    { data, vmfs }: CreateMapVersionWithFiles
   ): Observable<HttpEvent<string>> {
     const formData = new FormData();
 

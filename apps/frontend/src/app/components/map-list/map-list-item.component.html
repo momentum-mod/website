@@ -106,7 +106,7 @@
             } @else {
               <span class="text-gray-300">Current Status: </span>
               <span class="font-medium text-red-200">{{ MapStatusName.get(map.status) }}</span>
-              @if (!map.hash && !map.submission?.currentVersion?.hash) {
+              @if (!map.currentVersion?.bspHash) {
                 <span class="ml-2 font-bold text-red-500">Files deleted!</span>
               }
             }

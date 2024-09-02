@@ -13,7 +13,7 @@ import {
   MapSubmissionApproval,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
-  MapSubmissionVersion,
+  MapVersion,
   MapZones,
   MMap
 } from '../../';
@@ -21,11 +21,14 @@ import {
 //#region Map
 
 type BaseMapsGetAllExpand =
-  | 'zones'
   | 'leaderboards'
   | 'info'
   | 'stats'
   | 'submitter'
+  | 'currentVersionWithZones'
+  | 'currentVersion'
+  | 'versions'
+  | 'versionsWithZones'
   | 'credits';
 
 export type MapsGetAllExpand = Array<
@@ -37,8 +40,6 @@ export type MapsGetAllSubmissionExpand = Array<
   | 'inFavorites'
   | 'personalBest'
   | 'worldRecord'
-  | 'currentVersion'
-  | 'versions'
   | 'reviews'
 >;
 
@@ -199,14 +200,14 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
 //#endregion
 //#region Submissions
 
-export interface CreateMapSubmissionVersion
-  extends Pick<MapSubmissionVersion, 'changelog' | 'zones'> {
+export interface CreateMapVersion
+  extends Pick<MapVersion, 'changelog' | 'zones'> {
   resetLeaderboards?: boolean;
 }
 
-export interface CreateMapSubmissionVersionWithFiles {
+export interface CreateMapVersionWithFiles {
   vmfs: File[];
-  data: CreateMapSubmissionVersion;
+  data: CreateMapVersion;
 }
 
 //#endregion

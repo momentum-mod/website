@@ -4,9 +4,9 @@ import {
   MapSubmissionType,
   MapStatusName,
   TrackType,
-  MapSubmissionVersion,
   LeaderboardType,
-  GamemodeInfo
+  GamemodeInfo,
+  MapVersion
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import {
@@ -32,7 +32,7 @@ export class MapSubmissionComponent {
   protected readonly downloadZoneFile = downloadZoneFile;
 
   protected suggestions: GroupedMapSubmissionSuggestions;
-  protected versions: MapSubmissionVersion[];
+  protected versions: MapVersion[];
   protected visibleVersions: number;
 
   private _map: MMap;
@@ -42,7 +42,7 @@ export class MapSubmissionComponent {
   @Input({ required: true }) set map(map: MMap) {
     this._map = map;
     this.suggestions = groupMapSuggestions(map.submission.suggestions);
-    this.versions = map?.submission?.versions.toReversed();
+    this.versions = map?.versions.toReversed();
     this.visibleVersions = 2;
   }
 }

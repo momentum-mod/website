@@ -20,27 +20,28 @@ model User {
   avatar  String?
   country String? @db.Char(2)
 
-  userAuth         UserAuth?
-  profile          Profile?
-  userStats        UserStats?
-  submittedMaps    MMap[]
-  mapCredits       MapCredit[]
-  mapFavorites     MapFavorite[]
-  activities       Activity[]
-  follows          Follow[]           @relation("follow_follow")
-  followers        Follow[]           @relation("follow_follower")
-  mapNotifies      MapNotify[]
-  notifications    Notification[]
-  runSessions      RunSession[]
-  leaderboardRuns  LeaderboardRun[]
-  pastRuns         PastRun[]
-  reportSubmitted  Report[]           @relation("report_submitter")
-  reportResolved   Report[]           @relation("report_resolver")
-  testInvites      MapTestInvite[]
-  reviewsSubmitted MapReview[]        @relation("mapreview_reviewer")
-  reviewsResolved  MapReview[]        @relation("mapreview_resolver")
-  reviewComments   MapReviewComment[]
-  adminActivities  AdminActivity[]
+  userAuth             UserAuth?
+  profile              Profile?
+  userStats            UserStats?
+  submittedMaps        MMap[]
+  submittedMapVersions MapVersion[]
+  mapCredits           MapCredit[]
+  mapFavorites         MapFavorite[]
+  activities           Activity[]
+  follows              Follow[]           @relation("follow_follow")
+  followers            Follow[]           @relation("follow_follower")
+  mapNotifies          MapNotify[]
+  notifications        Notification[]
+  runSessions          RunSession[]
+  leaderboardRuns      LeaderboardRun[]
+  pastRuns             PastRun[]
+  reportSubmitted      Report[]           @relation("report_submitter")
+  reportResolved       Report[]           @relation("report_resolver")
+  testInvites          MapTestInvite[]
+  reviewsSubmitted     MapReview[]        @relation("mapreview_reviewer")
+  reviewsResolved      MapReview[]        @relation("mapreview_resolver")
+  reviewComments       MapReviewComment[]
+  adminActivities      AdminActivity[]
 
   createdAt DateTime @default(now())
 }
@@ -173,9 +174,6 @@ model MMap {
 
   name   String   @unique
   status Int      @db.SmallInt /// map-status.enum.ts
-  hash   String?  @db.Char(40)
-  hasVmf Boolean  @default(false)
-  zones  Json? /// map-zones.model.ts
   images String[]
 
   submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
@@ -184,6 +182,10 @@ model MMap {
   stats MapStats?
   info  MapInfo?
 
+  currentVersion   MapVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
+  currentVersionID String?     @unique @db.Uuid
+
+  versions        MapVersion[]
   leaderboards    Leaderboard[]
   leaderboardRuns LeaderboardRun[]
   pastRuns        PastRun[]
@@ -202,6 +204,29 @@ model MMap {
   // @unique on name provides an index.
   @@index([submitterID])
   @@index([status, createdAt(sort: Desc)])
+}
+
+model MapVersion {
+  id String @id @default(uuid()) @db.Uuid // BSP file stored relative to this
+
+  versionNum Int     @db.SmallInt
+  changelog  String?
+  bspHash    String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  zoneHash   String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  hasVmf     Boolean @default(false)
+  zones      Json? /// map-zones.model.ts
+
+  submitterID Int?
+  submitter   User? @relation(fields: [submitterID], references: [id])
+
+  currentVersion MMap? @relation(name: "current_version")
+
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
+
+  createdAt DateTime @default(now())
+
+  @@index([mapID])
 }
 
 model MapCredit {
@@ -281,30 +306,6 @@ model MapSubmission {
   suggestions  Json  @default("[]") /// Array of map-submission-suggestions.model.ts
   placeholders Json? /// Array of map-submission-placeholder.model.ts
   dates        Json  @default("[]") /// Array of map-submission-dates.model.ts
-
-  versions MapSubmissionVersion[]
-
-  currentVersion   MapSubmissionVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
-  currentVersionID String?               @unique @db.Uuid
-}
-
-model MapSubmissionVersion {
-  id String @id @default(uuid()) @db.Uuid // BSP file stored relative to this
-
-  currentVersion MapSubmission? @relation(name: "current_version")
-
-  versionNum Int     @db.SmallInt
-  changelog  String?
-  hash       String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
-  hasVmf     Boolean @default(false)
-  zones      Json? /// map-zones.model.ts
-
-  submission   MapSubmission @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
-  submissionID Int
-
-  createdAt DateTime @default(now())
-
-  @@index([submissionID])
 }
 
 // This model will be greatly expanded in the future to include screenshots,

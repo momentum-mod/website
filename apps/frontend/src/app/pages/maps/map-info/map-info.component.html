@@ -34,7 +34,7 @@
           <m-icon class="mr-2 pb-0.5" icon="play-circle" />
           Play
         </button>
-        @if (map.downloadURL ?? map.submission?.currentVersion?.downloadURL; as bsp) {
+        @if (map.currentVersion.downloadURL; as bsp) {
           <a (click)="downloadOverlay.show($event)" class="btn btn-purple" mTooltip="Download map file">
             <m-icon class="pb-0.5" icon="download" />
             <p-overlayPanel #downloadOverlay appendTo="body">
@@ -48,7 +48,7 @@
                 <p>
                   <a class="link cursor-pointer" (click)="downloadZoneFile(map)">Download Zones</a>
                 </p>
-                @if (map.vmfDownloadURL ?? map.submission?.currentVersion?.vmfDownloadURL; as vmf) {
+                @if (map.currentVersion?.vmfDownloadURL; as vmf) {
                   <p><a class="link" [href]="vmf">Download VMF</a></p>
                 }
               </div>
@@ -168,7 +168,7 @@
         } @else if (map.status === MapStatus.DISABLED) {
           <div class="flex flex-col items-center gap-2 border border-red-500 bg-red-500 bg-opacity-50 p-3 text-center">
             <b>Map Disabled</b>
-            @if (map.hash || map.submission?.currentVersion?.hash) {
+            @if (map.currentVersion?.bspHash) {
               <i>This map is currently disabled. It's only visible to moderators and admins, and can only be re-enabled by admins.</i>
             } @else {
               <i>

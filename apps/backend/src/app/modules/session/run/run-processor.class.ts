@@ -1,4 +1,4 @@
-﻿import { MMap, RunSessionTimestamp, User } from '@prisma/client';
+﻿import { MMap, MapVersion, RunSessionTimestamp, User } from '@prisma/client';
 import {
   RunValidationError,
   Gamemode,
@@ -19,7 +19,7 @@ export class RunProcessor {
   replayFile: ReplayFileReader;
   replay: Replay;
   timestamps: RunSessionTimestamp[];
-  map: MMap;
+  map: MMap & { currentVersion: MapVersion };
   zones: MapZones;
   gamemode: Gamemode;
   userID: number;
@@ -36,7 +36,7 @@ export class RunProcessor {
     this.startTime = session.createdAt.getTime();
     this.timestamps = session.timestamps;
     this.map = session.mmap;
-    this.zones = session.mmap.zones as unknown as MapZones; // TODO: #855
+    this.zones = session.mmap.currentVersion.zones as unknown as MapZones; // TODO: #855
     this.userID = user.id;
     this.steamID = user.steamID;
   }
@@ -223,23 +223,23 @@ export class RunProcessor {
 
     // prettier-ignore
     this.validate([
-      [this.replayFile.isOK,                                  ErrorType.BAD_REPLAY_FILE],
-      [this.trackNum === this.replay.header.trackNum,         ErrorType.BAD_META],
-      [this.replay.magic === 0x524D4F4D,                      ErrorType.BAD_META],
-      [this.replay.header.steamID === this.steamID,           ErrorType.BAD_META],
-      [this.replay.header.mapHash === this.map.hash,          ErrorType.BAD_META],
-      [this.replay.header.mapName === this.map.name,          ErrorType.BAD_META],
-      [ticks > 0,                                             ErrorType.BAD_TIMESTAMPS],
+      [this.replayFile.isOK,                                          ErrorType.BAD_REPLAY_FILE],
+      [this.trackNum === this.replay.header.trackNum,                 ErrorType.BAD_META],
+      [this.replay.magic === 0x524D4F4D,                              ErrorType.BAD_META],
+      [this.replay.header.steamID === this.steamID,                   ErrorType.BAD_META],
+      [this.replay.header.mapHash === this.map.currentVersion.bspHash,ErrorType.BAD_META],
+      [this.replay.header.mapName === this.map.name,                  ErrorType.BAD_META],
+      [ticks > 0,                                                     ErrorType.BAD_TIMESTAMPS],
       // TODO: Dunno what's going on with these yet
       // [this.replay.header.trackNum === this.trackNum,         ErrorType.BAD_META],
       // [this.replay.header.runFlags === 0,                     ErrorType.BAD_META], // Remove after runFlags are added
       // [this.replay.header.zoneNum === this.trackType,           ErrorType.BAD_META],
-      [!Number.isNaN(Number(this.replay.header.runDate)),     ErrorType.BAD_REPLAY_FILE],
-      [Number(this.replay.header.runDate) <= nowDate,         ErrorType.OUT_OF_SYNC],
+      [!Number.isNaN(Number(this.replay.header.runDate)),             ErrorType.BAD_REPLAY_FILE],
+      [Number(this.replay.header.runDate) <= nowDate,                 ErrorType.OUT_OF_SYNC],
       [Math.abs(this.replay.header.tickRate
         - Tickrates.get(this.gamemode))
-        < epsilon,                                            ErrorType.OUT_OF_SYNC],
-      [runTime * 1000 <= sessionDiff,                         ErrorType.OUT_OF_SYNC],
+        < epsilon,                                                    ErrorType.OUT_OF_SYNC],
+      [runTime * 1000 <= sessionDiff,                                 ErrorType.OUT_OF_SYNC],
     ]);
   }
 

@@ -231,7 +231,7 @@ describe('Multi-stage E2E tests', () => {
 
     const { body: mapRes } = await req.get({
       url: `maps/${mapID}`,
-      query: { expand: 'credits,info,leaderboards' },
+      query: { expand: 'credits,info,leaderboards,currentVersion' },
       status: 200,
       token
     });
@@ -268,12 +268,18 @@ describe('Multi-stage E2E tests', () => {
     expect(bsp2Hash).not.toBe(bspHash);
     expect(vmf2Hash).not.toBe(vmfHash);
     expect(
-      (mapRes.downloadURL as string).endsWith('surf_todd_howard.bsp')
+      (mapRes.currentVersion.downloadURL as string).endsWith(
+        `${mapRes.currentVersion.id}.bsp`
+      )
     ).toBeTruthy();
-    const bspDownloadBuffer = await fileStore.downloadHttp(mapRes.downloadURL);
+    const bspDownloadBuffer = await fileStore.downloadHttp(
+      mapRes.currentVersion.downloadURL
+    );
     expect(createSha1Hash(bspDownloadBuffer)).toBe(bsp2Hash);
 
-    const vmfZip = new Zip(await fileStore.downloadHttp(mapRes.vmfDownloadURL));
+    const vmfZip = new Zip(
+      await fileStore.downloadHttp(mapRes.currentVersion.vmfDownloadURL)
+    );
     expect(
       createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData())
     ).toBe(vmf2Hash);

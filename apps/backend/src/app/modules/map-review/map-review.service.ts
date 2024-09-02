@@ -16,13 +16,7 @@ import {
   MapZones,
   Role
 } from '@momentum/constants';
-import {
-  MapReview,
-  MapSubmission,
-  MapSubmissionVersion,
-  Prisma,
-  User
-} from '@prisma/client';
+import { MapReview, Prisma, User } from '@prisma/client';
 import { File } from '@nest-lab/fastify-multer';
 import {
   expandToIncludes,
@@ -172,7 +166,7 @@ export class MapReviewService {
       userID,
       select: {
         status: true,
-        submission: { select: { currentVersion: { select: { zones: true } } } }
+        currentVersion: { select: { zones: true } }
       },
       submissionOnly: true
     });
@@ -185,11 +179,7 @@ export class MapReviewService {
       try {
         validateSuggestions(
           body.suggestions,
-          (
-            map.submission as MapSubmission & {
-              currentVersion: MapSubmissionVersion;
-            }
-          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          map.currentVersion.zones as unknown as MapZones, // TODO: #855
           SuggestionType.REVIEW
         );
       } catch (error) {
@@ -299,20 +289,14 @@ export class MapReviewService {
       mapID: review.mapID,
       userID,
       submissionOnly: true,
-      include: {
-        submission: { select: { currentVersion: { select: { zones: true } } } }
-      }
+      include: { currentVersion: { select: { zones: true } } }
     });
 
     if (body.suggestions) {
       try {
         validateSuggestions(
           body.suggestions,
-          (
-            map.submission as MapSubmission & {
-              currentVersion: MapSubmissionVersion;
-            }
-          ).currentVersion.zones as unknown as MapZones, // TODO: #855
+          map.currentVersion.zones as unknown as MapZones, // TODO: #855
           SuggestionType.REVIEW
         );
       } catch (error) {
