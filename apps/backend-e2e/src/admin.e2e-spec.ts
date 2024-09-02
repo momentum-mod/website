@@ -931,6 +931,7 @@ describe('Admin', () => {
     describe('PATCH', () => {
       const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
       const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+      const bspHash = createSha1Hash(bspBuffer);
 
       let mod,
         modToken,
@@ -953,6 +954,26 @@ describe('Admin', () => {
         createMapData = {
           name: 'surf_map',
           submitter: { connect: { id: u1.id } },
+          versions: {
+            createMany: {
+              data: [
+                {
+                  versionNum: 1,
+                  bspHash: createSha1Hash(
+                    'apple banana cat dog elephant fox grape hat igloo joker'
+                  ),
+                  zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                  submitterID: u1.id
+                },
+                {
+                  versionNum: 2,
+                  bspHash,
+                  zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                  submitterID: u1.id
+                }
+              ]
+            }
+          },
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
@@ -970,16 +991,7 @@ describe('Admin', () => {
                   tier: 1,
                   type: LeaderboardType.IN_SUBMISSION
                 }
-              ],
-              versions: {
-                create: {
-                  versionNum: 1,
-                  hash: createSha1Hash(
-                    'apple banana cat dog elephant fox grape hat igloo joker'
-                  ),
-                  zones: BabyZonesStub as unknown as JsonValue // TODO: #855
-                }
-              }
+              ]
             }
           }
         };
@@ -1211,30 +1223,26 @@ describe('Admin', () => {
 
               const map = await db.createMap({
                 ...createMapData,
-                submission: {
+                versions: {
                   create: {
-                    ...createMapData.submission.create,
-                    versions: {
-                      create: {
-                        zones: BabyZonesStub,
-                        versionNum: 1,
-                        hash: createSha1Hash(bspBuffer)
-                      }
-                    }
+                    zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                    versionNum: 1,
+                    bspHash: createSha1Hash(bspBuffer),
+                    submitterID: u1.id
                   }
                 },
                 status: s1
               });
 
-              await prisma.mapSubmission.update({
-                where: { mapID: map.id },
-                data: { currentVersionID: map.submission.versions[0].id }
+              await prisma.mMap.update({
+                where: { id: map.id },
+                data: { currentVersionID: map.versions[0].id }
               });
 
               // Annoying to have to do this for every test but FA -> Approved
               // will throw otherwise.
               await fileStore.add(
-                `submissions/${map.submission.versions[0].id}.bsp`,
+                `submissions/${map.versions[0].id}.bsp`,
                 bspBuffer
               );
 
@@ -1281,44 +1289,41 @@ describe('Admin', () => {
 
         const map = await db.createMap({
           ...createMapData,
-          submission: {
+          versions: {
             create: {
-              ...createMapData.submission.create,
-              versions: {
-                create: {
-                  zones: BabyZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(bspBuffer)
-                }
-              }
+              zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+              versionNum: 1,
+              bspHash: createSha1Hash(bspBuffer),
+              submitterID: u1.id
             }
           },
           status: MapStatus.DISABLED
         });
 
-        await prisma.mapSubmission.update({
-          where: { mapID: map.id },
+        await prisma.mMap.update({
+          where: { id: map.id },
           data: {
-            currentVersionID: map.submission.versions[0].id,
-            dates: [
-              {
-                status: MapStatus.APPROVED,
-                date: new Date(Date.now() - 2000)
-              },
-              {
-                status: MapStatus.DISABLED,
-                date: new Date(Date.now() - 1000)
+            currentVersionID: map.versions[0].id,
+            submission: {
+              update: {
+                dates: [
+                  {
+                    status: MapStatus.APPROVED,
+                    date: new Date(Date.now() - 2000)
+                  },
+                  {
+                    status: MapStatus.DISABLED,
+                    date: new Date(Date.now() - 1000)
+                  }
+                ]
               }
-            ]
+            }
           }
         });
 
         // Annoying to have to do this for every test but FA -> Approved
         // will throw otherwise.
-        await fileStore.add(
-          `submissions/${map.submission.versions[0].id}.bsp`,
-          bspBuffer
-        );
+        await fileStore.add(`submissions/${map.versions[0].id}.bsp`, bspBuffer);
 
         await req.patch({
           url: `admin/maps/${map.id}`,
@@ -1349,16 +1354,17 @@ describe('Admin', () => {
 
         const map = await db.createMap({
           ...createMapData,
+          versions: {
+            create: {
+              versionNum: 1,
+              bspHash: createSha1Hash(bspBuffer),
+              zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+              submitterID: u1.id
+            }
+          },
           submission: {
             create: {
               ...createMapData.submission.create,
-              versions: {
-                create: {
-                  versionNum: 1,
-                  hash: createSha1Hash(bspBuffer),
-                  zones: BabyZonesStub
-                }
-              },
               placeholders: [
                 {
                   type: MapCreditType.CONTRIBUTOR,
@@ -1371,15 +1377,12 @@ describe('Admin', () => {
           status: MapStatus.FINAL_APPROVAL
         });
 
-        await prisma.mapSubmission.update({
-          where: { mapID: map.id },
-          data: { currentVersionID: map.submission.versions[0].id }
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { currentVersionID: map.versions[0].id }
         });
 
-        await fileStore.add(
-          `submissions/${map.submission.versions[0].id}.bsp`,
-          bspBuffer
-        );
+        await fileStore.add(`submissions/${map.versions[0].id}.bsp`, bspBuffer);
 
         await req.patch({
           url: `admin/maps/${map.id}`,
@@ -1444,17 +1447,24 @@ describe('Admin', () => {
         beforeEach(async () => {
           map = await db.createMap({
             ...createMapData,
-            submission: {
-              create: {
-                ...createMapData.submission.create,
-                versions: {
-                  create: {
+            versions: {
+              createMany: {
+                data: [
+                  {
                     versionNum: 1,
-                    hash: createSha1Hash(bspBuffer),
-                    zones: ZonesStub,
-                    hasVmf: true
+                    bspHash,
+                    zones: ZonesStub as any,
+                    hasVmf: true,
+                    submitterID: u1.id
+                  },
+                  {
+                    versionNum: 2,
+                    bspHash,
+                    zones: ZonesStub as any,
+                    hasVmf: true,
+                    submitterID: u1.id
                   }
-                }
+                ]
               }
             },
             status: MapStatus.FINAL_APPROVAL
@@ -1462,16 +1472,11 @@ describe('Admin', () => {
 
           const vmfZip = new Zip();
           vmfZip.addFile('map.vmf', vmfBuffer);
-
-          await fileStore.add(
-            `submissions/${map.submission.versions[0].id}_VMFs.zip`,
-            vmfZip.toBuffer()
-          );
-
-          await fileStore.add(
-            `submissions/${map.submission.versions[0].id}.bsp`,
-            bspBuffer
-          );
+          for (const i of [0, 1]) {
+            const id = map.versions[i].id;
+            await fileStore.add(`maps/${id}_VMFs.zip`, vmfZip.toBuffer());
+            await fileStore.add(`maps/${id}.bsp`, bspBuffer);
+          }
 
           await prisma.leaderboard.createMany({
             data: ZonesStubLeaderboards.map((lb) => ({
@@ -1483,7 +1488,7 @@ describe('Admin', () => {
           });
         });
 
-        it('should copy latest submission version files to maps/ after map status changed from FA to approved', async () => {
+        it('should delete old version files after map status changed from FA to approved', async () => {
           const bspHash = createSha1Hash(bspBuffer);
           const vmfHash = createSha1Hash(vmfBuffer);
 
@@ -1495,33 +1500,26 @@ describe('Admin', () => {
           });
 
           const updatedMap = await prisma.mMap.findUnique({
-            where: { id: map.id }
+            where: { id: map.id },
+            include: { currentVersion: true, versions: true }
           });
 
           expect(updatedMap).toMatchObject({
             status: MapStatus.APPROVED,
-            hash: bspHash,
-            hasVmf: true
+            currentVersion: { bspHash, versionNum: 2 }
           });
 
-          expect(
-            await fileStore.exists(
-              `submissions/${map.submission.versions[0].id}.bsp`
-            )
-          ).toBeFalsy();
-          expect(
-            await fileStore.exists(
-              `submissions/${map.submission.versions[0].id}_VMFs.zip`
-            )
-          ).toBeFalsy();
+          const id1 = map.versions[0].id;
+          const id2 = map.versions[1].id;
+          expect(await fileStore.exists(`maps/${id1}.bsp`)).toBeFalsy();
+          expect(await fileStore.exists(`maps/${id1}_VMFs.zip`)).toBeFalsy();
 
-          expect(
-            createSha1Hash(await fileStore.get(`maps/${map.name}.bsp`))
-          ).toBe(bspHash);
-
+          expect(createSha1Hash(await fileStore.get(`maps/${id2}.bsp`))).toBe(
+            bspHash
+          );
           expect(
             createSha1Hash(
-              new Zip(await fileStore.get(`maps/${map.name}_VMFs.zip`))
+              new Zip(await fileStore.get(`maps/${id2}_VMFs.zip`))
                 .getEntry('map.vmf')
                 .getData()
             )
@@ -1925,12 +1923,13 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        const updated = await prisma.mMap.findFirst({ where: { id: map.id } });
-        expect(updated).toMatchObject({
-          status: MapStatus.DISABLED,
-          hash: null
+        const updated = await prisma.mMap.findFirst({
+          where: { id: map.id },
+          include: { versions: true }
         });
 
+        expect(updated.status).toBe(MapStatus.DISABLED);
+        expect(updated.versions.at(-1).bspHash).toBeNull();
         expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
         // We used to delete these, check we don't anymore

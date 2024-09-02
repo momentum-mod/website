@@ -73,9 +73,12 @@ export class MapsGetAllQueryDto
   implements MapsGetAllQuery
 {
   @ExpandQueryProperty([
-    'zones',
     'leaderboards',
     'info',
+    'currentVersion',
+    'currentVersionWithZones',
+    'versions',
+    'versionsWithZones',
     'stats',
     'submitter',
     'credits',
@@ -130,17 +133,18 @@ export class MapsGetAllSubmissionQueryDto
   implements MapsGetAllSubmissionQuery
 {
   @ExpandQueryProperty([
-    'zones',
     'leaderboards',
     'info',
+    'currentVersion',
+    'currentVersionWithZones',
+    'versions',
+    'versionsWithZones',
     'stats',
     'submitter',
     'credits',
     'inFavorites',
     'personalBest',
     'worldRecord',
-    'currentVersion',
-    'versions',
     'reviews'
   ])
   readonly expand?: MapsGetAllSubmissionExpand;
@@ -163,9 +167,12 @@ export class MapsGetAllUserSubmissionQueryDto
 
 export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
   @ExpandQueryProperty([
-    'zones',
     'leaderboards',
     'info',
+    'currentVersion',
+    'currentVersionWithZones',
+    'versions',
+    'versionsWithZones',
     'credits',
     'submitter',
     'stats',
@@ -174,8 +181,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'personalBest',
     'worldRecord',
     'submission',
-    'currentVersion',
-    'versions',
     'reviews',
     'testInvites'
   ])

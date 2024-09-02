@@ -1,4 +1,4 @@
-import { CombinedMapStatuses, MMap } from '@momentum/constants';
+import { MMap } from '@momentum/constants';
 
 /**
  * Creates a blob of prettified map zones and downloads it using silly browser
@@ -6,9 +6,7 @@ import { CombinedMapStatuses, MMap } from '@momentum/constants';
  * https://stackoverflow.com/a/52183135
  */
 export function downloadZoneFile(map: MMap) {
-  const zones = CombinedMapStatuses.IN_SUBMISSION.includes(map.status)
-    ? map.submission?.currentVersion?.zones
-    : map.zones;
+  const zones = map?.currentVersion?.zones;
   if (!zones?.formatVersion || !map.name) {
     console.error('Bad map data, could not create zones file!');
     return;

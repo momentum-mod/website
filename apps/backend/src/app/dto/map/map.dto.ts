@@ -1,6 +1,4 @@
 import {
-  approvedBspPath,
-  approvedVmfsPath,
   CreateMap,
   CreateMapWithFiles,
   DateString,
@@ -17,18 +15,15 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsHash,
   IsInt,
   IsOptional,
   IsPositive,
-  IsString,
-  IsUrl,
+  IsUUID,
   MaxLength,
   MinLength
 } from 'class-validator';
-import { Exclude, Expose, plainToInstance, Transform } from 'class-transformer';
+import { Expose, plainToInstance, Transform } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
-import { Config } from '../../config';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -50,8 +45,7 @@ import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 import { MapZonesDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
-
-const CDN_URL = Config.url.cdn;
+import { MapVersionDto } from './map-version.dto';
 
 export class MapDto implements MMap {
   @IdProperty()
@@ -69,42 +63,6 @@ export class MapDto implements MMap {
 
   @EnumProperty(MapStatus)
   readonly status: MapStatus;
-
-  @NestedProperty(MapZonesDto, {
-    required: false,
-    description: 'Zones for the map'
-  })
-  readonly zones: MapZonesDto;
-
-  @ApiProperty({ type: String, description: 'URL to BSP in storage' })
-  @Expose()
-  @IsOptional()
-  @IsString()
-  @IsUrl({ require_tld: false })
-  get downloadURL() {
-    return this.status === MapStatus.APPROVED
-      ? `${CDN_URL}/${approvedBspPath(this.name)}`
-      : undefined;
-  }
-
-  @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
-  @IsHash('sha1')
-  @IsOptional()
-  readonly hash: string;
-
-  @ApiProperty({ type: String, description: 'URL to VMF in storage' })
-  @Expose()
-  @IsOptional()
-  @IsString()
-  @IsUrl({ require_tld: false })
-  get vmfDownloadURL() {
-    return this.status === MapStatus.APPROVED && this.hasVmf
-      ? `${CDN_URL}/${approvedVmfsPath(this.name)}`
-      : undefined;
-  }
-
-  @Exclude()
-  readonly hasVmf: boolean;
 
   @ApiProperty()
   @IsPositive()
@@ -133,7 +91,7 @@ export class MapDto implements MMap {
     // correctly. It only works because my DtoFactory setup is ridiculous and
     // seems to transform TWICE. We're going to rework/replace CT/CV in future
     // anyway so leaving for now. UUUUGH
-    value.map((image) =>
+    value?.map((image) =>
       typeof image == 'string'
         ? { id: image }
         : plainToInstance(MapImageDto, image)
@@ -149,6 +107,16 @@ export class MapDto implements MMap {
 
   @NestedProperty(MapStatsDto)
   readonly stats: MapStatsDto;
+
+  @NestedProperty(MapVersionDto, { required: false })
+  readonly currentVersion: MapVersionDto;
+
+  @ApiProperty()
+  @IsUUID()
+  readonly currentVersionID: string;
+
+  @NestedProperty(MapVersionDto, { required: false, isArray: true })
+  readonly versions: MapVersionDto[];
 
   @NestedProperty(MapCreditDto, { isArray: true })
   readonly credits: MapCreditDto[];

@@ -49,6 +49,7 @@ import {
 import { MapListVersionDto } from '../../backend/src/app/dto/map/map-list-version.dto';
 import path from 'node:path';
 import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-stats.dto';
+import { JsonValue } from 'type-fest';
 
 describe('Maps Part 2', () => {
   let app,
@@ -759,7 +760,15 @@ describe('Maps Part 2', () => {
         async () =>
           ([token, map] = await Promise.all([
             db.loginNewUser(),
-            db.createMap({ zones: ZonesStub })
+            db.createMap({
+              versions: {
+                create: {
+                  zones: ZonesStub as unknown as JsonValue, // TODO: #855
+                  versionNum: 1,
+                  submitter: db.getNewUserCreateData()
+                }
+              }
+            })
           ]))
       );
 

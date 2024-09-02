@@ -59,9 +59,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
         label: GamemodeInfo.get(gamemode).name
       }));
     this.availableBonusTracks =
-      (
-        map?.zones ?? map?.submission?.currentVersion?.zones
-      )?.tracks?.bonuses?.map((_, i) => ({
+      map?.currentVersion?.zones?.tracks?.bonuses?.map((_, i) => ({
         trackNum: i + 1,
         label: i + 1
       })) ?? [];

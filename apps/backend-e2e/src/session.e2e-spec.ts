@@ -482,7 +482,7 @@ describe('Session', () => {
           runFlags: 0,
           mapID: map.id,
           mapName: map.name,
-          mapHash: map.hash,
+          mapHash: map.currentVersion.bspHash,
           steamID: user.steamID,
           tickRate: Tickrates.get(map.type),
           startTick: 0,
@@ -545,7 +545,11 @@ describe('Session', () => {
         // So we can screw around with zones in specific tests
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { zones: ZonesStub as unknown as JsonValue }
+          data: {
+            currentVersion: {
+              update: { zones: ZonesStub as unknown as JsonValue }
+            }
+          }
         });
 
         await prisma.mapStats.update({

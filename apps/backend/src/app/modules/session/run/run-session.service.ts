@@ -167,7 +167,7 @@ export class RunSessionService {
       include: {
         timestamps: { orderBy: { createdAt: 'asc' } },
         user: true,
-        mmap: true
+        mmap: { include: { currentVersion: true } }
       }
     });
 

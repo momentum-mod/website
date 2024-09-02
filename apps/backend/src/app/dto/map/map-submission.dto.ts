@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MapSubmission, MapSubmissionType } from '@momentum/constants';
-import { IsArray, IsOptional, IsUUID } from 'class-validator';
+import { IsArray, IsOptional } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { NestedProperty } from '../decorators';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
-import { MapSubmissionVersionDto } from './map-submission-version.dto';
 import { MapSubmissionDateDto } from './map-submission-dates.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 
@@ -30,14 +29,4 @@ export class MapSubmissionDto implements MapSubmission {
 
   @Exclude()
   readonly mapID: number;
-
-  @NestedProperty(MapSubmissionVersionDto, { required: false })
-  readonly currentVersion: MapSubmissionVersionDto;
-
-  @ApiProperty()
-  @IsUUID()
-  readonly currentVersionID: string;
-
-  @NestedProperty(MapSubmissionVersionDto, { required: false, isArray: true })
-  readonly versions: MapSubmissionVersionDto[];
 }

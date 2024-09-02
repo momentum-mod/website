@@ -12,16 +12,14 @@ import {
   LeaderboardRun,
   MapCredit,
   MapSubmission,
-  MapSubmissionVersion,
   MMap,
   Prisma
 } from '@prisma/client';
 import {
   ActivityType,
   AdminActivityType,
-  approvedBspPath,
-  approvedVmfsPath,
   Ban,
+  bspPath,
   CombinedMapStatuses,
   CombinedRoles,
   FlatMapList,
@@ -35,11 +33,11 @@ import {
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
   MapTestInviteState,
+  MapVersion,
   MapZones,
   Role,
-  submissionBspPath,
-  submissionVmfsPath,
-  TrackType
+  TrackType,
+  vmfsPath
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -71,7 +69,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   CreateMapDto,
-  CreateMapSubmissionVersionDto,
+  CreateMapVersionDto,
   DtoFactory,
   MapDto,
   MapInfoDto,
@@ -93,6 +91,7 @@ import {
 } from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class MapsService {
@@ -109,18 +108,6 @@ export class MapsService {
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService
   ) {}
-
-  private readonly baseMapsSelect: Prisma.MMapSelect = {
-    id: true,
-    name: true,
-    status: true,
-    hash: true,
-    hasVmf: true,
-    images: true,
-    createdAt: true,
-    updatedAt: true,
-    submitterID: true
-  };
 
   //#region Gets
 
@@ -323,67 +310,44 @@ export class MapsService {
 
     // Select (and include)
     // For admins we don't need dynamic expands, just give em everything.
-    let select: Prisma.MMapSelect;
+    let include: Prisma.MMapInclude;
     if (query instanceof MapsGetAllAdminQueryDto) {
-      select = {
-        ...this.baseMapsSelect,
-        submission: { include: { currentVersion: true, versions: true } },
+      include = {
+        versions: true,
+        currentVersion: true,
+        submission: true,
         info: true,
         leaderboards: true,
-        images: true,
         submitter: true,
         credits: { include: { user: true } }
       };
     } else {
-      const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
-        query.expand,
-        {
-          only: ['currentVersion', 'versions'],
-          mappings: [
-            {
-              expand: 'versions',
-              model: 'versions',
-              value: {
-                select: {
-                  hash: true,
-                  hasVmf: true,
-                  versionNum: true,
-                  id: true,
-                  createdAt: true,
-                  // Changelog and zones are quite large structures so not worth
-                  // ever including on the paginated query - make clients query
-                  // for a specific submission if they want all that stuff
-                  zones: false,
-                  changelog: false
-                }
-              }
-            }
-          ]
-        }
-      );
+      include = expandToIncludes(query.expand, {
+        without: ['personalBest', 'worldRecord'],
+        mappings: [
+          // Changelog and zones are quite large structures so not worth ever
+          // including on the paginated query - make clients query for a specific
+          // submission if they want all that stuff
+          { expand: 'currentVersion', value: { omit: { zones: true } } },
+          { expand: 'currentVersionWithZones', model: 'currentVersion' },
+          { expand: 'versions', value: { omit: { zones: true } } },
+          { expand: 'versionsWithZones', model: 'versions' },
+          { expand: 'credits', value: { include: { user: true } } },
+          {
+            expand: 'inFavorites',
+            model: 'favorites',
+            value: { where: { userID: userID } }
+          }
+        ]
+      });
 
-      select = {
-        ...this.baseMapsSelect,
-        submission: isEmpty(submissionInclude)
-          ? true
-          : { include: submissionInclude },
-        ...expandToIncludes(query.expand, {
-          without: [
-            'currentVersion',
-            'versions',
-            'personalBest',
-            'worldRecord'
-          ],
-          mappings: [
-            { expand: 'credits', value: { include: { user: true } } },
-            {
-              expand: 'inFavorites',
-              model: 'favorites',
-              value: { where: { userID: userID } }
-            }
-          ]
-        })
-      };
+      if (query instanceof MapsGetAllSubmissionQueryDto) {
+        if (include) {
+          include.submission = true;
+        } else {
+          include = { submission: true };
+        }
+      }
 
       if (
         query instanceof MapsGetAllQueryDto ||
@@ -391,13 +355,13 @@ export class MapsService {
       ) {
         incPB = query.expand?.includes('personalBest');
         incWR = query.expand?.includes('worldRecord');
-        this.handleMapGetIncludes(select, incPB, incWR, userID);
+        this.handleMapGetIncludes(include, incPB, incWR, userID);
       }
     }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
       where,
-      select,
+      include,
       orderBy: { createdAt: 'desc' },
       skip: query.skip,
       take: query.take
@@ -416,37 +380,33 @@ export class MapsService {
     userID?: number,
     expand?: MapsGetExpand
   ): Promise<MapDto> {
-    const select: Prisma.MMapSelect = {
-      ...this.baseMapsSelect,
-      ...expandToIncludes(expand, {
-        without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
-        mappings: [
-          { expand: 'credits', value: { include: { user: true } } },
-          { expand: 'testInvites', value: { include: { user: true } } },
-          {
-            expand: 'inFavorites',
-            model: 'favorites',
-            value: { where: { userID: userID } }
-          }
-        ]
-      })
-    };
-
-    const submissionIncludes: Prisma.MapSubmissionInclude = expandToIncludes(
-      expand,
-      { only: ['currentVersion', 'versions'] }
-    );
-
-    if (!isEmpty(submissionIncludes)) {
-      select.submission = { include: submissionIncludes };
-    }
+    const include: Prisma.MMapInclude = expandToIncludes(expand, {
+      without: ['personalBest', 'worldRecord'],
+      mappings: [
+        { expand: 'currentVersion', value: { omit: { zones: true } } },
+        { expand: 'currentVersionWithZones', model: 'currentVersion' },
+        { expand: 'versions', value: { omit: { zones: true } } },
+        { expand: 'versionsWithZones', model: 'versions' },
+        { expand: 'credits', value: { include: { user: true } } },
+        { expand: 'testInvites', value: { include: { user: true } } },
+        {
+          expand: 'inFavorites',
+          model: 'favorites',
+          value: { where: { userID: userID } }
+        }
+      ]
+    });
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
 
-    this.handleMapGetIncludes(select, incPB, incWR, userID);
+    this.handleMapGetIncludes(include, incPB, incWR, userID);
 
-    const map = await this.getMapAndCheckReadAccess({ mapID, userID, select });
+    const map = await this.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      include
+    });
 
     if (incPB || incWR) {
       this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
@@ -585,7 +545,7 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
-    let map;
+    let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
     await this.db.$transaction(async (tx) => {
       map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
 
@@ -605,7 +565,7 @@ export class MapsService {
         }))
       });
 
-      const version = map.submission.currentVersion;
+      const version = map.currentVersion;
 
       const tasks: Promise<unknown>[] = [
         (async () => {
@@ -613,11 +573,7 @@ export class MapsService {
             ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
             : undefined;
 
-          return this.uploadMapSubmissionVersionFiles(
-            version.id,
-            bspFile,
-            zippedVmf
-          );
+          return this.uploadMapVersionFiles(version.id, bspFile, zippedVmf);
         })(),
 
         this.createMapUploadedActivities(tx, map.id, map.credits)
@@ -639,16 +595,18 @@ export class MapsService {
     return DtoFactory(MapDto, map);
   }
 
-  async submitMapSubmissionVersion(
+  async submitMapVersion(
     mapID: number,
-    dto: CreateMapSubmissionVersionDto,
+    dto: CreateMapVersionDto,
     userID: number,
     vmfFiles?: File[]
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
       include: {
-        submission: { include: { currentVersion: true, versions: true } }
+        currentVersion: true,
+        versions: { omit: { zones: true } },
+        submission: true
       }
     });
 
@@ -661,7 +619,7 @@ export class MapsService {
 
     // This should never happen but stops someone flooding S3 storage with
     // garbage.
-    if (map.submission.versions?.length > 100) {
+    if (map.versions?.length > 100) {
       throw new ForbiddenException('Reached map version limit');
     }
 
@@ -695,21 +653,22 @@ export class MapsService {
       this.checkZones(dto.zones);
       zones = dto.zones;
     } else {
-      zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+      zones = map.currentVersion.zones as unknown as MapZones; // TODO: #855
     }
 
-    const oldVersion = map.submission.currentVersion;
+    const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
     await this.db.$transaction(async (tx) => {
-      const newVersion = await tx.mapSubmissionVersion.create({
+      const newVersion = await tx.mapVersion.create({
         data: {
           versionNum: newVersionNum,
+          submitter: { connect: { id: userID } },
           hasVmf,
           zones: zones as unknown as JsonValue, // TODO: #855
-          hash: bspHash,
+          bspHash,
           changelog: dto.changelog,
-          submission: { connect: { mapID } }
+          mmap: { connect: { id: mapID } }
         }
       });
 
@@ -746,15 +705,11 @@ export class MapsService {
             ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
             : undefined;
 
-          await this.uploadMapSubmissionVersionFiles(
-            newVersion.id,
-            bspFile,
-            zippedVmf
-          );
+          await this.uploadMapVersionFiles(newVersion.id, bspFile, zippedVmf);
         },
 
-        tx.mapSubmission.update({
-          where: { mapID },
+        tx.mMap.update({
+          where: { id: mapID },
           data: { currentVersion: { connect: { id: newVersion.id } } }
         })
       );
@@ -770,9 +725,7 @@ export class MapsService {
       MapDto,
       await this.db.mMap.findUnique({
         where: { id: mapID },
-        include: {
-          submission: { include: { currentVersion: true, versions: true } }
-        }
+        include: { currentVersion: true, versions: true, submission: true }
       })
     );
   }
@@ -824,25 +777,29 @@ export class MapsService {
       ? MapStatus.PRIVATE_TESTING
       : MapStatus.CONTENT_APPROVAL;
 
-    // Prisma doesn't let you do nested createMany https://github.com/prisma/prisma/issues/5455)
-    // so we have to do this shit in parts... Fortunately this doesn't run often.
-    const initialMap = await tx.mMap.create({
+    const zoneHash = createHash('sha1')
+      .update(JSON.stringify(createMapDto.zones))
+      .digest('hex');
+
+    const initialMap = (await tx.mMap.create({
       data: {
         submitter: { connect: { id: submitterID } },
         name: createMapDto.name,
+        versions: {
+          create: {
+            versionNum: 1,
+            bspHash,
+            zoneHash,
+            hasVmf,
+            submitter: { connect: { id: submitterID } },
+            zones: createMapDto.zones
+          }
+        },
         submission: {
           create: {
             type: createMapDto.submissionType,
             placeholders: createMapDto.placeholders,
             suggestions: createMapDto.suggestions,
-            versions: {
-              create: {
-                versionNum: 1,
-                hash: bspHash,
-                hasVmf,
-                zones: createMapDto.zones as unknown as JsonValue // TODO: #855
-              }
-            },
             dates: [{ status, date: new Date().toJSON() }]
           }
         },
@@ -870,25 +827,16 @@ export class MapsService {
       },
       select: {
         id: true,
-        zones: true,
-        submission: { select: { versions: true } }
+        versions: true
       }
-    });
+    })) as unknown as { id: number; versions: MapVersion[] };
 
     const map = await tx.mMap.update({
       where: { id: initialMap.id },
       data: {
-        submission: {
-          update: {
-            currentVersion: {
-              connect: { id: initialMap.submission.versions[0].id }
-            }
-          }
+        currentVersion: {
+          connect: { id: initialMap.versions[0].id }
         }
-      },
-      include: {
-        info: true,
-        credits: true
       }
     });
 
@@ -897,7 +845,9 @@ export class MapsService {
       include: {
         info: true,
         stats: true,
-        submission: { include: { currentVersion: true, versions: true } },
+        currentVersion: true,
+        versions: true,
+        submission: true,
         submitter: true,
         credits: { include: { user: true } }
       }
@@ -1017,7 +967,7 @@ export class MapsService {
     return zip.toBuffer();
   }
 
-  private async uploadMapSubmissionVersionFiles(
+  private async uploadMapVersionFiles(
     uuid: string,
     bspFile: File,
     vmfZip?: Buffer
@@ -1027,19 +977,17 @@ export class MapsService {
     if (bspFile.path) {
       storeFns.push(
         this.fileStoreService
-          .copyFile(bspFile.path, submissionBspPath(uuid))
+          .copyFile(bspFile.path, bspPath(uuid))
           .then(() => this.fileStoreService.deleteFile(bspFile.path))
       );
     } else {
       storeFns.push(
-        this.fileStoreService.storeFile(bspFile.buffer, submissionBspPath(uuid))
+        this.fileStoreService.storeFile(bspFile.buffer, bspPath(uuid))
       );
     }
 
     if (vmfZip)
-      storeFns.push(
-        this.fileStoreService.storeFile(vmfZip, submissionVmfsPath(uuid))
-      );
+      storeFns.push(this.fileStoreService.storeFile(vmfZip, vmfsPath(uuid)));
 
     return Promise.all(storeFns);
   }
@@ -1055,9 +1003,7 @@ export class MapsService {
 
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: {
-        submission: { include: { currentVersion: true, versions: true } }
-      }
+      include: { submission: true, currentVersion: true, versions: true }
     })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) throw new NotFoundException('Map does not exist');
@@ -1072,15 +1018,14 @@ export class MapsService {
     // If this requests has new suggestions, use those, otherwise use the
     // existing ones.
     //
-    // A map submission version could've updated the zones to something that
-    // doesn't work with the current suggestions, in this case, the submitter
-    // will be forced to update suggestions next time they do a general
-    // update, including if they want to change the map status. Frontend
-    // explains this to the user.
+    // A map version could've updated the zones to something that doesn't work
+    // with the current suggestions, in this case, the submitter will be forced
+    // to update suggestions next time they do a general update, including if
+    // they want to change the map status. Frontend explains this to the user.
     const suggs =
       dto.suggestions ??
       (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
-    const zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+    const zones = map.currentVersion.zones as unknown as MapZones; // TODO: #855
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
@@ -1143,9 +1088,7 @@ export class MapsService {
 
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: {
-        submission: { include: { currentVersion: true, versions: true } }
-      }
+      include: { currentVersion: true, versions: true, submission: true }
     })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) {
@@ -1466,20 +1409,14 @@ export class MapsService {
     });
 
     const {
-      currentVersion: { id: currentVersionID, hash, hasVmf, zones: dbZones },
+      currentVersion: { zones: dbZones },
       versions
-    } = await this.db.mapSubmission.findFirst({
-      where: { mapID: map.id },
-      include: { currentVersion: true, versions: true }
-    });
-    const zones = dbZones as unknown as MapZones; // TODO: #855
-
-    // Set hash of MMap to final version BSP's hash, and hasVmf is just whether
-    // final version had a VMF.
-    await tx.mMap.update({
+    } = await this.db.mMap.findFirst({
       where: { id: map.id },
-      data: { hash, hasVmf, zones: dbZones } // TODO: e2e test zoines
+      include: { currentVersion: true, versions: { omit: { zones: true } } }
     });
+
+    const zones = dbZones as unknown as MapZones; // TODO: #855
 
     // Is it getting approved for first time?
     if (
@@ -1534,40 +1471,15 @@ export class MapsService {
     // *should* behave well in production, but it's still complex stuff and
     // we can't rollback S3 operations like we can a Postgres transaction.
 
-    // Copy final MapSubmissionVersion BSP and VMFs to maps/
-    const [bspSuccess, vmfSuccess] = await parallel(
-      this.fileStoreService.copyFile(
-        submissionBspPath(currentVersionID),
-        approvedBspPath(map.name)
-      ),
-      hasVmf
-        ? this.fileStoreService.copyFile(
-            submissionVmfsPath(currentVersionID),
-            approvedVmfsPath(map.name)
-          )
-        : () => Promise.resolve(true)
-    );
-
-    if (!bspSuccess)
-      throw new InternalServerErrorException(
-        `BSP file for map submission version ${currentVersionID} not in object store`
-      );
-    if (!vmfSuccess)
-      throw new InternalServerErrorException(
-        `VMF file for map submission version ${currentVersionID} not in object store`
-      );
-
-    // Delete all the submission files - these would take up a LOT of space otherwise
+    // Delete all the previous submission files - these would take up a LOT of
+    // space otherwise
     await parallel(
       this.fileStoreService
         .deleteFiles(
-          versions.flatMap((v) => [
-            submissionBspPath(v.id),
-            submissionVmfsPath(v.id)
-          ])
+          versions.slice(0, -1).flatMap((v) => [bspPath(v.id), vmfsPath(v.id)])
         )
         .catch((error) => {
-          error.message = `Failed to delete map submission version file for ${map.name}: ${error.message}`;
+          error.message = `Failed to delete map version file for ${map.name}: ${error.message}`;
           throw new InternalServerErrorException(error);
         }),
       this.mapReviewService
@@ -1586,32 +1498,41 @@ export class MapsService {
   async delete(mapID: number, adminID: number): Promise<void> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: { include: { versions: true } } }
+      include: { versions: { omit: { zones: true } } }
     });
 
     if (!map) throw new NotFoundException('No map found');
 
-    // Set hashes to null to give frontend easy to tell files have been deleted
-    await this.db.mMap.update({
+    // Bump version with bspHash set to null to give frontend easy to tell bsp
+    // file has been deleted
+    const updated = await this.db.mMap.update({
       where: { id: mapID },
-      data: { status: MapStatus.DISABLED, hash: null }
+      data: {
+        status: MapStatus.DISABLED,
+        versions: {
+          create: {
+            versionNum: map.versions.at(-1).versionNum + 1,
+            bspHash: null,
+            submitter: { connect: { id: adminID } },
+            zones: null
+          }
+        }
+      },
+      include: { versions: true }
     });
 
-    await this.db.mapSubmissionVersion.updateMany({
-      where: { submissionID: mapID },
-      data: { hash: null }
+    await this.db.mMap.update({
+      where: { id: mapID },
+      data: { currentVersion: { connect: { id: updated.versions.at(-1).id } } }
     });
 
     // Delete any stored map files. Doesn't matter if any of these don't exist.
     await Promise.all(
       [
-        this.fileStoreService.deleteFile(approvedBspPath(map.name)),
-        this.fileStoreService.deleteFile(approvedVmfsPath(map.name)),
+        this.fileStoreService.deleteFile(bspPath(map.name)),
+        this.fileStoreService.deleteFile(vmfsPath(map.name)),
         this.fileStoreService.deleteFiles(
-          map.submission.versions.flatMap((v) => [
-            submissionBspPath(v.id),
-            submissionVmfsPath(v.id)
-          ])
+          map.versions.flatMap((v) => [bspPath(v.id), vmfsPath(v.id)])
         ),
         ...map.images.map((imageID) =>
           this.mapImageService.deleteStoredMapImage(imageID)
@@ -1659,15 +1580,15 @@ export class MapsService {
   async getZones(mapID: number): Promise<MapZonesDto> {
     const mapWithZones = await this.db.mMap.findUnique({
       where: { id: mapID },
-      select: { zones: true }
+      select: { currentVersion: { select: { zones: true } } }
     });
 
-    if (!mapWithZones || !mapWithZones.zones)
-      throw new NotFoundException('Map not found');
+    if (!mapWithZones || !mapWithZones.currentVersion?.zones)
+      throw new NotFoundException('Map/zones not found');
 
     return DtoFactory(
       MapZonesDto,
-      mapWithZones.zones as Record<string, unknown>
+      mapWithZones.currentVersion.zones as Record<string, unknown>
     );
   }
 
@@ -1914,18 +1835,18 @@ export class MapsService {
   //#endregion
 }
 
-type MapWithSubmission = MMap & {
+interface MapWithSubmission extends MMap {
+  currentVersion: MapVersion;
+  versions: MapVersion[];
   submission: Merge<
     MapSubmission,
     {
       dates: MapSubmissionDate[];
       placeholders: MapSubmissionPlaceholder[];
       suggestions: MapSubmissionSuggestion[];
-      currentVersion: MapSubmissionVersion;
-      versions: MapSubmissionVersion[];
     }
   >;
-};
+}
 
 type GetMMapUnique<S, I> = { id: number; status: MapStatus } & Prisma.Result<
   ExtendedPrismaService['mMap'],

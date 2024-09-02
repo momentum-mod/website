@@ -4,7 +4,7 @@ import { RunStats, Style } from '@momentum/constants';
 export const RUN_SESSION_COMPLETED_INCLUDE = {
   timestamps: true,
   user: true,
-  mmap: true
+  mmap: { include: { currentVersion: true } }
 };
 
 const runSessionCompletedIncludeValidator =

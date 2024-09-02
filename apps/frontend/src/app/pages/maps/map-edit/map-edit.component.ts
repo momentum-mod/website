@@ -172,7 +172,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     suggestions: new FormControl<MapSubmissionSuggestion[]>([], {
       validators: [
         suggestionsValidator(
-          () => this.map?.zones ?? this.map?.submission?.currentVersion?.zones,
+          () => this.map?.currentVersion.zones,
           SuggestionType.SUBMISSION
         )
       ]
@@ -242,10 +242,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             expand: [
               'submission',
               'versions',
-              'currentVersion',
+              'currentVersionWithZones',
               'info',
               'credits',
-              'zones',
               'leaderboards',
               'reviews',
               'testInvites'
@@ -311,13 +310,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       )
     );
 
-    this.lbSelection.zones =
-      this.map?.zones ?? this.map.submission?.currentVersion?.zones;
+    this.lbSelection.zones = this.map?.currentVersion?.zones;
     this.suggestions.setValue(this.map.submission.suggestions);
 
     if (this.map.status === MapStatus.FINAL_APPROVAL) {
       const validatorFn = suggestionsValidator(
-        () => this.map?.zones ?? this.map.submission?.currentVersion?.zones,
+        () => this.map?.currentVersion?.zones,
         SuggestionType.APPROVAL
       );
       this.status.valueChanges
@@ -550,7 +548,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     } catch (error) {
       this.messageService.add({
         severity: 'error',
-        summary: 'Failed to post submission version!',
+        summary: 'Failed to post version!',
         detail: JSON.stringify(error.error.message)
       });
       this.isUploading = false;

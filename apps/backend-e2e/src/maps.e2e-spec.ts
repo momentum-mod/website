@@ -45,6 +45,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { JsonValue } from 'type-fest';
 
 describe('Maps', () => {
   let app,
@@ -129,8 +130,6 @@ describe('Maps', () => {
             'id',
             'name',
             'status',
-            'hash',
-            'downloadURL',
             'submitterID',
             'createdAt',
             'updatedAt'
@@ -274,29 +273,52 @@ describe('Maps', () => {
         await prisma.mMap.delete({ where: { id: map.id } });
       });
 
-      it('should respond with expanded submitter data using the zones expand parameter', async () => {
-        await prisma.mMap.updateMany({ data: { submitterID: u2.id } });
-
-        await req.expandTest({
+      it('should respond with expanded submitter data using the currentVersion expand parameter', () =>
+        req.expandTest({
           url: 'maps',
-          expand: 'zones',
+          expand: 'currentVersion',
           paged: true,
           validate: MapDto,
           token: u1Token
-        });
-      });
+        }));
 
-      it('should respond with expanded submitter data using the leaderboards expand parameter', async () => {
-        await prisma.mMap.updateMany({ data: { submitterID: u2.id } });
+      it('should respond with expanded submitter data using the currentVersionWithZones expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'currentVersionWithZones',
+          paged: true,
+          validate: MapDto,
+          expectedPropertyName: 'currentVersion.zones',
+          token: u1Token
+        }));
 
-        await req.expandTest({
+      it('should respond with expanded submitter data using the versions expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'versions',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded submitter data using the versionsWithZones expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'versionsWithZones',
+          expectedPropertyName: 'versions[0].zones',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded submitter data using the leaderboards expand parameter', () =>
+        req.expandTest({
           url: 'maps',
           expand: 'leaderboards',
           paged: true,
           validate: MapDto,
           token: u1Token
-        });
-      });
+        }));
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.createMany({
@@ -802,7 +824,9 @@ describe('Maps', () => {
               stats: true,
               credits: true,
               leaderboards: true,
-              submission: { include: { currentVersion: true, versions: true } }
+              currentVersion: true,
+              versions: true,
+              submission: true
             }
           });
         });
@@ -867,13 +891,12 @@ describe('Maps', () => {
           expect(
             Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
           ).toBeLessThan(1000);
-          expect(createdMap.submission.currentVersion.zones).toMatchObject(
-            zones
+          expect(createdMap.currentVersion.zones).toMatchObject(zones);
+          expect(createdMap.currentVersion.submitterID).toBe(user.id);
+          expect(createdMap.versions[0]).toMatchObject(
+            createdMap.currentVersion
           );
-          expect(createdMap.submission.versions[0]).toMatchObject(
-            createdMap.submission.currentVersion
-          );
-          expect(createdMap.submission.versions).toHaveLength(1);
+          expect(createdMap.versions).toHaveLength(1);
         });
 
         it('should create a ton of leaderboards', async () => {
@@ -896,10 +919,10 @@ describe('Maps', () => {
 
         it('should upload the BSP file', async () => {
           expect(res.body.downloadURL).toBeUndefined();
-          const currentVersion = res.body.submission.currentVersion;
+          const currentVersion = res.body.currentVersion;
 
           expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
-            'submissions',
+            'maps',
             `${currentVersion.id}.bsp`
           ]);
 
@@ -908,15 +931,15 @@ describe('Maps', () => {
           );
           const downloadHash = createSha1Hash(downloadBuffer);
 
-          expect(bspHash).toBe(currentVersion.hash);
-          expect(downloadHash).toBe(currentVersion.hash);
+          expect(bspHash).toBe(currentVersion.bspHash);
+          expect(downloadHash).toBe(currentVersion.bspHash);
         });
 
         it('should upload the VMF file', async () => {
-          const currentVersion = res.body.submission.currentVersion;
+          const currentVersion = res.body.currentVersion;
 
           expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
-            'submissions',
+            'maps',
             `${currentVersion.id}_VMFs.zip`
           ]);
 
@@ -1458,6 +1481,22 @@ describe('Maps', () => {
 
         map = await db.createMap({
           name: 'my_epic_map',
+          versions: {
+            createMany: {
+              data: [
+                {
+                  versionNum: 1,
+                  bspHash: createSha1Hash('bats'),
+                  submitterID: u1.id
+                },
+                {
+                  versionNum: 2,
+                  bspHash: createSha1Hash('wigs'),
+                  submitterID: u1.id
+                }
+              ]
+            }
+          },
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
@@ -1471,14 +1510,6 @@ describe('Maps', () => {
                   comment: 'I will kill again'
                 }
               ],
-              versions: {
-                createMany: {
-                  data: [
-                    { versionNum: 1, hash: createSha1Hash('bats') },
-                    { versionNum: 2, hash: createSha1Hash('wigs') }
-                  ]
-                }
-              },
               dates: [{ status: MapStatus.APPROVED, date: new Date().toJSON() }]
             }
           },
@@ -1493,11 +1524,9 @@ describe('Maps', () => {
           }
         });
 
-        await prisma.mapSubmission.update({
-          where: { mapID: map.id },
-          data: {
-            currentVersion: { connect: { id: map.submission.versions[1].id } }
-          }
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { currentVersion: { connect: { id: map.versions[1].id } } }
         });
       });
 
@@ -1574,11 +1603,11 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the zones expand parameter', () =>
+      it('should respond with expanded map data using the currentVersion expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
-          expand: 'zones',
+          expand: 'currentVersion',
           token: u1Token
         }));
 
@@ -1680,20 +1709,34 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'versions',
-          expectedPropertyName: 'submission.versions[1]',
+          expectedPropertyName: 'versions[1]',
           token: u1Token
         }));
 
-      // This map is APPROVED but has a currentVersion, which will usually
-      // be removed when a map gets approval. We only really need to test
-      // that the expand works however - is the user has read access to the map,
-      // they can access submission/submission versions/reviews if they exist.
+      it('should respond with expanded map data using the versionsWithZones expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'versionsWithZones',
+          expectedPropertyName: 'versions[1].zones',
+          token: u1Token
+        }));
+
       it('should respond with expanded map data using the currentVersion expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'currentVersion',
-          expectedPropertyName: 'submission.currentVersion',
+          expectedPropertyName: 'currentVersion',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the currentVersionWithZones expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'currentVersionWithZones',
+          expectedPropertyName: 'currentVersion.zones',
           token: u1Token
         }));
 
@@ -1750,6 +1793,14 @@ describe('Maps', () => {
             name: 'surf_map', // This is actually RJ now. deal with it lol
             submitter: { connect: { id: u1.id } },
             status: MapStatus.PRIVATE_TESTING,
+            versions: {
+              create: {
+                zones: ZonesStub as unknown as JsonValue, // TODO: #855
+                versionNum: 1,
+                bspHash: createSha1Hash(Buffer.from('hash browns')),
+                submitter: { connect: { id: u1.id } }
+              }
+            },
             submission: {
               create: {
                 type: MapSubmissionType.ORIGINAL,
@@ -1762,13 +1813,6 @@ describe('Maps', () => {
                     type: LeaderboardType.RANKED
                   }
                 ],
-                versions: {
-                  create: {
-                    zones: ZonesStub,
-                    versionNum: 1,
-                    hash: createSha1Hash(Buffer.from('hash browns'))
-                  }
-                },
                 dates: [
                   {
                     status: MapStatus.PRIVATE_TESTING,
@@ -1790,7 +1834,7 @@ describe('Maps', () => {
         ])
       );
 
-      it('should add a new map submission version', async () => {
+      it('should add a new map version', async () => {
         const changelog = 'Added walls, floors etc...';
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -1803,26 +1847,29 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.submission).toMatchObject({
+        expect(res.body).toMatchObject({
           currentVersion: {
             versionNum: 2,
+            submitterID: u1.id,
             changelog
           },
           versions: expect.arrayContaining([
             expect.objectContaining({ versionNum: 1 }),
-            expect.objectContaining({ versionNum: 2, changelog })
+            expect.objectContaining({
+              versionNum: 2,
+              changelog,
+              submitterID: u1.id
+            })
           ])
         });
 
-        const submissionDB = await prisma.mapSubmission.findUnique({
-          where: { mapID: map.id },
+        const mapDB = await prisma.mMap.findUnique({
+          where: { id: map.id },
           include: { currentVersion: true }
         });
 
-        expect(submissionDB.currentVersion.versionNum).toBe(2);
-        expect(res.body.submission.currentVersion.id).toBe(
-          submissionDB.currentVersion.id
-        );
+        expect(mapDB.currentVersion.versionNum).toBe(2);
+        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
       });
 
       it('should upload the BSP and VMF files', async () => {
@@ -1837,10 +1884,10 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const currentVersion = res.body.submission.currentVersion;
+        const currentVersion = res.body.currentVersion;
 
         expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
-          'submissions',
+          'maps',
           `${currentVersion.id}.bsp`
         ]);
 
@@ -1849,11 +1896,11 @@ describe('Maps', () => {
         );
         const bspDownloadHash = createSha1Hash(bspDownloadBuffer);
 
-        expect(bspHash).toBe(currentVersion.hash);
-        expect(bspDownloadHash).toBe(currentVersion.hash);
+        expect(bspHash).toBe(currentVersion.bspHash);
+        expect(bspDownloadHash).toBe(currentVersion.bspHash);
 
         expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
-          'submissions',
+          'maps',
           `${currentVersion.id}_VMFs.zip`
         ]);
 
@@ -2455,14 +2502,15 @@ describe('Maps', () => {
                   tier: 1,
                   type: LeaderboardType.UNRANKED
                 }
-              ],
-              versions: {
-                create: {
-                  zones: ZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('shashashs'))
-                }
-              }
+              ]
+            }
+          },
+          versions: {
+            create: {
+              zones: ZonesStub,
+              versionNum: 1,
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
             }
           }
         };
@@ -2622,14 +2670,15 @@ describe('Maps', () => {
                       status: s1,
                       date: new Date().toJSON()
                     }
-                  ],
-                  versions: {
-                    create: {
-                      zones: ZonesStub,
-                      versionNum: 1,
-                      hash: createSha1Hash(Buffer.from('shashashs'))
-                    }
-                  }
+                  ]
+                }
+              },
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  bspHash: createSha1Hash(Buffer.from('shashashs')),
+                  submitter: { connect: { id: user.id } }
                 }
               }
             });
@@ -2679,14 +2728,15 @@ describe('Maps', () => {
                   tier: 1,
                   type: LeaderboardType.RANKED
                 }
-              ],
-              versions: {
-                create: {
-                  zones: ZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('shashashs'))
-                }
-              }
+              ]
+            }
+          },
+          versions: {
+            create: {
+              zones: ZonesStub,
+              versionNum: 1,
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
             }
           }
         });
@@ -2732,14 +2782,15 @@ describe('Maps', () => {
                   tier: 1,
                   type: LeaderboardType.RANKED
                 }
-              ],
-              versions: {
-                create: {
-                  zones: ZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('shashashs'))
-                }
-              }
+              ]
+            }
+          },
+          versions: {
+            create: {
+              zones: ZonesStub,
+              versionNum: 1,
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
             }
           }
         });
@@ -2781,14 +2832,15 @@ describe('Maps', () => {
                   tier: 1,
                   type: LeaderboardType.RANKED
                 }
-              ],
-              versions: {
-                create: {
-                  zones: ZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('shashashs'))
-                }
-              }
+              ]
+            }
+          },
+          versions: {
+            create: {
+              zones: ZonesStub,
+              versionNum: 1,
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
             }
           }
         });
@@ -3028,14 +3080,6 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.PORT,
-              versions: {
-                create: {
-                  // Has a bonus
-                  zones: ZonesStub,
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('shashashs'))
-                }
-              },
               // No bonus, so should fail
               suggestions: [
                 {
@@ -3046,6 +3090,15 @@ describe('Maps', () => {
                   type: LeaderboardType.RANKED
                 }
               ]
+            }
+          },
+          versions: {
+            create: {
+              // Has a bonus
+              zones: ZonesStub,
+              versionNum: 1,
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
             }
           }
         });
@@ -3121,40 +3174,51 @@ describe('Maps', () => {
           db.createUser()
         ]);
 
-        const submissionCreate = {
-          create: {
-            type: MapSubmissionType.ORIGINAL,
-            dates: [
-              {
-                status: MapStatus.PRIVATE_TESTING,
-                date: new Date().toJSON()
-              }
-            ],
-            suggestions: [
-              {
-                track: 1,
-                trackType: TrackType.MAIN,
-                trackNum: 1,
-                gamemode: Gamemode.CONC,
-                tier: 1,
-                type: LeaderboardType.RANKED,
-                comment: 'My dad made this'
-              }
-            ],
-            versions: {
-              createMany: {
-                data: [
-                  { versionNum: 1, hash: createSha1Hash('dogs') },
-                  { versionNum: 2, hash: createSha1Hash('elves') }
-                ]
-              }
+        const mapCreate = {
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              dates: [
+                {
+                  status: MapStatus.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ],
+              suggestions: [
+                {
+                  track: 1,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  type: LeaderboardType.RANKED,
+                  comment: 'My dad made this'
+                }
+              ]
+            }
+          },
+          versions: {
+            createMany: {
+              data: [
+                {
+                  versionNum: 1,
+                  bspHash: createSha1Hash('dogs'),
+                  submitterID: u1.id
+                },
+                {
+                  versionNum: 2,
+                  bspHash: createSha1Hash('elves'),
+                  submitterID: u1.id
+                }
+              ]
             }
           }
         };
+
         await db.createMap({ status: MapStatus.APPROVED });
         pubMap1 = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
-          submission: submissionCreate,
+          ...mapCreate,
           reviews: {
             create: {
               mainText: 'Appalling',
@@ -3164,30 +3228,26 @@ describe('Maps', () => {
         });
         pubMap2 = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
-          submission: submissionCreate
+          ...mapCreate
         });
         privMap = await db.createMap({
           status: MapStatus.PRIVATE_TESTING,
-          submission: submissionCreate
+          ...mapCreate
         });
         faMap = await db.createMap({
           status: MapStatus.FINAL_APPROVAL,
-          submission: submissionCreate
+          ...mapCreate
         });
         caMap = await db.createMap({
           status: MapStatus.CONTENT_APPROVAL,
-          submission: submissionCreate
+          ...mapCreate
         });
 
         await Promise.all(
           [pubMap1, pubMap2, privMap].map((map) =>
-            prisma.mapSubmission.update({
-              where: { mapID: map.id },
-              data: {
-                currentVersion: {
-                  connect: { id: map.submission.versions[1].id }
-                }
-              }
+            prisma.mMap.update({
+              where: { id: map.id },
+              data: { currentVersion: { connect: { id: map.versions[1].id } } }
             })
           )
         );
@@ -3205,19 +3265,15 @@ describe('Maps', () => {
         });
 
         for (const item of res.body.data) {
-          for (const prop of [
+          [
             'submission',
             'id',
             'name',
             'status',
-            'hash',
             'submitterID',
             'createdAt',
             'updatedAt'
-          ]) {
-            expect(item).toHaveProperty(prop);
-          }
-          expect(item).not.toHaveProperty('zones');
+          ].forEach((prop) => expect(item).toHaveProperty(prop));
         }
       });
 
@@ -3300,35 +3356,69 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded current submission version data using the currentVersion expand parameter', () =>
+      it('should respond with expanded current version data using the currentVersion expand parameter', () =>
         req.expandTest({
           url: 'maps/submissions',
           expand: 'currentVersion',
-          expectedPropertyName: 'submission.currentVersion',
           paged: true,
           validate: MapDto,
           token: u1Token
         }));
 
-      it('should respond with expanded submission versions data using the version expand parameter', async () => {
+      it('should respond with expanded current version data using the currentVersionWithZones expand parameter', () =>
+        req.expandTest({
+          url: 'maps/submissions',
+          expand: 'currentVersionWithZones',
+          expectedPropertyName: 'currentVersion.zones',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded versions data using the version expand parameter', async () => {
         const res = await req.expandTest({
           url: 'maps/submissions',
           expand: 'versions',
-          expectedPropertyName: 'submission.versions[1]',
+          expectedPropertyName: 'versions[1]',
           paged: true,
           validate: MapDto,
           token: u1Token
         });
 
         for (const item of res.body.data) {
-          for (const version of item.submission.versions) {
+          for (const version of item.versions) {
             expect(version).toHaveProperty('id');
             expect(version).toHaveProperty('downloadURL');
-            expect(version).toHaveProperty('hash');
+            expect(version).toHaveProperty('bspHash');
+            expect(version).toHaveProperty('zoneHash');
             expect(version).toHaveProperty('versionNum');
             expect(version).toHaveProperty('createdAt');
+            expect(version).toHaveProperty('changelog');
             expect(version).not.toHaveProperty('zones');
-            expect(version).not.toHaveProperty('changelog');
+          }
+        }
+      });
+
+      it('should respond with expanded versions data using the versionsWithZones expand parameter', async () => {
+        const res = await req.expandTest({
+          url: 'maps/submissions',
+          expand: 'versionsWithZones',
+          expectedPropertyName: 'versions[1]',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        });
+
+        for (const item of res.body.data) {
+          for (const version of item.versions) {
+            expect(version).toHaveProperty('id');
+            expect(version).toHaveProperty('downloadURL');
+            expect(version).toHaveProperty('bspHash');
+            expect(version).toHaveProperty('zoneHash');
+            expect(version).toHaveProperty('versionNum');
+            expect(version).toHaveProperty('createdAt');
+            expect(version).toHaveProperty('changelog');
+            expect(version).toHaveProperty('zones');
           }
         }
       });

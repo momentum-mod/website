@@ -53,7 +53,6 @@ import {
   CreateMapDto,
   CreateMapReviewDto,
   CreateMapReviewWithFilesDto,
-  CreateMapSubmissionVersionDto,
   CreateMapTestInviteDto,
   CreateMapWithFilesDto,
   LeaderboardRunDto,
@@ -77,7 +76,8 @@ import {
   UpdateMapImagesDto,
   UpdateMapTestInviteDto,
   MapPreSignedUrlDto,
-  VALIDATION_PIPE_CONFIG
+  VALIDATION_PIPE_CONFIG,
+  CreateMapVersionDto
 } from '../../dto';
 import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
@@ -241,7 +241,7 @@ export class MapsController {
       'if those are being changed by the user, be sure to send the /:id PATCH first!'
   })
   @ApiBody({
-    type: CreateMapSubmissionVersionDto,
+    type: CreateMapVersionDto,
     required: true
   })
   @ApiOkResponse({ type: MapDto, description: 'Map with new version attached' })
@@ -251,18 +251,13 @@ export class MapsController {
   )
   submitMapVersion(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Body('data') data: CreateMapSubmissionVersionDto,
+    @Body('data') data: CreateMapVersionDto,
     @UploadedFiles() files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
     this.mapSubmissionFileValidation(files.vmfs);
 
-    return this.mapsService.submitMapSubmissionVersion(
-      mapID,
-      data,
-      userID,
-      files.vmfs
-    );
+    return this.mapsService.submitMapVersion(mapID, data, userID, files.vmfs);
   }
 
   private mapSubmissionFileValidation(vmfFiles: File[]) {

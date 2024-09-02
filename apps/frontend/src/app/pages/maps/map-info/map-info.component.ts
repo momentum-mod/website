@@ -123,7 +123,6 @@ export class MapInfoComponent implements OnInit {
           this.mapService.getMap(params.get('name'), {
             expand: [
               'info',
-              'zones',
               'leaderboards',
               'credits',
               'submitter',
@@ -131,7 +130,12 @@ export class MapInfoComponent implements OnInit {
               'inFavorites',
               'submission',
               'versions',
-              'currentVersion'
+              // Map review system needs zones to work, so we have to fetch
+              // zones. This is very annoying; we'd really rather avoid
+              // having to fetch so much data. However, we don't know whether
+              // we map review stuff prior to response to this query since we
+              // don't know the status. Maybe worth rethinking in future.
+              'currentVersionWithZones'
             ]
           })
         ),

@@ -59,7 +59,7 @@ export class MapReviewFormComponent {
         // validator that fetches the current map zones on the class whenever
         // validator is run.
         suggestionsValidator(
-          () => this.map?.zones ?? this.map?.submission?.currentVersion?.zones,
+          () => this.map?.currentVersion?.zones,
           SuggestionType.REVIEW
         )
       ]

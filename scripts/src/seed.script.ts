@@ -35,10 +35,9 @@ import {
   imgLargePath,
   AdminActivityType,
   imgXlPath,
-  approvedBspPath,
-  submissionBspPath,
   MapZones,
-  GamemodeInfo
+  GamemodeInfo,
+  bspPath
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { nuke } from '@momentum/db';
@@ -419,13 +418,19 @@ prismaWrapper(async (prisma: PrismaClient) => {
         return dates;
       };
 
-      const versions = arrayFrom(randRange(vars.submissionVersions), (i) => ({
-        versionNum: i + 1,
-        hash: mapHash,
-        hasVmf: false, // Could add a VMF if we really want but leaving for now
-        zones: randomZones() as unknown as JsonValue, // TODO: #855,
-        changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
-      }));
+      const versions = arrayFrom(randRange(vars.submissionVersions), (i) => {
+        const zones = randomZones();
+        return {
+          versionNum: i + 1,
+          bspHash: mapHash,
+          hasVmf: false, // Could add a VMF if we really want but leaving for now
+          zones: zones as unknown as JsonValue, // TODO: #855
+          zoneHash: createHash('sha1')
+            .update(JSON.stringify(zones))
+            .digest('hex'),
+          changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
+        };
+      });
 
       const status = Random.weighted(weights.mapStatusWeights);
       const inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(status);
@@ -553,124 +558,104 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#endregion
 
-      const [map] = await parallel(
-        prisma.mMap.create({
-          data: {
-            name,
-            status,
-            submitterID: Random.element(potentialMappers).id,
-            ...Random.createdUpdatedDates(),
-            info: {
-              create: {
-                description: faker.lorem.paragraphs().slice(0, 999),
-                creationDate: Random.pastDateInYears(),
-                youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
-              }
-            },
-            images: await Promise.all(
-              arrayFrom(randRange(vars.images), async () => {
-                const id = uuidv4();
-
-                const buffer = Random.element(imageBuffers);
-
-                // Could be fancy and bubble up all the promises here to do in parallel
-                // but not worth the insane code
-                await Promise.all(
-                  ['small', 'medium', 'large', 'xl'].map((size) =>
-                    s3.send(
-                      new PutObjectCommand({
-                        Bucket: s3BucketName,
-                        Key: `img/${id}-${size}.jpg`,
-                        Body: buffer[size],
-                        ContentType: 'image/jpeg'
-                      })
-                    )
-                  )
-                );
-
-                return id;
-              })
-            ),
-            stats: {
-              create: {
-                reviews: Random.int(10000),
-                downloads: Random.int(10000),
-                subscriptions: Random.int(10000),
-                plays: Random.int(10000),
-                favorites: Random.int(10000),
-                completions: Random.int(10000),
-                uniqueCompletions: Random.int(10000),
-                timePlayed: Random.int(10000)
-              }
-            },
-            reviews: {
-              createMany: {
-                data: await Promise.all(
-                  arrayFrom(randRange(vars.reviewsPerMap), review)
-                )
-              }
-            },
-            submission: {
-              create: {
-                type: Random.weighted([
-                  [MapSubmissionType.ORIGINAL, 1],
-                  [MapSubmissionType.PORT, 1],
-                  [MapSubmissionType.SPECIAL, 0.2]
-                ]),
-                placeholders: arrayFrom(
-                  randRange(vars.submissionPlaceholders),
-                  () => ({
-                    alias: faker.internet.userName(),
-                    type: Random.enumValue(MapCreditType),
-                    description: faker.lorem.words({ min: 1, max: 4 })
-                  })
-                ),
-                dates: submissionsDates(),
-                versions: { createMany: { data: versions } },
-                suggestions: submissionSuggestions()
-              }
-            },
-            leaderboards: { createMany: { data: leaderboards } }
+      const map = await prisma.mMap.create({
+        data: {
+          name,
+          status,
+          submitterID: Random.element(potentialMappers).id,
+          ...Random.createdUpdatedDates(),
+          info: {
+            create: {
+              description: faker.lorem.paragraphs().slice(0, 999),
+              creationDate: Random.pastDateInYears(),
+              youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
+            }
           },
-          include: {
-            submission: { include: { versions: true } },
-            reviews: { include: { comments: true } }
-          }
-        }),
-        status === MapStatus.APPROVED
-          ? s3.send(
-              new PutObjectCommand({
-                Bucket: s3BucketName,
-                Key: approvedBspPath(name),
-                Body: mapBuffer
-              })
-            )
-          : Promise.resolve()
-      );
+          images: await Promise.all(
+            arrayFrom(randRange(vars.images), async () => {
+              const id = uuidv4();
 
-      const lastVersion = map.submission.versions.at(-1);
-      await prisma.mapSubmission.update({
-        where: { mapID: map.id },
+              const buffer = Random.element(imageBuffers);
+
+              // Could be fancy and bubble up all the promises here to do in parallel
+              // but not worth the insane code
+              await Promise.all(
+                ['small', 'medium', 'large', 'xl'].map((size) =>
+                  s3.send(
+                    new PutObjectCommand({
+                      Bucket: s3BucketName,
+                      Key: `img/${id}-${size}.jpg`,
+                      Body: buffer[size],
+                      ContentType: 'image/jpeg'
+                    })
+                  )
+                )
+              );
+
+              return id;
+            })
+          ),
+          stats: {
+            create: {
+              reviews: Random.int(10000),
+              downloads: Random.int(10000),
+              subscriptions: Random.int(10000),
+              plays: Random.int(10000),
+              favorites: Random.int(10000),
+              completions: Random.int(10000),
+              uniqueCompletions: Random.int(10000),
+              timePlayed: Random.int(10000)
+            }
+          },
+          reviews: {
+            createMany: {
+              data: await Promise.all(
+                arrayFrom(randRange(vars.reviewsPerMap), review)
+              )
+            }
+          },
+          versions: { createMany: { data: versions } },
+          submission: {
+            create: {
+              type: Random.weighted([
+                [MapSubmissionType.ORIGINAL, 1],
+                [MapSubmissionType.PORT, 1],
+                [MapSubmissionType.SPECIAL, 0.2]
+              ]),
+              placeholders: arrayFrom(
+                randRange(vars.submissionPlaceholders),
+                () => ({
+                  alias: faker.internet.userName(),
+                  type: Random.enumValue(MapCreditType),
+                  description: faker.lorem.words({ min: 1, max: 4 })
+                })
+              ),
+              dates: submissionsDates(),
+              suggestions: submissionSuggestions()
+            }
+          },
+          leaderboards: { createMany: { data: leaderboards } }
+        },
+        include: {
+          versions: true,
+          submission: true,
+          reviews: { include: { comments: true } }
+        }
+      });
+
+      const lastVersion = map.versions.at(-1);
+      await prisma.mMap.update({
+        where: { id: map.id },
         data: { currentVersion: { connect: { id: lastVersion.id } } }
       });
 
       await s3.send(
         new PutObjectCommand({
           Bucket: s3BucketName,
-          Key: submissionBspPath(lastVersion.id),
+          Key: bspPath(lastVersion.id),
           Body: mapBuffer
         })
       );
-
-      if ([MapStatus.APPROVED, MapStatus.DISABLED].includes(map.status))
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: {
-            hash: lastVersion.hash,
-            zones: lastVersion.zones,
-            hasVmf: false
-          }
-        });
 
       for (const review of map.reviews) {
         await prisma.mapReviewComment.createMany({
@@ -1037,12 +1022,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
       select: {
         id: true,
         name: true,
-        hash: true,
         status: true,
         images: true,
         info: true,
         leaderboards: true,
-        createdAt: true,
         credits: {
           select: {
             type: true,
@@ -1052,27 +1035,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
             }
           }
         },
-        submission:
-          type === FlatMapList.SUBMISSION
-            ? {
-                select: {
-                  currentVersion: {
-                    select: {
-                      id: true,
-                      versionNum: true,
-                      hash: true,
-                      changelog: true,
-                      zones: true,
-                      createdAt: true
-                    }
-                  },
-                  type: true,
-                  placeholders: true,
-                  suggestions: true,
-                  dates: true
-                }
-              }
-            : undefined
+        createdAt: true,
+        currentVersion: { omit: { zones: true, changelog: true } },
+        ...(type === FlatMapList.SUBMISSION
+          ? { submission: true, versions: { omit: { zones: true } } }
+          : {})
       }
     });
 
@@ -1082,13 +1049,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
     for (const map of maps as any[]) {
       delete map.info.mapID;
 
-      map.downloadURL = `${cdnUrl}/${approvedBspPath(map.name)}`;
-
-      if (map?.submission?.currentVersion) {
-        map.submission.currentVersion.downloadURL = `${cdnUrl}/${submissionBspPath(
-          map.submission.currentVersion.id
-        )}`;
-      }
+      map.currentVersion.downloadURL = `${cdnUrl}/${bspPath(
+        map.currentVersion.id
+      )}`;
 
       map.images = map.images.map((image) => ({
         id: image,
