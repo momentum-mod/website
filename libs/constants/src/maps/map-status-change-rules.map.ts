@@ -43,7 +43,7 @@ export const MapStatusChangeRules: ReadonlyArray<{from: MapStatus; to: MapStatus
   { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.PRIVATE_TESTING,  roles: []},
   { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.CONTENT_APPROVAL, roles: [Role.ADMIN, Role.MODERATOR]},
   { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.PUBLIC_TESTING,   roles: []},
-  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.FINAL_APPROVAL,   roles: ['submitter']},
+  { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.FINAL_APPROVAL,   roles: ['submitter', Role.ADMIN, Role.MODERATOR]},
   { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
   { from: MapStatus.FINAL_APPROVAL,   to: MapStatus.APPROVED,         roles: [Role.ADMIN, Role.MODERATOR]},
