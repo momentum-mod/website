@@ -36,7 +36,8 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "prisma migrate dev --skip-seed --name",
-        "cwd": "libs/db/src"
+        "cwd": "libs/db/src",
+        "parallel": false
       }
     },
     "seed": {
