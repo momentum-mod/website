@@ -1,0 +1,11 @@
+<div
+  [ngStyle]="{ 'background-color': levelColor }"
+  [ngClass]="[prestige ? 'pl-1 pr-3' : 'px-2', textColor]"
+  class="flex items-center gap-1 rounded py-0 font-display text-xl shadow"
+>
+  <!-- Display prestige icon if available -->
+  <img *ngIf="prestige" [ngClass]="imageClass" [src]="prestigeIcon" alt="Prestige Icon" />
+
+  <!-- Display the level -->
+  <b>{{ level }}</b>
+</div>
