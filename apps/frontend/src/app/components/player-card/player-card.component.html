@@ -10,6 +10,5 @@
       [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)"
     />
   </div>
-  <!-- TODO: Level indicator component - https://github.com/momentum-mod/website/issues/870 -->
-  <p class="self-end rounded bg-gray-500 px-2 py-0 font-display text-xl shadow">{{ user.userStats.level }}</p>
+  <m-level-indicator [totalLevel]="level" class="self-end" />
 </div>

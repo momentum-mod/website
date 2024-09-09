@@ -187,6 +187,14 @@ export class XpSystems {
     return rankGain;
   }
 
+  getPrestige(totalLevel: number): number {
+    return Math.floor(Math.max(totalLevel - 1, 0) / 500);
+  }
+
+  getInnerLevel(totallevel: number): number {
+    return ((totallevel - 1) % 500) + 1;
+  }
+
   private static getInitialScale(tier: number, type = 0) {
     switch (type) {
       case 0:
