@@ -92,7 +92,6 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
           .map(({ trackNum }) => trackNum)
       );
 
-      trackNum = 1;
       while (bonusNums.has(trackNum)) trackNum++;
     }
 
