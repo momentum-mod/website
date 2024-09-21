@@ -546,51 +546,57 @@ export class MapsService {
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
     let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
-    await this.db.$transaction(async (tx) => {
-      map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
 
-      await tx.leaderboard.createMany({
-        data: LeaderboardHandler.getMaximalLeaderboards(
-          dto.suggestions.map(({ gamemode, trackType, trackNum }) => ({
-            gamemode,
-            trackType,
-            trackNum
-          })),
-          dto.zones
-        ).map((obj) => ({
-          mapID: map.id,
-          ...obj,
-          style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
-          type: LeaderboardType.IN_SUBMISSION
-        }))
-      });
+    const tasks: Promise<any>[] = [
+      this.db.$transaction(async (tx) => {
+        map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
 
-      const version = map.currentVersion;
+        await tx.leaderboard.createMany({
+          data: LeaderboardHandler.getMaximalLeaderboards(
+            dto.suggestions.map(({ gamemode, trackType, trackNum }) => ({
+              gamemode,
+              trackType,
+              trackNum
+            })),
+            dto.zones
+          ).map((obj) => ({
+            mapID: map.id,
+            ...obj,
+            style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
+            type: LeaderboardType.IN_SUBMISSION
+          }))
+        });
 
-      const tasks: Promise<unknown>[] = [
-        (async () => {
-          const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
-            : undefined;
-
-          return this.uploadMapVersionFiles(version.id, bspFile, zippedVmf);
-        })(),
-
-        this.createMapUploadedActivities(tx, map.id, map.credits)
-      ];
-
-      if (dto.wantsPrivateTesting && dto.testInvites?.length > 0) {
+        // We need the generated map ID from the above query for S3, but do NOT
+        // want to block our transaction on S3 operations - so push to promise
+        // array then await everything below.
         tasks.push(
-          this.mapTestInviteService.createOrUpdatePrivateTestingInvites(
+          (async () => {
+            const zippedVmf = hasVmf
+              ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
+              : undefined;
+
+            return this.uploadMapVersionFiles(
+              map.currentVersion.id,
+              bspFile,
+              zippedVmf
+            );
+          })()
+        );
+
+        await this.createMapUploadedActivities(tx, map.id, map.credits);
+
+        if (dto.wantsPrivateTesting && dto.testInvites?.length > 0) {
+          await this.mapTestInviteService.createOrUpdatePrivateTestingInvites(
             tx,
             map.id,
             dto.testInvites
-          )
-        );
-      }
+          );
+        }
+      })
+    ];
 
-      await Promise.all(tasks);
-    });
+    await Promise.all(tasks);
 
     return DtoFactory(MapDto, map);
   }
@@ -659,61 +665,65 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
-    await this.db.$transaction(async (tx) => {
-      const newVersion = await tx.mapVersion.create({
-        data: {
-          versionNum: newVersionNum,
-          submitter: { connect: { id: userID } },
-          hasVmf,
-          zones: zones as unknown as JsonValue, // TODO: #855
-          bspHash,
-          changelog: dto.changelog,
-          mmap: { connect: { id: mapID } }
+    const tasks: Promise<any>[] = [
+      this.db.$transaction(async (tx) => {
+        const newVersion = await tx.mapVersion.create({
+          data: {
+            versionNum: newVersionNum,
+            submitter: { connect: { id: userID } },
+            hasVmf,
+            zones: zones as unknown as JsonValue, // TODO: #855
+            bspHash,
+            changelog: dto.changelog,
+            mmap: { connect: { id: mapID } }
+          }
+        });
+
+        await this.generateSubmissionLeaderboards(
+          tx,
+          mapID,
+          map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
+          zones
+        );
+
+        if (dto.resetLeaderboards === true) {
+          // If it's been approved before, deleting runs is a majorly destructive
+          // action that we probably don't want to allow the submitter to do.
+          // If the submitter is fixing the maps in a significant enough way to
+          // still require a leaderboard reset, they should just get an admin to
+          // do it.
+          if (
+            (map.submission.dates as unknown as MapSubmissionDate[]).some(
+              (date) => date.status === MapStatus.APPROVED
+            )
+          ) {
+            throw new ForbiddenException(
+              'Cannot reset leaderboards on a previously approved map.' +
+                ' Talk about it with an admin!'
+            );
+          }
+
+          await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
         }
-      });
 
-      await this.generateSubmissionLeaderboards(
-        tx,
-        mapID,
-        map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
-        zones
-      );
+        tasks.push(
+          (async () => {
+            const zippedVmf = hasVmf
+              ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
+              : undefined;
 
-      if (dto.resetLeaderboards === true) {
-        // If it's been approved before, deleting runs is a majorly destructive
-        // action that we probably don't want to allow the submitter to do.
-        // If the submitter is fixing the maps in a significant enough way to
-        // still require a leaderboard reset, they should just get an admin to
-        // do it.
-        if (
-          (map.submission.dates as unknown as MapSubmissionDate[]).some(
-            (date) => date.status === MapStatus.APPROVED
-          )
-        ) {
-          throw new ForbiddenException(
-            'Cannot reset leaderboards on a previously approved map.' +
-              ' Talk about it with an admin!'
-          );
-        }
+            await this.uploadMapVersionFiles(newVersion.id, bspFile, zippedVmf);
+          })()
+        );
 
-        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
-      }
-
-      await parallel(
-        async () => {
-          const zippedVmf = hasVmf
-            ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
-            : undefined;
-
-          await this.uploadMapVersionFiles(newVersion.id, bspFile, zippedVmf);
-        },
-
-        tx.mMap.update({
+        await tx.mMap.update({
           where: { id: mapID },
           data: { currentVersion: { connect: { id: newVersion.id } } }
-        })
-      );
-    });
+        });
+      })
+    ];
+
+    await Promise.all(tasks);
 
     if (
       map.status === MapStatus.PUBLIC_TESTING ||
