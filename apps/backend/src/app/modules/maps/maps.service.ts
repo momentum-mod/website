@@ -92,6 +92,7 @@ import {
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash } from 'node:crypto';
+import { DiscordWebhookService } from './discord-webhook.service';
 
 @Injectable()
 export class MapsService {
@@ -106,7 +107,8 @@ export class MapsService {
     @Inject(forwardRef(() => MapReviewService))
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly mapListService: MapListService
+    private readonly mapListService: MapListService,
+    private readonly discordWebhookService: DiscordWebhookService
   ) {}
 
   //#region Gets
@@ -1052,6 +1054,13 @@ export class MapsService {
           ) as Prisma.MMapUpdateInput
         });
         statusChanged = statusHandler[1] !== statusHandler[2];
+
+        // Ensure that discord notification will be sent after update
+        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+          await this.discordWebhookService.sendMapPublicTestingEmbed(tx, map);
+        } else if (statusHandler[2] === MapStatus.APPROVED) {
+          await this.discordWebhookService.sendMapApprovedEmbed(tx, map);
+        }
       } else {
         await tx.mMap.update({
           where: { id: mapID },
@@ -1158,6 +1167,13 @@ export class MapsService {
 
         oldStatus = statusHandler[1];
         newStatus = statusHandler[2];
+
+        // Ensure that discord notification will be sent after update
+        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+          await this.discordWebhookService.sendMapPublicTestingEmbed(tx, map);
+        } else if (statusHandler[2] === MapStatus.APPROVED) {
+          await this.discordWebhookService.sendMapApprovedEmbed(tx, map);
+        }
       } else {
         updatedMap = await tx.mMap.update({
           where: { id: mapID },
