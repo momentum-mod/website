@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MMap } from '@prisma/client';
+import { Leaderboard, MapInfo, MMap, User } from '@prisma/client';
 import { HttpService } from '@nestjs/axios';
 import {
   MapSubmissionSuggestion,
@@ -58,9 +58,6 @@ export class DiscordWebhookService {
         .map((s) => s.user.alias)
     ];
 
-    const FRONTEND_URL = this.config.getOrThrow('url.frontend');
-    const CDN_URL = this.config.getOrThrow('url.cdn');
-
     for (const categoryEntry of GamemodeCategories.entries()) {
       if (categoryEntry[1].some((gm) => mainTrackGamemodes.has(gm))) {
         const webhookUrl = this.config.getOrThrow(
@@ -69,45 +66,12 @@ export class DiscordWebhookService {
 
         if (!webhookUrl) continue;
 
-        const responseOrStatus = await firstValueFrom(
-          this.http.post(
-            webhookUrl,
-            {
-              content: 'New map open for public testing!',
-              embeds: [
-                {
-                  title: map.name,
-                  description:
-                    'By ' + mapAuthors.map((a) => `**${a}**`).join(', '),
-                  url: `${FRONTEND_URL}/maps/${map.id}`,
-                  timestamp: extendedMap.info.creationDate.toISOString(),
-                  color: 1611475,
-                  image: {
-                    url: `${CDN_URL}/${imgLargePath(extendedMap.images[0])}`
-                  },
-                  fields: mainTrackSuggestions.map((sugg) => ({
-                    name: GamemodeInfo.get(sugg.gamemode).name,
-                    value: `Tier ${sugg.tier}`,
-                    inline: true
-                  })),
-                  footer: {
-                    icon_url: `https://avatars.cloudflare.steamstatic.com/${extendedMap.submitter.avatar}.jpg`,
-                    text: extendedMap.submitter.alias
-                  }
-                }
-              ]
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-          )
-        ).catch((error) => {
-          this.logger.error(
-            'Failed to post to webhook: ' +
-              (error.response
-                ? JSON.stringify(error.response.data, null, 2)
-                : error)
-          );
-          return false;
-        });
+        const responseOrStatus = this.postWebhook(
+          webhookUrl,
+          extendedMap,
+          mapAuthors,
+          mainTrackSuggestions
+        );
 
         if (!responseOrStatus) break;
       }
@@ -138,9 +102,6 @@ export class DiscordWebhookService {
       .filter((cred) => cred.type === MapCreditType.AUTHOR)
       .map((s) => s.user.alias);
 
-    const FRONTEND_URL = this.config.getOrThrow('url.frontend');
-    const CDN_URL = this.config.getOrThrow('url.cdn');
-
     for (const categoryEntry of GamemodeCategories.entries()) {
       if (categoryEntry[1].some((gm) => mainTrackGamemodes.has(gm))) {
         const webhookUrl = this.config.getOrThrow(
@@ -149,48 +110,64 @@ export class DiscordWebhookService {
 
         if (!webhookUrl) continue;
 
-        const responseOrStatus = await firstValueFrom(
-          this.http.post(
-            webhookUrl,
-            {
-              content: 'New map has been approved!',
-              embeds: [
-                {
-                  title: map.name,
-                  description:
-                    'By ' + mapAuthors.map((a) => `**${a}**`).join(', '),
-                  url: `${FRONTEND_URL}/maps/${map.id}`,
-                  timestamp: extendedMap.info.creationDate.toISOString(),
-                  color: 1611475,
-                  image: {
-                    url: `${CDN_URL}/${imgLargePath(extendedMap.images[0])}`
-                  },
-                  fields: mainTrackLeaderboards.map((lb) => ({
-                    name: GamemodeInfo.get(lb.gamemode).name,
-                    value: `Tier ${lb.tier}`,
-                    inline: true
-                  })),
-                  footer: {
-                    icon_url: `https://avatars.cloudflare.steamstatic.com/${extendedMap.submitter.avatar}.jpg`,
-                    text: extendedMap.submitter.alias
-                  }
-                }
-              ]
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-          )
-        ).catch((error) => {
-          this.logger.error(
-            'Failed to post to webhook: ' +
-              (error.response
-                ? JSON.stringify(error.response.data, null, 2)
-                : error)
-          );
-          return false;
-        });
+        const responseOrStatus = this.postWebhook(
+          webhookUrl,
+          extendedMap,
+          mapAuthors,
+          mainTrackLeaderboards
+        );
 
         if (!responseOrStatus) break;
       }
     }
+  }
+
+  async postWebhook(
+    webhookUrl: string,
+    extendedMap: MMap & { info: MapInfo; submitter: User },
+    authors: Array<string>,
+    gamemodes: MapSubmissionSuggestion[] | Leaderboard[]
+  ) {
+    const FRONTEND_URL = this.config.getOrThrow('url.frontend');
+    const CDN_URL = this.config.getOrThrow('url.cdn');
+
+    return await firstValueFrom(
+      this.http.post(
+        webhookUrl,
+        {
+          content: 'New map has been approved!',
+          embeds: [
+            {
+              title: extendedMap.name,
+              description: 'By ' + authors.map((a) => `**${a}**`).join(', '),
+              url: `${FRONTEND_URL}/maps/${extendedMap.id}`,
+              timestamp: extendedMap.info.creationDate.toISOString(),
+              color: 1611475,
+              image: {
+                url: `${CDN_URL}/${imgLargePath(extendedMap.images[0])}`
+              },
+              fields: gamemodes.map((gm) => ({
+                name: GamemodeInfo.get(gm.gamemode).name,
+                value: `Tier ${gm.tier} ${gm.type === LeaderboardType.UNRANKED ? '(Unranked)' : ''}`,
+                inline: true
+              })),
+              footer: {
+                icon_url: `https://avatars.cloudflare.steamstatic.com/${extendedMap.submitter.avatar}.jpg`,
+                text: extendedMap.submitter.alias
+              }
+            }
+          ]
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+    ).catch((error) => {
+      this.logger.error(
+        'Failed to post to webhook: ' +
+          (error.response
+            ? JSON.stringify(error.response.data, null, 2)
+            : error)
+      );
+      return false;
+    });
   }
 }
