@@ -70,7 +70,8 @@ export class DiscordWebhookService {
           webhookUrl,
           extendedMap,
           mapAuthors,
-          mainTrackSuggestions
+          mainTrackSuggestions,
+          'New map is open for public testing!'
         );
 
         if (!responseOrStatus) break;
@@ -115,7 +116,8 @@ export class DiscordWebhookService {
           webhookUrl,
           extendedMap,
           mapAuthors,
-          mainTrackLeaderboards
+          mainTrackLeaderboards,
+          'New map has been approved!'
         );
 
         if (!responseOrStatus) break;
@@ -127,7 +129,8 @@ export class DiscordWebhookService {
     webhookUrl: string,
     extendedMap: MMap & { info: MapInfo; submitter: User },
     authors: Array<string>,
-    gamemodes: MapSubmissionSuggestion[] | Leaderboard[]
+    gamemodes: MapSubmissionSuggestion[] | Leaderboard[],
+    text: string
   ) {
     const FRONTEND_URL = this.config.getOrThrow('url.frontend');
     const CDN_URL = this.config.getOrThrow('url.cdn');
@@ -136,7 +139,7 @@ export class DiscordWebhookService {
       this.http.post(
         webhookUrl,
         {
-          content: 'New map has been approved!',
+          content: text,
           embeds: [
             {
               title: extendedMap.name,
