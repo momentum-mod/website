@@ -56,7 +56,7 @@ export class DiscordWebhookService {
       ...extendedMap.credits
         .filter((cred) => cred.type === MapCreditType.AUTHOR)
         .map((s) => s.user.alias)
-    ];
+    ].sort();
 
     for (const categoryEntry of GamemodeCategories.entries()) {
       if (categoryEntry[1].some((gm) => mainTrackGamemodes.has(gm))) {
@@ -100,7 +100,8 @@ export class DiscordWebhookService {
 
     const mapAuthors = extendedMap.credits
       .filter((cred) => cred.type === MapCreditType.AUTHOR)
-      .map((s) => s.user.alias);
+      .map((s) => s.user.alias)
+      .sort();
 
     for (const categoryEntry of GamemodeCategories.entries()) {
       if (categoryEntry[1].some((gm) => mainTrackGamemodes.has(gm))) {
