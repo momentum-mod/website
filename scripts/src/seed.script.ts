@@ -5,7 +5,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
@@ -156,7 +156,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   if (args.has('-h') || args.has('--help')) {
     console.log(
-      'usage: seed.js [-h] [--reset]\n\t' +
+      'usage: seed.js [-h] [--reset] [--dump-map-list]\n\t' +
         Object.keys(defaultVars)
           .map((v) => `--${v}=N (or N-M for min-max)`)
           .join('\n\t')
@@ -1073,12 +1073,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     const mapListJson = JSON.stringify(maps);
 
-    // Uncomment below line to write this out to disk if you want to debug output of this.
-    // eslint-disable-next-line unicorn/no-await-expression-member
-    (await import('node:fs')).writeFileSync(
-      `./map-list-${type}.json`,
-      mapListJson
-    );
+    if (args.has('--dump-map-list')) {
+      writeFileSync(`./map-list-${type}.json`, mapListJson);
+    }
 
     const compressed = await promisify(zlib.deflate)(mapListJson);
     await s3.send(
