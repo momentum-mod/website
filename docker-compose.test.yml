@@ -68,8 +68,8 @@ services:
       - "3000:3000"
     command: >
       sh -c "
-        npm install
-        npx nx run db:push &&
+        npm install &&
+        npx nx run db:deploy &&
         npx nx run backend-e2e:e2e
       "
   frontend-e2e:
