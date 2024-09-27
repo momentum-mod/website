@@ -81,7 +81,7 @@ module.exports = {
             selector: 'variable',
             types: ['boolean', 'string', 'number'],
             modifiers: ['exported'],
-            format: ['strictCamelCase', 'UPPER_CASE']
+            format: ['strictCamelCase', 'UPPER_CASE', 'PascalCase']
           },
           {
             selector: 'class',
