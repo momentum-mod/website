@@ -32,6 +32,13 @@
         "cwd": "libs/db/src"
       }
     },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma migrate deploy",
+        "cwd": "libs/db/src"
+      }
+    },
     "create-migration": {
       "executor": "nx:run-commands",
       "options": {
