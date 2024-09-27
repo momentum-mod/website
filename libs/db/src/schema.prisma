@@ -214,7 +214,10 @@ model MapVersion {
   bspHash    String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
   zoneHash   String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
   hasVmf     Boolean @default(false)
-  zones      Json? /// map-zones.model.ts
+  // Stringified JSON of map-zones.model.ts.
+  // We don't gain anything from storing as jsonb, text is (presumably) faster
+  // and preserves whitespace so zoneHash is reliable.
+  zones      String? 
 
   submitterID Int?
   submitter   User? @relation(fields: [submitterID], references: [id])

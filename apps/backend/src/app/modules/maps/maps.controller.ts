@@ -463,11 +463,10 @@ export class MapsController {
     description: "The map's zones"
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
-  getZones(
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<MapZonesDto> {
+  getZones(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<string> {
     return this.mapsService.getZones(mapID);
   }
+
   //#endregion
 
   //#region Images

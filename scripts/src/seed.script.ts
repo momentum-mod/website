@@ -35,7 +35,6 @@ import {
   imgLargePath,
   AdminActivityType,
   imgXlPath,
-  MapZones,
   GamemodeInfo,
   bspPath
 } from '@momentum/constants';
@@ -47,7 +46,6 @@ import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import axios from 'axios';
 import sharp from 'sharp';
-import { JsonValue } from 'type-fest';
 import { v4 as uuidv4 } from 'uuid';
 import { prismaWrapper } from './prisma-wrapper.util';
 
@@ -419,15 +417,13 @@ prismaWrapper(async (prisma: PrismaClient) => {
       };
 
       const versions = arrayFrom(randRange(vars.submissionVersions), (i) => {
-        const zones = randomZones();
+        const zones = JSON.stringify(randomZones());
         return {
           versionNum: i + 1,
           bspHash: mapHash,
           hasVmf: false, // Could add a VMF if we really want but leaving for now
-          zones: zones as unknown as JsonValue, // TODO: #855
-          zoneHash: createHash('sha1')
-            .update(JSON.stringify(zones))
-            .digest('hex'),
+          zones,
+          zoneHash: createHash('sha1').update(zones).digest('hex'),
           changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
         };
       });
@@ -437,7 +433,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = versions.at(-1).zones as unknown as MapZones; // TODO: #855
+      const zones = JSON.parse(versions.at(-1).zones);
       const numModes = randRange(vars.modesPerLeaderboard);
       const modesSet = new Set<Gamemode>();
       while (modesSet.size < numModes) {

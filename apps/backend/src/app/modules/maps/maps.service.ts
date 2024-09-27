@@ -12,6 +12,7 @@ import {
   LeaderboardRun,
   MapCredit,
   MapSubmission,
+  MapVersion,
   MMap,
   Prisma
 } from '@prisma/client';
@@ -33,7 +34,6 @@ import {
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
   MapTestInviteState,
-  MapVersion,
   MapZones,
   Role,
   TrackType,
@@ -50,7 +50,7 @@ import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
-import { JsonValue, Merge, MergeExclusive } from 'type-fest';
+import { Merge, MergeExclusive } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
   SuggestionType,
@@ -77,7 +77,6 @@ import {
   MapsGetAllQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
-  MapZonesDto,
   PagedResponseDto,
   UpdateMapAdminDto,
   UpdateMapDto
@@ -654,12 +653,15 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
+    let zonesStr: string;
     let zones: MapZones;
     if (dto.zones) {
       this.checkZones(dto.zones);
       zones = dto.zones;
+      zonesStr = JSON.stringify(zones);
     } else {
-      zones = map.currentVersion.zones as unknown as MapZones; // TODO: #855
+      zonesStr = map.currentVersion.zones;
+      zones = JSON.parse(zonesStr);
     }
 
     const oldVersion = map.currentVersion;
@@ -672,8 +674,9 @@ export class MapsService {
             versionNum: newVersionNum,
             submitter: { connect: { id: userID } },
             hasVmf,
-            zones: zones as unknown as JsonValue, // TODO: #855
+            zones: zonesStr,
             bspHash,
+            zoneHash: createHash('sha1').update(zonesStr).digest('hex'),
             changelog: dto.changelog,
             mmap: { connect: { id: mapID } }
           }
@@ -787,9 +790,8 @@ export class MapsService {
       ? MapStatus.PRIVATE_TESTING
       : MapStatus.CONTENT_APPROVAL;
 
-    const zoneHash = createHash('sha1')
-      .update(JSON.stringify(createMapDto.zones))
-      .digest('hex');
+    const zones = JSON.stringify(createMapDto.zones);
+    const zoneHash = createHash('sha1').update(zones).digest('hex');
 
     const initialMap = (await tx.mMap.create({
       data: {
@@ -800,9 +802,9 @@ export class MapsService {
             versionNum: 1,
             bspHash,
             zoneHash,
+            zones,
             hasVmf,
-            submitter: { connect: { id: submitterID } },
-            zones: createMapDto.zones
+            submitter: { connect: { id: submitterID } }
           }
         },
         submission: {
@@ -1035,7 +1037,7 @@ export class MapsService {
     const suggs =
       dto.suggestions ??
       (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
-    const zones = map.currentVersion.zones as unknown as MapZones; // TODO: #855
+    const zones = JSON.parse(map.currentVersion.zones);
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
@@ -1426,7 +1428,7 @@ export class MapsService {
       include: { currentVersion: true, versions: { omit: { zones: true } } }
     });
 
-    const zones = dbZones as unknown as MapZones; // TODO: #855
+    const zones = JSON.parse(dbZones);
 
     // Is it getting approved for first time?
     if (
@@ -1587,7 +1589,7 @@ export class MapsService {
 
   //#region Zones
 
-  async getZones(mapID: number): Promise<MapZonesDto> {
+  async getZones(mapID: number): Promise<string> {
     const mapWithZones = await this.db.mMap.findUnique({
       where: { id: mapID },
       select: { currentVersion: { select: { zones: true } } }
@@ -1596,10 +1598,7 @@ export class MapsService {
     if (!mapWithZones || !mapWithZones.currentVersion?.zones)
       throw new NotFoundException('Map/zones not found');
 
-    return DtoFactory(
-      MapZonesDto,
-      mapWithZones.currentVersion.zones as Record<string, unknown>
-    );
+    return mapWithZones.currentVersion.zones;
   }
 
   //#endregion

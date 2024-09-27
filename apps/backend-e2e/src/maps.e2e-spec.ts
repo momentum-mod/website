@@ -2,7 +2,6 @@
 
 import { Config } from '../../backend/src/app/config';
 import { MapDto } from '../../backend/src/app/dto';
-
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -38,14 +37,14 @@ import * as Enum from '@momentum/enum';
 import {
   generateRandomMapZones,
   ZonesStub,
-  ZonesStubLeaderboards
+  ZonesStubLeaderboards,
+  ZonesStubString
 } from '@momentum/formats/zone';
 import { arrayFrom } from '@momentum/util-fn';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { JsonValue } from 'type-fest';
 
 describe('Maps', () => {
   let app,
@@ -891,7 +890,9 @@ describe('Maps', () => {
           expect(
             Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
           ).toBeLessThan(1000);
-          expect(createdMap.currentVersion.zones).toMatchObject(zones);
+          expect(JSON.parse(createdMap.currentVersion.zones)).toMatchObject(
+            zones
+          );
           expect(createdMap.currentVersion.submitterID).toBe(user.id);
           expect(createdMap.versions[0]).toMatchObject(
             createdMap.currentVersion
@@ -1795,7 +1796,7 @@ describe('Maps', () => {
             status: MapStatus.PRIVATE_TESTING,
             versions: {
               create: {
-                zones: ZonesStub as unknown as JsonValue, // TODO: #855
+                zones: ZonesStubString,
                 versionNum: 1,
                 bspHash: createSha1Hash(Buffer.from('hash browns')),
                 submitter: { connect: { id: u1.id } }
@@ -2507,7 +2508,7 @@ describe('Maps', () => {
           },
           versions: {
             create: {
-              zones: ZonesStub,
+              zones: ZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }
@@ -2675,7 +2676,7 @@ describe('Maps', () => {
               },
               versions: {
                 create: {
-                  zones: ZonesStub,
+                  zones: ZonesStubString,
                   versionNum: 1,
                   bspHash: createSha1Hash(Buffer.from('shashashs')),
                   submitter: { connect: { id: user.id } }
@@ -2733,7 +2734,7 @@ describe('Maps', () => {
           },
           versions: {
             create: {
-              zones: ZonesStub,
+              zones: ZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }
@@ -2787,7 +2788,7 @@ describe('Maps', () => {
           },
           versions: {
             create: {
-              zones: ZonesStub,
+              zones: ZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }
@@ -2837,7 +2838,7 @@ describe('Maps', () => {
           },
           versions: {
             create: {
-              zones: ZonesStub,
+              zones: ZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }
@@ -3095,7 +3096,7 @@ describe('Maps', () => {
           versions: {
             create: {
               // Has a bonus
-              zones: ZonesStub,
+              zones: ZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }

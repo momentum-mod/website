@@ -36,7 +36,7 @@ export class RunProcessor {
     this.startTime = session.createdAt.getTime();
     this.timestamps = session.timestamps;
     this.map = session.mmap;
-    this.zones = session.mmap.currentVersion.zones as unknown as MapZones; // TODO: #855
+    this.zones = JSON.parse(session.mmap.currentVersion.zones);
     this.userID = user.id;
     this.steamID = user.steamID;
   }
