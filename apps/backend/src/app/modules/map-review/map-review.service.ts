@@ -13,7 +13,6 @@ import {
   mapReviewAssetPath,
   MapReviewEdit,
   MapReviewSuggestion,
-  MapZones,
   Role
 } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@prisma/client';
@@ -179,7 +178,7 @@ export class MapReviewService {
       try {
         validateSuggestions(
           body.suggestions,
-          map.currentVersion.zones as unknown as MapZones, // TODO: #855
+          JSON.parse(map.currentVersion.zones),
           SuggestionType.REVIEW
         );
       } catch (error) {
@@ -296,7 +295,7 @@ export class MapReviewService {
       try {
         validateSuggestions(
           body.suggestions,
-          map.currentVersion.zones as unknown as MapZones, // TODO: #855
+          JSON.parse(map.currentVersion.zones),
           SuggestionType.REVIEW
         );
       } catch (error) {

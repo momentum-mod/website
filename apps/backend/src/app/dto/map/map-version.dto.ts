@@ -17,10 +17,11 @@ import {
   IsUUID,
   MaxLength
 } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { Config } from '../../config';
 import { MapZonesDto } from './map-zones.dto';
+import { DtoFactory } from '../functions';
 
 const CDN_URL = Config.url.cdn;
 
@@ -43,6 +44,15 @@ export class MapVersionDto implements MapVersion {
     required: true,
     description: 'The contents of the map zone file as JSON'
   })
+  // This is a string in DB, parse and transform into a CT instance. This is
+  // likely quite slow, but we don't usually include zones on map fetches -
+  // the game uses the maps/<id>/zones endpoint, which returns a plain string.
+  @Transform(({ value }) =>
+    DtoFactory(
+      MapZonesDto,
+      typeof value == 'string' ? JSON.parse(value) : value
+    )
+  )
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
   readonly zones: MapZonesDto;
 

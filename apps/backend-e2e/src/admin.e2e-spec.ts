@@ -7,7 +7,6 @@ import {
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
-
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
@@ -43,11 +42,10 @@ import {
 import { Prisma, PrismaClient } from '@prisma/client';
 import Zip from 'adm-zip';
 import {
-  BabyZonesStub,
-  ZonesStub,
-  ZonesStubLeaderboards
+  BabyZonesStubString,
+  ZonesStubLeaderboards,
+  ZonesStubString
 } from '@momentum/formats/zone';
-import { JsonValue } from 'type-fest';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -962,13 +960,13 @@ describe('Admin', () => {
                   bspHash: createSha1Hash(
                     'apple banana cat dog elephant fox grape hat igloo joker'
                   ),
-                  zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                  zones: BabyZonesStubString,
                   submitterID: u1.id
                 },
                 {
                   versionNum: 2,
                   bspHash,
-                  zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                  zones: BabyZonesStubString,
                   submitterID: u1.id
                 }
               ]
@@ -1227,7 +1225,7 @@ describe('Admin', () => {
                 ...createMapData,
                 versions: {
                   create: {
-                    zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+                    zones: BabyZonesStubString,
                     versionNum: 1,
                     bspHash: createSha1Hash(bspBuffer),
                     submitterID: u1.id
@@ -1293,7 +1291,7 @@ describe('Admin', () => {
           ...createMapData,
           versions: {
             create: {
-              zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+              zones: BabyZonesStubString,
               versionNum: 1,
               bspHash: createSha1Hash(bspBuffer),
               submitterID: u1.id
@@ -1360,7 +1358,7 @@ describe('Admin', () => {
             create: {
               versionNum: 1,
               bspHash: createSha1Hash(bspBuffer),
-              zones: BabyZonesStub as unknown as JsonValue, // TODO: #855
+              zones: BabyZonesStubString,
               submitterID: u1.id
             }
           },
@@ -1455,14 +1453,14 @@ describe('Admin', () => {
                   {
                     versionNum: 1,
                     bspHash,
-                    zones: ZonesStub as any,
+                    zones: ZonesStubString,
                     hasVmf: true,
                     submitterID: u1.id
                   },
                   {
                     versionNum: 2,
                     bspHash,
-                    zones: ZonesStub as any,
+                    zones: ZonesStubString,
                     hasVmf: true,
                     submitterID: u1.id
                   }

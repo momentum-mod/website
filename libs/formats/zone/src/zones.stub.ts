@@ -166,6 +166,8 @@ export const ZonesStub: MapZones = {
   }
 };
 
+export const ZonesStubString = JSON.stringify(ZonesStub);
+
 /**
  * Defining properties of all the leaderboards that *should* be generated from
  * ZonesStub, for a main track on RJ and bonus on CPM Defrag.
@@ -255,3 +257,5 @@ export const BabyZonesStub: MapZones = {
     bonuses: []
   }
 };
+
+export const BabyZonesStubString = JSON.stringify(BabyZonesStub);

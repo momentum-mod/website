@@ -25,7 +25,7 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { ZonesStub } from '@momentum/formats/zone';
+import { ZonesStub, ZonesStubString } from '@momentum/formats/zone';
 import { createSha1Hash } from './crypto.util';
 import { arrayFrom } from '@momentum/util-fn';
 
@@ -154,8 +154,8 @@ export class DbUtil {
               changelog: 'hello',
               submitter: this.getNewUserCreateData(),
               bspHash: createSha1Hash(Math.random().toString()),
-              zones: ZonesStub as unknown as JsonValue, // TODO: #855
-              zoneHash: createSha1Hash(JSON.stringify(ZonesStub))
+              zones: ZonesStubString,
+              zoneHash: createSha1Hash(ZonesStubString)
             }
           },
           submission: {
@@ -246,7 +246,7 @@ export class DbUtil {
           changelog: 'hello',
           submitter: this.getNewUserCreateData(),
           bspHash: createSha1Hash(Math.random().toString()),
-          zones: ZonesStub as unknown as JsonValue, // TODO: #855
+          zones: ZonesStubString,
           zoneHash: createSha1Hash(JSON.stringify(ZonesStub))
         }
       },

@@ -40,7 +40,7 @@ describe('RunProcessor', () => {
         mmap: {
           id: 1,
           name: mapName,
-          currentVersion: { zones: mapZones as any, bspHash: mapHash }
+          currentVersion: { zones: JSON.stringify(mapZones), bspHash: mapHash }
         } as any,
         user: { id: 1, steamID: 1n } as any
       },

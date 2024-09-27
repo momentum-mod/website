@@ -9,11 +9,9 @@ import {
   MapImageDto,
   MapInfoDto,
   MapReviewDto,
-  MapZonesDto,
   MinimalLeaderboardRunDto,
   UserDto
 } from '../../backend/src/app/dto';
-
 import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -41,7 +39,11 @@ import {
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
-import { ZonesStub } from '@momentum/formats/zone';
+import {
+  validateZoneFile,
+  ZonesStub,
+  ZonesStubString
+} from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -49,7 +51,6 @@ import {
 import { MapListVersionDto } from '../../backend/src/app/dto/map/map-list-version.dto';
 import path from 'node:path';
 import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-stats.dto';
-import { JsonValue } from 'type-fest';
 
 describe('Maps Part 2', () => {
   let app,
@@ -763,7 +764,7 @@ describe('Maps Part 2', () => {
             db.createMap({
               versions: {
                 create: {
-                  zones: ZonesStub as unknown as JsonValue, // TODO: #855
+                  zones: ZonesStubString,
                   versionNum: 1,
                   submitter: db.getNewUserCreateData()
                 }
@@ -778,11 +779,12 @@ describe('Maps Part 2', () => {
         const res = await req.get({
           url: `maps/${map.id}/zones`,
           status: 200,
-          validate: MapZonesDto,
           token
         });
 
-        expect(res.body).toMatchObject(zones);
+        const parsed = JSON.parse(res.body);
+        expect(parsed).toMatchObject(zones);
+        expect(() => validateZoneFile(parsed)).not.toThrow();
       });
 
       it('should 404 if the map does not exist', () =>

@@ -22,8 +22,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
-import { ZonesStub } from '@momentum/formats/zone';
-import { JsonValue } from 'type-fest';
+import { ZonesStubString } from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -547,7 +546,7 @@ describe('Session', () => {
           where: { id: map.id },
           data: {
             currentVersion: {
-              update: { zones: ZonesStub as unknown as JsonValue }
+              update: { zones: ZonesStubString }
             }
           }
         });
