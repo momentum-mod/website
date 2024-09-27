@@ -13,7 +13,7 @@
 } from '@prisma/client';
 import { CamelCase, JsonValue, PartialDeep } from 'type-fest';
 import { v4 as uuid4 } from 'uuid';
-import { merge } from 'lodash'; // TODO: Replace with fastify deepmerge when everything is passing!
+import { deepmerge } from '@fastify/deepmerge';
 import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
 import {
@@ -81,10 +81,8 @@ export class DbUtil {
 
   createUser(args: CreateUserArgs = {}): Promise<User> {
     return this.prisma.user.create(
-      merge(
-        {
-          data: this.getNewUserCreateData().create
-        },
+      deepmerge()(
+        { data: this.getNewUserCreateData().create },
         args
       ) as Prisma.UserCreateArgs
     );

@@ -1,4 +1,4 @@
-﻿import { get as getDeep, isObject } from 'lodash';
+﻿import { get as getDeep } from 'lodash';
 import { Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { InjectOptions, Response } from 'light-my-request';
@@ -7,7 +7,7 @@ import * as fs from 'node:fs';
 import * as http from 'node:http';
 import path from 'node:path';
 import { FILES_PATH } from '../files-path.const';
-import { isEmpty } from '@momentum/util-fn';
+import { isEmpty, isObject } from '@momentum/util-fn';
 import { MergeExclusive, Primitive } from 'type-fest';
 
 export const URL_PREFIX = '/v1/';
