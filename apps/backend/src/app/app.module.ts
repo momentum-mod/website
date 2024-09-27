@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
@@ -35,7 +35,7 @@ import { setupNestInterceptor } from '../instrumentation';
     // all HTTP requests (so no need for a Nest interceptor).
     // In dev mode, outputs as more human-readable strings using `pino-pretty`.
     LoggerModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+      useFactory: async (config: ConfigService): Promise<PinoParams> => ({
         pinoHttp: {
           customProps: (_req, _res) => ({ context: 'HTTP' }),
           level: config.getOrThrow('logLevel'),

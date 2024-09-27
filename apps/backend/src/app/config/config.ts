@@ -69,9 +69,8 @@ export const ConfigFactory = (): ConfigInterface => {
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS,
       preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
     },
-    logLevel: ((process.env['LOG_LEVEL'] ?? isTest)
-      ? 'warn'
-      : 'info') as pino.LevelWithSilent
+    logLevel: (process.env['LOG_LEVEL'] ??
+      (isTest ? 'warn' : 'info')) as pino.LevelWithSilent
   };
 };
 
