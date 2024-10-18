@@ -1053,9 +1053,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
           }
         },
         createdAt: true,
-        currentVersion: { omit: { zones: true, changelog: true } },
+        currentVersion: { omit: { zones: true, changelog: true, mapID: true } },
         ...(type === FlatMapList.SUBMISSION
-          ? { submission: true, versions: { omit: { zones: true } } }
+          ? {
+              submission: true,
+              versions: { omit: { zones: true, mapID: true } }
+            }
           : {})
       }
     });
@@ -1098,12 +1101,27 @@ prismaWrapper(async (prisma: PrismaClient) => {
       writeFileSync(`./map-list-${type}.json`, mapListJson);
     }
 
-    const compressed = await promisify(zlib.deflate)(mapListJson);
+    // This is copied directly from map-list-service.ts, see there
+    const t1 = Date.now();
+
+    const uncompressed = Buffer.from(mapListJson);
+    const header = Buffer.alloc(12);
+
+    header.write('MSML', 0, 'utf8');
+    header.writeUInt32LE(uncompressed.length, 4);
+    header.writeUInt32LE(maps.length, 8);
+
+    const compressed = await promisify(zlib.deflate)(uncompressed);
+
+    const outBuf = Buffer.concat([header, compressed]);
+
+    console.log(`Generated map list, encoding took ${Date.now() - t1}ms`);
+
     await s3.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
         Key: mapListPath(type, 1),
-        Body: compressed
+        Body: outBuf
       })
     );
   }

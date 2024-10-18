@@ -2120,13 +2120,15 @@ describe('Maps', () => {
           oldListVersion.body.submissions + 1
         );
 
-        const submissionMapList = await fileStore.getMapListVersion(
+        const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.SUBMISSION,
           newListVersion.body.submissions
         );
-        expect(submissionMapList).toHaveLength(1);
-        expect(submissionMapList[0].id).toBe(map.id);
-        expect(submissionMapList[0]).not.toHaveProperty('zones');
+        expect(ident).toBe('MSML');
+        expect(numMaps).toBe(1);
+        expect(data).toHaveLength(1);
+        expect(data[0].id).toBe(map.id);
+        expect(data[0]).not.toHaveProperty('zones');
       });
 
       it('should 400 for bad zones', async () => {
@@ -3016,7 +3018,6 @@ describe('Maps', () => {
         const newListVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
-
           token
         });
 
