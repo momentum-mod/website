@@ -1769,23 +1769,27 @@ describe('Admin', () => {
             oldVersion.body.submissions + 1
           );
 
-          const approvedMapList = await fileStore.getMapListVersion(
+          const approved = await fileStore.getMapListVersion(
             FlatMapList.APPROVED,
             newVersion.body.approved
           );
-          expect(approvedMapList).toHaveLength(1);
-          expect(approvedMapList[0]).toMatchObject({
+          expect(approved.ident).toBe('MSML');
+          expect(approved.numMaps).toBe(1);
+          expect(approved.data).toHaveLength(1);
+          expect(approved.data[0]).toMatchObject({
             id: map.id,
             leaderboards: expect.anything(),
             info: expect.anything()
           });
-          expect(approvedMapList[0]).not.toHaveProperty('zones');
+          expect(approved.data[0]).not.toHaveProperty('zones');
 
-          const submissionMapList = await fileStore.getMapListVersion(
+          const submission = await fileStore.getMapListVersion(
             FlatMapList.SUBMISSION,
             newVersion.body.submissions
           );
-          expect(submissionMapList).toHaveLength(0);
+          expect(submission.ident).toBe('MSML');
+          expect(submission.numMaps).toBe(0);
+          expect(submission.data).toHaveLength(0);
         });
 
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
@@ -1832,12 +1836,14 @@ describe('Admin', () => {
         expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
         expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
 
-        const approvedMapList = await fileStore.getMapListVersion(
+        const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.APPROVED,
           newVersion.body.approved
         );
-        expect(approvedMapList).toHaveLength(1);
-        expect(approvedMapList[0]).toMatchObject({ id: map2.id });
+        expect(ident).toBe('MSML');
+        expect(numMaps).toBe(1);
+        expect(data).toHaveLength(1);
+        expect(data[0].id).toBe(map2.id);
       });
 
       it('should return 404 if map not found', () =>
@@ -1973,11 +1979,13 @@ describe('Admin', () => {
         expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
         expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
 
-        const approvedMapList = await fileStore.getMapListVersion(
+        const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.APPROVED,
           newVersion.body.approved
         );
-        expect(approvedMapList).toHaveLength(0);
+        expect(ident).toBe('MSML');
+        expect(numMaps).toBe(0);
+        expect(data).toHaveLength(0);
       });
 
       it('should return 404 if map not found', () =>
