@@ -19,9 +19,11 @@ export const MIN_COORD_FLOAT = -MAX_COORD_FLOAT;
 
 export const MAX_ZONE_REGION_POINTS = 64;
 
-export const MAX_TRACK_SEGMENTS = 255;
+export const MAX_TRACK_SEGMENTS = 100;
 export const MAX_STAGE_TRACKS = MAX_TRACK_SEGMENTS;
 export const MAX_BONUS_TRACKS = 255;
+
+export const MAX_REGIONS = 512;
 
 // Includes the segment start zone
 export const MAX_SEGMENT_CHECKPOINTS = 255;

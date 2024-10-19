@@ -371,6 +371,11 @@ export interface MapZones {
   dataTimestamp: number;
   maxVelocity?: number;
   tracks: MapTracks;
+  globalRegions?: GlobalRegions;
+}
+
+export interface GlobalRegions {
+  allowBhop: Region[];
 }
 
 export interface MapTracks {
@@ -381,11 +386,13 @@ export interface MapTracks {
 export interface MainTrack {
   zones: TrackZones;
   stagesEndAtStageStarts: boolean;
+  bhopEnabled?: boolean;
 }
 
 export interface BonusTrack {
   zones?: TrackZones;
   defragModifiers?: number;
+  bhopEnabled?: boolean;
 }
 
 export interface TrackZones {
