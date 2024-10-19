@@ -20,7 +20,8 @@ import {
   Role,
   TrackType,
   LeaderboardType,
-  FlatMapList
+  FlatMapList,
+  GamemodeCategory
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -45,6 +46,9 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import * as rxjs from 'rxjs';
 
 describe('Maps', () => {
   let app,
@@ -3020,6 +3024,236 @@ describe('Maps', () => {
         expect(newListVersion.body.submissions).toBe(
           oldListVersion.body.submissions
         );
+      });
+
+      describe('Discord webhooks', () => {
+        let httpPostMock: jest.SpyInstance,
+          httpPostObs: rxjs.Subject<void>,
+          configMock: jest.SpyInstance;
+
+        beforeAll(() => {
+          httpPostMock = jest.spyOn(app.get(HttpService), 'post');
+          httpPostObs = new rxjs.Subject();
+
+          httpPostMock.mockImplementation(() => {
+            httpPostObs.next();
+            return rxjs.of({
+              data: '',
+              status: 204,
+              statusText: 'No Content',
+              headers: {},
+              config: {}
+            });
+          });
+
+          const configService = app.get(ConfigService);
+          const getOrThrow = configService.getOrThrow;
+          configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
+          configMock.mockImplementation((path) =>
+            path.startsWith('discordWebhooks.')
+              ? 'http://localhost/webhook_' +
+                path.replace('discordWebhooks.', '')
+              : getOrThrow.bind(configService, path)
+          );
+        });
+
+        afterAll(() => {
+          httpPostMock.mockRestore();
+          configMock.mockRestore();
+        });
+
+        afterEach(() => httpPostMock.mockClear());
+
+        it('should execute discord webhook when map is in public testing', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatus.FINAL_APPROVAL,
+            credits: {
+              create: {
+                type: MapCreditType.AUTHOR,
+                user: { connect: { id: user.id } }
+              }
+            },
+            submission: {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date().toJSON()
+                  }
+                ],
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.RJ,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    trackType: TrackType.BONUS,
+                    trackNum: 1,
+                    gamemode: Gamemode.DEFRAG_CPM,
+                    tier: 1,
+                    type: LeaderboardType.UNRANKED
+                  }
+                ],
+                placeholders: [
+                  { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
+                ]
+              }
+            }
+          });
+
+          void req.patch({
+            url: `maps/${map.id}`,
+            status: 204,
+            body: {
+              status: MapStatus.PUBLIC_TESTING
+            },
+            token
+          });
+
+          await rxjs.firstValueFrom(httpPostObs);
+          expect(httpPostMock).toHaveBeenCalledTimes(1);
+          const requestBody = httpPostMock.mock.lastCall[1];
+          const embed = requestBody.embeds[0];
+
+          expect(embed.title).toBe(map.name);
+          expect(embed.description).toBe(
+            `By ${[user.alias, 'The Map Author']
+              .sort()
+              .map((a) => `**${a}**`)
+              .join(', ')}`
+          );
+        });
+
+        it('should execute discord webhook when map has been approved', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatus.FINAL_APPROVAL,
+            credits: {
+              create: {
+                type: MapCreditType.AUTHOR,
+                user: { connect: { id: user.id } }
+              }
+            }
+          });
+
+          void req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: {
+              status: MapStatus.APPROVED,
+              finalLeaderboards: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.RJ,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.UNRANKED
+                }
+              ]
+            },
+            token: adminToken
+          });
+
+          await rxjs.firstValueFrom(httpPostObs);
+          expect(httpPostMock).toHaveBeenCalledTimes(1);
+          const requestBody = httpPostMock.mock.lastCall[1];
+          const embed = requestBody.embeds[0];
+
+          expect(embed.title).toBe(map.name);
+          expect(embed.description).toBe(`By **${user.alias}**`);
+        });
+
+        it('should execute multiple webhooks for different gamemode categories', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatus.FINAL_APPROVAL,
+            credits: {
+              create: {
+                type: MapCreditType.AUTHOR,
+                user: { connect: { id: user.id } }
+              }
+            },
+            submission: {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date().toJSON()
+                  }
+                ],
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.RJ,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.CONC,
+                    tier: 1,
+                    type: LeaderboardType.UNRANKED
+                  },
+                  {
+                    trackType: TrackType.BONUS,
+                    trackNum: 1,
+                    gamemode: Gamemode.DEFRAG_CPM,
+                    tier: 1,
+                    type: LeaderboardType.UNRANKED
+                  }
+                ],
+                placeholders: [
+                  { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
+                ]
+              }
+            }
+          });
+
+          void req.patch({
+            url: `maps/${map.id}`,
+            status: 204,
+            body: {
+              status: MapStatus.PUBLIC_TESTING
+            },
+            token
+          });
+
+          await rxjs.firstValueFrom(httpPostObs.pipe(rxjs.take(2)));
+          expect(httpPostMock).toHaveBeenCalledTimes(2);
+
+          const requestUrls = httpPostMock.mock.calls.map((call) => call[0]);
+          expect(requestUrls.sort()).toEqual(
+            [GamemodeCategory.RJ, GamemodeCategory.CONC].map(
+              (gc) => 'http://localhost/webhook_' + gc
+            )
+          );
+
+          const requestBody = httpPostMock.mock.lastCall[1];
+          const embed = requestBody.embeds[0];
+
+          expect(embed.title).toBe(map.name);
+          expect(embed.description).toBe(
+            `By ${[user.alias, 'The Map Author']
+              .sort()
+              .map((a) => `**${a}**`)
+              .join(', ')}`
+          );
+        });
       });
 
       it('should 400 for invalid suggestions', async () => {
