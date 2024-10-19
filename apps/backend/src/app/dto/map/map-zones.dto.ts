@@ -7,6 +7,7 @@ import {
   Zone,
   MainTrack,
   BonusTrack,
+  GlobalRegions,
   TrackZones
 } from '@momentum/constants';
 import {
@@ -23,6 +24,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  MAX_REGIONS,
   MAX_BONUS_TRACKS,
   MAX_SEGMENT_CHECKPOINTS,
   MAX_TRACK_SEGMENTS,
@@ -174,6 +176,14 @@ export class MainTrackDto /* extends JsonifiableDto */ implements MainTrack {
   })
   @IsBoolean()
   readonly stagesEndAtStageStarts: boolean;
+
+  @ApiProperty({
+    required: false,
+    description:
+      "Overrides the game mode's settings to allow bhopping on this track"
+  })
+  @IsBoolean()
+  readonly bhopEnabled: boolean;
 }
 
 export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
@@ -184,6 +194,14 @@ export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
   @IsInt()
   @IsOptional()
   readonly defragModifiers?: number;
+
+  @ApiProperty({
+    required: false,
+    description:
+      "Overrides the game mode's settings to allow bhopping on this track"
+  })
+  @IsBoolean()
+  readonly bhopEnabled: boolean;
 }
 
 export class MapTracksDto /* extends JsonifiableDto */ implements MapTracks {
@@ -201,6 +219,19 @@ export class MapTracksDto /* extends JsonifiableDto */ implements MapTracks {
   @ArrayMinSize(0)
   @ArrayMaxSize(MAX_BONUS_TRACKS)
   readonly bonuses: BonusTrackDto[];
+}
+
+export class GlobalRegionsDto /* extends JsonifiableDto */
+  implements GlobalRegions
+{
+  @NestedProperty(RegionDto, {
+    isArray: true,
+    required: false,
+    description: 'A collection of allow bhop regions'
+  })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(MAX_REGIONS)
+  readonly allowBhop: RegionDto[];
 }
 
 export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
@@ -224,4 +255,7 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
 
   @NestedProperty(MapTracksDto, { required: true })
   readonly tracks: MapTracksDto;
+
+  @NestedProperty(GlobalRegionsDto, { required: false })
+  readonly globalRegions?: GlobalRegionsDto;
 }

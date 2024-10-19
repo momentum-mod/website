@@ -42,7 +42,7 @@
       <textarea class="textinput textinput-validated mb-2 w-full" rows="8" [formControl]="changelog"></textarea>
       <div class="flex gap-4">
         <m-file-upload class="grow" [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
-        <m-file-upload class="grow" [formControl]="zon" typeName=".json" icon="vector-polygon" acceptExtensions=".zon.json" />
+        <m-file-upload class="grow" [formControl]="zon" typeName=".json" icon="vector-polygon" acceptExtensions=".json" />
         <m-multi-file-upload class="grow" [formControl]="vmfs" typeName="VMF" acceptExtensions=".vmf" icon="hammer" [max]="20" />
       </div>
     </div>
