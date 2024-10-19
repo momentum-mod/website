@@ -13,6 +13,7 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_PORT: 5432
       DATABASE_URL: postgresql://root:root@postgres/momentum?schema=public
+      MINIO_SITE_REGION: us-west-1
       MINIO_SERVER_PORT: 9000
       MINIO_CONSOLE_PORT: 9001
       MINIO_ROOT_USER: minio
@@ -25,7 +26,6 @@ services:
       STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
       SESSION_SECRET: thisisashitsecretdontuseitinprod
       JWT_SECRET: thisisalsonotasecure
-      MINIO_SITE_REGION: ${STORAGE_REGION}
     ports:
       - "5432:5432"
   minio:

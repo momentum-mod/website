@@ -40,7 +40,8 @@ module.exports = {
         'formats',
         'discord',
         'twitch',
-        'prod'
+        'prod',
+        'ci'
       ]
     ],
     'subject-case': [
