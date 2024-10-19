@@ -6,10 +6,10 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
   minio:
-    image: minio/minio
+    image: minio/minio:RELEASE.2024-08-17T01-24-54Z
     container_name: minio
   createbuckets:
-    image: minio/mc
+    image: minio/mc:RELEASE.2024-08-17T11-33-50Z
     container_name: minio_create_buckets
     depends_on:
       - minio
