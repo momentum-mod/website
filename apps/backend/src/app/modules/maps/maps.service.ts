@@ -91,6 +91,7 @@ import {
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash } from 'node:crypto';
+import { MapWebhooksService } from './map-webhooks.service';
 
 @Injectable()
 export class MapsService {
@@ -105,7 +106,8 @@ export class MapsService {
     @Inject(forwardRef(() => MapReviewService))
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly mapListService: MapListService
+    private readonly mapListService: MapListService,
+    private readonly discordWebhookService: MapWebhooksService
   ) {}
 
   //#region Gets
@@ -1064,6 +1066,33 @@ export class MapsService {
           ) as Prisma.MMapUpdateInput
         });
         statusChanged = statusHandler[1] !== statusHandler[2];
+
+        // Ensure that discord notification will be sent after update
+        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+          const extendedMap = await tx.mMap.findUnique({
+            where: { id: map.id },
+            include: {
+              info: true,
+              submission: true,
+              submitter: true,
+              credits: { include: { user: true } }
+            }
+          });
+          void this.discordWebhookService.sendPublicTestingDiscordEmbed(
+            extendedMap
+          );
+        } else if (statusHandler[2] === MapStatus.APPROVED) {
+          const extendedMap = await tx.mMap.findUnique({
+            where: { id: map.id },
+            include: {
+              info: true,
+              leaderboards: true,
+              submitter: true,
+              credits: { include: { user: true } }
+            }
+          });
+          void this.discordWebhookService.sendApprovedDiscordEmbed(extendedMap);
+        }
       } else {
         await tx.mMap.update({
           where: { id: mapID },
@@ -1170,6 +1199,33 @@ export class MapsService {
 
         oldStatus = statusHandler[1];
         newStatus = statusHandler[2];
+
+        // Ensure that discord notification will be sent after update
+        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+          const extendedMap = await tx.mMap.findUnique({
+            where: { id: map.id },
+            include: {
+              info: true,
+              submission: true,
+              submitter: true,
+              credits: { include: { user: true } }
+            }
+          });
+          void this.discordWebhookService.sendPublicTestingDiscordEmbed(
+            extendedMap
+          );
+        } else if (statusHandler[2] === MapStatus.APPROVED) {
+          const extendedMap = await tx.mMap.findUnique({
+            where: { id: map.id },
+            include: {
+              info: true,
+              leaderboards: true,
+              submitter: true,
+              credits: { include: { user: true } }
+            }
+          });
+          void this.discordWebhookService.sendApprovedDiscordEmbed(extendedMap);
+        }
       } else {
         updatedMap = await tx.mMap.update({
           where: { id: mapID },

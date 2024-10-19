@@ -13,6 +13,8 @@ import { MapTestInviteService } from './map-test-invite.service';
 import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
+import { MapWebhooksService } from './map-webhooks.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -23,7 +25,8 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
     forwardRef(() => RunsModule),
     forwardRef(() => AdminModule),
     forwardRef(() => MapReviewModule),
-    KillswitchModule
+    KillswitchModule,
+    HttpModule
   ],
   controllers: [MapsController],
   providers: [
@@ -31,7 +34,8 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
     MapCreditsService,
     MapImageService,
     MapTestInviteService,
-    MapListService
+    MapListService,
+    MapWebhooksService
   ],
   exports: [MapsService]
 })
