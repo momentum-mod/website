@@ -1,4 +1,5 @@
-﻿import * as pino from 'pino';
+﻿import { GamemodeCategory } from '@momentum/constants';
+import * as pino from 'pino';
 
 export enum Environment {
   DEVELOPMENT = 'dev',
@@ -48,5 +49,6 @@ export interface ConfigInterface {
     maxCreditsExceptTesters: number;
     preSignedUrlExpTime: number;
   };
+  discordWebhooks: Record<GamemodeCategory, string>;
   logLevel: pino.LevelWithSilent;
 }

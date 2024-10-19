@@ -12,8 +12,10 @@
   JWT_WEB_EXPIRY_TIME,
   JWT_REFRESH_EXPIRY_TIME,
   MAX_MAP_IMAGE_SIZE,
-  PRE_SIGNED_URL_EXPIRE_TIME
+  PRE_SIGNED_URL_EXPIRE_TIME,
+  GamemodeCategory
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import { ConfigInterface, Environment } from './config.interface';
 import * as process from 'node:process';
 import * as pino from 'pino';
@@ -69,6 +71,14 @@ export const ConfigFactory = (): ConfigInterface => {
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS,
       preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
     },
+    discordWebhooks: Object.fromEntries(
+      Enum.values(GamemodeCategory).map((cat) => [
+        cat,
+        isTest
+          ? ''
+          : (process.env[`DISCORD_WEBHOOK_${GamemodeCategory[cat]}_URL`] ?? '')
+      ])
+    ) as Record<GamemodeCategory, string>,
     logLevel: (process.env['LOG_LEVEL'] ??
       (isTest ? 'warn' : 'info')) as pino.LevelWithSilent
   };
