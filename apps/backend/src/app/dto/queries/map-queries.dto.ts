@@ -228,8 +228,11 @@ export class MapLeaderboardGetQueryDto
   })
   readonly filter?: MapRunsGetFilter;
 
+  // THIS WILL THROW FOR BIG NUMBERS, VALIDATE BETTER DICKHEAD
   @IntCsvQueryProperty({ description: 'List of users to limit results to' })
   readonly filterUserIDs?: number[];
+
+  // TODO: steamID versioN!!
 
   @BooleanQueryProperty({
     description: 'Whether to order by date or not (false for reverse)'
