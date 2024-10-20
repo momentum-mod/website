@@ -1,7 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
@@ -9,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { SteamFriendData, SteamUserSummaryData } from './steam.interface';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class SteamService {
@@ -24,6 +27,8 @@ export class SteamService {
 
   private readonly steamApiKey: string;
   private readonly steamTicketsSecretKey: string;
+
+  private readonly logger = new Logger('Steam Service');
 
   /**
    * Handler for ISteamUser/GetPlayerSummaries/v2/
@@ -57,9 +62,11 @@ export class SteamService {
 
   /**
    * Handler for ISteamUser/GetFriendList/v1/
+   * Throws several different different errors for different failures, which can
+   * be left uncaught if you want to throw an error response if this fails.
    */
   async getSteamFriends(steamID: bigint): Promise<SteamFriendData[]> {
-    const response = await lastValueFrom(
+    return lastValueFrom(
       this.http
         .get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
           params: {
@@ -69,20 +76,24 @@ export class SteamService {
           }
         })
         .pipe(
-          catchError((_) => {
-            throw new ServiceUnavailableException(
-              'Failed to retrieve friends list from steam'
-            );
+          map((res) => res?.data?.friendslist?.friends),
+          catchError((error: AxiosError) => {
+            if (error.response) {
+              if (error.response.status === 401) {
+                throw new ConflictException();
+              } else {
+                throw new InternalServerErrorException(
+                  `ISteamUser/GetFriendList/v1/ returned ${error.status}, which we don't know how to handle!`
+                );
+              }
+            } else {
+              throw new ServiceUnavailableException(
+                'Steam friends list API did not respond to our request'
+              );
+            }
           })
         )
     );
-
-    if (!response.data)
-      throw new InternalServerErrorException(
-        'Failed to get Steam friends list'
-      );
-
-    return response.data.friendslist.friends;
   }
 
   /**
