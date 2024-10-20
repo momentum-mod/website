@@ -183,7 +183,8 @@ export class MainTrackDto /* extends JsonifiableDto */ implements MainTrack {
       "Overrides the game mode's settings to allow bhopping on this track"
   })
   @IsBoolean()
-  readonly bhopEnabled: boolean;
+  @IsOptional()
+  readonly bhopEnabled?: boolean;
 }
 
 export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
@@ -201,7 +202,8 @@ export class BonusTrackDto /* extends JsonifiableDto */ implements BonusTrack {
       "Overrides the game mode's settings to allow bhopping on this track"
   })
   @IsBoolean()
-  readonly bhopEnabled: boolean;
+  @IsOptional()
+  readonly bhopEnabled?: boolean;
 }
 
 export class MapTracksDto /* extends JsonifiableDto */ implements MapTracks {
@@ -257,5 +259,6 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
   readonly tracks: MapTracksDto;
 
   @NestedProperty(GlobalRegionsDto, { required: false })
+  @IsOptional()
   readonly globalRegions?: GlobalRegionsDto;
 }

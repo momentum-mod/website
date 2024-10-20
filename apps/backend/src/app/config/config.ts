@@ -12,7 +12,8 @@
   JWT_WEB_EXPIRY_TIME,
   JWT_REFRESH_EXPIRY_TIME,
   MAX_MAP_IMAGE_SIZE,
-  PRE_SIGNED_URL_EXPIRE_TIME
+  PRE_SIGNED_URL_EXPIRE_TIME,
+  GamemodeCategory
 } from '@momentum/constants';
 import { ConfigInterface, Environment } from './config.interface';
 import * as process from 'node:process';
@@ -68,6 +69,24 @@ export const ConfigFactory = (): ConfigInterface => {
       minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS,
       preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
+    },
+    discordWebhooks: {
+      [GamemodeCategory.SURF]:
+        (!isTest && process.env['DISCORD_WEBHOOK_SURF_URL']) || '',
+      [GamemodeCategory.BHOP]:
+        (!isTest && process.env['DISCORD_WEBHOOK_BHOP_URL']) || '',
+      [GamemodeCategory.CLIMB]:
+        (!isTest && process.env['DISCORD_WEBHOOK_CLIMB_URL']) || '',
+      [GamemodeCategory.RJ]:
+        (!isTest && process.env['DISCORD_WEBHOOK_RJ_URL']) || '',
+      [GamemodeCategory.SJ]:
+        (!isTest && process.env['DISCORD_WEBHOOK_SJ_URL']) || '',
+      [GamemodeCategory.AHOP]:
+        (!isTest && process.env['DISCORD_WEBHOOK_AHOP_URL']) || '',
+      [GamemodeCategory.CONC]:
+        (!isTest && process.env['DISCORD_WEBHOOK_CONC_URL']) || '',
+      [GamemodeCategory.DEFRAG]:
+        (!isTest && process.env['DISCORD_WEBHOOK_DEFRAG_URL']) || ''
     },
     logLevel: (process.env['LOG_LEVEL'] ??
       (isTest ? 'warn' : 'info')) as pino.LevelWithSilent
