@@ -37,8 +37,8 @@ export class PlayerCardComponent implements OnInit {
         this.user = user;
         this.level = user.userStats.level;
         this.xp = user.userStats.cosXP as number;
-        this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
-        this.nextLevelXp = this.xpService.getCosmeticXpForLevel(this.level + 1);
+        this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level - 1);
+        this.nextLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
       });
   }
 }

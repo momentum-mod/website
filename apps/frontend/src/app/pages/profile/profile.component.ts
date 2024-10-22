@@ -130,12 +130,14 @@ export class ProfileComponent implements OnInit {
 
           this.avatarLoaded = true;
           this.countryDisplayName = ISOCountryCode[this.user.country];
+
           this.currXp =
             (user.userStats.cosXP as number) -
-            this.xpService.getCosmeticXpForLevel(user.userStats.level);
+            this.xpService.getCosmeticXpForLevel(user.userStats.level - 1);
+
           this.nextXp =
-            this.xpService.getCosmeticXpForLevel(user.userStats.level + 1) -
-            this.xpService.getCosmeticXpForLevel(user.userStats.level);
+            this.xpService.getCosmeticXpForLevel(user.userStats.level) -
+            this.xpService.getCosmeticXpForLevel(user.userStats.level - 1);
 
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
