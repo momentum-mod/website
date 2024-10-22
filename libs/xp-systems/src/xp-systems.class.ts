@@ -18,8 +18,8 @@ import {
  * and Angular's dependency injectors.
  */
 export class XpSystems {
-  public readonly cosXpParams: CosXpParams = COS_XP_PARAMS;
-  public readonly rankXpParams: RankXpParams = RANK_XP_PARAMS;
+  public readonly cosXpParams: CosXpParams = Object.freeze(COS_XP_PARAMS);
+  public readonly rankXpParams: RankXpParams = Object.freeze(RANK_XP_PARAMS);
   private readonly xpInLevels: number[];
   private readonly xpForLevels: number[];
 
@@ -28,52 +28,35 @@ export class XpSystems {
     this.xpForLevels = [0, 0];
 
     for (let i = 1; i < this.cosXpParams.levels.maxLevels; i++) {
-      this.xpInLevels[i] = this.getCosmeticXpInLevel(i);
+      this.xpInLevels[i] = this.calculateCosmeticXpInLevel(i);
 
       if (i > 1)
         this.xpForLevels[i] = this.xpForLevels[i - 1] + this.xpInLevels[i - 1];
     }
   }
 
+  /**
+   * Returns the total XP that lies between the given level and the level above
+   * it.
+   *
+   * @see Unit tests for examples.
+   */
   getCosmeticXpInLevel(level: number): number {
-    const levels = this.cosXpParams.levels;
+    if (level < 0 || level > this.cosXpParams.levels.maxLevels)
+      throw new Error(`getCosmeticXpInLevel: Invalid level ${level}`);
 
-    if (!levels || level < 1 || level > levels.maxLevels) return -1;
-
-    if (level < levels.staticScaleStart) {
-      return (
-        levels.startingValue +
-        levels.linearScaleBaseIncrease *
-          level *
-          (levels.linearScaleIntervalMultiplier *
-            Math.ceil(level / levels.linearScaleInterval))
-      );
-    } else {
-      return (
-        levels.linearScaleBaseIncrease *
-        (levels.staticScaleStart - 1) *
-        (levels.linearScaleIntervalMultiplier *
-          Math.ceil(
-            (levels.staticScaleStart - 1) / levels.linearScaleInterval
-          )) *
-        (level >= levels.staticScaleStart + levels.staticScaleInterval
-          ? levels.staticScaleBaseMultiplier +
-            Math.floor(
-              (level - levels.staticScaleStart) / levels.staticScaleInterval
-            ) *
-              levels.staticScaleIntervalMultiplier
-          : levels.staticScaleBaseMultiplier)
-      );
-    }
+    return this.xpInLevels[level];
   }
 
+  /**
+   * Returns the total XP required to reach the given level.
+   *
+   * @see Unit tests for examples.
+   */
   getCosmeticXpForLevel(level: number): number {
-    if (
-      !this.cosXpParams ||
-      level < 1 ||
-      level > this.cosXpParams.levels.maxLevels
-    )
-      return -1;
+    if (level < 0 || level > this.cosXpParams.levels.maxLevels)
+      throw new Error(`getCosmeticXpForLevel: Invalid level ${level}`);
+
     return this.xpForLevels[level];
   }
 
@@ -126,6 +109,39 @@ export class XpSystems {
     }
 
     return xp;
+  }
+
+  private calculateCosmeticXpInLevel(level: number) {
+    const levels = this.cosXpParams.levels;
+
+    if (level < 0 || level > levels.maxLevels)
+      throw new Error(`getCosmeticXpInLevel: Invalid level ${level}`);
+
+    if (level < levels.staticScaleStart) {
+      return (
+        levels.startingValue +
+        levels.linearScaleBaseIncrease *
+          level *
+          (levels.linearScaleIntervalMultiplier *
+            Math.ceil(level / levels.linearScaleInterval))
+      );
+    } else {
+      return (
+        levels.linearScaleBaseIncrease *
+        (levels.staticScaleStart - 1) *
+        (levels.linearScaleIntervalMultiplier *
+          Math.ceil(
+            (levels.staticScaleStart - 1) / levels.linearScaleInterval
+          )) *
+        (level >= levels.staticScaleStart + levels.staticScaleInterval
+          ? levels.staticScaleBaseMultiplier +
+            Math.floor(
+              (level - levels.staticScaleStart) / levels.staticScaleInterval
+            ) *
+              levels.staticScaleIntervalMultiplier
+          : levels.staticScaleBaseMultiplier)
+      );
+    }
   }
 
   getRankXpForRank(rank: number, completions: number): RankXpGain {
