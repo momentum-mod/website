@@ -74,7 +74,7 @@ export class XpSystems {
       level > this.cosXpParams.levels.maxLevels
     )
       return -1;
-    return this.xpForLevels[level];
+    return this.xpForLevels[level - 1];
   }
 
   getCosmeticXpForCompletion(
