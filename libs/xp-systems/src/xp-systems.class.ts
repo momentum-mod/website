@@ -30,8 +30,8 @@ export class XpSystems {
     for (let i = 1; i < this.cosXpParams.levels.maxLevels; i++) {
       this.xpInLevels[i] = this.getCosmeticXpInLevel(i);
 
-      if (i > 0)
-        this.xpForLevels[i] = this.xpForLevels[i - 1] + this.xpInLevels[i];
+      if (i > 1)
+        this.xpForLevels[i] = this.xpForLevels[i - 1] + this.xpInLevels[i - 1];
     }
   }
 
