@@ -74,8 +74,8 @@
           @if (!hasRole(Role.DELETED)) {
             <div class="flex w-full gap-2 font-display text-2xl">
               <div class="flex-grow">
-                <p class="pb-1 leading-none">{{ currXp }} / {{ nextXp }} xp</p>
-                <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * currXp) / nextXp" />
+                <p class="pb-1 leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
+                <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)" />
               </div>
               <m-level-indicator class="mt-auto" [totalLevel]="user.userStats.level" />
             </div>
