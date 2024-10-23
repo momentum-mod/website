@@ -77,7 +77,7 @@
                 <p class="pb-1 leading-none">{{ currXp }} / {{ nextXp }} xp</p>
                 <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * currXp) / nextXp" />
               </div>
-              <p class="mt-auto rounded bg-gray-500 px-2 shadow">{{ user.userStats.level }}</p>
+              <m-level-indicator class="mt-auto" [totalLevel]="user.userStats.level" />
             </div>
           }
         </div>
