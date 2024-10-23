@@ -1,6 +1,7 @@
 /**
  * Create an array of a given length, and map each element using a given
- * function. If a mapFn isn't provided, maps it to
+ * function. If a mapFn isn't provided, the array will be filled with
+ * `undefined` (same as `Array.from({ length: n })`).
  *
  * Very similar to `Array.from({ length }).map((_, i) => ...))` but shorter,
  * doesn't require ignoring the first mapFn argument, and faster (see from.benchmark.ts).
