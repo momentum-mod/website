@@ -34,6 +34,7 @@ import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LevelIndicatorComponent } from '../../components/level-indicator/level-indicator.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -48,7 +49,8 @@ import { HttpErrorResponse } from '@angular/common/http';
     TabsComponent,
     TabComponent,
     ProgressBarModule,
-    FontSizeLerpDirective
+    FontSizeLerpDirective,
+    LevelIndicatorComponent
   ]
 })
 export class ProfileComponent implements OnInit {
