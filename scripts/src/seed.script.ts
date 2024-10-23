@@ -134,6 +134,17 @@ const weights = {
 const randRange = ({ min, max }: { min: number; max: number }) =>
   Random.int(max, min);
 
+const xpSystems = new XpSystems();
+const randomLevelAndXp = () => {
+  const level = Random.int(1, COS_XP_PARAMS.levels.maxLevels);
+  return {
+    level,
+    cosXP:
+      xpSystems.getCosmeticXpForLevel(level) +
+      Random.int(0, xpSystems.getCosmeticXpInLevel(level))
+  };
+};
+
 //#endregion
 
 //#region Setup
@@ -236,10 +247,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 create: {
                   totalJumps: Random.int(10000),
                   totalStrafes: Random.int(10000),
-                  level: Random.int(0, 1000),
-                  cosXP: Random.int(10000),
                   mapsCompleted: Random.int(10000),
-                  runsSubmitted: Random.int(10000)
+                  runsSubmitted: Random.int(10000),
+                  ...randomLevelAndXp()
                 }
               }
             }
@@ -1092,11 +1102,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const personalSteamIDs = process.env['ADMIN_STEAM_ID64S'];
   if (!personalSteamIDs) return;
 
-  const xp = new XpSystems();
   const steamIDs = personalSteamIDs.split(',');
   for (const [i, steamID] of steamIDs.entries()) {
     console.log(`Making user ${steamID} an admin`);
-    const level = Random.int(COS_XP_PARAMS.levels.maxLevels, 1);
     await prisma.user
       .create({
         data: {
@@ -1105,15 +1113,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           alias: `Admin User ${i + 1}`,
           profile: { create: {} },
           userStats: {
-            create: {
-              level,
-              cosXP: Math.floor(
-                xp.getCosmeticXpForLevel(level) +
-                  Math.random() *
-                    (xp.getCosmeticXpForLevel(level + 1) -
-                      xp.getCosmeticXpForLevel(level))
-              )
-            }
+            create: randomLevelAndXp()
           }
         }
       })
