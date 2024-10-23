@@ -81,8 +81,10 @@ export class ProfileComponent implements OnInit {
   followingUsers: Follow[] = [];
   followedByUsers: Follow[] = [];
   localFollowStatus = new BehaviorSubject<Follow>(null);
-  currXp: number;
-  nextXp: number;
+  level: number;
+  xp: number;
+  currLevelXp: number;
+  nextLevelXp: number;
   protected credits: MapCredit[];
   protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
 
@@ -132,12 +134,13 @@ export class ProfileComponent implements OnInit {
 
           this.avatarLoaded = true;
           this.countryDisplayName = ISOCountryCode[this.user.country];
-          this.currXp =
-            (user.userStats.cosXP as number) -
-            this.xpService.getCosmeticXpForLevel(user.userStats.level);
-          this.nextXp =
-            this.xpService.getCosmeticXpForLevel(user.userStats.level + 1) -
-            this.xpService.getCosmeticXpForLevel(user.userStats.level);
+
+          this.level = user.userStats.level;
+          this.xp = user.userStats.cosXP;
+          this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
+          this.nextLevelXp = this.xpService.getCosmeticXpForLevel(
+            this.level + 1
+          );
 
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
