@@ -4,7 +4,13 @@ export function chance(probabilityOfTrue = 0.5): boolean {
   return Math.random() < probabilityOfTrue;
 }
 
+export function int(max: number): number;
+export function int(min: number, max: number): number;
 export function int(max: number, min = 0): number {
+  if (min > max) {
+    [max, min] = [min, max];
+  }
+
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
