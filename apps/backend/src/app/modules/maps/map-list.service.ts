@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -26,6 +26,8 @@ export class MapListService implements OnModuleInit {
     [FlatMapList.APPROVED]: 0,
     [FlatMapList.SUBMISSION]: 0
   };
+
+  private readonly logger = new Logger('Map List Service');
 
   async onModuleInit(): Promise<void> {
     for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
@@ -83,27 +85,65 @@ export class MapListService implements OnModuleInit {
           }
         },
         createdAt: true,
-        currentVersion: { omit: { zones: true, changelog: true } },
+        currentVersion: { omit: { zones: true, changelog: true, mapID: true } },
         ...(type === FlatMapList.SUBMISSION
-          ? { submission: true, versions: { omit: { zones: true } } }
+          ? {
+              submission: true,
+              versions: { omit: { zones: true, mapID: true } }
+            }
           : {})
       }
     });
+
+    const t1 = Date.now();
 
     // Convert to DTO then serialize back to JSON so any class-transformer
     // transformations are applied.
     const mapListJson = JSON.stringify(
       maps.map((map) => instanceToPlain(plainToInstance(MapDto, map)))
     );
-    const compressed = await promisify(zlib.deflate)(mapListJson);
+
+    // Momentum Static Map List
+    //
+    // -- Header [12 bytes] --
+    // Ident [4 bytes - "MSML" 4D 53 4D 4C]
+    // Length of uncompressed data [4 bytes - uint32 LE]
+    // Total number of maps [4 bytes - uint32 LE]
+    //
+    // -- Contents [Variable] --
+    // Deflate compressed map list
+
+    // Not very memory-efficent, could be improved using streams, but if doing
+    // that we should hook up streaming uploads to API and I can't be fucked
+    // with the S3 API. (see https://stackoverflow.com/a/73332454).
+    // This takes me ~100ms for ~3000 maps.
+    //
+    // Hilariously, class-transformer serialization takes about 10 TIMES
+    // (~1000ms) the time to JSON.stringify, compress, and concat the buffers.
+    // So this isn't worth optimising whilst we're still using that piece of
+    // crap library.
+    const uncompressed = Buffer.from(mapListJson);
+    const header = Buffer.alloc(12);
+
+    header.write('MSML', 0, 'utf8');
+    header.writeUInt32LE(uncompressed.length, 4);
+    header.writeUInt32LE(maps.length, 8);
+
+    const compressed = await promisify(zlib.deflate)(uncompressed);
+
+    const outBuf = Buffer.concat([header, compressed]);
 
     const oldVersion = this.version[type];
     const newVersion = this.updateMapListVersion(type);
     const oldKey = mapListPath(type, oldVersion);
     const newKey = mapListPath(type, newVersion);
 
+    this.logger.log(
+      `Updating ${type} map list from v${oldVersion} to v${newVersion}, ${maps.length} maps, encoding took ${Date.now() - t1}ms`
+    );
+
     await this.fileStoreService.deleteFile(oldKey);
-    await this.fileStoreService.storeFile(compressed, newKey);
+    await this.fileStoreService.storeFile(outBuf, newKey);
   }
 
   private updateMapListVersion(type: FlatMapList): number {

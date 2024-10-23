@@ -156,6 +156,11 @@ export class FileStoreUtil {
         type === FlatMapList.APPROVED ? 'approved' : 'submissions'
       }/${version}.dat`
     );
-    return JSON.parse(zlib.inflateSync(file).toString());
+    return {
+      ident: file.subarray(0, 4).toString(),
+      uncompressedLength: file.readUInt32LE(4),
+      numMaps: file.readUInt32LE(8),
+      data: JSON.parse(zlib.inflateSync(file.subarray(12)).toString())
+    };
   }
 }
