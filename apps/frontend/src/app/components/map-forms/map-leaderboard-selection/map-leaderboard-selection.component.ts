@@ -31,6 +31,8 @@ import { DropdownModule } from 'primeng/dropdown';
   imports: [CommonModule, FormsModule, DropdownModule]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
+  public readonly LeaderboardType = LeaderboardType;
+
   protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({
     gamemode,
     label: GamemodeInfo.get(gamemode).name
@@ -142,9 +144,8 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  updateRankedCheckbox(item: MapSubmissionSuggestion, event: Event) {
-    item.type = (event.target as HTMLInputElement).checked
-      ? LeaderboardType.RANKED
-      : LeaderboardType.UNRANKED;
+  updateRankedCheckbox(item: MapSubmissionSuggestion, isRanked: boolean) {
+    item.type = isRanked ? LeaderboardType.RANKED : LeaderboardType.UNRANKED;
+    this.onChange(this.value);
   }
 }
