@@ -23,6 +23,13 @@ export function float(max: number, min = 0, decimalPlaces?: number): number {
       );
 }
 
+export function char(
+  min = 'a'.codePointAt(0)!,
+  max = 'z'.codePointAt(0)!
+): string {
+  return String.fromCodePoint(int(max, min));
+}
+
 export function element<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
