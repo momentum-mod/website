@@ -36,55 +36,59 @@ describe('MapListService', () => {
       db = module.get(EXTENDED_PRISMA_SERVICE);
     });
 
-    it('should set version values based on files in storage', async () => {
-      fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/approved/1.dat'
-      ]);
-      fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/submissions/15012024.dat'
-      ]);
+    describe('onModuleInit', () => {
+      it('should set version values based on files in storage', async () => {
+        fileStoreMock.listFileKeys.mockResolvedValueOnce([
+          'maplist/approved/1.dat'
+        ]);
+        fileStoreMock.listFileKeys.mockResolvedValueOnce([
+          'maplist/submissions/15012024.dat'
+        ]);
 
-      await service.onModuleInit();
+        await service.onModuleInit();
 
-      expect(service['version']).toMatchObject({
-        [FlatMapList.APPROVED]: 1,
-        [FlatMapList.SUBMISSION]: 15012024
+        expect(service['version']).toMatchObject({
+          [FlatMapList.APPROVED]: 1,
+          [FlatMapList.SUBMISSION]: 15012024
+        });
+
+        expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
       });
 
-      expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
+      it('should set version to 0 when no versions exist in storage', async () => {
+        await service.onModuleInit();
+
+        expect(service['version']).toMatchObject({
+          [FlatMapList.APPROVED]: 0,
+          [FlatMapList.SUBMISSION]: 0
+        });
+
+        expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
+      });
+
+      it('should pick most recent when multiple versions exist in storage, and wipe old versions', async () => {
+        fileStoreMock.listFileKeys.mockResolvedValueOnce([
+          'maplist/approved/4.dat',
+          'maplist/approved/5.dat',
+          'maplist/approved/3.dat',
+          'maplist/approved/1.dat'
+        ]);
+
+        await service.onModuleInit();
+
+        expect(service['version']).toMatchObject({
+          [FlatMapList.APPROVED]: 5,
+          [FlatMapList.SUBMISSION]: 0
+        });
+
+        expect(fileStoreMock.deleteFiles).toHaveBeenCalledWith([
+          'maplist/approved/4.dat',
+          'maplist/approved/3.dat',
+          'maplist/approved/1.dat'
+        ]);
+      });
     });
 
-    it('should set version to 0 when no versions exist in storage', async () => {
-      await service.onModuleInit();
-
-      expect(service['version']).toMatchObject({
-        [FlatMapList.APPROVED]: 0,
-        [FlatMapList.SUBMISSION]: 0
-      });
-
-      expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
-    });
-
-    it('should pick most recent when multiple versions exist in storage, and wipe old versions', async () => {
-      fileStoreMock.listFileKeys.mockResolvedValueOnce([
-        'maplist/approved/4.dat',
-        'maplist/approved/5.dat',
-        'maplist/approved/3.dat',
-        'maplist/approved/1.dat'
-      ]);
-
-      await service.onModuleInit();
-
-      expect(service['version']).toMatchObject({
-        [FlatMapList.APPROVED]: 5,
-        [FlatMapList.SUBMISSION]: 0
-      });
-
-      expect(fileStoreMock.deleteFiles).toHaveBeenCalledWith([
-        'maplist/approved/4.dat',
-        'maplist/approved/3.dat',
-        'maplist/approved/1.dat'
-      ]);
     describe('updateMapList', () => {
       // prettier-ignore
       const storedMap = {
