@@ -368,23 +368,32 @@ prismaWrapper(async (prisma: PrismaClient) => {
   );
 
   const mapsToCreate = randRange(vars.maps);
-  const existingMaps = await prisma.mMap.findMany();
-  const usedNames = (existingMaps ?? []).map(({ name }) => name);
+  const usedNames = await prisma.mMap
+    .findMany()
+    .then((maps) => (maps ?? []).map(({ name }) => name));
   const prefixes = [
     ...new Set([...GamemodeInfo.values()].map(({ prefix }) => prefix))
   ];
   try {
     for (let i = 0; i < mapsToCreate; i++) {
-      console.log(`Adding maps (${i + 1}/${mapsToCreate})`);
-      let name: string;
-      while (!name || usedNames.includes(name)) {
-        // Most maps have a gamemode prefix, some don't, want to be able to test
-        // with both.
-        const prefix = Random.element(prefixes);
-        name = faker.lorem.word();
-        if (Random.chance(0.75)) {
-          name = `${prefix}_${name}`;
-        }
+      console.log(`Adding map (${i + 1}/${mapsToCreate})`);
+      console.time('Added map');
+      // Make sure name always <= 32 chars (16 + 11 + 5 = 32)
+      let name =
+        faker.lorem.word({ length: { min: 3, max: 16 } }) +
+        faker.lorem.word({ length: { min: 3, max: 11 } });
+      // Most maps have a gamemode prefix, some don't, want to be able to test
+      // with both.
+      const prefix = Random.element(prefixes);
+      if (Random.chance(0.75)) {
+        name = `${prefix}_${name}`;
+      }
+
+      // This is so unlikely to happen, but if we ever get a duplicate name,
+      // just scramble some chars until we get a unique one.
+      while (usedNames.includes(name)) {
+        const idx = Random.int(0, 27);
+        name = name.slice(0, idx) + Random.char() + name.slice(idx + 1);
       }
 
       usedNames.push(name);
@@ -850,6 +859,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         }
       }
 
+      console.timeEnd('Added map');
       //#endregion
     }
   } catch (error) {
