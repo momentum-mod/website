@@ -1,9 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   forwardRef,
   GoneException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException
@@ -23,6 +25,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class LeaderboardRunsService {
@@ -125,11 +128,10 @@ export class LeaderboardRunsService {
     } else if (query.filter?.[0] === 'friends') {
       // Regular skip/take should work fine here.
 
-      const steamFriends = await this.steamService
-        .getSteamFriends(loggedInUserSteamID)
-        .catch(() => {
-          throw new ServiceUnavailableException();
-        });
+      // Fetch Steam friends, leave errors uncaugght, this function will throw
+      // an appropriate response.
+      const steamFriends =
+        await this.steamService.getSteamFriends(loggedInUserSteamID);
 
       if (steamFriends.length === 0)
         throw new GoneException('No friends detected :(');
