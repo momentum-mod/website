@@ -36,7 +36,8 @@ import {
   AdminActivityType,
   imgXlPath,
   GamemodeInfo,
-  bspPath
+  bspPath,
+  steamAvatarUrl
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { nuke } from '@momentum/db';
@@ -1071,7 +1072,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       for (const credit of map.credits as any[]) {
         credit.user.steamID = credit.user.steamID?.toString();
-        credit.user.avatarURL = `https://avatars.cloudflare.steamstatic.com/${credit.user.avatar}_full.jpg`;
+        credit.user.avatarURL = steamAvatarUrl(credit.user.avatar);
         delete credit.user.avatar;
         delete credit.mapID;
       }
