@@ -19,7 +19,8 @@ import {
   ActivityType,
   MapCreditType,
   MapStatus,
-  Role
+  Role,
+  steamAvatarUrl
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -220,7 +221,7 @@ describe('Users', () => {
         });
 
         expect(res.body.avatarURL).toBe(
-          'https://avatars.cloudflare.steamstatic.com/ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg'
+          steamAvatarUrl('ac7305567f93a4c9eec4d857df993191c61fb240')
         );
       });
 
