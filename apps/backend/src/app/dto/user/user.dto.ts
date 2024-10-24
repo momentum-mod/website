@@ -6,7 +6,8 @@ import {
   STEAM_MISSING_AVATAR,
   User,
   NON_WHITESPACE_REGEXP,
-  DateString
+  DateString,
+  steamAvatarUrl
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
@@ -66,11 +67,11 @@ export class UserDto implements User {
   @Expose()
   @IsString()
   get avatarURL(): string {
-    return `https://avatars.cloudflare.steamstatic.com/${
+    return steamAvatarUrl(
       Bitflags.has(this.bans, Ban.AVATAR) || !this.avatar
         ? STEAM_MISSING_AVATAR
         : this.avatar
-    }_full.jpg`;
+    );
   }
 
   @NestedProperty(ProfileDto, {
