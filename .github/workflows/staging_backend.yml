@@ -1,0 +1,16 @@
+name: Publish Staging Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "apps/frontend*/**"
+      - "scripts/**"
+
+jobs:
+  publish_backend:
+    permissions:
+      packages: write
+    uses: momentum-mod/website/.github/workflows/backend_docker_image.yml@main
+    secrets: inherit
