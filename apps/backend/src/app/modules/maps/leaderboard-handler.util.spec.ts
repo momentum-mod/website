@@ -4,7 +4,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
-import { LeaderboardHandler } from './leaderboard-handler.util';
+import * as LeaderboardHandler from './leaderboard-handler.util';
 
 describe('LeaderboardHandler', () => {
   describe('getCompatibleSuggestions', () => {
