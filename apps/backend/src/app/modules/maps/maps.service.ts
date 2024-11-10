@@ -84,10 +84,7 @@ import {
 import { FileStoreService } from '../filestore/file-store.service';
 import { MapTestInviteService } from './map-test-invite.service';
 import { MapImageService } from './map-image.service';
-import {
-  LeaderboardHandler,
-  LeaderboardProps
-} from './leaderboard-handler.util';
+import * as LeaderboardHandler from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash } from 'node:crypto';
@@ -878,14 +875,14 @@ export class MapsService {
     suggestions: MapSubmissionSuggestion[],
     zones: MapZones
   ): Promise<void> {
-    const existingLeaderboards: LeaderboardProps[] =
+    const existingLeaderboards: LeaderboardHandler.LeaderboardProps[] =
       await this.db.leaderboard.findMany({
         where: { mapID },
         select: { gamemode: true, trackNum: true, trackType: true }
       });
 
     const desiredLeaderboards = LeaderboardHandler.getMaximalLeaderboards(
-      suggestions as unknown as LeaderboardProps[], // TODO: #855
+      suggestions as unknown as LeaderboardHandler.LeaderboardProps[], // TODO: #855
       zones
     );
 
