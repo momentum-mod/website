@@ -75,8 +75,8 @@ export class LeaderboardRunsService {
       style: query.style
     };
 
-    if (query.filterUserIDs) {
-      where.userID = { in: query.filterUserIDs };
+    if (query.userIDs) {
+      where.userID = { in: query.userIDs };
     }
 
     if (query.steamIDs) {

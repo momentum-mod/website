@@ -183,7 +183,7 @@ export type MapLeaderboardGetQuery = PagedQuery & {
   style?: Style; // Default 0
   expand?: MapRunsGetExpand;
   filter?: MapRunsGetFilter;
-  filterUserIDs?: number[];
+  userIDs?: number[];
   steamIDs?: string[];
   orderByDate?: boolean;
 };

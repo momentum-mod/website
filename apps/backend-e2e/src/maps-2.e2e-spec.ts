@@ -1290,12 +1290,12 @@ describe('Maps Part 2', () => {
           token
         }));
 
-      it('should respond with filtered runs given using the filterUserID param', async () => {
+      it('should respond with filtered runs given using the userIDs param', async () => {
         const res = await req.get({
           url: `maps/${map.id}/leaderboard`,
           query: {
             gamemode: Gamemode.AHOP,
-            filterUserIDs: `${u1.id},${u3.id}`
+            userIDs: `${u1.id},${u3.id}`
           },
           validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
           token
@@ -1394,7 +1394,7 @@ describe('Maps Part 2', () => {
           query: {
             gamemode: Gamemode.AHOP,
             filter: 'around',
-            filterUserIDs: u7.id
+            userIDs: u7.id
           },
           status: 200,
           token: u7Token,
