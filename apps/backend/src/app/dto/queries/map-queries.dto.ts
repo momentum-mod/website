@@ -230,7 +230,7 @@ export class MapLeaderboardGetQueryDto
   readonly filter?: MapRunsGetFilter;
 
   @IntCsvQueryProperty({ description: 'List of user IDs to limit results to' })
-  readonly filterUserIDs?: number[];
+  readonly userIDs?: number[];
 
   @StringCsvQueryProperty({
     description: 'List of user Steam IDs to limit results to'
