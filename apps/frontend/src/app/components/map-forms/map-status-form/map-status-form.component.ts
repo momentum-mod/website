@@ -156,6 +156,7 @@ export class MapStatusFormComponent implements OnChanges {
       )?.date
     ).getTime();
     this.isBlockedForSubmissionTimeGate =
+      !(this.mod || this.adm) &&
       Date.now() - this.firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION;
 
     this.isBlockedForUnresolvedReviews = reviews.data.some(
