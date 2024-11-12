@@ -184,6 +184,7 @@ export type MapLeaderboardGetQuery = PagedQuery & {
   expand?: MapRunsGetExpand;
   filter?: MapRunsGetFilter;
   filterUserIDs?: number[];
+  steamIDs?: string[];
   orderByDate?: boolean;
 };
 

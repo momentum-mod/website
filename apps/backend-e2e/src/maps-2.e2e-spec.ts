@@ -1178,7 +1178,9 @@ describe('Maps Part 2', () => {
 
       beforeAll(async () => {
         [[u1, token], u2, u3, map] = await Promise.all([
-          db.createAndLoginUser(),
+          db.createAndLoginUser({
+            data: { steamID: BigInt(Number.MAX_SAFE_INTEGER) * 2n }
+          }),
           db.createUser(),
           db.createUser(),
           db.createMapWithFullLeaderboards() // Creates a bunch of ahop leaderboards
@@ -1294,6 +1296,21 @@ describe('Maps Part 2', () => {
           query: {
             gamemode: Gamemode.AHOP,
             filterUserIDs: `${u1.id},${u3.id}`
+          },
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
+          token
+        });
+
+        expect(res.body.data[0].userID).toBe(u1.id);
+        expect(res.body.data[1].userID).toBe(u3.id);
+      });
+
+      it('should respond with filtered runs given using the steamIDs param', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: {
+            gamemode: Gamemode.AHOP,
+            steamIDs: `${u1.steamID},${u3.steamID}`
           },
           validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
           token

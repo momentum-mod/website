@@ -36,6 +36,7 @@ import {
   IntQueryProperty,
   SingleExpandQueryProperty,
   SkipQueryProperty,
+  StringCsvQueryProperty,
   StringQueryProperty,
   TakeQueryProperty
 } from '../decorators';
@@ -228,8 +229,13 @@ export class MapLeaderboardGetQueryDto
   })
   readonly filter?: MapRunsGetFilter;
 
-  @IntCsvQueryProperty({ description: 'List of users to limit results to' })
+  @IntCsvQueryProperty({ description: 'List of user IDs to limit results to' })
   readonly filterUserIDs?: number[];
+
+  @StringCsvQueryProperty({
+    description: 'List of user Steam IDs to limit results to'
+  })
+  readonly steamIDs?: string[];
 
   @BooleanQueryProperty({
     description: 'Whether to order by date or not (false for reverse)'
