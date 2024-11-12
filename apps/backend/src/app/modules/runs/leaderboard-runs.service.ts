@@ -79,6 +79,10 @@ export class LeaderboardRunsService {
       where.userID = { in: query.filterUserIDs };
     }
 
+    if (query.steamIDs) {
+      where.user = { steamID: { in: query.steamIDs.map(BigInt) } };
+    }
+
     const select = {
       ...this.minimalRunsSelect,
       stats: Boolean(query.expand)
@@ -106,10 +110,6 @@ export class LeaderboardRunsService {
         }
       };
 
-      // if (query.filterUserIDs) {
-      //   where.userID = { in: query.filterUserIDs };
-      // }
-
       const userRun = await this.db.leaderboardRun.findUnique({
         where: whereAround
       });
@@ -132,7 +132,7 @@ export class LeaderboardRunsService {
       if (steamFriends.length === 0)
         throw new GoneException('No friends detected :(');
 
-      // Doing this with a window function is gonna be fun...
+      // Overrides filterSteamIDs if exists
       where.user = {
         steamID: { in: steamFriends.map((item) => BigInt(item.steamid)) }
       };
