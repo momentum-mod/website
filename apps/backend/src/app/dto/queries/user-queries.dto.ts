@@ -18,7 +18,8 @@ import {
   EnumQueryProperty,
   ExpandQueryProperty,
   IntCsvQueryProperty,
-  IntQueryProperty
+  IntQueryProperty,
+  StringCsvQueryProperty
 } from '../decorators';
 import { IsBigInt } from '../../validators';
 import { PagedQueryDto } from './pagination.dto';
@@ -64,12 +65,10 @@ export class UsersGetAllQueryDto
   @IsOptional()
   readonly steamID?: string;
 
-  @IntCsvQueryProperty({
+  @StringCsvQueryProperty({
     description: 'Filter by CSV list of Steam Community IDs',
-    example: '123135674,7987347263,98312287631',
-    bigint: true
+    example: '123135674,7987347263,98312287631'
   })
-  @IsBigInt({ each: true })
   @IsOptional()
   readonly steamIDs?: string[];
 
