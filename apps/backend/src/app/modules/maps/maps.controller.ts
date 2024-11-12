@@ -590,8 +590,13 @@ export class MapsController {
     description:
       "When the filtering by 'friends', and the user doesn't have any Steam friends"
   })
+  @ApiConflictResponse({
+    description:
+      "When filtering by 'friends', the user's friend list is private"
+  })
   @ApiServiceUnavailableResponse({
-    description: "Steam fails to return the user's friends list (Tuesdays lol)"
+    description:
+      "When filtering by 'friends', and Steam fails to return the user's friends list (Tuesdays lol)"
   })
   getLeaderboards(
     @Param('mapID', ParseIntSafePipe) mapID: number,

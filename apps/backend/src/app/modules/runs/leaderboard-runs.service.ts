@@ -5,7 +5,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -125,11 +124,10 @@ export class LeaderboardRunsService {
     } else if (query.filter?.[0] === 'friends') {
       // Regular skip/take should work fine here.
 
-      const steamFriends = await this.steamService
-        .getSteamFriends(loggedInUserSteamID)
-        .catch(() => {
-          throw new ServiceUnavailableException();
-        });
+      // Fetch Steam friends, leave errors uncaught, this function will throw
+      // an appropriate response.
+      const steamFriends =
+        await this.steamService.getSteamFriends(loggedInUserSteamID);
 
       if (steamFriends.length === 0)
         throw new GoneException('No friends detected :(');
