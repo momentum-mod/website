@@ -30,6 +30,9 @@ export class MapVersionDto implements MapVersion {
   @IsUUID()
   readonly id: string;
 
+  @Exclude()
+  readonly mapID: number;
+
   @ApiProperty()
   @IsInt()
   readonly versionNum: number;
