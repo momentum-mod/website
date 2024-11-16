@@ -78,45 +78,49 @@
         <span class="font-display font-bold leading-none text-gray-50">{{ name }}</span>
       </p>
     </div>
-    <div class="flex grow gap-2 !text-14">
-      <div class="flex grow flex-col">
-        <p class="inline-block text-gray-300" (click)="$event.stopPropagation(); $event.preventDefault()">
-          By
-          @if (authors[0].id) {
-            <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[0].alias }}</a>
-          } @else {
-            <span class="text-gray-200">{{ authors[0].alias }}</span>
-          }
-          <!-- prettier-ignore -->
-          @if (authors.length > 1) {, + {{ authors.length - 1 | plural: 'author' }}}
-        </p>
-        @if (isSubmission) {
-          @if (!isSubmitterAnAuthor(map)) {
-            <p class="inline-block text-gray-300" (click)="$event.stopPropagation(); $event.preventDefault()">
-              Submitted by
-              <a class="link text-gray-50" [routerLink]="'/profile/' + map.submitterID">{{ map.submitter.alias }}</a>
-            </p>
-          }
+    <div class="flex grow flex-col !text-14">
+      <p class="inline-block text-gray-300" (click)="$event.stopPropagation(); $event.preventDefault()">
+        By
+        @if (authors[0]?.id) {
+          <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[0].alias }}</a>
+        } @else {
+          <span class="text-gray-200">{{ authors[0].alias }}</span>
         }
-        @if (isAdminPage || isSubmission) {
-          <p>
-            @if (map.status !== MapStatus.DISABLED) {
-              <span class="text-gray-300">Current Status: </span>
-              <span class="font-medium text-purple-200">{{ MapStatusName.get(map.status) }}</span>
+        <!-- prettier-ignore -->
+        @if (authors.length > 1) {,
+            @if (authors[1]?.id) {
+              <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[1].alias }}</a>
             } @else {
-              <span class="text-gray-300">Current Status: </span>
-              <span class="font-medium text-red-200">{{ MapStatusName.get(map.status) }}</span>
-              @if (!map.currentVersion?.bspHash) {
-                <span class="ml-2 font-bold text-red-500">Files deleted!</span>
-              }
+              <span class="text-gray-200">{{ authors[1].alias }}</span>
             }
+          }
+        <!-- prettier-ignore -->
+        @if (authors.length > 2) {, + {{ authors.length - 1 | plural: 'author' }}}
+      </p>
+      @if (isSubmission) {
+        @if (!isSubmitterAnAuthor(map)) {
+          <p class="inline-block text-gray-300" (click)="$event.stopPropagation(); $event.preventDefault()">
+            Submitted by
+            <a class="link text-gray-50" [routerLink]="'/profile/' + map.submitterID">{{ map.submitter.alias }}</a>
           </p>
         }
-      </div>
-      <div class="flex flex-col items-end justify-end">
-        <!-- TODO: This should be the new date thingy for approved maps -->
-        <p class="ml-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
-      </div>
+      }
+      @if (isAdminPage || isSubmission) {
+        <p>
+          @if (map.status !== MapStatus.DISABLED) {
+            <span class="text-gray-300">Current Status: </span>
+            <span class="font-medium text-purple-200">{{ MapStatusName.get(map.status) }}</span>
+          } @else {
+            <span class="text-gray-300">Current Status: </span>
+            <span class="font-medium text-red-200">{{ MapStatusName.get(map.status) }}</span>
+            @if (!map.currentVersion?.bspHash) {
+              <span class="ml-2 font-bold text-red-500">Files deleted!</span>
+            }
+          }
+        </p>
+      }
+      <!-- TODO: This should be the new date thingy for approved maps -->
+      <p class="mt-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
     </div>
   </div>
 </a>
