@@ -15,7 +15,7 @@ export enum MapStatus {
   DISABLED = 5
 }
 
-export const CombinedMapStatuses = Object.freeze({
+export const MapStatuses = Object.freeze({
   IN_SUBMISSION: [
     MapStatus.PRIVATE_TESTING,
     MapStatus.PUBLIC_TESTING,

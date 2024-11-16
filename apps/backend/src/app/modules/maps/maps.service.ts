@@ -21,7 +21,7 @@ import {
   AdminActivityType,
   Ban,
   bspPath,
-  CombinedMapStatuses,
+  MapStatuses,
   CombinedRoles,
   FlatMapList,
   LeaderboardType,
@@ -204,8 +204,8 @@ export class MapsService {
       if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, roles)) {
         where.status = {
           in: filter
-            ? intersection(filter, CombinedMapStatuses.IN_SUBMISSION)
-            : CombinedMapStatuses.IN_SUBMISSION
+            ? intersection(filter, MapStatuses.IN_SUBMISSION)
+            : MapStatuses.IN_SUBMISSION
         };
       } else if (Bitflags.has(Role.REVIEWER, roles)) {
         if (filter?.length > 0) {
@@ -639,7 +639,7 @@ export class MapsService {
       throw new ForbiddenException('User is banned from map submission');
     }
 
-    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
+    if (!MapStatuses.IN_SUBMISSION.includes(map.status)) {
       throw new ForbiddenException('Map does not allow editing');
     }
 
@@ -759,7 +759,7 @@ export class MapsService {
     if (
       !Bitflags.has(user.roles, CombinedRoles.MAPPER_AND_ABOVE) &&
       user.submittedMaps.some((map) =>
-        CombinedMapStatuses.IN_SUBMISSION.includes(map.status)
+        MapStatuses.IN_SUBMISSION.includes(map.status)
       )
     ) {
       throw new ForbiddenException(
@@ -1022,7 +1022,7 @@ export class MapsService {
     if (userID !== map.submitterID)
       throw new ForbiddenException('User is not the map submitter');
 
-    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
+    if (!MapStatuses.IN_SUBMISSION.includes(map.status))
       throw new ForbiddenException('Map can only be edited during submission');
 
     // Force the submitter to keep their suggestions in sync with their zones.
@@ -1246,7 +1246,7 @@ export class MapsService {
 
     const numInSubmissionStatuses = intersection(
       [newStatus, oldStatus],
-      CombinedMapStatuses.IN_SUBMISSION
+      MapStatuses.IN_SUBMISSION
     ).length;
 
     // If going from submission -> submission just update submission list,
@@ -1615,7 +1615,7 @@ export class MapsService {
     );
 
     await this.mapListService.updateMapList(
-      CombinedMapStatuses.IN_SUBMISSION.includes(map.status)
+      MapStatuses.IN_SUBMISSION.includes(map.status)
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
     );

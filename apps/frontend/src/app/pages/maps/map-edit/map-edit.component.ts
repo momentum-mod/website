@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import {
-  CombinedMapStatuses,
+  MapStatuses,
   DateString,
   LeaderboardType,
   MAP_IMAGE_HEIGHT,
@@ -258,9 +258,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         this.isMod = this.localUserService.isMod;
         this.isSubmitter =
           map.submitterID === this.localUserService.user.value?.id;
-        this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(
-          map.status
-        );
+        this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
 
         if (
           !this.isAdmin &&
