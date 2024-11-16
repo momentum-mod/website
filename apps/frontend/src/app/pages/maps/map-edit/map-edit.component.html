@@ -11,6 +11,7 @@
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col overflow-visible p-4"
   [ngClass]="isSubmitter ? '!flex' : '!hidden'"
+  (keydown.enter)="$event.preventDefault()"
 >
   <div class="card-title -mt-10 mb-2 text-5xl">Submit New Version</div>
   <div class="flex gap-4">
@@ -83,6 +84,7 @@
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col gap-8 overflow-visible p-4"
   [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'"
+  (keydown.enter)="$event.preventDefault()"
 >
   <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>
 
