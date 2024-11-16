@@ -21,5 +21,6 @@ export const MapStatuses = Object.freeze({
     MapStatus.PUBLIC_TESTING,
     MapStatus.CONTENT_APPROVAL,
     MapStatus.FINAL_APPROVAL
-  ]
+  ],
+  PRIVATE: [MapStatus.PRIVATE_TESTING, MapStatus.CONTENT_APPROVAL]
 });
