@@ -1,5 +1,5 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
-import { CombinedMapStatuses, MapStatus } from '@momentum/constants';
+import { MapStatuses, MapStatus } from '@momentum/constants';
 import { SharedModule } from '../../../shared.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -39,7 +39,7 @@ export class HomeUserMapsComponent implements OnInit {
           this.submission =
             response
               .filter(({ status }) =>
-                CombinedMapStatuses.IN_SUBMISSION.includes(status)
+                MapStatuses.IN_SUBMISSION.includes(status)
               )
               .map(({ statusCount }) => statusCount)
               .reduce((a, c) => a + c, 0) ?? 0;

@@ -15,7 +15,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
   ActivityType,
   Ban,
-  CombinedMapStatuses,
+  MapStatuses,
   Gamemode,
   LeaderboardType,
   MapCreditType,
@@ -449,7 +449,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       });
 
       const status = Random.weighted(weights.mapStatusWeights);
-      const inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+      const inSubmission = MapStatuses.IN_SUBMISSION.includes(status);
 
       //#region Leaderboards, suggestions, etc...
 

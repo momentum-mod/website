@@ -28,7 +28,7 @@ import {
 import {
   ActivityType,
   AdminActivityType,
-  CombinedMapStatuses,
+  MapStatuses,
   Gamemode,
   MapCreditType,
   MapStatus,
@@ -1141,7 +1141,7 @@ describe('Maps Part 2', () => {
       });
 
       for (const status of Enum.values(MapStatus)) {
-        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const shouldPass = MapStatuses.IN_SUBMISSION.includes(status);
         const expectedStatus = shouldPass ? 200 : 403;
 
         it(`should ${expectedStatus} if the map is not in the ${MapStatus[status]} state`, async () => {

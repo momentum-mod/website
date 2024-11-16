@@ -2,7 +2,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
-  CombinedMapStatuses,
+  MapStatuses,
   DateString,
   MapCreditNames,
   MapCreditType,
@@ -160,11 +160,11 @@ export class MapInfoComponent implements OnInit {
     this.prefix = prefix;
     this.credits = new GroupedMapCredits(
       this.map.credits ?? [],
-      CombinedMapStatuses.IN_SUBMISSION.includes(this.map.status)
+      MapStatuses.IN_SUBMISSION.includes(this.map.status)
         ? (this.map.submission?.placeholders ?? [])
         : []
     );
-    this.inSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(map.status);
+    this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
     // Show Review section first if in review, otherwise leaderboards (and the
     // tab view won't be visible anyway).
     this.currentSection = this.inSubmission

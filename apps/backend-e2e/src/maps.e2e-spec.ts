@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 import {
   ActivityType,
   Ban,
-  CombinedMapStatuses,
+  MapStatuses,
   Gamemode as GM,
   Gamemode,
   MapCreditType,
@@ -984,7 +984,7 @@ describe('Maps', () => {
 
           await db.createMap({
             submitter: { connect: { id: user.id } },
-            status: CombinedMapStatuses.IN_SUBMISSION[1]
+            status: MapStatuses.IN_SUBMISSION[1]
           });
 
           await req.postAttach({
@@ -1012,7 +1012,7 @@ describe('Maps', () => {
       });
 
       describe('Permission checks', () => {
-        for (const status of CombinedMapStatuses.IN_SUBMISSION) {
+        for (const status of MapStatuses.IN_SUBMISSION) {
           it(`should 403 if the user already has a map in ${MapStatus[status]} and is not a MAPPER`, async () => {
             await db.createMap({
               submitter: { connect: { id: user.id } },
@@ -2529,7 +2529,7 @@ describe('Maps', () => {
         Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('maplist')])
       );
 
-      for (const status of CombinedMapStatuses.IN_SUBMISSION) {
+      for (const status of MapStatuses.IN_SUBMISSION) {
         it(`should allow the submitter to change most data during ${MapStatus[status]}`, async () => {
           const map = await db.createMap({ ...createMapData, status });
 

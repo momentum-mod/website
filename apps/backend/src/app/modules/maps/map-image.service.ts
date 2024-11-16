@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import {
   AdminActivityType,
-  CombinedMapStatuses,
+  MapStatuses,
   CombinedRoles,
   imgLargePath,
   imgMediumPath,
@@ -66,9 +66,7 @@ export class MapImageService {
 
     const isMod = Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN);
     const isSubmitter = map.submitterID === userID;
-    const isInSubmission = CombinedMapStatuses.IN_SUBMISSION.includes(
-      map.status
-    );
+    const isInSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
 
     if (!isMod) {
       if (!isSubmitter)
