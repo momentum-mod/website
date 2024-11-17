@@ -1372,7 +1372,7 @@ describe('Maps Part 2', () => {
           query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
           status: 200,
           token: u7Token,
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 9 }
+          validatePaged: { type: MinimalLeaderboardRunDto, returnCount: 9 }
         });
 
         // We're calling as user 7, taking 4 on each side, so we expect ranks

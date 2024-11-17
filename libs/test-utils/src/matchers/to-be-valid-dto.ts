@@ -77,11 +77,11 @@ export function toBeValidPagedDto(
   if (
     totalCount &&
     typeof totalCount === 'number' &&
-    received.returnCount !== totalCount
+    received.totalCount !== totalCount
   )
     return {
       message: () =>
-        `expected returnCount of ${totalCount}, got ${received.totalCount}`,
+        `expected totalCount of ${totalCount}, got ${received.totalCount}`,
       pass: false
     };
 
