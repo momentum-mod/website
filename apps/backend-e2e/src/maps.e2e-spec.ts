@@ -1290,12 +1290,36 @@ describe('Maps', () => {
           });
         });
 
-        // This shouldn't ever really occur - on map approval the user is made a
-        // MAPPER or PORTER - but may as well have precise behaviour anyway.
-        it('should succeed if the user already has an APPROVED map and is not a mapper', async () => {
+        it('should 403 for if the user is not a mapper and has a map in submission', async () => {
           await db.createMap({
             submitter: { connect: { id: user.id } },
-            status: MapStatus.APPROVED
+            status: MapStatus.PRIVATE_TESTING
+          });
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 403,
+            data: createMapObject,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          await prisma.mMap.deleteMany();
+        });
+
+        it('should not 403 for if the user is a mapper and has a map in submission', async () => {
+          await db.createMap({
+            submitter: { connect: { id: user.id } },
+            status: MapStatus.PRIVATE_TESTING
+          });
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { roles: Role.MAPPER }
           });
 
           await uploadBspToPreSignedUrl(bspBuffer, token);
