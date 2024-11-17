@@ -37,7 +37,8 @@ import {
   MapZones,
   Role,
   TrackType,
-  vmfsPath
+  vmfsPath,
+  MAX_OPEN_MAP_SUBMISSIONS
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -753,14 +754,23 @@ export class MapsService {
       throw new ForbiddenException('User is banned from map submission');
     }
 
-    // 403 if the user is not a mapper, porter, moderator or admin, and they
-    // already have a map in private testing, content approval, public testing,
-    // or final approval.
+    const submissionMaps = user.submittedMaps.filter(({ status }) =>
+      MapStatuses.IN_SUBMISSION.includes(status)
+    );
+
+    // Limit total maps a non-mod/admin can have in submission at once
+    if (
+      submissionMaps.length >= MAX_OPEN_MAP_SUBMISSIONS &&
+      !Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+    ) {
+      throw new ForbiddenException('Too many maps in submission');
+    }
+
+    // 403 if the user is not a mapper, porter, moderator or admin, they don't
+    // have any approved maps, and they have a map in submission.
     if (
       !Bitflags.has(user.roles, CombinedRoles.MAPPER_AND_ABOVE) &&
-      user.submittedMaps.some((map) =>
-        MapStatuses.IN_SUBMISSION.includes(map.status)
-      )
+      submissionMaps.length > 0
     ) {
       throw new ForbiddenException(
         'User is not an approved mapper and already has a map in review'
