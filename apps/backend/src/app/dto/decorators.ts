@@ -231,8 +231,13 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
  * Decorator collection for take queries
  * @param def - The default `take` value
  * @param max - The maximum allowed `take` value
+ * @param min - The minimum allowed `take` value
  */
-export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
+export function TakeQueryProperty(
+  def: number,
+  max = 100,
+  min = 0
+): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
       name: 'take',
@@ -241,7 +246,7 @@ export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
       description: 'Take this many records'
     }),
     TypeDecorator(() => Number),
-    Min(0),
+    Min(min),
     IsInt(),
     Max(max),
     IsOptional()

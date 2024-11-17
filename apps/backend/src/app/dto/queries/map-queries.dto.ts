@@ -50,8 +50,8 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   @SkipQueryProperty(0)
   skip = 0;
 
-  @TakeQueryProperty(100)
-  take = 100;
+  @TakeQueryProperty(10, 100)
+  take = 10;
 
   @StringQueryProperty({
     description: 'Filter by partial map name match (contains)',
@@ -133,6 +133,9 @@ export class MapsGetAllSubmissionQueryDto
   extends MapsGetAllBaseQueryDto
   implements MapsGetAllSubmissionQuery
 {
+  @TakeQueryProperty(10, 100, -1)
+  override readonly take = 10;
+
   @ExpandQueryProperty([
     'leaderboards',
     'info',
