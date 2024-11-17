@@ -119,6 +119,7 @@ export class MapsService {
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
+    let take: number | undefined = query.take;
     if (query.search) where.name = { contains: query.search };
     if (query.searchStartsWith)
       where.name = { startsWith: query.searchStartsWith };
@@ -186,6 +187,13 @@ export class MapsService {
       const roles = user?.roles;
 
       if (roles == null) throw new BadRequestException();
+
+      // Allow unlimited take for reviewers and above
+      if (take === -1) {
+        take = Bitflags.has(roles, CombinedRoles.REVIEWER_AND_ABOVE)
+          ? undefined
+          : 100;
+      }
 
       // Logic here is a nightmare, for a breakdown of permissions see
       // MapsService.getMapAndCheckReadAccess.
@@ -363,7 +371,7 @@ export class MapsService {
       include,
       orderBy: { createdAt: 'desc' },
       skip: query.skip,
-      take: query.take
+      take
     });
 
     if (incPB || incWR) {

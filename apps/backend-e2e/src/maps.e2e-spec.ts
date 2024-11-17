@@ -4155,6 +4155,53 @@ describe('Maps', () => {
         );
       });
 
+      it('should limit -1 take to 100 for non-reviewers', async () => {
+        // Magic number sorry, if additional maps are added above in setup
+        // this'll break.
+        const newMaps = await db
+          .createMaps(98, {
+            status: MapStatus.PUBLIC_TESTING
+          })
+          .then((maps) => maps.map((m) => m.id));
+
+        await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { take: -1 },
+          validatePaged: { type: MapDto, returnCount: 100, totalCount: 101 },
+          token: u1Token
+        });
+
+        await prisma.mMap.deleteMany({ where: { id: { in: newMaps } } });
+      });
+
+      it('should not limit -1 take reviewers', async () => {
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: Role.REVIEWER }
+        });
+
+        const newMaps = await db
+          .createMaps(97, {
+            status: MapStatus.PUBLIC_TESTING
+          })
+          .then((maps) => maps.map((m) => m.id));
+
+        await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { take: -1 },
+          validatePaged: { type: MapDto, returnCount: 101, totalCount: 101 },
+          token: u1Token
+        });
+
+        await prisma.mMap.deleteMany({ where: { id: { in: newMaps } } });
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: 0 }
+        });
+      });
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/submissions', 'get'));
     });
