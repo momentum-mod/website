@@ -21,7 +21,8 @@ import {
   TrackType,
   LeaderboardType,
   FlatMapList,
-  GamemodeCategory
+  GamemodeCategory,
+  MAX_OPEN_MAP_SUBMISSIONS
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -1307,8 +1308,6 @@ describe('Maps', () => {
             ],
             token
           });
-
-          await prisma.mMap.deleteMany();
         });
 
         it('should not 403 for if the user is a mapper and has a map in submission', async () => {
@@ -1333,8 +1332,31 @@ describe('Maps', () => {
             ],
             token
           });
+        });
 
-          await prisma.mMap.deleteMany();
+        it('should 403 if the user has MAX_OPEN_MAP_SUBMISSIONS maps in submission', async () => {
+          await db.createMaps(MAX_OPEN_MAP_SUBMISSIONS, {
+            submitter: { connect: { id: user.id } },
+            status: MapStatus.PRIVATE_TESTING
+          });
+
+          // Even mappers can't do this
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { roles: Role.MAPPER }
+          });
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 403,
+            data: createMapObject,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
         });
 
         it('should 403 if the user has a MAP_SUBMISSION ban', async () => {
