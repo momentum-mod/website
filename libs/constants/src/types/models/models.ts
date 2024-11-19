@@ -15,9 +15,11 @@ import {
   AdminActivityType,
   KillswitchType,
   ReportType,
-  ReportCategory
+  ReportCategory,
+  MapTag,
+  Flags,
+  DateString
 } from '../../';
-import { Flags, DateString } from '../../';
 
 // Collection of models used throughout the codebase, as well as in Panorama.
 //
@@ -349,10 +351,8 @@ export interface MapSubmissionSuggestion {
   tier: number;
   type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
   comment?: string;
-  //  TODO: Tags!
+  tags: MapTag[];
 }
-
-export type MapTags = string[];
 
 export interface MapTestInvite {
   mapID: number;
@@ -456,7 +456,7 @@ export interface Leaderboard {
   tier: number | null;
   style: Style;
   type: LeaderboardType;
-  tags: MapTags;
+  tags: MapTag[];
   linear: boolean;
 }
 

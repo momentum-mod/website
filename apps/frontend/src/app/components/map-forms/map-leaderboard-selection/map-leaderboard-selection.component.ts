@@ -9,6 +9,7 @@ import {
   GamemodeInfo,
   LeaderboardType,
   MapSubmissionSuggestion,
+  MapTags,
   MapZones,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
@@ -16,6 +17,7 @@ import {
 import { CommonModule } from '@angular/common';
 import * as Enum from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
+import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
   selector: 'm-map-leaderboards-selection',
@@ -28,7 +30,7 @@ import { DropdownModule } from 'primeng/dropdown';
     }
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule, DropdownModule]
+  imports: [CommonModule, FormsModule, DropdownModule, ChipsComponent]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   public readonly LeaderboardType = LeaderboardType;
@@ -95,7 +97,8 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       trackType,
       tier: 1,
       trackNum,
-      type: LeaderboardType.RANKED
+      type: LeaderboardType.RANKED,
+      tags: []
     });
 
     this.onChange(this.value);
@@ -116,6 +119,10 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
 
     this.onChange(this.value);
     this.onTouched();
+  }
+
+  getTags(gamemode: Gamemode) {
+    return [...(MapTags.get(gamemode) ?? [])];
   }
 
   writeValue(value: MapSubmissionSuggestion[] | null): void {

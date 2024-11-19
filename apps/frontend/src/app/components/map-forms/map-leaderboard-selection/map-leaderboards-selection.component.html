@@ -7,7 +7,7 @@
   Add Leaderboard
 </button>
 <table
-  class="grid w-full border-collapse gap-1 [grid-template-columns:minmax(12rem,1fr)_minmax(10rem,1fr)_10rem_auto_minmax(1rem,auto)_minmax(12rem,4fr)_auto]"
+  class="grid w-full border-collapse gap-1 [grid-template-columns:minmax(10rem,1fr)_minmax(8rem,1fr)_8rem_auto_minmax(1rem,auto)_minmax(12rem,4fr)_minmax(6rem,2fr)_auto]"
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled
   }"
@@ -21,7 +21,8 @@
       <!-- Header text makes the column wider than the checkbox which looks crap, use an evil absolute to get it looking acceptable-->
       <th class="relative"><span class="absolute left-0">Ranked</span></th>
       <th class="text-center">Comments</th>
-      <th class="text-center"></th>
+      <th class="text-left">Tags</th>
+      <th></th>
     </tr>
   </thead>
   <tbody class="contents">
@@ -92,6 +93,9 @@
             (blur)="onTouched()"
             (change)="onChange(value)"
           />
+        </td>
+        <td>
+          <m-chips (change)="onChange(value)" [chips]="getTags(item.gamemode)" />
         </td>
         <td>
           <button type="button" class="btn btn-red" (click)="removeItem(i)">Delete</button>

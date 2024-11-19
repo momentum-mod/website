@@ -265,6 +265,11 @@ model MapInfo {
   youtubeID    String?
   creationDate DateTime
 
+  // We could do a separate table for this, which maaay have a perf increase
+  // (haven't tested), but complicates code a lot. Tag filtering is done on the
+  // game client anyway, so performance isn't a huge issue.
+  tags String[] /// Array of MapTag
+
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int  @unique
 
@@ -309,6 +314,7 @@ model MapSubmission {
   suggestions  Json  @default("[]") /// Array of map-submission-suggestions.model.ts
   placeholders Json? /// Array of map-submission-placeholder.model.ts
   dates        Json  @default("[]") /// Array of map-submission-dates.model.ts
+  tags         String[] /// Array of MapTag
 }
 
 // This model will be greatly expanded in the future to include screenshots,
