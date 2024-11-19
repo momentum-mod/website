@@ -62,6 +62,6 @@
   },
   "useInferencePlugins": false,
   "defaultBase": "main",
-  "nxCloudId": "673c5663919aab4e89177073",
+  "neverConnectToCloud": true,
   "useLegacyCache": true
 }
