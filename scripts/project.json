@@ -3,6 +3,7 @@
   "$schema": "../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "scripts/src",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
@@ -56,6 +57,5 @@
         "command": "node dist/scripts/generate-zones.script.cjs"
       }
     }
-  },
-  "tags": []
+  }
 }
