@@ -118,7 +118,12 @@ async function bootstrap() {
   // Here we fucking go!!!
   await app.listen(
     configService.getOrThrow('port'),
-    env === Environment.PRODUCTION ? '0.0.0.0' : 'localhost'
+    env === Environment.PRODUCTION ? '0.0.0.0' : 'localhost',
+    (error: Error | null, _address: string) => {
+      if (error) {
+        app.get(Logger).error(error.message);
+      }
+    }
   );
 }
 
