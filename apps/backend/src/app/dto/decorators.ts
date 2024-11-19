@@ -82,7 +82,8 @@ export function NestedProperty<T>(
   type: Type<T>,
   options: { lazy?: boolean } & Omit<ApiPropertyOptions, 'type'> = {}
 ): PropertyDecorator {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
+
   return applyDecorators(
     ApiProperty({
       ...options,
@@ -109,7 +110,7 @@ export function NestedProperty<T>(
 export function IdProperty(
   options?: { bigint?: boolean } & Omit<ApiPropertyOptions, 'type'>
 ): PropertyDecorator {
-  const required = options?.required ?? true;
+  const required = (options?.required as boolean) ?? true;
   const bigint = options?.bigint ?? false;
   delete options?.bigint;
   return applyDecorators(
@@ -133,7 +134,7 @@ export function IdProperty(
 export function StringIdProperty(
   options?: { uuid?: boolean } & Omit<ApiPropertyOptions, 'type'>
 ): PropertyDecorator {
-  const required = options?.required ?? true;
+  const required = (options?.required as boolean) ?? true;
   const uuid = options?.uuid;
   delete options?.uuid;
   return applyDecorators(
@@ -164,7 +165,7 @@ export function EnumProperty(
   type: { [key: string]: string | number },
   options: Omit<ApiPropertyOptions, 'type' | 'enum'> = {}
 ): PropertyDecorator {
-  const required = options?.required ?? true;
+  const required = (options?.required as boolean) ?? true;
 
   const decorators = [
     ApiProperty({ type: Number, enum: type, ...options, required }),
@@ -308,12 +309,13 @@ export function FilterQueryProperty(
 ): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
-      name: 'filter',
+      enumName: 'filter',
       type: String,
       enum: filters,
       description: `Properties to by which to filter the relevant items by.
         Comma-separated ${filters.join(', ')}`,
-      ...options
+      ...options,
+      required: options?.required as boolean
     }),
     Transform(({ value }) => intersection(value.split(','), filters)),
     IsArray(),
@@ -334,12 +336,13 @@ export function EnumFilterQueryProperty(
 ): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
-      name: 'filter',
+      enumName: 'filter',
       type: String,
       enum: filters,
       description: `Enum members to filter items by.
         Comma-separated numeric enum values ${filters.join(', ')}`,
-      ...options
+      ...options,
+      required: options?.required as boolean
     }),
     Transform(({ value }) =>
       intersection(value.split(',').map(Number), filters)
@@ -360,7 +363,7 @@ export function EnumFilterQueryProperty(
 export function BooleanQueryProperty(
   options?: Omit<ApiPropertyOptions, 'type'>
 ) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
   return applyDecorators(
     ApiProperty({ ...options, type: Boolean, required: required }),
     Transform(({ value }) => {
@@ -378,7 +381,7 @@ export function BooleanQueryProperty(
  * Optional by default!
  * */
 export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
   return applyDecorators(
     ApiProperty({ ...options, type: Number, required: required }),
     // Even if this is a BigInt to Prisma, we treat it as a Number in service
@@ -397,7 +400,7 @@ export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
 export function StringQueryProperty(
   options?: Omit<ApiPropertyOptions, 'type'>
 ) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
   return applyDecorators(
     ApiProperty({ ...options, type: String, required: required }),
     IsString(),
@@ -413,7 +416,8 @@ export function StringQueryProperty(
 export function StringCsvQueryProperty(
   options?: Omit<ApiPropertyOptions, 'type'>
 ) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
+
   return applyDecorators(
     ApiProperty({
       ...options,
@@ -438,7 +442,8 @@ export function StringCsvQueryProperty(
 export function IntCsvQueryProperty(
   options?: { bigint?: boolean } & Omit<ApiPropertyOptions, 'type'>
 ) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
+
   const bigint = options?.bigint ?? false;
   return applyDecorators(
     ApiProperty({
@@ -466,7 +471,8 @@ export function IntCsvQueryProperty(
 export function BigIntQueryProperty(
   options?: Omit<ApiPropertyOptions, 'type'>
 ) {
-  const required = options?.required ?? false;
+  const required = (options?.required as boolean) ?? false;
+
   return applyDecorators(
     ApiProperty({ ...options, type: String, required: required }),
     Transform(({ value }) => BigInt(value)),
