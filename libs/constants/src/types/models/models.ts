@@ -523,6 +523,58 @@ export interface RunSessionTimestamp {
   createdAt: DateString;
 }
 
+export interface RunSplits {
+  trackStats: RunStats;
+  segments: RunSegment[];
+}
+
+export interface RunSegment {
+  subsegments: RunSubsegment[];
+
+  // Contains an entry for every subsegment the player has reached so far
+  stats: RunStats;
+
+  // This is velocity when effectively starting this segment (when *leaving* the
+  // first zone)
+  effectiveStartVelocity: vec3;
+  // Whether this segment's checkpoints have a logical order. This lets split
+  // comparison logic know if apparent gaps are due to skipped checkpoints
+  // (align subsegments by minorNum) or are just unordered checkpoints (don't
+  // align).
+  checkpointsOrdered: boolean;
+}
+
+// A subsegment begins at the checkpoint zone with the specified minorNum (which
+// may be a Major Checkpoint zone, possibly the overall track start) and ends
+// when another checkpoint zone is activated (which may not be the next in
+// logical order if checkpoints can be skipped or done out of order).
+//
+// The very first subsegment of a run across all segments actually begins when
+// the run starts and so will have timeReached == 0.0. For all other
+// subsegments, timeReached has a meaningful value. Also note that for
+// subsegments after the first overall, stat tracking includes time spent within
+// its corresponding checkpoint zone.
+export interface RunSubsegment {
+  minorNum: uint8;
+
+  timeReached: float;
+
+  // Velocity when triggering this checkpoint; note the difference between this
+  // and Segment::effectiveStartVelocity
+  velocityWhenReached: vec3;
+}
+
+export interface RunStats {
+  maxOverallSpeed: float;
+  maxHorizontalSpeed: float;
+
+  overallDistanceTravelled: float;
+  horizontalDistanceTravelled: float;
+
+  jumps: uint16;
+  strafes: uint16;
+}
+
 export interface XpGain {
   rankXP: number;
   cosXP: {
