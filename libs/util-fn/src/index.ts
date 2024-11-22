@@ -13,3 +13,4 @@ export * from './deep-equal';
 export * from './extract-prefix-from-map-name';
 export * from './leaderboard-key';
 export * from './omit';
+export * from './magic';
