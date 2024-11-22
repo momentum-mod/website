@@ -1,172 +1,67 @@
-﻿import { BaseStats, ReplayHeader, RunFrame, ZoneStats } from './index';
+﻿import { ReplayHeader } from './index';
+import { RunSplits } from '@momentum/constants';
 
 /**
- * Utility class for reading Momentum Replay Files (.mrf)
+ * Parse a MomentumTV replay (.mtv) header.
+ * @throws {ReplayReadError}
  */
-export class ReplayFileReader {
-  buffer: Buffer;
-  offset: number;
-  isOK: boolean;
-
-  constructor(buffer: Buffer) {
-    this.buffer = buffer;
-    this.offset = 0;
-    this.isOK = true;
-  }
-
-  readHeader(): ReplayHeader {
+export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
+  try {
     return {
-      magic: this.readInt32(),
-      version: this.readInt8(),
-      header: {
-        mapName: this.readString(),
-        mapHash: this.readString(),
-        playerName: this.readString(),
-        steamID: BigInt(this.readString()),
-        tickRate: this.readFloat(),
-        runFlags: this.readInt32(),
-        runDate: this.readString(),
-        startTick: this.readInt32(),
-        stopTick: this.readInt32(),
-        trackNum: this.readInt8(),
-        zoneNum: this.readInt8()
-      }
+      magic: buffer.readUInt32LE(0),
+      formatVersion: buffer.readInt32LE(4),
+      timestamp: Number(buffer.readBigInt64LE(8)),
+      mapName: readNullTerminatedString(buffer, 16),
+      mapHash: readNullTerminatedString(buffer, 80),
+      gamemode: buffer.readUInt8(121),
+      tickInterval: buffer.readFloatLE(122),
+      playerSteamID: buffer.readBigUInt64LE(126),
+      playerName: readNullTerminatedString(buffer, 134),
+      trackType: buffer.readUInt8(166),
+      trackNum: buffer.readUInt8(167),
+      runTime: buffer.readDoubleLE(168)
     };
-  }
-
-  readStats(
-    isStaged: boolean,
-    tickRate: number
-  ): [BaseStats, ZoneStats[] | undefined] {
-    let overallStats, zoneStats;
-
-    const hasStats = this.readInt8(false);
-    const numZones = this.readInt8();
-
-    if (!hasStats || !numZones) throw new ReplayReadError();
-
-    if (isStaged) {
-      zoneStats = [];
-      for (let i = 0; i < numZones + 1 && this.isOK; i++) {
-        if (i === 0) {
-          overallStats = this.readBaseStats(tickRate);
-        } else {
-          zoneStats.push({
-            zoneNum: i,
-            baseStats: this.readBaseStats(tickRate)
-          });
-        }
-      }
-    } else if (numZones === 1) {
-      overallStats = this.readBaseStats(tickRate);
-    } else throw new ReplayReadError();
-
-    if (!overallStats) throw new ReplayReadError();
-
-    return [overallStats, zoneStats];
-  }
-
-  readFrames(stopTick: number): RunFrame[] {
-    const numFrames = this.readInt32();
-    const frames: RunFrame[] = [];
-
-    if (!numFrames || numFrames < stopTick) throw new ReplayReadError();
-
-    for (let i = 0; i < numFrames && this.isOK; i++) {
-      frames.push(this.readRunFrame());
-    }
-
-    if (!this.isOK) throw new ReplayReadError();
-
-    return frames;
-  }
-
-  private readBaseStats(tickrate: number): BaseStats {
-    return {
-      jumps: this.readInt32(),
-      strafes: this.readInt32(),
-      avgStrafeSync: this.readFloat(),
-      avgStrafeSync2: this.readFloat(),
-      enterTime: this.readInt32() * tickrate,
-      totalTime: this.readInt32() * tickrate,
-      velMax3D: this.readFloat(),
-      velMax2D: this.readFloat(),
-      velAvg3D: this.readFloat(),
-      velAvg2D: this.readFloat(),
-      velEnter3D: this.readFloat(),
-      velEnter2D: this.readFloat(),
-      velExit3D: this.readFloat(),
-      velExit2D: this.readFloat()
-    };
-  }
-
-  private readRunFrame(): RunFrame {
-    return {
-      eyeAngleX: this.readFloat(),
-      eyeAngleY: this.readFloat(),
-      eyeAngleZ: this.readFloat(),
-      posX: this.readFloat(),
-      posY: this.readFloat(),
-      posZ: this.readFloat(),
-      viewOffset: this.readFloat(),
-      buttons: this.readInt32()
-    };
-  }
-
-  private checkBuffer(): boolean {
-    const inRange = this.offset < this.buffer.length;
-
-    if (!inRange && this.isOK) {
-      this.isOK = false;
-    }
-
-    return inRange;
-  }
-
-  private readString(): string {
-    if (!this.checkBuffer()) return 'EOF';
-
-    const endOfStr = this.buffer.indexOf('\0', this.offset, 'ascii');
-
-    if (endOfStr !== -1 && endOfStr < this.buffer.length) {
-      const str = this.buffer.toString('ascii', this.offset, endOfStr);
-      this.offset = endOfStr + 1;
-      return str;
-    } else {
-      this.isOK = false;
-      return 'EOF';
-    }
-  }
-
-  private readFloat(): number {
-    if (!this.checkBuffer()) return -1;
-    const val = this.buffer.readFloatLE(this.offset);
-    this.offset += 4;
-    return val;
-  }
-
-  private readInt32(unsigned = true): number {
-    if (!this.checkBuffer()) return -1;
-    const val = unsigned
-      ? this.buffer.readUInt32LE(this.offset)
-      : this.buffer.readInt32LE(this.offset);
-    this.offset += 4;
-    return val;
-  }
-
-  private readInt8(unsigned = true): number {
-    if (!this.checkBuffer()) return -1;
-    const val = unsigned
-      ? this.buffer.readUInt8(this.offset)
-      : this.buffer.readInt8(this.offset);
-    this.offset++;
-    return val;
+  } catch (error) {
+    throw new ReplayReadError(error.code, error.message);
   }
 }
 
+/**
+ * Parse the JSON RunSplits section of a MomentumTV replay (.mtv).
+ * @throws {ReplayReadError}
+ */
+export function readRunSplits(buffer: Readonly<Buffer>): RunSplits.Splits {
+  let length: number, splits: string, lastChar: number;
+  try {
+    length = buffer.readInt32LE(193) - 1;
+    splits = buffer.toString('utf8', 197, 197 + length);
+    lastChar = buffer.readUInt8(197 + length);
+  } catch (error) {
+    throw new ReplayReadError(error.code, error.message);
+  }
+
+  if (splits.length !== length || splits.at(-1) !== '}' || lastChar !== 0x00) {
+    throw new ReplayReadError('Bad splits');
+  }
+
+  return JSON.parse(splits);
+}
+
 export class ReplayReadError extends Error {
-  constructor() {
+  /** Node error code https://nodejs.org/api/errors.html#nodejs-error-codes */
+  code: string;
+
+  constructor(message: string, code?: string) {
     super();
+    this.message = message;
+    this.code = code;
     this.name = 'ReplayReadError';
   }
+}
+
+function readNullTerminatedString(
+  buffer: Readonly<Buffer>,
+  offset: number
+): string {
+  return buffer.toString('utf8', offset, buffer.indexOf(0x00, offset, 'utf8'));
 }
