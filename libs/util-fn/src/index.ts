@@ -14,3 +14,4 @@ export * from './extract-prefix-from-map-name';
 export * from './leaderboard-key';
 export * from './omit';
 export * from './magic';
+export * from './approx-eq';
