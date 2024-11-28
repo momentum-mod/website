@@ -4,11 +4,13 @@ import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
+import { RedirectGuard } from './guards/redirect.guard';
 
 export const APP_ROUTES: Route[] = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [RedirectGuard],
     title: 'Dashboard'
   },
   {
