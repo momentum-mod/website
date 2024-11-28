@@ -27,6 +27,7 @@ import * as Bitflags from '@momentum/bitflags';
 import { AuthService } from './auth.service';
 import { HttpService } from './http.service';
 import { env } from '../../env/environment';
+import { POST_AUTH_REDIRECT_KEY } from '../../guards/redirect.guard';
 
 export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 
@@ -62,6 +63,7 @@ export class LocalUserService {
   }
 
   public login() {
+    sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, window.location.pathname);
     window.location.href = env.auth + '/web';
   }
 
