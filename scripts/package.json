@@ -1,4 +1,4 @@
 {
   "name": "@momentum/scripts",
-  "type": "commonjs"
+  "type": "module"
 }
