@@ -201,7 +201,7 @@ export class CreateMapDto
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
   @ApiProperty({
-    type: 'file array',
+    type: 'array',
     format: 'binary',
     description:
       'VMFs for the map. Usually a single file, but takes an array to allow instances.'
