@@ -552,6 +552,15 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
+    // Check for duplicate map hash
+    const existingMap = await this.db.mMap.findUnique({
+      where: { bspHash }
+    });
+
+    if (existingMap) {
+      throw new ConflictException('Map with this file hash already exists');
+    }
+
     let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
 
     const tasks: Promise<any>[] = [
