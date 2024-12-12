@@ -389,7 +389,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 204,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token
         });
 
@@ -397,8 +397,8 @@ describe('Session', () => {
           orderBy: { createdAt: 'asc' }
         });
         expect(timestamps[0]).toMatchObject({
-          segment: 0,
-          checkpoint: 1,
+          majorNum: 1,
+          minorNum: 2,
           time: 510,
           sessionID: session.id
         });
@@ -410,7 +410,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 400,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token: u2Token
         });
       });
@@ -419,7 +419,7 @@ describe('Session', () => {
         req.post({
           url: `session/run/${NULL_ID}`,
           status: 400,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token
         }));
 
@@ -429,7 +429,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 403,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token: nonGameToken
         });
       });
@@ -552,7 +552,7 @@ describe('Session', () => {
         RunTester.run({
           req,
           props: defaultTesterProperties(),
-          zones: [1, 1],
+          segments: [1, 1],
           delay
         });
 
@@ -570,7 +570,7 @@ describe('Session', () => {
         });
 
         await tester.startRun();
-        await tester.doZones([1, 1], overrides.delay);
+        await tester.doSegment([1, 1], overrides.delay);
 
         const { props: _, ...endRunProps } = overrides;
         return tester.endRun(endRunProps);
@@ -805,7 +805,7 @@ describe('Session', () => {
             ...defaultTesterProperties(),
             trackType: TrackType.STAGE
           },
-          zones: [1]
+          segments: [1]
         });
 
         expect(res.statusCode).toBe(200);
@@ -818,7 +818,7 @@ describe('Session', () => {
             ...defaultTesterProperties(),
             trackType: TrackType.BONUS
           },
-          zones: [0]
+          segments: [0]
         });
 
         expect(res.statusCode).toBe(200);

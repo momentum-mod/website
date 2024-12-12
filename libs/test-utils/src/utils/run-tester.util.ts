@@ -36,18 +36,11 @@ export class RunTester {
   startTime: number;
   currTime: number;
 
-  currSeg: number;
-  currCP: number;
+  curMajor: number;
+  curMinor: number;
 
   replayBuffer = Buffer.alloc(4000);
-  segments: RunSegment[] = [
-    {
-      subsegments: [],
-      stats: {} as any,
-      checkpointsOrdered: true,
-      effectiveStartVelocity: { x: 0, y: 0, z: 0 }
-    }
-  ];
+  segments: RunSegment[] = [];
 
   private req: RequestUtil;
 
@@ -59,22 +52,22 @@ export class RunTester {
   static async run(args: {
     req: RequestUtil;
     props: RunTesterProps;
-    zones: number[]; // array of number of minor checkpoints. 4 cp linear would be [0, 0, 0, 0]
+    segments: number[]; // array of number of minor checkpoints. 4 cp linear would be [0, 0, 0, 0]
     delay?: number;
-    startSeg?: number;
+    majorStart?: number;
   }) {
     const runTester = new RunTester(args.req, args.props);
 
-    await runTester.startRun({ startSeg: args.startSeg });
+    await runTester.startRun({ majorStart: args.majorStart });
 
-    await runTester.doZones(args.zones, args.delay ?? DEFAULT_DELAY_MS);
+    await runTester.doSegment(args.segments, args.delay ?? DEFAULT_DELAY_MS);
 
     return runTester.endRun({ delay: args.delay ?? DEFAULT_DELAY_MS });
   }
 
-  async startRun(args?: { startSeg?: number }) {
-    this.currSeg = args?.startSeg ?? 0;
-    this.currCP = 0;
+  async startRun(args?: { majorStart?: number }) {
+    this.curMajor = args?.majorStart ?? 1;
+    this.curMinor = 1;
     this.startTime = Date.now();
 
     const res = await this.req.post({
@@ -89,29 +82,53 @@ export class RunTester {
       token: this.props.token ?? ''
     });
     this.sessionID = res.body.id;
+
+    this.segments.push({
+      subsegments: [
+        {
+          velocityWhenReached: { x: 0, y: 0, z: 0 },
+          timeReached: 0,
+          minorNum: 1
+        }
+      ],
+      stats: {
+        jumps: 0,
+        strafes: 0,
+        horizontalDistanceTravelled: 0,
+        overallDistanceTravelled: 0,
+        maxOverallSpeed: 0,
+        maxHorizontalSpeed: 0
+      },
+      checkpointsOrdered: true,
+      effectiveStartVelocity: { x: 0, y: 0, z: 0 }
+    });
   }
 
-  async doZones(zones: number[], delay = DEFAULT_DELAY_MS) {
-    for (const [i, zone] of zones.entries()) {
-      if (i > 0) await this.startSegment({ delay });
-      for (let j = 0; j < zone; j++) {
-        await this.doCP({ delay });
+  async doSegment(segments: number[], delay = DEFAULT_DELAY_MS) {
+    for (const [index, segment] of segments.entries()) {
+      // Segment 1 start done in startRun
+      if (index > 0) {
+        await this.startMajor({ delay });
+      }
+
+      for (let j = 0; j < segment; j++) {
+        await this.doMinor({ delay });
       }
     }
   }
 
-  async doCP(args?: { delay?: number; setCP?: number }) {
-    this.currCP = args?.setCP ?? this.currCP + 1;
+  async doMinor(args?: { delay?: number; setMinor?: number }) {
+    this.curMinor = args?.setMinor ?? this.curMinor + 1;
     return this.doUpdate(false, args?.delay ?? DEFAULT_DELAY_MS);
   }
 
-  async startSegment(args?: {
+  async startMajor(args?: {
     delay?: number;
-    setSeg?: number;
-    setCP?: number;
+    setMajor?: number;
+    setMinor?: number;
   }) {
-    this.currSeg = args?.setSeg ?? this.currSeg + 1;
-    this.currCP = args?.setCP ?? 0;
+    this.curMajor = args?.setMajor ?? this.curMajor + 1;
+    this.curMinor = args?.setMinor ?? 1;
     return this.doUpdate(true, args?.delay ?? DEFAULT_DELAY_MS);
   }
 
@@ -125,15 +142,19 @@ export class RunTester {
 
     await this.req.post({
       url: `session/run/${this.sessionID}`,
-      body: { segment: this.currSeg, checkpoint: this.currCP, time: timeTotal },
+      body: {
+        majorNum: this.curMajor,
+        minorNum: this.curMinor,
+        time: timeTotal
+      },
       status: 204,
       token: this.props.token ?? ''
     });
 
     const subseg: RunSubsegment = {
       velocityWhenReached: { x: 0, y: 0, z: 0 },
-      timeReached: timeTotal,
-      minorNum: this.currCP + 1
+      timeReached: timeTotal / 1000,
+      minorNum: this.curMinor
     };
 
     if (isNewSegment) {
@@ -168,7 +189,8 @@ export class RunTester {
     const header: ReplayFile.ReplayHeader = {
       magic: ReplayFile.REPLAY_MAGIC,
       formatVersion: -1,
-      timestamp: BigInt(Date.now()),
+      // Divide by 1000 is essential here to mimic how game records time
+      timestamp: BigInt(Date.now()) / 1000n,
       mapName: this.props.mapName,
       mapHash: this.props.mapHash,
       gamemode: this.props.gamemode,

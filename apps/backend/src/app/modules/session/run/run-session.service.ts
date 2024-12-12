@@ -87,7 +87,7 @@ export class RunSessionService {
           userID,
           ...leaderboardData,
           timestamps: {
-            create: { segment: body.trackNum - 1, checkpoint: 0, time: 0 }
+            create: { majorNum: 1, minorNum: 1, time: 0 }
           }
         }
       })
@@ -101,7 +101,7 @@ export class RunSessionService {
   async updateSession(
     userID: number,
     sessionID: number,
-    { segment, checkpoint, time }: UpdateRunSessionDto
+    { majorNum, minorNum, time }: UpdateRunSessionDto
   ): Promise<void> {
     // I'm deliberately avoiding exception handling or informative errors here.
     // The game should never send runs in invalidate order so long as the zone
@@ -117,7 +117,7 @@ export class RunSessionService {
     if (session.userID !== userID) throw new BadRequestException();
 
     await this.db.runSessionTimestamp.create({
-      data: { sessionID, segment, checkpoint, time }
+      data: { sessionID, majorNum, minorNum, time }
     });
   }
 

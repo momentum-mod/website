@@ -66,10 +66,10 @@ export class CreateRunSessionDto
 
 export class UpdateRunSessionDto implements UpdateRunSession {
   @IsInt()
-  readonly segment: number;
+  readonly majorNum: number;
 
   @IsInt()
-  readonly checkpoint: number;
+  readonly minorNum: number;
 
   @IsPositive()
   readonly time: number;

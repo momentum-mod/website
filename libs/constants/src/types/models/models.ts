@@ -497,8 +497,8 @@ export interface RunSession {
 
 export interface RunSessionTimestamp {
   id: number;
-  segment: number;
-  checkpoint: number;
+  majorNum: number;
+  minorNum: number;
   time: number;
   sessionID: number;
   createdAt: DateString;

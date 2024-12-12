@@ -217,7 +217,7 @@ model MapVersion {
   // Stringified JSON of MapZones model
   // We don't gain anything from storing as jsonb, text is (presumably) faster
   // and preserves whitespace so zoneHash is reliable.
-  zones      String? 
+  zones      String?
 
   submitterID Int?
   submitter   User? @relation(fields: [submitterID], references: [id])
@@ -550,9 +550,9 @@ model RunSession {
 model RunSessionTimestamp {
   id BigInt @id @default(autoincrement())
 
-  segment    Int   @db.SmallInt
-  checkpoint Int   @db.SmallInt
-  time       Float @db.DoublePrecision
+  majorNum Int   @db.SmallInt
+  minorNum Int   @db.SmallInt
+  time     Float @db.DoublePrecision
 
   session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
   sessionID BigInt

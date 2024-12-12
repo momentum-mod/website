@@ -39,7 +39,7 @@ export type CreateRunSession = Pick<
 >;
 
 export interface UpdateRunSession {
-  segment: number;
-  checkpoint: number;
+  majorNum: number;
+  minorNum: number;
   time: number;
 }

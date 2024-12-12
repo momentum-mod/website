@@ -88,10 +88,10 @@
     @for (bonus of activeMode.bonuses; track $index) {
       <button
         type="button"
-        (click)="selectTrack(TrackType.BONUS, $index)"
+        (click)="selectTrack(TrackType.BONUS, bonus.num)"
         class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
         [ngClass]="{
-          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === $index
+          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === bonus.num
         }"
       >
         <p

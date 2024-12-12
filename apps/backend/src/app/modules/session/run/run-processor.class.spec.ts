@@ -94,6 +94,12 @@ describe('RunProcessor', () => {
     );
   }
 
+  /** @returns createdAt time */
+  function cat(time: number): Date {
+    return new Date(ReplayFile.Stubs.BaseTime + time);
+  }
+
+  // prettier-ignore
   describe('validateRunSession', () => {
     function expectPass(args: ProcessorOverrides = {}) {
       expect(() =>
@@ -112,10 +118,10 @@ describe('RunProcessor', () => {
         expectPass({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           }
         });
@@ -125,15 +131,28 @@ describe('RunProcessor', () => {
         expectFail({});
       });
 
+      it('should throw if first timestamp does not have a time value of 0', () => {
+        expectFail({
+          session: {
+            timestamps: [
+              { createdAt: cat(0),    time: 1,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
+            ]
+          }
+        });
+      })
+
       it('should throw if trackNum is not 1', () => {
         expectFail({
           session: {
             trackNum: 2,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 1000, segment: 0, checkpoint: 1 },
-              { time: 1000, segment: 1, checkpoint: 0 },
-              { time: 1000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           }
         });
@@ -142,10 +161,10 @@ describe('RunProcessor', () => {
           session: {
             trackNum: 0,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 1000, segment: 0, checkpoint: 1 },
-              { time: 1000, segment: 1, checkpoint: 0 },
-              { time: 1000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           }
         });
@@ -155,10 +174,10 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 1000 /* <- out of order */, segment: 0, checkpoint: 1 },
-              { time: 1000 /* <- out of order */, segment: 1, checkpoint: 0 },
-              { time: 1000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(1000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           }
         });
@@ -168,11 +187,11 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 20100, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 0, minorNum: 0 },
+              { createdAt: cat(1000), time: 1000, majorNum: 0, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 1, minorNum: 0 },
+              { createdAt: cat(2100), time: 1000, majorNum: 1, minorNum: 0 },
+              { createdAt: cat(3000), time: 1000, majorNum: 1, minorNum: 1 }
             ]
           }
         });
@@ -187,10 +206,10 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -206,9 +225,9 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -217,9 +236,9 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(1000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -228,8 +247,8 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 0, segment: 0, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 }
             ]
           },
           zones
@@ -245,9 +264,9 @@ describe('RunProcessor', () => {
         expectPass({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -264,9 +283,9 @@ describe('RunProcessor', () => {
           session: {
             timestamps: [
               // First checkpoint is *always* the start, must always hit it
-              { time: 0, segment: 0, checkpoint: 1 },
-              { time: 10000, segment: 1, checkpoint: 0 },
-              { time: 20000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 2 },
+              { createdAt: cat(1000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -275,9 +294,9 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -293,11 +312,11 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 15000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 3 },
+              { createdAt: cat(1500), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -313,11 +332,11 @@ describe('RunProcessor', () => {
         expectPass({
           session: {
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 15000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 1, checkpoint: 0 },
-              { time: 30000, segment: 1, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 3 },
+              { createdAt: cat(1500), time: 1000, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(2000), time: 1000, majorNum: 2, minorNum: 1 },
+              { createdAt: cat(3000), time: 1000, majorNum: 2, minorNum: 2 }
             ]
           },
           zones
@@ -331,8 +350,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 }
+              { createdAt: cat(0),    time: 0,    majorNum: 1, minorNum: 1 },
+              { createdAt: cat(1000), time: 1000, majorNum: 1, minorNum: 2 }
             ]
           }
         });
@@ -343,8 +362,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 1, checkpoint: 0 },
-              { time: 10000, segment: 1, checkpoint: 1 }
+              { time: 0, majorNum: 1, minorNum: 0 },
+              { time: 10000, majorNum: 1, minorNum: 1 }
             ]
           }
         });
@@ -357,7 +376,7 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             trackType: TrackType.STAGE,
-            timestamps: [{ time: 10000, segment: 0, checkpoint: 1 }]
+            timestamps: [{ time: 10000, majorNum: 0, minorNum: 1 }]
           },
           zones
         });
@@ -370,7 +389,7 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             trackType: TrackType.STAGE,
-            timestamps: [{ time: 0, segment: 0, checkpoint: 0 }]
+            timestamps: [{ time: 0, majorNum: 0, minorNum: 0 }]
           },
           zones
         });
@@ -386,8 +405,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -396,7 +415,7 @@ describe('RunProcessor', () => {
         expectFail({
           session: {
             trackType: TrackType.STAGE,
-            timestamps: [{ time: 0, segment: 0, checkpoint: 0 }]
+            timestamps: [{ time: 0, majorNum: 0, minorNum: 0 }]
           },
           zones
         });
@@ -407,8 +426,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -417,7 +436,7 @@ describe('RunProcessor', () => {
         expectPass({
           session: {
             trackType: TrackType.STAGE,
-            timestamps: [{ time: 0, segment: 0, checkpoint: 0 }]
+            timestamps: [{ time: 0, majorNum: 0, minorNum: 0 }]
           },
           zones
         });
@@ -430,7 +449,7 @@ describe('RunProcessor', () => {
         expectPass({
           session: {
             trackType: TrackType.STAGE,
-            timestamps: [{ time: 0, segment: 0, checkpoint: 0 }]
+            timestamps: [{ time: 0, majorNum: 0, minorNum: 0 }]
           },
           zones
         });
@@ -447,9 +466,9 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 15000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 2 },
+              { time: 15000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -467,9 +486,9 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.STAGE,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 1500000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 2 },
+              { time: 1500000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -501,9 +520,9 @@ describe('RunProcessor', () => {
             trackType: TrackType.BONUS,
             trackNum: 1,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 0, checkpoint: 2 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 1 },
+              { time: 20000, majorNum: 0, minorNum: 2 }
             ]
           },
           zones
@@ -516,9 +535,9 @@ describe('RunProcessor', () => {
             trackType: TrackType.BONUS,
             trackNum: 2,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 0, checkpoint: 2 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 1 },
+              { time: 20000, majorNum: 0, minorNum: 2 }
             ]
           },
           zones
@@ -532,8 +551,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
-              { time: 10000, segment: 0, checkpoint: 1 },
-              { time: 20000, segment: 0, checkpoint: 2 }
+              { time: 10000, majorNum: 0, minorNum: 1 },
+              { time: 20000, majorNum: 0, minorNum: 2 }
             ]
           },
           zones
@@ -547,8 +566,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 20000, segment: 0, checkpoint: 2 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 20000, majorNum: 0, minorNum: 2 }
             ]
           },
           zones
@@ -562,8 +581,8 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 20000, segment: 0, checkpoint: 2 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 20000, majorNum: 0, minorNum: 2 }
             ]
           },
           zones
@@ -577,9 +596,9 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 15000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 2 },
+              { time: 15000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -593,9 +612,9 @@ describe('RunProcessor', () => {
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
-              { time: 0, segment: 0, checkpoint: 0 },
-              { time: 10000, segment: 0, checkpoint: 2 },
-              { time: 1500000, segment: 0, checkpoint: 1 }
+              { time: 0, majorNum: 0, minorNum: 0 },
+              { time: 10000, majorNum: 0, minorNum: 2 },
+              { time: 1500000, majorNum: 0, minorNum: 1 }
             ]
           },
           zones
@@ -607,10 +626,10 @@ describe('RunProcessor', () => {
   describe('validateReplayHeader', () => {
     let processor: RunProcessor;
     const timestamps = [
-      { time: 0, segment: 0, checkpoint: 0 },
-      { time: 10000, segment: 0, checkpoint: 1 },
-      { time: 20000, segment: 1, checkpoint: 0 },
-      { time: 30000, segment: 1, checkpoint: 1 }
+      { time: 0, majorNum: 0, minorNum: 0 },
+      { time: 10000, majorNum: 0, minorNum: 1 },
+      { time: 20000, majorNum: 1, minorNum: 0 },
+      { time: 30000, majorNum: 1, minorNum: 1 }
     ];
     const runTime = ReplayFile.Stubs.ReplayHeaderStub.runTime * 1000;
 
@@ -814,10 +833,6 @@ describe('RunProcessor', () => {
   describe('validateRunSplits', () => {
     let processor: RunProcessor;
 
-    function cat(time: number): Date {
-      return new Date(ReplayFile.Stubs.BaseTime + time);
-    }
-
     function expectPass() {
       expect(() => processor.validateRunSplits()).not.toThrow();
     }
@@ -832,10 +847,10 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
-            { time: 0, segment: 0, checkpoint: 0, createdAt: cat(0) },
-            { time: 10000, segment: 0, checkpoint: 1, createdAt: cat(10000) },
-            { time: 20000, segment: 1, checkpoint: 0, createdAt: cat(20000) },
-            { time: 30000, segment: 1, checkpoint: 1, createdAt: cat(30000) }
+            { time: 0, majorNum: 0, minorNum: 0, createdAt: cat(0) },
+            { time: 10000, majorNum: 0, minorNum: 1, createdAt: cat(10000) },
+            { time: 20000, majorNum: 1, minorNum: 0, createdAt: cat(20000) },
+            { time: 30000, majorNum: 1, minorNum: 1, createdAt: cat(30000) }
           ]
         }
       });
@@ -853,9 +868,9 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
-            { time: 0, segment: 0, checkpoint: 0, createdAt: cat(0) },
-            { time: 10000, segment: 0, checkpoint: 1, createdAt: cat(10000) },
-            { time: 20000, segment: 1, checkpoint: 0, createdAt: cat(20000) }
+            { time: 0, majorNum: 0, minorNum: 0, createdAt: cat(0) },
+            { time: 10000, majorNum: 0, minorNum: 1, createdAt: cat(10000) },
+            { time: 20000, majorNum: 1, minorNum: 0, createdAt: cat(20000) }
           ]
         }
       });
@@ -868,10 +883,10 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
-            { time: 0, segment: 0, checkpoint: 0, createdAt: cat(0) },
-            { time: 10000, segment: 0, checkpoint: 1, createdAt: cat(9999) },
-            { time: 20000, segment: 1, checkpoint: 0, createdAt: cat(20000) },
-            { time: 30000, segment: 1, checkpoint: 1, createdAt: cat(30000) }
+            { time: 0, majorNum: 0, minorNum: 0, createdAt: cat(0) },
+            { time: 10000, majorNum: 0, minorNum: 1, createdAt: cat(9999) },
+            { time: 20000, majorNum: 1, minorNum: 0, createdAt: cat(20000) },
+            { time: 30000, majorNum: 1, minorNum: 1, createdAt: cat(30000) }
           ]
         }
       });
@@ -883,10 +898,10 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
-            { time: 0, segment: 0, checkpoint: 0, createdAt: cat(0) },
-            { time: 10000, segment: 0, checkpoint: 1, createdAt: cat(14900) },
-            { time: 20000, segment: 1, checkpoint: 0, createdAt: cat(20000) },
-            { time: 30000, segment: 1, checkpoint: 1, createdAt: cat(30000) }
+            { time: 0, majorNum: 0, minorNum: 0, createdAt: cat(0) },
+            { time: 10000, majorNum: 0, minorNum: 1, createdAt: cat(14900) },
+            { time: 20000, majorNum: 1, minorNum: 0, createdAt: cat(20000) },
+            { time: 30000, majorNum: 1, minorNum: 1, createdAt: cat(30000) }
           ]
         }
       });
@@ -898,10 +913,10 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
-            { time: 0, segment: 0, checkpoint: 0, createdAt: cat(0) },
-            { time: 15000, segment: 0, checkpoint: 1, createdAt: cat(15001) },
-            { time: 20000, segment: 1, checkpoint: 0, createdAt: cat(20000) },
-            { time: 30000, segment: 1, checkpoint: 1, createdAt: cat(30000) }
+            { time: 0, majorNum: 0, minorNum: 0, createdAt: cat(0) },
+            { time: 15000, majorNum: 0, minorNum: 1, createdAt: cat(15001) },
+            { time: 20000, majorNum: 1, minorNum: 0, createdAt: cat(20000) },
+            { time: 30000, majorNum: 1, minorNum: 1, createdAt: cat(30000) }
           ]
         }
       });

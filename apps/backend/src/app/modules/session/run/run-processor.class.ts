@@ -67,8 +67,8 @@ export class RunProcessor {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 
-    // First checkpoint is always the start zone, regardless of track type
-    if (timestamps[0].checkpoint !== 0) {
+    // First minorNum is always 1 (a segment start), regardless of track type
+    if (timestamps[0].minorNum !== 1) {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 
@@ -83,8 +83,10 @@ export class RunProcessor {
         throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
 
-      // Check creationDate is always increasing
-      if (timestamps[i].createdAt < timestamps[i - 1].createdAt) {
+      // Check creationDate is always increasing. If equal, zones are probably
+      // fucked, throwing here could cause some confusion, but probably best
+      // to never allow and should get figured out during map review.
+      if (!(timestamps[i].createdAt > timestamps[i - 1].createdAt)) {
         throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
     }
@@ -95,7 +97,7 @@ export class RunProcessor {
         timestamps.map(
           // Random bitshift to combine segment and checkpoint into single
           // unique number used by Set ctor's uniqueness comparison
-          ({ segment, checkpoint }) => (segment << 8) | checkpoint
+          ({ majorNum, minorNum }) => (majorNum << 8) | minorNum
         )
       ).size !== timestamps.length
     ) {
@@ -104,8 +106,8 @@ export class RunProcessor {
 
     // Stage or bonus runs
     if (trackType !== TrackType.MAIN) {
-      // Only one segment, and must match trackType
-      if (!timestamps.every(({ segment }) => segment === trackNum - 1)) {
+      // majorNum is always 1 for stages/bonuses
+      if (!timestamps.every(({ majorNum }) => majorNum === 1)) {
         throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
 
@@ -130,43 +132,47 @@ export class RunProcessor {
 
     // Check first timestamp is in first segment and last timestamp is in last
     if (
-      timestamps[0].segment !== 0 ||
-      timestamps.at(-1).segment !== zones.segments.length - 1
+      timestamps[0].majorNum !== 1 ||
+      timestamps.at(-1).majorNum !== zones.segments.length
     ) {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 
+    // Validate first segment
     // Check ordered, validate segments as we go
-    let lastSegment = 0;
-    let segmentStartIndex = 0;
-    for (const [index, { segment }] of timestamps.entries()) {
-      if (segment === lastSegment) {
-        continue;
+    let lastMajor = 1;
+    let majorStartIndex = 0;
+    timestamps.forEach(({ majorNum }, index) => {
+      // Incr til we hit a new major segment
+      if (majorNum === lastMajor) {
+        return;
       }
 
-      if (segment !== lastSegment + 1) {
+      if (majorNum !== lastMajor + 1) {
         throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
       }
 
+      // Validate the *previous segment* whose timestamps we just traversed
+      // entirely
       this.validateSegment(
-        zones.segments[lastSegment],
-        timestamps.slice(segmentStartIndex, index)
+        zones.segments[lastMajor - 1],
+        timestamps.slice(majorStartIndex, index)
       );
 
-      lastSegment = segment;
-      segmentStartIndex = index;
-    }
+      lastMajor = majorNum;
+      majorStartIndex = index;
+    });
 
     // Validate last segment
     this.validateSegment(
       zones.segments.at(-1),
-      timestamps.slice(segmentStartIndex)
+      timestamps.slice(majorStartIndex)
     );
 
     // Check required. Checking and this and that there's no duplicates
     // establishes that every segment has been hit.
     if (
-      new Set(timestamps.map(({ segment }) => segment)).size !==
+      new Set(timestamps.map(({ majorNum }) => majorNum)).size !==
       zones.segments.length
     ) {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
@@ -177,34 +183,40 @@ export class RunProcessor {
     { checkpoints, checkpointsRequired, checkpointsOrdered }: Segment,
     timestamps: RunSessionTimestamp[]
   ) {
-    // First checkpoint is always the start zone. It's never possible to skip a
+    // First minor is always the start zone. It's never possible to skip a
     // start zone.
-    if (timestamps[0].checkpoint !== 0) {
+    if (timestamps[0].minorNum !== 1) {
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
     }
 
     if (checkpointsOrdered) {
       for (let i = 1; i < timestamps.length; i++) {
-        if (timestamps[i].checkpoint <= timestamps[i - 1].checkpoint) {
+        if (timestamps[i].minorNum <= timestamps[i - 1].minorNum) {
           throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
         }
       }
     }
 
     let expectedTimestamps = checkpoints.length;
+    const isLastSegment =
+      timestamps[0].majorNum ===
+      Math.max(...timestamps.map(({ majorNum }) => majorNum));
 
-    // If stagesEndAtStageStarts is true then then timestamps should
-    // contain every checkpoint, since the end zone is either the first cp
-    // of the next segment, or the main track's end zone.
-    // If false, the end zone is the final checkpoint of the current segment,
-    // so the timestamps should contain every checkpoint except the last.
+    // If stagesEndAtStageStarts is true then timestamps should contain every
+    // minor segment, since the end zone is either the first minor of the next
+    // major, or the main track's end zone.
+    // If false, the end zone is the final minor seg of the current major seg,
+    // so the timestamps should contain every checkpoint except the last, for
+    // every stage *except* the last one.
     // Remember, the /end request sent on hitting the end zone doesn't have a
     // timestamp.
     if (
       this.session.trackType === TrackType.STAGE &&
-      !this.zones.tracks.main.stagesEndAtStageStarts
-    )
-      expectedTimestamps -= 1;
+      !this.zones.tracks.main.stagesEndAtStageStarts &&
+      !isLastSegment
+    ) {
+      expectedTimestamps--;
+    }
 
     if (checkpointsRequired && timestamps.length !== expectedTimestamps)
       throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
@@ -284,30 +296,37 @@ export class RunProcessor {
   validateRunSplits() {
     const startTime = this.session.createdAt.getTime();
 
-    const numSubSegs = this.splits.segments
-      .map(({ subsegments }) => subsegments.length)
-      .reduce((a, c) => a + c, 0);
+    // Flatten subsegments so for easier comparison against timestamps,
+    // calculate majorNum artificially for checking
+    const subsegs = this.splits.segments.flatMap(({ subsegments }, index) =>
+      subsegments.map((ss) => ({ ...ss, majorNum: index + 1 }))
+    );
 
-    if (numSubSegs !== this.session.timestamps.length)
+    if (subsegs.length !== this.session.timestamps.length)
       throw new RunValidationError(ErrorType.OUT_OF_SYNC);
 
-    for (const { segment, checkpoint, createdAt } of this.session.timestamps) {
-      const splitSubseg =
-        this.splits.segments?.[segment]?.subsegments?.[checkpoint];
+    this.session.timestamps.forEach(
+      ({ majorNum, minorNum, createdAt }, tsIndex) => {
+        const subseg = subsegs[tsIndex];
 
-      if (!splitSubseg || splitSubseg.minorNum !== checkpoint + 1)
-        throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+        if (
+          !subseg ||
+          subseg.majorNum !== majorNum ||
+          subseg.minorNum !== minorNum
+        )
+          throw new RunValidationError(ErrorType.OUT_OF_SYNC);
 
-      const sessionTime = createdAt.getTime() - startTime;
-      const desync = sessionTime - splitSubseg.timeReached * 1000;
-      // Occasionally we get a slight negative desync, probably
-      // due to C time() function vs JS Date.now() - allow a 1s margin.
-      // Then, allow desync of 5s, max acceptable time between replay split
-      // being written, and request hitting out server. Again, hardcoded
-      // constant also used by tests, if changing, change tests.
-      if (desync < -1000 || desync > 5000)
-        throw new RunValidationError(ErrorType.OUT_OF_SYNC);
-    }
+        const sessionTime = createdAt.getTime() - startTime;
+        const desync = sessionTime - subseg.timeReached * 1000;
+        // Occasionally we get a slight negative desync, probably
+        // due to C time() function vs JS Date.now() - allow a 1s margin.
+        // Then, allow desync of 5s, max acceptable time between replay split
+        // being written, and request hitting out server. Again, hardcoded
+        // constant also used by tests, if changing, change tests.
+        if (desync < -1000 || desync > 5000)
+          throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+      }
+    );
   }
 
   getProcessed(): ProcessedRun {
