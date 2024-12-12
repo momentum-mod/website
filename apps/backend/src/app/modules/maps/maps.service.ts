@@ -553,8 +553,8 @@ export class MapsService {
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
     // Check for duplicate map hash
-    const existingMap = await this.db.mMap.findUnique({
-      where: { bspHash }
+    const existingMap = await this.db.mMap.findFirst({
+      where: { versions: { some: { bspHash } } }
     });
 
     if (existingMap) {
