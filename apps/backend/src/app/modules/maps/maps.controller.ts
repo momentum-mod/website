@@ -70,7 +70,6 @@ import {
   MapsGetAllQueryDto,
   MapsGetQueryDto,
   MapZonesDto,
-  MinimalLeaderboardRunDto,
   PagedResponseDto,
   UpdateMapDto,
   UpdateMapImagesDto,
@@ -569,8 +568,7 @@ export class MapsController {
   @BypassJwtAuth()
   @ApiOperation({
     summary:
-      "Returns a paginated list of a leaderboard's runs. Some data the client " +
-      'should already know is omitted for performance.' +
+      "Returns a paginated list of a leaderboard's runs. \n " +
       "Warning: if the leaderboard itself doesn't exist, this endpoint will" +
       'return a 0 length PaginatedResponseDto.'
   })
@@ -602,7 +600,7 @@ export class MapsController {
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser() user?: UserJwtAccessPayload,
     @Query() query?: MapLeaderboardGetQueryDto
-  ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
     return this.runsService.getRuns(mapID, query, user?.id, user?.steamID);
   }
 
