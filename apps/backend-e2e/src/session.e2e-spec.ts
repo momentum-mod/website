@@ -18,7 +18,6 @@ import {
   MapStatus,
   Role,
   RunValidationErrorType,
-  Tickrates,
   TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
@@ -28,6 +27,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import { arrayFrom } from '@momentum/util-fn';
+import * as ReplayFile from '@momentum/formats/replay';
 
 describe('Session', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, map;
@@ -41,7 +41,7 @@ describe('Session', () => {
 
     map = await db.createMapWithFullLeaderboards(
       {
-        name: 'ahop_eazy',
+        name: ReplayFile.Stubs.ReplayHeaderStub.mapName,
         status: MapStatus.APPROVED
       },
       [Gamemode.AHOP, Gamemode.BHOP]
@@ -78,8 +78,7 @@ describe('Session', () => {
               mapID: map.id,
               gamemode: Gamemode.AHOP,
               trackType,
-              trackNum,
-              segment: 0
+              trackNum
             }
           });
 
@@ -138,8 +137,7 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.STAGE,
-            trackNum: 1,
-            segment: 0
+            trackNum: 1
           }
         });
 
@@ -186,8 +184,7 @@ describe('Session', () => {
               mapID: map.id,
               gamemode: Gamemode.AHOP,
               trackType,
-              trackNum,
-              segment: 0
+              trackNum
             },
             token
           });
@@ -202,8 +199,7 @@ describe('Session', () => {
             mapID: NULL_ID,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            segment: 0
+            gamemode: Gamemode.AHOP
           },
           token
         }));
@@ -216,8 +212,7 @@ describe('Session', () => {
             mapID: NULL_ID,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            gamemode: Gamemode.BHOP,
-            segment: 0
+            gamemode: Gamemode.BHOP
           },
           token
         }));
@@ -230,8 +225,7 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 1,
-            segment: 0
+            trackNum: 1
           }
         }));
 
@@ -245,9 +239,7 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 1,
-            segment: 0,
-            checkpoint: 0
+            trackNum: 1
           },
           token: nonGameToken
         });
@@ -397,7 +389,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 204,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token
         });
 
@@ -405,8 +397,8 @@ describe('Session', () => {
           orderBy: { createdAt: 'asc' }
         });
         expect(timestamps[0]).toMatchObject({
-          segment: 0,
-          checkpoint: 1,
+          majorNum: 1,
+          minorNum: 2,
           time: 510,
           sessionID: session.id
         });
@@ -418,7 +410,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 400,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token: u2Token
         });
       });
@@ -427,7 +419,7 @@ describe('Session', () => {
         req.post({
           url: `session/run/${NULL_ID}`,
           status: 400,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token
         }));
 
@@ -437,7 +429,7 @@ describe('Session', () => {
         await req.post({
           url: `session/run/${session.id}`,
           status: 403,
-          body: { segment: 0, checkpoint: 1, time: 510 },
+          body: { majorNum: 1, minorNum: 2, time: 510 },
           token: nonGameToken
         });
       });
@@ -477,14 +469,10 @@ describe('Session', () => {
           gamemode: Gamemode.AHOP,
           trackType: TrackType.MAIN,
           trackNum: 1,
-          runDate: Date.now().toString(),
-          runFlags: 0,
           mapID: map.id,
           mapName: map.name,
           mapHash: map.currentVersion.bspHash,
           steamID: user.steamID,
-          tickRate: Tickrates.get(map.type),
-          startTick: 0,
           playerName: 'Abstract Barry'
         });
 
@@ -526,7 +514,7 @@ describe('Session', () => {
                     flags: [0],
                     replayHash: randomHash(),
                     time: i + 0.005,
-                    stats: { create: { overall: { jumps: 1 } } },
+                    splits: {},
                     user: { connect: { id: user.id } },
                     rank: i + 1
                   },
@@ -564,7 +552,7 @@ describe('Session', () => {
         RunTester.run({
           req,
           props: defaultTesterProperties(),
-          zones: [1, 1],
+          segments: [1, 1],
           delay
         });
 
@@ -582,7 +570,7 @@ describe('Session', () => {
         });
 
         await tester.startRun();
-        await tester.doZones([1, 1], overrides.delay);
+        await tester.doSegment([1, 1], overrides.delay);
 
         const { props: _, ...endRunProps } = overrides;
         return tester.endRun(endRunProps);
@@ -817,7 +805,7 @@ describe('Session', () => {
             ...defaultTesterProperties(),
             trackType: TrackType.STAGE
           },
-          zones: [1]
+          segments: [1]
         });
 
         expect(res.statusCode).toBe(200);
@@ -830,7 +818,7 @@ describe('Session', () => {
             ...defaultTesterProperties(),
             trackType: TrackType.BONUS
           },
-          zones: [0]
+          segments: [0]
         });
 
         expect(res.statusCode).toBe(200);
@@ -838,7 +826,7 @@ describe('Session', () => {
 
       it('should reject if there is no body', async () => {
         const res = await submitWithOverrides({
-          beforeSubmit: (self) => (self.replayFile.buffer = Buffer.from(''))
+          beforeSubmit: (self) => (self.replayBuffer = Buffer.from(''))
         });
 
         expect(res.statusCode).toBe(400);
@@ -861,165 +849,6 @@ describe('Session', () => {
           data: { status: MapStatus.APPROVED }
         });
       });
-
-      it('should reject if the run does not have the proper number of timestamps', async () => {
-        for (const zones of [
-          [0, 1], // Misses first CP of first segment
-          [2, 1], // Does an extra CP in first segment
-          [0],
-          []
-        ]) {
-          const tester = new RunTester(req, defaultTesterProperties());
-
-          await tester.startRun();
-          await tester.doZones(zones);
-
-          const res = await tester.endRun();
-
-          expect(res.statusCode).toBe(400);
-          expect(res.body.code).toBe(RunValidationErrorType.BAD_TIMESTAMPS);
-        }
-      });
-
-      it('should reject if the run misses a start zone', async () => {
-        const tester = new RunTester(req, defaultTesterProperties());
-
-        await tester.startRun();
-        await tester.doCP();
-        await tester.startSegment({ setCP: 1 });
-
-        const res = await tester.endRun();
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_TIMESTAMPS);
-      });
-
-      it('should reject if the magic of the replay does not match', async () => {
-        const res = await submitWithOverrides({
-          beforeSave: (self) => (self.replay.magic = 0xbeefcafe)
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      });
-
-      it('should reject if the SteamID in the replay does not match the submitter', async () => {
-        const res = await submitWithOverrides({
-          props: { steamID: randomSteamID() }
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      });
-
-      it('should reject if the hash of the map stored in the replay does not match the stored hash of the DB map', async () => {
-        const res = await submitWithOverrides({
-          props: { mapHash: randomHash() }
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      });
-
-      it('should reject if the name of the map does not match the name of the map in the DB', async () => {
-        const res = await submitWithOverrides({
-          props: { mapName: 'ahop_egg' }
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      });
-
-      it('should reject if the run time in ticks is 0', async () => {
-        const res = await submitWithOverrides({
-          delay: 0,
-          beforeSave: (self) => {
-            self.replay.header.startTick = 0;
-            self.replay.header.stopTick = 0;
-          }
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_TIMESTAMPS);
-      });
-
-      it('should reject if the run time in ticks is negative', async () => {
-        const res = await submitWithOverrides({
-          delay: 0,
-          beforeSave: (self) => {
-            self.replay.header.startTick = 1;
-            self.replay.header.stopTick = 0;
-          }
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_TIMESTAMPS);
-      });
-
-      // it("the replays track number doesn't match timestamps", async () => {
-      //   const res = await submitWithOverrides({
-      //     beforeSave: (self) => {
-      //       self.replay.header.trackNum = 1;
-      //     }
-      //   });
-      //
-      //   expect(res.statusCode).toBe(400);
-      //   expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      // });
-      //
-      // it('the replays zone number is invalid for the map', async () => {
-      //   const res = await submitWithOverrides({
-      //     beforeSave: (self) => {
-      //       self.replay.header.zoneNum = 1;
-      //     }
-      //   });
-      //
-      //   expect(res.statusCode).toBe(400);
-      //   expect(res.body.code).toBe(RunValidationErrorType.BAD_META);
-      // });
-
-      it('should reject if the run date is in the future', async () => {
-        const res = await submitWithOverrides({
-          beforeSave: (self) =>
-            (self.replay.header.runDate = (Date.now() + 1000000).toString())
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.OUT_OF_SYNC);
-      });
-
-      it('should reject if the tickrate is not acceptable', async () => {
-        const res = await submitWithOverrides({
-          beforeSave: (self) =>
-            (self.replay.header.tickRate = Tickrates.get(map.type) + 0.001)
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.OUT_OF_SYNC);
-      });
-
-      it('should reject if the run does not fall within the run timestamps', async () => {
-        const res = await submitWithOverrides({
-          beforeSave: (self) => (self.replay.header.stopTick *= 20)
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.OUT_OF_SYNC);
-      });
-
-      // it('the run does not have stats', async () => {
-      //   const res = await submitWithOverrides({ writeStats: false });
-      //
-      //   expect(res.statusCode).toBe(400);
-      //   expect(res.body.code).toBe(RunValidationErrorType.BAD_REPLAY_FILE);
-      // });
-      //
-      // it('the run has no run frames', async () => {
-      //   const res = await submitWithOverrides({ writeFrames: false });
-      //
-      //   expect(res.statusCode).toBe(400);
-      //   expect(res.body.code).toBe(RunValidationErrorType.BAD_REPLAY_FILE);
-      // });
 
       it('should reject if should 401 when no access token is provided', () =>
         req.unauthorizedTest('session/run/1/end', 'post'));

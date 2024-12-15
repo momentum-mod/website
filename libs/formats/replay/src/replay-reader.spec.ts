@@ -19,7 +19,7 @@ describe('Replay Reader', () => {
       const expectedHeader: Partial<ReplayHeader> = {
         magic: REPLAY_MAGIC,
         formatVersion: -1,
-        timestamp: 1732201279n,
+        timestamp: 1732201279, // Note, this has since become ms-based, too lazy to re-record
         mapName: 'bhop_eazy',
         mapHash: '07320480E9245C2363D806BC4D1661F8034709B5',
         gamemode: Gamemode.BHOP,

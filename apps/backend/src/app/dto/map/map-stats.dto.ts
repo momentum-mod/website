@@ -2,8 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { MapStats } from '@momentum/constants';
-import { NestedProperty, SafeBigIntToNumber } from '../decorators';
-import { BaseStatsDto } from '../stats/base-stats.dto';
+import { SafeBigIntToNumber } from '../decorators';
 
 export class MapStatsDto implements MapStats {
   @Exclude()
@@ -44,7 +43,4 @@ export class MapStatsDto implements MapStats {
   @IsInt()
   @SafeBigIntToNumber()
   readonly timePlayed: number;
-
-  @NestedProperty(BaseStatsDto)
-  readonly baseStats: BaseStatsDto;
 }

@@ -2,8 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
-  Logger
+  InternalServerErrorException
 } from '@nestjs/common';
 import { Leaderboard, LeaderboardRun, Prisma, User } from '@prisma/client';
 import {
@@ -14,7 +13,6 @@ import {
   TrackType,
   XpGain
 } from '@momentum/constants';
-import { JsonValue } from 'type-fest';
 import { parallel } from '@momentum/util-fn';
 import { FileStoreService } from '../../filestore/file-store.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
@@ -45,8 +43,6 @@ export class RunSessionService {
     private readonly mapsService: MapsService
   ) {}
 
-  private readonly logger = new Logger('Run Session');
-
   //#region Create Session
 
   async createSession(
@@ -76,7 +72,7 @@ export class RunSessionService {
         AND: {
           userID,
           OR: [
-            { ...leaderboardData },
+            leaderboardData,
             { mapID: { not: body.mapID } },
             { gamemode: { not: body.gamemode } }
           ]
@@ -91,14 +87,7 @@ export class RunSessionService {
           userID,
           ...leaderboardData,
           timestamps: {
-            create: {
-              // This is for the very rare cases of main track with
-              // majorOrdered=false where player doesn't start on the first
-              // major CP
-              segment: body.segment,
-              checkpoint: 0,
-              time: 0
-            }
+            create: { majorNum: 1, minorNum: 1, time: 0 }
           }
         }
       })
@@ -112,7 +101,7 @@ export class RunSessionService {
   async updateSession(
     userID: number,
     sessionID: number,
-    { segment, checkpoint, time }: UpdateRunSessionDto
+    { majorNum, minorNum, time }: UpdateRunSessionDto
   ): Promise<void> {
     // I'm deliberately avoiding exception handling or informative errors here.
     // The game should never send runs in invalidate order so long as the zone
@@ -128,7 +117,7 @@ export class RunSessionService {
     if (session.userID !== userID) throw new BadRequestException();
 
     await this.db.runSessionTimestamp.create({
-      data: { sessionID, segment, checkpoint, time }
+      data: { sessionID, majorNum, minorNum, time }
     });
   }
 
@@ -171,6 +160,10 @@ export class RunSessionService {
       }
     });
 
+    if (!session) {
+      throw new BadRequestException('Invalid session');
+    }
+
     // Check user has read permissions for this map. Someone *could* actually
     // start/update a session on this map through weird API calls, but that'd be
     // completely pointless since we block actual submission here.
@@ -181,7 +174,7 @@ export class RunSessionService {
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (!session || session.userID !== userID)
+    if (session.userID !== userID)
       throw new BadRequestException('Invalid session');
 
     await this.db.runSession.delete({ where: { id: sessionID } });
@@ -202,33 +195,28 @@ export class RunSessionService {
     session: CompletedRunSession,
     user: User
   ): ProcessedRun {
-    // Make a new run processor instance. This is going to store the replay and
-    // run data structure, parse the replay file in the buffer, then perform a
-    // bunch of validations
-    const processor = new RunProcessor(replay, session, user);
-
-    let processedRun: ProcessedRun;
     try {
-      // First, check the timestamps are in order
-      processor.validateTimestamps();
+      // Make a new run processor instance. This wraps the gritty part of replay
+      // parsing then perform a bunch of validations
+      const processor = RunProcessor.parse(replay, session, user);
 
-      // Parse the header of the replay file and validate against run data
-      processor.processReplayFileHeader();
+      // Check the session timestamps are in order
+      processor.validateSessionTimestamps();
 
-      // Parse the bulk of the replay, further validations and extracting stats
-      processedRun = processor.processReplayFileContents();
+      // Validate replay file header against session data
+      processor.validateReplayHeader();
+
+      processor.validateRunSplits();
+
+      return processor.getProcessed();
     } catch (error) {
       if (error instanceof RunValidationError) {
-        // If we hit any errors during validation we combine into bitflags to
-        // send back to client
         throw new BadRequestException({
           message: `Run validation failed: ${error.message}`,
           code: error.code
         });
       } else throw error;
     }
-
-    return processedRun;
   }
 
   // TODO: I'm not adding full styles support yet as we need to figure out data
@@ -369,8 +357,8 @@ export class RunSessionService {
     await tx.userStats.update({
       where: { userID: submittedRun.userID },
       data: {
-        totalJumps: { increment: submittedRun.stats.overall.jumps },
-        totalStrafes: { increment: submittedRun.stats.overall.strafes },
+        totalJumps: { increment: submittedRun.splits.trackStats.jumps },
+        totalStrafes: { increment: submittedRun.splits.trackStats.strafes },
         level: { increment: gainedLevels },
         cosXP: { increment: cosXPGain },
         runsSubmitted: { increment: 1 },
@@ -494,7 +482,7 @@ export class RunSessionService {
             flags: submittedRun.flags,
             time: submittedRun.time,
             replayHash,
-            stats: submittedRun.stats as unknown as JsonValue, // TODO: #855
+            splits: submittedRun.splits,
             rank,
             rankXP,
             pastRunID: pastRun.id,
@@ -512,7 +500,7 @@ export class RunSessionService {
             style: 0,
             flags: submittedRun.flags,
             time: submittedRun.time,
-            stats: submittedRun.stats as unknown as JsonValue, // TODO: #855
+            splits: submittedRun.splits,
             replayHash,
             rank,
             rankXP,
