@@ -15,8 +15,7 @@ import {
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
-  LeaderboardRunDto,
-  MinimalLeaderboardRunDto
+  LeaderboardRunDto
 } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -33,33 +32,12 @@ export class LeaderboardRunsService {
     private readonly steamService: SteamService
   ) {}
 
-  private readonly minimalRunsSelect: Prisma.LeaderboardRunSelect = {
-    userID: true,
-    rank: true,
-    rankXP: true,
-    replayHash: true,
-    time: true,
-    flags: true,
-    createdAt: true,
-    pastRunID: true,
-    user: true // We always include user, query is pretty pointless without
-  };
-
-  private readonly runsSelect: Prisma.LeaderboardRunSelect = {
-    ...this.minimalRunsSelect,
-    mapID: true,
-    gamemode: true,
-    trackType: true,
-    trackNum: true,
-    style: true
-  };
-
   async getRuns(
     mapID: number,
     query: MapLeaderboardGetQueryDto,
     loggedInUserID?: number,
     loggedInUserSteamID?: bigint
-  ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
     // TODO: Doing this check is an extra query, for an endpoint we care greatly
     // about optimising. May be worth trying to speed up in the future.
     await this.mapsService.getMapAndCheckReadAccess({
@@ -83,10 +61,9 @@ export class LeaderboardRunsService {
       where.user = { steamID: { in: query.steamIDs.map(BigInt) } };
     }
 
-    const select = {
-      ...this.minimalRunsSelect,
-      stats: Boolean(query.expand)
-    };
+    const omit: Prisma.LeaderboardRunOmit | undefined = query.expand
+      ? undefined
+      : { splits: true };
 
     const orderBy: Prisma.LeaderboardRunOrderByWithAggregationInput =
       query.orderByDate === true ? { createdAt: 'desc' } : { rank: 'asc' };
@@ -140,7 +117,8 @@ export class LeaderboardRunsService {
 
     const dbResponse = await this.db.leaderboardRun.findManyAndCount({
       where,
-      select,
+      include: { user: true },
+      omit,
       orderBy,
       skip,
       take
@@ -152,8 +130,7 @@ export class LeaderboardRunsService {
     // is presumably misconfigured in some way). This would be a (minor) perf
     // hit for new maps with no runs yet - not something we should do just to
     // show the right error message. Have left a note in the Swagger docs.
-
-    return new PagedResponseDto(MinimalLeaderboardRunDto, dbResponse);
+    return new PagedResponseDto(LeaderboardRunDto, dbResponse);
   }
 
   async getRun(
@@ -188,14 +165,14 @@ export class LeaderboardRunsService {
       userID: loggedInUserID
     });
 
-    const select = {
-      ...this.runsSelect,
-      stats: Boolean(query.expand)
-    };
+    const omit: Prisma.LeaderboardRunOmit | undefined = query.expand
+      ? undefined
+      : { splits: true };
 
     const dbResponse = await this.db.leaderboardRun.findFirst({
       where,
-      select
+      include: { user: true },
+      omit
     });
 
     if (!dbResponse) throw new NotFoundException('Run not found');

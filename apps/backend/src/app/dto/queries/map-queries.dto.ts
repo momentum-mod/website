@@ -221,7 +221,7 @@ export class MapLeaderboardGetQueryDto
   @EnumQueryProperty(Style, { required: false })
   style = Style.NONE;
 
-  @SingleExpandQueryProperty('stats')
+  @SingleExpandQueryProperty('splits')
   readonly expand?: MapRunsGetExpand;
 
   @FilterQueryProperty(['friends', 'around'], {
