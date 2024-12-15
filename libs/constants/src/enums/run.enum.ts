@@ -1,55 +1,31 @@
-﻿// These live in here as service logic and E2E need access.
-
-export enum RunValidationErrorType {
-  BAD_TIMESTAMPS,
-  BAD_REPLAY_FILE,
-  BAD_META,
-  INVALID_STATS,
-  OUT_OF_SYNC,
-  UNSUPPORTED_MODE,
-  FUCKY_BEHAVIOUR,
-  INTERNAL_ERROR
+﻿export enum RunValidationErrorType {
+  BAD_TIMESTAMPS = 0,
+  BAD_REPLAY_FILE = 1,
+  BAD_META = 2,
+  INVALID_STATS = 3,
+  OUT_OF_SYNC = 4,
+  UNSUPPORTED_MODE = 5,
+  FUCKY_BEHAVIOUR = 6,
+  INTERNAL_ERROR = 7
 }
 
-interface ErrorData {
-  code: number;
-  message: string;
+// prettier-ignore
+export const RunValidationErrorMessages: Record<RunValidationErrorType, string> = {
+  [RunValidationErrorType.BAD_TIMESTAMPS]: 'run timestamps were misordered',
+  [RunValidationErrorType.BAD_REPLAY_FILE]: 'invalid replay file',
+  [RunValidationErrorType.BAD_META]: 'invalid metadata',
+  [RunValidationErrorType.INVALID_STATS]: 'invalid stats',
+  [RunValidationErrorType.OUT_OF_SYNC]: 'replay data out of sync with submission times',
+  [RunValidationErrorType.UNSUPPORTED_MODE]: 'this mode is not currently supported',
+  [RunValidationErrorType.FUCKY_BEHAVIOUR]: 'unusual behaviour in replay',
+  [RunValidationErrorType.INTERNAL_ERROR]: 'an internal server error occurred'
 }
-
-export const RunValidationErrors: Record<RunValidationErrorType, ErrorData> = {
-  [RunValidationErrorType.BAD_TIMESTAMPS]: {
-    code: 0,
-    message: 'run timestamps were misordered'
-  },
-  [RunValidationErrorType.BAD_REPLAY_FILE]: {
-    code: 1,
-    message: 'invalid replay file'
-  },
-  [RunValidationErrorType.BAD_META]: { code: 2, message: 'invalid metadata' },
-  [RunValidationErrorType.INVALID_STATS]: { code: 3, message: 'invalid stats' },
-  [RunValidationErrorType.OUT_OF_SYNC]: {
-    code: 4,
-    message: 'replay data out of sync with submission times'
-  },
-  [RunValidationErrorType.UNSUPPORTED_MODE]: {
-    code: 5,
-    message: 'this mode is not currently supported'
-  },
-  [RunValidationErrorType.FUCKY_BEHAVIOUR]: {
-    code: 6,
-    message: 'unusual behaviour in replay'
-  },
-  [RunValidationErrorType.INTERNAL_ERROR]: {
-    code: 7,
-    message: 'an internal server error occurred'
-  }
-} as const;
 
 export class RunValidationError extends Error {
-  code: number;
+  code: RunValidationErrorType;
 
   constructor(type: RunValidationErrorType) {
-    super(RunValidationErrors[type].message);
-    this.code = RunValidationErrors[type].code;
+    super(RunValidationErrorMessages[type]);
+    this.code = type;
   }
 }

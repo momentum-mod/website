@@ -21,7 +21,7 @@ import {
   LeaderboardType,
   MapStatus,
   MapSubmissionType,
-  RunStats,
+  RunSplits,
   Style,
   TrackType
 } from '@momentum/constants';
@@ -232,11 +232,11 @@ export class DbUtil {
    * Create a map with all the leaderboards that would be generated from
    * ZonesStub, in the given modes (defaults to just ahop)
    */
-  createMapWithFullLeaderboards(
+  async createMapWithFullLeaderboards(
     mmap?: Omit<CreateMapMMapArgs, 'leaderboards' | 'zones'>,
     gamemodes = [Gamemode.AHOP]
   ) {
-    return this.createMap({
+    const map = await this.createMap({
       ...mmap,
       versions: {
         create: {
@@ -286,6 +286,13 @@ export class DbUtil {
         }
       }
     });
+
+    await this.prisma.mMap.update({
+      data: { currentVersionID: map.versions[0].id },
+      where: { id: map.id }
+    });
+
+    return map;
   }
 
   //#endregion
@@ -303,7 +310,7 @@ export class DbUtil {
     trackNum?: number;
     style?: Style;
     flags?: number[];
-    stats?: RunStats;
+    splits?: RunSplits.Splits;
   }): Promise<LeaderboardRun & { user: User; mmap: MMap }> {
     // Wanna create a user, map, AND run? Go for it!
     const user = args?.user ?? (await this.createUser());
@@ -315,7 +322,7 @@ export class DbUtil {
         mmap: { connect: { id: map.id } },
         time: args?.time ?? 1,
         flags: args?.flags ?? [0],
-        stats: (args?.stats as unknown as JsonValue) ?? {},
+        splits: (args?.splits as unknown as JsonValue) ?? { segments: [] },
         replayHash: randomHash(),
         rank: args?.rank,
         rankXP: 0,
@@ -384,7 +391,7 @@ export class DbUtil {
                 time: args?.time ?? 1,
                 flags: args?.flags ?? [0],
                 rank: args?.lbRank,
-                stats: {},
+                splits: {},
                 leaderboard: {
                   connect: {
                     mapID_gamemode_trackType_trackNum_style: {

@@ -62,18 +62,14 @@ export class CreateRunSessionDto
     'trackType',
     'trackNum'
   ] as const)
-  implements CreateRunSession
-{
-  @IsInt()
-  readonly segment: number;
-}
+  implements CreateRunSession {}
 
-export class UpdateRunSessionDto
-  extends PickType(CreateRunSessionDto, ['segment'] as const)
-  implements UpdateRunSession
-{
+export class UpdateRunSessionDto implements UpdateRunSession {
   @IsInt()
-  readonly checkpoint: number;
+  readonly majorNum: number;
+
+  @IsInt()
+  readonly minorNum: number;
 
   @IsPositive()
   readonly time: number;
