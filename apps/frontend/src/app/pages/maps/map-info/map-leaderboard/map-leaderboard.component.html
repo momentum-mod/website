@@ -32,9 +32,9 @@
     <button
       type="button"
       class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
-      (click)="selectTrack(TrackType.MAIN, 0)"
+      (click)="selectTrack(TrackType.MAIN, 1)"
       [ngClass]="{
-        selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 0
+        selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 1
       }"
     >
       <p
@@ -73,10 +73,10 @@
               class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-30 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
               [ngClass]="{
                 '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
-                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage,
+                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage + 1,
                 '!border-b': activeMode.stages > 20
               }"
-              (click)="selectTrack(TrackType.STAGE, stage)"
+              (click)="selectTrack(TrackType.STAGE, stage + 1)"
             >
               {{ stage + 1 }}
             </button>
@@ -88,10 +88,10 @@
     @for (bonus of activeMode.bonuses; track $index) {
       <button
         type="button"
-        (click)="selectTrack(TrackType.BONUS, $index)"
+        (click)="selectTrack(TrackType.BONUS, bonus.num)"
         class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
         [ngClass]="{
-          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === $index
+          selected: activeTrack.type === TrackType.BONUS && activeTrack.num === bonus.num
         }"
       >
         <p
