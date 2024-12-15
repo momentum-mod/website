@@ -618,7 +618,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: 0,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
 
@@ -630,7 +630,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: 0,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
 
@@ -668,7 +668,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: 0,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
 
@@ -680,7 +680,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: 0,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, stats: {} } }
+            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
 
@@ -2359,7 +2359,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                stats: {},
+                splits: {},
                 rank: 1
               }
             }
@@ -2402,7 +2402,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                stats: {},
+                splits: {},
                 rank: 1
               }
             }
@@ -2483,7 +2483,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                stats: {},
+                splits: {},
                 rank: 1
               }
             }
