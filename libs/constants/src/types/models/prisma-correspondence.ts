@@ -147,7 +147,7 @@ import { LeaderboardRun as PLeaderboardRun } from '@prisma/client';
 assertTypeCorrespondence<
   LeaderboardRun,
   PLeaderboardRun,
-  { pastRunID: number }
+  { pastRunID: number; splits: MakeOptional }
 >();
 
 import { PastRun } from './models';
@@ -172,6 +172,7 @@ assertTypeCorrespondence<
 import { DateString } from '../../';
 import { Prisma } from '@prisma/client';
 type OmitMe = 'OmitMe' & never;
+type MakeOptional = 'MakeOptional' & never;
 
 /**
  * Utility type to express how a Prisma type can be transformed into
@@ -184,17 +185,19 @@ type OmitMe = 'OmitMe' & never;
 // prettier-ignore
 type TransformPrismaType<Obj extends object, Schema extends Partial<Record<keyof Obj, unknown>>> = {
   [K in keyof Obj as Schema[K] extends OmitMe ? never : K]:
-    Schema[K] extends NonNullable<unknown>
-      ? Schema[K]
-      // Replace Dates with DateString - when serialized out it's a ISO8061
-      // string.
-      : Obj[K] extends Date
-        ? DateString
-        // Hack to remove JsonValue, since we can't currently make our models 
-        // extend JsonObject. https://github.com/momentum-mod/website/issues/855
-        : Obj[K] extends Prisma.JsonValue
-          ? any
-          : Obj[K];
+    Schema[K] extends MakeOptional ?
+      Schema[K] | undefined
+        : Schema[K] extends NonNullable<unknown>
+          ? Schema[K]
+          // Replace Dates with DateString - when serialized out it's a ISO8061
+          // string.
+          : Obj[K] extends Date
+            ? DateString
+            // Hack to remove JsonValue, since we can't currently make our models
+            // extend JsonObject. https://github.com/momentum-mod/website/issues/855
+            : Obj[K] extends Prisma.JsonValue
+              ? any
+              : Obj[K];
 };
 
 //#endregion
