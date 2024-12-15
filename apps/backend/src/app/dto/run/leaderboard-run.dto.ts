@@ -3,11 +3,11 @@ import {
   Gamemode,
   LeaderboardRun,
   runPath,
-  RunStats,
+  RunSplits,
   Style,
   TrackType
 } from '@momentum/constants';
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsHash,
   IsInt,
@@ -87,8 +87,9 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsInt({ each: true })
   readonly flags: number[];
 
-  @ApiProperty({ description: 'WIP run stats data' })
-  readonly stats: RunStats;
+  @ApiProperty()
+  @IsOptional()
+  readonly splits?: RunSplits.Splits;
 
   @ApiProperty({
     type: Number,
@@ -133,11 +134,3 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @CreatedAtProperty()
   readonly createdAt: DateString;
 }
-
-export class MinimalLeaderboardRunDto extends OmitType(LeaderboardRunDto, [
-  'mapID',
-  'gamemode',
-  'trackType',
-  'trackNum',
-  'style'
-] as const) {}

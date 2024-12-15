@@ -9,11 +9,11 @@ export class RunSessionTimestampDto implements RunSessionTimestamp {
 
   @ApiProperty()
   @IsInt()
-  readonly segment: number;
+  readonly majorNum: number;
 
   @ApiProperty()
   @IsInt()
-  readonly checkpoint: number;
+  readonly minorNum: number;
 
   @ApiProperty()
   @IsNumber()
