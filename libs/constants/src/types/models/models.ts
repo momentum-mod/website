@@ -15,7 +15,11 @@ import {
   AdminActivityType,
   KillswitchType,
   ReportType,
-  ReportCategory
+  ReportCategory,
+  vec3,
+  uint8,
+  float,
+  uint16
 } from '../../';
 import { Flags, DateString } from '../../';
 
@@ -315,7 +319,6 @@ export interface MapStats {
   completions: number;
   uniqueCompletions: number;
   timePlayed: number;
-  baseStats: BaseStats;
 }
 
 export interface MapSubmission {
@@ -427,29 +430,7 @@ export interface Region {
 }
 
 //#endregion
-//#region Stats
-
-export interface BaseStats {
-  jumps: number;
-  strafes: number;
-  avgStrafeSync: number;
-  avgStrafeSync2: number;
-  enterTime: number;
-  totalTime: number;
-  velAvg3D: number;
-  velAvg2D: number;
-  velMax3D: number;
-  velMax2D: number;
-  velEnter3D: number;
-  velEnter2D: number;
-  velExit3D: number;
-  velExit2D: number;
-}
-
-export interface RunStats {
-  overall: BaseStats;
-  zones?: any; // TODO
-}
+//#region Runs
 
 export interface Leaderboard {
   gamemode: Gamemode;
@@ -518,8 +499,8 @@ export interface RunSession {
 
 export interface RunSessionTimestamp {
   id: number;
-  segment: number;
-  checkpoint: number;
+  majorNum: number;
+  minorNum: number;
   time: number;
   sessionID: number;
   createdAt: DateString;
