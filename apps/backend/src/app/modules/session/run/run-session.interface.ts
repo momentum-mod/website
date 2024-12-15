@@ -1,5 +1,5 @@
 ﻿import { Prisma, LeaderboardRun } from '@prisma/client';
-import { RunStats, Style } from '@momentum/constants';
+import { RunSplits, Style } from '@momentum/constants';
 
 export const RUN_SESSION_COMPLETED_INCLUDE = {
   timestamps: true,
@@ -21,6 +21,6 @@ export interface ProcessedRun
     LeaderboardRun,
     'userID' | 'mapID' | 'gamemode' | 'trackType' | 'trackNum' | 'time'
   > {
-  stats: RunStats;
+  splits: RunSplits;
   flags: Style[];
 }

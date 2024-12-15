@@ -12,4 +12,8 @@ export * from './kebab-case';
 export * from './deep-equal';
 export * from './extract-prefix-from-map-name';
 export * from './leaderboard-key';
+export * from './pick';
 export * from './omit';
+export * from './magic';
+export * from './approx-eq';
+export * from './sleep';

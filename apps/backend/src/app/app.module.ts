@@ -21,6 +21,7 @@ import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { setupNestInterceptor } from '../instrumentation';
+import { pick } from '@momentum/util-fn';
 
 @Module({
   imports: [
@@ -30,22 +31,27 @@ import { setupNestInterceptor } from '../instrumentation';
       isGlobal: true,
       validate
     }),
-    // Pino is a highly performant logger that outputs logs as JSON, which we
-    // then export to Grafana Loki. This module sets up `pino-http` which logs
-    // all HTTP requests (so no need for a Nest interceptor).
-    // In dev mode, outputs as more human-readable strings using `pino-pretty`.
+    // Pino is a JSON-based logger that's much more performant than the NestJS's
+    // built-in logger.
     LoggerModule.forRootAsync({
       useFactory: async (config: ConfigService): Promise<PinoParams> => ({
         pinoHttp: {
           customProps: (_req, _res) => ({ context: 'HTTP' }),
           level: config.getOrThrow('logLevel'),
-          transport:
-            config.getOrThrow('env') !== Environment.PRODUCTION
-              ? {
+          // In dev mode, output human-readable strings using `pino-pretty`,
+          // filtering out most HTTP header noise.
+          ...(config.getOrThrow('env') !== Environment.PRODUCTION
+            ? {
+                serializers: {
+                  req: (req) => pick(req, ['method', 'url']),
+                  res: (res) => pick(res, ['statusCode'])
+                },
+                transport: {
                   target: 'pino-pretty',
                   options: { singleLine: true }
                 }
-              : undefined
+              }
+            : {})
         }
       }),
       inject: [ConfigService]
