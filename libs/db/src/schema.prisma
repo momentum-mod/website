@@ -549,9 +549,9 @@ model RunSession {
 model RunSessionTimestamp {
   id BigInt @id @default(autoincrement())
 
-  segment    Int   @db.SmallInt
-  checkpoint Int   @db.SmallInt
-  time       Float @db.DoublePrecision
+  majorNum Int   @db.SmallInt
+  minorNum Int   @db.SmallInt
+  time     Float @db.DoublePrecision
 
   session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
   sessionID BigInt
