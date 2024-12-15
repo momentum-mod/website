@@ -9,7 +9,6 @@ import {
   MapImageDto,
   MapInfoDto,
   MapReviewDto,
-  MinimalLeaderboardRunDto,
   UserDto
 } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
@@ -1230,11 +1229,15 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/leaderboard`,
           status: 200,
           query: { gamemode: Gamemode.AHOP },
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 3 },
+          validatePaged: { type: LeaderboardRunDto, count: 3 },
           token
         });
 
-        for (const item of res.body.data) expect(item).toHaveProperty('user');
+        for (const item of res.body.data) {
+          expect(item).toHaveProperty('user');
+          expect(item).toHaveProperty('downloadURL');
+          expect(item).not.toHaveProperty('splits');
+        }
       });
 
       it("should return a list of a leaderboard's runs for a non-default trackType/Num", () =>
@@ -1246,7 +1249,7 @@ describe('Maps Part 2', () => {
             trackType: TrackType.STAGE,
             trackNum: 1
           },
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 1 },
+          validatePaged: { type: LeaderboardRunDto, count: 1 },
           token
         }));
 
@@ -1261,14 +1264,14 @@ describe('Maps Part 2', () => {
         req.sortByDateTest({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, orderByDate: true },
-          validate: MinimalLeaderboardRunDto,
+          validate: LeaderboardRunDto,
           token
         }));
 
       it('should be ordered by rank by default', () =>
         req.sortTest({
           url: `maps/${map.id}/leaderboard`,
-          validate: MinimalLeaderboardRunDto,
+          validate: LeaderboardRunDto,
           query: { gamemode: Gamemode.AHOP },
           sortFn: (a, b) => a.time - b.time,
           token
@@ -1278,7 +1281,7 @@ describe('Maps Part 2', () => {
         req.skipTest({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP },
-          validate: MinimalLeaderboardRunDto,
+          validate: LeaderboardRunDto,
           token
         }));
 
@@ -1286,7 +1289,7 @@ describe('Maps Part 2', () => {
         req.takeTest({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP },
-          validate: MinimalLeaderboardRunDto,
+          validate: LeaderboardRunDto,
           token
         }));
 
@@ -1297,7 +1300,7 @@ describe('Maps Part 2', () => {
             gamemode: Gamemode.AHOP,
             userIDs: `${u1.id},${u3.id}`
           },
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
+          validatePaged: { type: LeaderboardRunDto, count: 2 },
           token
         });
 
@@ -1312,13 +1315,24 @@ describe('Maps Part 2', () => {
             gamemode: Gamemode.AHOP,
             steamIDs: `${u1.steamID},${u3.steamID}`
           },
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 2 },
+          validatePaged: { type: LeaderboardRunDto, count: 2 },
           token
         });
 
         expect(res.body.data[0].userID).toBe(u1.id);
         expect(res.body.data[1].userID).toBe(u3.id);
       });
+
+      it('should respond with expanded map data using the splits expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP },
+          expand: 'splits',
+          validate: LeaderboardRunDto,
+          paged: true,
+          some: true,
+          token
+        }));
 
       // Test that permissions checks are getting called
       // Yes, u1 has runs on the map, but we don't actually test for that
@@ -1372,14 +1386,14 @@ describe('Maps Part 2', () => {
           query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
           status: 200,
           token: u7Token,
-          validatePaged: { type: MinimalLeaderboardRunDto, returnCount: 9 }
+          validatePaged: { type: LeaderboardRunDto, returnCount: 9 }
         });
 
         // We're calling as user 7, taking 4 on each side, so we expect ranks
         // 3, 4, 5, 6, our rank, 8, 9, 10, 11
         let rankIndex = 3;
         for (const rank of res.body.data) {
-          expect(rank).toBeValidDto(MinimalLeaderboardRunDto);
+          expect(rank).toBeValidDto(LeaderboardRunDto);
           expect(rank.rank).toBe(rankIndex);
           rankIndex++;
         }
@@ -1398,7 +1412,7 @@ describe('Maps Part 2', () => {
           },
           status: 200,
           token: u7Token,
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 1 }
+          validatePaged: { type: LeaderboardRunDto, count: 1 }
         });
 
         expect(res.body.data[0].userID).toBe(u7.id);
@@ -1458,7 +1472,7 @@ describe('Maps Part 2', () => {
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 200,
           token,
-          validatePaged: { type: MinimalLeaderboardRunDto, count: 10 }
+          validatePaged: { type: LeaderboardRunDto, count: 10 }
         });
 
         for (const run of res.body.data)
