@@ -114,7 +114,7 @@ export class CreateMapReviewDto
 
 export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {
   @ApiProperty({
-    type: 'file array',
+    type: 'array',
     format: 'binary',
     description: 'Array of image files'
   })

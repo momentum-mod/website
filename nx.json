@@ -1,25 +1,13 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "momentum",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
-      }
-    }
-  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
     "lint": {
-      "inputs": [
-        "default",
-        "{workspaceRoot}/.eslintrc.js",
-        "{workspaceRoot}/.eslintignore"
-      ]
+      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"]
     },
     "e2e": {
       "inputs": ["default", "^production"]
@@ -37,17 +25,17 @@
       }
     },
     "@nx/eslint:lint": {
-      "inputs": [
-        "default",
-        "{workspaceRoot}/.eslintrc.js",
-        "{workspaceRoot}/.eslintignore"
-      ],
+      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"],
       "cache": true
     }
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "production": ["default", "!{projectRoot}/src/test-setup.[jt]s"],
+    "production": [
+      "default",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/eslint.config.mjs"
+    ],
     "sharedGlobals": []
   },
   "generators": {
@@ -69,5 +57,7 @@
     }
   },
   "useInferencePlugins": false,
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "neverConnectToCloud": true,
+  "useLegacyCache": true
 }

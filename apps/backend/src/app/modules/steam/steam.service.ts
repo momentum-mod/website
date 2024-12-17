@@ -152,12 +152,18 @@ export class SteamService {
     appID: number;
   } {
     const decrypted = AppTicket.parseEncryptedAppTicket(
-      ticket.toString(),
+      ticket,
       this.steamTicketsSecretKey
     );
 
-    if (decrypted) return decrypted.steamID.getSteamID64();
-    else throw new UnauthorizedException('Invalid user ticket');
+    if (decrypted) {
+      return {
+        steamID: decrypted.steamID.getBigIntID(),
+        appID: decrypted.appID
+      };
+    } else {
+      throw new UnauthorizedException('Invalid user ticket');
+    }
   }
 
   /**

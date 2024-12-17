@@ -61,7 +61,7 @@ export class MapImageDto implements MapImage {
 }
 
 export class UpdateMapImagesDto implements UpdateMapImages {
-  @ApiProperty({ description: 'See endpoint description', type: 'string[]' })
+  @ApiProperty({ description: 'See endpoint description', type: 'array' })
   @ArrayMinSize(1)
   @ArrayMaxSize(MAX_MAP_IMAGES)
   @IsString({ each: true })
