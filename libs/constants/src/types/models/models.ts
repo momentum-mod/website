@@ -351,7 +351,7 @@ export interface MapSubmissionSuggestion {
   tier: number;
   type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
   comment?: string;
-  tags: MapTag[];
+  tags?: MapTag[];
 }
 
 export interface MapTestInvite {

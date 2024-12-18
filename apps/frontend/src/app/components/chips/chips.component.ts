@@ -3,7 +3,9 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  forwardRef
+  forwardRef,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -27,7 +29,7 @@ type Chip = string;
   templateUrl: './chips.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChipsComponent implements ControlValueAccessor {
+export class ChipsComponent implements ControlValueAccessor, OnChanges {
   // The chips picked by the user.
   selected: Chip[] = [];
 
@@ -58,6 +60,14 @@ export class ChipsComponent implements ControlValueAccessor {
     this.selected.splice(this.selected.indexOf(chip), 1);
     this.onChange(this.selected);
     this.cdRef.markForCheck();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!changes['chips']) return;
+
+    this.selected = this.selected.filter((selected) =>
+      this.chips.includes(selected)
+    );
   }
 
   onChange: (value: Chip[]) => void = () => void 0;

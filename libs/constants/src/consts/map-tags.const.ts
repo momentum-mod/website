@@ -1,9 +1,17 @@
 import { Gamemode, GamemodeCategory, GamemodeToGamemodeCategory } from '../';
 import { ElementOf, ValueOf } from '../types/utils/util.type';
 
-const GLOBAL_TAGS = ['Portals', 'Multiroute'] as const;
+const GLOBAL_TAGS = [
+  'Portals',
+  'Multiroute',
+  'Low Grav',
+  'Gimmick',
+  'Endurance',
+  'Collectibles',
+  'Anti Grav',
+  'Moving Surfaces'
+] as const;
 
-// prettier-ignore
 const GAMEMODE_TAGS = {
   [GamemodeCategory.SURF]: [
     'Unit',
@@ -11,7 +19,11 @@ const GAMEMODE_TAGS = {
     'Spins',
     'Booster',
     'Headhit',
-    'Bhop'
+    'Bhop',
+    'Maxvel',
+    'Fall',
+    'Rampstrafe',
+    'Headcheck'
   ] as const,
   [GamemodeCategory.BHOP]: [
     'Strafe',
@@ -19,33 +31,63 @@ const GAMEMODE_TAGS = {
     'Fly',
     'Surf',
     'Weapons',
-    'Spins'
+    'Spins',
+    'Spikes',
+    'Slopes',
+    'Misaligned Teleporter',
+    'Climb',
+    'Ladder',
+    'Jumppad',
+    'Booster'
   ] as const,
   [GamemodeCategory.CLIMB]: [
-    'Ladder'
+    'Ladder',
+    'Bhop',
+    'Slide',
+    'Longjump',
+    'Ceiling Smash',
+    'CS Practice',
+    'Single Hop'
   ] as const,
   [GamemodeCategory.RJ]: [
     'Sync',
     'Wallpogo',
     'Speedshot',
     'Bounce',
+    'Bouncehop',
     'Jurf',
     'Edgebug',
-    'Wallbug',
-    'Wallshot'
+    'Wallshot',
+    'Phase',
+    'Prefire',
+    'Buttons',
+    'Limited Ammo',
+    'Water',
+    'Teledoor'
   ] as const,
   [GamemodeCategory.SJ]: [
     'Airpogo',
     'Wallpogo',
-    'Vert'
+    'Vert',
+    'Limited Ammo',
+    'Phase',
+    'Rollerpogo',
+    'Downair',
+    'Slanted Walls',
+    'Teledoor'
   ] as const,
   [GamemodeCategory.AHOP]: [
-    'HL2'
+    'HL2',
+    'Speed Control',
+    'Displacements',
+    'Surf'
   ] as const,
   [GamemodeCategory.CONC]: [
     'Prec',
     'Juggle',
-    'Limited Ammo'
+    'Juggleprec',
+    'Limited Ammo',
+    'Handheld'
   ] as const,
   [GamemodeCategory.DEFRAG]: [
     'Strafe',
@@ -57,7 +99,14 @@ const GAMEMODE_TAGS = {
     'Haste',
     'Damageboost',
     'Climb',
-    'Trick'
+    'Trick',
+    'Slick',
+    'Torture',
+    'Overbounce',
+    'LG Climb',
+    'Rocket Stack',
+    'Buttons',
+    'Air Jump'
   ] as const
 };
 
@@ -71,9 +120,9 @@ export type MapTag =
   | (typeof GLOBAL_TAGS)[number]
   | ElementOf<ValueOf<typeof GAMEMODE_TAGS>>;
 
-export const MapTags: Map<Gamemode, Set<MapTag>> = new Map(
+export const MapTags: Map<Gamemode, MapTag[]> = new Map(
   [...GamemodeToGamemodeCategory.entries()].map(([gamemode, category]) => [
     gamemode,
-    new Set([...GLOBAL_TAGS, ...(GAMEMODE_TAGS[category] ?? [])])
+    [...GLOBAL_TAGS, ...(GAMEMODE_TAGS[category] ?? [])].sort() // Alphabetical
   ])
 ) as any;
