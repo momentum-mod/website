@@ -25,7 +25,7 @@ describe('Replay Reader', () => {
         gamemode: Gamemode.BHOP,
         playerSteamID: 76561198039308694n,
         playerName: 'fingerprince',
-        tickInterval: expect.any(Number),
+        tickInterval: Math.fround(0.01),
         trackType: TrackType.MAIN,
         trackNum: 1,
         runTime: 30.584999316371977
@@ -33,7 +33,6 @@ describe('Replay Reader', () => {
 
       const header = readHeader(buffer);
       expect(header).toEqual(expectedHeader);
-      expect(header.tickInterval).toBeCloseTo(0.01, 5);
     });
 
     it('should throw ReplayReadError on invalid buffer', () => {
