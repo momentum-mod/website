@@ -25,7 +25,7 @@ export * from './enums/leaderboard-type.enum';
 export * from './enums/killswitch.enum';
 export * from './maps/gamemodes.map';
 export * from './maps/map-credit-name.map';
-export * from './maps/tickrates.map';
+export * from './maps/tick-intervals.map';
 export * from './maps/map-status-name.map';
 export * from './maps/incompatible-gamemodes.map';
 export * from './maps/map-status-change-rules.map';
