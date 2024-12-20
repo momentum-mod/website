@@ -1,5 +1,5 @@
 <fieldset class="card-inset mb-6 flex flex-col">
-  <legend class="font-display text-4xl font-bold text-gray-50">Details</legend>
+  <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Details</legend>
 
   <p class="mt-1 text-sm font-medium uppercase text-gray-200">Submitted By</p>
   <m-user [user]="map.submitter" avatarClass="!h-5" />
@@ -21,47 +21,35 @@
     }
   </ul>
 
-  <p class="mt-5 text-sm font-medium uppercase text-gray-200">Suggestions</p>
-  <div class="flex flex-wrap gap-x-16 gap-y-4">
+  <div class="mt-5 grid grid-flow-row grid-cols-[auto_auto_auto_auto_minmax(auto,1fr)] items-center gap-x-5">
+    <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
+    <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
+    <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
+    <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
+    <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments ? 'Comment' : '' }}</p>
+
     @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
-      <div class="grid grid-flow-col grid-rows-[auto_repeat(3,1.375rem)] items-center justify-items-center gap-x-5">
-        <p class="justify-self-start font-bold text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }}</p>
-        <p class="justify-self-start text-sm uppercase text-gray-200">Tier</p>
-        <p class="justify-self-start text-sm uppercase text-gray-200">Ranked</p>
-        <p class="justify-self-start text-sm uppercase text-gray-200">Comment</p>
+      @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
+        <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
+        <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
+        <m-icon class="justify-self-center text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
+        <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
+        <p class="text-sm text-gray-50">{{ mainSugg.comment }}</p>
+      }
 
-        @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
-          <p class="w-[1.75rem] font-medium text-gray-50">Main</p>
-          <p class="font-medium">{{ mainSugg.tier ?? '' }}</p>
-          <m-icon class="text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
-          @if (mainSugg.comment) {
-            <m-icon class="text-xl" icon="tooltip-question-outline" [mTooltip]="mainSugg.comment" />
-          } @else {
-            <span></span>
-          }
-        }
-
-        @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-          <p class="w-[1.75rem] text-center font-medium text-gray-50">B{{ bonus.trackNum }}</p>
-          <p class="font-medium">{{ bonus.tier ?? '' }}</p>
-          @if (bonus.type === LeaderboardType.RANKED) {
-            <m-icon class="text-xl" icon="check" />
-          } @else {
-            <m-icon class="text-xl" icon="close" />
-          }
-          @if (bonus.comment) {
-            <m-icon class="text-xl" icon="tooltip-question-outline" [mTooltip]="bonus.comment" />
-          } @else {
-            <span></span>
-          }
-        }
-      </div>
+      @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
+        <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
+        <p class="justify-self-center text-sm font-medium">{{ bonus.tier ?? '' }}</p>
+        <m-icon class="justify-self-center text-xl" [icon]="bonus.type === LeaderboardType.RANKED ? 'check' : 'close'" />
+        <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
+        <p class="text-sm text-gray-50">{{ bonus.comment }}</p>
+      }
     }
   </div>
 </fieldset>
 
 <fieldset class="card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
-  <legend class="font-display text-4xl font-bold text-gray-50">Versions</legend>
+  <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
 
   @for (version of versions.slice(0, visibleVersions); track $index) {
     <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ versions.length - $index }}</p>
@@ -87,7 +75,7 @@
 
 <fieldset class="card-inset">
   <legend class="mb-2 flex w-full items-center">
-    <p class="font-display text-4xl font-bold text-gray-50">Reviews</p>
+    <p class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Reviews</p>
     <div class="h-[1px] flex-grow bg-white bg-opacity-10"></div>
   </legend>
   <m-map-review-list class="flex flex-col gap-4" [map]="map" />
