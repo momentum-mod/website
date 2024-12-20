@@ -2,7 +2,7 @@
 import {
   Gamemode,
   RunSplits,
-  Tickrates,
+  TickIntervals,
   TrackType
 } from '@momentum/constants';
 import { sleep } from '@momentum/util-fn';
@@ -207,7 +207,7 @@ export class RunTester {
       mapName: this.props.mapName,
       mapHash: this.props.mapHash,
       gamemode: this.props.gamemode,
-      tickInterval: Tickrates.get(this.props.gamemode),
+      tickInterval: TickIntervals.get(this.props.gamemode),
       playerSteamID: this.props.steamID,
       playerName: this.props.playerName,
       trackType: this.props.trackType,
