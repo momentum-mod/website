@@ -1575,11 +1575,13 @@ export class MapsService {
       // Okay, got a clean slate, make new leaderboards from finalLeaderboards
       await tx.leaderboard.createMany({
         data: [
-          ...LeaderboardHandler.getStageLeaderboards(
+          // Main and bonuses
+          ...LeaderboardHandler.setLeaderboardLinearity(
             dto.finalLeaderboards,
             zones
           ),
-          ...LeaderboardHandler.setLeaderboardLinearity(
+          // Stages
+          ...LeaderboardHandler.getStageLeaderboards(
             dto.finalLeaderboards,
             zones
           )

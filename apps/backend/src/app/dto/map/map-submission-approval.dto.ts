@@ -2,9 +2,10 @@ import {
   Gamemode,
   LeaderboardType,
   MapSubmissionApproval,
+  MapTag,
   TrackType
 } from '@momentum/constants';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { JsonValue } from 'type-fest';
 import { EnumProperty } from '../decorators';
@@ -41,4 +42,9 @@ export class MapSubmissionApprovalDto implements MapSubmissionApproval {
     | LeaderboardType.RANKED
     | LeaderboardType.UNRANKED
     | LeaderboardType.HIDDEN;
+
+  @ApiProperty({ description: 'Final tags' })
+  @IsEnum(MapTag, { each: true })
+  @IsOptional()
+  readonly tags?: MapTag[];
 }

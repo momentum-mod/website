@@ -380,7 +380,10 @@ model Leaderboard {
 
   type Int @db.SmallInt // leaderboard-type.enum.ts
 
-  tags Json @default("[]")
+  // We could do a separate table for this, which maaay have a perf increase
+  // (haven't tested), but complicates code a lot. Tag filtering is done on the
+  // game client anyway, so performance isn't a huge issue.
+  tags Int[] @db.SmallInt /// Array of MapTag
 
   runs LeaderboardRun[]
 
