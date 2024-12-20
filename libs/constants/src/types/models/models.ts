@@ -19,9 +19,11 @@ import {
   vec3,
   uint8,
   float,
-  uint16
+  uint16,
+  MapTag,
+  Flags,
+  DateString
 } from '../../';
-import { Flags, DateString } from '../../';
 
 // Collection of models used throughout the codebase, as well as in Panorama.
 //
@@ -308,6 +310,7 @@ export interface MapReviewSuggestion {
   trackNum: number;
   tier?: number;
   gameplayRating?: number;
+  tags?: MapTag[];
 }
 
 export interface MapStats {
@@ -334,6 +337,7 @@ export interface MapSubmissionApproval {
   gamemode: Gamemode;
   tier?: number; // Hidden leaderboards don't have tiers
   type: Exclude<LeaderboardType, LeaderboardType.IN_SUBMISSION>;
+  tags?: MapTag[];
 }
 
 export type MapSubmissionDate = {
@@ -354,10 +358,8 @@ export interface MapSubmissionSuggestion {
   tier: number;
   type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
   comment?: string;
-  //  TODO: Tags!
+  tags?: MapTag[];
 }
-
-export type MapTags = string[];
 
 export interface MapTestInvite {
   mapID: number;
@@ -439,7 +441,7 @@ export interface Leaderboard {
   tier: number | null;
   style: Style;
   type: LeaderboardType;
-  tags: MapTags;
+  tags: MapTag[];
   linear: boolean;
 }
 
