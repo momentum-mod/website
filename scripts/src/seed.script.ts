@@ -37,7 +37,8 @@ import {
   imgXlPath,
   GamemodeInfo,
   bspPath,
-  steamAvatarUrl
+  steamAvatarUrl,
+  MapTags
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { nuke } from '@momentum/db';
@@ -504,7 +505,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 ? Random.chance()
                   ? LeaderboardType.RANKED
                   : LeaderboardType.UNRANKED
-                : rankedMainTracks.get(m)
+                : rankedMainTracks.get(m),
+            tags:
+              trackType === TrackType.MAIN && !inSubmission
+                ? Random.elements(MapTags.get(m), Random.int(4))
+                : []
           };
 
           if (trackType === TrackType.MAIN) {
@@ -530,7 +535,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
             comment: faker.lorem.sentence(),
             type: Random.chance()
               ? LeaderboardType.RANKED
-              : LeaderboardType.UNRANKED
+              : LeaderboardType.UNRANKED,
+            tags: Random.elements(MapTags.get(gamemode), Random.int(3))
           }));
 
       const review = async () => ({
