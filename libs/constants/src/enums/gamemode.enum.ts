@@ -30,3 +30,32 @@ export enum GamemodeCategory {
   CONC = 7,
   DEFRAG = 8
 }
+
+// prettier-ignore
+export const GamemodeCategoryToGamemode = new Map<GamemodeCategory, Gamemode[]>([
+  [GamemodeCategory.SURF,     [Gamemode.SURF]],
+  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
+  [GamemodeCategory.CLIMB,    [Gamemode.CLIMB_MOM, Gamemode.CLIMB_KZT, Gamemode.CLIMB_16]],
+  [GamemodeCategory.RJ,       [Gamemode.RJ]],
+  [GamemodeCategory.SJ,       [Gamemode.SJ]],
+  [GamemodeCategory.AHOP,     [Gamemode.AHOP]],
+  [GamemodeCategory.CONC,     [Gamemode.CONC]],
+  [GamemodeCategory.DEFRAG,   [Gamemode.DEFRAG_CPM, Gamemode.DEFRAG_VQ3, Gamemode.DEFRAG_VTG]]
+]);
+
+// prettier-ignore
+export const GamemodeToGamemodeCategory = new Map<Gamemode, GamemodeCategory>([
+  [Gamemode.SURF,           GamemodeCategory.SURF],
+  [Gamemode.BHOP,           GamemodeCategory.BHOP],
+  [Gamemode.BHOP_HL1,       GamemodeCategory.BHOP],
+  [Gamemode.CLIMB_MOM,      GamemodeCategory.CLIMB],
+  [Gamemode.CLIMB_KZT,      GamemodeCategory.CLIMB],
+  [Gamemode.CLIMB_16,       GamemodeCategory.CLIMB],
+  [Gamemode.RJ,             GamemodeCategory.RJ],
+  [Gamemode.SJ,             GamemodeCategory.SJ],
+  [Gamemode.AHOP,           GamemodeCategory.AHOP],
+  [Gamemode.CONC,           GamemodeCategory.CONC],
+  [Gamemode.DEFRAG_CPM,     GamemodeCategory.DEFRAG],
+  [Gamemode.DEFRAG_VQ3,     GamemodeCategory.DEFRAG],
+  [Gamemode.DEFRAG_VTG,     GamemodeCategory.DEFRAG]
+]);
