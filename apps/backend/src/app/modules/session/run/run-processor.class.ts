@@ -4,7 +4,7 @@ import {
   RunValidationError,
   RunValidationErrorType as ErrorType,
   Segment,
-  Tickrates,
+  TickIntervals,
   TrackType,
   RunSplits
 } from '@momentum/constants';
@@ -260,7 +260,7 @@ export class RunProcessor {
     if (header.gamemode !== session.gamemode)
       throw new RunValidationError(ErrorType.BAD_META);
 
-    if (!approxEq(header.tickInterval, Tickrates.get(session.gamemode)))
+    if (header.tickInterval !== TickIntervals.get(session.gamemode))
       throw new RunValidationError(ErrorType.OUT_OF_SYNC);
 
     const {
