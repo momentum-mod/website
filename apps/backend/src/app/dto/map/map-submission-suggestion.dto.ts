@@ -2,10 +2,12 @@ import {
   Gamemode,
   LeaderboardType,
   MapSubmissionSuggestion,
+  MapTag,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
 import {
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -57,4 +59,9 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @MaxLength(MAX_MAP_SUGGESTION_COMMENT_LENGTH)
   @IsOptional()
   readonly comment?: string;
+
+  @ApiProperty()
+  @IsEnum(MapTag, { each: true })
+  @IsOptional()
+  readonly tags?: MapTag[];
 }

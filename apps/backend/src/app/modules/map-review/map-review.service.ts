@@ -229,11 +229,12 @@ export class MapReviewService {
     };
 
     if (body.suggestions) {
-      // Ignore that suggestions that had neither tier nor gameplay rating -
-      // frontend may allow it but this is meaningless data.
+      // Ignore that suggestions that had neither tier, gameplay rating nor tag
+      // - frontend may allow it but this is meaningless data.
       newData.suggestions = body.suggestions.filter(
-        ({ tier, gameplayRating }) => tier != null || gameplayRating != null
-      ) as object; // Fuck you typescript
+        ({ tier, gameplayRating, tags }) =>
+          tier != null || gameplayRating != null || tags != null
+      ) as Array<Record<string, any>>; // Fuck you typescript
     }
 
     const [dbResponse] = await parallel(
@@ -264,8 +265,8 @@ export class MapReviewService {
   /**
    * Update a review submitted by the logged-in-user
    *
-   * This endpoint doesn't support updating images yet. It's very that someone
-   * will do this, and quite a bit of hassle on both front and backend.
+   * This endpoint doesn't support updating images yet. It's very unlikely that
+   * someone will do this, and quite a bit of hassle on both front and backend.
    */
   async updateReview(
     reviewID: number,

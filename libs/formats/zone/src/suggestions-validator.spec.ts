@@ -5,6 +5,7 @@ import {
   MapReviewSuggestion,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
+  MapTags,
   TrackType,
   TrackType as TT
 } from '@momentum/constants';
@@ -25,6 +26,7 @@ describe('validateSuggestions', () => {
     }
   );
 
+  const ahopTags = MapTags.get(Gamemode.AHOP);
   const validSubmissionSuggestions: MapSubmissionSuggestion[] = [
     {
       trackType: TT.MAIN,
@@ -32,7 +34,8 @@ describe('validateSuggestions', () => {
       gamemode: Gamemode.AHOP,
       tier: 1,
       comment: 'This track came to me in a dream',
-      type: LeaderboardType.RANKED
+      type: LeaderboardType.RANKED,
+      tags: [ahopTags[0], ahopTags[1]]
     },
     {
       trackType: TT.BONUS,
@@ -50,7 +53,8 @@ describe('validateSuggestions', () => {
       trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
-      type: LeaderboardType.UNRANKED
+      type: LeaderboardType.UNRANKED,
+      tags: [ahopTags[0], ahopTags[1]]
     },
     {
       trackType: TT.BONUS,
@@ -67,7 +71,8 @@ describe('validateSuggestions', () => {
       trackNum: 1,
       gamemode: Gamemode.AHOP,
       tier: 1,
-      gameplayRating: 1
+      gameplayRating: 1,
+      tags: [ahopTags[0], ahopTags[1]]
     },
     {
       trackType: TT.BONUS,
@@ -555,5 +560,67 @@ describe('validateSuggestions', () => {
     expect(() =>
       validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
     ).toThrow('Suggestion refers to bonus track (0) that does not exist');
+  });
+
+  it('should throw for bad tags', () => {
+    expect(() =>
+      validateSuggestions(
+        [
+          {
+            ...validApprovals[0],
+            // @ts-expect-error - delibately wrong
+            tags: ['Shoplifting', 'Aftercare']
+          }
+        ],
+        zones,
+        SuggestionType.APPROVAL
+      )
+    ).toThrow('Invalid tag Shoplifting for Ahop main');
+
+    expect(() =>
+      validateSuggestions(
+        [
+          {
+            ...validReviewSuggestions[0],
+            // @ts-expect-error - delibately wrong
+            tags: ['Polevaulting', 'Butter']
+          }
+        ],
+        zones,
+        SuggestionType.REVIEW
+      )
+    ).toThrow('Invalid tag Polevaulting for Ahop main');
+
+    expect(() =>
+      validateSuggestions(
+        [
+          {
+            ...validSubmissionSuggestions[0],
+            // @ts-expect-error - delibately wrong
+            tags: ['Daydreaming', 'Pantomime']
+          }
+        ],
+        zones,
+        SuggestionType.SUBMISSION
+      )
+    ).toThrow('Invalid tag Daydreaming for Ahop main');
+
+    const nonAhopTag = MapTags.get(Gamemode.BHOP).find(
+      (t) => !ahopTags.includes(t)
+    );
+    expect(() =>
+      validateSuggestions(
+        [
+          {
+            ...validSubmissionSuggestions[0],
+            tags: [
+              MapTags.get(Gamemode.BHOP).find((t) => !ahopTags.includes(t))
+            ]
+          }
+        ],
+        zones,
+        SuggestionType.SUBMISSION
+      )
+    ).toThrow(`Invalid tag ${nonAhopTag} for Ahop main`);
   });
 });

@@ -2,7 +2,7 @@ import {
   Gamemode,
   Leaderboard,
   LeaderboardType,
-  MapTags,
+  MapTag,
   Style,
   TrackType
 } from '@momentum/constants';
@@ -42,10 +42,10 @@ export class LeaderboardDto implements Leaderboard {
   @ApiProperty({
     type: String,
     isArray: true,
-    description: 'The tags of the leaderboard (WIP)'
+    description: 'The tags of the leaderboard'
   })
   @IsString({ each: true })
-  readonly tags: MapTags;
+  readonly tags: MapTag[];
 
   @EnumProperty(LeaderboardType, {
     description: 'Type of leaderboard, ranked, unranked or hidden'
