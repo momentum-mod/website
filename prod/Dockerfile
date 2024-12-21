@@ -3,7 +3,7 @@ FROM node:lts
 WORKDIR /app
 
 RUN addgroup --system backend && \
-    adduser --system -G backend backend
+    adduser --system --ingroup backend backend
 
 COPY ../dist/apps/backend .
 COPY ../libs/db/src/schema.prisma ./prisma/
