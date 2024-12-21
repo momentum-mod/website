@@ -173,7 +173,7 @@ export type UpdateMapNotify = Pick<MapNotify, 'notifyOn'>;
 //#endregion
 //#region Runs
 
-export type MapRunsGetExpand = 'stats';
+export type MapRunsGetExpand = 'splits';
 export type MapRunsGetFilter = 'around' | 'friends';
 
 export type MapLeaderboardGetQuery = PagedQuery & {
