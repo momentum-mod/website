@@ -45,6 +45,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     { type: TrackType.MAIN, label: 'Main' },
     { type: TrackType.BONUS, label: 'Bonus' }
   ];
+  protected readonly MapTags = MapTags;
   protected readonly MAX_MAP_SUGGESTION_COMMENT_LENGTH =
     MAX_MAP_SUGGESTION_COMMENT_LENGTH;
 
@@ -114,8 +115,14 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  getTags(gamemode: Gamemode) {
-    return [...(MapTags.get(gamemode) ?? [])];
+  updateRankedCheckbox(item: MapSubmissionSuggestion, isRanked: boolean) {
+    item.type = isRanked ? LeaderboardType.RANKED : LeaderboardType.UNRANKED;
+    this.onChange(this.value);
+  }
+
+  updateTags(item: MapSubmissionSuggestion, tags: MapTag[]) {
+    item.tags = tags;
+    this.onChange(this.value);
   }
 
   writeValue(value: MapSubmissionSuggestion[] | null): void {
@@ -138,15 +145,5 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   onTouched = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
-  }
-
-  updateRankedCheckbox(item: MapSubmissionSuggestion, isRanked: boolean) {
-    item.type = isRanked ? LeaderboardType.RANKED : LeaderboardType.UNRANKED;
-    this.onChange(this.value);
-  }
-
-  updateTags(item: MapSubmissionSuggestion, tags: MapTag[]) {
-    item.tags = tags;
-    this.onChange(this.value);
   }
 }

@@ -7,7 +7,7 @@
   Add Leaderboard
 </button>
 <table
-  class="grid w-full border-collapse gap-1 [grid-template-columns:minmax(10rem,1fr)_minmax(8rem,1fr)_8rem_auto_minmax(1rem,auto)_minmax(8rem,4fr)_minmax(8rem,4fr)_auto]"
+  class="grid w-full border-collapse grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)_8rem_auto_minmax(1rem,auto)_minmax(8rem,4fr)_minmax(8rem,4fr)_auto] gap-1"
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled
   }"
@@ -94,12 +94,7 @@
           />
         </td>
         <td>
-          <m-chips
-            [chips]="getTags(item.gamemode)"
-            [ngModel]="item.tags"
-            (ngModelChange)="updateTags(item, $event)"
-            name="Tags"
-          />
+          <m-chips [chips]="MapTags.get(item.gamemode)" [ngModel]="item.tags" (ngModelChange)="updateTags(item, $event)" name="Tags" />
         </td>
         <td>
           <button type="button" class="btn btn-red" (click)="removeItem($index)">Delete</button>

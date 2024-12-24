@@ -44,6 +44,8 @@
                   }
                 </div>
 
+                <!-- TODO: submitter and review suggestion summary -->
+
                 <div class="flex items-center gap-4">
                   <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
                   <input
@@ -69,6 +71,15 @@
                     [disabled]="disabled"
                     (onChange)="onChange(value)"
                     appendTo="body"
+                  />
+
+                  <p>Tags</p>
+                  <m-chips
+                    class="flex-grow"
+                    [chips]="MapTags.get(leaderboard.gamemode)"
+                    [ngModel]="leaderboard.tags"
+                    (ngModelChange)="updateTags(leaderboard, $event)"
+                    name="Tags"
                   />
                 </div>
               </div>

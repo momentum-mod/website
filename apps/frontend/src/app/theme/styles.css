@@ -202,8 +202,8 @@
 
   .btn-red {
     background: linear-gradient(
-      rgb(var(--red-500)),
-      color-mix(in srgb, rgb(var(--red-500)), rgb(var(--red-600)))
+      color-mix(in srgb, rgb(var(--red-400)), rgb(var(--red-500))),
+      rgb(var(--red-500))
     );
   }
 
