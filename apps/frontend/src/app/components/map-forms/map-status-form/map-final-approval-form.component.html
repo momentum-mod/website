@@ -42,36 +42,34 @@
                   } @else {
                     <span class="row-span-2"></span>
                   }
+                </div>
 
-                  <div class="row-span-2 mt-auto flex items-center gap-4">
-                    <p class="mr-auto text-sm font-medium text-gray-200">Final Values</p>
+                <div class="flex items-center gap-4">
+                  <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
+                  <input
+                    type="number"
+                    class="textinput w-16 px-2"
+                    min="1"
+                    [(ngModel)]="leaderboard.tier"
+                    max="10"
+                    step="1"
+                    (change)="onChange(value)"
+                    [disabled]="leaderboard.type === LeaderboardType.HIDDEN"
+                  />
 
-                    <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
-                    <input
-                      type="number"
-                      class="textinput w-16 px-2"
-                      min="1"
-                      [(ngModel)]="leaderboard.tier"
-                      max="10"
-                      step="1"
-                      (change)="onChange(value)"
-                      [disabled]="leaderboard.type === LeaderboardType.HIDDEN"
-                    />
-
-                    <p>Type</p>
-                    <p-select
-                      class="w-32"
-                      type="radio"
-                      [(ngModel)]="leaderboard.type"
-                      [options]="LeaderboardTypeDropdown"
-                      optionValue="type"
-                      optionLabel="label"
-                      placeholder="Select Type"
-                      [disabled]="disabled"
-                      (onChange)="onChange(value)"
-                      appendTo="body"
-                    />
-                  </div>
+                  <p>Type</p>
+                  <p-select
+                    class="w-32"
+                    type="radio"
+                    [(ngModel)]="leaderboard.type"
+                    [options]="LeaderboardTypeDropdown"
+                    optionValue="type"
+                    optionLabel="label"
+                    placeholder="Select Type"
+                    [disabled]="disabled"
+                    (onChange)="onChange(value)"
+                    appendTo="body"
+                  />
                 </div>
               </div>
               @if (leaderboard.averageTier) {
