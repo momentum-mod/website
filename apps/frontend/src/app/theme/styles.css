@@ -164,6 +164,7 @@
     &::after {
       content: ' ';
       position: absolute;
+      pointer-events: none;
       overflow: hidden;
       /* Stupid way to get this to overlap well with button. Again, this
          approach sucks but can't think of anything better rn */
