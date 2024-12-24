@@ -101,7 +101,8 @@ export class MapReviewFormComponent {
     this.loading = true;
     const suggestions =
       this.suggestions.value?.length > 0 ? this.suggestions.value : undefined;
-    (this.editing
+
+    const req = this.editing
       ? this.mapsService.updateMapReview(this.reviewID, {
           mainText: this.mainText.value,
           suggestions,
@@ -114,8 +115,9 @@ export class MapReviewFormComponent {
             needsResolving: this.needsResolving.value
           },
           images: this.images.value
-        })
-    )
+        });
+
+    req
       .pipe(
         take(1),
         tap(() => (this.loading = false))
