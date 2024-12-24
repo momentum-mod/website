@@ -1230,6 +1230,30 @@ describe('Maps', () => {
           });
         });
 
+        it('should throw 409 Conflict if map with same BSP hash is submitted again', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            token
+          });
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          const res = await req.postAttach({
+            url: 'maps',
+            status: 409,
+            data: createMapObject,
+            token
+          });
+
+          expect(res.body.message).toBe(
+            'Map with this file hash already exists'
+          );
+        });
+
         it('should succeed if VMF file is missing', async () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
