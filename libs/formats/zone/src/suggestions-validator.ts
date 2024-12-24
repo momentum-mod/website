@@ -6,6 +6,7 @@ import {
   MapReviewSuggestion,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
+  MapTags,
   MapZones,
   TrackType as TT,
   TrackType,
@@ -113,7 +114,7 @@ export function validateSuggestions(
       );
     }
 
-    if ('tier' in sugg) {
+    if ('tier' in sugg && sugg.tier != null) {
       if (
         type === SuggestionType.APPROVAL &&
         (sugg as MapSubmissionApproval).type === LeaderboardType.HIDDEN
@@ -162,6 +163,15 @@ export function validateSuggestions(
             LeaderboardType[sugg.type]
           } for ${leaderboardName(tt, tn, gm)} ${sugg.type}`
         );
+    }
+
+    for (const tag of sugg.tags ?? []) {
+      const validTags = MapTags.get(gm) ?? [];
+      if (!validTags.includes(tag)) {
+        throw new SuggestionValidationError(
+          `Invalid tag ${tag} for ${leaderboardName(tt, tn, gm)}`
+        );
+      }
     }
   }
 

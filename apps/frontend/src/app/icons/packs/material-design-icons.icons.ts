@@ -75,6 +75,7 @@ export {
   mdiTools,
   mdiAbacus,
   mdiDelete,
+  mdiDeleteOutline,
   mdiCalendar,
   mdiShieldStar,
   mdiEye,

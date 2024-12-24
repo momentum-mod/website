@@ -34,6 +34,24 @@ export function element<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
 
+export function elements<T>(
+  array: readonly T[],
+  count: number,
+  identityFn = (a: T, b: T): boolean => a === b
+): T[] {
+  // stupid, slow, better to compare indices over values but whatever
+  const elems: T[] = [];
+  if (count > array.length)
+    throw new Error('Array contains fewer elements than count requested');
+  while (elems.length < count) {
+    const elem = element(array);
+    if (!elems.some((elem2) => identityFn(elem, elem2))) {
+      elems.push(elem);
+    }
+  }
+  return elems;
+}
+
 export function uniquePair<T>(
   array: readonly T[],
   identityFn = (a: T, b: T): boolean => a === b

@@ -15,7 +15,8 @@ import {
   MMap,
   PagedResponse,
   Role,
-  TrackType
+  TrackType,
+  MapTag
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -47,6 +48,7 @@ export type GroupedLeaderboards = Map<
         graphs: { tiers: ChartData; ratings: any };
         averageTier?: number;
         averageRating?: number;
+        reviewTags?: Partial<Record<MapTag, number>>;
         tier: number | null;
         type: Exclude<LeaderboardType, LeaderboardType.IN_SUBMISSION> | null;
       }
@@ -270,6 +272,13 @@ export class MapStatusFormComponent implements OnChanges {
         ).length;
 
         r.averageRating = +(sumRatings / totalRatings).toFixed(2);
+
+        r.reviewTags = reviews
+          .flatMap(({ tags }) => tags)
+          .reduce((acc, tag) => {
+            acc[tag] = (acc[tag] ?? 0) + 1;
+            return acc;
+          }, {});
       }
 
       return r;

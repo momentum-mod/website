@@ -117,14 +117,14 @@
 
       <m-map-final-approval-form [groupedLeaderboards]="groupedLeaderboards" [formControl]="finalLeaderboards" />
       @if (finalLeaderboards.pristine) {
-        <p class="ml-auto text-blue-100">
+        <p class="ml-auto font-medium text-blue-100">
           These selections create approved leaderboards, so are heavily validated. At minimum you need an unhidden, tiered leaderboard in at
           least one gamemode for each track.
         </p>
       } @else if (finalLeaderboards.errors) {
-        <p class="ml-auto text-red-500">{{ finalLeaderboards.errors['error'] }}</p>
+        <p class="ml-auto font-medium text-red-500">{{ finalLeaderboards.errors['error'] }}</p>
       } @else {
-        <p class="ml-auto text-green-500">Final leaderboards are valid! Good job :)</p>
+        <p class="ml-auto font-medium text-green-500">Final leaderboards are valid! Good job :)</p>
       }
     </div>
   }

@@ -4,6 +4,7 @@ import {
   Leaderboard,
   LeaderboardType,
   MapReview,
+  MapTag,
   MMap,
   TrackType
 } from '@momentum/constants';
@@ -21,6 +22,7 @@ export type GroupedMapLeaderboard = {
 } & RequireAllOrNone<{
   tier: number;
   type: LeaderboardType;
+  tags: MapTag[];
   linear: boolean;
   stages: number;
 }>;
@@ -42,6 +44,7 @@ export function groupMapLeaderboards(
       entry.tier = lb.tier;
       entry.type = lb.type;
       entry.linear = lb.linear;
+      entry.tags = lb.tags;
     } else if (lb.trackType === TrackType.STAGE) {
       if (!entry.stages) {
         entry.stages = 1;
