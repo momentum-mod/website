@@ -1,9 +1,9 @@
-FROM node:lts-alpine
+FROM node:lts
 
 WORKDIR /app
 
 RUN addgroup --system backend && \
-    adduser --system -G backend backend
+    adduser --system --ingroup backend --home /home/backend backend
 
 COPY ../dist/apps/backend .
 COPY ../libs/db/src/schema.prisma ./prisma/
