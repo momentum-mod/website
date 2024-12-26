@@ -671,13 +671,13 @@ export class MapsService {
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
     // Check for duplicate map hash
-    // const existingMap = await this.db.mMap.exists({
-    //   where: { versions: { some: { bspHash } } }
-    // });
+    const existingMap = await this.db.mMap.exists({
+      where: { versions: { some: { bspHash } } }
+    });
 
-    // if (existingMap) {
-    //   throw new ConflictException('Map with this file hash already exists');
-    // }
+    if (existingMap) {
+      throw new ConflictException('Map with this file hash already exists');
+    }
 
     let zonesStr: string;
     let zones: MapZones;

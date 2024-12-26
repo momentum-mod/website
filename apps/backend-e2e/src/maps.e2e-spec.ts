@@ -2349,6 +2349,26 @@ describe('Maps', () => {
         });
       });
 
+      it('should throw 409 Conflict if map with same BSP hash is submitted again', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: {},
+          token: u1Token
+        });
+
+        const res = await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 409,
+          data: {},
+          token: u1Token
+        });
+
+        expect(res.body.message).toBe('Map with this file hash already exists');
+      });
+
       for (const status of [MapStatus.APPROVED, MapStatus.DISABLED]) {
         it(`should 403 if the map status is ${MapStatus[status]}`, async () => {
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
