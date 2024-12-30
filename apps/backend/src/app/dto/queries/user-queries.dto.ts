@@ -1,6 +1,5 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
 import {
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
@@ -28,16 +27,6 @@ import { QueryDto } from './query.dto';
 export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])
   readonly expand?: UsersGetExpand;
-
-  @ApiPropertyOptional({
-    name: 'mapRank',
-    type: Number,
-    description: "Include the user's rank and run for a map with mapID mapRank"
-  })
-  @Type(() => Number)
-  @IsInt()
-  @IsOptional()
-  readonly mapRank?: number;
 }
 
 export class UsersGetAllQueryDto
@@ -79,18 +68,6 @@ export class UsersGetAllQueryDto
   })
   @IsOptional()
   readonly userIDs?: number[];
-
-  @ApiPropertyOptional({
-    name: 'mapRank',
-    type: Number,
-    description:
-      'Include the rank and run for a map with mapID mapRank for all users',
-    example: '4'
-  })
-  @Type(() => Number)
-  @IsInt()
-  @IsOptional()
-  readonly mapRank?: number;
 }
 
 export class UsersGetActivitiesQueryDto
