@@ -325,11 +325,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       );
       this.status.valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((status) =>
-          status === MapStatus.APPROVED
-            ? this.finalLeaderboards.addValidators(validatorFn)
-            : this.finalLeaderboards.removeValidators(validatorFn)
-        );
+        .subscribe((status) => {
+          if (status === MapStatus.APPROVED)
+            this.finalLeaderboards.addValidators(validatorFn);
+          else this.finalLeaderboards.removeValidators(validatorFn);
+          this.finalLeaderboards.updateValueAndValidity();
+        });
     }
 
     this.mainForm.markAsUntouched();
