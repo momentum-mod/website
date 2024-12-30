@@ -70,7 +70,7 @@ export class ChipsComponent implements ControlValueAccessor {
     this.disabled = setDisabled;
   }
 
-  writeValue(value: Chip[]) {
-    this.selected = value;
+  writeValue(value: Chip[] | null) {
+    this.selected = value ?? [];
   }
 }

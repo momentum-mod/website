@@ -1,4 +1,4 @@
-<div class="inputlike flex flex-wrap items-center gap-1.5 px-2 py-1.5">
+<div class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
   <button
     (click)="op.toggle($event)"
     [mTooltip]="available.length > 0 ? 'Add ' + name : null"
@@ -24,7 +24,9 @@
     </p-overlayPanel>
   </button>
   @for (chip of selected; track $index) {
-    <div class="flex h-7 items-center gap-1 rounded bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60">
+    <div
+      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
+    >
       <span class="pointer-events-none font-medium text-gray-50">{{ chip }}</span>
       <button
         (click)="remove(chip)"

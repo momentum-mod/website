@@ -3,6 +3,8 @@ import {
   GamemodeInfo,
   LeaderboardType,
   MapSubmissionApproval,
+  MapTag,
+  MapTags,
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
@@ -16,6 +18,7 @@ import { AccordionItemComponent } from '../../accordion/accordion-item.component
 import { SliderComponent } from '../../slider/slider.component';
 import { GroupedLeaderboards } from './map-status-form.component';
 import { SharedModule } from '../../../shared.module';
+import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
   selector: 'm-map-final-approval-form',
@@ -27,7 +30,8 @@ import { SharedModule } from '../../../shared.module';
     ChartModule,
     AccordionComponent,
     AccordionItemComponent,
-    SliderComponent
+    SliderComponent,
+    ChipsComponent
   ],
   providers: [
     {
@@ -47,6 +51,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   ];
   protected readonly TTName = TrackTypeName;
   protected readonly GamemodeInfo = GamemodeInfo;
+  protected readonly MapTags = MapTags;
   protected readonly TierChartOptions: ChartOptions;
   protected readonly RatingChartOptions: ChartOptions;
 
@@ -80,6 +85,11 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
 
   writeValue(): void {
     // Doesn't have an actual value as value, just a getter.
+  }
+
+  updateTags(leaderboard: MapSubmissionApproval, tags: MapTag[]) {
+    leaderboard.tags = tags;
+    this.onChange(this.value);
   }
 
   setDisabledState(isDisabled: boolean) {
