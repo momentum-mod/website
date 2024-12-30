@@ -101,7 +101,7 @@ describe('RunProcessor', () => {
     return new Date(BASE_TIME + time);
   }
 
-  describe('validateRunSession', () => {
+  describe('validateTimestamps', () => {
     function expectPass(args: ProcessorOverrides = {}) {
       expect(() =>
         createProcessor(args).validateSessionTimestamps()
