@@ -114,7 +114,7 @@ export function validateSuggestions(
       );
     }
 
-    if ('tier' in sugg && sugg.tier != null) {
+    if ('tier' in sugg && type !== SuggestionType.REVIEW) {
       if (
         type === SuggestionType.APPROVAL &&
         (sugg as MapSubmissionApproval).type === LeaderboardType.HIDDEN

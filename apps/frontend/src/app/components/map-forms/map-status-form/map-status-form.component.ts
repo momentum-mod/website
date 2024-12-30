@@ -273,7 +273,6 @@ export class MapStatusFormComponent implements OnChanges {
 
         r.averageRating = +(sumRatings / totalRatings).toFixed(2);
 
-        console.warn('r.averageRating', r.averageRating);
         r.reviewTags = reviews
           .flatMap(({ tags }) => tags)
           .reduce((arr, tag) => {

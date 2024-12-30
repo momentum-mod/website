@@ -59,12 +59,13 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     return [...this.groupedLeaderboards.values()].flatMap(({ leaderboards }) =>
       leaderboards
         .filter(({ trackType }) => trackType !== TrackType.STAGE)
-        .map(({ gamemode, trackType, trackNum, tier, type }) => ({
+        .map(({ gamemode, trackType, trackNum, tier, type, tags }) => ({
           gamemode,
           trackType,
           trackNum,
           tier,
-          type
+          type,
+          tags
         }))
     );
   }
