@@ -24,7 +24,6 @@ export type UsersGetExpand = Array<'profile' | 'userStats'>;
 
 export type UsersGetQuery = {
   expand?: UsersGetExpand;
-  mapRank?: number;
 };
 
 export type UsersGetAllExpand = UsersGetExpand;
@@ -35,7 +34,6 @@ export type UsersGetAllQuery = PagedQuery & {
   steamID?: string;
   steamIDs?: string[];
   userIDs?: number[];
-  mapRank?: number;
 };
 
 export type UsersGetActivitiesQuery = Omit<ActivitiesGetQuery, 'userID'>;
