@@ -59,7 +59,7 @@ describe('RunProcessor', () => {
     );
   };
 
-  describe('validateRunSession', () => {
+  describe('validateTimestamps', () => {
     describe('main track', () => {
       it('should not throw for valid timestamps', () => {
         expectPass({
