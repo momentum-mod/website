@@ -27,6 +27,7 @@ const opts: Sentry.NodeOptions = {
   tracesSampleRate: sampleRate,
   profilesSampleRate: sampleRate,
   debug: false,
+  normalizeDepth: 6,
   integrations
 };
 
