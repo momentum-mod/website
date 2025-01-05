@@ -1,5 +1,6 @@
 ﻿import { RunSessionTimestamp, User } from '@prisma/client';
 import { Logger } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import {
   MapZones,
   RunValidationError,
@@ -474,8 +475,7 @@ export class RunProcessor {
     conditionOrError: string | Error,
     vars?: Record<string, any>
   ) {
-    RunProcessor.Logger.log({
-      user: this.user,
+    const info = {
       session: this.session,
       replayHeader: this.replayHeader,
       splits: this.splits,
@@ -483,7 +483,16 @@ export class RunProcessor {
       [conditionOrError instanceof Error ? 'error' : 'failedCondition']:
         conditionOrError,
       vars
-    });
+    };
+
+    RunProcessor.Logger.log({ user: this.user, info });
+
+    if (Sentry.isInitialized()) {
+      Sentry.setContext('Run Info', info);
+      Sentry.setUser(this.user);
+      Sentry.getCurrentScope().setLevel('log');
+      Sentry.captureException('Rejected run submission');
+    }
 
     throw new RunValidationError(errorType);
   }
