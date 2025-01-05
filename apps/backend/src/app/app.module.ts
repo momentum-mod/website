@@ -36,7 +36,6 @@ import { pick } from '@momentum/util-fn';
     LoggerModule.forRootAsync({
       useFactory: async (config: ConfigService): Promise<PinoParams> => ({
         pinoHttp: {
-          customProps: (_req, _res) => ({ context: 'HTTP' }),
           level: config.getOrThrow('logLevel'),
           // In dev mode, output human-readable strings using `pino-pretty`,
           // filtering out most HTTP header noise.
