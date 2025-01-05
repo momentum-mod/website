@@ -1,4 +1,5 @@
 ﻿import { RunSessionTimestamp, User } from '@prisma/client';
+import { Logger } from '@nestjs/common';
 import {
   MapZones,
   RunValidationError,
@@ -14,11 +15,6 @@ import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 /**
  * Class for managing the parsing of a replay file and validating it against
  * run data
- *
- * I'm tempted to add a more advanced logging system into this that captures
- * exact values that cause run rejection, but code gets complicated, feels like
- * to much work for my current PR. Also not sure whether we should write a bunch
- * to plaintext logs in that case, or send to Sentry.
  */
 export class RunProcessor {
   readonly buffer: Buffer;
@@ -42,20 +38,22 @@ export class RunProcessor {
     AllowedTimestampDelay: 5000
   };
 
+  static readonly Logger = new Logger('RunProcessor');
+
   private constructor(
     buffer: Buffer,
     session: CompletedRunSession,
     user: User
   ) {
+    this.buffer = buffer;
+    this.session = session;
+    this.user = user;
     try {
-      this.buffer = buffer;
-      this.session = session;
-      this.user = user;
       this.zones = JSON.parse(session.mmap.currentVersion.zones);
       this.replayHeader = ReplayFile.Reader.readHeader(this.buffer);
       this.splits = ReplayFile.Reader.readRunSplits(this.buffer);
-    } catch {
-      throw new RunValidationError(ErrorType.BAD_REPLAY_FILE);
+    } catch (error) {
+      this.reject(ErrorType.BAD_REPLAY_FILE, error);
     }
   }
 
@@ -68,28 +66,23 @@ export class RunProcessor {
   validateSessionTimestamps() {
     const { timestamps, trackType, trackNum } = this.session;
 
-    // Not giving specific reasons for throwing - if this ever happens they
-    // an update timed out, the map zones are buggy, or someone's submitting
-    // something nefarious. There's better ways to warn the user if they time
-    // out, ideally as soon as it happens. If it's something nefarious don't
-    // help them out with detailed errors.
     //
     // Note that timestamps do NOT include hitting the end zone - hitting the
     // end zone calls the /end endpoint with the replay, and we parse the replay
     // header to determine the final time.
 
     if (timestamps.length === 0) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'timestamps length == 0');
     }
 
     // First minorNum is always 1 (a segment start), regardless of track type
     if (timestamps[0].minorNum !== 1) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'first minorNum != 1');
     }
 
     // First time should always be 0
     if (timestamps[0].time !== 0) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'first timestamp.time != 0');
     }
 
     // We could perform checks on the .time field here, but it's equivalent
@@ -101,14 +94,17 @@ export class RunProcessor {
         timestamps.map(({ majorNum, minorNum }) => (majorNum << 8) | minorNum)
       ).size !== timestamps.length
     ) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'duplicate timestamps');
     }
 
     // Stage or bonus runs
     if (trackType !== TrackType.MAIN) {
       // majorNum is always 1 for stages/bonuses
       if (!timestamps.every(({ majorNum }) => majorNum === 1)) {
-        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+        this.reject(
+          ErrorType.BAD_TIMESTAMPS,
+          'majorNum != 1 for stage or bonus'
+        );
       }
 
       const segment =
@@ -127,15 +123,16 @@ export class RunProcessor {
 
     // trackNum must always be 1
     if (trackNum !== 1) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'trackNum != 1 for main track');
     }
 
     // Check first timestamp is in first segment and last timestamp is in last
-    if (
-      timestamps[0].majorNum !== 1 ||
-      timestamps.at(-1).majorNum !== zones.segments.length
-    ) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+    if (timestamps[0].majorNum !== 1) {
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'first timestamp majorNum != 1');
+    }
+
+    if (timestamps.at(-1).majorNum !== zones.segments.length) {
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'last timestamp majorNum != last');
     }
 
     // Validate first segment
@@ -149,7 +146,7 @@ export class RunProcessor {
       }
 
       if (majorNum !== lastMajor + 1) {
-        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+        this.reject(ErrorType.BAD_TIMESTAMPS, 'majorNum != lastMajor + 1');
       }
 
       // Validate the *previous segment* whose timestamps we just traversed
@@ -175,7 +172,7 @@ export class RunProcessor {
       new Set(timestamps.map(({ majorNum }) => majorNum)).size !==
       zones.segments.length
     ) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'num majorNums != num segments');
     }
   }
 
@@ -186,14 +183,21 @@ export class RunProcessor {
     // First minor is always the start zone. It's never possible to skip a
     // start zone.
     if (timestamps[0].minorNum !== 1) {
-      throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'segment first minorNum != 1', {
+        checkpoints,
+        timestamps
+      });
     }
 
     // Must have incrementing order if checkpointsOrdered
     if (checkpointsOrdered) {
       for (let i = 1; i < timestamps.length; i++) {
         if (timestamps[i].minorNum <= timestamps[i - 1].minorNum) {
-          throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+          this.reject(
+            ErrorType.BAD_TIMESTAMPS,
+            'ordered segment timestamps not ordered',
+            { timestamps }
+          );
         }
       }
     }
@@ -218,16 +222,28 @@ export class RunProcessor {
 
       if (this.zones.tracks.main.stagesEndAtStageStarts || isLastSegment) {
         if (timestamps.length !== checkpoints.length) {
-          throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+          this.reject(
+            ErrorType.BAD_TIMESTAMPS,
+            'stage timestamps != checkpoints for SEASS or last stage',
+            { timestamps, checkpoints, isLastSegment }
+          );
         }
       } else {
         if (timestamps.length !== checkpoints.length - 1) {
-          throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+          this.reject(
+            ErrorType.BAD_TIMESTAMPS,
+            'stage timestamps != checkpoints for !SEASS',
+            { timestamps, checkpoints }
+          );
         }
       }
     } else {
       if (timestamps.length !== checkpoints.length) {
-        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+        this.reject(
+          ErrorType.BAD_TIMESTAMPS,
+          'main/bonus timestamps != checkpoints',
+          { timestamps, checkpoints }
+        );
       }
     }
   }
@@ -236,32 +252,43 @@ export class RunProcessor {
   validateReplayHeader() {
     const { session, replayHeader: header } = this;
 
-    if (header.trackType !== session.trackType)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.trackType !== session.trackType) {
+      this.reject(ErrorType.BAD_META, 'header.trackType != session.trackType');
+    }
 
-    if (header.trackNum !== session.trackNum)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.trackNum !== session.trackNum) {
+      this.reject(ErrorType.BAD_META, 'header.trackNum != session.trackNum');
+    }
 
-    if (header.magic !== ReplayFile.REPLAY_MAGIC)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.magic !== ReplayFile.REPLAY_MAGIC) {
+      this.reject(ErrorType.BAD_META, 'header.magic != REPLAY_MAGIC');
+    }
 
     if (
       header.mapHash.toUpperCase() !==
       session.mmap.currentVersion.bspHash.toUpperCase()
-    )
-      throw new RunValidationError(ErrorType.BAD_META);
+    ) {
+      this.reject(ErrorType.BAD_META, 'header.mapHash != our bspHash');
+    }
 
-    if (header.mapName !== session.mmap.name)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.mapName !== session.mmap.name) {
+      this.reject(ErrorType.BAD_META, 'header.mapName != our mapName');
+    }
 
-    if (header.playerSteamID !== this.user.steamID)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.playerSteamID !== this.user.steamID) {
+      this.reject(ErrorType.BAD_META, 'header.playerSteamID != user.steamID');
+    }
 
-    if (header.gamemode !== session.gamemode)
-      throw new RunValidationError(ErrorType.BAD_META);
+    if (header.gamemode !== session.gamemode) {
+      this.reject(ErrorType.BAD_META, 'header.gamemode != session.gamemode');
+    }
 
-    if (header.tickInterval !== TickIntervals.get(session.gamemode))
-      throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+    if (header.tickInterval !== TickIntervals.get(session.gamemode)) {
+      this.reject(
+        ErrorType.BAD_META,
+        'header.tickInterval != session.gamemode'
+      );
+    }
 
     const {
       AllowedSubmitDelayBase,
@@ -299,13 +326,47 @@ export class RunProcessor {
 
     const startDelay = sessionStart - runStart;
 
-    if (
-      submitDelay < 0 ||
-      submitDelay > allowedSubmitDelay ||
-      startDelay < 0 ||
-      startDelay > AllowedTimestampDelay
-    ) {
-      throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+    if (submitDelay < 0) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay < 0', {
+        now,
+        headerTimestamp: header.timestamp,
+        submitDelay
+      });
+    }
+
+    if (submitDelay > allowedSubmitDelay) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay > allowedSubmitDelay', {
+        now,
+        headerTimestamp: header.timestamp,
+        submitDelay,
+        allowedSubmitDelay,
+        AllowedSubmitDelayBase,
+        AllowedSubmitDelayIncrement,
+        AllowedSubmitDelayMax
+      });
+    }
+
+    if (startDelay < 0) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay < 0', {
+        headerRunTime,
+        headerTimestamp: header.timestamp,
+        runStart,
+        sessionStart,
+        now,
+        startDelay
+      });
+    }
+
+    if (startDelay > AllowedTimestampDelay) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay > AllowedTimestampDelay', {
+        headerRunTime,
+        headerTimestamp: header.timestamp,
+        runStart,
+        sessionStart,
+        now,
+        startDelay,
+        AllowedTimestampDelay
+      });
     }
   }
 
@@ -316,8 +377,11 @@ export class RunProcessor {
       subsegments.map((ss) => ({ ...ss, majorNum: index + 1 }))
     );
 
-    if (subsegs.length !== this.session.timestamps.length)
-      throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+    if (subsegs.length !== this.session.timestamps.length) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'num subsegments != num timestamps', {
+        subsegs
+      });
+    }
 
     subsegs.forEach((subseg) => {
       // Timestamps are *probably* ordered, but may not be with spotty internet
@@ -327,7 +391,9 @@ export class RunProcessor {
       );
 
       if (!timestamp) {
-        throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+        this.reject(ErrorType.OUT_OF_SYNC, 'missing timestamp for subseg', {
+          subseg
+        });
       }
 
       const replayStartTime =
@@ -335,12 +401,32 @@ export class RunProcessor {
       const unixTimeReached = replayStartTime + subseg.timeReached * 1000;
 
       const timestampDelay = timestamp.createdAt.getTime() - unixTimeReached;
+      const { AllowedTimestampDelay } = RunProcessor.Constants;
 
-      if (
-        timestampDelay > RunProcessor.Constants.AllowedTimestampDelay ||
-        timestampDelay < 0
-      )
-        throw new RunValidationError(ErrorType.OUT_OF_SYNC);
+      if (timestampDelay > AllowedTimestampDelay) {
+        this.reject(
+          ErrorType.OUT_OF_SYNC,
+          'timestampDelay > AllowedTimestampDelay',
+          {
+            subseg,
+            timestamp,
+            replayStartTime,
+            unixTimeReached,
+            timestampDelay,
+            AllowedTimestampDelay
+          }
+        );
+      }
+
+      if (timestampDelay < 0) {
+        this.reject(ErrorType.OUT_OF_SYNC, 'timestampDelay < 0', {
+          subseg,
+          timestamp,
+          replayStartTime,
+          unixTimeReached,
+          timestampDelay
+        });
+      }
     });
   }
 
@@ -355,5 +441,30 @@ export class RunProcessor {
       splits: this.splits,
       flags: []
     };
+  }
+
+  /**
+   * Log detailed rejection reason, send client a relatively generic error back.
+   *
+   * We could do all sorts of things with the function in future, e.g. write
+   * stuff to Postgres, send to a separate logger, etc.
+   */
+  private reject(
+    errorType: ErrorType,
+    conditionOrError: string | Error,
+    vars?: Record<string, any>
+  ) {
+    RunProcessor.Logger.log({
+      user: this.user,
+      session: this.session,
+      replayHeader: this.replayHeader,
+      splits: this.splits,
+      errorType,
+      [conditionOrError instanceof Error ? 'error' : 'failedCondition']:
+        conditionOrError,
+      vars
+    });
+
+    throw new RunValidationError(errorType);
   }
 }
