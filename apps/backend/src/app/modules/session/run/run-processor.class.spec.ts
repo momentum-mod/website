@@ -52,6 +52,8 @@ describe('RunProcessor', () => {
   const DefaultReplayHeader = ReplayFile.Stubs.ReplayHeaderStub;
   const DefaultSplits = ReplayFile.Stubs.RunSplitsStub;
 
+  const Constants = RunProcessor.Constants;
+
   interface ProcessorOverrides {
     header?: Partial<ReplayHeader>;
     splits?: Partial<RunSplits.Splits>;
@@ -654,11 +656,13 @@ describe('RunProcessor', () => {
       expectFail(ErrorType.OUT_OF_SYNC);
     });
 
-    it('should throw if run time is out of sync - startDelay > AllowedTimestampDelay', () => {
+    it('should throw if run time is out of sync - startDelay > AllowedTimestampDelay + AllowedClockDrift', () => {
       processor = createProcessor({
         session: {
           timestamps,
-          createdAt: cat(RunProcessor.Constants.AllowedTimestampDelay + 100)
+          createdAt: cat(
+            Constants.AllowedTimestampDelay + Constants.AllowedClockDrift + 100
+          )
         }
       });
 
@@ -670,7 +674,9 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps,
-          createdAt: cat(RunProcessor.Constants.AllowedTimestampDelay - 100)
+          createdAt: cat(
+            Constants.AllowedTimestampDelay + Constants.AllowedClockDrift - 100
+          )
         }
       });
 
@@ -691,12 +697,13 @@ describe('RunProcessor', () => {
     it('should throw if run time is out of sync - submitDelay > acceptableSubmitDelay', () => {
       const {
         AllowedSubmitDelayBase: base,
+        AllowedClockDrift: drift,
         AllowedSubmitDelayIncrement: incr
-      } = RunProcessor.Constants;
+      } = Constants;
 
       processor = createProcessor({ session: { timestamps } });
 
-      const acceptableDelay = base + (runTimeMS / 60000) * incr;
+      const acceptableDelay = base + drift + (runTimeMS / 60000) * incr;
       jest.advanceTimersByTime(runTimeMS + acceptableDelay - 100);
       expectPass();
 
@@ -871,8 +878,16 @@ describe('RunProcessor', () => {
       processor = createProcessor({
         session: {
           timestamps: [
+            // Note that `time` isn't really that significant in these tests,
+            // just making the data more realistic. The actual check is
+            // performed against the
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
-            { createdAt: cat(9999), time: 9.999, majorNum: 1, minorNum: 2 },
+            {
+              createdAt: cat(9999 - Constants.AllowedClockDrift),
+              time: 9.999 - Constants.AllowedClockDrift / 1000,
+              majorNum: 1,
+              minorNum: 2
+            },
             { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 },
             { createdAt: cat(30000), time: 30, majorNum: 2, minorNum: 2 }
           ]
@@ -889,7 +904,10 @@ describe('RunProcessor', () => {
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
             {
               createdAt: cat(
-                10000 + RunProcessor.Constants.AllowedTimestampDelay - 100
+                10000 +
+                  Constants.AllowedTimestampDelay +
+                  Constants.AllowedClockDrift -
+                  100
               ),
               time: 10,
               majorNum: 1,
@@ -911,7 +929,10 @@ describe('RunProcessor', () => {
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
             {
               createdAt: cat(
-                10000 + RunProcessor.Constants.AllowedTimestampDelay + 100
+                10000 +
+                  Constants.AllowedTimestampDelay +
+                  Constants.AllowedClockDrift +
+                  100
               ),
               time: 10,
               majorNum: 1,

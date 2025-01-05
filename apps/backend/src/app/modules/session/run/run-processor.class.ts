@@ -35,7 +35,10 @@ export class RunProcessor {
     AllowedSubmitDelayMax: 30_000,
 
     // Allowed time diff between split time and backend timestamp created
-    AllowedTimestampDelay: 5000
+    AllowedTimestampDelay: 5000,
+
+    // Allowed system clock inaccuracy
+    AllowedClockDrift: 1000
   };
 
   static readonly Logger = new Logger('RunProcessor');
@@ -285,8 +288,8 @@ export class RunProcessor {
 
     if (header.tickInterval !== TickIntervals.get(session.gamemode)) {
       this.reject(
-        ErrorType.BAD_META,
-        'header.tickInterval != session.gamemode'
+        ErrorType.OUT_OF_SYNC,
+        'header.tickInterval != gamemode tick interval'
       );
     }
 
@@ -294,7 +297,8 @@ export class RunProcessor {
       AllowedSubmitDelayBase,
       AllowedSubmitDelayIncrement,
       AllowedSubmitDelayMax,
-      AllowedTimestampDelay
+      AllowedTimestampDelay,
+      AllowedClockDrift
     } = RunProcessor.Constants;
 
     // Check timestamps match up with replay start and end times
@@ -319,6 +323,7 @@ export class RunProcessor {
     const submitDelay = now - header.timestamp;
     const allowedSubmitDelay =
       AllowedSubmitDelayBase +
+      AllowedClockDrift +
       Math.min(
         (AllowedSubmitDelayIncrement * headerRunTime) / 60_000,
         AllowedSubmitDelayMax
@@ -326,11 +331,12 @@ export class RunProcessor {
 
     const startDelay = sessionStart - runStart;
 
-    if (submitDelay < 0) {
-      this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay < 0', {
+    if (submitDelay < -AllowedClockDrift) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay < -AllowedClockDrift', {
         now,
         headerTimestamp: header.timestamp,
-        submitDelay
+        submitDelay,
+        AllowedClockDrift
       });
     }
 
@@ -342,31 +348,38 @@ export class RunProcessor {
         allowedSubmitDelay,
         AllowedSubmitDelayBase,
         AllowedSubmitDelayIncrement,
-        AllowedSubmitDelayMax
+        AllowedSubmitDelayMax,
+        AllowedClockDrift
       });
     }
 
-    if (startDelay < 0) {
-      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay < 0', {
-        headerRunTime,
-        headerTimestamp: header.timestamp,
-        runStart,
-        sessionStart,
-        now,
-        startDelay
-      });
-    }
-
-    if (startDelay > AllowedTimestampDelay) {
-      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay > AllowedTimestampDelay', {
+    if (startDelay < -AllowedClockDrift) {
+      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay < -AllowedClockDrift', {
         headerRunTime,
         headerTimestamp: header.timestamp,
         runStart,
         sessionStart,
         now,
         startDelay,
-        AllowedTimestampDelay
+        AllowedClockDrift
       });
+    }
+
+    if (startDelay > AllowedTimestampDelay + AllowedClockDrift) {
+      this.reject(
+        ErrorType.OUT_OF_SYNC,
+        'startDelay > AllowedTimestampDelay + AllowedClockDrift',
+        {
+          headerRunTime,
+          headerTimestamp: header.timestamp,
+          runStart,
+          sessionStart,
+          now,
+          startDelay,
+          AllowedTimestampDelay,
+          AllowedClockDrift
+        }
+      );
     }
   }
 
@@ -401,31 +414,38 @@ export class RunProcessor {
       const unixTimeReached = replayStartTime + subseg.timeReached * 1000;
 
       const timestampDelay = timestamp.createdAt.getTime() - unixTimeReached;
-      const { AllowedTimestampDelay } = RunProcessor.Constants;
+      const { AllowedTimestampDelay, AllowedClockDrift } =
+        RunProcessor.Constants;
 
-      if (timestampDelay > AllowedTimestampDelay) {
+      if (timestampDelay > AllowedTimestampDelay + AllowedClockDrift) {
         this.reject(
           ErrorType.OUT_OF_SYNC,
-          'timestampDelay > AllowedTimestampDelay',
+          'timestampDelay > AllowedTimestampDelay + AllowedClockDrift',
           {
             subseg,
             timestamp,
             replayStartTime,
             unixTimeReached,
             timestampDelay,
-            AllowedTimestampDelay
+            AllowedTimestampDelay,
+            AllowedClockDrift
           }
         );
       }
 
-      if (timestampDelay < 0) {
-        this.reject(ErrorType.OUT_OF_SYNC, 'timestampDelay < 0', {
-          subseg,
-          timestamp,
-          replayStartTime,
-          unixTimeReached,
-          timestampDelay
-        });
+      if (timestampDelay < -AllowedClockDrift) {
+        this.reject(
+          ErrorType.OUT_OF_SYNC,
+          'timestampDelay < -AllowedClockDrift',
+          {
+            subseg,
+            timestamp,
+            replayStartTime,
+            unixTimeReached,
+            timestampDelay,
+            AllowedClockDrift
+          }
+        );
       }
     });
   }
