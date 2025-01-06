@@ -1,12 +1,12 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import {
   Ban,
-  MapsGetAllSubmissionQuery,
   MapStatusName,
   MapStatus,
   MapSummary,
   MMap,
-  PagedResponse
+  PagedResponse,
+  MapsGetAllUserSubmissionQuery
 } from '@momentum/constants';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SharedModule } from '../../../shared.module';
@@ -95,7 +95,7 @@ export class UserMapsBrowserComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const { name, status } = this.filters?.value ?? {};
-          const options: MapsGetAllSubmissionQuery = {
+          const options: MapsGetAllUserSubmissionQuery = {
             skip: this.skip,
             take,
             expand: ['info', 'credits', 'leaderboards', 'submitter']

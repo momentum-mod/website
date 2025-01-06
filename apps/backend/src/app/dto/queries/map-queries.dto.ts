@@ -25,7 +25,6 @@ import {
   MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/constants';
-import { OmitType } from '@nestjs/swagger';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -163,8 +162,13 @@ export class MapsGetAllSubmissionQueryDto
 }
 
 export class MapsGetAllUserSubmissionQueryDto
-  extends OmitType(MapsGetAllSubmissionQueryDto, ['submitterID'] as const)
-  implements MapsGetAllUserSubmissionQuery {}
+  extends MapsGetAllSubmissionQueryDto
+  implements MapsGetAllUserSubmissionQuery
+{
+  // Stupid hack because OmitType above applies some index signature that
+  // completely breaks types in MapsService.getAll. I hate class-based DTOs!
+  override submitterID: never = undefined as never;
+}
 
 //#endregion
 //#region Get

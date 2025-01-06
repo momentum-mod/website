@@ -77,6 +77,7 @@ import {
   MapsGetAllAdminQueryDto,
   MapsGetAllQueryDto,
   MapsGetAllSubmissionQueryDto,
+  MapsGetAllUserSubmissionQueryDto,
   MapSummaryDto,
   PagedResponseDto,
   UpdateMapAdminDto,
@@ -110,11 +111,15 @@ export class MapsService {
 
   //#region Gets
 
+  // TODO: This method has become absurdly complex. It should be split up in
+  // some places, but we should also consider potential ways to design the API
+  // better so this insanity is avoidable.
   async getAll(
     query:
       | MapsGetAllQueryDto
       | MapsGetAllAdminQueryDto
-      | MapsGetAllSubmissionQueryDto,
+      | MapsGetAllSubmissionQueryDto
+      | MapsGetAllUserSubmissionQueryDto,
     userID?: number
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
@@ -123,7 +128,11 @@ export class MapsService {
     if (query.search) where.name = { contains: query.search };
     if (query.searchStartsWith)
       where.name = { startsWith: query.searchStartsWith };
-    if (query.submitterID) where.submitterID = query.submitterID;
+    if (query.submitterID)
+      where.submitterID =
+        query instanceof MapsGetAllUserSubmissionQueryDto
+          ? userID
+          : query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
       where.status = MapStatus.APPROVED;
