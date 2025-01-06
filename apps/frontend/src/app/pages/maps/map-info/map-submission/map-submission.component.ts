@@ -6,7 +6,8 @@ import {
   TrackType,
   LeaderboardType,
   GamemodeInfo,
-  MapVersion
+  MapVersion,
+  mapTagEnglishName
 } from '@momentum/constants';
 import { SharedModule } from '../../../../shared.module';
 import {
@@ -30,6 +31,7 @@ export class MapSubmissionComponent {
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapStatusName = MapStatusName;
   protected readonly downloadZoneFile = downloadZoneFile;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   protected suggestions: GroupedMapSubmissionSuggestions;
   protected versions: MapVersion[];

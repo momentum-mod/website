@@ -94,7 +94,13 @@
           />
         </td>
         <td>
-          <m-chips [chips]="MapTags.get(item.gamemode)" [ngModel]="item.tags" (ngModelChange)="updateTags(item, $event)" name="Tags" />
+          <m-chips
+            typeName="Tags"
+            [chips]="MapTags.get(item.gamemode)"
+            [nameFn]="mapTagEnglishName"
+            [ngModel]="item.tags"
+            (ngModelChange)="updateTags(item, $event)"
+          />
         </td>
         <td>
           <button type="button" class="btn btn-red" (click)="removeItem($index)">Delete</button>

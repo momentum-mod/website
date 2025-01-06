@@ -1,0 +1,338 @@
+[
+  {
+    "term": "MapTag_Portals",
+    "definition": "Portals"
+  },
+  {
+    "term": "MapTag_Multiroute",
+    "definition": "Multiroute"
+  },
+  {
+    "term": "MapTag_Low_Grav",
+    "definition": "Low Grav"
+  },
+  {
+    "term": "MapTag_Gimmick",
+    "definition": "Gimmick"
+  },
+  {
+    "term": "MapTag_Endurance",
+    "definition": "Endurance"
+  },
+  {
+    "term": "MapTag_Collectibles",
+    "definition": "Collectibles"
+  },
+  {
+    "term": "MapTag_Anti_Grav",
+    "definition": "Anti Grav"
+  },
+  {
+    "term": "MapTag_Moving_Surfaces",
+    "definition": "Moving Surfaces"
+  },
+  {
+    "term": "MapTag_Unit",
+    "definition": "Unit"
+  },
+  {
+    "term": "MapTag_Tech",
+    "definition": "Tech"
+  },
+  {
+    "term": "MapTag_Spins",
+    "definition": "Spins"
+  },
+  {
+    "term": "MapTag_Booster",
+    "definition": "Booster"
+  },
+  {
+    "term": "MapTag_Headsurf",
+    "definition": "Headsurf"
+  },
+  {
+    "term": "MapTag_Bhop",
+    "definition": "Bhop"
+  },
+  {
+    "term": "MapTag_Increased_Maxvel",
+    "definition": "Increased Maxvel"
+  },
+  {
+    "term": "MapTag_Fall",
+    "definition": "Fall"
+  },
+  {
+    "term": "MapTag_Rampstrafe",
+    "definition": "Rampstrafe"
+  },
+  {
+    "term": "MapTag_Headcheck",
+    "definition": "Headcheck"
+  },
+  {
+    "term": "MapTag_Strafe",
+    "definition": "Strafe"
+  },
+  {
+    "term": "MapTag_Fly",
+    "definition": "Fly"
+  },
+  {
+    "term": "MapTag_Surf",
+    "definition": "Surf"
+  },
+  {
+    "term": "MapTag_Weapons",
+    "definition": "Weapons"
+  },
+  {
+    "term": "MapTag_Spikes",
+    "definition": "Spikes"
+  },
+  {
+    "term": "MapTag_Slopes",
+    "definition": "Slopes"
+  },
+  {
+    "term": "MapTag_Misaligned_Teleporters",
+    "definition": "Misaligned Teleporters"
+  },
+  {
+    "term": "MapTag_Climb",
+    "definition": "Climb"
+  },
+  {
+    "term": "MapTag_Ladder",
+    "definition": "Ladder"
+  },
+  {
+    "term": "MapTag_Jumppad",
+    "definition": "Jumppad"
+  },
+  {
+    "term": "MapTag_HL2",
+    "definition": "HL2"
+  },
+  {
+    "term": "MapTag_Speed_Control",
+    "definition": "Speed Control"
+  },
+  {
+    "term": "MapTag_Displacements",
+    "definition": "Displacements"
+  },
+  {
+    "term": "MapTag_Prec",
+    "definition": "Prec"
+  },
+  {
+    "term": "MapTag_Juggle",
+    "definition": "Juggle"
+  },
+  {
+    "term": "MapTag_Juggleprec",
+    "definition": "Juggleprec"
+  },
+  {
+    "term": "MapTag_Handheld",
+    "definition": "Handheld"
+  },
+  {
+    "term": "MapTag_Sync",
+    "definition": "Sync"
+  },
+  {
+    "term": "MapTag_Wallpogo",
+    "definition": "Wallpogo"
+  },
+  {
+    "term": "MapTag_Speedshot",
+    "definition": "Speedshot"
+  },
+  {
+    "term": "MapTag_Bounce",
+    "definition": "Bounce"
+  },
+  {
+    "term": "MapTag_Bouncehop",
+    "definition": "Bouncehop"
+  },
+  {
+    "term": "MapTag_Jurf",
+    "definition": "Jurf"
+  },
+  {
+    "term": "MapTag_Edgebug",
+    "definition": "Edgebug"
+  },
+  {
+    "term": "MapTag_Wallshot",
+    "definition": "Wallshot"
+  },
+  {
+    "term": "MapTag_Phase",
+    "definition": "Phase"
+  },
+  {
+    "term": "MapTag_Prefire",
+    "definition": "Prefire"
+  },
+  {
+    "term": "MapTag_Buttons",
+    "definition": "Buttons"
+  },
+  {
+    "term": "MapTag_Limited_Ammo",
+    "definition": "Limited Ammo"
+  },
+  {
+    "term": "MapTag_Water",
+    "definition": "Water"
+  },
+  {
+    "term": "MapTag_Teledoor",
+    "definition": "Teledoor"
+  },
+  {
+    "term": "MapTag_Airpogo",
+    "definition": "Airpogo"
+  },
+  {
+    "term": "MapTag_Vert",
+    "definition": "Vert"
+  },
+  {
+    "term": "MapTag_Rollerpogo",
+    "definition": "Rollerpogo"
+  },
+  {
+    "term": "MapTag_Downair",
+    "definition": "Downair"
+  },
+  {
+    "term": "MapTag_Slanted_Walls",
+    "definition": "Slanted Walls"
+  },
+  {
+    "term": "MapTag_Air_Jump",
+    "definition": "Air Jump"
+  },
+  {
+    "term": "MapTag_Rocket_Launcher",
+    "definition": "Rocket Launcher"
+  },
+  {
+    "term": "MapTag_Grenade_Launcher",
+    "definition": "Grenade Launcher"
+  },
+  {
+    "term": "MapTag_Plasma_Gun",
+    "definition": "Plasma Gun"
+  },
+  {
+    "term": "MapTag_BFG",
+    "definition": "BFG"
+  },
+  {
+    "term": "MapTag_Combo",
+    "definition": "Combo"
+  },
+  {
+    "term": "MapTag_Haste",
+    "definition": "Haste"
+  },
+  {
+    "term": "MapTag_Damageboost",
+    "definition": "Damageboost"
+  },
+  {
+    "term": "MapTag_Trick",
+    "definition": "Trick"
+  },
+  {
+    "term": "MapTag_Slick",
+    "definition": "Slick"
+  },
+  {
+    "term": "MapTag_Torture",
+    "definition": "Torture"
+  },
+  {
+    "term": "MapTag_Overbounce",
+    "definition": "Overbounce"
+  },
+  {
+    "term": "MapTag_LG_Climb",
+    "definition": "LG Climb"
+  },
+  {
+    "term": "MapTag_Rocket_Stack",
+    "definition": "Rocket Stack"
+  },
+  {
+    "term": "MapTag_Telehop",
+    "definition": "Telehop"
+  },
+  {
+    "term": "MapTag_Slide",
+    "definition": "Slide"
+  },
+  {
+    "term": "MapTag_Longjump",
+    "definition": "Longjump"
+  },
+  {
+    "term": "MapTag_Ceilingsmash",
+    "definition": "Ceilingsmash"
+  },
+  {
+    "term": "MapTag_CS_Practice",
+    "definition": "CS Practice"
+  },
+  {
+    "term": "MapTag_Single_Hop",
+    "definition": "Single Hop"
+  },
+  {
+    "term": "MapTag_Holes",
+    "definition": "Holes"
+  },
+  {
+    "term": "MapTag_Angle_Snipe",
+    "definition": "Angle Snipe"
+  },
+  {
+    "term": "MapTag_Low_Speed",
+    "definition": "Low Speed"
+  },
+  {
+    "term": "MapTag_Extreme_Speed",
+    "definition": "Extreme Speed"
+  },
+  {
+    "term": "MapTag_Progressive_Difficulty",
+    "definition": "Progressive Difficulty"
+  },
+  {
+    "term": "MapTag_Rocket_Spam",
+    "definition": "Rocket Spam"
+  },
+  {
+    "term": "MapTag_Strafe_Pads",
+    "definition": "Strafe Pads"
+  },
+  {
+    "term": "MapTag_Lightning_Gun",
+    "definition": "Lightning Gun"
+  },
+  {
+    "term": "MapTag__Num2__Way_Sym",
+    "definition": "2-Way Sym"
+  },
+  {
+    "term": "MapTag__Num4__Way_Sym",
+    "definition": "4-Way Sym"
+  }
+]

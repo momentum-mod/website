@@ -33,7 +33,7 @@
         <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
         <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
         <m-icon class="justify-self-center text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
-        <p class="text-sm text-gray-50">{{ mainSugg.tags?.join(', ') }}</p>
+        <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
         <p class="text-sm text-gray-50">{{ mainSugg.comment }}</p>
       }
 
@@ -41,7 +41,7 @@
         <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
         <p class="justify-self-center text-sm font-medium">{{ bonus.tier ?? '' }}</p>
         <m-icon class="justify-self-center text-xl" [icon]="bonus.type === LeaderboardType.RANKED ? 'check' : 'close'" />
-        <p class="text-sm text-gray-50">{{ bonus.tags?.join(', ') }}</p>
+        <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
         <p class="text-sm text-gray-50">{{ bonus.comment }}</p>
       }
     }

@@ -4,7 +4,7 @@ import {
   MapTag,
   TrackType
 } from '@momentum/constants';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { EnumProperty } from '../decorators';
 
@@ -36,7 +36,7 @@ export class MapReviewSuggestionDto implements MapReviewSuggestion {
   readonly gameplayRating: number;
 
   @ApiProperty({ description: 'Array of tags' })
-  @IsString({ each: true })
+  @IsEnum(MapTag, { each: true })
   @IsOptional()
   readonly tags?: MapTag[];
 }

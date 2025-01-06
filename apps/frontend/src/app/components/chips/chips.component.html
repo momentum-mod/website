@@ -1,7 +1,7 @@
 <div class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
   <button
     (click)="op.toggle($event)"
-    [mTooltip]="available.length > 0 ? 'Add ' + name : null"
+    [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
     [disabled]="available.length === 0"
     type="button"
     class="grid h-7 w-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
@@ -17,7 +17,7 @@
             class="rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
             type="button"
           >
-            <span class="text-white">{{ chip }}</span>
+            <span class="text-white">{{ getChipName(chip) }}</span>
           </button>
         }
       </div>
@@ -27,7 +27,7 @@
     <div
       class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
     >
-      <span class="pointer-events-none font-medium text-gray-50">{{ chip }}</span>
+      <span class="pointer-events-none font-medium text-gray-50">{{ getChipName(chip) }}</span>
       <button
         (click)="remove(chip)"
         class="flex items-center rounded-full bg-white bg-opacity-0 p-0.5 text-gray-50 transition-colors hover:bg-opacity-20"

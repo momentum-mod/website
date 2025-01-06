@@ -105,9 +105,10 @@
                   <m-chips
                     class="flex-grow"
                     [chips]="MapTags.get(leaderboard.gamemode)"
+                    [nameFn]="mapTagEnglishName"
                     [ngModel]="leaderboard.tags"
                     (ngModelChange)="updateTags(leaderboard, $event)"
-                    name="Tags"
+                    typeName="Tags"
                   />
                 </div>
               </div>

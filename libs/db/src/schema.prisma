@@ -383,7 +383,7 @@ model Leaderboard {
   // We could do a separate table for this, which maaay have a perf increase
   // (haven't tested), but complicates code a lot. Tag filtering is done on the
   // game client anyway, so performance isn't a huge issue.
-  tags String[] /// Array of MapTag
+  tags Int[] @db.SmallInt /// Array of MapTag
 
   runs LeaderboardRun[]
 

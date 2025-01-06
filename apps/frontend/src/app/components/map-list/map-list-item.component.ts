@@ -13,7 +13,8 @@ import {
   MapStatusName,
   MapStatus,
   MMap,
-  MapTag
+  MapTag,
+  mapTagEnglishName
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { MapWithSpecificLeaderboard } from '../../util';
@@ -34,6 +35,7 @@ export class MapListItemComponent implements OnChanges {
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MapStatus = MapStatus;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
   @Input() isSubmission = false;
@@ -66,16 +68,18 @@ export class MapListItemComponent implements OnChanges {
     const [name, prefix] = extractPrefixFromMapName(this.map.name);
     this.name = name;
     this.prefix = prefix;
+    console.log(this.map.submission.placeholders);
     this.authors = [
       ...this.map.credits,
       ...(this.map.submission?.placeholders ?? [])
     ]
       .filter(({ type }) => type === MapCreditType.AUTHOR)
-      .map((credit) =>
-        'userID' in credit
+      .map((credit) => {
+        console.log(credit);
+        return 'userID' in credit
           ? { alias: credit.user.alias, id: credit.userID }
-          : { alias: credit.alias }
-      );
+          : { alias: credit.alias };
+      });
   }
 
   toggleMapInFavorites(event?: Event) {

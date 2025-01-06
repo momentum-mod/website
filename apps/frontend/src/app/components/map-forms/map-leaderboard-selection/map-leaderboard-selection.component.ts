@@ -10,6 +10,7 @@ import {
   LeaderboardType,
   MapSubmissionSuggestion,
   MapTag,
+  mapTagEnglishName,
   MapTags,
   MapZones,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
@@ -48,6 +49,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   protected readonly MapTags = MapTags;
   protected readonly MAX_MAP_SUGGESTION_COMMENT_LENGTH =
     MAX_MAP_SUGGESTION_COMMENT_LENGTH;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   protected value: MapSubmissionSuggestion[] = [];
   protected disabled = false;

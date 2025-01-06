@@ -7,6 +7,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import {
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -60,7 +61,7 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   readonly comment?: string;
 
   @ApiProperty()
-  @IsString({ each: true })
+  @IsEnum(MapTag, { each: true })
   @IsOptional()
   readonly tags?: MapTag[];
 }

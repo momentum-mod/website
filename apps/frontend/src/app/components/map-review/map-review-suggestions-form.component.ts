@@ -6,6 +6,7 @@ import {
   IncompatibleGamemodes,
   MapReviewSuggestion,
   MapTag,
+  mapTagEnglishName,
   MapTags,
   MMap,
   TrackType
@@ -36,6 +37,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
     { type: TrackType.BONUS, label: 'Bonus' }
   ];
   protected readonly MapTags = MapTags;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   protected value: MapReviewSuggestion[] = [];
   protected disabled = false;

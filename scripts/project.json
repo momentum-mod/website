@@ -24,7 +24,8 @@
         "additionalEntryPoints": [
           "scripts/src/reset.script.ts",
           "scripts/src/make-me-admin.script.ts",
-          "scripts/src/generate-zones.script.ts"
+          "scripts/src/generate-zones.script.ts",
+          "scripts/src/maptags-poeditor.script.ts"
         ]
       }
     },
@@ -54,6 +55,13 @@
       "dependsOn": ["build"],
       "options": {
         "command": "node dist/scripts/generate-zones.script.cjs"
+      }
+    },
+    "maptags-poeditor": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/maptags-poeditor.script.cjs"
       }
     }
   },

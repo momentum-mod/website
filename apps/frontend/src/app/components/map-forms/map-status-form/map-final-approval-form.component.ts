@@ -4,6 +4,7 @@ import {
   LeaderboardType,
   MapSubmissionApproval,
   MapTag,
+  mapTagEnglishName,
   MapTags,
   TrackType,
   TrackTypeName
@@ -52,6 +53,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   protected readonly TTName = TrackTypeName;
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapTags = MapTags;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
   protected readonly TierChartOptions: ChartOptions;
   protected readonly RatingChartOptions: ChartOptions;
 
