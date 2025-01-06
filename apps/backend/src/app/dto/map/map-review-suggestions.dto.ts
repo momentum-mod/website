@@ -4,7 +4,7 @@ import {
   MapTag,
   TrackType
 } from '@momentum/constants';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { EnumProperty } from '../decorators';
 

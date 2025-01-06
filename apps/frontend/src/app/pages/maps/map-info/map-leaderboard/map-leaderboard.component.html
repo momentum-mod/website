@@ -132,7 +132,7 @@
 
   @if (map.status === MapStatus.APPROVED && activeMode.tags.length > 0) {
     <p class="text-lg">
-      <span class="font-bold mr-0.5">Tags </span> <span class="">{{ activeMode.tags.join(', ') }}</span>
+      <span class="mr-0.5 font-bold">Tags </span> <span class="">{{ activeMode.tags.join(', ') }}</span>
     </p>
   }
   @if (!loading && runs.length === 0) {
