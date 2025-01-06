@@ -77,6 +77,7 @@ import {
   MapsGetAllAdminQueryDto,
   MapsGetAllQueryDto,
   MapsGetAllSubmissionQueryDto,
+  MapsGetAllUserSubmissionQueryDto,
   MapSummaryDto,
   PagedResponseDto,
   UpdateMapAdminDto,
@@ -110,11 +111,15 @@ export class MapsService {
 
   //#region Gets
 
+  // TODO: This method has become absurdly complex. It should be split up in
+  // some places, but we should also consider potential ways to design the API
+  // better so this insanity is avoidable.
   async getAll(
     query:
       | MapsGetAllQueryDto
       | MapsGetAllAdminQueryDto
-      | MapsGetAllSubmissionQueryDto,
+      | MapsGetAllSubmissionQueryDto
+      | MapsGetAllUserSubmissionQueryDto,
     userID?: number
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
@@ -123,7 +128,11 @@ export class MapsService {
     if (query.search) where.name = { contains: query.search };
     if (query.searchStartsWith)
       where.name = { startsWith: query.searchStartsWith };
-    if (query.submitterID) where.submitterID = query.submitterID;
+    if (
+      query.submitterID &&
+      !(query instanceof MapsGetAllUserSubmissionQueryDto)
+    )
+      where.submitterID = query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
       where.status = MapStatus.APPROVED;
@@ -177,6 +186,20 @@ export class MapsService {
         if (query.gamemode) {
           where.leaderboardRuns[quantifier].gamemode = query.gamemode;
         }
+      }
+    } else if (query instanceof MapsGetAllUserSubmissionQueryDto) {
+      where.OR = [
+        { submitterID: userID },
+        { credits: { some: { userID } } },
+        {
+          testInvites: {
+            some: { userID, state: MapTestInviteState.ACCEPTED }
+          }
+        }
+      ];
+
+      if (query.filter) {
+        where.status = { in: query.filter };
       }
     } else if (query instanceof MapsGetAllSubmissionQueryDto) {
       const user = await this.db.user.findUnique({
@@ -233,20 +256,7 @@ export class MapsService {
 
           if (filter?.includes(MapStatus.PRIVATE_TESTING)) {
             ORs.push({
-              AND: [
-                { status: MapStatus.PRIVATE_TESTING },
-                {
-                  OR: [
-                    { submitterID: userID },
-                    { credits: { some: { userID } } },
-                    {
-                      testInvites: {
-                        some: { userID, state: MapTestInviteState.ACCEPTED }
-                      }
-                    }
-                  ]
-                }
-              ]
+              AND: [{ status: MapStatus.PRIVATE_TESTING }, subCredOrTesterOR]
             });
           }
           where.OR = ORs;

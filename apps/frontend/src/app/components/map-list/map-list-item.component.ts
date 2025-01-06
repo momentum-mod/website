@@ -12,7 +12,10 @@ import {
   MapCreditType,
   MapStatusName,
   MapStatus,
-  MMap
+  MMap,
+  MapTag,
+  mapTagEnglishName,
+  MapStatuses
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { MapWithSpecificLeaderboard } from '../../util';
@@ -81,7 +84,9 @@ export class MapListItemComponent implements OnChanges {
     this.prefix = prefix;
     this.authors = [
       ...this.map.credits,
-      ...(this.map.submission?.placeholders ?? [])
+      ...(MapStatuses.IN_SUBMISSION.includes(this.map.status)
+        ? (this.map.submission?.placeholders ?? [])
+        : [])
     ]
       .filter(({ type }) => type === MapCreditType.AUTHOR)
       .map((credit) =>
