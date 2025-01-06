@@ -43,8 +43,7 @@ import {
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
   FollowDto,
-  MapsGetAllUserSubmissionQueryDto,
-  MapsGetAllSubmissionQueryDto
+  MapsGetAllUserSubmissionQueryDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from '../users/users.service';
@@ -484,13 +483,7 @@ export class UserController {
     @LoggedInUser('id') userID: number,
     @Query() query?: MapsGetAllUserSubmissionQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapsService.getAll(
-      {
-        ...query,
-        submitterID: userID
-      } as MapsGetAllSubmissionQueryDto,
-      userID
-    );
+    return this.mapsService.getAll(query, userID);
   }
 
   @Get('/maps/summary')
