@@ -1,6 +1,6 @@
 {
   "scripts": {
     "migrate": "prisma migrate deploy",
-    "start": "node main.js"
+    "start": "node main.js --stack-trace-limit=64"
   }
 }
