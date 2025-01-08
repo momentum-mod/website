@@ -51,7 +51,7 @@ export enum MapTag {
   Misaligned_Teleporters = 25,
   Climb = 26,
   Ladder = 27,
-  Jumppad = 28,
+  Forced_Bhop = 28,
   HL2 = 29,
   Speed_Control = 30,
   Displacements = 31,
@@ -107,7 +107,8 @@ export enum MapTag {
   Strafe_Pads = 81,
   Lightning_Gun = 82,
   _Num2__Way_Sym = 83,
-  _Num4__Way_Sym = 84
+  _Num4__Way_Sym = 84,
+  Staged__Linear = 85
 }
 
 export const GlobalTags = [
@@ -140,7 +141,8 @@ export const GamemodeTags = {
     MapTag.Low_Speed,
     MapTag.Extreme_Speed,
     MapTag._Num2__Way_Sym,
-    MapTag._Num4__Way_Sym
+    MapTag._Num4__Way_Sym,
+    MapTag.Staged__Linear
   ],
   [GamemodeCategory.BHOP]: [
     MapTag.Strafe,
@@ -153,10 +155,9 @@ export const GamemodeTags = {
     MapTag.Slopes,
     MapTag.Misaligned_Teleporters,
     MapTag.Climb,
-    MapTag.Ladder,
-    MapTag.Jumppad,
     MapTag.Booster,
-    MapTag.Extreme_Speed
+    MapTag.Extreme_Speed,
+    MapTag.Forced_Bhop
   ],
   [GamemodeCategory.CLIMB]: [
     MapTag.Ladder,
@@ -229,7 +230,8 @@ export const GamemodeTags = {
     MapTag.Air_Jump,
     MapTag.Rocket_Spam,
     MapTag.Strafe_Pads,
-    MapTag.Lightning_Gun
+    MapTag.Lightning_Gun,
+    MapTag.Staged__Linear
   ]
 } satisfies Record<GamemodeCategory, number[]>;
 
