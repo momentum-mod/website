@@ -130,4 +130,7 @@ async function bootstrap() {
   );
 }
 
-void bootstrap();
+/* eslint no-console: 0 */
+bootstrap().catch((error) => console.error(error));
+
+process.on('uncaughtException', (error) => console.error(error));
