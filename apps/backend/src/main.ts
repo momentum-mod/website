@@ -130,4 +130,8 @@ async function bootstrap() {
   );
 }
 
-void bootstrap();
+// eslint-disable-next-line no-console
+bootstrap().catch((error) => console.error(error));
+
+// eslint-disable-next-line no-console
+process.on('uncaughtException', (error) => console.error(error));
