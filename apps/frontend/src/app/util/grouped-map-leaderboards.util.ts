@@ -72,10 +72,11 @@ export function groupMapLeaderboards(
   // Then if all lbs hidden
   // Then try > number bonuses
   arr.sort((a: GroupedMapLeaderboard, b: GroupedMapLeaderboard) => {
-    if (a.tier != null && b.tier == null) return 1;
-    if (a.type > b.type) return 1;
-    if (!a.allHidden && b.allHidden) return 1;
-    if (a.bonuses?.length ?? 0 > b.bonuses?.length ?? 0) return 1;
+    if (a.tier !== b.tier) return a.tier === null ? 1 : -1;
+    if (a.type !== b.type) return a.type - b.type;
+    if (a.allHidden !== b.allHidden) return a.allHidden ? 1 : -1;
+    if (a.bonuses?.length !== b.bonuses?.length)
+      return (a.bonuses?.length ?? 0) - (b.bonuses?.length ?? 0);
     return 0;
   });
 
