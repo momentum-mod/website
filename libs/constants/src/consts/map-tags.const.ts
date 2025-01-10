@@ -101,14 +101,15 @@ export enum MapTag {
   Holes = 75,
   Angle_Snipe = 76,
   Low_Speed = 77,
-  Extreme_Speed = 78,
+  Fast_Paced = 78,
   Progressive_Difficulty = 79,
   Rocket_Spam = 80,
   Strafe_Pads = 81,
   Lightning_Gun = 82,
   _Num2__Way_Sym = 83,
   _Num4__Way_Sym = 84,
-  Staged__Linear = 85
+  Staged__Linear = 85,
+  Funkyboost = 86
 }
 
 export const GlobalTags = [
@@ -139,7 +140,7 @@ export const GamemodeTags = {
     MapTag.Headcheck,
     MapTag.Angle_Snipe,
     MapTag.Low_Speed,
-    MapTag.Extreme_Speed,
+    MapTag.Fast_Paced,
     MapTag._Num2__Way_Sym,
     MapTag._Num4__Way_Sym,
     MapTag.Staged__Linear
@@ -156,7 +157,7 @@ export const GamemodeTags = {
     MapTag.Misaligned_Teleporters,
     MapTag.Climb,
     MapTag.Booster,
-    MapTag.Extreme_Speed,
+    MapTag.Fast_Paced,
     MapTag.Forced_Bhop
   ],
   [GamemodeCategory.CLIMB]: [
@@ -201,7 +202,7 @@ export const GamemodeTags = {
     MapTag.Displacements,
     MapTag.Surf,
     MapTag.Low_Speed,
-    MapTag.Extreme_Speed
+    MapTag.Fast_Paced
   ],
   [GamemodeCategory.CONC]: [
     MapTag.Prec,
@@ -231,7 +232,8 @@ export const GamemodeTags = {
     MapTag.Rocket_Spam,
     MapTag.Strafe_Pads,
     MapTag.Lightning_Gun,
-    MapTag.Staged__Linear
+    MapTag.Staged__Linear,
+    MapTag.Funkyboost
   ]
 } satisfies Record<GamemodeCategory, number[]>;
 
@@ -252,6 +254,10 @@ export const MapTags = new Map(
   // TODO: Spread unnecessary with TS 5.6 (i think) iterator methods
   [...GamemodeToGamemodeCategory.entries()].map(([gamemode, category]) => [
     gamemode,
-    [...GlobalTags, ...GamemodeTags[category]].sort() // Alphabetical
+    [...GlobalTags, ...GamemodeTags[category]].sort((a, b) =>
+      // Lexicograpic sort by *ENGLISH* name - Panorama will want to sort by
+      // localized names!
+      MapTag[a] > MapTag[b] ? 1 : -1
+    )
   ])
 );
