@@ -1,19 +1,15 @@
-name: Publish Staging
+name: Publish Staging Frontend
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "apps/backend*/**"
 
 jobs:
   publish_frontend:
     uses: momentum-mod/website/.github/workflows/frontend_cf_pages.yml@main
     with:
       project_name: 'frontend-staging'
-    secrets: inherit
-
-  publish_backend:
-    permissions:
-      packages: write
-    uses: momentum-mod/website/.github/workflows/backend_docker_image.yml@main
     secrets: inherit
