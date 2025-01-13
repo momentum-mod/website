@@ -1,6 +1,6 @@
 {
   "scripts": {
     "migrate": "prisma migrate deploy",
-    "start": "node main.js --stack-trace-limit=64"
+    "start": "node --stack-trace-limit=64 --trace-exit --report-on-fatal-error main.js"
   }
 }
