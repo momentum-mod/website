@@ -131,7 +131,7 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeModeIndex = 0;
     this.activeType = LeaderboardFilterType.TOP10;
     this.activeTrack.type = TrackType.MAIN;
-    this.activeTrack.num = 0;
+    this.activeTrack.num = 1;
 
     this.load.next();
   }
