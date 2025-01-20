@@ -90,7 +90,7 @@
   .card-title {
     @apply font-display;
     font-weight: 700;
-    opacity: 0.875;
+    opacity: 0.9;
     line-height: 1;
     filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
       drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
@@ -164,6 +164,7 @@
     &::after {
       content: ' ';
       position: absolute;
+      pointer-events: none;
       overflow: hidden;
       /* Stupid way to get this to overlap well with button. Again, this
          approach sucks but can't think of anything better rn */
@@ -201,8 +202,8 @@
 
   .btn-red {
     background: linear-gradient(
-      rgb(var(--red-500)),
-      color-mix(in srgb, rgb(var(--red-500)), rgb(var(--red-600)))
+      color-mix(in srgb, rgb(var(--red-400)), rgb(var(--red-500))),
+      rgb(var(--red-500))
     );
   }
 
@@ -523,6 +524,6 @@
   .text-shadow-strong {
     text-shadow:
       0 1px 6px rgba(0, 0, 0, 0.15),
-      0 2px 1px rgba(0, 0, 0, 0.2);
+      0 2px 1px rgba(0, 0, 0, 0.3);
   }
 }

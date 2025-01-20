@@ -765,7 +765,8 @@ describe('Maps', () => {
               gamemode: Gamemode.RJ,
               tier: 1,
               type: LeaderboardType.RANKED,
-              comment: 'I love you'
+              comment: 'I love you',
+              tags: ['Sync'] // Assuming we'll never get rid of the "Sync" tag
             },
             {
               trackType: TrackType.BONUS,
@@ -860,7 +861,8 @@ describe('Maps', () => {
                   gamemode: Gamemode.RJ,
                   tier: 1,
                   type: LeaderboardType.RANKED,
-                  comment: 'I love you'
+                  comment: 'I love you',
+                  tags: ['Sync']
                 },
                 {
                   trackType: TrackType.BONUS,
@@ -2546,7 +2548,8 @@ describe('Maps', () => {
                   trackNum: 1,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  type: LeaderboardType.RANKED
+                  type: LeaderboardType.RANKED,
+                  tags: ['Sync']
                 },
                 {
                   trackType: TrackType.BONUS,
@@ -2596,7 +2599,8 @@ describe('Maps', () => {
                   trackNum: 1,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  type: LeaderboardType.RANKED
+                  type: LeaderboardType.RANKED,
+                  tags: ['Juggle']
                 },
                 {
                   trackType: TrackType.BONUS,
@@ -2631,7 +2635,8 @@ describe('Maps', () => {
                   trackNum: 1,
                   gamemode: Gamemode.CONC,
                   tier: 1,
-                  type: LeaderboardType.RANKED
+                  type: LeaderboardType.RANKED,
+                  tags: ['Juggle']
                 },
                 {
                   trackType: TrackType.BONUS,

@@ -33,18 +33,24 @@
     @if (editing) {
       <button type="button" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
     }
-    <div class="flex items-center justify-end gap-2">
-      <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
-        Add Tier/Ranking Suggestions
-        <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
-      </button>
-      <ng-template #suggestionInfo>
-        <div class="prose">
-          <p>Your suggestions for the tier and/or gameplay quality of each track.</p>
-          <p><b>Tier</b> is used to decide the final tier, and <b>gameplay rating</b> for whether the track should provide rank points.</p>
-        </div>
-      </ng-template>
-    </div>
+    <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
+      Add Tier/Ranking Suggestions
+      <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
+    </button>
+    <ng-template #suggestionInfo>
+      <div class="prose p-3">
+        <p>Your suggestions for the tier, gameplay quality rating, and/or tags for tracks.</p>
+        <p><b>Tier</b> is the difficulty of the track, from 1 to 10.</p>
+        <p>
+          <b>Rating</b> is for overall <i>gameplay</i> quality of the track, from 1 to 10, used to decide whether the track should provide
+          rank points.
+        </p>
+        <p>
+          <b>Tags</b> highlight specific gameplay aspects of the track. Only suggest a tag that adds to the overall difficulty of that
+          track; e.g. don't suggest "spins" for T3 or more surf track with a single easy spin.
+        </p>
+      </div>
+    </ng-template>
     <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine">Post</button>
   </div>
 </form>
