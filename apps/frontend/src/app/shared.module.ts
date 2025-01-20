@@ -17,7 +17,6 @@ import { CardHeaderComponent } from './components/card/card-header.component';
 import { CardBodyComponent } from './components/card/card-body.component';
 import { TooltipDirective } from './directives/tooltip.directive';
 import { SpinnerDirective } from './directives/spinner.directive';
-
 import { RangePipe } from './pipes/range.pipe';
 import { EnumValuePipe } from './pipes/enum-value.pipe';
 import { NumberWithCommasPipe } from './pipes/number-with-commas.pipe';
@@ -26,6 +25,7 @@ import { ThousandsSuffixPipe } from './pipes/thousands-suffix.pipe';
 import { TimeAgoPipe } from './pipes/time-ago.pipe';
 import { TimingPipe } from './pipes/timing.pipe';
 import { UnsortedKeyvaluePipe } from './pipes/unsorted-keyvalue.pipe';
+import { TextareaAllowEnterDirective } from './directives/textarea-allow-enter.directive';
 
 const SHARED = [
   CommonModule,
@@ -50,7 +50,8 @@ const SHARED = [
   ThousandsSuffixPipe,
   TimeAgoPipe,
   TimingPipe,
-  UnsortedKeyvaluePipe
+  UnsortedKeyvaluePipe,
+  TextareaAllowEnterDirective
 ];
 
 /**
