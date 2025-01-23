@@ -21,7 +21,7 @@ import { Environment } from './app/config';
 
 const dsn = process.env['SENTRY_DSN'];
 const enableTracing = process.env['SENTRY_ENABLE_TRACING'] === 'true';
-const sampleRate = +process.env['SENTRY_TRACE_SAMPLE_RATE'];
+const sampleRate = enableTracing ? +process.env['SENTRY_TRACE_SAMPLE_RATE'] : 0;
 
 const integrations: Integration[] = [nestIntegration()];
 
@@ -39,10 +39,10 @@ if (process.env['SENTRY_ENABLE_NODE_PROFILING'] === 'true') {
 const opts: NodeOptions = {
   dsn,
   environment: process.env['SENTRY_ENV'],
-  enableTracing,
   tracesSampleRate: sampleRate,
   profilesSampleRate: sampleRate,
   debug: false,
+  normalizeDepth: 6,
   integrations
 };
 
