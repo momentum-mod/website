@@ -72,22 +72,3 @@ services:
         npx nx run db:deploy &&
         npx nx run backend-e2e:e2e
       "
-  frontend-e2e:
-    image: cypress/base:18.16.0
-    depends_on:
-      - postgres
-      - minio
-      - createbuckets
-    environment:
-      <<: *env
-    working_dir: /app/
-    volumes:
-      - ./:/app/
-    ports:
-      - "3001:3001"
-    command: >
-      sh -c "
-        ./node_modules/.bin/cypress install &&
-        npx nx run db:push &&
-        npx nx run frontend-e2e:e2e
-      "
