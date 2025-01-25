@@ -91,7 +91,6 @@ export type FinalApprovalFormGroup = Record<
 @Component({
   selector: 'm-map-edit',
   templateUrl: './map-edit.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     CdkDrag,

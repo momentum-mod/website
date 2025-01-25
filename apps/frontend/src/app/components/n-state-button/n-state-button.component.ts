@@ -31,7 +31,6 @@ export type NStateButtonColor =
     }`,
   selector: 'm-n-state-button',
   imports: [SharedModule],
-  standalone: true,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

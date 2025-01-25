@@ -30,7 +30,6 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
  */
 @Component({
   selector: 'm-gallery',
-  standalone: true,
   imports: [CommonModule, IconComponent],
   templateUrl: './gallery.component.html'
 })

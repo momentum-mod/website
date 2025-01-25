@@ -83,7 +83,6 @@ import { SharedModule } from '../../shared.module';
     `
   ],
   imports: [SharedModule],
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionItemComponent {

@@ -10,7 +10,6 @@ import { MapsService } from '../../services/data/maps.service';
 @Component({
   selector: 'm-map-search',
   templateUrl: './map-search.component.html',
-  standalone: true,
   imports: [SharedModule, PaginatorModule, OverlayPanelModule, NgOptimizedImage]
 })
 export class MapSearchComponent extends AbstractSearchComponent<MMap> {

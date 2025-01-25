@@ -23,7 +23,6 @@ import { SharedModule } from '../../shared.module';
       multi: true
     }
   ],
-  standalone: true,
   imports: [SharedModule, DropdownModule]
 })
 export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {

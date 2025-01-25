@@ -11,7 +11,6 @@ import {
 
 @Component({
   selector: 'm-player-card',
-  standalone: true,
   imports: [IconComponent, ProgressBarModule, LevelIndicatorComponent],
   templateUrl: './player-card.component.html',
   styleUrl: './player-card.component.css'

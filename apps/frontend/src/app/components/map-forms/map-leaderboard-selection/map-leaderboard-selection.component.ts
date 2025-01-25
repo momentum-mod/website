@@ -27,7 +27,6 @@ import { DropdownModule } from 'primeng/dropdown';
       multi: true
     }
   ],
-  standalone: true,
   imports: [CommonModule, FormsModule, DropdownModule]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {

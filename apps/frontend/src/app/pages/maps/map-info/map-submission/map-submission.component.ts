@@ -20,7 +20,6 @@ import { SubmissionTypeInfoComponent } from '../../../../components/tooltips/sub
 @Component({
   selector: 'm-map-submission',
   templateUrl: 'map-submission.component.html',
-  standalone: true,
   imports: [SharedModule, MapReviewListComponent, SubmissionTypeInfoComponent]
 })
 export class MapSubmissionComponent {

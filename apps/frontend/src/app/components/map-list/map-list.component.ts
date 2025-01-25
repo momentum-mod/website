@@ -8,7 +8,6 @@ import { SharedModule } from '../../shared.module';
 @Component({
   selector: 'm-map-list',
   templateUrl: './map-list.component.html',
-  standalone: true,
   imports: [SharedModule, MapListItemComponent, InfiniteScrollModule]
 })
 export class MapListComponent {

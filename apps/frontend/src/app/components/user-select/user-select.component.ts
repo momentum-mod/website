@@ -7,7 +7,6 @@ import { UserSearchComponent } from '../search/user-search.component';
 
 @Component({
   selector: 'm-user-select',
-  standalone: true,
   imports: [UserComponent, IconComponent, UserSearchComponent],
   templateUrl: './user-select.component.html',
   providers: [

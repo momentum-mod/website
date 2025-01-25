@@ -6,7 +6,6 @@ import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({
   selector: 'm-card',
-  standalone: true,
   imports: [CardHeaderComponent, NgClass, CardBodyComponent, SpinnerComponent],
   template: `
     <m-card-header class="card-header" [title]="title" [titleSize]="titleSize">

@@ -14,7 +14,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
-  standalone: true,
   imports: [SharedModule, DropdownModule, PaginatorModule]
 })
 export class ProfileRunHistoryComponent implements OnInit {

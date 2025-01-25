@@ -29,7 +29,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   templateUrl: 'map-browser.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     MapListComponent,

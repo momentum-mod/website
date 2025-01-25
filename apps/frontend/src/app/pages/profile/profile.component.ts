@@ -40,7 +40,6 @@ import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'm-user-profile',
   templateUrl: './profile.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     ActivityComponent,

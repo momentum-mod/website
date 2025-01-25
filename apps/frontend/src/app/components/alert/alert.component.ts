@@ -4,7 +4,6 @@ import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-alert',
-  standalone: true,
   imports: [CommonModule, IconComponent],
   template: ` <div class="prose max-w-none">
       <ng-content />

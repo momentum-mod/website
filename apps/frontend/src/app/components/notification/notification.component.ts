@@ -7,7 +7,6 @@ import { SharedModule } from '../../shared.module';
 @Component({
   selector: 'm-notifications',
   templateUrl: './notification.component.html',
-  standalone: true,
   imports: [SharedModule, ActivityContentComponent]
 })
 export class NotificationComponent implements OnInit {

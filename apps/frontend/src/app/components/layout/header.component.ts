@@ -15,7 +15,6 @@ import { MenuModule } from 'primeng/menu';
   selector: 'm-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
-  standalone: true,
   imports: [
     SharedModule,
     MultiSearchComponent,
