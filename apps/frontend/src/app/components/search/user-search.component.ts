@@ -12,7 +12,6 @@ import { LocalUserService } from '../../services/data/local-user.service';
 @Component({
   selector: 'm-user-search',
   templateUrl: './user-search.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     PaginatorModule,

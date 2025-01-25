@@ -29,7 +29,6 @@ type StatusFilters = Array<
 // split them up. Try to keep any styling synced up.
 @Component({
   templateUrl: 'map-submission-browser.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     MapListComponent,

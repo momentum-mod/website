@@ -35,7 +35,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
-  standalone: true,
   imports: [SharedModule, UserSearchComponent, DropdownModule]
 })
 export class ProfileEditComponent implements OnInit {

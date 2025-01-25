@@ -10,7 +10,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-update-report-dialog',
   templateUrl: './update-report-dialog.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class UpdateReportDialogComponent implements OnInit {

@@ -11,7 +11,6 @@ import { Observable } from 'rxjs';
   selector: 'm-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css'],
-  standalone: true,
   imports: [SharedModule]
 })
 export class SidenavComponent {

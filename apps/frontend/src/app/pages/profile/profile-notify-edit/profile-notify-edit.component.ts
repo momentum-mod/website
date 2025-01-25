@@ -7,7 +7,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'm-profile-notify-edit-modal',
   templateUrl: './profile-notify-edit.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class ProfileNotifyEditComponent implements OnInit {

@@ -3,7 +3,6 @@ import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-card-header',
-  standalone: true,
   imports: [NgClass],
   template: `
     <div class="flex items-center gap-2" [ngClass]="{ 'items-end': !!title }">

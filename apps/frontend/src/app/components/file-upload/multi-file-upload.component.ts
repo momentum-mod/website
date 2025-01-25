@@ -17,7 +17,6 @@ import { SharedModule } from '../../shared.module';
       multi: true
     }
   ],
-  standalone: true,
   imports: [SharedModule]
 })
 export class MultiFileUploadComponent extends AbstractFileUploadComponent<

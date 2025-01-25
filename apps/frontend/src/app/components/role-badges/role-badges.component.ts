@@ -11,7 +11,6 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
  */
 @Component({
   selector: 'm-role-badges',
-  standalone: true,
   imports: [TooltipDirective],
   template: `@for (role of heldRoleStrings; track $index) {
     <!-- SVGs in apps/frontend/src/assets/images/badges/roles must have
