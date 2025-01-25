@@ -7,7 +7,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'm-queued-report',
   templateUrl: './queued-report.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class QueuedReportComponent implements OnInit {

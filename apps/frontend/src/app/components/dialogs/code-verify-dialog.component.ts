@@ -33,7 +33,6 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
       </button>
     </div>
   `,
-  standalone: true,
   imports: [CardComponent]
 })
 export class CodeVerifyDialogComponent implements OnInit {

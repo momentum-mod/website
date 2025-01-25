@@ -40,7 +40,6 @@ import * as Enum from '@momentum/enum';
       }
     </div>
   `,
-  standalone: true,
   imports: [NgStyle, RouterLink]
 })
 export class AdminActivityEntryComponent implements OnInit {

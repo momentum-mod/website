@@ -13,7 +13,6 @@ import { AdminService } from '../../../services/data/admin.service';
 @Component({
   selector: 'm-report-queue',
   templateUrl: './report-queue.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     QueuedReportComponent,

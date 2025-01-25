@@ -25,14 +25,12 @@ import { LocalUserService } from '../../services/data/local-user.service';
 
 @Component({
   selector: 'm-map-review-form',
-  standalone: true,
   imports: [
     SharedModule,
     MapReviewSuggestionsFormComponent,
     MultiFileUploadComponent,
     JsonPipe
   ],
-
   templateUrl: './map-review-form.component.html'
 })
 export class MapReviewFormComponent {

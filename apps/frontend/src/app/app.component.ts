@@ -11,7 +11,6 @@ import { SharedModule } from './shared.module';
   selector: 'm-app',
   templateUrl: 'app.component.html',
   styleUrl: 'app.component.css',
-  standalone: true,
   imports: [
     SharedModule,
     HeaderComponent,

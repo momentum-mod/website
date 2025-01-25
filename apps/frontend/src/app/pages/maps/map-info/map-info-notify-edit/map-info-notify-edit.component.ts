@@ -7,7 +7,6 @@ import { SharedModule } from '../../../../shared.module';
 @Component({
   selector: 'm-map-info-notify-edit-modal',
   templateUrl: './map-info-notify-edit.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class MapNotifyEditComponent implements OnInit {

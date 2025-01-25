@@ -20,7 +20,6 @@ enum FilterType {
 
 @Component({
   selector: 'm-map-review-list',
-  standalone: true,
   imports: [
     SharedModule,
     PaginatorModule,

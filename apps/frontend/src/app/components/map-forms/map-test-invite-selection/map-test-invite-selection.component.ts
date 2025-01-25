@@ -15,7 +15,6 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
       multi: true
     }
   ],
-  standalone: true,
   imports: [SharedModule, UserSearchComponent]
 })
 export class MapTestInviteSelectionComponent implements ControlValueAccessor {

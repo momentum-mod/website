@@ -21,7 +21,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-admin-activity',
   templateUrl: './admin-activity.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     PaginatorModule,

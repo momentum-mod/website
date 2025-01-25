@@ -30,7 +30,6 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
       multi: true
     }
   ],
-  standalone: true,
   imports: [
     SharedModule,
     CdkDropList,

@@ -8,7 +8,6 @@ import { filter, switchMap } from 'rxjs';
 @Component({
   selector: 'm-home-user-maps',
   templateUrl: './home-user-maps.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class HomeUserMapsComponent implements OnInit {

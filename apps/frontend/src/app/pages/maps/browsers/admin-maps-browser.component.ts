@@ -22,7 +22,6 @@ type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
-  standalone: true,
   imports: [SharedModule, MapListComponent, MultiSelectModule]
 })
 export class AdminMapsBrowserComponent implements OnInit {

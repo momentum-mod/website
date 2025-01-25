@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'm-home',
   templateUrl: './home.component.html',
-  standalone: true,
   imports: [HomeStatsComponent, HomeUserMapsComponent, ActivityComponent]
 })
 export class HomeComponent {

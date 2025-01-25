@@ -54,7 +54,6 @@ enum MapInfoSection {
 @Component({
   selector: 'm-map-info',
   templateUrl: './map-info.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     MapLeaderboardComponent,

@@ -9,7 +9,6 @@ import { BlogService } from '../../../services/data/blog.service';
   templateUrl: './community-news.component.html',
   styleUrls: ['./community-news.component.css'],
   encapsulation: ViewEncapsulation.None,
-  standalone: true,
   imports: [SharedModule]
 })
 export class CommunityNewsComponent implements OnInit {

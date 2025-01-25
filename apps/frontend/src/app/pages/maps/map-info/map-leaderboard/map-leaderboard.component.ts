@@ -43,7 +43,6 @@ export interface ActiveTrack {
 @Component({
   selector: 'm-map-leaderboard',
   templateUrl: 'map-leaderboard.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     DropdownModule,
