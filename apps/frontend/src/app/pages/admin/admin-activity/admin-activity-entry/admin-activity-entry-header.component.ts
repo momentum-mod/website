@@ -23,7 +23,6 @@ import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
       <p class="ml-auto">{{ activity.createdAt | timeAgo }}</p>
     </div>
   `,
-  standalone: true,
   imports: [SharedModule, TimeAgoPipe]
 })
 export class AdminActivityEntryHeaderComponent {

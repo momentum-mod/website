@@ -29,7 +29,6 @@ type StatusFilters = Array<
 
 @Component({
   templateUrl: 'user-maps-browser.component.html',
-  standalone: true,
   imports: [SharedModule, MapListComponent, MultiSelectModule]
 })
 export class UserMapsBrowserComponent implements OnInit {

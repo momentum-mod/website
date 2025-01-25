@@ -24,7 +24,6 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
 @Component({
   selector: 'm-map-details-form',
   templateUrl: 'map-details-form.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     CalendarModule,

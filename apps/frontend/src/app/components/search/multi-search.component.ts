@@ -12,7 +12,6 @@ enum SearchType {
 
 @Component({
   selector: 'm-multisearch',
-  standalone: true,
   imports: [SharedModule, UserSearchComponent, MapSearchComponent],
   templateUrl: './multi-search.component.html',
   styles: [

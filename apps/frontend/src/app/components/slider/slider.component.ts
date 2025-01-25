@@ -43,7 +43,6 @@ export interface SliderSlideEndEvent {
  */
 @Component({
   selector: 'm-slider',
-  standalone: true,
   template: `
     <!-- This styling is terrible, full of constants and absolute positioning.
          Doing it well with the fucking number markers would probably take me

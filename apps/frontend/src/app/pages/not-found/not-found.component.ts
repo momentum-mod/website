@@ -5,7 +5,6 @@ import { SharedModule } from '../../shared.module';
 @Component({
   selector: 'm-not-found',
   templateUrl: './not-found.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class NotFoundComponent {

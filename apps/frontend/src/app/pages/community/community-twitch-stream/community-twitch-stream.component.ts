@@ -8,7 +8,6 @@ import { TwitchAPIService } from '../../../services/data/twitch-api.service';
 @Component({
   selector: 'm-community-twitch-stream',
   templateUrl: './community-twitch-stream.component.html',
-  standalone: true,
   imports: [SharedModule, TwitchDataComponent]
 })
 export class CommunityTwitchStreamComponent implements OnInit {

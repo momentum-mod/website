@@ -6,7 +6,6 @@ import { SharedModule } from '../../shared.module';
 @Component({
   selector: 'm-activity-content',
   templateUrl: './activity-content.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class ActivityContentComponent implements OnInit {

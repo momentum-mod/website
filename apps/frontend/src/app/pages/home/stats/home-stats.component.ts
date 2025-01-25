@@ -5,7 +5,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'm-home-stats',
   templateUrl: './home-stats.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class HomeStatsComponent {

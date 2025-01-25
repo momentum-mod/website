@@ -39,7 +39,6 @@ import { LevelIndicatorComponent } from '../../components/level-indicator/level-
 @Component({
   selector: 'm-user-profile',
   templateUrl: './profile.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     ActivityComponent,

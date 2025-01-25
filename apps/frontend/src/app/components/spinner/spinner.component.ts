@@ -3,7 +3,6 @@ import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-spinner',
-  standalone: true,
   imports: [NgClass],
   template: '<span [ngClass]="spinnerClass"></span>',
   styles: [

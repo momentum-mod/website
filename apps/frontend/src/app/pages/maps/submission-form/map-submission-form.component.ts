@@ -70,7 +70,6 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'm-map-submission-form',
   templateUrl: './map-submission-form.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     FileUploadComponent,

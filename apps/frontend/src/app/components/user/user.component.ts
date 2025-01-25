@@ -14,7 +14,6 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
  */
 @Component({
   selector: 'm-user',
-  standalone: true,
   imports: [AvatarComponent, NgClass, RoleBadgesComponent],
   template: ` @if (user) {
     <m-avatar

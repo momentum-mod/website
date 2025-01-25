@@ -25,7 +25,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-map-list-item',
   templateUrl: './map-list-item.component.html',
-  standalone: true,
   imports: [SharedModule, FontSizeLerpDirective]
 })
 export class MapListItemComponent implements OnChanges {

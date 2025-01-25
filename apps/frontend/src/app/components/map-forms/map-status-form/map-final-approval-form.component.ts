@@ -20,7 +20,6 @@ import { SharedModule } from '../../../shared.module';
 @Component({
   selector: 'm-map-final-approval-form',
   templateUrl: 'map-final-approval-form.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     DropdownModule,

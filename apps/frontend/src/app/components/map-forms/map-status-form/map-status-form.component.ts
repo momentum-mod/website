@@ -58,7 +58,6 @@ export type GroupedLeaderboards = Map<
 @Component({
   selector: 'm-map-status-form',
   templateUrl: 'map-status-form.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     CalendarModule,

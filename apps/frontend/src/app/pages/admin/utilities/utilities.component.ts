@@ -12,7 +12,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-utilities',
   templateUrl: './utilities.component.html',
-  standalone: true,
   imports: [SharedModule]
 })
 export class UtilitiesComponent implements OnInit {

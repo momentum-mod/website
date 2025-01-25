@@ -5,7 +5,6 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-level-indicator',
-  standalone: true,
   imports: [CommonModule, TooltipDirective],
   templateUrl: './level-indicator.component.html'
 })

@@ -19,7 +19,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-activity',
   templateUrl: './activity.component.html',
-  standalone: true,
   imports: [
     SharedModule,
     DropdownModule,

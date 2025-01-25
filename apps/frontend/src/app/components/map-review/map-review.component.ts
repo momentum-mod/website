@@ -41,7 +41,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-map-review',
-  standalone: true,
   imports: [
     SharedModule,
     UserComponent,

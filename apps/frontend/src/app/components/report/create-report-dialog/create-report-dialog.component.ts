@@ -11,7 +11,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
-  standalone: true,
   imports: [SharedModule, DropdownModule]
 })
 export class CreateReportDialogComponent implements OnInit {
