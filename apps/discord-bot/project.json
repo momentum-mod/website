@@ -1,0 +1,64 @@
+{
+  "name": "discord-bot",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "momentum",
+  "sourceRoot": "apps/discord-bot/src",
+  "tags": ["discord-bot"],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/discord-bot",
+        "main": "apps/discord-bot/src/index.ts",
+        "tsConfig": "apps/discord-bot/tsconfig.json",
+        "webpackConfig": "apps/discord-bot/webpack.config.js",
+        "assets": [
+          {
+            "glob": "config.json",
+            "input": "apps/discord-bot/config/",
+            "output": "./config/"
+          },
+          {
+            "glob": "bot_data.db",
+            "input": "apps/discord-bot/data/",
+            "output": "./data/"
+          }
+        ]
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generatePackageJson": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "discord-bot:build",
+        "runtimeArgs": ["--experimental-sqlite"]
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "discord-bot:build:development"
+        },
+        "production": {
+          "buildTarget": "discord-bot:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/discord-bot/**/*.ts"]
+      }
+    }
+  }
+}
