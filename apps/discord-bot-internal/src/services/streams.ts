@@ -18,7 +18,6 @@ export class StreamsService extends Service {
   public softBans: Set<string> = new Set();
 
   async init() {
-    await this.twitch.getMomentumModId();
     this.streamsChannel = await this.client.channels
       .fetch(config.streamer_channel)
       .then((ch) =>
@@ -34,7 +33,7 @@ export class StreamsService extends Service {
     await this.parseExistingEmbeds(messages.values().toArray());
 
     setInterval(
-      this.updateStreams.bind(this),
+      () => this.updateStreams(),
       config.stream_update_interval * 60 * 1000
     );
     void this.updateStreams();
@@ -43,7 +42,10 @@ export class StreamsService extends Service {
   async updateStreams() {
     const streams = await this.twitch
       .getLiveMomentumModStreams()
-      .catch(() => null);
+      .catch((error) => {
+        console.error(error);
+        return null;
+      });
 
     if (streams === null) return;
 

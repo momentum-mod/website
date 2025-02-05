@@ -1,9 +1,9 @@
 {
-  "name": "discord-bot",
+  "name": "discord-bot-internal",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "momentum",
-  "sourceRoot": "apps/discord-bot/src",
+  "sourceRoot": "apps/discord-bot-internal/src",
   "tags": ["discord-bot"],
   "targets": {
     "build": {
@@ -13,19 +13,19 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/discord-bot",
-        "main": "apps/discord-bot/src/index.ts",
-        "tsConfig": "apps/discord-bot/tsconfig.json",
-        "webpackConfig": "apps/discord-bot/webpack.config.js",
+        "outputPath": "dist/apps/discord-bot-internal",
+        "main": "apps/discord-bot-internal/src/index.ts",
+        "tsConfig": "apps/discord-bot-internal/tsconfig.json",
+        "webpackConfig": "apps/discord-bot-internal/webpack.config.js",
         "assets": [
           {
             "glob": "config.json",
-            "input": "apps/discord-bot/config/",
+            "input": "apps/discord-bot-internal/config/",
             "output": "./config/"
           },
           {
             "glob": "bot_data.db",
-            "input": "apps/discord-bot/data/",
+            "input": "apps/discord-bot-internal/data/",
             "output": "./data/"
           }
         ]
@@ -41,15 +41,15 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "discord-bot:build",
+        "buildTarget": "discord-bot-internal:build",
         "runtimeArgs": ["--experimental-sqlite"]
       },
       "configurations": {
         "development": {
-          "buildTarget": "discord-bot:build:development"
+          "buildTarget": "discord-bot-internal:build:development"
         },
         "production": {
-          "buildTarget": "discord-bot:build:production"
+          "buildTarget": "discord-bot-internal:build:production"
         }
       }
     },
@@ -57,7 +57,7 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/discord-bot/**/*.ts"]
+        "lintFilePatterns": ["apps/discord-bot-internal/**/*.ts"]
       }
     }
   }

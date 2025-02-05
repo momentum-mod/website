@@ -64,12 +64,8 @@ client.once(Events.ClientReady, async (readyClient) => {
     Routes.applicationGuildCommands(readyClient.user.id, config.guild_id),
     {
       body: [
-        ...Array.from(commandMap.values()).map(
-          (command) => command.commandBuilder
-        ),
-        ...Array.from(contextMenus.values()).map(
-          (command) => command.contextMenuBuilder
-        )
+        ...commandMap.values().map((command) => command.commandBuilder),
+        ...contextMenus.values().map((command) => command.contextMenuBuilder)
       ]
     }
   );

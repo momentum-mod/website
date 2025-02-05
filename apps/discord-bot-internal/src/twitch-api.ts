@@ -1,5 +1,5 @@
-import { config } from "./config";
-import { TwitchStream, TwitchUser } from "./types/twitch";
+import { config } from './config';
+import { TwitchStream, TwitchUser } from './types/twitch';
 
 export class TwitchAPI {
   private token?: string;
@@ -16,15 +16,15 @@ export class TwitchAPI {
     await this.checkToken();
 
     const response = await fetch(
-      "https://api.twitch.tv/" +
+      'https://api.twitch.tv/' +
         path +
-        "?" +
+        '?' +
         new URLSearchParams(query).toString(),
       {
         headers: {
-          Authorization: "Bearer " + this.token,
-          "Client-Id": config.twitch_api_client_id,
-        },
+          Authorization: 'Bearer ' + this.token,
+          'Client-Id': config.twitch_api_client_id
+        }
       }
     );
     const rawBody = await response.text();
@@ -39,14 +39,14 @@ export class TwitchAPI {
   }
 
   async updateToken() {
-    const response = await fetch("https://id.twitch.tv/oauth2/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    const response = await fetch('https://id.twitch.tv/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         client_id: config.twitch_api_client_id,
         client_secret: config.twitch_api_client_secret,
-        grant_type: "client_credentials",
-      }).toString(),
+        grant_type: 'client_credentials'
+      }).toString()
     });
     const rawBody = await response.text();
 
@@ -61,32 +61,28 @@ export class TwitchAPI {
     this.tokenExpireAt = new Date(Date.now() + body.expires_in * 1000);
   }
 
-  private momentumModGameId?: string;
-  async getMomentumModId(): Promise<string> {
-    const { data } = await this.apiGet("helix/games", { name: "Momentum Mod" });
-    this.momentumModGameId = data[0].id;
-    return this.momentumModGameId!;
-  }
-
   private categoryNames: Map<string, string> = new Map();
   async getGameName(id: string): Promise<string> {
     if (this.categoryNames.has(id)) return this.categoryNames.get(id)!;
-    const { data } = await this.apiGet("helix/games", { id });
-    const name = data[0].name;
-    this.categoryNames.set(id, name);
-    return name;
+
+    return await this.apiGet('helix/games', { id }).then(
+      ({ data: [{ name }] }) => {
+        this.categoryNames.set(id, name);
+        return name;
+      }
+    );
   }
 
-  async getLiveMomentumModStreams(): Promise<TwitchStream[]> {
-    const { data } = await this.apiGet("helix/streams", {
-      game_id: this.momentumModGameId ?? (await this.getMomentumModId()),
-    });
-    return data;
+  getLiveMomentumModStreams(): Promise<TwitchStream[]> {
+    return this.apiGet('helix/streams', {
+      game_id: config.twitch_momentum_mod_game_id
+    }).then(({ data }) => data);
   }
 
-  async getUser(id: string): Promise<TwitchUser | null> {
-    const { data } = await this.apiGet("helix/users", { id });
-    return data[0] ?? null;
+  getUser(id: string): Promise<TwitchUser | null> {
+    return this.apiGet('helix/users', { id }).then(
+      ({ data }) => data[0] ?? null
+    );
   }
 
   private userIds: Map<string, string> = new Map();
@@ -98,7 +94,7 @@ export class TwitchAPI {
     if (this.userIds.has(username)) return this.userIds.get(username)!;
 
     // Get user id and cache
-    const { data } = await this.apiGet("helix/users", { login: username });
+    const { data } = await this.apiGet('helix/users', { login: username });
     const id = data[0]?.id;
     if (!id) return null;
     this.userIds.set(username, id);

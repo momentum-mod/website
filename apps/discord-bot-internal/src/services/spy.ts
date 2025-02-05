@@ -7,7 +7,6 @@ import {
   Message,
   PartialMessage,
   ReadonlyCollection,
-  TextChannel
 } from 'discord.js';
 import { Service } from '../types/service';
 import { config } from '../config';
@@ -158,13 +157,12 @@ export class SpyService extends Service {
       }
     }
 
-    const attachments = message.attachments.values().toArray();
-    for (let i = 0; i < attachments.length; i++) {
+    message.attachments.values().forEach(({ url }, i) => {
       embed.addFields({
         name: 'Attachment ' + (i + 1),
-        value: attachments[i].url
+        value: url
       });
-    }
+    });
 
     return embed;
   }

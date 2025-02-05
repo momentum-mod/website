@@ -16,5 +16,6 @@
   "media_blacklisted_role": "",
   "media_minimum_days": 3,
   "media_minimum_messages": 10,
+  "twitch_momentum_mod_game_id": "2043449207",
   "custom_commands": {}
 }

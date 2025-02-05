@@ -1,12 +1,12 @@
-import { Client, Snowflake } from "discord.js";
-import { Service } from "../types/service";
-import { PathConstants } from "../path-constants";
+import { Client, Snowflake } from 'discord.js';
+import { Service } from '../types/service';
+import { PathConstants } from '../path-constants';
 import {
   DatabaseSync,
   StatementResultingChanges,
   StatementSync,
-  SupportedValueType,
-} from "node:sqlite";
+  SupportedValueType
+} from 'node:sqlite';
 
 export class DailyMessageCountService implements Service {
   private db: DatabaseSync;
@@ -26,38 +26,21 @@ class MessageCountStatement {
   }
 
   all(...params: Array<SupportedValueType | Date>): MessageCount[] {
-    params = params.map((param) =>
-      param instanceof Date ? this.stringifyDate(param) : param
-    );
-
     return this.statement
-      .all(...(params as SupportedValueType[]))
+      .all(...stringifyDateInParams(params))
       .map((res) => this.normalizeResult(res as RawMessageCount));
   }
 
   get(...params: Array<SupportedValueType | Date>): MessageCount | null {
-    params = params.map((param) =>
-      param instanceof Date ? this.stringifyDate(param) : param
-    );
-
     const statementResult = this.statement.get(
-      ...(params as SupportedValueType[])
+      ...stringifyDateInParams(params)
     );
     if (!statementResult) return null;
     return this.normalizeResult(statementResult as RawMessageCount);
   }
 
   run(...params: Array<SupportedValueType | Date>): StatementResultingChanges {
-    params = params.map((param) =>
-      param instanceof Date ? this.stringifyDate(param) : param
-    );
-
-    return this.statement.run(...(params as SupportedValueType[]));
-  }
-
-  // toISOString always returns time in UTC timezone
-  private stringifyDate(date: Date): string {
-    return date.toISOString().split("T")[0];
+    return this.statement.run(...stringifyDateInParams(params));
   }
 
   private normalizeResult(rawResult: RawMessageCount): MessageCount {
@@ -65,9 +48,17 @@ class MessageCountStatement {
       UserId: rawResult.UserId.toString(),
       ChannelId: rawResult.ChannelId.toString(),
       Date: new Date(rawResult.Date),
-      MessageCount: Number(rawResult.MessageCount),
+      MessageCount: Number(rawResult.MessageCount)
     };
   }
+}
+// toISOString always returns time in UTC timezone
+function stringifyDateInParams(
+  params: Array<SupportedValueType | Date>
+): Array<SupportedValueType> {
+  return params.map((param) =>
+    param instanceof Date ? param.toISOString().split('T')[0] : param
+  );
 }
 
 interface MessageCount {

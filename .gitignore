@@ -48,5 +48,5 @@ Thumbs.db
 .nx
 
 # Discord bot config and storage
-apps/discord-bot/config/config.json
-apps/discord-bot/data/bot_data.db
+apps/discord-bot-internal/config/config.json
+apps/discord-bot-internal/data/bot_data.db

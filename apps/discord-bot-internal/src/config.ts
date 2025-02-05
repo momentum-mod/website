@@ -1,6 +1,6 @@
-import { readFileSync } from "fs";
-import { readFile, writeFile } from "fs/promises";
-import { PathConstants } from "./path-constants";
+import { readFileSync } from 'fs';
+import { readFile, writeFile } from 'fs/promises';
+import { PathConstants } from './path-constants';
 
 interface Config {
   /* Constants */
@@ -37,6 +37,9 @@ interface Config {
   media_minimum_days: number; // Days for getting trusted role
   media_minimum_messages: number; // Messages for getting trusted role
 
+  /* Twitch API config */
+  twitch_momentum_mod_game_id: string;
+
   /* Custom module storage */
   custom_commands: { [key: string]: CustomCommand };
 }
@@ -53,13 +56,13 @@ export interface CustomCommand {
 }
 
 const environmentConfigMap = {
-  BOT_TOKEN: "bot_token",
-  TWITCH_API_CLIENT_ID: "twitch_api_client_id",
-  TWITCH_API_CLIENT_SECRET: "twitch_api_client_secret",
+  BOT_TOKEN: 'bot_token',
+  TWITCH_API_CLIENT_ID: 'twitch_api_client_id',
+  TWITCH_API_CLIENT_SECRET: 'twitch_api_client_secret'
 } as const;
 
 class Config {
-  constructor(private path = "config.json") {
+  constructor(private path = 'config.json') {
     this.reload();
   }
 
@@ -92,7 +95,7 @@ class Config {
       ...Object.fromEntries(
         Object.values(environmentConfigMap).map((k) => [k, undefined])
       ),
-      path: undefined,
+      path: undefined
     };
     await writeFile(this.path, JSON.stringify(cleanConfig, null, 2));
   }
