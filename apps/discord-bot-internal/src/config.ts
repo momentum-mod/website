@@ -1,5 +1,5 @@
-import { readFileSync } from 'fs';
-import { readFile, writeFile } from 'fs/promises';
+import { readFileSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import { PathConstants } from './path-constants';
 
 interface Config {

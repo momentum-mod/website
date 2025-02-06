@@ -220,7 +220,7 @@ export class CustomModule implements InteractionModule {
       .awaitModalSubmit({
         time: 5 * 60 * 1000,
         filter: (i) =>
-          i.customId === modalId && i.user.id == interaction.user.id
+          i.customId === modalId && i.user.id === interaction.user.id
       })
       .catch(() => undefined);
 
@@ -408,7 +408,7 @@ export class CustomModule implements InteractionModule {
         .awaitModalSubmit({
           time: 5 * 60 * 1000,
           filter: (i) =>
-            i.customId === modalId && i.user.id == interaction.user.id
+            i.customId === modalId && i.user.id === interaction.user.id
         })
         .catch(() => undefined);
 
@@ -518,7 +518,7 @@ export class CustomModule implements InteractionModule {
       creation_timestamp: new Date().toISOString()
     };
 
-    if (message.embeds.length !== 0) {
+    if (message.embeds.length > 0) {
       const embed = message.embeds[0];
       createdCommand.title = embed.title || '';
       createdCommand.description = embed.description || '';
@@ -556,7 +556,7 @@ export class CustomModule implements InteractionModule {
       .awaitModalSubmit({
         time: 30 * 1000,
         filter: (i) =>
-          i.customId === modalId && i.user.id == interaction.user.id
+          i.customId === modalId && i.user.id === interaction.user.id
       })
       .catch(() => undefined);
 
@@ -733,7 +733,7 @@ export class SayModule implements InteractionModule {
 
       await interaction.respond(
         messages.map((msg) => ({
-          name: `${msg.author.displayName}: ${msg.content.replace(/\n/g, ' ')}`,
+          name: `${msg.author.displayName}: ${msg.content.replaceAll('\n', ' ')}`,
           value: msg.id
         }))
       );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 function colorValue(r: number, g: number, b: number) {
   return (r << 16) + (g << 8) + b;
 }
@@ -16,5 +17,5 @@ export enum MomentumColor {
   Red = colorValue(255, 106, 106),
   Green = colorValue(153, 255, 153),
   Blue = colorValue(24, 150, 211),
-  GrayBlue = colorValue(76, 139, 180),
+  GrayBlue = colorValue(76, 139, 180)
 }

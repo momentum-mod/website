@@ -5,8 +5,6 @@ export class TwitchAPI {
   private token?: string;
   private tokenExpireAt?: Date;
 
-  constructor() {}
-
   private async checkToken() {
     if (!this.token || !this.tokenExpireAt || new Date() <= this.tokenExpireAt)
       await this.updateToken();
@@ -73,14 +71,14 @@ export class TwitchAPI {
     );
   }
 
-  getLiveMomentumModStreams(): Promise<TwitchStream[]> {
-    return this.apiGet('helix/streams', {
+  async getLiveMomentumModStreams(): Promise<TwitchStream[]> {
+    return await this.apiGet('helix/streams', {
       game_id: config.twitch_momentum_mod_game_id
     }).then(({ data }) => data);
   }
 
-  getUser(id: string): Promise<TwitchUser | null> {
-    return this.apiGet('helix/users', { id }).then(
+  async getUser(id: string): Promise<TwitchUser | null> {
+    return await this.apiGet('helix/users', { id }).then(
       ({ data }) => data[0] ?? null
     );
   }
@@ -88,7 +86,7 @@ export class TwitchAPI {
   private userIds: Map<string, string> = new Map();
   async getUserId(username: string): Promise<string | null> {
     // Input is user id
-    if (!isNaN(parseInt(username))) return username;
+    if (!Number.isNaN(Number.parseInt(username))) return username;
 
     // User id is in cache
     if (this.userIds.has(username)) return this.userIds.get(username)!;

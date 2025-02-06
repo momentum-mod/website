@@ -9,6 +9,7 @@ import { Service } from '../types/service';
 import { TwitchAPI } from '../twitch-api';
 import { TwitchStream } from '../types/twitch';
 import { sanitizeMarkdown, timeSpanToPrettyPrint } from '../utils';
+import { logger } from '../logger';
 
 export class StreamsService extends Service {
   public twitch = new TwitchAPI();
@@ -43,7 +44,7 @@ export class StreamsService extends Service {
     const streams = await this.twitch
       .getLiveMomentumModStreams()
       .catch((error) => {
-        console.error(error);
+        logger.error(error);
         return null;
       });
 
@@ -172,7 +173,7 @@ export class StreamsService extends Service {
           if (!matchingStream) return await message.delete();
 
           if (this.streamerIdMessageMap.has(matchingStream.user_id)) {
-            console.warn(
+            logger.warn(
               `Duplicate cached streamer: ${matchingStream.user_name}, deleting...`
             );
             return await message.delete();
@@ -180,8 +181,11 @@ export class StreamsService extends Service {
 
           this.streamerIdMessageMap.set(matchingStream.user_id, message.id);
           this.messageIdStreamerMap.set(message.id, matchingStream.user_id);
-        } catch (e) {
-          console.warn('Failed to parse existing message ' + message.id, e);
+        } catch (error) {
+          logger.warn(
+            { err: error },
+            'Failed to parse existing message ' + message.id
+          );
         }
       })
     );
@@ -203,10 +207,10 @@ export class StreamsService extends Service {
           this.streamerIdMessageMap.delete(streamerId!);
           try {
             await msg.delete();
-          } catch (e) {
-            console.warn(
-              'Failed to delete message of banned stream ' + msg.id,
-              e
+          } catch (error) {
+            logger.warn(
+              { err: error },
+              'Failed to delete message of banned stream ' + msg.id
             );
           }
         })
@@ -219,7 +223,7 @@ export class StreamsService extends Service {
       .toArray()
       .filter(
         ([streamerId]) =>
-          streams.findIndex((stream) => stream.user_id === streamerId) === -1
+          !streams.some((stream) => stream.user_id === streamerId)
       );
 
     for (const [streamerId, messageId] of endedStreams) {
@@ -229,10 +233,10 @@ export class StreamsService extends Service {
       if (streamMessage)
         streamMessage
           .delete()
-          .catch((e) =>
-            console.warn(
-              'Failed to delete message of ended stream ' + streamMessage.id,
-              e
+          .catch((error) =>
+            logger.warn(
+              { err: error },
+              'Failed to delete message of ended stream ' + streamMessage.id
             )
           );
 
@@ -249,12 +253,11 @@ export class StreamsService extends Service {
       .entries()
       .toArray()
       .filter(
-        ([messageId]) =>
-          selfMessages.findIndex((msg) => msg.id === messageId) === -1
+        ([messageId]) => !selfMessages.some((msg) => msg.id === messageId)
       );
 
     for (const [messageId, streamerId] of softBannedMessages) {
-      console.log('Registered softban for streamer ' + streamerId);
+      logger.info('Registered softban for streamer ' + streamerId);
       this.softBans.add(streamerId);
 
       this.streamerIdMessageMap.delete(streamerId);

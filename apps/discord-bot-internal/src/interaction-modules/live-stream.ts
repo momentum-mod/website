@@ -1,61 +1,60 @@
 import {
-  Channel,
   ChatInputCommandInteraction,
   Colors,
-  SlashCommandBuilder,
-} from "discord.js";
-import { InteractionModule } from "../types/interaction-module";
-import { StreamsService } from "../services/streams";
-import { getService } from "../index";
-import { MomentumColor } from "../momentum-color";
+  SlashCommandBuilder
+} from 'discord.js';
+import { InteractionModule } from '../types/interaction-module';
+import { StreamsService } from '../services/streams';
+import { getService } from '../services';
+import { MomentumColor } from '../momentum-color';
 import {
   isAdmin,
   isAdminBotChannel,
   replyDescriptionEmbed,
-  sanitizeMarkdown,
-} from "../utils";
-import { config } from "../config";
+  sanitizeMarkdown
+} from '../utils';
+import { config } from '../config';
 
 export class LiveStreamModule implements InteractionModule {
   userFilter = isAdmin;
   channelFilter = isAdminBotChannel;
   commandBuilder = new SlashCommandBuilder()
-    .setName("streamban")
-    .setDescription("Twitch ban commands")
+    .setName('streamban')
+    .setDescription('Twitch ban commands')
     .addSubcommand((builder) =>
       builder
-        .setName("add")
-        .setDescription("Hard ban a twitch user from the livestream channel")
+        .setName('add')
+        .setDescription('Hard ban a twitch user from the livestream channel')
         .addStringOption((option) =>
           option
-            .setName("username")
-            .setDescription("Username of Twitch user to ban")
+            .setName('username')
+            .setDescription('Username of Twitch user to ban')
             .setRequired(true)
         )
     )
     .addSubcommand((builder) =>
       builder
-        .setName("remove")
-        .setDescription("Remove hard ban of a twitch user")
+        .setName('remove')
+        .setDescription('Remove hard ban of a twitch user')
         .addStringOption((option) =>
           option
-            .setName("username")
-            .setDescription("Username of Twitch user to unban")
+            .setName('username')
+            .setDescription('Username of Twitch user to unban')
             .setRequired(true)
         )
     )
     .addSubcommand((builder) =>
       builder
-        .setName("list")
+        .setName('list')
         .setDescription(
-          "Get a list of Twitch users hard banned from the livestream channel"
+          'Get a list of Twitch users hard banned from the livestream channel'
         )
     )
     .addSubcommand((builder) =>
       builder
-        .setName("softlist")
+        .setName('softlist')
         .setDescription(
-          "Get a list of Twitch users soft banned from the livestream channel"
+          'Get a list of Twitch users soft banned from the livestream channel'
         )
     );
 
@@ -66,7 +65,7 @@ export class LiveStreamModule implements InteractionModule {
     add: this.addHardBan,
     remove: this.removeHardBan,
     list: this.listHardBans,
-    softlist: this.listSoftBans,
+    softlist: this.listSoftBans
   };
 
   async executeCommand(interaction: ChatInputCommandInteraction) {
@@ -87,7 +86,7 @@ export class LiveStreamModule implements InteractionModule {
   }
 
   async addHardBan(interaction: ChatInputCommandInteraction) {
-    const twitchUsername = interaction.options.getString("username");
+    const twitchUsername = interaction.options.getString('username');
     if (!twitchUsername) return;
     const streams = getService(StreamsService);
 
@@ -97,7 +96,7 @@ export class LiveStreamModule implements InteractionModule {
     if (!userId) {
       await replyDescriptionEmbed(
         interaction,
-        "Failed to recieve Twitch user ID or unknown user specified.",
+        'Failed to recieve Twitch user ID or unknown user specified.',
         Colors.Orange
       );
       return;
@@ -110,13 +109,13 @@ export class LiveStreamModule implements InteractionModule {
 
     await replyDescriptionEmbed(
       interaction,
-      "Banned user with ID " + userId,
+      'Banned user with ID ' + userId,
       Colors.Orange
     );
   }
 
   async removeHardBan(interaction: ChatInputCommandInteraction) {
-    const twitchUsername = interaction.options.getString("username");
+    const twitchUsername = interaction.options.getString('username');
     if (!twitchUsername) return;
     const streams = getService(StreamsService);
 
@@ -126,7 +125,7 @@ export class LiveStreamModule implements InteractionModule {
     if (!userId) {
       await replyDescriptionEmbed(
         interaction,
-        "Failed to recieve Twitch user ID or unknown user specified.",
+        'Failed to recieve Twitch user ID or unknown user specified.',
         Colors.Orange
       );
       return;
@@ -141,7 +140,7 @@ export class LiveStreamModule implements InteractionModule {
 
     await replyDescriptionEmbed(
       interaction,
-      "Unbanned user with ID " + userId,
+      'Unbanned user with ID ' + userId,
       Colors.Orange
     );
   }
@@ -153,39 +152,39 @@ export class LiveStreamModule implements InteractionModule {
       bans.map((uid) =>
         streams.twitch
           .getUser(uid)
-          .then((user) => `${user?.display_name || ""}: ${uid}`)
+          .then((user) => `${user?.display_name || ''}: ${uid}`)
       )
     );
 
     await interaction.reply({
       embeds: [
         {
-          title: "Twitch Banned IDs",
-          description: sanitizeMarkdown(usernames.join("\n")),
-          color: MomentumColor.Blue,
-        },
-      ],
+          title: 'Twitch Banned IDs',
+          description: sanitizeMarkdown(usernames.join('\n')),
+          color: MomentumColor.Blue
+        }
+      ]
     });
   }
 
   async listSoftBans(interaction: ChatInputCommandInteraction) {
     const streams = getService(StreamsService);
     const usernames = await Promise.all(
-      Array.from(streams.softBans).map((uid) =>
+      [...streams.softBans].map((uid) =>
         streams.twitch
           .getUser(uid)
-          .then((user) => `${user?.display_name || ""}: ${uid}`)
+          .then((user) => `${user?.display_name || ''}: ${uid}`)
       )
     );
 
     await interaction.reply({
       embeds: [
         {
-          title: "Twitch Soft Banned IDs",
-          description: sanitizeMarkdown(usernames.join("\n")),
-          color: MomentumColor.Blue,
-        },
-      ],
+          title: 'Twitch Soft Banned IDs',
+          description: sanitizeMarkdown(usernames.join('\n')),
+          color: MomentumColor.Blue
+        }
+      ]
     });
   }
 }

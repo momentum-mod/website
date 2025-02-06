@@ -3,9 +3,9 @@ import {
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,
   GuildMember,
-  ModalSubmitInteraction,
-} from "discord.js";
-import { config } from "./config";
+  ModalSubmitInteraction
+} from 'discord.js';
+import { config } from './config';
 
 export async function replyDescriptionEmbed(
   interaction:
@@ -20,10 +20,10 @@ export async function replyDescriptionEmbed(
     embeds: [
       {
         description: text,
-        color,
-      },
+        color
+      }
     ],
-    ephemeral,
+    ephemeral
   });
 }
 
@@ -45,14 +45,14 @@ export function isAdminBotChannel(channel: Channel) {
 
 // Stolen from DSharpPlus
 export function sanitizeMarkdown(input: string) {
-  return input.replace(/([`\*_~<>\[\]\(\)""@\!\&#:\|])/g, "\\$1");
+  return input.replaceAll(/([!"#&()*:<>@[\]_`|~])/g, String.raw`\$1`);
 }
 
 export function timeSpanToPrettyPrint(
   totalMilliseconds: number,
   accuracy: number = 3
 ) {
-  if (totalMilliseconds < 1) return "instantaneously";
+  if (totalMilliseconds < 1) return 'instantaneously';
   const totalSeconds = Math.floor(totalMilliseconds / 1000);
   const totalMinutes = Math.floor(totalSeconds / 60);
   const totalHours = Math.floor(totalMinutes / 60);
@@ -65,34 +65,34 @@ export function timeSpanToPrettyPrint(
   const seconds = totalSeconds - 60 * totalMinutes;
   const millis = totalMilliseconds - 1000 * totalSeconds;
 
-  let res = "";
+  let res = '';
 
   if (years > 0) {
-    res += `${years} year${years > 1 ? "s" : ""} `;
+    res += `${years} year${years > 1 ? 's' : ''} `;
   }
 
   if (days > 0) {
-    res += `${days} day${days > 1 ? "s" : ""} `;
+    res += `${days} day${days > 1 ? 's' : ''} `;
   }
 
   if (hours > 0) {
-    res += `${hours} hour${hours > 1 ? "s" : ""} `;
+    res += `${hours} hour${hours > 1 ? 's' : ''} `;
   }
 
   if (minutes > 0) {
-    res += `${minutes} minute${minutes > 1 ? "s" : ""} `;
+    res += `${minutes} minute${minutes > 1 ? 's' : ''} `;
   }
 
   if (seconds > 0) {
-    res += `${seconds} second${seconds > 1 ? "s" : ""} `;
+    res += `${seconds} second${seconds > 1 ? 's' : ''} `;
   }
 
   if (totalSeconds < 1 && millis > 0) {
-    res += `${millis} millisecond${millis > 1 ? "s" : ""} `;
+    res += `${millis} millisecond${millis > 1 ? 's' : ''} `;
   }
 
   return res
-    .split(" ", accuracy * 2)
-    .join(" ")
+    .split(' ', accuracy * 2)
+    .join(' ')
     .trim();
 }

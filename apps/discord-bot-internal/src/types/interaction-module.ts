@@ -7,8 +7,8 @@ import {
   GuildMember,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
-  SlashCommandSubcommandsOnlyBuilder,
-} from "discord.js";
+  SlashCommandSubcommandsOnlyBuilder
+} from 'discord.js';
 
 export interface InteractionModule {
   commandBuilder:

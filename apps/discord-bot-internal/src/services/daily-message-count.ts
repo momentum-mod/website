@@ -1,4 +1,4 @@
-import { Client, Snowflake } from 'discord.js';
+import { Snowflake } from 'discord.js';
 import { Service } from '../types/service';
 import { PathConstants } from '../path-constants';
 import {
@@ -8,12 +8,8 @@ import {
   SupportedValueType
 } from 'node:sqlite';
 
-export class DailyMessageCountService implements Service {
-  private db: DatabaseSync;
-  constructor(public client: Client<true>) {
-    this.db = new DatabaseSync(PathConstants.dbFile);
-  }
-  init() {}
+export class DailyMessageCountService extends Service {
+  private db = new DatabaseSync(PathConstants.dbFile);
 
   prepare(sql: string) {
     return new MessageCountStatement(this.db.prepare(sql));
@@ -69,8 +65,8 @@ interface MessageCount {
 }
 
 interface RawMessageCount {
-  UserId: BigInt;
-  ChannelId: BigInt;
+  UserId: bigint;
+  ChannelId: bigint;
   Date: string;
-  MessageCount: BigInt;
+  MessageCount: bigint;
 }

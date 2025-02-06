@@ -1,8 +1,8 @@
-import { Events, Message } from "discord.js";
-import { Service } from "../types/service";
-import { getService } from "../index";
-import { DailyMessageCountService } from "./daily-message-count";
-import { config } from "../config";
+import { Events, Message } from 'discord.js';
+import { Service } from '../types/service';
+import { getService } from './index';
+import { DailyMessageCountService } from './daily-message-count';
+import { config } from '../config';
 
 export class UserTrustService extends Service {
   init() {
@@ -21,14 +21,14 @@ export class UserTrustService extends Service {
 
     const messageCount = msgCount
       .prepare(
-        "SELECT * FROM message_count WHERE UserId=? AND ChannelId=? AND Date=?"
+        'SELECT * FROM message_count WHERE UserId=? AND ChannelId=? AND Date=?'
       )
       .get(message.author.id, message.channel.id, message.createdAt);
 
     if (messageCount) {
       msgCount
         .prepare(
-          "UPDATE message_count SET MessageCount=? WHERE UserId=? AND ChannelId=? AND Date=?"
+          'UPDATE message_count SET MessageCount=? WHERE UserId=? AND ChannelId=? AND Date=?'
         )
         .get(
           messageCount.MessageCount + 1,
@@ -39,7 +39,7 @@ export class UserTrustService extends Service {
     } else {
       msgCount
         .prepare(
-          "INSERT INTO message_count (MessageCount, UserId, ChannelId, Date) VALUES (?, ?, ?, ?)"
+          'INSERT INTO message_count (MessageCount, UserId, ChannelId, Date) VALUES (?, ?, ?, ?)'
         )
         .run(1, message.author.id, message.channel.id, message.createdAt);
     }
@@ -58,7 +58,7 @@ export class UserTrustService extends Service {
     const msgCount = getService(DailyMessageCountService);
 
     const userMessageCounts = msgCount
-      .prepare("SELECT * FROM message_count WHERE UserId=?")
+      .prepare('SELECT * FROM message_count WHERE UserId=?')
       .all(message.author.id)
       .sort((a, b) => a.Date.getTime() - b.Date.getTime());
     if (userMessageCounts.length === 0) return;
@@ -66,7 +66,7 @@ export class UserTrustService extends Service {
     const earliestMessage = userMessageCounts[0];
 
     if (
-      new Date().getTime() - earliestMessage.Date.getTime() >
+      Date.now() - earliestMessage.Date.getTime() >
       config.media_minimum_days * 24 * 60 * 60 * 1000
     ) {
       const messageCount = userMessageCounts.reduce(

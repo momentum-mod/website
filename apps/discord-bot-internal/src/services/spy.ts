@@ -6,7 +6,7 @@ import {
   GuildTextBasedChannel,
   Message,
   PartialMessage,
-  ReadonlyCollection,
+  ReadonlyCollection
 } from 'discord.js';
 import { Service } from '../types/service';
 import { config } from '../config';
@@ -48,7 +48,7 @@ export class SpyService extends Service {
 
   async guildMemeberAdd(member: GuildMember) {
     if (!this.joinLogChannel) return;
-    const accountAge = new Date().getTime() - member.user.createdTimestamp;
+    const accountAge = Date.now() - member.user.createdTimestamp;
 
     const userJoinedMessage = await this.joinLogChannel?.send(
       `<@${member.id}> ${
@@ -91,12 +91,12 @@ export class SpyService extends Service {
     if (!this.messageLogChannel) return;
     if (!oldMessage.partial) {
       if (!oldMessage.author || !newMessage.author) return;
-      if (newMessage.author.id == this.client.user.id) return;
+      if (newMessage.author.id === this.client.user.id) return;
 
       if (
         oldMessage.content === newMessage.content &&
         oldMessage.embeds.length === 0 &&
-        newMessage.embeds.length !== 0
+        newMessage.embeds.length > 0
       )
         return;
 
@@ -143,7 +143,7 @@ export class SpyService extends Service {
       });
     }
 
-    if (!!message.content) {
+    if (message.content) {
       embed.addFields({
         name: 'Message',
         value: message.content.slice(0, 1024)

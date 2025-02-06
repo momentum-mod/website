@@ -63,6 +63,7 @@
     "ngx-infinite-scroll": "18.0.0",
     "normalize.css": "8.0.1",
     "openid": "2.0.12",
+    "pino": "9.6.0",
     "pino-http": "10.2.0",
     "primeng": "17.18.9",
     "prom-client": "15.1.3",

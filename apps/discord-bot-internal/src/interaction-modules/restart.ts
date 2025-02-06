@@ -1,29 +1,26 @@
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
-  Colors,
-} from "discord.js";
-import { InteractionModule } from "../types/interaction-module";
-import {
-  isAdmin,
-  isAdminBotChannel,
-  replyDescriptionEmbed,
-} from "../utils";
+  Colors
+} from 'discord.js';
+import { InteractionModule } from '../types/interaction-module';
+import { isAdmin, isAdminBotChannel, replyDescriptionEmbed } from '../utils';
 
 export class RestartModule implements InteractionModule {
   userFilter = isAdmin;
   channelFilter = isAdminBotChannel;
   commandBuilder = new SlashCommandBuilder()
-    .setName("forcerestart")
+    .setName('forcerestart')
     .setDescription(
-      "Forces the bot to exit the process, and have Docker auto-restart it"
+      'Forces the bot to exit the process, and have Docker auto-restart it'
     );
 
   async executeCommand(interaction: ChatInputCommandInteraction) {
     console.warn(
       `User ${interaction.member?.user.username} (${interaction.member?.user.id}) forced the bot to restart`
     );
-    await replyDescriptionEmbed(interaction, "Restarting ...", Colors.Orange);
+    await replyDescriptionEmbed(interaction, 'Restarting ...', Colors.Orange);
+    // eslint-disable-next-line unicorn/no-process-exit
     process.exit(0);
   }
 }
