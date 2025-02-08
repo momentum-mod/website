@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { MapReviewService } from './map-review.service';
 import { MapReviewCommentService } from './map-review-comment.service';
-import { ParseIntSafePipe } from '../../pipes';
+import { ParseInt32SafePipe } from '../../pipes';
 import { LoggedInUser } from '../../decorators';
 import {
   ApiOkPagedResponse,
@@ -69,7 +69,7 @@ export class MapReviewController {
     required: true
   })
   getReview(
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number,
     @Query() query?: MapReviewGetIdDto
   ): Promise<MapReviewDto> {
@@ -96,7 +96,7 @@ export class MapReviewController {
   })
   updateReview(
     @Body() body: UpdateMapReviewDto,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number
   ): Promise<MapReviewDto> {
     return this.reviewService.updateReview(reviewID, userID, body);
@@ -121,7 +121,7 @@ export class MapReviewController {
     required: true
   })
   deleteReview(
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number
   ): Promise<void> {
     return this.reviewService.deleteReview(reviewID, userID, false);
@@ -141,7 +141,7 @@ export class MapReviewController {
     required: true
   })
   getComments(
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number,
     @Query() query: PagedQueryDto
   ): Promise<PagedResponseDto<MapReviewCommentDto>> {
@@ -165,7 +165,7 @@ export class MapReviewController {
     required: true
   })
   postComment(
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @Body() body: CreateMapReviewCommentDto,
     @LoggedInUser('id') userID: number
   ): Promise<MapReviewCommentDto> {
@@ -188,7 +188,7 @@ export class MapReviewController {
     required: true
   })
   updateComment(
-    @Param('commentID', ParseIntSafePipe) commentID: number,
+    @Param('commentID', ParseInt32SafePipe) commentID: number,
     @Body() body: UpdateMapReviewCommentDto,
     @LoggedInUser('id') userID: number
   ): Promise<MapReviewCommentDto> {
@@ -210,7 +210,7 @@ export class MapReviewController {
     required: true
   })
   deleteComment(
-    @Param('commentID', ParseIntSafePipe) commentID: number,
+    @Param('commentID', ParseInt32SafePipe) commentID: number,
     @LoggedInUser('id') userID: number
   ): Promise<void> {
     return this.commentService.deleteComment(commentID, userID);

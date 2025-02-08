@@ -46,7 +46,7 @@ import {
   MapsGetAllUserSubmissionQueryDto,
   MapsGetAllSubmissionQueryDto
 } from '../../dto';
-import { ParseIntSafePipe } from '../../pipes';
+import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from '../users/users.service';
 import { MapsService } from '../maps/maps.service';
 
@@ -133,7 +133,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Target user does not exist' })
   getFollowStatus(
     @LoggedInUser('id') localUserID: number,
-    @Param('userID', ParseIntSafePipe) targetUserID: number
+    @Param('userID', ParseInt32SafePipe) targetUserID: number
   ): Promise<FollowStatusDto> {
     return this.usersService.getFollowStatus(localUserID, targetUserID);
   }
@@ -153,7 +153,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Target user does not exist' })
   followUser(
     @LoggedInUser('id') localUserID: number,
-    @Param('userID', ParseIntSafePipe) targetUserID: number
+    @Param('userID', ParseInt32SafePipe) targetUserID: number
   ): Promise<FollowDto> {
     return this.usersService.followUser(localUserID, targetUserID);
   }
@@ -179,7 +179,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Target user does not exist' })
   updateFollow(
     @LoggedInUser('id') localUserID: number,
-    @Param('userID', ParseIntSafePipe) targetUserID: number,
+    @Param('userID', ParseInt32SafePipe) targetUserID: number,
     @Body() updateDto: UpdateFollowStatusDto
   ) {
     return this.usersService.updateFollow(localUserID, targetUserID, updateDto);
@@ -198,7 +198,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Target user or follow does not exist' })
   unfollowUser(
     @LoggedInUser('id') localUserID: number,
-    @Param('userID', ParseIntSafePipe) targetUserID: number
+    @Param('userID', ParseInt32SafePipe) targetUserID: number
   ) {
     return this.usersService.unfollowUser(localUserID, targetUserID);
   }
@@ -224,7 +224,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'The map does not exist' })
   getMapNotifyStatus(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ): Promise<MapNotifyDto> {
     return this.usersService.getMapNotifyStatus(userID, mapID);
   }
@@ -253,7 +253,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'The map does not exist' })
   updateMapNotify(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body() updateDto: UpdateMapNotifyDto
   ) {
     return this.usersService.updateMapNotify(userID, mapID, updateDto);
@@ -274,7 +274,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'The map does not exist' })
   removeMapNotify(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ) {
     return this.usersService.removeMapNotify(userID, mapID);
   }
@@ -357,7 +357,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'The notification does not exist' })
   updateNotification(
     @LoggedInUser('id') userID: number,
-    @Param('notificationID', ParseIntSafePipe) notificationID: number,
+    @Param('notificationID', ParseInt32SafePipe) notificationID: number,
     @Body() updateDto: UpdateNotificationDto
   ) {
     return this.usersService.updateNotification(
@@ -376,7 +376,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'The notification does not exist' })
   deleteNotification(
     @LoggedInUser('id') userID: number,
-    @Param('notificationID', ParseIntSafePipe) notificationID: number
+    @Param('notificationID', ParseInt32SafePipe) notificationID: number
   ) {
     return this.usersService.deleteNotification(userID, notificationID);
   }
@@ -404,7 +404,7 @@ export class UserController {
   })
   checkFavoritedMap(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ) {
     return this.usersService.checkFavoritedMap(userID, mapID);
   }
@@ -423,7 +423,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'The map is already favorited' })
   addFavoritedMap(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ) {
     return this.usersService.addFavoritedMap(userID, mapID);
   }
@@ -446,7 +446,7 @@ export class UserController {
   })
   removeFavoritedMap(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ) {
     return this.usersService.removeFavoritedMap(userID, mapID);
   }
