@@ -80,7 +80,7 @@ import {
   CreateMapVersionDto
 } from '../../dto';
 import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
-import { ParseFilesPipe } from '../../pipes';
+import { ParseInt32SafePipe, ParseFilesPipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
@@ -143,6 +143,9 @@ export class MapsController {
   ): Promise<MapDto> {
     // Use a string ID and we'll search by map name.
     const id = Number.isNaN(+mapParam) ? mapParam.toString() : +mapParam;
+    if (typeof id === 'number' && id > 2 ** 31 - 1) {
+      throw new BadRequestException('Map ID must be a number less than 2^31');
+    }
     return this.mapsService.get(id, userID, query.expand);
   }
 
@@ -162,7 +165,7 @@ export class MapsController {
   @ApiForbiddenResponse({ description: 'The map is not accepting revisions' })
   updateMap(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body() body: UpdateMapDto
   ): Promise<void> {
     return this.mapsService.updateAsSubmitter(mapID, userID, body);
@@ -249,7 +252,7 @@ export class MapsController {
     FormDataJsonInterceptor('data')
   )
   submitMapVersion(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body('data') data: CreateMapVersionDto,
     @UploadedFiles() files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
@@ -287,7 +290,7 @@ export class MapsController {
   })
   @ApiBody({ type: CreateMapTestInviteDto, required: true })
   async updateTestInvites(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body() body: CreateMapTestInviteDto,
     @LoggedInUser('id') userID: number
   ) {
@@ -308,7 +311,7 @@ export class MapsController {
     required: true
   })
   async testInviteResponse(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body() body: UpdateMapTestInviteDto,
     @LoggedInUser('id') userID: number
   ) {
@@ -338,7 +341,7 @@ export class MapsController {
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getCredits(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Query() query: MapCreditsGetQueryDto,
     @LoggedInUser('id') userID?: number
   ): Promise<MapCreditDto[]> {
@@ -365,8 +368,8 @@ export class MapsController {
   @ApiOkResponse({ type: MapCreditDto, description: 'The found map credit' })
   @ApiNotFoundResponse({ description: 'Map credit not found' })
   getCredit(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @LoggedInUser('id') loggedInUserID?: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
@@ -409,7 +412,7 @@ export class MapsController {
   })
   @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
   updateCredits(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body(
       new ParseArrayPipe({
         items: CreateMapCreditDto,
@@ -438,7 +441,7 @@ export class MapsController {
   @ApiOkResponse({ type: MapInfoDto, description: "The found map's info" })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getInfo(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID?: number
   ): Promise<MapInfoDto> {
     return this.mapsService.getInfo(mapID, userID);
@@ -462,7 +465,7 @@ export class MapsController {
     description: "The map's zones"
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
-  getZones(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<string> {
+  getZones(@Param('mapID', ParseInt32SafePipe) mapID: number): Promise<string> {
     return this.mapsService.getZones(mapID);
   }
 
@@ -482,7 +485,7 @@ export class MapsController {
     required: true
   })
   getImages(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID?: number
   ): Promise<MapImageDto[]> {
     return this.mapImageService.getImages(mapID, userID);
@@ -530,7 +533,7 @@ export class MapsController {
   @ApiConsumes('multipart/form-data')
   updateImages(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body('data') data: UpdateMapImagesDto,
     @UploadedFiles(
       new ParseFilesPipe(
@@ -598,7 +601,7 @@ export class MapsController {
       "When filtering by 'friends', and Steam fails to return the user's friends list (Tuesdays lol)"
   })
   getLeaderboards(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser() user?: UserJwtAccessPayload,
     @Query() query?: MapLeaderboardGetQueryDto
   ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
@@ -618,7 +621,7 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiNotFoundResponse({ description: 'Run not found' })
   getLeaderboardRun(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID?: number,
     @Query() query?: MapLeaderboardGetRunQueryDto
   ): Promise<LeaderboardRunDto> {
@@ -632,7 +635,7 @@ export class MapsController {
   })
   @ApiOkResponse({ type: LeaderboardStatsDto, isArray: true })
   getLeaderboardStats(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID?: number
   ) {
     return this.leaderboardService.getLeaderboardStats(mapID, userID);
@@ -652,7 +655,7 @@ export class MapsController {
   @ApiOkResponse({ description: 'The reviews of the requested map' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   getReviews(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
     @Query() query?: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
@@ -680,7 +683,7 @@ export class MapsController {
   })
   createReview(
     @Body('data') data: CreateMapReviewDto,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @UploadedFiles(
       new ParseFilesPipe(
         new ParseFilePipe({

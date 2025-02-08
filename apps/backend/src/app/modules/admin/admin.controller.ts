@@ -47,7 +47,7 @@ import {
   UpdateReportDto,
   UserDto
 } from '../../dto';
-import { ParseIntSafePipe } from '../../pipes';
+import { ParseInt32SafePipe } from '../../pipes';
 import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewService } from '../map-review/map-review.service';
@@ -130,7 +130,7 @@ export class AdminController {
   @ApiBadRequestResponse({ description: 'Invalid user update data' })
   updateUser(
     @LoggedInUser('id') adminID: number,
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Body() body: AdminUpdateUserDto
   ) {
     return this.adminService.updateUser(adminID, userID, body);
@@ -148,7 +148,7 @@ export class AdminController {
   @ApiNoContentResponse({ description: 'The user was deleted successfully' })
   deleteUser(
     @LoggedInUser('id') adminID: number,
-    @Param('userID', ParseIntSafePipe) userID: number
+    @Param('userID', ParseInt32SafePipe) userID: number
   ) {
     return this.usersService.delete(userID, adminID);
   }
@@ -182,7 +182,7 @@ export class AdminController {
   @ApiNoContentResponse({ description: 'The map was updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid map update data' })
   updateMap(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
     @Body() body: UpdateMapAdminDto
   ) {
@@ -200,7 +200,7 @@ export class AdminController {
   })
   deleteMap(
     @LoggedInUser('id') adminID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number
   ) {
     return this.mapsService.delete(mapID, adminID);
   }
@@ -241,7 +241,7 @@ export class AdminController {
   @ApiNoContentResponse({ description: 'The report was updated successfully' })
   updateReport(
     @LoggedInUser('id') userID: number,
-    @Param('reportID', ParseIntSafePipe) reportID: number,
+    @Param('reportID', ParseInt32SafePipe) reportID: number,
     @Body() body: UpdateReportDto
   ) {
     return this.adminService.updateReport(userID, reportID, body);
@@ -256,7 +256,7 @@ export class AdminController {
   @ApiBody({ type: AdminUpdateMapReviewDto, required: true })
   updateMapReview(
     @Body() body: AdminUpdateMapReviewDto,
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number
   ): Promise<MapReviewDto> {
     return this.mapReviewService.updateReviewAsReviewer(reviewID, userID, body);
@@ -269,7 +269,7 @@ export class AdminController {
   @ApiNoContentResponse({ description: 'Review deleted successfully' })
   @ApiNotFoundResponse({ description: 'Review not found' })
   deleteMapReview(
-    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number
   ): Promise<void> {
     return this.mapReviewService.deleteReview(reviewID, userID, true);
@@ -308,7 +308,7 @@ export class AdminController {
     description: 'Requested user is neither admin nor moderator'
   })
   getAdminActivities(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query: AdminGetAdminActivitiesQueryDto
   ): Promise<PagedResponseDto<AdminActivityDto>> {
     return this.adminActivityService.getList(

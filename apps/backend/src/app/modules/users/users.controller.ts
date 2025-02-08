@@ -23,7 +23,7 @@ import {
   UsersGetQueryDto,
   UsersGetCreditsQueryDto
 } from '../../dto';
-import { ParseIntSafePipe } from '../../pipes';
+import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 
@@ -60,7 +60,7 @@ export class UsersController {
   @ApiOkResponse({ type: UserDto, description: 'The found user' })
   @ApiNotFoundResponse({ description: 'User was not found' })
   getUser(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
     return this.usersService.get(userID, query.expand);
@@ -81,7 +81,7 @@ export class UsersController {
     required: true
   })
   getProfile(
-    @Param('userID', ParseIntSafePipe) userID: number
+    @Param('userID', ParseInt32SafePipe) userID: number
   ): Promise<ProfileDto> {
     return this.usersService.getProfile(userID);
   }
@@ -102,7 +102,7 @@ export class UsersController {
     description: "Paginated list of the user's activites"
   })
   getActivities(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query?: UsersGetActivitiesQueryDto
   ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
@@ -130,7 +130,7 @@ export class UsersController {
     description: 'Paginated list of the follows targeting the user'
   })
   getFollowers(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query?: PagedQueryDto
   ): Promise<PagedResponseDto<FollowDto>> {
     return this.usersService.getFollowers(userID, query.skip, query.take);
@@ -148,7 +148,7 @@ export class UsersController {
     description: 'Paginated list of the follows for the user'
   })
   getFollowed(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query: PagedQueryDto
   ): Promise<PagedResponseDto<FollowDto>> {
     return this.usersService.getFollowing(userID, query.skip, query.take);
@@ -170,7 +170,7 @@ export class UsersController {
     description: 'Paginated list of map credits attributed to the user'
   })
   getMapCredits(
-    @Param('userID', ParseIntSafePipe) userID: number,
+    @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query: UsersGetCreditsQueryDto,
     @LoggedInUser('id') localUserID?: number
   ): Promise<PagedResponseDto<MapCreditDto>> {
