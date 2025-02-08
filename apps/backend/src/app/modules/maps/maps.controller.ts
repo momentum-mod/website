@@ -80,14 +80,13 @@ import {
   CreateMapVersionDto
 } from '../../dto';
 import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
-import { ParseIntSafePipe } from '../../pipes';
+import { ParseFilesPipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
 import { MapTestInviteService } from './map-test-invite.service';
 import { MapsService } from './maps.service';
-import { ParseFilesPipe } from '../../pipes/parse-files.pipe';
 import { ImageFileValidator } from '../../validators/image-file.validator';
 import { MapReviewService } from '../map-review/map-review.service';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
