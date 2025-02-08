@@ -1812,6 +1812,9 @@ describe('Maps', () => {
         });
       });
 
+      it('should 400 if map id is bigger then max 32-bit integer', () =>
+        req.get({ url: `maps/${2 ** 31}`, status: 400, token: u1Token }));
+
       it('should 404 if the map is not found', () =>
         req.get({ url: `maps/${NULL_ID}`, status: 404, token: u1Token }));
     });
@@ -2511,6 +2514,9 @@ describe('Maps', () => {
           })
         ).toHaveLength(1);
       });
+
+      it('should 400 if map id is bigger then max 32-bit integer', () =>
+        req.post({ url: `maps/${2 ** 31}`, status: 400, token: u1Token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1', 'post'));
