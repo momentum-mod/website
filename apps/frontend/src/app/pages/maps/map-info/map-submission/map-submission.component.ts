@@ -8,7 +8,7 @@ import {
   GamemodeInfo,
   MapVersion
 } from '@momentum/constants';
-import { SharedModule } from '../../../../shared.module';
+
 import {
   GroupedMapSubmissionSuggestions,
   groupMapSuggestions
@@ -16,11 +16,27 @@ import {
 import { downloadZoneFile } from '../../../../util/download-zone-file.util';
 import { MapReviewListComponent } from '../../../../components/map-review/map-review-list.component';
 import { SubmissionTypeInfoComponent } from '../../../../components/tooltips/submission-type-info.component';
+import { PluralPipe } from '../../../../pipes/plural.pipe';
+import { TooltipDirective } from '../../../../directives/tooltip.directive';
+import { IconComponent } from '../../../../icons';
+import { UserComponent } from '../../../../components/user/user.component';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { UnsortedKeyvaluePipe } from '../../../../pipes/unsorted-keyvalue.pipe';
 
 @Component({
   selector: 'm-map-submission',
   templateUrl: 'map-submission.component.html',
-  imports: [SharedModule, MapReviewListComponent, SubmissionTypeInfoComponent]
+  imports: [
+    MapReviewListComponent,
+    PluralPipe,
+    TooltipDirective,
+    IconComponent,
+    UserComponent,
+    TitleCasePipe,
+    UnsortedKeyvaluePipe,
+    DatePipe,
+    SubmissionTypeInfoComponent
+  ]
 })
 export class MapSubmissionComponent {
   protected readonly MapSubmissionType = MapSubmissionType;

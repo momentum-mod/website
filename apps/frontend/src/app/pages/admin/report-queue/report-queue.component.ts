@@ -5,19 +5,22 @@ import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { merge, of, Subject } from 'rxjs';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { SharedModule } from '../../../shared.module';
+
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { AdminService } from '../../../services/data/admin.service';
+import { CardComponent } from '../../../components/card/card.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'm-report-queue',
   templateUrl: './report-queue.component.html',
   imports: [
-    SharedModule,
     QueuedReportComponent,
     PaginatorModule,
-    SpinnerDirective
+    SpinnerDirective,
+    CardComponent,
+    FormsModule
   ]
 })
 export class ReportQueueComponent implements OnInit {

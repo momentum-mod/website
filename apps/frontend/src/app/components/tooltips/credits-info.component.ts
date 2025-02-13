@@ -31,7 +31,6 @@ import { Component } from '@angular/core';
         <li><i>Contributors: TODO: IM BORED DOING TOMORROW</i></li>
       </ul>
     </div>
-  `,
-  standalone: true
+  `
 })
 export class CreditsInfoComponent {}

@@ -2,12 +2,13 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportCategory, ReportType, Report } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
-import { SharedModule } from '../../../../shared.module';
+import { RouterLink } from '@angular/router';
+import { AvatarComponent } from '../../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-queued-report',
-  templateUrl: './queued-report.component.html',
-  imports: [SharedModule]
+  imports: [RouterLink, AvatarComponent],
+  templateUrl: './queued-report.component.html'
 })
 export class QueuedReportComponent implements OnInit {
   @Input() report: Report;

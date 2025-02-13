@@ -21,7 +21,12 @@ import {
   groupMapSuggestions
 } from '../../util/grouped-map-suggestions.util';
 import { PaginatorModule } from 'primeng/paginator';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { switchMap, take, tap } from 'rxjs/operators';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
@@ -29,7 +34,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MapReviewFormComponent } from './map-review-form.component';
 import { DialogModule } from 'primeng/dialog';
-import { SharedModule } from '../../shared.module';
+
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { AdminService } from '../../services/data/admin.service';
@@ -38,18 +43,28 @@ import {
   GalleryImageItem
 } from '../gallery/gallery.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IconComponent } from '../../icons';
+import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
+import { DatePipe } from '@angular/common';
+import { SpinnerDirective } from '../../directives/spinner.directive';
+import { PluralPipe } from '../../pipes/plural.pipe';
 
 @Component({
   selector: 'm-map-review',
   imports: [
-    SharedModule,
     UserComponent,
     PaginatorModule,
     ConfirmPopupModule,
     ConfirmDialogModule,
     MapReviewFormComponent,
     DialogModule,
-    GalleryComponent
+    GalleryComponent,
+    IconComponent,
+    UnsortedKeyvaluePipe,
+    DatePipe,
+    SpinnerDirective,
+    PluralPipe,
+    ReactiveFormsModule
   ],
   templateUrl: './map-review.component.html'
 })

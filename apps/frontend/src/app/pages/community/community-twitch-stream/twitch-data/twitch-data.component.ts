@@ -4,8 +4,7 @@ import { TwitchStream } from '@momentum/constants';
 @Component({
   selector: 'm-twitch-data',
   templateUrl: './twitch-data.component.html',
-  styleUrls: ['./twitch-data.component.css'],
-  standalone: true
+  styleUrls: ['./twitch-data.component.css']
 })
 export class TwitchDataComponent {
   @Input() stream: TwitchStream = null;

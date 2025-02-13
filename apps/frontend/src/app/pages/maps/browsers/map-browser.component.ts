@@ -7,8 +7,8 @@ import {
   MMap,
   PagedResponse
 } from '@momentum/constants';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SharedModule } from '../../../shared.module';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { PaginatorModule } from 'primeng/paginator';
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -26,16 +26,21 @@ import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AsyncPipe, NgClass, NgStyle } from '@angular/common';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   templateUrl: 'map-browser.component.html',
   imports: [
-    SharedModule,
     MapListComponent,
     NStateButtonComponent,
-    MapListItemComponent,
     PaginatorModule,
-    SliderComponent
+    SliderComponent,
+    ReactiveFormsModule,
+    NgClass,
+    NgStyle,
+    AsyncPipe,
+    TooltipDirective
   ]
 })
 export class MapBrowserComponent implements OnInit {

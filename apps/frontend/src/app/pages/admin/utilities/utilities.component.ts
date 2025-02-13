@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { SharedModule } from '../../../shared.module';
 import { AdminService } from '../../../services/data/admin.service';
 import * as Enum from '@momentum/enum';
 import { KillswitchType, Killswitches } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CardComponent } from '../../../components/card/card.component';
 
 @Component({
   selector: 'm-utilities',
-  templateUrl: './utilities.component.html',
-  imports: [SharedModule]
+  imports: [CardComponent, ReactiveFormsModule],
+  templateUrl: './utilities.component.html'
 })
 export class UtilitiesComponent implements OnInit {
   protected readonly KillswitchTypes = Enum.values(KillswitchType);

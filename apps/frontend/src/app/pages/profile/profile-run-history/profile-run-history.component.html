@@ -11,7 +11,7 @@
       <input class="textinput" type="text" placeholder="Map" formControlName="map" />
     </div>
     <div class="relative text-left md:flex-1 md:flex-grow md:text-center">
-      <p-dropdown
+      <p-select
         formControlName="orderBy"
         [options]="OrderByDropdown"
         optionValue="value"
@@ -19,7 +19,7 @@
         placeholder="Sort by"
         appendTo="body"
       />
-      <p-dropdown
+      <p-select
         formControlName="order"
         [options]="OrderDropdown"
         optionValue="value"

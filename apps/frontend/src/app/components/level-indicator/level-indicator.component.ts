@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-level-indicator',
-  imports: [CommonModule, TooltipDirective],
+  imports: [TooltipDirective, NgStyle, NgClass],
   templateUrl: './level-indicator.component.html'
 })
 export class LevelIndicatorComponent implements OnChanges {

@@ -7,8 +7,8 @@ import {
   PagedResponse
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SharedModule } from '../../../shared.module';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -22,7 +22,7 @@ type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
-  imports: [SharedModule, MapListComponent, MultiSelectModule]
+  imports: [MapListComponent, MultiSelectModule, ReactiveFormsModule]
 })
 export class AdminMapsBrowserComponent implements OnInit {
   protected readonly MapStatusName = MapStatusName;
