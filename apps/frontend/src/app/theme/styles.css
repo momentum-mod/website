@@ -7,8 +7,8 @@
 @import '@fontsource/roboto/700.css';
 @import '@fontsource/roboto/700-italic.css';
 
-@import './primeng-theme-nolayers.css';
-@import './primeng-nolayers.css';
+/*@import './primeng-theme-nolayers.css';*/
+/*@import './primeng-nolayers.css';*/
 @import './primeng-overrides.css';
 
 @import './shared_styling/fonts/BebasNeue/300.css';

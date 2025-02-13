@@ -29,7 +29,7 @@
 
         <div>
           <p class="text-lg">Country</p>
-          <p-dropdown
+          <p-select
             formControlName="country"
             [options]="AlphabeticalCountryCodes"
             optionValue="code"
@@ -139,9 +139,7 @@
       <div class="flex gap-2">
         <button class="btn btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
         @if (!hasRole(Role.DELETED)) {
-          <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" status="danger" (click)="deleteUser()">
-            Delete User
-          </button>
+          <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteUser()">Delete User</button>
         }
       </div>
     </form>

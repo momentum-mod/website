@@ -7,7 +7,6 @@ import { Component } from '@angular/core';
       <!-- TODO! -->
       <p>TODO!</p>
     </div>
-  `,
-  standalone: true
+  `
 })
 export class LeaderboardsInfoComponent {}

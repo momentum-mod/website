@@ -1,4 +1,4 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser, NgClass, NgStyle } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -16,7 +16,6 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomHandler } from 'primeng/dom';
-import { SharedModule } from '../../shared.module';
 
 export interface SliderChangeEvent {
   event: Event;
@@ -43,7 +42,6 @@ export interface SliderSlideEndEvent {
  */
 @Component({
   selector: 'm-slider',
-  standalone: true,
   template: `
     <!-- This styling is terrible, full of constants and absolute positioning.
          Doing it well with the fucking number markers would probably take me
@@ -149,15 +147,15 @@ export interface SliderSlideEndEvent {
       }
     `
   ],
+  imports: [NgClass, NgStyle],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SliderComponent),
       multi: true
     }
-  ],
+  ]
   // changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SharedModule]
 })
 export class SliderComponent implements OnDestroy, ControlValueAccessor {
   /** When present, it specifies that the element should be disabled */

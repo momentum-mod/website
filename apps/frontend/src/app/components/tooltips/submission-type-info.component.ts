@@ -24,7 +24,6 @@ import { Component } from '@angular/core';
         changes!
       </p>
     </div>
-  `,
-  standalone: true
+  `
 })
 export class SubmissionTypeInfoComponent {}

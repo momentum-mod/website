@@ -6,7 +6,6 @@ import { IconComponent } from '../../../icons';
 
 @Component({
   selector: 'm-report-button',
-  standalone: true,
   imports: [IconComponent],
   template: '<m-icon icon="flag-outline"/>'
 })
