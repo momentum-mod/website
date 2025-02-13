@@ -12,8 +12,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
       <button type="button" class="btn btn-blue" (click)="ref.close(true)">
         Submit
       </button>
-    </div>`,
-  standalone: true
+    </div>`
 })
 export class ConfirmDialogComponent implements OnInit {
   @Input() message: SafeHtml;

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { SharedModule } from '../../shared.module';
+import { CardComponent } from '../../components/card/card.component';
 
 @Component({
   selector: 'm-not-found',
-  templateUrl: './not-found.component.html',
-  imports: [SharedModule]
+  imports: [CardComponent],
+  templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent {
   constructor(protected readonly router: Router) {}

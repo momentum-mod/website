@@ -1,14 +1,15 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { MapStatuses, MapStatus } from '@momentum/constants';
-import { SharedModule } from '../../../shared.module';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { filter, switchMap } from 'rxjs';
+import { CardComponent } from '../../../components/card/card.component';
 
 @Component({
   selector: 'm-home-user-maps',
-  templateUrl: './home-user-maps.component.html',
-  imports: [SharedModule]
+  imports: [CardComponent],
+  templateUrl: './home-user-maps.component.html'
 })
 export class HomeUserMapsComponent implements OnInit {
   protected readonly MapStatus = MapStatus;

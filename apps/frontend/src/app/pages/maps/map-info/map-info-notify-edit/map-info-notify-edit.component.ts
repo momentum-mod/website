@@ -2,12 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SharedModule } from '../../../../shared.module';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'm-map-info-notify-edit-modal',
-  templateUrl: './map-info-notify-edit.component.html',
-  imports: [SharedModule]
+  imports: [FormsModule],
+  templateUrl: './map-info-notify-edit.component.html'
 })
 export class MapNotifyEditComponent implements OnInit {
   protected readonly ActivityType = ActivityType;

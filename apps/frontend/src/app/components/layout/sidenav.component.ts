@@ -1,17 +1,21 @@
 import { Component } from '@angular/core';
 import { CombinedRoles } from '@momentum/constants';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
-import { SharedModule } from '../../shared.module';
+
 import { LocalUserService } from '../../services/data/local-user.service';
 import { LayoutService, SidenavState } from '../../services/layout.service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { RouterModule } from '@angular/router';
+import { IconComponent } from '../../icons';
+import { AsyncPipe, NgClass } from '@angular/common';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css'],
-  imports: [SharedModule]
+  imports: [IconComponent, RouterModule, AsyncPipe, TooltipDirective, NgClass]
 })
 export class SidenavComponent {
   protected collapsed: Observable<boolean> =

@@ -16,7 +16,6 @@ import { Subject, delay, takeWhile } from 'rxjs';
 @Component({
   selector: 'm-accordion',
   template: '<ng-content/>',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionComponent implements AfterContentInit {

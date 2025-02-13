@@ -13,7 +13,7 @@ import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
-import { SharedModule } from '../../../../shared.module';
+
 import {
   GroupedMapLeaderboard,
   GroupedMapLeaderboards,
@@ -28,6 +28,14 @@ import { SpinnerComponent } from '../../../../components/spinner/spinner.compone
 import { SpinnerDirective } from '../../../../directives/spinner.directive';
 import { UserComponent } from '../../../../components/user/user.component';
 import { LeaderboardsService } from '../../../../services/data/leaderboards.service';
+import { TooltipDirective } from '../../../../directives/tooltip.directive';
+import { IconComponent } from '../../../../icons';
+import { NgClass, NgStyle } from '@angular/common';
+import { RangePipe } from '../../../../pipes/range.pipe';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { TimingPipe } from '../../../../pipes/timing.pipe';
+import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
@@ -44,13 +52,21 @@ export interface ActiveTrack {
   selector: 'm-map-leaderboard',
   templateUrl: 'map-leaderboard.component.html',
   imports: [
-    SharedModule,
     DropdownModule,
     SpinnerComponent,
     SpinnerDirective,
     UserComponent,
     HiddenLeaderboardsInfoComponent,
-    UnrankedLeaderboardsInfoComponent
+    UnrankedLeaderboardsInfoComponent,
+    TooltipDirective,
+    IconComponent,
+    NgClass,
+    NgStyle,
+    RangePipe,
+    Select,
+    FormsModule,
+    TimingPipe,
+    TimeAgoPipe
   ]
 })
 export class MapLeaderboardComponent implements OnChanges {

@@ -11,6 +11,7 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators
 } from '@angular/forms';
 import {
@@ -47,7 +48,7 @@ import {
   suggestionsValidator,
   testInvitesValidator
 } from '../../../validators';
-import { SharedModule } from '../../../shared.module';
+
 import { SuggestionType } from '@momentum/formats/zone';
 import { GroupedMapCredits, FormUtils } from '../../../util';
 import { lastValueFrom } from 'rxjs';
@@ -66,12 +67,14 @@ import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpClient } from '@angular/common/http';
+import { IconComponent } from '../../../icons';
+import { NgClass } from '@angular/common';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-submission-form',
   templateUrl: './map-submission-form.component.html',
   imports: [
-    SharedModule,
     FileUploadComponent,
     MultiFileUploadComponent,
     MapImageSelectionComponent,
@@ -82,7 +85,11 @@ import { HttpClient } from '@angular/common/http';
     AlertComponent,
     MapDetailsFormComponent,
     LeaderboardsInfoComponent,
-    CreditsInfoComponent
+    CreditsInfoComponent,
+    ReactiveFormsModule,
+    IconComponent,
+    NgClass,
+    TooltipDirective
   ]
 })
 export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {

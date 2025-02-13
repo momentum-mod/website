@@ -1,20 +1,41 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DropdownModule } from 'primeng/dropdown';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
-import { SharedModule } from '../../../shared.module';
+
 import { PastRunsService } from '../../../services/data/past-runs.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgClass, NgStyle } from '@angular/common';
+import { Select } from 'primeng/select';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { IconComponent } from '../../../icons';
+import { RouterLink } from '@angular/router';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { TimingPipe } from '../../../pipes/timing.pipe';
+import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
 
 @Component({
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
-  imports: [SharedModule, DropdownModule, PaginatorModule]
+  imports: [
+    DropdownModule,
+    PaginatorModule,
+    NgClass,
+    NgStyle,
+    Select,
+    ReactiveFormsModule,
+    SpinnerDirective,
+    IconComponent,
+    RouterLink,
+    TooltipDirective,
+    TimingPipe,
+    TimeAgoPipe
+  ]
 })
 export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderByDropdown = [

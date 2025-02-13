@@ -103,8 +103,10 @@ export class LayoutService {
    * reserved, the background will be reset to default when it's navigated to.
    */
   reserveBackgroundUrl(regex: RegExp | RegExp[]) {
-    Array.isArray(regex)
-      ? this.backgroundReservations.push(...regex)
-      : this.backgroundReservations.push(regex);
+    if (Array.isArray(regex)) {
+      this.backgroundReservations.push(...regex);
+    } else {
+      this.backgroundReservations.push(regex);
+    }
   }
 }

@@ -11,7 +11,6 @@ import { Component } from '@angular/core';
         runs don't contribute towards your overall gamemode ranking.
       </p>
     </div>
-  `,
-  standalone: true
+  `
 })
 export class UnrankedLeaderboardsInfoComponent {}

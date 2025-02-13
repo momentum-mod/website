@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AccordionComponent } from './accordion.component';
-import { SharedModule } from '../../shared.module';
+import { IconComponent } from '../../icons';
 
 /**
  * Super simple accordion component.
@@ -21,6 +21,7 @@ import { SharedModule } from '../../shared.module';
  */
 @Component({
   selector: 'm-accordion-item',
+  imports: [IconComponent],
   template: `
     <button type="button" (click)="toggle()" class="header">
       @if (title) {
@@ -82,7 +83,6 @@ import { SharedModule } from '../../shared.module';
       }
     `
   ],
-  imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionItemComponent {

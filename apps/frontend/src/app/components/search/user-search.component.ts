@@ -2,21 +2,35 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
 import { PaginatorModule } from 'primeng/paginator';
-import { OverlayPanel, OverlayPanelModule } from 'primeng/overlaypanel';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
-import { SharedModule } from '../../shared.module';
+
 import { UsersService } from '../../services/data/users.service';
 import { LocalUserService } from '../../services/data/local-user.service';
+import { IconComponent } from '../../icons';
+import { SpinnerDirective } from '../../directives/spinner.directive';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { TooltipDirective } from '../../directives/tooltip.directive';
+import { SpinnerComponent } from '../spinner/spinner.component';
+import { Popover } from 'primeng/popover';
 
 @Component({
   selector: 'm-user-search',
   templateUrl: './user-search.component.html',
   imports: [
-    SharedModule,
     PaginatorModule,
-    OverlayPanelModule,
-    RoleBadgesComponent
+
+    RoleBadgesComponent,
+    IconComponent,
+    SpinnerDirective,
+    ReactiveFormsModule,
+    RouterLink,
+    NgClass,
+    TooltipDirective,
+    SpinnerComponent,
+    Popover
   ]
 })
 export class UserSearchComponent
@@ -43,7 +57,7 @@ export class UserSearchComponent
   @Input() useOverlay = true;
 
   @ViewChild('searchMain') mainEl: ElementRef;
-  @ViewChild('searchOverlay') overlay: OverlayPanel;
+  @ViewChild('searchOverlay') overlay: Popover;
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {

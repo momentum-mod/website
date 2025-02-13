@@ -8,8 +8,8 @@ import {
   MMap,
   PagedResponse
 } from '@momentum/constants';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SharedModule } from '../../../shared.module';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -18,6 +18,9 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CardComponent } from '../../../components/card/card.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { RouterLink } from '@angular/router';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -29,7 +32,14 @@ type StatusFilters = Array<
 
 @Component({
   templateUrl: 'user-maps-browser.component.html',
-  imports: [SharedModule, MapListComponent, MultiSelectModule]
+  imports: [
+    MapListComponent,
+    MultiSelectModule,
+    CardComponent,
+    SpinnerDirective,
+    RouterLink,
+    ReactiveFormsModule
+  ]
 })
 export class UserMapsBrowserComponent implements OnInit {
   protected readonly MapStatusName = MapStatusName;

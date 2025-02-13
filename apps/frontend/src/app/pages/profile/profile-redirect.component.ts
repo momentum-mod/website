@@ -8,8 +8,7 @@ import { LocalUserService } from '../../services/data/local-user.service';
  */
 @Component({
   selector: 'm-profile-redirect-local',
-  template: '',
-  standalone: true
+  template: ''
 })
 export class ProfileRedirectComponent implements OnInit {
   constructor(

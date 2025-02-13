@@ -18,14 +18,30 @@ import { MessageService } from 'primeng/api';
 import { MapWithSpecificLeaderboard } from '../../util';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
-import { SharedModule } from '../../shared.module';
+
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
+import { AsyncPipe, NgClass, NgStyle } from '@angular/common';
+import { TooltipDirective } from '../../directives/tooltip.directive';
+import { IconComponent } from '../../icons';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+import { PluralPipe } from '../../pipes/plural.pipe';
 
 @Component({
   selector: 'm-map-list-item',
   templateUrl: './map-list-item.component.html',
-  imports: [SharedModule, FontSizeLerpDirective]
+  imports: [
+    FontSizeLerpDirective,
+    RouterLink,
+    NgClass,
+    TooltipDirective,
+    IconComponent,
+    NgStyle,
+    AsyncPipe,
+    TimeAgoPipe,
+    PluralPipe
+  ]
 })
 export class MapListItemComponent implements OnChanges {
   protected readonly GamemodeInfo = GamemodeInfo;

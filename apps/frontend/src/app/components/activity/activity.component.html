@@ -1,7 +1,7 @@
 <m-card [title]="headerTitle" class="h-full">
   <ng-container header>
     <span class="mr-2">Filter:</span>
-    <p-dropdown
+    <p-select
       [options]="Types"
       [(ngModel)]="filterValue"
       optionLabel="label"

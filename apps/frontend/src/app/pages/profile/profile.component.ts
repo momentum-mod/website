@@ -1,6 +1,11 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { filter, switchMap } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import {
+  ActivatedRoute,
+  ParamMap,
+  Router,
+  RouterModule
+} from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import {
   Ban,
@@ -16,7 +21,7 @@ import {
   MapCredit
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-import { SharedModule } from '../../shared.module';
+
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
@@ -25,7 +30,7 @@ import { ReportButtonComponent } from '../../components/report/report-button/rep
 import { RoleBadgesComponent } from '../../components/role-badges/role-badges.component';
 import { TabsComponent } from '../../components/tabs/tabs.component';
 import { TabComponent } from '../../components/tabs/tab.component';
-import { Icon } from '../../icons';
+import { Icon, IconComponent } from '../../icons';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { UsersService } from '../../services/data/users.service';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -35,21 +40,36 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LevelIndicatorComponent } from '../../components/level-indicator/level-indicator.component';
+import { EnumValuePipe } from '../../pipes/enum-value.pipe';
+import { SpinnerDirective } from '../../directives/spinner.directive';
+import { AsyncPipe, DatePipe, NgStyle } from '@angular/common';
+import { TooltipDirective } from '../../directives/tooltip.directive';
+import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
+import { AvatarComponent } from '../../components/avatar/avatar.component';
+import { SpinnerComponent } from '../../components/spinner/spinner.component';
 import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'm-user-profile',
   templateUrl: './profile.component.html',
   imports: [
-    SharedModule,
     ActivityComponent,
     ReportButtonComponent,
-    ProfileRunHistoryComponent,
     RoleBadgesComponent,
-    TabsComponent,
-    TabComponent,
     ProgressBarModule,
     FontSizeLerpDirective,
+    LevelIndicatorComponent,
+    SpinnerDirective,
+    RouterModule,
+    EnumValuePipe,
+    DatePipe,
+    NgStyle,
+    IconComponent,
+    AsyncPipe,
+    TooltipDirective,
+    UnsortedKeyvaluePipe,
+    AvatarComponent,
+    SpinnerComponent,
     LevelIndicatorComponent,
     DialogModule
   ]

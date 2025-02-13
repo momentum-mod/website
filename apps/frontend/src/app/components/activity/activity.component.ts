@@ -20,23 +20,29 @@ import {
   PagedResponse,
   User
 } from '@momentum/constants';
-import { DropdownModule } from 'primeng/dropdown';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MessageService } from 'primeng/api';
 import { ActivityContentComponent } from './activity-content.component';
-import { SharedModule } from '../../shared.module';
 import { ActivityService } from '../../services/data/activity.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SpinnerDirective } from '../../directives/spinner.directive';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { CardComponent } from '../card/card.component';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'm-activity',
   templateUrl: './activity.component.html',
   imports: [
-    SharedModule,
-    DropdownModule,
+    SelectModule,
+    FormsModule,
+    CardComponent,
     ActivityContentComponent,
-    InfiniteScrollModule
+    InfiniteScrollDirective,
+    SpinnerDirective,
+    NgStyle
   ]
 })
 export class ActivityComponent implements OnInit, OnChanges {

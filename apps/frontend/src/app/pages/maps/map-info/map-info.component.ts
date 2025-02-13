@@ -1,4 +1,4 @@
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { SharedModule } from '../../../shared.module';
+
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
@@ -25,7 +25,6 @@ import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { DomSanitizer } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { downloadZoneFile } from '../../../util/download-zone-file.util';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
 import { TabsComponent } from '../../../components/tabs/tabs.component';
@@ -41,6 +40,16 @@ import { FontSizeLerpDirective } from '../../../directives/font-size-lerp.direct
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { LayoutService } from '../../../services/layout.service';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { SpinnerComponent } from '../../../components/spinner/spinner.component';
+import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
+import { IconComponent } from '../../../icons';
+import { Popover } from 'primeng/popover';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
+import { PluralPipe } from '../../../pipes/plural.pipe';
+import { ThousandsSuffixPipe } from '../../../pipes/thousands-suffix.pipe';
+import { AvatarComponent } from '../../../components/avatar/avatar.component';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -55,16 +64,22 @@ enum MapInfoSection {
   selector: 'm-map-info',
   templateUrl: './map-info.component.html',
   imports: [
-    SharedModule,
     MapLeaderboardComponent,
     MapSubmissionComponent,
     ReportButtonComponent,
-    TabsComponent,
-    TabDirective,
-    TabComponent,
     FontSizeLerpDirective,
-    OverlayPanelModule,
-    GalleryComponent
+    GalleryComponent,
+    TooltipDirective,
+    SpinnerComponent,
+    NgClass,
+    IconComponent,
+    RouterLink,
+    Popover,
+    SpinnerDirective,
+    DatePipe,
+    PluralPipe,
+    ThousandsSuffixPipe,
+    AvatarComponent
   ]
 })
 export class MapInfoComponent implements OnInit {
