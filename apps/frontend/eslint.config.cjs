@@ -1,11 +1,12 @@
 const { makeConfig } = require('../../eslint.util.cjs');
-const angularTemplate = require('@angular-eslint/eslint-plugin-template');
+const nx = require('@nx/eslint-plugin');
 
 module.exports = [
   ...makeConfig(__dirname, '../../tsconfig.base.json'),
+  ...nx.configs['flat/angular'],
+  ...nx.configs['flat/angular-template'],
   {
-    files: ['*.ts'],
-    extends: [angularTemplate.configs['process-inline-templates']],
+    files: ['**/*.ts'],
     rules: {
       '@angular-eslint/directive-selector': [
         'error',
@@ -21,17 +22,13 @@ module.exports = [
           prefix: ['m', 'ngx'],
           style: 'kebab-case'
         }
-      ],
-      // Overall project has this disabled, but we want it on for frontend.
-      'unicorn/prefer-module': ['error'],
-      // Messing with @angular/core's EventEmitter:
-      // https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1853
-      'unicorn/prefer-event-target': ['off']
+      ]
+      // // Overall project has this disabled, but we want it on for frontend.
+      // 'unicorn/prefer-module': ['error']
     }
   },
   {
-    files: ['*.html'],
-    extends: ['plugin:@nx/angular-template'],
+    files: ['**/*.html'],
     rules: {
       '@angular-eslint/template/eqeqeq': [
         'error',
