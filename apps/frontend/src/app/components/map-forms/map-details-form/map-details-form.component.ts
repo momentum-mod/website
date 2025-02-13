@@ -13,22 +13,38 @@ import {
   MIN_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_NAME_LENGTH
 } from '@momentum/constants';
-import { FormControl, FormControlStatus, FormGroup } from '@angular/forms';
+import {
+  FormControl,
+  FormControlStatus,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SharedModule } from '../../../shared.module';
+
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { DatePicker } from 'primeng/datepicker';
+import { IconComponent } from '../../../icons';
+import { Select } from 'primeng/select';
+import { PluralPipe } from '../../../pipes/plural.pipe';
 
 @Component({
   selector: 'm-map-details-form',
   templateUrl: 'map-details-form.component.html',
   imports: [
-    SharedModule,
     CalendarModule,
     DropdownModule,
-    SubmissionTypeInfoComponent
+    SubmissionTypeInfoComponent,
+    IconComponent,
+    FormsModule,
+    DatePicker,
+    ReactiveFormsModule,
+    TooltipDirective,
+    Select,
+    PluralPipe
   ]
 })
 export class MapDetailsFormComponent implements OnInit {

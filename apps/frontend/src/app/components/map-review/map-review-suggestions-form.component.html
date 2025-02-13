@@ -14,8 +14,8 @@
       @for (item of value; track item; let i = $index) {
         <tr class="mt-2 contents">
           <td>
-            <p-dropdown
-              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+            <p-select
+              class="[&>*]:w-full [&>.p-select]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
               [(ngModel)]="item.gamemode"
               [options]="availableGamemodes"
               optionLabel="label"
@@ -26,8 +26,8 @@
             />
           </td>
           <td>
-            <p-dropdown
-              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+            <p-select
+              class="[&>*]:w-full [&>.p-select]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
               [(ngModel)]="item.trackType"
               [options]="TrackTypes"
               optionLabel="label"
@@ -38,8 +38,8 @@
             />
           </td>
           <td>
-            <p-dropdown
-              class="[&>*]:w-full [&>.p-dropdown]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
+            <p-select
+              class="[&>*]:w-full [&>.p-select]:rounded [&_.p-inputtext]:px-3 [&_.p-inputtext]:py-1.5"
               [(ngModel)]="item.trackNum"
               optionLabel="label"
               optionValue="trackNum"

@@ -1,8 +1,8 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import {
   ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  FormsModule
+  FormsModule,
+  NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import {
   Gamemode,
@@ -13,9 +13,9 @@ import {
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
-import { CommonModule } from '@angular/common';
 import * as Enum from '@momentum/enum';
-import { DropdownModule } from 'primeng/dropdown';
+import { NgClass } from '@angular/common';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'm-map-leaderboards-selection',
@@ -27,7 +27,7 @@ import { DropdownModule } from 'primeng/dropdown';
       multi: true
     }
   ],
-  imports: [CommonModule, FormsModule, DropdownModule]
+  imports: [NgClass, Select, FormsModule]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   public readonly LeaderboardType = LeaderboardType;

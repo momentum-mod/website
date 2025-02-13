@@ -14,7 +14,6 @@ export class TabDirective {
 
 @Component({
   selector: 'm-tab',
-  imports: [RouterOutlet],
   hostDirectives: [{ directive: TabDirective, inputs: ['tabName'] }],
   template: '<ng-content></ng-content>'
 })

@@ -9,8 +9,8 @@ import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import { provideRouter, TitleStrategy } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { providePrimeNG } from 'primeng/config';
 import { DialogService } from 'primeng/dynamicdialog';
-import { SharedModule } from './app/shared.module';
 import { APP_ROUTES } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AppComponent } from './app/app.component';
@@ -18,7 +18,7 @@ import { CustomTitleStrategy } from './app/services/title.service';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(SharedModule, BrowserModule),
+    importProvidersFrom(BrowserModule),
     { provide: APP_BASE_HREF, useValue: '/' },
     {
       provide: HTTP_INTERCEPTORS,
@@ -37,6 +37,7 @@ bootstrapApplication(AppComponent, {
     { provide: TitleStrategy, useClass: CustomTitleStrategy },
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
+    providePrimeNG(),
     // These PrimeNg services don't have `providedIn: root` so need providing
     // global here.
     MessageService,

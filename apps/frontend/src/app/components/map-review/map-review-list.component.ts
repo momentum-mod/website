@@ -7,10 +7,13 @@ import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { MapReviewComponent } from './map-review.component';
 import { MapReviewFormComponent } from './map-review-form.component';
-import { SharedModule } from '../../shared.module';
+
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { SpinnerDirective } from '../../directives/spinner.directive';
 
 enum FilterType {
   NONE,
@@ -21,10 +24,12 @@ enum FilterType {
 @Component({
   selector: 'm-map-review-list',
   imports: [
-    SharedModule,
     PaginatorModule,
     MapReviewComponent,
-    MapReviewFormComponent
+    MapReviewFormComponent,
+    Select,
+    FormsModule,
+    SpinnerDirective
   ],
   templateUrl: './map-review-list.component.html'
 })

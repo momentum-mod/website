@@ -6,8 +6,7 @@ import {
   PagedResponse,
   User
 } from '@momentum/constants';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SharedModule } from '../../../shared.module';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -17,6 +16,8 @@ import { UserSelectComponent } from '../../../components/user-select/user-select
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IconComponent } from '../../../icons';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -30,10 +31,12 @@ type StatusFilters = Array<
 @Component({
   templateUrl: 'map-submission-browser.component.html',
   imports: [
-    SharedModule,
     MapListComponent,
     MultiSelectModule,
-    UserSelectComponent
+    UserSelectComponent,
+    IconComponent,
+    TooltipDirective,
+    ReactiveFormsModule
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SharedModule } from '../../../shared.module';
+
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -9,7 +9,7 @@ import {
   AdminActivityEntryData
 } from './admin-activity-entry/admin-activity-entry.component';
 import { AdminActivityEntryHeaderComponent } from './admin-activity-entry/admin-activity-entry-header.component';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
@@ -17,19 +17,24 @@ import { AccordionItemComponent } from '../../../components/accordion/accordion-
 import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { AdminActivityService } from '../../../services/data/admin-activity.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CardComponent } from '../../../components/card/card.component';
+import { Select } from 'primeng/select';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
 
 @Component({
   selector: 'm-admin-activity',
   templateUrl: './admin-activity.component.html',
   imports: [
-    SharedModule,
     PaginatorModule,
     AdminActivityEntryComponent,
     AdminActivityEntryHeaderComponent,
     AccordionComponent,
     AccordionItemComponent,
-    UserSearchComponent,
-    UserSelectComponent
+    UserSelectComponent,
+    CardComponent,
+    ReactiveFormsModule,
+    Select,
+    SpinnerDirective
   ]
 })
 export class AdminActivityComponent implements OnInit {

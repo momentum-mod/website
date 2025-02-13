@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { TwitchStream } from '@momentum/constants';
 import { finalize } from 'rxjs/operators';
-import { SharedModule } from '../../../shared.module';
+
 import { TwitchDataComponent } from './twitch-data/twitch-data.component';
 import { TwitchAPIService } from '../../../services/data/twitch-api.service';
+import { CardComponent } from '../../../components/card/card.component';
 
 @Component({
   selector: 'm-community-twitch-stream',
   templateUrl: './community-twitch-stream.component.html',
-  imports: [SharedModule, TwitchDataComponent]
+  imports: [TwitchDataComponent, CardComponent]
 })
 export class CommunityTwitchStreamComponent implements OnInit {
   streams: TwitchStream[] = [];

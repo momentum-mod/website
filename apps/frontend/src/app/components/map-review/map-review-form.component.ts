@@ -11,7 +11,12 @@ import {
   TrackType
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { take, tap } from 'rxjs/operators';
 import { FileValidators, suggestionsValidator } from '../../validators';
 import { MapReviewSuggestionsFormComponent } from './map-review-suggestions-form.component';
@@ -19,17 +24,19 @@ import { SuggestionType } from '@momentum/formats/zone';
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { SharedModule } from '../../shared.module';
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
+import { IconComponent } from '../../icons';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-review-form',
   imports: [
-    SharedModule,
     MapReviewSuggestionsFormComponent,
     MultiFileUploadComponent,
-    JsonPipe
+    ReactiveFormsModule,
+    IconComponent,
+    TooltipDirective
   ],
   templateUrl: './map-review-form.component.html'
 })

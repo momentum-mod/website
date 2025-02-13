@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MMap } from '@momentum/constants';
-import { InfiniteScrollModule } from 'ngx-infinite-scroll';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { MapListItemComponent } from './map-list-item.component';
-import { SharedModule } from '../../shared.module';
+import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({
   selector: 'm-map-list',
   templateUrl: './map-list.component.html',
-  imports: [SharedModule, MapListItemComponent, InfiniteScrollModule]
+  imports: [MapListItemComponent, InfiniteScrollDirective, SpinnerComponent]
 })
 export class MapListComponent {
   @Input({ required: true }) maps: MMap[];

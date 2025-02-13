@@ -2,7 +2,9 @@ import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   FormControl,
-  Validators
+  Validators,
+  FormsModule,
+  ReactiveFormsModule
 } from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
 import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
@@ -17,8 +19,9 @@ import * as Enum from '@momentum/enum';
 import { KeyValuePipe } from '@angular/common';
 import { UserSearchComponent } from '../../search/user-search.component';
 import { GroupedMapCredits } from '../../../util';
-import { SharedModule } from '../../../shared.module';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { IconComponent } from '../../../icons';
+import { AvatarComponent } from '../../avatar/avatar.component';
 
 @Component({
   selector: 'm-map-credits-selection',
@@ -31,11 +34,15 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
     }
   ],
   imports: [
-    SharedModule,
     CdkDropList,
     CdkDrag,
     UserSearchComponent,
-    KeyValuePipe
+    KeyValuePipe,
+    IconComponent,
+    TooltipDirective,
+    FormsModule,
+    AvatarComponent,
+    ReactiveFormsModule
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {

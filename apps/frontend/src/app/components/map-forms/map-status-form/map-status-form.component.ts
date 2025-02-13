@@ -17,7 +17,7 @@ import {
   Role,
   TrackType
 } from '@momentum/constants';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ChartModule } from 'primeng/chart';
 import { arrayFrom, leaderboardKey } from '@momentum/util-fn';
@@ -32,9 +32,11 @@ import { AccordionItemComponent } from '../../accordion/accordion-item.component
 import { IterableElement } from 'type-fest';
 import { SliderComponent } from '../../slider/slider.component';
 import { MapFinalApprovalFormComponent } from './map-final-approval-form.component';
-import { SharedModule } from '../../../shared.module';
+
 import { MapsService } from '../../../services/data/maps.service';
 import { LeaderboardsService } from '../../../services/data/leaderboards.service';
+import { DatePipe, NgClass } from '@angular/common';
+import { Select } from 'primeng/select';
 
 export type GroupedLeaderboards = Map<
   Gamemode,
@@ -59,16 +61,14 @@ export type GroupedLeaderboards = Map<
   selector: 'm-map-status-form',
   templateUrl: 'map-status-form.component.html',
   imports: [
-    SharedModule,
     CalendarModule,
     DropdownModule,
-    SubmissionTypeInfoComponent,
     ChartModule,
-    AccordionModule,
-    AccordionComponent,
-    AccordionItemComponent,
-    SliderComponent,
-    MapFinalApprovalFormComponent
+    MapFinalApprovalFormComponent,
+    DatePipe,
+    Select,
+    ReactiveFormsModule,
+    NgClass
   ]
 })
 export class MapStatusFormComponent implements OnChanges {

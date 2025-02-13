@@ -2,12 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SharedModule } from '../../../shared.module';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'm-profile-notify-edit-modal',
-  templateUrl: './profile-notify-edit.component.html',
-  imports: [SharedModule]
+  imports: [FormsModule],
+  templateUrl: './profile-notify-edit.component.html'
 })
 export class ProfileNotifyEditComponent implements OnInit {
   protected readonly ActivityType = ActivityType;

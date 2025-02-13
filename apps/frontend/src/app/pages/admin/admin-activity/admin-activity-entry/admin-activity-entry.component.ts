@@ -35,8 +35,7 @@ import * as Enum from '@momentum/enum';
         }
       }
     </div>
-  `,
-  imports: [NgStyle, RouterLink]
+  `
 })
 export class AdminActivityEntryComponent implements OnInit {
   @Input({ required: true }) activityData: AdminActivityEntryData;

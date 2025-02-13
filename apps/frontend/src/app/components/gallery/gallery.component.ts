@@ -7,7 +7,6 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icons';
 import { SafeUrl } from '@angular/platform-browser';
 
@@ -30,7 +29,7 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
  */
 @Component({
   selector: 'm-gallery',
-  imports: [CommonModule, IconComponent],
+  imports: [IconComponent],
   templateUrl: './gallery.component.html'
 })
 export class GalleryComponent implements OnInit {

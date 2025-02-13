@@ -5,18 +5,20 @@ import { LayoutService, SidenavState } from './services/layout.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { HeaderComponent } from './components/layout/header.component';
 import { SidenavComponent } from './components/layout/sidenav.component';
-import { SharedModule } from './shared.module';
+import { NgStyle } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'm-app',
   templateUrl: 'app.component.html',
   styleUrl: 'app.component.css',
   imports: [
-    SharedModule,
     HeaderComponent,
     SidenavComponent,
     ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    NgStyle,
+    RouterOutlet
   ]
 })
 export class AppComponent implements AfterViewInit {
