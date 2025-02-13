@@ -6,19 +6,19 @@ const nx = require('@nx/eslint-plugin');
 const ts = require('typescript-eslint');
 
 module.exports = [
+  ...nx.configs['flat/base'],
+  ...nx.configs['flat/typescript'],
+  ...nx.configs['flat/javascript'],
+  // TODO: just pick unicorn rules
+  // unicorn.configs.recommended,
   {
     plugins: {
-      '@nx': nx,
       'unused-imports': unusedImports,
       unicorn
     }
   },
-  js.configs.recommended,
-  ...ts.configs.recommended,
-  // unicorn.configs['flat/recommended'],
-  prettierRecommended,
   {
-    ignores: ['**/*.cjs']
+    ignores: ['**/*.cjs', '**/dist']
   },
   {
     files: ['**/*.ts'],
@@ -29,6 +29,7 @@ module.exports = [
         project: 'tsconfig.json'
       }
     },
+
     rules: {
       quotes: ['error', 'single', { avoidEscape: true }],
       'no-var': ['error'],
@@ -127,7 +128,7 @@ module.exports = [
       ],
       // Way too sensitive. Most cases it catches are silly, and bad naming is
       // easy to flag in review.
-      'unicorn/prevent-abbreviations': ['off'],
+      // 'unicorn/prevent-abbreviations': ['off'],
       // Not going to make devs use obscure JS syntax for something so minor.
       'unicorn/numeric-separators-style': [
         'warn',
