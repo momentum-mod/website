@@ -70,9 +70,9 @@
   </div>
 </ng-template>
 @if (useOverlay) {
-  <p-overlayPanel #searchOverlay>
+  <p-popover #searchOverlay>
     <ng-container *ngTemplateOutlet="results" />
-  </p-overlayPanel>
+  </p-popover>
 } @else {
   <ng-container *ngTemplateOutlet="results" />
 }

@@ -1,7 +1,7 @@
 import { Component, forwardRef, HostListener, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
-import { SharedModule } from '../../shared.module';
+import { IconComponent } from '../../icons';
 
 /**
  * A form control for multiple file selection/uploading with support for drag
@@ -10,14 +10,14 @@ import { SharedModule } from '../../shared.module';
 @Component({
   selector: 'm-multi-file-upload',
   templateUrl: 'file-upload.component.html',
+  imports: [IconComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => MultiFileUploadComponent),
       multi: true
     }
-  ],
-  imports: [SharedModule]
+  ]
 })
 export class MultiFileUploadComponent extends AbstractFileUploadComponent<
   File[]
@@ -42,7 +42,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
     const items = event.dataTransfer.items ?? event.dataTransfer.files;
     // DataTransferList doesn't have an iterator symbol on it according to
     // TypeScript (???)
-    // eslint-disable-next-line unicorn/no-for-loop
+
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       // Ignore anything that isn't a file
@@ -75,7 +75,6 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
   onFilesSelected(event: Event) {
     const elementFiles = (event.target as HTMLInputElement).files;
 
-    // eslint-disable-next-line unicorn/no-for-loop
     for (let i = 0; i < elementFiles.length; i++) {
       const file = elementFiles[i];
 

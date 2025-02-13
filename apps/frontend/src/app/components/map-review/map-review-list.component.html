@@ -1,7 +1,7 @@
 @if (!isSubmitter) {
   <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
 }
-<p-dropdown
+<p-select
   class="self-end"
   [(ngModel)]="filter"
   [options]="Filters"

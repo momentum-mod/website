@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
-import { SharedModule } from '../../../shared.module';
+
 import { TwitchAPIService } from '../../../services/data/twitch-api.service';
 
 // Avast! Here be the tests for the CommunityTwitchStreamComponent
@@ -13,7 +13,6 @@ describe('CommunityTwitchStreamComponent', () => {
   // Before each test, we be setting up the test bed
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [SharedModule],
       providers: [
         {
           provide: TwitchAPIService,

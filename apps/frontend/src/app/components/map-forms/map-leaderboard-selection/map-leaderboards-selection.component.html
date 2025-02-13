@@ -28,7 +28,7 @@
     @for (item of value; track item; let i = $index) {
       <tr class="contents">
         <td>
-          <p-dropdown
+          <p-select
             class="[&>*]:w-full"
             [(ngModel)]="item.gamemode"
             [options]="Gamemodes"
@@ -40,7 +40,7 @@
           />
         </td>
         <td>
-          <p-dropdown
+          <p-select
             class="[&>*]:w-full"
             [(ngModel)]="item.trackType"
             [options]="TrackTypes"
@@ -53,7 +53,7 @@
         </td>
         <td>
           @if (item.trackType === TrackType.BONUS) {
-            <p-dropdown
+            <p-select
               class="[&>*]:w-full"
               [(ngModel)]="item.trackNum"
               [options]="availableBonusTracks"
@@ -64,7 +64,7 @@
           }
         </td>
         <td>
-          <p-dropdown
+          <p-select
             class="[&>*]:w-full"
             [(ngModel)]="item.tier"
             [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"

@@ -6,7 +6,11 @@ import {
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR
+} from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { leaderboardKey } from '@momentum/util-fn';
 import { ChartOptions } from 'chart.js';
@@ -15,18 +19,25 @@ import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { SliderComponent } from '../../slider/slider.component';
 import { GroupedLeaderboards } from './map-status-form.component';
-import { SharedModule } from '../../../shared.module';
+import { Select } from 'primeng/select';
+import { KeyValuePipe, NgClass } from '@angular/common';
+import { IconComponent } from '../../../icons';
+import { PluralPipe } from '../../../pipes/plural.pipe';
 
 @Component({
   selector: 'm-map-final-approval-form',
   templateUrl: 'map-final-approval-form.component.html',
   imports: [
-    SharedModule,
     DropdownModule,
     ChartModule,
     AccordionComponent,
     AccordionItemComponent,
-    SliderComponent
+    Select,
+    FormsModule,
+    NgClass,
+    IconComponent,
+    KeyValuePipe,
+    PluralPipe
   ],
   providers: [
     {

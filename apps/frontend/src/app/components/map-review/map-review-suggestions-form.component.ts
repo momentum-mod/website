@@ -1,5 +1,9 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR
+} from '@angular/forms';
 import {
   Gamemode,
   GamemodeInfo,
@@ -11,7 +15,8 @@ import {
 import * as Enum from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
 import { groupMapLeaderboards } from '../../util';
-import { SharedModule } from '../../shared.module';
+import { Select } from 'primeng/select';
+import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-map-review-suggestions-form',
@@ -23,7 +28,7 @@ import { SharedModule } from '../../shared.module';
       multi: true
     }
   ],
-  imports: [SharedModule, DropdownModule]
+  imports: [DropdownModule, Select, FormsModule, IconComponent]
 })
 export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected readonly TrackType = TrackType;

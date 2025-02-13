@@ -1,6 +1,11 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AdminUpdateUser,
@@ -19,8 +24,8 @@ import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { DropdownModule } from 'primeng/dropdown';
-import { SharedModule } from '../../../shared.module';
-import { Icon } from '../../../icons';
+
+import { Icon, IconComponent } from '../../../icons';
 import { TitleService } from '../../../services/title.service';
 import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -31,11 +36,31 @@ import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dial
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { EMPTY, switchMap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NgClass } from '@angular/common';
+import { CardComponent } from '../../../components/card/card.component';
+import { Select } from 'primeng/select';
+import { PluralPipe } from '../../../pipes/plural.pipe';
+import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { AvatarComponent } from '../../../components/avatar/avatar.component';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
-  imports: [SharedModule, UserSearchComponent, DropdownModule]
+  imports: [
+    UserSearchComponent,
+    DropdownModule,
+    ReactiveFormsModule,
+    NgClass,
+    CardComponent,
+    Select,
+    PluralPipe,
+    UnsortedKeyvaluePipe,
+    TooltipDirective,
+    IconComponent,
+    RouterLink,
+    AvatarComponent
+  ]
 })
 export class ProfileEditComponent implements OnInit {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)

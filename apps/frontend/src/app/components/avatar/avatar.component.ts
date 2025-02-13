@@ -8,7 +8,6 @@ import { STEAM_MISSING_AVATAR_URL } from '@momentum/constants';
  */
 @Component({
   selector: 'm-avatar',
-  standalone: true,
   template: `
     <img [src]="url" class="aspect-square h-full rounded shadow-md" />
   `

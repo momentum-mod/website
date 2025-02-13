@@ -8,8 +8,8 @@ import {
   Input
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Icon } from '../../icons';
-import { SharedModule } from '../../shared.module';
+import { Icon, IconComponent } from '../../icons';
+import { NgClass } from '@angular/common';
 
 // Should correspond to .btn-<color> classes.
 export type NStateButtonColor =
@@ -30,7 +30,6 @@ export type NStateButtonColor =
       <m-icon [ngClass]="iconClass" [icon]="icon" />
     }`,
   selector: 'm-n-state-button',
-  imports: [SharedModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -38,6 +37,7 @@ export type NStateButtonColor =
       multi: true
     }
   ],
+  imports: [IconComponent, NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NStateButtonComponent implements ControlValueAccessor {

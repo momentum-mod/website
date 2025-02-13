@@ -11,7 +11,6 @@ import { UniqueComponentId } from 'primeng/utils';
  */
 @Directive({
   selector: '[mTooltip]',
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: { class: 'p-element' },
   standalone: true
 })

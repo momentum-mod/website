@@ -6,15 +6,15 @@
     <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" />
   </a>
 
-  <p-overlayPanel #searchOverlay>
+  <p-popover #searchOverlay>
     <m-multisearch (selected)="searchOverlay.hide()" />
-  </p-overlayPanel>
+  </p-popover>
   <div class="item">
     <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
   </div>
 
   @if (localUserService.user | async) {
-    <p-overlayPanel #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-overlayPanel>
+    <p-popover #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-popover>
     <div class="item">
       @if (unreadNotificationCount > 0) {
         <p class="badge badge-blue absolute bottom-2 right-2">

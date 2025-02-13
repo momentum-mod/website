@@ -11,7 +11,7 @@ import {
 
 @Component({
   selector: 'm-player-card',
-  imports: [IconComponent, ProgressBarModule, LevelIndicatorComponent],
+  imports: [ProgressBarModule, LevelIndicatorComponent],
   templateUrl: './player-card.component.html',
   styleUrl: './player-card.component.css'
 })

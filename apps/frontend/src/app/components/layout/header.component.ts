@@ -1,27 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { Notification } from '@momentum/constants';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../../services/layout.service';
 import { NotificationComponent } from '../notification/notification.component';
 import { MultiSearchComponent } from '../search/multi-search.component';
 import { PlayerCardComponent } from '../player-card/player-card.component';
 import { NotificationsService } from '../../services/notifications.service';
-import { SharedModule } from '../../shared.module';
+
 import { LocalUserService } from '../../services/data/local-user.service';
 import { MenuModule } from 'primeng/menu';
+import { IconComponent } from '../../icons';
+import { AsyncPipe } from '@angular/common';
+import { Popover } from 'primeng/popover';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'm-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   imports: [
-    SharedModule,
     MultiSearchComponent,
     NotificationComponent,
-    OverlayPanelModule,
     PlayerCardComponent,
-    MenuModule
+    MenuModule,
+    IconComponent,
+    AsyncPipe,
+    Popover,
+    RouterLink
   ]
 })
 export class HeaderComponent implements OnInit {

@@ -53,7 +53,7 @@ export class LocalUserService {
   }
 
   public refreshLocalUser(): void {
-    this.isLoggedIn &&
+    if (this.isLoggedIn)
       this.fetchLocalUser({ expand: ['profile', 'userStats'] }).subscribe(
         (user) => {
           this.user.next(user as FullUser);

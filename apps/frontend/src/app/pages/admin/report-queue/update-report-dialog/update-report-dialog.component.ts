@@ -1,16 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SharedModule } from '../../../../shared.module';
+
 import { AdminService } from '../../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'm-update-report-dialog',
-  templateUrl: './update-report-dialog.component.html',
-  imports: [SharedModule]
+  imports: [ReactiveFormsModule],
+  templateUrl: './update-report-dialog.component.html'
 })
 export class UpdateReportDialogComponent implements OnInit {
   @Input() report: Report;

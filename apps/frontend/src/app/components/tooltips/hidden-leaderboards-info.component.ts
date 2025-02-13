@@ -19,8 +19,7 @@ import { Component, Input } from '@angular/core';
         launch the map with your gamemode overriden!
       </p>
     </div>
-  `,
-  standalone: true
+  `
 })
 export class HiddenLeaderboardsInfoComponent {
   @Input() title = 'Hidden Leaderboard';

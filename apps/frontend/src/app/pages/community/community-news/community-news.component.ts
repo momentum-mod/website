@@ -1,15 +1,16 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
-import { SharedModule } from '../../../shared.module';
+
 import { BlogService } from '../../../services/data/blog.service';
+import { CardComponent } from '../../../components/card/card.component';
 
 @Component({
   selector: 'm-community-news',
   templateUrl: './community-news.component.html',
   styleUrls: ['./community-news.component.css'],
-  encapsulation: ViewEncapsulation.None,
-  imports: [SharedModule]
+  imports: [CardComponent],
+  encapsulation: ViewEncapsulation.None
 })
 export class CommunityNewsComponent implements OnInit {
   // The number of blog posts to display on this component
