@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
+import { SentryModule } from '@sentry/nestjs/setup';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -20,7 +21,6 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
 import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
-import { setupNestInterceptor } from '../instrumentation';
 
 @Module({
   imports: [
@@ -30,6 +30,7 @@ import { setupNestInterceptor } from '../instrumentation';
       isGlobal: true,
       validate
     }),
+    SentryModule.forRoot(),
     // Pino is a highly performant logger that outputs logs as JSON, which we
     // then export to Grafana Loki. This module sets up `pino-http` which logs
     // all HTTP requests (so no need for a Nest interceptor).
@@ -71,10 +72,6 @@ import { setupNestInterceptor } from '../instrumentation';
     {
       provide: APP_FILTER,
       useClass: ExceptionHandlerFilter
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useFactory: setupNestInterceptor
     }
   ]
 })
