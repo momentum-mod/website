@@ -58,6 +58,5 @@
   },
   "useInferencePlugins": false,
   "defaultBase": "main",
-  "neverConnectToCloud": true,
-  "useLegacyCache": true
+  "neverConnectToCloud": true
 }
