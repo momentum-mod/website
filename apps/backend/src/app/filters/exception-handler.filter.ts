@@ -10,8 +10,7 @@ import {
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
-import '@sentry/tracing'; // Required according to https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/nestjs';
 import { Environment } from '../config';
 
 @Catch()
