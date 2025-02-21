@@ -24,12 +24,16 @@ import * as Enum from '@momentum/enum';
       @for (diffEntry of diffEntries; track diffEntry.key) {
         <p class="font-medium">{{ diffEntry.key }}</p>
         @if (diffEntry.oldValue != null) {
-          <p class="font-mono">{{ diffEntry.oldValue }}</p>
+          <p class="font-mono whitespace-pre-wrap [word-wrap:anywhere]">
+            {{ diffEntry.oldValue }}
+          </p>
         } @else {
           <p class="font-mono text-gray-200">null</p>
         }
         @if (diffEntry.newValue != null) {
-          <p class="font-mono">{{ diffEntry.newValue }}</p>
+          <p class="font-mono whitespace-pre-wrap [word-wrap:anywhere]">
+            {{ diffEntry.newValue }}
+          </p>
         } @else {
           <p class="font-mono text-gray-300">null</p>
         }
