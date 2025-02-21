@@ -1,5 +1,19 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { BehaviorSubject, merge, Observable, Subject } from 'rxjs';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges
+} from '@angular/core';
+import {
+  BehaviorSubject,
+  merge,
+  Observable,
+  Subject,
+  filter,
+  switchMap,
+  tap
+} from 'rxjs';
 import {
   ActivityType,
   Activity,
@@ -7,7 +21,6 @@ import {
   User
 } from '@momentum/constants';
 import { DropdownModule } from 'primeng/dropdown';
-import { filter, mergeMap, tap } from 'rxjs/operators';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { MessageService } from 'primeng/api';
 import { ActivityContentComponent } from './activity-content.component';
@@ -27,7 +40,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     InfiniteScrollModule
   ]
 })
-export class ActivityComponent implements OnInit {
+export class ActivityComponent implements OnInit, OnChanges {
   protected readonly Types = [
     { value: ActivityType.ALL, label: 'All' },
     { value: ActivityType.MAP_APPROVED, label: 'Maps Only' },
@@ -70,6 +83,7 @@ export class ActivityComponent implements OnInit {
 
   // Emits on first load, and whenever p-scroller wants new data
   protected readonly load = new Subject<void>();
+  private readonly typeChange = new Subject<void>();
 
   constructor(
     private readonly activityService: ActivityService,
@@ -77,57 +91,73 @@ export class ActivityComponent implements OnInit {
     private readonly messageService: MessageService
   ) {}
 
-  ngOnInit(): void {
-    let fetchFn: (...args: any[]) => Observable<PagedResponse<Activity>>;
-    let extraListener: Observable<any>;
-    let extraFetchArg: any;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activityFetchType']) this.typeChange.next();
+  }
 
-    switch (this.activityFetchType) {
-      case 'follow':
-        fetchFn = (...args) =>
-          this.activityService.getFollowedActivity(...args);
-        break;
-      case 'all':
-        fetchFn = (...args) => this.activityService.getRecentActivity(...args);
-        break;
-      case 'own':
-        fetchFn = (...args) =>
-          this.activityService.getLocalUserActivity(...args);
-        // Whenever LU updates, reset the component and refresh.
-        extraListener = this.localUserService.user.pipe(
-          filter(Boolean),
-          tap(() => this.clearActivities())
-        );
-        break;
-      default: // Generic BehaviorSubject variant.
-        fetchFn = (...args: [any, any]) =>
-          this.activityService.getUserActivity(...args);
-        extraFetchArg = (
-          this.activityFetchType as BehaviorSubject<User>
-        ).getValue().id;
-        extraListener = this.activityFetchType.pipe(
-          tap(() => this.clearActivities())
-        );
-        break;
-    }
-
-    const skipTake = () => ({
-      skip: this.page++ * this.ITEMS_PER_PAGE,
-      take: this.ITEMS_PER_PAGE
-    });
-
-    // Switch over component variants to pick type of request. infinite scrolly
-    // guy will fire off the `load` subject on scroll
-    (extraListener ? merge(this.load, extraListener) : this.load)
+  ngOnInit() {
+    this.typeChange
       .pipe(
-        filter(() => this.canLoadMore && !this.loading),
-        tap(() => (this.loading = true)),
-        mergeMap(() =>
-          extraFetchArg
-            ? fetchFn(extraFetchArg, skipTake())
-            : fetchFn(skipTake())
-        ),
-        tap(() => (this.loading = false))
+        switchMap(() => {
+          let fetchFn: () => Observable<PagedResponse<Activity>>;
+          let extraListener: Observable<any>;
+
+          const skipTake = () => ({
+            skip: this.page++ * this.ITEMS_PER_PAGE,
+            take: this.ITEMS_PER_PAGE
+          });
+
+          switch (this.activityFetchType) {
+            case 'follow':
+              fetchFn = () =>
+                this.activityService.getFollowedActivity(skipTake());
+              break;
+            case 'all':
+              fetchFn = () =>
+                this.activityService.getRecentActivity(skipTake());
+              break;
+            case 'own':
+              fetchFn = () =>
+                this.activityService.getLocalUserActivity(skipTake());
+              // Whenever LU updates, reset the component and refresh.
+              extraListener = this.localUserService.user.pipe(filter(Boolean));
+              break;
+            default: // Generic BehaviorSubject variant.
+              fetchFn = () => {
+                return this.activityService.getUserActivity(
+                  (this.activityFetchType as BehaviorSubject<User>).getValue()
+                    .id,
+                  skipTake()
+                );
+              };
+              extraListener = this.activityFetchType;
+              break;
+          }
+
+          this.clearActivities();
+          this.loading = false;
+
+          // Switch over component variants to pick type of request. infinite scrolly
+          // guy will fire off the `load` subject on scroll
+          return (
+            extraListener
+              ? merge(
+                  this.load,
+                  extraListener.pipe(
+                    tap(() => {
+                      this.clearActivities();
+                      this.loading = false;
+                    })
+                  )
+                )
+              : this.load
+          ).pipe(
+            filter(() => this.canLoadMore),
+            tap(() => (this.loading = true)),
+            switchMap(() => fetchFn()),
+            tap(() => (this.loading = false))
+          );
+        })
       )
       .subscribe({
         next: (res: PagedResponse<Activity>) => {
@@ -146,6 +176,7 @@ export class ActivityComponent implements OnInit {
         }
       });
 
+    this.typeChange.next();
     if (this.localUserService.isLoggedIn) {
       this.load.next();
     }
@@ -160,6 +191,7 @@ export class ActivityComponent implements OnInit {
 
   private clearActivities() {
     this.activities = [];
+    this.filteredActivities = [];
     this.canLoadMore = true;
     this.page = 0;
   }
