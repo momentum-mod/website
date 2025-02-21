@@ -19,7 +19,7 @@
       [fromRoot]="true"
       (scrolled)="load.next()"
     >
-      @for (item of filteredActivities; track item.createdAt) {
+      @for (item of filteredActivities; track item.id) {
         <m-activity-content [activity]="item" />
       } @empty {
         @if (!loading) {
