@@ -122,7 +122,7 @@ export class MapWebhooksService {
         {
           title: extendedMap.name,
           description: 'By ' + authors.map((a) => `**${a}**`).join(', '),
-          url: `${frontendUrl}/maps/${extendedMap.id}`,
+          url: `${frontendUrl}/maps/${extendedMap.name}`,
           timestamp: extendedMap.info.creationDate.toISOString(),
           color: 1611475,
           image: {
