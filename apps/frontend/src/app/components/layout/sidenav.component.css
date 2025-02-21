@@ -7,6 +7,8 @@ nav {
   flex-direction: column;
   align-content: center;
 
+  transition: width 0.3s;
+
   width: 14rem;
   height: 100%;
   padding: 0.5rem 0;
@@ -31,6 +33,8 @@ nav {
     text-transform: uppercase;
     color: rgb(236, 236, 236);
 
+    overflow: hidden;
+
     filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.1))
       drop-shadow(1px 2px 12px rgba(0, 0, 0, 0.2));
     @apply font-medium text-sm;
@@ -43,6 +47,8 @@ nav {
     padding: 0.25rem 2rem;
     @apply text-gray-50 bg-blue-500 bg-opacity-0 border-blue-500 border-opacity-0 transition-colors;
 
+    transition: padding 0.3s;
+
     &:hover {
       @apply bg-opacity-25 border-opacity-100;
     }
@@ -51,6 +57,7 @@ nav {
       margin: auto 0;
       filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3))
         drop-shadow(1px 2px 16px rgba(0, 0, 0, 0.2));
+      flex-shrink: 0;
     }
 
     & p {
@@ -59,6 +66,8 @@ nav {
       text-shadow:
         1px 1px 2px rgba(0, 0, 0, 0.4),
         1px 2px 8px rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 }
