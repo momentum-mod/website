@@ -20,13 +20,12 @@ import {
   getSpecificGroupedLeaderboard
 } from '../../../util';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
-import { MapListItemComponent } from '../../../components/map-list/map-list-item.component';
 import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
 import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AsyncPipe, NgClass, NgStyle } from '@angular/common';
+import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
@@ -40,7 +39,8 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
     NgClass,
     NgStyle,
     AsyncPipe,
-    TooltipDirective
+    TooltipDirective,
+    CommonModule
   ]
 })
 export class MapBrowserComponent implements OnInit {
