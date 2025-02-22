@@ -14,6 +14,7 @@ import {
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
 import { Logger } from 'nestjs-pino';
 import { Environment } from './app/config';
 import { AppModule } from './app/app.module';
@@ -66,6 +67,8 @@ async function bootstrap() {
 
   // Enable @fastify/helmet header protections
   await app.register(helmet, { global: true });
+
+  await app.register(multipart);
 
   // CORS policy to allow browsers to access the backend from dashboard.momentum-mod.org
   await app.register(cors, {
