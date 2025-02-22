@@ -15,6 +15,7 @@ import { APP_ROUTES } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AppComponent } from './app/app.component';
 import { CustomTitleStrategy } from './app/services/title.service';
+import { MomentumPreset } from './app/theme/primeng-preset';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -37,7 +38,11 @@ bootstrapApplication(AppComponent, {
     { provide: TitleStrategy, useClass: CustomTitleStrategy },
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
-    providePrimeNG(),
+    providePrimeNG({
+      theme: {
+        preset: MomentumPreset
+      }
+    }),
     // These PrimeNg services don't have `providedIn: root` so need providing
     // global here.
     MessageService,
