@@ -1,4 +1,4 @@
-import { Tooltip as PTooltip } from 'primeng/tooltip';
+import { Tooltip as PTooltip, TooltipStyle } from 'primeng/tooltip';
 import { Directive, Input, QueryList, TemplateRef } from '@angular/core';
 import { UniqueComponentId } from 'primeng/utils';
 
@@ -7,12 +7,13 @@ import { UniqueComponentId } from 'primeng/utils';
  * programmatically displaying tooltips.
  *
  * https://primeng.org/tooltip
- * https://github.com/primefaces/primeng/blob/master/src/app/components/tooltip/tooltip.ts
+ * https://github.com/primefaces/primeng/blob/master/packages/primeng/src/tooltip/tooltip.ts
  */
 @Directive({
   selector: '[mTooltip]',
   host: { class: 'p-element' },
-  standalone: true
+  standalone: true,
+  providers: [TooltipStyle]
 })
 export class TooltipDirective extends PTooltip {
   /**
