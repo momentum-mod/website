@@ -11,7 +11,7 @@ import { IconComponent } from '../../icons';
 import { SpinnerDirective } from '../../directives/spinner.directive';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgClass } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { Popover } from 'primeng/popover';
@@ -21,7 +21,6 @@ import { Popover } from 'primeng/popover';
   templateUrl: './user-search.component.html',
   imports: [
     PaginatorModule,
-
     RoleBadgesComponent,
     IconComponent,
     SpinnerDirective,
@@ -30,7 +29,8 @@ import { Popover } from 'primeng/popover';
     NgClass,
     TooltipDirective,
     SpinnerComponent,
-    Popover
+    Popover,
+    CommonModule
   ]
 })
 export class UserSearchComponent
