@@ -15,7 +15,8 @@ import {
   Colors,
   ContextMenuCommandInteraction,
   ComponentType,
-  GuildTextBasedChannel
+  GuildTextBasedChannel,
+  MessageFlags
 } from 'discord.js';
 import { InteractionModule } from '../types/interaction-module';
 import { config, CustomCommand } from '../config';
@@ -628,7 +629,8 @@ export class SayModule implements InteractionModule {
       await replyDescriptionEmbed(
         interaction,
         `Command '${commandName}' doesn't exist!`,
-        MomentumColor.Red
+        MomentumColor.Red,
+        true
       );
       return;
     }
@@ -703,7 +705,7 @@ export class SayModule implements InteractionModule {
             color: MomentumColor.Blue
           }
         ],
-        ephemeral: true
+        flags: MessageFlags.Ephemeral
       });
       return;
     }

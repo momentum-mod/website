@@ -3,6 +3,8 @@ import {
   ChatInputCommandInteraction,
   ContextMenuCommandInteraction,
   GuildMember,
+  InteractionReplyOptions,
+  MessageFlags,
   ModalSubmitInteraction
 } from 'discord.js';
 import { config } from './config';
@@ -16,15 +18,20 @@ export async function replyDescriptionEmbed(
   color: number,
   ephemeral: boolean = false
 ) {
-  await interaction.reply({
+  const replyData: InteractionReplyOptions = {
     embeds: [
       {
         description: text,
         color
       }
-    ],
-    ephemeral
-  });
+    ]
+  };
+
+  if (ephemeral) {
+    replyData.flags = MessageFlags.Ephemeral;
+  }
+
+  await interaction.reply(replyData);
 }
 
 export function isModeratorOrHigher(member: GuildMember) {

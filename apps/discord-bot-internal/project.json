@@ -16,22 +16,23 @@
         "outputPath": "dist/apps/discord-bot-internal",
         "main": "apps/discord-bot-internal/src/index.ts",
         "tsConfig": "apps/discord-bot-internal/tsconfig.json",
-        "webpackConfig": "apps/discord-bot-internal/webpack.config.js",
-        "assets": [
-          {
-            "glob": "config.json",
-            "input": "apps/discord-bot-internal/config/",
-            "output": "./config/"
-          },
-          {
-            "glob": "bot_data.db",
-            "input": "apps/discord-bot-internal/data/",
-            "output": "./data/"
-          }
-        ]
+        "webpackConfig": "apps/discord-bot-internal/webpack.config.js"
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "assets": [
+            {
+              "glob": "config.json",
+              "input": "apps/discord-bot-internal/config/",
+              "output": "./config/"
+            },
+            {
+              "glob": "bot_data.db",
+              "input": "apps/discord-bot-internal/data/",
+              "output": "./data/"
+            }
+          ]
+        },
         "production": {
           "generatePackageJson": true
         }
