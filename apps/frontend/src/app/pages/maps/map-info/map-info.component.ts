@@ -42,7 +42,12 @@ import { LocalUserService } from '../../../services/data/local-user.service';
 import { LayoutService } from '../../../services/layout.service';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { SpinnerComponent } from '../../../components/spinner/spinner.component';
-import { DatePipe, NgClass, TitleCasePipe } from '@angular/common';
+import {
+  CommonModule,
+  DatePipe,
+  NgClass,
+  TitleCasePipe
+} from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { Popover } from 'primeng/popover';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
@@ -79,7 +84,8 @@ enum MapInfoSection {
     DatePipe,
     PluralPipe,
     ThousandsSuffixPipe,
-    AvatarComponent
+    AvatarComponent,
+    CommonModule
   ]
 })
 export class MapInfoComponent implements OnInit {
