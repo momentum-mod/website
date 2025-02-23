@@ -4,7 +4,7 @@ import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from './activities.service';
 
 @Module({
-  imports: [DbModule.forRoot()],
+  imports: [DbModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService]
 })
