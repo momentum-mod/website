@@ -74,7 +74,7 @@ async function bootstrap() {
   await app.register(cors, {
     origin:
       env === Environment.PRODUCTION
-        ? configService.getOrThrow('url.frontend')
+        ? configService.getOrThrow<string>('url.frontend')
         : 'http://localhost:4200',
     allowedHeaders: [
       'Origin',
@@ -89,7 +89,7 @@ async function bootstrap() {
 
   // Cookies for transferring JWTs back to client after OpenID auth
   await app.register(cookie, {
-    secret: configService.getOrThrow('sessionSecret')
+    secret: configService.getOrThrow<string>('sessionSecret')
   });
 
   app.enableShutdownHooks();

@@ -69,7 +69,7 @@ export async function setupE2ETestEnvironment(
 
   const configService = app.get(ConfigService);
   await app.register(fastifyCookie, {
-    secret: configService.get('sessionSecret')
+    secret: configService.get<string>('sessionSecret')
   });
 
   await app.register(multipart);
