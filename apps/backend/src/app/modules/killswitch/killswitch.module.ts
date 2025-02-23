@@ -3,7 +3,7 @@ import { DbModule } from '../database/db.module';
 import { KillswitchService } from './killswitch.service';
 
 @Module({
-  imports: [DbModule.forRoot()],
+  imports: [DbModule],
   providers: [KillswitchService],
   exports: [KillswitchService]
 })

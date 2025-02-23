@@ -4,7 +4,7 @@ import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 
 @Module({
-  imports: [DbModule.forRoot()],
+  imports: [DbModule],
   controllers: [ReportsController],
   providers: [ReportsService]
 })
