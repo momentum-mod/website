@@ -9,7 +9,7 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
   imports: [
-    DbModule.forRoot(),
+    DbModule,
     FileStoreModule,
     XpSystemsModule,
     forwardRef(() => MapsModule),
