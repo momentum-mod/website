@@ -1,11 +1,9 @@
 import { Component, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-alert',
-  standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [IconComponent],
   template: ` <div class="prose max-w-none">
       <ng-content />
     </div>

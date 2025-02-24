@@ -18,7 +18,7 @@ import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
-    DbModule.forRoot(),
+    DbModule,
     FileStoreModule,
     SteamModule,
     SessionModule,

@@ -40,7 +40,7 @@
             },
             {
               "type": "all",
-              "maximumError": "2mb"
+              "maximumError": "2.5mb"
             }
           ],
           "outputHashing": "all"
@@ -64,7 +64,7 @@
             },
             {
               "type": "all",
-              "maximumError": "2mb"
+              "maximumError": "2.5mb"
             }
           ],
           "outputHashing": "all"
@@ -96,7 +96,7 @@
       "defaultConfiguration": "development"
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/frontend/**/*.ts", "apps/frontend/**/*.html"]

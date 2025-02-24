@@ -24,7 +24,6 @@ module.exports = {
       'always',
       [
         'front',
-        'front-e2e',
         'back',
         'back-e2e',
         'shared',

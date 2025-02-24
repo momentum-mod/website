@@ -10,7 +10,6 @@ import { TabDirective } from './tab.component';
 
 @Component({
   selector: 'm-tabs',
-  standalone: true,
   imports: [NgClass, NgStyle],
   styles: ':host { display: block; }',
   // TODO: Carousel support. Often the top menu can exceed the width of the

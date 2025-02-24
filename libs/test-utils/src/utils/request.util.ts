@@ -46,10 +46,7 @@ export class RequestUtil {
   }
 
   del(options: RequestOptions): Promise<ParsedResponse> {
-    return this.request(
-      { method: 'DELETE', headers: { 'content-type': 'application/json' } },
-      options
-    );
+    return this.request({ method: 'DELETE' }, options);
   }
 
   postOctetStream(

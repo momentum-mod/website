@@ -11,7 +11,6 @@ const ARRAY_SIZE = 10;
  * insist you use `Array.from` use `new Array`, `from` is significantly slower
  * as it sets every value to `undefined`.
  */
-
 function bench(
   name: string,
   fn: (mapFn: (n: number) => number, length: number) => number[]

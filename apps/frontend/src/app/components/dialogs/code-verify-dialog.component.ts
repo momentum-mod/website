@@ -32,9 +32,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
         {{ actionText }}
       </button>
     </div>
-  `,
-  standalone: true,
-  imports: [CardComponent]
+  `
 })
 export class CodeVerifyDialogComponent implements OnInit {
   @Input() message: SafeHtml;

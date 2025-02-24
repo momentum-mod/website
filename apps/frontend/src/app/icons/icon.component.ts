@@ -12,7 +12,6 @@ import { DEFAULT_ICON_PACK, Icon, IconPack } from './index';
 @Component({
   selector: 'm-icon',
   template: '',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconComponent implements OnChanges {

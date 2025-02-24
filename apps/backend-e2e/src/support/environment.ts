@@ -17,6 +17,7 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import fastifyCookie from '@fastify/cookie';
+import multipart from '@fastify/multipart';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
@@ -68,8 +69,10 @@ export async function setupE2ETestEnvironment(
 
   const configService = app.get(ConfigService);
   await app.register(fastifyCookie, {
-    secret: configService.get('sessionSecret')
+    secret: configService.get<string>('sessionSecret')
   });
+
+  await app.register(multipart);
 
   await app.init();
   await app.getHttpAdapter().getInstance().ready();

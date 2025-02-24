@@ -7,11 +7,12 @@ import {
   ViewChild
 } from '@angular/core';
 import { map, mergeAll, switchMap, tap } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ReactiveFormsModule,
   Validators
 } from '@angular/forms';
 import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
@@ -43,7 +44,7 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { SharedModule } from '../../../shared.module';
+
 import { FormUtils, GroupedMapCredits } from '../../../util';
 import {
   BackendValidators,
@@ -79,6 +80,9 @@ import { MultiFileUploadComponent } from '../../../components/file-upload/multi-
 import { MapTestInviteSelectionComponent } from '../../../components/map-forms/map-test-invite-selection/map-test-invite-selection.component';
 import { ImageSelectionItem } from '../../../components/map-forms/map-image-selection/image-selection-item.class';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
+import { CardHeaderComponent } from '../../../components/card/card-header.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { JsonPipe, NgClass } from '@angular/common';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -90,23 +94,22 @@ export type FinalApprovalFormGroup = Record<
 @Component({
   selector: 'm-map-edit',
   templateUrl: './map-edit.component.html',
-  standalone: true,
   imports: [
-    SharedModule,
-    CdkDrag,
-    CdkDropList,
     FileUploadComponent,
     MultiFileUploadComponent,
-    TabsComponent,
-    TabComponent,
     MapDetailsFormComponent,
     MapImageSelectionComponent,
-    CreditsInfoComponent,
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
     MapStatusFormComponent,
     ProgressBarModule,
-    MapTestInviteSelectionComponent
+    MapTestInviteSelectionComponent,
+    CardHeaderComponent,
+    RouterLink,
+    ReactiveFormsModule,
+    SpinnerDirective,
+    NgClass,
+    JsonPipe
   ]
 })
 export class MapEditComponent implements OnInit, ConfirmDeactivate {

@@ -5,7 +5,7 @@ import { MapsModule } from '../maps/maps.module';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [DbModule.forRoot(), UsersModule, MapsModule],
+  imports: [DbModule, UsersModule, MapsModule],
   controllers: [UserController]
 })
 export class UserModule {}

@@ -43,7 +43,6 @@ export enum ImageSelectionType {
   viewProviders: [
     { provide: ControlContainer, useExisting: FormGroupDirective }
   ],
-  standalone: true,
   imports: [
     MultiFileUploadComponent,
     FormsModule,

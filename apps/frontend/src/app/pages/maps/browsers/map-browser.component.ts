@@ -7,8 +7,8 @@ import {
   MMap,
   PagedResponse
 } from '@momentum/constants';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SharedModule } from '../../../shared.module';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 import { PaginatorModule } from 'primeng/paginator';
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -20,23 +20,27 @@ import {
   getSpecificGroupedLeaderboard
 } from '../../../util';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
-import { MapListItemComponent } from '../../../components/map-list/map-list-item.component';
 import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
 import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   templateUrl: 'map-browser.component.html',
-  standalone: true,
   imports: [
-    SharedModule,
     MapListComponent,
     NStateButtonComponent,
-    MapListItemComponent,
     PaginatorModule,
-    SliderComponent
+    SliderComponent,
+    ReactiveFormsModule,
+    NgClass,
+    NgStyle,
+    AsyncPipe,
+    TooltipDirective,
+    CommonModule
   ]
 })
 export class MapBrowserComponent implements OnInit {

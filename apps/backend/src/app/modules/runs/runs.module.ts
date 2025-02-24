@@ -10,7 +10,7 @@ import { RunsController } from './runs.controller';
 
 @Module({
   imports: [
-    DbModule.forRoot(),
+    DbModule,
     forwardRef(() => MapsModule),
     FileStoreModule,
     SteamModule

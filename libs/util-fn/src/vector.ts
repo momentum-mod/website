@@ -31,3 +31,5 @@ export const Vec = {
     return 0;
   }
 };
+
+const regex = /\d\d\d\d\d\d/g;
