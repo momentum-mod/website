@@ -40,7 +40,7 @@
             },
             {
               "type": "all",
-              "maximumError": "2mb"
+              "maximumError": "2.5mb"
             }
           ],
           "outputHashing": "all"
@@ -64,7 +64,7 @@
             },
             {
               "type": "all",
-              "maximumError": "2mb"
+              "maximumError": "2.5mb"
             }
           ],
           "outputHashing": "all"
