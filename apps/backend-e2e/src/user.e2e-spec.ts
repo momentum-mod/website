@@ -1,4 +1,4 @@
-﻿// noinspection DuplicatedCode
+// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -610,6 +610,47 @@ describe('User', () => {
         req.unauthorizedTest('user/profile', 'get'));
     });
   });
+
+  describe('user/follow', () => {
+    describe('POST', () => {
+      let u1, u1Token, u2, u3;
+
+      beforeAll(
+        async () =>
+          ([[u1, u1Token], u2, u3] = await Promise.all([
+            db.createAndLoginUser(),
+            db.createUser(),
+            db.createUser()
+          ]))
+      );
+
+      afterAll(() => db.cleanup('user'));
+
+      it('should follow multiple users', async () => {
+        await req.post({
+          url: 'user/follow',
+          status: 201,
+          body: [u2.id, u3.id],
+          token: u1Token
+        });
+
+        const userFollows = await prisma.follow.findMany({
+          where: { followeeID: u1.id }
+        });
+
+        expect(userFollows).toHaveLength(2);
+      });
+
+      it('should 404 if any of the target users do not exist', () =>
+        req.post({
+          url: 'user/follow',
+          status: 404,
+          body: [u2.id, NULL_ID],
+          token: u1Token
+        }));
+    });
+  });
+
   describe('user/follow/{userID}', () => {
     describe('GET', () => {
       let u1, u1Token, u2;
@@ -1727,6 +1768,64 @@ describe('User', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/notifications/1', 'del'));
+    });
+  });
+
+  describe('user/steamfriends', () => {
+    describe('GET', () => {
+      const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n];
+      let steamService: SteamService;
+
+      beforeAll(async () => {
+        steamService = app.get(SteamService);
+        await Promise.all(
+          mockSteamIDs.map((id) =>
+            db.createUser({
+              data: { steamID: id }
+            })
+          )
+        );
+      });
+
+      afterAll(() => db.cleanup('user'));
+
+      it('should retrieve a list of users that are steam friends with the local user', async () => {
+        const [_, token] = await db.createAndLoginUser();
+
+        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
+          mockSteamIDs.map((id) => ({
+            steamid: id.toString(),
+            relationship: 'friend',
+            friend_since: 0
+          }))
+        );
+
+        const res = await req.get({
+          url: 'user/steamfriends',
+          status: 200,
+          token,
+          validateArray: UserDto
+        });
+
+        expect(res.body).toHaveLength(10);
+      });
+
+      it('should retrieve an empty list of steam friends for a user that has no steam friends', async () => {
+        const [_, token] = await db.createAndLoginUser();
+
+        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
+
+        const res = await req.get({
+          url: 'user/steamfriends',
+          status: 200,
+          token
+        });
+
+        expect(res.body).toHaveLength(0);
+      });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('user/steamfriends', 'get'));
     });
   });
 });
