@@ -2240,19 +2240,12 @@ describe('Maps', () => {
         });
       });
 
-      it('should 400 if BSP file is missing', async () => {
+      it('should succed if only the VMF file is provided', async () => {
         await req.postAttach({
           url: `maps/${map.id}`,
-          status: 400,
-          data: { changelog: 'help me' },
+          status: 201,
+          data: { changelog: 'who needs tests anyway' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
-          token: u1Token
-        });
-
-        await req.post({
-          url: 'maps',
-          status: 400,
-          body: { changelog: 'im bored' },
           token: u1Token
         });
       });
@@ -2264,6 +2257,16 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           status: 201,
           data: { changelog: 'who needs tests anyway' },
+          token: u1Token
+        });
+      });
+
+      it('should succed if BSP file is missing', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'who needs tests anyway' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
       });
@@ -2282,6 +2285,15 @@ describe('Maps', () => {
               fileName: 'surf_map.vmf'
             }
           ],
+          token: u1Token
+        });
+      });
+
+      it('should 400 if neither VMF nor BSP nor zones are provided', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'just hope it works' },
           token: u1Token
         });
       });

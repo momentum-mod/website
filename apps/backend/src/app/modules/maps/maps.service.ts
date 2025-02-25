@@ -537,7 +537,9 @@ export class MapsService {
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
 
-    const bspFile = await this.getBspFromTemp(userID);
+    const bspFile = await this.tryGetBspFromTempUploads(userID);
+
+    if (!bspFile) throw new BadRequestException('Missing BSP file');
 
     await this.checkMapCompression(bspFile);
 
@@ -652,14 +654,27 @@ export class MapsService {
       throw new ForbiddenException('Map does not allow editing');
     }
 
-    const bspFile = await this.getBspFromTemp(userID);
+    let bspHash: string;
 
-    await this.checkMapCompression(bspFile);
+    const bspFile = await this.tryGetBspFromTempUploads(userID);
 
-    this.checkMapFiles(bspFile, vmfFiles);
+    if (!bspFile) {
+      bspHash = map.currentVersion.bspHash;
+    } else {
+      await this.checkMapCompression(bspFile);
+
+      this.checkMapFiles(bspFile, vmfFiles);
+
+      bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+    }
 
     const hasVmf = vmfFiles?.length > 0;
-    const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+
+    if (!bspFile && !hasVmf && !dto.zones) {
+      throw new BadRequestException(
+        'No files or zones provided for map version'
+      );
+    }
 
     let zonesStr: string;
     let zones: MapZones;
@@ -723,7 +738,11 @@ export class MapsService {
               ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
               : undefined;
 
-            await this.uploadMapVersionFiles(newVersion.id, bspFile, zippedVmf);
+            await this.uploadMapVersionFiles(
+              newVersion.id,
+              bspFile instanceof Error ? undefined : bspFile,
+              zippedVmf
+            );
           })()
         );
 
@@ -998,21 +1017,23 @@ export class MapsService {
 
   private async uploadMapVersionFiles(
     uuid: string,
-    bspFile: File,
+    bspFile?: File,
     vmfZip?: Buffer
   ) {
     const storeFns: Promise<FileStoreFile | boolean>[] = [];
 
-    if (bspFile.path) {
-      storeFns.push(
-        this.fileStoreService
-          .copyFile(bspFile.path, bspPath(uuid))
-          .then(() => this.fileStoreService.deleteFile(bspFile.path))
-      );
-    } else {
-      storeFns.push(
-        this.fileStoreService.storeFile(bspFile.buffer, bspPath(uuid))
-      );
+    if (bspFile) {
+      if (bspFile.path) {
+        storeFns.push(
+          this.fileStoreService
+            .copyFile(bspFile.path, bspPath(uuid))
+            .then(() => this.fileStoreService.deleteFile(bspFile.path))
+        );
+      } else {
+        storeFns.push(
+          this.fileStoreService.storeFile(bspFile.buffer, bspPath(uuid))
+        );
+      }
     }
 
     if (vmfZip)
@@ -1891,13 +1912,13 @@ export class MapsService {
       throw new BadRequestException('BSP is not compressed');
   }
 
-  async getBspFromTemp(userID: number): Promise<File> {
+  async tryGetBspFromTempUploads(userID: number): Promise<File | null> {
     const userIDObjects = await this.fileStoreService.listFileKeys(
       `upload_tmp/${userID}`
     );
 
     if (userIDObjects.length === 0) {
-      throw new BadRequestException('Missing BSP file');
+      return null;
     }
 
     const bspData = await this.fileStoreService.getFile(userIDObjects[0]);

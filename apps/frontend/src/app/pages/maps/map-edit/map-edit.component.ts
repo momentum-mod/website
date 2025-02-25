@@ -46,6 +46,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { SharedModule } from '../../../shared.module';
 import { FormUtils, GroupedMapCredits } from '../../../util';
 import {
+  atLeastNRequired,
   BackendValidators,
   creditsValidator,
   FileValidators,
@@ -184,24 +185,27 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     })
   });
 
-  versionForm = this.fb.group({
-    bsp: [
-      null,
-      [Validators.required, FileValidators.maxSize(MAX_BSP_SIZE)],
-      [FileValidators.isCompressedBsp()]
-    ],
-    zon: [null, [], [FileValidators.isValidZones()]],
-    vmfs: [
-      [],
-      [FileValidators.maxSize(MAX_VMF_SIZE), FileValidators.extension('vmf')],
-      [FileValidators.isValidVdf()]
-    ],
-    changelog: [
-      '',
-      [Validators.required, Validators.maxLength(MAX_CHANGELOG_LENGTH)]
-    ],
-    resetLbs: [false]
-  });
+  versionForm = this.fb.group(
+    {
+      bsp: [
+        null,
+        [FileValidators.maxSize(MAX_BSP_SIZE)],
+        [FileValidators.isCompressedBsp()]
+      ],
+      zon: [null, [], [FileValidators.isValidZones()]],
+      vmfs: [
+        [],
+        [FileValidators.maxSize(MAX_VMF_SIZE), FileValidators.extension('vmf')],
+        [FileValidators.isValidVdf()]
+      ],
+      changelog: [
+        '',
+        [Validators.required, Validators.maxLength(MAX_CHANGELOG_LENGTH)]
+      ],
+      resetLbs: [false]
+    },
+    { validators: atLeastNRequired(1, ['bsp', 'zon', 'vmfs']) }
+  );
 
   // Getter for this control is a number[], setter User[] (sorry)
   testInviteForm = new FormControl<number[] | User[]>([]);
@@ -484,75 +488,79 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   async submitVersionForm() {
     if (this.versionForm.invalid) return;
 
-    const { url: preSignedUrl } = await lastValueFrom(
-      this.mapsService.getPreSignedUrl(this.bsp.value.size)
-    );
+    if (this.bsp.value) {
+      const { url: preSignedUrl } = await lastValueFrom(
+        this.mapsService.getPreSignedUrl(this.bsp.value.size)
+      );
 
-    await lastValueFrom(
-      this.ngHttp
-        .put(preSignedUrl, await this.bsp.value.arrayBuffer(), {
-          reportProgress: true,
-          observe: 'events'
-        })
-        .pipe(
-          tap((event: HttpEvent<string>) => {
-            switch (event.type) {
-              case HttpEventType.Sent:
-                this.isUploading = true;
-                this.uploadStatusDescription = 'Uploading BSP file...';
-                break;
-              case HttpEventType.UploadProgress:
-                this.uploadPercentage = Math.round(
-                  (event['loaded'] / event['total']) * 85
-                );
-                break;
-            }
-          })
-        )
-    );
-
-    try {
       await lastValueFrom(
-        this.mapsService
-          .submitMapVersion(this.map.id, {
-            vmfs: this.vmfs.value,
-            data: {
-              zones: this.zon.value
-                ? (JSON.parse(await this.zon.value.text()) as MapZones)
-                : undefined,
-              changelog: this.changelog.value,
-              resetLeaderboards: this.resetLbs.value
-            }
+        this.ngHttp
+          .put(preSignedUrl, await this.bsp.value.arrayBuffer(), {
+            reportProgress: true,
+            observe: 'events'
           })
           .pipe(
             tap((event: HttpEvent<string>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
-                  this.uploadStatusDescription = 'Submitting map version...';
+                  this.uploadStatusDescription = 'Uploading BSP file...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage =
-                    85 + Math.round((event['loaded'] / event['total']) * 15);
-                  break;
-                case HttpEventType.Response:
-                  this.uploadStatusDescription = 'Upload complete!';
-                  this.uploadPercentage = 100;
+                  this.uploadPercentage = Math.round(
+                    (event['loaded'] / event['total']) * 85
+                  );
                   break;
               }
             })
           )
       );
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Failed to post version!',
-        detail: JSON.stringify(error.error.message)
-      });
-      this.isUploading = false;
-      this.uploadPercentage = 0;
-      this.uploadStatusDescription = '';
-      return;
+    }
+
+    if (this.zon.value) {
+      try {
+        await lastValueFrom(
+          this.mapsService
+            .submitMapVersion(this.map.id, {
+              vmfs: this.vmfs.value,
+              data: {
+                zones: this.zon.value
+                  ? (JSON.parse(await this.zon.value.text()) as MapZones)
+                  : undefined,
+                changelog: this.changelog.value,
+                resetLeaderboards: this.resetLbs.value
+              }
+            })
+            .pipe(
+              tap((event: HttpEvent<string>) => {
+                switch (event.type) {
+                  case HttpEventType.Sent:
+                    this.isUploading = true;
+                    this.uploadStatusDescription = 'Submitting map version...';
+                    break;
+                  case HttpEventType.UploadProgress:
+                    this.uploadPercentage =
+                      85 + Math.round((event['loaded'] / event['total']) * 15);
+                    break;
+                  case HttpEventType.Response:
+                    this.uploadStatusDescription = 'Upload complete!';
+                    this.uploadPercentage = 100;
+                    break;
+                }
+              })
+            )
+        );
+      } catch (error) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to post version!',
+          detail: JSON.stringify(error.error.message)
+        });
+        this.isUploading = false;
+        this.uploadPercentage = 0;
+        this.uploadStatusDescription = '';
+        return;
+      }
     }
 
     setTimeout(() => {
