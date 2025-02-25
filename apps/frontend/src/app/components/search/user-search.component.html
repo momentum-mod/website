@@ -25,8 +25,8 @@
       @for (user of found; track user) {
         <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
           <div class="flex items-center">
-            <img class="h-12 w-12 rounded" [src]="user.avatarURL" />
-            <div class="ml-4 mt-1 w-full">
+            <img class="h-10 w-10 rounded" [src]="user.avatarURL" />
+            <div class="ml-4 mt-2 w-full">
               <div class="flex w-full leading-4">
                 <p class="mr-1 font-bold leading-4">{{ user.alias }}</p>
                 <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />

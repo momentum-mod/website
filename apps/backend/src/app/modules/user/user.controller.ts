@@ -49,6 +49,7 @@ import {
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from '../users/users.service';
 import { MapsService } from '../maps/maps.service';
+import { UserJwtAccessPayload } from '../auth/auth.interface';
 
 @Controller('user')
 @ApiTags('User')
@@ -114,6 +115,25 @@ export class UserController {
   //#endregion
 
   //#region Follows
+
+  @Post('/follow')
+  @ApiOperation({ summary: 'Follows the target users' })
+  @ApiBody({
+    type: [Number],
+    description: 'Array of user IDs to follow',
+    required: true
+  })
+  @ApiOkResponse({
+    type: [FollowDto],
+    description: 'The follow DTOs of the local user following the target users'
+  })
+  @ApiNotFoundResponse({ description: 'Target user does not exist' })
+  followUsers(
+    @LoggedInUser('id') localUserID: number,
+    @Body() targetUserIDs: number[]
+  ): Promise<FollowDto[]> {
+    return this.usersService.followUsers(localUserID, targetUserIDs);
+  }
 
   @Get('/follow/:userID')
   @ApiOperation({
@@ -490,6 +510,25 @@ export class UserController {
     @LoggedInUser('id') userID: number
   ): Promise<MapSummaryDto[]> {
     return this.mapsService.getSubmittedMapsSummary(userID);
+  }
+
+  //#endregion
+
+  //#region Steam Friends
+
+  @Get('/steamfriends')
+  @ApiOperation({
+    summary: 'Get a list of the local user steam friends'
+  })
+  @ApiOkResponse({
+    type: UserDto,
+    isArray: true,
+    description: 'List of the local user steam friends'
+  })
+  getSteamFriends(
+    @LoggedInUser() user: UserJwtAccessPayload
+  ): Promise<UserDto[]> {
+    return this.usersService.findSteamFriends(user.id, user.steamID);
   }
 
   //#endregion
