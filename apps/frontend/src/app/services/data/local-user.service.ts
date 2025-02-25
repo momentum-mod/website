@@ -173,6 +173,10 @@ export class LocalUserService {
     return this.http.post<Follow>(`user/follow/${user.id}`);
   }
 
+  public followUsers(userIds: Set<number>): Observable<Follow[]> {
+    return this.http.post<Follow[]>('user/follow', { body: [...userIds] });
+  }
+
   public updateFollowStatus(user: User, notifyOn: number): Observable<void> {
     return this.http.patch(`user/follow/${user.id}`, {
       body: { notifyOn }
@@ -201,5 +205,9 @@ export class LocalUserService {
 
   public resetAliasToSteamAlias(): Observable<void> {
     return this.http.patch('user', { body: { alias: '' } });
+  }
+
+  public getSteamFriends(): Observable<User[]> {
+    return this.http.get<User[]>('user/steamfriends');
   }
 }

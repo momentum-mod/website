@@ -480,6 +480,41 @@ export class UsersService {
     return DtoFactory(FollowDto, dbResponse);
   }
 
+  async followUsers(userID: number, usersIDs: number[]): Promise<FollowDto[]> {
+    const users = await this.db.user.findMany({
+      where: { id: { in: usersIDs } }
+    });
+
+    if (users.length !== usersIDs.length)
+      throw new NotFoundException('One or more users not found');
+
+    if (usersIDs.includes(userID)) {
+      throw new BadRequestException('User cannot follow themselves');
+    }
+
+    const existingFollows = await this.db.follow.findMany({
+      where: {
+        followeeID: userID,
+        followedID: { in: usersIDs }
+      }
+    });
+
+    if (existingFollows.length > 0) {
+      throw new BadRequestException(
+        'User is already following one or more of the target users'
+      );
+    }
+
+    const createdFollows = await this.db.follow.createManyAndReturn({
+      data: usersIDs.map((followedID) => ({
+        followeeID: userID,
+        followedID
+      }))
+    });
+
+    return createdFollows.map((follow) => DtoFactory(FollowDto, follow));
+  }
+
   async updateFollow(
     localUserID: number,
     targetUserID: number,
@@ -745,6 +780,20 @@ export class UsersService {
     });
 
     return new PagedResponseDto(MapCreditDto, dbResponse);
+  }
+
+  async findSteamFriends(userID: number, steamID: bigint): Promise<UserDto[]> {
+    const steamFriends = await this.steamService.getSteamFriends(steamID);
+    const steamIDs = steamFriends.map((friend) => BigInt(friend.steamid));
+
+    const users = await this.db.user.findMany({
+      where: {
+        steamID: { in: steamIDs },
+        followers: { none: { followeeID: userID } }
+      }
+    });
+
+    return users.map((user) => DtoFactory(UserDto, user));
   }
 
   //#endregion

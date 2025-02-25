@@ -35,6 +35,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LevelIndicatorComponent } from '../../components/level-indicator/level-indicator.component';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'm-user-profile',
@@ -50,7 +51,8 @@ import { LevelIndicatorComponent } from '../../components/level-indicator/level-
     TabComponent,
     ProgressBarModule,
     FontSizeLerpDirective,
-    LevelIndicatorComponent
+    LevelIndicatorComponent,
+    DialogModule
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -85,6 +87,9 @@ export class ProfileComponent implements OnInit {
   xp: number;
   currLevelXp: number;
   nextLevelXp: number;
+  importSteamFriendsModalVisible = false;
+  steamFriends: User[] = [];
+  steamFriendsToAdd = new Set<number>();
   protected credits: MapCredit[];
   protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
 
@@ -173,26 +178,33 @@ export class ProfileComponent implements OnInit {
                 })
             });
 
-          this.localFollowStatus
+          this.localUserService
+            .checkFollowStatus(this.user)
             .pipe(
-              switchMap(() => this.usersService.getFollowersOfUser(this.user))
+              switchMap((response) => {
+                this.localFollowStatus.next(response.local);
+                return this.usersService.getFollowersOfUser(this.user);
+              }),
+              takeUntilDestroyed(this.destroyRef)
             )
             .subscribe({
               next: (response) => (this.followedByUsers = response.data),
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
-                  summary: 'Could not retrieve user following',
+                  summary: 'Could not retrieve user followers',
                   detail: httpError.error.message
                 })
             });
 
-          this.localUserService.checkFollowStatus(this.user).subscribe({
-            next: (response) => this.localFollowStatus.next(response.local),
+          this.localUserService.getSteamFriends().subscribe({
+            next: (response) => {
+              this.steamFriends = response;
+            },
             error: (httpError: HttpErrorResponse) => {
               this.messageService.add({
                 severity: 'error',
-                summary: 'Could not check follow status',
+                summary: 'Could not get Steam friends',
                 detail: httpError.error.message
               });
             }
@@ -268,5 +280,53 @@ export class ProfileComponent implements OnInit {
               })
           });
       });
+  }
+
+  showSteamFriendsModal() {
+    this.importSteamFriendsModalVisible = true;
+  }
+
+  toggleSteamFriend(user: User) {
+    if (this.steamFriendsToAdd.has(user.id)) {
+      this.steamFriendsToAdd.delete(user.id);
+    } else {
+      this.steamFriendsToAdd.add(user.id);
+    }
+  }
+
+  selectAllSteamFriends() {
+    this.steamFriendsToAdd = new Set(this.steamFriends.map((user) => user.id));
+  }
+
+  deselectAllSteamFriends() {
+    this.steamFriendsToAdd.clear();
+  }
+
+  importSteamFriendsToFollow() {
+    this.localUserService.followUsers(this.steamFriendsToAdd).subscribe({
+      next: () => {
+        this.importSteamFriendsModalVisible = false;
+        this.steamFriends = this.steamFriends.filter(
+          (user) => !this.steamFriendsToAdd.has(user.id)
+        );
+        this.steamFriendsToAdd.clear();
+
+        this.usersService.getUserFollows(this.user).subscribe({
+          next: (response) => (this.followingUsers = response.data),
+          error: (httpError: HttpErrorResponse) =>
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Could not retrieve user follows',
+              detail: httpError.error.message
+            })
+        });
+      },
+      error: (httpError: HttpErrorResponse) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not add friends',
+          detail: httpError.error.message
+        })
+    });
   }
 }
