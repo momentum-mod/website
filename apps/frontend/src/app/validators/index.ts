@@ -4,3 +4,4 @@ export * from './backend.validators';
 export * from './credits.validator';
 export * from './map-suggestions.validator';
 export * from './test-invites.validator';
+export * from './map-edit.validator';
