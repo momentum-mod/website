@@ -480,6 +480,34 @@ export class UsersService {
     return DtoFactory(FollowDto, dbResponse);
   }
 
+  async followUsers(userID: number, usersIDs: number[]): Promise<FollowDto[]> {
+    const users = await this.db.user.findMany({
+      where: { id: { in: usersIDs } }
+    });
+
+    if (users.length !== usersIDs.length)
+      throw new NotFoundException('One or more users not found');
+
+    const follows = await Promise.all(
+      users.map(async (user) => {
+        if (user.id === userID)
+          throw new BadRequestException('User cannot follow themselves');
+
+        const isFollowing = await this.getFollower(userID, user.id);
+        if (isFollowing)
+          throw new BadRequestException(
+            'User is already following one or more of the target users'
+          );
+
+        return this.db.follow.create({
+          data: { followeeID: userID, followedID: user.id }
+        });
+      })
+    );
+
+    return follows.map((follow) => DtoFactory(FollowDto, follow));
+  }
+
   async updateFollow(
     localUserID: number,
     targetUserID: number,
@@ -745,6 +773,26 @@ export class UsersService {
     });
 
     return new PagedResponseDto(MapCreditDto, dbResponse);
+  }
+
+  async findSteamFriends(userID: number, steamID: bigint): Promise<UserDto[]> {
+    const steamFriends = await this.steamService.getSteamFriends(steamID);
+
+    return await Promise.all(
+      steamFriends.map(async (friend) => {
+        const user = await this.db.user.findUnique({
+          where: { steamID: BigInt(friend.steamid) }
+        });
+
+        if (!user) return null;
+
+        const isFollowing = await this.getFollower(userID, user.id);
+
+        if (isFollowing) return null;
+
+        return DtoFactory(UserDto, user);
+      })
+    ).then((users) => users.filter(Boolean));
   }
 
   //#endregion

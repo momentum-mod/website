@@ -154,29 +154,94 @@
           }
         </div>
 
-        <div [mSpinner]="!credits">
-          @if (credits && credits.length > 0) {
-            <h3 class="font-display font-bold">Credits</h3>
-            <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
-              @for (type of MapCreditType | enumValue; track $index) {
-                @if (creditMap[type]) {
-                  <div>
-                    <p class="font-sm mb-1 font-bold uppercase text-gray-200">
-                      {{ MapCreditNames.get(type) }}
-                    </p>
-                    @for (credit of creditMap[type]; track $index) {
-                      <a routerLink="/maps/{{ credit.map?.id }}">
-                        <p class="font-sm text-gray-200">
-                          {{ credit.map?.name }}
-                        </p>
-                      </a>
+        @if (isLocal) {
+          <div>
+            <button class="btn btn-blue w-fit" type="button" (click)="showFriendsModal()">
+              Find Friends
+
+              <m-icon icon="steam" pack="si" class="ml-2 shrink-0" />
+            </button>
+          </div>
+
+          <p-dialog
+            [mSpinner]="!steamFriends"
+            [(visible)]="friendsModalVisible"
+            [modal]="true"
+            [style]="{ 'min-width': '25rem' }"
+            [draggable]="false"
+            [resizable]="false"
+          >
+            <ng-template pTemplate="header">
+              <div class="flex w-full flex-col gap-4">
+                <p class="text-lg">Add steam friends to followers</p>
+                @if (steamFriends && steamFriends.length > 0) {
+                  <div class="flex justify-start gap-4">
+                    <button
+                      [disabled]="friendsToAdd.length === steamFriends.length"
+                      class="btn btn-blue"
+                      type="button"
+                      (click)="selectAllFriends()"
+                    >
+                      Select All
+                    </button>
+
+                    @if (friendsToAdd.length > 0) {
+                      <button class="btn btn-blue" type="button" (click)="deselectAllFriends()">Deselect All</button>
                     }
                   </div>
                 }
+              </div>
+            </ng-template>
+            <div class="mb-4 grid gap-4">
+              @if (steamFriends && steamFriends.length > 0) {
+                @for (friend of steamFriends; track friend) {
+                  <div class="flex items-center gap-4">
+                    <input
+                      type="checkbox"
+                      class="checkbox mr-1"
+                      [checked]="friendsToAdd.includes(friend.id)"
+                      (change)="toggleFriend(friend)"
+                    />
+                    <m-avatar class="h-10" [url]="friend.avatarURL" />
+                    <p>{{ friend.alias }}</p>
+                  </div>
+                }
+              } @else {
+                <p><i>Friends not found</i></p>
               }
             </div>
+
+            <ng-template pTemplate="footer">
+              <button class="btn btn-green w-fit" type="button" [disabled]="friendsToAdd.length === 0" (click)="addFollows()">
+                Follow
+              </button>
+            </ng-template>
+          </p-dialog>
+
+          @if (credits && credits.length > 0) {
+            <div>
+              <h3 class="font-display font-bold">Credits</h3>
+              <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+                @for (type of MapCreditType | enumValue; track $index) {
+                  @if (creditMap[type]) {
+                    <div>
+                      <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                        {{ MapCreditNames.get(type) }}
+                      </p>
+                      @for (credit of creditMap[type]; track $index) {
+                        <a routerLink="/maps/{{ credit.map?.id }}">
+                          <p class="font-sm text-gray-200">
+                            {{ credit.map?.name }}
+                          </p>
+                        </a>
+                      }
+                    </div>
+                  }
+                }
+              </div>
+            </div>
           }
-        </div>
+        }
       </div>
     </div>
     <div class="col-span-full flex flex-col max-xl:row-start-2 xl:col-span-2">
