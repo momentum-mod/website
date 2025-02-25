@@ -173,7 +173,9 @@ module.exports = {
         // What the hell is wrong with .flat(2)
         'unicorn/no-magic-array-flat-depth': ['off'],
         // Stupid CJS/ESM complaints, don't care.
-        'unicorn/import-style': ['off']
+        'unicorn/import-style': ['off'],
+        // Fine in some cases.
+        'unicorn/no-array-reduce': ['off']
       }
     },
     {
