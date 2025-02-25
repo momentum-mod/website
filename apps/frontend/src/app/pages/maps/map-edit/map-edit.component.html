@@ -31,7 +31,12 @@
         <span class="text-lg">Reset leaderboards</span>
         <input type="checkbox" class="checkbox" [formControl]="resetLbs" />
       </div>
-      <button type="submit" class="btn btn-green self-end" [disabled]="loading || versionForm.pristine || versionForm.invalid">
+
+      <button
+        type="submit"
+        class="btn btn-green self-end"
+        [disabled]="loading || versionForm.pristine || versionForm.invalid || versionForm.errors?.['atLeastOneRequired']"
+      >
         Submit
       </button>
     </div>

@@ -2240,23 +2240,6 @@ describe('Maps', () => {
         });
       });
 
-      it('should 400 if BSP file is missing', async () => {
-        await req.postAttach({
-          url: `maps/${map.id}`,
-          status: 400,
-          data: { changelog: 'help me' },
-          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
-          token: u1Token
-        });
-
-        await req.post({
-          url: 'maps',
-          status: 400,
-          body: { changelog: 'im bored' },
-          token: u1Token
-        });
-      });
-
       it('should succeed if VMF file is missing', async () => {
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
