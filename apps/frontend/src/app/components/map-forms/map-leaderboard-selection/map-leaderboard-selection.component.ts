@@ -134,6 +134,13 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
+  onTrackTypeChange(item: MapSubmissionSuggestion) {
+    if (item.trackType === TrackType.MAIN) {
+      item.trackNum = 1;
+    }
+    this.onChange(this.value);
+  }
+
   onChange: (value: MapSubmissionSuggestion[]) => void = () => void 0;
   registerOnChange(fn: () => void): void {
     this.onChange = fn;
