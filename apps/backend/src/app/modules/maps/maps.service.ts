@@ -836,6 +836,7 @@ export class MapsService {
         versions: {
           create: {
             versionNum: 1,
+            changelog: createMapDto.portingChangelog,
             bspHash,
             zoneHash,
             zones,
@@ -1083,7 +1084,7 @@ export class MapsService {
 
     let statusChanged = false;
     await this.db.$transaction(async (tx) => {
-      const generalUpdate = this.getGeneralMapDataUpdate(dto);
+      const generalUpdate = this.getGeneralMapDataUpdate(dto, map);
 
       const statusHandler = await this.mapStatusUpdateHandler(
         tx,
@@ -1212,7 +1213,7 @@ export class MapsService {
         update.submitter = { connect: { id: dto.submitterID } };
       }
 
-      const generalChanges = this.getGeneralMapDataUpdate(dto);
+      const generalChanges = this.getGeneralMapDataUpdate(dto, map);
 
       const statusHandler = await this.mapStatusUpdateHandler(
         tx,
@@ -1302,7 +1303,8 @@ export class MapsService {
   }
 
   private getGeneralMapDataUpdate(
-    dto: UpdateMapDto | UpdateMapAdminDto
+    dto: UpdateMapDto | UpdateMapAdminDto,
+    map: MapWithSubmission
   ): Prisma.MMapUpdateInput {
     const update: Prisma.MMapUpdateInput = {};
 
@@ -1332,6 +1334,19 @@ export class MapsService {
     if ('suggestions' in dto && dto.suggestions) {
       update.submission ??= { update: {} };
       update.submission.update.suggestions = dto.suggestions;
+    }
+
+    if (dto.portingChangelog) {
+      const firstVersionId = map.versions.find(
+        (version) => version.versionNum === 1
+      )?.id;
+
+      update.versions = {
+        update: {
+          where: { id: firstVersionId },
+          data: { changelog: dto.portingChangelog }
+        }
+      };
     }
 
     return update;

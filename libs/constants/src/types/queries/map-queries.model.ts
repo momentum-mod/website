@@ -104,6 +104,7 @@ export interface CreateMap extends Pick<MMap, 'name'> {
   info: CreateMapInfo;
   zones: MapZones;
   credits: CreateMapCredit[];
+  portingChangelog?: string;
 }
 
 export interface UpdateMap
@@ -121,6 +122,7 @@ export interface UpdateMap
   status?: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
   info?: UpdateMapInfo;
   zones?: MapZones;
+  portingChangelog?: string;
   resetLeaderboards?: boolean;
 }
 

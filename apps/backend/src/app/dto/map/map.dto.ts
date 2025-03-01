@@ -197,6 +197,15 @@ export class CreateMapDto
   @IsArray()
   @IsOptional()
   readonly credits: CreateMapCreditDto[];
+
+  @ApiProperty({
+    type: String,
+    description: 'Porting Changelog for the map',
+    example: 'Initial release'
+  })
+  @ApiProperty({ description: 'Porting Changelog for the map' })
+  @IsOptional()
+  readonly portingChangelog: string;
 }
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
@@ -216,7 +225,9 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
 }
 
 export class UpdateMapDto
-  extends PartialType(PickType(CreateMapDto, ['name', 'suggestions'] as const))
+  extends PartialType(
+    PickType(CreateMapDto, ['name', 'suggestions', 'portingChangelog'] as const)
+  )
   implements UpdateMap
 {
   @NestedProperty(MapSubmissionPlaceholderDto)

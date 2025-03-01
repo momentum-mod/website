@@ -44,6 +44,7 @@ export class MapDetailsFormComponent implements OnInit {
   @Input({ required: true }) formGroup: FormGroup<{
     name: FormControl<string>;
     description: FormControl<string>;
+    portingChangelog: FormControl<string>;
     creationDate: FormControl<Date>;
     submissionType: FormControl<MapSubmissionType>;
     youtubeID: FormControl<string>;
@@ -128,6 +129,10 @@ export class MapDetailsFormComponent implements OnInit {
 
   get description() {
     return this.formGroup.get('description') as FormControl<string>;
+  }
+
+  get portingChangelog() {
+    return this.formGroup.get('portingChangelog') as FormControl<string>;
   }
 
   get creationDate() {
