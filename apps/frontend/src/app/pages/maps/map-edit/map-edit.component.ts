@@ -148,6 +148,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         '',
         [Validators.required, Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)]
       ],
+      portingChangelog: [''],
       creationDate: [
         new Date(),
         [Validators.required, Validators.max(Date.now())]
@@ -287,6 +288,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.description.setValue(this.map.info.description);
     this.creationDate.setValue(new Date(this.map.info.creationDate));
     this.youtubeID.setValue(this.map.info.youtubeID);
+    this.portingChangelog.setValue(
+      this.map.versions.find((v) => v.versionNum === 1)?.changelog
+    );
 
     this.images.reset();
 
@@ -344,6 +348,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     if (this.description.dirty) {
       body.info ??= {};
       body.info.description = this.description.value;
+    }
+    if (
+      this.portingChangelog.dirty &&
+      this.submissionType.value === MapSubmissionType.PORT
+    ) {
+      body.portingChangelog = this.portingChangelog.value;
     }
     if (this.creationDate.dirty) {
       body.info ??= {};
@@ -696,6 +706,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   get description() {
     return this.mainForm.get('details.description') as FormControl<string>;
+  }
+
+  get portingChangelog() {
+    return this.mainForm.get('details.portingChangelog') as FormControl<string>;
   }
 
   get creationDate() {

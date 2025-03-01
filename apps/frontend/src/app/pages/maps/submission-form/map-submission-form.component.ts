@@ -148,6 +148,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
           Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)
         ]
       ],
+      portingChangelog: [''],
       creationDate: [
         new Date(),
         [Validators.required, Validators.max(Date.now())]
@@ -335,6 +336,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
               wantsPrivateTesting: this.wantsPrivateTesting.value,
               testInvites: this.testInvites.value ?? [],
               zones: this.zones,
+              portingChangelog:
+                this.submissionType.value === MapSubmissionType.PORT
+                  ? this.portingChangelog.value
+                  : undefined,
               credits: this.credits.value.getSubmittableRealUsers(),
               placeholders: this.credits.value.getSubmittablePlaceholders(),
               suggestions: this.suggestions.value,
@@ -467,6 +472,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
   get description() {
     return this.form.get('details.description') as FormControl<string>;
+  }
+
+  get portingChangelog() {
+    return this.form.get('details.portingChangelog') as FormControl<string>;
   }
 
   get creationDate() {
