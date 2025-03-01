@@ -12,7 +12,8 @@ import {
   MapCreditType,
   MapStatusName,
   MapStatus,
-  MMap
+  MMap,
+  MapTag
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { MapWithSpecificLeaderboard } from '../../util';
@@ -46,6 +47,7 @@ export class MapListItemComponent implements OnChanges {
   name: string;
   prefix: string;
   tierStyle: string;
+  tags: MapTag[];
 
   constructor(
     protected readonly localUserService: LocalUserService,

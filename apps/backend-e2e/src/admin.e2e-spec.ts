@@ -1426,14 +1426,16 @@ describe('Admin', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             tier: 5,
-            type: LeaderboardType.UNRANKED
+            type: LeaderboardType.UNRANKED,
+            tags: ['Sync']
           },
           {
             gamemode: Gamemode.DEFRAG_VQ3,
             trackType: TrackType.BONUS,
             trackNum: 1,
             tier: 5,
-            type: LeaderboardType.RANKED
+            type: LeaderboardType.RANKED,
+            tags: ['Strafe']
           },
           {
             gamemode: Gamemode.DEFRAG_CPM,
@@ -1604,7 +1606,7 @@ describe('Admin', () => {
                 style: 0,
                 tier: 5,
                 type: LeaderboardType.UNRANKED,
-                tags: []
+                tags: ['Sync']
               },
               {
                 mapID: map.id,
@@ -1637,7 +1639,7 @@ describe('Admin', () => {
                 tier: 5,
                 type: LeaderboardType.RANKED,
                 style: 0,
-                tags: []
+                tags: ['Strafe']
               },
               {
                 mapID: map.id,

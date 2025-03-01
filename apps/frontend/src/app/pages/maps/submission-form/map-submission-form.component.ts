@@ -66,6 +66,7 @@ import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpClient } from '@angular/common/http';
+import { ChipsComponent } from '../../../components/chips/chips.component';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -83,7 +84,8 @@ import { HttpClient } from '@angular/common/http';
     AlertComponent,
     MapDetailsFormComponent,
     LeaderboardsInfoComponent,
-    CreditsInfoComponent
+    CreditsInfoComponent,
+    ChipsComponent
   ]
 })
 export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
@@ -263,14 +265,16 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
           trackType: TrackType.MAIN,
           trackNum: 1,
           type: LeaderboardType.RANKED,
-          tier: 1
+          tier: 1,
+          tags: []
         },
         ...(this.zones.tracks.bonuses?.map((_, i) => ({
           gamemode,
           trackType: TrackType.BONUS,
           trackNum: i + 1,
           type: LeaderboardType.RANKED as LeaderboardType.RANKED,
-          tier: 1
+          tier: 1,
+          tags: []
         })) ?? [])
       ])
     );
