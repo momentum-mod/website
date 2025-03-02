@@ -35,7 +35,7 @@ module.exports = {
         'utils',
         'scripts',
         'tools',
-        'eslint',
+        'lint',
         'formats',
         'discord',
         'twitch',
