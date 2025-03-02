@@ -149,7 +149,7 @@ export class MapWebhooksService {
     webhookBody: object
   ): Promise<void> {
     await Promise.all(
-      [...GamemodeCategories.entries()]
+      GamemodeCategories.entries()
         .filter(([, modes]) => modes.some((gm) => gamemodes.has(gm)))
         .map(([category]) => {
           const webhookUrl = this.config.getOrThrow(

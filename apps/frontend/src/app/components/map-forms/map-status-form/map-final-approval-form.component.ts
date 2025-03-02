@@ -60,17 +60,20 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   protected readonly RatingChartOptions: ChartOptions;
 
   public get value(): MapSubmissionApproval[] {
-    return [...this.groupedLeaderboards.values()].flatMap(({ leaderboards }) =>
-      leaderboards
-        .filter(({ trackType }) => trackType !== TrackType.STAGE)
-        .map(({ gamemode, trackType, trackNum, tier, type }) => ({
-          gamemode,
-          trackType,
-          trackNum,
-          tier,
-          type
-        }))
-    );
+    return this.groupedLeaderboards
+      .values()
+      .flatMap(({ leaderboards }) =>
+        leaderboards
+          .filter(({ trackType }) => trackType !== TrackType.STAGE)
+          .map(({ gamemode, trackType, trackNum, tier, type }) => ({
+            gamemode,
+            trackType,
+            trackNum,
+            tier,
+            type
+          }))
+      )
+      .toArray();
   }
 
   protected disabled = false;

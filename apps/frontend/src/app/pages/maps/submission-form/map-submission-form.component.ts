@@ -291,9 +291,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     if (!fileName.includes('_')) return null;
 
     const fileNamePrefix = fileName.split('_')[0];
-    const modes = [...GamemodeInfo.entries()]
+    const modes = GamemodeInfo.entries()
       .filter(([_, { prefix }]) => fileNamePrefix === prefix)
-      .map(([mode]) => mode);
+      .map(([mode]) => mode)
+      .toArray();
 
     return modes.length > 0 ? modes : null;
   }
