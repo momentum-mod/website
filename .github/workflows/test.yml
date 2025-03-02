@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: npm install
@@ -51,6 +51,11 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
 
       - name: commitlint
         if: github.event_name == 'pull_request'
@@ -87,6 +92,11 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
       - name: Test Affected
         run: npx nx affected
           --target=test
@@ -112,6 +122,11 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
       - name: Build Affected
         run: npx nx affected
             --target=build
@@ -135,6 +150,11 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
 
       - name: Check affected
         run:
