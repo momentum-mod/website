@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
@@ -51,7 +50,6 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
       }),
       inject: [ConfigService]
     }),
-    FastifyMulterModule,
     DbModule,
     AuthModule,
     ActivitiesModule,
