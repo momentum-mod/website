@@ -7,9 +7,8 @@ export function extractPrefixFromMapName(
   name: string
 ): [string, string | null] {
   const { prefix } =
-    [...GamemodeInfo.values()].find(({ prefix }) =>
-      name.startsWith(prefix + '_')
-    ) ?? {};
+    GamemodeInfo.values().find(({ prefix }) => name.startsWith(prefix + '_')) ??
+    {};
 
   if (prefix) {
     return [name.slice(prefix.length + 1), prefix];

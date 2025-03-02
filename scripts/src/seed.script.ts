@@ -372,7 +372,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     .findMany()
     .then((maps) => (maps ?? []).map(({ name }) => name));
   const prefixes = [
-    ...new Set([...GamemodeInfo.values()].map(({ prefix }) => prefix))
+    ...new Set(GamemodeInfo.values().map(({ prefix }) => prefix))
   ];
   try {
     for (let i = 0; i < mapsToCreate; i++) {
@@ -459,7 +459,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       while (modesSet.size < numModes) {
         modesSet.add(Random.enumValue(Gamemode));
       }
-      const modes = [...modesSet.values()];
+      const modes = modesSet.values().toArray();
 
       // Keep main track and stage ranked-ness synced up
       const rankedMainTracks = new Map(
