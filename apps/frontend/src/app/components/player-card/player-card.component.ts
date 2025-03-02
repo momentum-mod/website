@@ -1,6 +1,5 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { IconComponent } from '../../icons';
 import { LevelIndicatorComponent } from '../level-indicator/level-indicator.component';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

@@ -8,8 +8,6 @@ import {
   BanNames,
   ISO_8601_REGEXP
 } from '@momentum/constants';
-import { RouterLink } from '@angular/router';
-import { NgStyle } from '@angular/common';
 import * as Bitflags from '@momentum/bitflags';
 import * as Enum from '@momentum/enum';
 

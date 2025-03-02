@@ -20,7 +20,7 @@ describe('from function', () => {
   it('should behave like Array.from if mapper fn is not provided', () => {
     expect(arrayFrom(3)).toEqual([undefined, undefined, undefined]);
     expect(arrayFrom(3)).toEqual(Array.from({ length: 3 }));
-    // eslint-disable-next-line unicorn/no-new-array
+
     expect(arrayFrom(3).map(() => 1)).not.toEqual(new Array(3).map(() => 1));
   });
 });

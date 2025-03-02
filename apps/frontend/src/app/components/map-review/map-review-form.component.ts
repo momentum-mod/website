@@ -23,7 +23,6 @@ import { MapReviewSuggestionsFormComponent } from './map-review-suggestions-form
 import { SuggestionType } from '@momentum/formats/zone';
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 import { HttpErrorResponse } from '@angular/common/http';
-import { JsonPipe } from '@angular/common';
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { IconComponent } from '../../icons';

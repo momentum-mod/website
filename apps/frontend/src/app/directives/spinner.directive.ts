@@ -25,7 +25,11 @@ export class SpinnerDirective implements OnInit {
 
   @Input()
   set mSpinner(val: boolean) {
-    val ? this.show() : this.hide();
+    if (val) {
+      this.show();
+    } else {
+      this.hide();
+    }
   }
 
   @HostBinding('class.spinner-container--active')

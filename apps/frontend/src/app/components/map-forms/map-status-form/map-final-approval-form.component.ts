@@ -17,7 +17,6 @@ import { ChartOptions } from 'chart.js';
 import { DropdownModule } from 'primeng/dropdown';
 import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
-import { SliderComponent } from '../../slider/slider.component';
 import { GroupedLeaderboards } from './map-status-form.component';
 import { Select } from 'primeng/select';
 import { KeyValuePipe, NgClass } from '@angular/common';

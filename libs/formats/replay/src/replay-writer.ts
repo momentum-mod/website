@@ -74,17 +74,21 @@ export class ReplayFileWriter {
 
   writeInt32(val: number, unsigned = true) {
     this.checkBuffer();
-    unsigned
-      ? this.buffer.writeUInt32LE(val, this.offset)
-      : this.buffer.writeInt32LE(val, this.offset);
+    if (unsigned) {
+      this.buffer.writeUInt32LE(val, this.offset);
+    } else {
+      this.buffer.writeInt32LE(val, this.offset);
+    }
     this.offset += 4;
   }
 
   writeInt8(val: number, unsigned = true) {
     this.checkBuffer();
-    unsigned
-      ? this.buffer.writeUInt8(val, this.offset)
-      : this.buffer.writeInt8(val, this.offset);
+    if (unsigned) {
+      this.buffer.writeUInt8(val, this.offset);
+    } else {
+      this.buffer.writeInt8(val, this.offset);
+    }
     this.offset++;
   }
 

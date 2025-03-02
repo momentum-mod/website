@@ -25,12 +25,7 @@ import { ChartData } from 'chart.js';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { firstValueFrom, forkJoin } from 'rxjs';
-import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
-import { AccordionModule } from 'primeng/accordion';
-import { AccordionComponent } from '../../accordion/accordion.component';
-import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { IterableElement } from 'type-fest';
-import { SliderComponent } from '../../slider/slider.component';
 import { MapFinalApprovalFormComponent } from './map-final-approval-form.component';
 
 import { MapsService } from '../../../services/data/maps.service';

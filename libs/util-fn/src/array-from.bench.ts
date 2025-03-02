@@ -11,7 +11,6 @@ const ARRAY_SIZE = 10;
  * insist you use `Array.from` use `new Array`, `from` is significantly slower
  * as it sets every value to `undefined`.
  */
-
 function bench(
   name: string,
   fn: (mapFn: (n: number) => number, length: number) => number[]
@@ -53,7 +52,7 @@ bench(
 bench(
   'Function to C-style for loop with Array constructor (explicit new)',
   (mapFn, length) => {
-    const array: number[] = Array(length);
+    const array: number[] = new Array(length);
     for (let i = 0; i < length; i++) {
       array[i] = mapFn(i);
     }

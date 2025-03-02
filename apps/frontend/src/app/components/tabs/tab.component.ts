@@ -1,5 +1,4 @@
 import { Component, Directive, HostBinding, Input } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 
 @Directive({ selector: '[mTab]', standalone: true })
 export class TabDirective {

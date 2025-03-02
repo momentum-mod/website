@@ -5,11 +5,11 @@ function omitKeys1(
   obj: { [key: string]: any },
   keys: string | string[]
 ): { [key: string]: any } {
-  let result = { ...obj };
+  const result = { ...obj };
   if (typeof keys === 'string') {
     delete result[keys];
   } else {
-    for (let key of keys) {
+    for (const key of keys) {
       delete result[key];
     }
   }
