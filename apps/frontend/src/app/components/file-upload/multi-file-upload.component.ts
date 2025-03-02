@@ -43,8 +43,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
     // DataTransferList doesn't have an iterator symbol on it according to
     // TypeScript (???)
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+    for (const item of items) {
       // Ignore anything that isn't a file
       if (useItems && (item as DataTransferItem).kind !== 'file') continue;
 
@@ -75,9 +74,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
   onFilesSelected(event: Event) {
     const elementFiles = (event.target as HTMLInputElement).files;
 
-    for (let i = 0; i < elementFiles.length; i++) {
-      const file = elementFiles[i];
-
+    for (const file of elementFiles) {
       // Always ignore duplicates - can't imagine where we'd ever want this.
       if (
         !(this.value as File[]).some((f) =>

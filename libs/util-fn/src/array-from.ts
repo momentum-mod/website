@@ -16,7 +16,7 @@ export function arrayFrom<T>(length: number, mapFn?: (i: number) => T): T[] {
     // "empty item"). If we were using Array.prototype.map this wouldn't work,
     // since iter methods ignore holes, but with a for-loop like this, holes
     // are fine since we're going to fill them anyway.
-    // eslint-disable-next-line unicorn/no-new-array
+
     const array: T[] = new Array(length);
     for (let i = 0; i < length; i++) {
       array[i] = mapFn(i);

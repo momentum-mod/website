@@ -7,13 +7,13 @@ export const RUN_SESSION_COMPLETED_INCLUDE = {
   mmap: { include: { currentVersion: true } }
 };
 
-const runSessionCompletedIncludeValidator =
+const _runSessionCompletedIncludeValidator =
   Prisma.validator<Prisma.RunSessionDefaultArgs>()({
     include: RUN_SESSION_COMPLETED_INCLUDE
   });
 
 export type CompletedRunSession = Prisma.RunSessionGetPayload<
-  typeof runSessionCompletedIncludeValidator
+  typeof _runSessionCompletedIncludeValidator
 >;
 
 export interface ProcessedRun

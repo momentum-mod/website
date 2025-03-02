@@ -50,13 +50,15 @@ export class SteamGameGuard implements CanActivate {
         'Missing user ticket. Should be a raw octet-stream buffer.'
       );
 
-    this.configService.getOrThrow('steam.useSteamTicketLibrary')
-      ? this.verifyUserTicketLocalLibrary(userTicket, steamID)
-      : await this.verifyUserTicketOnlineAPI(
-          userTicket.toString('hex'),
-          steamID,
-          appID
-        );
+    if (this.configService.getOrThrow('steam.useSteamTicketLibrary')) {
+      this.verifyUserTicketLocalLibrary(userTicket, steamID);
+    } else {
+      await this.verifyUserTicketOnlineAPI(
+        userTicket.toString('hex'),
+        steamID,
+        appID
+      );
+    }
 
     const user = await this.userService.findOrCreateFromGame(steamID);
 

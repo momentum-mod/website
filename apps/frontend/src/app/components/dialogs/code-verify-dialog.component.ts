@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, SecurityContext } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CardComponent } from '../card/card.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({

@@ -27,11 +27,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
 import { downloadZoneFile } from '../../../util/download-zone-file.util';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
-import { TabsComponent } from '../../../components/tabs/tabs.component';
-import {
-  TabComponent,
-  TabDirective
-} from '../../../components/tabs/tab.component';
+
 import {
   GalleryComponent,
   GalleryItem
@@ -42,16 +38,10 @@ import { LocalUserService } from '../../../services/data/local-user.service';
 import { LayoutService } from '../../../services/layout.service';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { SpinnerComponent } from '../../../components/spinner/spinner.component';
-import {
-  CommonModule,
-  DatePipe,
-  NgClass,
-  TitleCasePipe
-} from '@angular/common';
+import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { Popover } from 'primeng/popover';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
-import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ThousandsSuffixPipe } from '../../../pipes/thousands-suffix.pipe';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';

@@ -276,12 +276,16 @@ export class ProfileEditComponent implements OnInit {
       admin: this.hasRole(Role.ADMIN)
     };
 
-    permStatus.banAlias && !this.isModOrAdmin
-      ? this.alias.disable()
-      : this.alias.enable();
-    permStatus.banBio && !this.isModOrAdmin
-      ? this.bio.disable()
-      : this.bio.enable();
+    if (permStatus.banAlias && !this.isModOrAdmin) {
+      this.alias.disable();
+    } else {
+      this.alias.enable();
+    }
+    if (permStatus.banBio && !this.isModOrAdmin) {
+      this.bio.disable();
+    } else {
+      this.bio.enable();
+    }
 
     this.adminEditForm.patchValue(permStatus);
   }

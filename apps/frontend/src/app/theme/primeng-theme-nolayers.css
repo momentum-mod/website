@@ -2163,15 +2163,11 @@ p-calendar.ng-dirty.ng-invalid .p-calendar-w-btn:not(.p-disabled).p-focus {
   background-image: linear-gradient(to bottom, #f44435, #f44435),
     linear-gradient(to bottom, #f44435, #f44435);
 }
-.p-input-filled
-  p-select.ng-dirty.ng-invalid
-  .p-select:not(.p-disabled):hover {
+.p-input-filled p-select.ng-dirty.ng-invalid .p-select:not(.p-disabled):hover {
   background-image: linear-gradient(to bottom, #f44435, #f44435),
     linear-gradient(to bottom, #f44435, #f44435);
 }
-.p-input-filled
-  p-select.ng-dirty.ng-invalid
-  .p-select:not(.p-disabled).p-focus,
+.p-input-filled p-select.ng-dirty.ng-invalid .p-select:not(.p-disabled).p-focus,
 .p-input-filled
   p-select.ng-dirty.ng-invalid
   .p-select:not(.p-disabled).p-inputwrapper-focus {

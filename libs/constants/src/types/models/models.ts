@@ -542,7 +542,6 @@ export interface CompletedRun {
 //#endregion
 //#region Misc
 
-/* eslint-disable @typescript-eslint/naming-convention */
 export interface TwitchStream {
   title: string;
   user_name: string;

@@ -14,7 +14,6 @@ import { UserSelectComponent } from '../../../components/user-select/user-select
 import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
-import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { AdminActivityService } from '../../../services/data/admin-activity.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';

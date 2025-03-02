@@ -22,14 +22,11 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 
-import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
 import { ActivityComponent } from '../../components/activity/activity.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 import { RoleBadgesComponent } from '../../components/role-badges/role-badges.component';
-import { TabsComponent } from '../../components/tabs/tabs.component';
-import { TabComponent } from '../../components/tabs/tab.component';
 import { Icon, IconComponent } from '../../icons';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { UsersService } from '../../services/data/users.service';

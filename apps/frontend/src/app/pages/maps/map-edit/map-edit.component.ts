@@ -15,7 +15,6 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import {
   MapStatuses,
   DateString,
@@ -66,14 +65,11 @@ import { MapsService } from '../../../services/data/maps.service';
 import { AdminService } from '../../../services/data/admin.service';
 import { LayoutService } from '../../../services/layout.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
-import { TabsComponent } from '../../../components/tabs/tabs.component';
-import { TabComponent } from '../../../components/tabs/tab.component';
 import { MapDetailsFormComponent } from '../../../components/map-forms/map-details-form/map-details-form.component';
 import {
   ImageSelectionType,
   MapImageSelectionComponent
 } from '../../../components/map-forms/map-image-selection/map-image-selection.component';
-import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.component';
 import { MapCreditsSelectionComponent } from '../../../components/map-forms/map-credits-selection/map-credits-selection.component';
 import { MapLeaderboardSelectionComponent } from '../../../components/map-forms/map-leaderboard-selection/map-leaderboard-selection.component';
 import { MapStatusFormComponent } from '../../../components/map-forms/map-status-form/map-status-form.component';
