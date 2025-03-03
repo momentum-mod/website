@@ -3,12 +3,12 @@ const baseConfig = require('../../eslint.config.cjs');
 module.exports = [
   ...baseConfig,
   {
-    files: ['*.ts'],
+    files: ['**/*.ts'],
     ignores: ['*.spec.ts'],
     rules: { 'no-console': ['error'] }
   },
   {
-    files: ['*.spec.ts'],
+    files: ['**/*.spec.ts'],
     rules: { 'no-console': ['off'] }
   }
 ];
