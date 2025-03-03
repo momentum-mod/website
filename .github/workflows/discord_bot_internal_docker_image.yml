@@ -1,4 +1,4 @@
-name: Publish Backend Docker
+name: Publish Internal Discord Bot Docker
 
 on:
   workflow_dispatch:
@@ -36,30 +36,23 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 22
           cache: 'npm'
 
       - name: npm install
         if: steps.node_cache.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
 
-      - name: Prisma Generate
-        run: npx nx run db:generate
-
       - name: Build
-        run: npx nx run backend:build:production
-        env:
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: npx nx run discord-bot-internal:build:production
 
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: momentum-mod/website/nest-monolith
+          name: momentum-mod/website/discord-bot-internal
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
           workdir: .
-          dockerfile: ./prod/backend/Dockerfile
+          dockerfile: ./prod/discord-bot-internal/Dockerfile
           tags: ${{ inputs.tag }}
