@@ -1,6 +1,6 @@
 import { config } from './config';
 import axios from 'axios';
-import { TwitchStream, TwitchUser } from './types/twitch';
+import { TwitchStream, TwitchUser } from '@momentum/constants';
 
 export class TwitchAPI {
   private token?: string;
