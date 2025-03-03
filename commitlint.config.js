@@ -40,7 +40,8 @@ module.exports = {
         'discord',
         'twitch',
         'prod',
-        'ci'
+        'ci',
+        'discord-internal'
       ]
     ],
     'subject-case': [

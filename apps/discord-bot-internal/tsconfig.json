@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "strict": true,
+    "strictNullChecks": true
+  },
+  "extends": "../../tsconfig.base.json"
+}

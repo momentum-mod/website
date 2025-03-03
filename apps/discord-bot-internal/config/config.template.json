@@ -1,0 +1,20 @@
+{
+  "guild_id": "",
+  "admin_id": "",
+  "livestream_mention_role_id": "",
+  "moderator_id": "",
+  "streamer_channel": "",
+  "twitch_user_bans": [],
+  "admin_bot_channel": "",
+  "stream_update_interval": 1,
+  "join_log_channel": "",
+  "message_history_channel": "",
+  "new_account_emote": "",
+  "minimum_stream_viewers_announce": 0,
+  "media_verified_role": "",
+  "media_blacklisted_role": "",
+  "media_minimum_days": 3,
+  "media_minimum_messages": 10,
+  "twitch_momentum_mod_game_id": "2043449207",
+  "custom_commands": {}
+}
