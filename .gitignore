@@ -46,3 +46,7 @@ Thumbs.db
 
 .angular
 .nx
+
+# Discord bot config and storage
+apps/discord-bot-internal/config/config.json
+apps/discord-bot-internal/data/bot_data.db
