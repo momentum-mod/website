@@ -1,103 +1,52 @@
-﻿import { BaseStats, Replay, RunFrame } from './index';
+﻿import { ReplayHeader } from './index';
+import { RunSplits } from '@momentum/constants';
 
 /**
- * Utility class for writing Momentum Replay Files (.mrf)
- * Code from writeReplayFile from run-tester.ts could be used in future if needed
- *
- * NOT well optimised
+ * Write a MomentumTV replay (.mtv) header.
+ * @throws {ReplayReadError}
  */
-export class ReplayFileWriter {
-  buffer: Buffer;
-  offset: number;
-
-  constructor(bufferSize = 1024) {
-    this.buffer = Buffer.alloc(bufferSize);
-    this.offset = 0;
+export function writeHeader(header: ReplayHeader, buffer: Buffer): void {
+  try {
+    buffer.writeUInt32LE(header.magic, 0);
+    buffer.writeInt32LE(header.formatVersion, 4);
+    buffer.writeBigInt64LE(BigInt(Math.floor(header.timestamp)), 8);
+    buffer.write(header.mapName, 16, 80, 'utf8');
+    buffer.write(header.mapHash, 80, 121, 'utf8');
+    buffer.writeUInt8(header.gamemode, 121);
+    buffer.writeFloatLE(header.tickInterval, 122);
+    buffer.writeBigUInt64LE(header.playerSteamID, 126);
+    buffer.write(header.playerName, 134, 166, 'utf8');
+    buffer.writeUInt8(header.trackType, 166);
+    buffer.writeUInt8(header.trackNum, 167);
+    buffer.writeDoubleLE(header.runTime, 168);
+  } catch (error) {
+    throw new ReplayWriteError(error.code, error.message);
   }
+}
 
-  writeHeader(replay: Replay): void {
-    this.writeInt32(replay.magic);
-    this.writeInt8(replay.version);
-    this.writeString(replay.header.mapName);
-    this.writeString(replay.header.mapHash);
-    this.writeString(replay.header.playerName);
-    this.writeString(replay.header.steamID.toString());
-    this.writeFloat(replay.header.tickRate);
-    this.writeInt32(replay.header.runFlags);
-    this.writeString(replay.header.runDate);
-    this.writeInt32(replay.header.startTick);
-    this.writeInt32(replay.header.stopTick);
-    this.writeInt8(replay.header.trackNum);
-    this.writeInt8(replay.header.zoneNum);
+/**
+ * Write the JSON RunSplits section of a MomentumTV replay (.mtv).
+ * @throws {ReplayWriteError}
+ */
+export function writeRunSplits(splits: RunSplits.Splits, buffer: Buffer): void {
+  try {
+    const splitsStr = JSON.stringify(splits);
+    buffer.writeInt32LE(splitsStr.length + 1, 193);
+    buffer.write(splitsStr, 197, splitsStr.length, 'utf8');
+    buffer.writeUInt8(0x00, 197 + splitsStr.length);
+  } catch (error) {
+    throw new ReplayWriteError(error.code, error.message);
   }
+}
 
-  writeBaseStats(stats: BaseStats, tickrate: number) {
-    this.writeInt32(stats.jumps);
-    this.writeInt32(stats.strafes);
-    this.writeFloat(stats.avgStrafeSync);
-    this.writeFloat(stats.avgStrafeSync2);
-    this.writeInt32(stats.enterTime / tickrate);
-    this.writeInt32(stats.totalTime / tickrate);
-    this.writeFloat(stats.velMax3D);
-    this.writeFloat(stats.velMax2D);
-    this.writeFloat(stats.velAvg3D);
-    this.writeFloat(stats.velAvg2D);
-    this.writeFloat(stats.velEnter3D);
-    this.writeFloat(stats.velEnter2D);
-    this.writeFloat(stats.velExit3D);
-    this.writeFloat(stats.velExit2D);
-  }
+export class ReplayWriteError extends Error {
+  /** Node error code https://nodejs.org/api/errors.html#nodejs-error-codes */
+  code: string;
 
-  writeRunFrame(frame: RunFrame) {
-    this.writeFloat(frame.eyeAngleX);
-    this.writeFloat(frame.eyeAngleY);
-    this.writeFloat(frame.eyeAngleZ);
-    this.writeFloat(frame.posX);
-    this.writeFloat(frame.posY);
-    this.writeFloat(frame.posZ);
-    this.writeFloat(frame.viewOffset);
-    this.writeInt32(frame.buttons);
-  }
-
-  writeString(str: string) {
-    const len = str.length + 1; // +1 for \0
-    this.checkBuffer(len);
-    this.buffer.write(str + '\0', this.offset, 'ascii');
-    this.offset += len;
-  }
-
-  writeFloat(val: number) {
-    this.checkBuffer();
-    this.buffer.writeFloatLE(val, this.offset);
-    this.offset += 4;
-  }
-
-  writeInt32(val: number, unsigned = true) {
-    this.checkBuffer();
-    if (unsigned) {
-      this.buffer.writeUInt32LE(val, this.offset);
-    } else {
-      this.buffer.writeInt32LE(val, this.offset);
-    }
-    this.offset += 4;
-  }
-
-  writeInt8(val: number, unsigned = true) {
-    this.checkBuffer();
-    if (unsigned) {
-      this.buffer.writeUInt8(val, this.offset);
-    } else {
-      this.buffer.writeInt8(val, this.offset);
-    }
-    this.offset++;
-  }
-
-  checkBuffer(len = 4) {
-    if (this.offset > this.buffer.length - len) {
-      // This is a very silly way of handling buffer allocation but good enough for tests
-      const newBuffer = Buffer.alloc(this.buffer.length * 2);
-      this.buffer.copy(newBuffer);
-      this.buffer = newBuffer;
-    }
+  constructor(message: string, code?: string) {
+    super();
+    this.message = message;
+    this.code = code;
+    this.name = 'ReplayWriteError';
   }
 }
