@@ -7,7 +7,7 @@ import {
 import { config } from '../config';
 import { Service } from '../types/service';
 import { TwitchAPI } from '../twitch-api';
-import { TwitchStream } from '@momentum/constants';
+import { TwitchStream } from '../types/twitch';
 import { sanitizeMarkdown, timeSpanToPrettyPrint } from '../utils';
 import { logger } from '../logger';
 
