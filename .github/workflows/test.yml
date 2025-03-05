@@ -176,3 +176,29 @@ jobs:
           docker compose
             -f docker-compose.yml -f docker-compose.test.yml
             run backend-e2e
+
+  type-test:
+    name: Type Tests
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+          submodules: 'true'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: modules-${{ github.run_id }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Test Build @momentum/constants
+        run: npx nx run constants:test-types
