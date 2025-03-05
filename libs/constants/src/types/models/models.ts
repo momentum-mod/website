@@ -15,7 +15,11 @@ import {
   AdminActivityType,
   KillswitchType,
   ReportType,
-  ReportCategory
+  ReportCategory,
+  vec3,
+  uint8,
+  float,
+  uint16
 } from '../../';
 import { Flags, DateString } from '../../';
 
@@ -28,6 +32,8 @@ import { Flags, DateString } from '../../';
 // - Prisma types are absurdly complicated, and slow down the TypeScript
 //   language server.
 // - Fuck Prisma.
+
+/* eslint @typescript-eslint/no-namespace: 0 */
 
 //#region User
 
@@ -313,7 +319,6 @@ export interface MapStats {
   completions: number;
   uniqueCompletions: number;
   timePlayed: number;
-  baseStats: BaseStats;
 }
 
 export interface MapSubmission {
@@ -425,29 +430,7 @@ export interface Region {
 }
 
 //#endregion
-//#region Stats
-
-export interface BaseStats {
-  jumps: number;
-  strafes: number;
-  avgStrafeSync: number;
-  avgStrafeSync2: number;
-  enterTime: number;
-  totalTime: number;
-  velAvg3D: number;
-  velAvg2D: number;
-  velMax3D: number;
-  velMax2D: number;
-  velEnter3D: number;
-  velEnter2D: number;
-  velExit3D: number;
-  velExit2D: number;
-}
-
-export interface RunStats {
-  overall: BaseStats;
-  zones?: any; // TODO
-}
+//#region Runs
 
 export interface Leaderboard {
   gamemode: Gamemode;
@@ -473,8 +456,8 @@ export interface LeaderboardRun {
   time: number;
   downloadURL: string;
   replayHash: string;
-  flags: Style[]; // TODO: Weird, don't know why this is an array not flags
-  stats: RunStats;
+  flags: Style[];
+  splits?: RunSplits.Splits;
   rank: number;
   rankXP: number;
   userID: number;
@@ -516,11 +499,69 @@ export interface RunSession {
 
 export interface RunSessionTimestamp {
   id: number;
-  segment: number;
-  checkpoint: number;
+  majorNum: number;
+  minorNum: number;
   time: number;
   sessionID: number;
   createdAt: DateString;
+}
+
+export namespace RunSplits {
+  export interface Splits {
+    trackStats: Stats;
+    segments: Segment[];
+  }
+
+  export interface Segment {
+    // Contains an entry for every subsegment the player has reached so far
+    subsegments: Subsegment[];
+
+    segmentStats: Stats;
+
+    // This is velocity when effectively starting this segment (when *leaving* the
+    // first zone)
+    effectiveStartVelocity: vec3;
+
+    // Whether this segment's checkpoints have a logical order. This lets split
+    // comparison logic know if apparent gaps are due to skipped checkpoints
+    // (align subsegments by minorNum) or are just unordered checkpoints (don't
+    // align).
+    checkpointsOrdered: boolean;
+  }
+
+  // A subsegment begins at the checkpoint zone with the specified minorNum (which
+  // may be a Major Checkpoint zone, possibly the overall track start) and ends
+  // when another checkpoint zone is activated (which may not be the next in
+  // logical order if checkpoints can be skipped or done out of order).
+  //
+  // The very first subsegment of a run across all segments actually begins when
+  // the run starts and so will have timeReached == 0.0. For all other
+  // subsegments, timeReached has a meaningful value. Also note that for
+  // subsegments after the first overall, stat tracking includes time spent within
+  // its corresponding checkpoint zone.
+  export interface Subsegment {
+    minorNum: uint8;
+
+    timeReached: float;
+
+    // Velocity when triggering this checkpoint; note the difference between this
+    // and Segment::effectiveStartVelocity
+    velocityWhenReached: vec3;
+
+    stats: Stats;
+  }
+
+  /** Stats for a whole run, or segment */
+  export interface Stats {
+    maxOverallSpeed: float;
+    maxHorizontalSpeed: float;
+
+    overallDistanceTravelled: float;
+    horizontalDistanceTravelled: float;
+
+    jumps: uint16;
+    strafes: uint16;
+  }
 }
 
 export interface XpGain {

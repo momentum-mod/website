@@ -13,6 +13,7 @@ describe('omit function', () => {
   });
 
   it('should return the same object if the key does not exist', () => {
+    // @ts-expect-error - testing invalid keys
     expect(omit({ a: 1, b: 2, c: 3 }, 'd')).toEqual({ a: 1, b: 2, c: 3 });
   });
 
