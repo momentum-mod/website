@@ -80,7 +80,9 @@ export class SteamService {
           catchError((error: AxiosError) => {
             if (error.response) {
               if (error.response.status === 401) {
-                throw new ConflictException();
+                throw new ConflictException(
+                  'User has private Steam friends list'
+                );
               } else {
                 throw new InternalServerErrorException(
                   `ISteamUser/GetFriendList/v1/ returned ${error.status}, which we don't know how to handle!`
