@@ -4,7 +4,7 @@
   <div class="flex w-full flex-col rounded border-white border-opacity-5 bg-black bg-opacity-50 p-2 shadow-inner">
     @for (file of getIterableFiles(); track file) {
       <div class="flex items-center gap-2 [&:not(:last-child)]:mb-2">
-        <p class="shrink text-sm">{{ file.name }}</p>
+        <p class="shrink truncate text-sm">{{ file.name }}</p>
         <p class="ml-auto basis-auto pt-0.5 text-sm italic opacity-75">
           {{ size(file) }}
         </p>
