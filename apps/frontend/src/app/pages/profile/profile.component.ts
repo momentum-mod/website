@@ -1,5 +1,5 @@
 import { Component, DestroyRef, OnInit } from '@angular/core';
-import { filter, switchMap } from 'rxjs/operators';
+import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   ActivatedRoute,
   ParamMap,
@@ -106,6 +106,7 @@ export class ProfileComponent implements OnInit {
   importSteamFriendsModalVisible = false;
   steamFriends: User[] = [];
   steamFriendsToAdd = new Set<number>();
+  loadingSteamFriends = false;
   protected credits: MapCredit[];
   protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
 
@@ -212,19 +213,6 @@ export class ProfileComponent implements OnInit {
                   detail: httpError.error.message
                 })
             });
-
-          this.localUserService.getSteamFriends().subscribe({
-            next: (response) => {
-              this.steamFriends = response;
-            },
-            error: (httpError: HttpErrorResponse) => {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Could not get Steam friends',
-                detail: httpError.error.message
-              });
-            }
-          });
         },
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
@@ -300,6 +288,27 @@ export class ProfileComponent implements OnInit {
 
   showSteamFriendsModal() {
     this.importSteamFriendsModalVisible = true;
+    this.loadingSteamFriends = true;
+    this.localUserService
+      .getSteamFriends()
+      .pipe(
+        tap({
+          error: () => (this.loadingSteamFriends = false),
+          next: () => (this.loadingSteamFriends = false)
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.steamFriends = response;
+        },
+        error: (httpError: HttpErrorResponse) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Could not get Steam friends',
+            detail: httpError.error.message
+          });
+        }
+      });
   }
 
   toggleSteamFriend(user: User) {
