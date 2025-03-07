@@ -4,5 +4,5 @@
     "strict": true,
     "strictNullChecks": true
   },
-  "extends": "../../tsconfig.base.json"
+  "extends": "../../tsconfig.json"
 }
