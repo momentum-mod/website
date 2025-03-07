@@ -205,6 +205,8 @@
                     <p>{{ steamFriend.alias }}</p>
                   </div>
                 }
+              } @else if (loadingSteamFriends) {
+                <m-spinner />
               } @else {
                 <p><i>Steam Friends not found</i></p>
               }
