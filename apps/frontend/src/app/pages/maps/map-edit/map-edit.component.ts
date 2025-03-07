@@ -526,50 +526,48 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       );
     }
 
-    if (this.zon.value) {
-      try {
-        await lastValueFrom(
-          this.mapsService
-            .submitMapVersion(this.map.id, {
-              vmfs: this.vmfs.value,
-              data: {
-                zones: this.zon.value
-                  ? (JSON.parse(await this.zon.value.text()) as MapZones)
-                  : undefined,
-                changelog: this.changelog.value,
-                resetLeaderboards: this.resetLbs.value
+    try {
+      await lastValueFrom(
+        this.mapsService
+          .submitMapVersion(this.map.id, {
+            vmfs: this.vmfs.value,
+            data: {
+              zones: this.zon.value
+                ? (JSON.parse(await this.zon.value.text()) as MapZones)
+                : undefined,
+              changelog: this.changelog.value,
+              resetLeaderboards: this.resetLbs.value
+            }
+          })
+          .pipe(
+            tap((event: HttpEvent<string>) => {
+              switch (event.type) {
+                case HttpEventType.Sent:
+                  this.isUploading = true;
+                  this.uploadStatusDescription = 'Submitting map version...';
+                  break;
+                case HttpEventType.UploadProgress:
+                  this.uploadPercentage =
+                    85 + Math.round((event['loaded'] / event['total']) * 15);
+                  break;
+                case HttpEventType.Response:
+                  this.uploadStatusDescription = 'Upload complete!';
+                  this.uploadPercentage = 100;
+                  break;
               }
             })
-            .pipe(
-              tap((event: HttpEvent<string>) => {
-                switch (event.type) {
-                  case HttpEventType.Sent:
-                    this.isUploading = true;
-                    this.uploadStatusDescription = 'Submitting map version...';
-                    break;
-                  case HttpEventType.UploadProgress:
-                    this.uploadPercentage =
-                      85 + Math.round((event['loaded'] / event['total']) * 15);
-                    break;
-                  case HttpEventType.Response:
-                    this.uploadStatusDescription = 'Upload complete!';
-                    this.uploadPercentage = 100;
-                    break;
-                }
-              })
-            )
-        );
-      } catch (error) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Failed to post version!',
-          detail: JSON.stringify(error.error.message)
-        });
-        this.isUploading = false;
-        this.uploadPercentage = 0;
-        this.uploadStatusDescription = '';
-        return;
-      }
+          )
+      );
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Failed to post version!',
+        detail: JSON.stringify(error.error.message)
+      });
+      this.isUploading = false;
+      this.uploadPercentage = 0;
+      this.uploadStatusDescription = '';
+      return;
     }
 
     setTimeout(() => {
