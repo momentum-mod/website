@@ -70,7 +70,7 @@ describe('Maps Part 2', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('maps/maplist', () => {
     describe('GET', () => {

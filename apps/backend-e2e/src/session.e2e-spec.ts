@@ -50,7 +50,7 @@ describe('Session', () => {
 
   afterAll(async () => {
     await db.cleanup('mMap');
-    await teardownE2ETestEnvironment(app);
+    await teardownE2ETestEnvironment(app, prisma);
   });
 
   describe('session/run', () => {

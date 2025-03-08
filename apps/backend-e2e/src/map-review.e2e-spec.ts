@@ -38,7 +38,7 @@ describe('Map Reviews', () => {
     fileStore = env.fileStore;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('map-review/{reviewID}', () => {
     describe('GET', () => {

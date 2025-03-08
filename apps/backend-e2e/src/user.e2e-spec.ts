@@ -1,4 +1,4 @@
-// noinspection DuplicatedCode
+﻿// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -50,7 +50,7 @@ describe('User', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('user', () => {
     describe('GET', () => {

@@ -79,7 +79,7 @@ describe('Admin', () => {
     fileStore = env.fileStore;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('admin/users', () => {
     describe('POST', () => {

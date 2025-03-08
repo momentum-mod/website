@@ -28,7 +28,7 @@ describe('Runs', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('runs', () => {
     describe('GET', () => {
