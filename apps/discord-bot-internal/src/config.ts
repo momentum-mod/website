@@ -58,6 +58,9 @@ interface Config {
   /** Internal twitch game id for Momentum Mod */
   twitch_momentum_mod_game_id: string;
 
+  /** Any channels that should always be shown in livestream channel if live */
+  twitch_momentum_mod_official_channels: string[];
+
   // Custom module storage
   custom_commands: { [key: string]: CustomCommand };
 }
