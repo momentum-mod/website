@@ -45,7 +45,7 @@ describe('Multi-stage E2E tests', () => {
     fileStore = env.fileStore;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   afterEach(() => db.cleanup('mMap', 'user'));
 

@@ -22,7 +22,10 @@ import {
   JWTResponseGameDto,
   JWTResponseWebDto
 } from '../../backend/src/app/dto';
-import { setupE2ETestEnvironment } from './support/environment';
+import {
+  setupE2ETestEnvironment,
+  teardownE2ETestEnvironment
+} from './support/environment';
 import { Role } from '@momentum/constants';
 
 describe('Auth', () => {
@@ -43,7 +46,10 @@ describe('Auth', () => {
     req = env.req;
   });
 
-  afterAll(() => db.cleanup('user'));
+  afterAll(async () => {
+    await db.cleanup('user');
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('auth/web/return', () => {
     describe('GET', () => {

@@ -22,7 +22,7 @@ describe('Activities', () => {
     db = env.db;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app));
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
 
   describe('activities', () => {
     describe('GET', () => {

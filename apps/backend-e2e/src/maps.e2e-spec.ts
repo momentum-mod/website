@@ -67,6 +67,8 @@ describe('Maps', () => {
     fileStore = env.fileStore;
   });
 
+  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+
   async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
     const preSignedUrlRes = await req.get({
       url: 'maps/getMapUploadUrl',
@@ -79,8 +81,6 @@ describe('Maps', () => {
 
     await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, bspBuffer);
   }
-
-  afterAll(() => teardownE2ETestEnvironment(app));
 
   describe('maps', () => {
     describe('GET', () => {

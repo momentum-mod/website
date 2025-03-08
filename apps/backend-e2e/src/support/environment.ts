@@ -93,6 +93,10 @@ export async function setupE2ETestEnvironment(
   };
 }
 
-export async function teardownE2ETestEnvironment(app: NestFastifyApplication) {
+export async function teardownE2ETestEnvironment(
+  app: NestFastifyApplication,
+  prisma: PrismaClient
+) {
   await app.close();
+  await prisma.$disconnect();
 }
