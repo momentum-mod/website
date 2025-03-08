@@ -75,9 +75,14 @@ export class TwitchAPI {
   }
 
   async getLiveMomentumModStreams(): Promise<TwitchStream[]> {
-    return await this.apiGet('helix/streams', {
-      game_id: config.twitch_momentum_mod_game_id
-    }).then(({ data }) => data);
+    return await Promise.all([
+      this.apiGet('helix/streams', {
+        game_id: config.twitch_momentum_mod_game_id
+      }),
+      this.apiGet('helix/streams', {
+        user_id: config.twitch_momentum_mod_official_channels.join(',')
+      })
+    ]).then((arr) => arr.flatMap(({ data }) => data));
   }
 
   async getUser(id: string): Promise<TwitchUser | null> {

@@ -16,5 +16,6 @@
   "media_minimum_days": 3,
   "media_minimum_messages": 10,
   "twitch_momentum_mod_game_id": "2043449207",
+  "twitch_momentum_mod_official_channels": [],
   "custom_commands": {}
 }
