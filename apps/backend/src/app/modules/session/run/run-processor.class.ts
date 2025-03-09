@@ -254,7 +254,7 @@ export class RunProcessor {
 
   /** @throws {RunValidationError} */
   validateReplayHeader() {
-    const { session, replayHeader: header } = this;
+    const { session, replayHeader: header, user } = this;
 
     if (header.trackType !== session.trackType) {
       this.reject(ErrorType.BAD_META, 'header.trackType != session.trackType');
@@ -279,7 +279,7 @@ export class RunProcessor {
       this.reject(ErrorType.BAD_META, 'header.mapName != our mapName');
     }
 
-    if (header.playerSteamID !== this.user.steamID) {
+    if (header.playerSteamID !== user.steamID) {
       this.reject(ErrorType.BAD_META, 'header.playerSteamID != user.steamID');
     }
 
@@ -317,7 +317,7 @@ export class RunProcessor {
     const runStart = header.timestamp - headerRunTime;
 
     // When backend says run started
-    const sessionStart = this.session.createdAt.getTime();
+    const sessionStart = session.createdAt.getTime();
 
     const now = Date.now();
 
