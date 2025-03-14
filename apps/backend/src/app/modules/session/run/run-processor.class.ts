@@ -68,9 +68,20 @@ export class RunProcessor {
   validateSessionTimestamps() {
     const { timestamps, trackType, trackNum } = this.session;
 
-    // Note that timestamps do NOT include hitting the end zone - hitting the
-    // end zone calls the /end endpoint with the replay, and we parse the replay
-    // header to determine the final time.
+    // Note that we don't require timestamps be ordered due to possibly
+    // unreliable networking, but we *do* require all timestamps to have been
+    // received by the time the /end endpoint has been called and the replay
+    // file is fully uploaded.
+    // Also note that timestamps do NOT include hitting the end zone - hitting
+    // the end zone calls the /end endpoint with the replay, and we parse the
+    // replay header to determine the final time.
+
+    // Sort to make sure in right order if we received out-of-sync.
+    timestamps.sort((a, b) =>
+      a.majorNum === b.majorNum
+        ? a.minorNum - b.minorNum
+        : a.majorNum - b.majorNum
+    );
 
     if (timestamps.length === 0) {
       this.reject(ErrorType.BAD_TIMESTAMPS, 'timestamps length == 0');
@@ -190,10 +201,12 @@ export class RunProcessor {
       });
     }
 
-    // Must have incrementing order if checkpointsOrdered
+    // Must have time if checkpointsOrdered. The timestamps themselves *could*
+    // have been out-of-order originally, but have been sorted above, so the
+    // client-reported time value should always be incrementing.
     if (checkpointsOrdered) {
       for (let i = 1; i < timestamps.length; i++) {
-        if (timestamps[i].minorNum <= timestamps[i - 1].minorNum) {
+        if (timestamps[i].time <= timestamps[i - 1].time) {
           this.reject(
             ErrorType.BAD_TIMESTAMPS,
             'ordered segment timestamps not ordered',
