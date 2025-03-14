@@ -12,6 +12,7 @@ import {
 } from '@momentum/constants';
 import * as ReplayFile from '@momentum/formats/replay';
 import { CompletedRunSession, ProcessedRun } from './run-session.interface';
+import { findWithIndex } from '@momentum/util-fn';
 
 /**
  * Class for managing the parsing of a replay file and validating it against
@@ -36,10 +37,7 @@ export class RunProcessor {
     AllowedSubmitDelayMax: 30_000,
 
     // Allowed time diff between split time and backend timestamp created
-    AllowedTimestampDelay: 5000,
-
-    // Allowed system clock inaccuracy
-    AllowedClockDrift: 1000
+    AllowedTimestampDelay: 5000
   };
 
   static readonly Logger = new Logger('RunProcessor');
@@ -70,7 +68,6 @@ export class RunProcessor {
   validateSessionTimestamps() {
     const { timestamps, trackType, trackNum } = this.session;
 
-    //
     // Note that timestamps do NOT include hitting the end zone - hitting the
     // end zone calls the /end endpoint with the replay, and we parse the replay
     // header to determine the final time.
@@ -90,7 +87,7 @@ export class RunProcessor {
     }
 
     // We could perform checks on the .time field here, but it's equivalent
-    // to runsplits.timeReaches checks later on, easier to do there.
+    // to runsplits.timeReached checks later on, easier to do there.
 
     // Check for duplicates
     if (
@@ -298,89 +295,69 @@ export class RunProcessor {
       AllowedSubmitDelayBase,
       AllowedSubmitDelayIncrement,
       AllowedSubmitDelayMax,
-      AllowedTimestampDelay,
-      AllowedClockDrift
+      AllowedTimestampDelay
     } = RunProcessor.Constants;
 
-    // Check timestamps match up with replay start and end times
-    //
-    //   v sessionStart
-    // v runStart                              v header.timestamp    v now
-    // |---------------------------------------|---------------------|
-    // <--------------------------------------><--------------------->
-    //                    ^ headerRunTime                ^ submitDelay
+    const headerRunTime = header.runTime * 1000; // Duration of the run (double, in seconds!)
 
-    // Duration of the run (double, in seconds!)
-    const headerRunTime = header.runTime * 1000;
-
-    // When the run was started according to replay file
-    const runStart = header.timestamp - headerRunTime;
-
-    // When backend says run started
     const sessionStart = session.createdAt.getTime();
+    const sessionEnd = Date.now();
+    const sessionLength = sessionEnd - sessionStart;
 
-    const now = Date.now();
+    // Check timestamps match up with replay start and end times
+    // We'd like to be able to do checks using header.timestamp but this is
+    // derived from the client's system time, which staging has shown can be
+    // over a minute out of sync with us.
+    // So only these are variables known to us:
+    //   v sessionStart (session.createdAt)
+    // v start on client (unknown)                                   v now (Date.now)
+    // |---------------------------------------|---------------------|
+    // <--------------------------------------><---------------------|
+    //           ^ headerRunTime (from header)           ^ submitDelay (derived)
 
-    const submitDelay = now - header.timestamp;
+    // This is slightly smaller than it should be, since there's a delay between
+    // client starting run and us logging session start.
+    const submitDelay = sessionLength - headerRunTime;
+
+    // There's a *chance* that session start takes longer to process than
+    // /end call reaching here, so testing headerRunTime against sessionLength
+    // could in very rare cases fail. Being fairly generous here, and just
+    // checking that if it is over, it's by at most one AllowedTimestampDelay.
+    if (headerRunTime > sessionLength + AllowedTimestampDelay) {
+      this.reject(
+        ErrorType.OUT_OF_SYNC,
+        'headerRunTime > sessionLength + AllowedTimestampDelay',
+        {
+          sessionStart,
+          sessionEnd,
+          sessionLength,
+          submitDelay,
+          headerRunTime,
+          AllowedTimestampDelay,
+          headerTimestamp: header.timestamp
+        }
+      );
+    }
+
     const allowedSubmitDelay =
       AllowedSubmitDelayBase +
-      AllowedClockDrift +
       Math.min(
         (AllowedSubmitDelayIncrement * headerRunTime) / 60_000,
         AllowedSubmitDelayMax
       );
 
-    const startDelay = sessionStart - runStart;
-
-    if (submitDelay < -AllowedClockDrift) {
-      this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay < -AllowedClockDrift', {
-        now,
-        headerTimestamp: header.timestamp,
-        submitDelay,
-        AllowedClockDrift
-      });
-    }
-
     if (submitDelay > allowedSubmitDelay) {
       this.reject(ErrorType.OUT_OF_SYNC, 'submitDelay > allowedSubmitDelay', {
-        now,
-        headerTimestamp: header.timestamp,
+        sessionStart,
+        sessionEnd,
+        sessionLength,
         submitDelay,
+        headerTimestamp: header.timestamp,
         allowedSubmitDelay,
         AllowedSubmitDelayBase,
         AllowedSubmitDelayIncrement,
-        AllowedSubmitDelayMax,
-        AllowedClockDrift
+        AllowedSubmitDelayMax
       });
-    }
-
-    if (startDelay < -AllowedClockDrift) {
-      this.reject(ErrorType.OUT_OF_SYNC, 'startDelay < -AllowedClockDrift', {
-        headerRunTime,
-        headerTimestamp: header.timestamp,
-        runStart,
-        sessionStart,
-        now,
-        startDelay,
-        AllowedClockDrift
-      });
-    }
-
-    if (startDelay > AllowedTimestampDelay + AllowedClockDrift) {
-      this.reject(
-        ErrorType.OUT_OF_SYNC,
-        'startDelay > AllowedTimestampDelay + AllowedClockDrift',
-        {
-          headerRunTime,
-          headerTimestamp: header.timestamp,
-          runStart,
-          sessionStart,
-          now,
-          startDelay,
-          AllowedTimestampDelay,
-          AllowedClockDrift
-        }
-      );
     }
   }
 
@@ -399,52 +376,46 @@ export class RunProcessor {
 
     subsegs.forEach((subseg) => {
       // Timestamps are *probably* ordered, but may not be with spotty internet
-      const timestamp = this.session.timestamps.find(
+      const [ts, tsIdx] = findWithIndex(
+        this.session.timestamps,
         ({ majorNum, minorNum }) =>
           majorNum === subseg.majorNum && minorNum === subseg.minorNum
       );
 
-      if (!timestamp) {
+      if (!ts) {
         this.reject(ErrorType.OUT_OF_SYNC, 'missing timestamp for subseg', {
           subseg
         });
       }
 
-      const replayStartTime =
-        this.replayHeader.timestamp - this.replayHeader.runTime * 1000;
-      const unixTimeReached = replayStartTime + subseg.timeReached * 1000;
+      if (tsIdx === 0) return;
 
-      const timestampDelay = timestamp.createdAt.getTime() - unixTimeReached;
-      const { AllowedTimestampDelay, AllowedClockDrift } =
-        RunProcessor.Constants;
+      const lastTs = this.session.timestamps[tsIdx - 1];
+      const tsDiff = ts.createdAt.getTime() - lastTs.createdAt.getTime();
 
-      if (timestampDelay > AllowedTimestampDelay + AllowedClockDrift) {
+      const lastSubseg = subsegs.find(
+        ({ majorNum, minorNum }) =>
+          majorNum === lastTs.majorNum && minorNum === lastTs.minorNum
+      );
+      const subsegDiff = (subseg.timeReached - lastSubseg.timeReached) * 1000;
+      const timestampDelay = tsDiff - subsegDiff;
+
+      const { AllowedTimestampDelay } = RunProcessor.Constants;
+
+      // Timestamps *could* be out of order, in which case timestampDelay would
+      // be negative. Just doing an absolute comparison.
+      if (Math.abs(timestampDelay) > AllowedTimestampDelay) {
         this.reject(
           ErrorType.OUT_OF_SYNC,
-          'timestampDelay > AllowedTimestampDelay + AllowedClockDrift',
+          'abs(timestampDelay) > AllowedTimestampDelay',
           {
             subseg,
-            timestamp,
-            replayStartTime,
-            unixTimeReached,
+            lastSubseg,
+            ts,
+            lastTs,
+            subsegDiff,
             timestampDelay,
-            AllowedTimestampDelay,
-            AllowedClockDrift
-          }
-        );
-      }
-
-      if (timestampDelay < -AllowedClockDrift) {
-        this.reject(
-          ErrorType.OUT_OF_SYNC,
-          'timestampDelay < -AllowedClockDrift',
-          {
-            subseg,
-            timestamp,
-            replayStartTime,
-            unixTimeReached,
-            timestampDelay,
-            AllowedClockDrift
+            AllowedTimestampDelay
           }
         );
       }
@@ -466,9 +437,6 @@ export class RunProcessor {
 
   /**
    * Log detailed rejection reason, send client a relatively generic error back.
-   *
-   * We could do all sorts of things with the function in future, e.g. write
-   * stuff to Postgres, send to a separate logger, etc.
    */
   private reject(
     errorType: ErrorType,

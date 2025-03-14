@@ -656,68 +656,19 @@ describe('RunProcessor', () => {
       expectFail(ErrorType.OUT_OF_SYNC);
     });
 
-    it('should throw if run time is out of sync - startDelay > AllowedTimestampDelay + AllowedClockDrift', () => {
-      processor = createProcessor({
-        session: {
-          timestamps,
-          createdAt: cat(
-            Constants.AllowedTimestampDelay + Constants.AllowedClockDrift + 100
-          )
-        }
-      });
-
-      jest.advanceTimersByTime(runTimeMS);
-      expectFail(ErrorType.OUT_OF_SYNC);
-    });
-
-    it('should not throw if run time is not out of sync - startDelay < AllowedTimestampDelay', () => {
-      processor = createProcessor({
-        session: {
-          timestamps,
-          createdAt: cat(
-            Constants.AllowedTimestampDelay + Constants.AllowedClockDrift - 100
-          )
-        }
-      });
-
-      jest.advanceTimersByTime(runTimeMS);
-      expectPass();
-    });
-
-    it('should throw if run time is out of sync - startDelay < 0', () => {
-      const header = structuredClone(ReplayFile.Stubs.ReplayHeaderStub);
-      header.runTime = 50;
-
-      processor = createProcessor({ session: { timestamps }, header });
-
-      jest.advanceTimersByTime(runTimeMS);
-      expectFail(ErrorType.OUT_OF_SYNC);
-    });
-
     it('should throw if run time is out of sync - submitDelay > acceptableSubmitDelay', () => {
       const {
         AllowedSubmitDelayBase: base,
-        AllowedClockDrift: drift,
         AllowedSubmitDelayIncrement: incr
       } = Constants;
 
       processor = createProcessor({ session: { timestamps } });
 
-      const acceptableDelay = base + drift + (runTimeMS / 60000) * incr;
+      const acceptableDelay = base + (runTimeMS / 60000) * incr;
       jest.advanceTimersByTime(runTimeMS + acceptableDelay - 100);
       expectPass();
 
       jest.advanceTimersByTime(200);
-      expectFail(ErrorType.OUT_OF_SYNC);
-    });
-
-    it('should throw if run time is out of sync - submitDelay < 0', () => {
-      const header = structuredClone(ReplayFile.Stubs.ReplayHeaderStub);
-      header.timestamp = BASE_TIME + 50000;
-
-      processor = createProcessor({ session: { timestamps }, header });
-
-      jest.advanceTimersByTime(runTimeMS);
       expectFail(ErrorType.OUT_OF_SYNC);
     });
 
@@ -839,6 +790,9 @@ describe('RunProcessor', () => {
       );
     }
 
+    // Note that `time` isn't significant in these tests, just needs a value.
+    // The actual check is performed against the timeReached data in the splits
+    // stub.
     it('should not throw for a valid splits', () => {
       processor = createProcessor({
         session: {
@@ -855,7 +809,17 @@ describe('RunProcessor', () => {
     });
 
     it('should throw for missing timestamps', () => {
-      processor = createProcessor();
+      processor = createProcessor({
+        session: {
+          timestamps: [
+            { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
+            { createdAt: cat(10000), time: 10, majorNum: 1, minorNum: 2 },
+            { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 },
+            { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 } // Dupe
+            // { createdAt: cat(30000), time: 30, majorNum: 2, minorNum: 2 }
+          ]
+        }
+      });
 
       expectFail();
     });
@@ -866,29 +830,7 @@ describe('RunProcessor', () => {
           timestamps: [
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
             { createdAt: cat(10000), time: 10, majorNum: 1, minorNum: 2 },
-            { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 }
-          ]
-        }
-      });
-
-      expectFail();
-    });
-
-    it('should throw for out of sync splits - negative desync', () => {
-      processor = createProcessor({
-        session: {
-          timestamps: [
-            // Note that `time` isn't really that significant in these tests,
-            // just making the data more realistic. The actual check is
-            // performed against the
-            { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
-            {
-              createdAt: cat(9999 - Constants.AllowedClockDrift),
-              time: 9.999 - Constants.AllowedClockDrift / 1000,
-              majorNum: 1,
-              minorNum: 2
-            },
-            { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 },
+            // { createdAt: cat(20000), time: 20, majorNum: 2, minorNum: 1 }
             { createdAt: cat(30000), time: 30, majorNum: 2, minorNum: 2 }
           ]
         }
@@ -903,12 +845,7 @@ describe('RunProcessor', () => {
           timestamps: [
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
             {
-              createdAt: cat(
-                10000 +
-                  Constants.AllowedTimestampDelay +
-                  Constants.AllowedClockDrift -
-                  100
-              ),
+              createdAt: cat(10000 + Constants.AllowedTimestampDelay - 100),
               time: 10,
               majorNum: 1,
               minorNum: 2
@@ -928,12 +865,7 @@ describe('RunProcessor', () => {
           timestamps: [
             { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
             {
-              createdAt: cat(
-                10000 +
-                  Constants.AllowedTimestampDelay +
-                  Constants.AllowedClockDrift +
-                  100
-              ),
+              createdAt: cat(10000 + Constants.AllowedTimestampDelay + 100),
               time: 10,
               majorNum: 1,
               minorNum: 2
