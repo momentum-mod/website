@@ -115,4 +115,12 @@ export class CreateMapVersionDto implements CreateMapVersion {
   @IsBoolean()
   @IsOptional()
   readonly resetLeaderboards?: boolean;
+
+  @ApiProperty({
+    description: 'Version contains new BSP uploaded to a pre-signed url',
+    default: false
+  })
+  @IsBoolean()
+  @IsOptional()
+  readonly hasBSP: boolean;
 }

@@ -536,7 +536,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
                 ? (JSON.parse(await this.zon.value.text()) as MapZones)
                 : undefined,
               changelog: this.changelog.value,
-              resetLeaderboards: this.resetLbs.value
+              resetLeaderboards: this.resetLbs.value,
+              hasBSP: Boolean(this.bsp.value)
             }
           })
           .pipe(

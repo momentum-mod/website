@@ -1895,7 +1895,7 @@ describe('Maps', () => {
         const res = await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog },
+          data: { changelog, hasBSP: true },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
@@ -1932,7 +1932,10 @@ describe('Maps', () => {
         const res = await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'Added lights, spawn entity etc...' },
+          data: {
+            changelog: 'Added lights, spawn entity etc...',
+            hasBSP: true
+          },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
@@ -2036,7 +2039,11 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'Added Stage 3, removed bonus', zones: newZones },
+          data: {
+            changelog: 'Added Stage 3, removed bonus',
+            zones: newZones,
+            hasBSP: true
+          },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           validate: MapDto,
           token: u1Token
@@ -2096,11 +2103,8 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 503,
-          data: { changelog },
-          files: [
-            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-          ],
+          data: { changelog, hasBSP: true },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
 
@@ -2119,7 +2123,7 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'haha i am making ur thing update' },
+          data: { changelog: 'haha i am making ur thing update', hasBSP: true },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
@@ -2153,7 +2157,7 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'haha i am making ur thing update' },
+          data: { changelog: 'haha i am making ur thing update', hasBSP: true },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
@@ -2195,7 +2199,8 @@ describe('Maps', () => {
           status: 400,
           data: {
             changelog: 'done fucked it',
-            zones
+            zones,
+            hasBSP: true
           },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
@@ -2256,7 +2261,7 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'who needs tests anyway' },
+          data: { changelog: 'who needs tests anyway', hasBSP: true },
           token: u1Token
         });
       });
@@ -2274,6 +2279,22 @@ describe('Maps', () => {
       it('should 400 if VMF file is invalid', async () => {
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'just hope it works', hasBSP: true },
+          files: [
+            {
+              file: Buffer.from('{' + vmfBuffer.toString()),
+              field: 'vmfs',
+              fileName: 'surf_map.vmf'
+            }
+          ],
+          token: u1Token
+        });
+      });
+
+      it('should 400 if VMF file is invalid and BSP file is missing', async () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
@@ -2304,7 +2325,7 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
-          data: { changelog: 'shoutout to winrar' },
+          data: { changelog: 'shoutout to winrar', hasBSP: true },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.rar' }],
           token: u1Token
         });
@@ -2334,7 +2355,51 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
-          data: {},
+          data: { hasBSP: true },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        });
+      });
+
+      it('should ignore BSP file if flag is not set', async () => {
+        await uploadBspToPreSignedUrl(bspBuffer.subarray(0, -5), u1Token);
+
+        const oldMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'there is no BSP in this one' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        });
+
+        const newMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(oldMap.currentVersion.bspHash).toEqual(
+          newMap.currentVersion.bspHash
+        );
+      });
+
+      it('should 400 if flag is set but BSP was not submitted', async () => {
+        const [file] = await fileStore.list(`upload_tmp/${u1.id}`);
+        if (file) {
+          await fileStore.delete(file);
+        }
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: {
+            changelog: 'there is no BSP in this one either',
+            hasBSP: true
+          },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
@@ -2389,7 +2454,11 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'all your runs SUCK', resetLeaderboards: true },
+          data: {
+            changelog: 'all your runs SUCK',
+            resetLeaderboards: true,
+            hasBSP: true
+          },
           validate: MapDto,
           token: u1Token
         });
@@ -2434,7 +2503,8 @@ describe('Maps', () => {
           status: 201,
           data: {
             changelog: 'damn these runs are great. i love you guys',
-            resetLeaderboards: false
+            resetLeaderboards: false,
+            hasBSP: true
           },
           validate: MapDto,
           token: u1Token
@@ -2445,7 +2515,7 @@ describe('Maps', () => {
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'im so happy right now' },
+          data: { changelog: 'im so happy right now', hasBSP: true },
           validate: MapDto,
           token: u1Token
         });
@@ -2515,7 +2585,8 @@ describe('Maps', () => {
           status: 403,
           data: {
             changelog: 'PLEASE let me delete these runs',
-            resetLeaderboards: true
+            resetLeaderboards: true,
+            hasBSP: true
           },
           token: u1Token
         });
