@@ -543,7 +543,7 @@ export class MapsService {
 
     await this.checkMapCompression(bspFile);
 
-    this.checkMapFiles(bspFile, vmfFiles);
+    this.checkMapFiles(vmfFiles ?? [], bspFile);
 
     this.checkSuggestionsAndZones(
       dto.suggestions,
@@ -658,14 +658,19 @@ export class MapsService {
 
     const bspFile = await this.tryGetBspFromTempUploads(userID);
 
-    if (!bspFile) {
-      bspHash = map.currentVersion.bspHash;
-    } else {
+    this.checkMapFiles(vmfFiles, bspFile);
+
+    if (dto.hasBSP) {
+      if (!bspFile)
+        throw new BadRequestException(
+          'BSP was not uploaded to a pre-signed url'
+        );
+
       await this.checkMapCompression(bspFile);
 
-      this.checkMapFiles(bspFile, vmfFiles);
-
       bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+    } else {
+      bspHash = map.currentVersion.bspHash;
     }
 
     const hasVmf = vmfFiles?.length > 0;
@@ -981,9 +986,10 @@ export class MapsService {
     });
   }
 
-  private checkMapFiles(bspFile: File, vmfFiles: File[]) {
-    if (!bspFile.originalname.endsWith('.bsp'))
+  private checkMapFiles(vmfFiles: File[], bspFile?: File) {
+    if (bspFile && !bspFile.originalname.endsWith('.bsp')) {
       throw new BadRequestException('Bad BSP name');
+    }
 
     for (const file of vmfFiles ?? []) {
       if (!file.originalname.endsWith('.vmf'))

@@ -206,6 +206,7 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
 export interface CreateMapVersion
   extends Pick<MapVersion, 'changelog' | 'zones'> {
   resetLeaderboards?: boolean;
+  hasBSP: boolean;
 }
 
 export interface CreateMapVersionWithFiles {
