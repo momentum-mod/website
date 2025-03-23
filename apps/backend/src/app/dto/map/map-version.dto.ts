@@ -59,6 +59,12 @@ export class MapVersionDto implements MapVersion {
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
   readonly zones: MapZonesDto;
 
+  @Exclude()
+  readonly bspDownloadId: string;
+
+  @Exclude()
+  readonly vmfDownloadId: string;
+
   @ApiProperty({ type: String, description: 'URL to BSP in cloud storage' })
   @Expose()
   @IsOptional()
@@ -68,7 +74,7 @@ export class MapVersionDto implements MapVersion {
     // We store BSPs relative to their UUID and don't expose maps to submission
     // to users that don't have permission (see MapsService.getMapAndCheckReadAccces)
     // so this is a reasonably secure way to keep maps hidden from most users.
-    return `${CDN_URL}/${bspPath(this.id)}`;
+    return `${CDN_URL}/${bspPath(this.bspDownloadId)}`;
   }
 
   @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
@@ -87,11 +93,10 @@ export class MapVersionDto implements MapVersion {
   @IsString()
   @IsUrl({ require_tld: false })
   get vmfDownloadURL() {
-    return this.hasVmf ? `${CDN_URL}/${vmfsPath(this.id)}` : undefined;
+    return this.vmfDownloadId
+      ? `${CDN_URL}/${vmfsPath(this.vmfDownloadId)}`
+      : undefined;
   }
-
-  @Exclude()
-  readonly hasVmf: boolean;
 
   @IdProperty()
   readonly submitterID: number;
@@ -122,5 +127,5 @@ export class CreateMapVersionDto implements CreateMapVersion {
   })
   @IsBoolean()
   @IsOptional()
-  readonly hasBSP: boolean;
+  readonly hasBSP: boolean = false;
 }

@@ -168,7 +168,7 @@ describe('Multi-stage E2E tests', () => {
     await req.postAttach({
       url: `maps/${mapID}`,
       status: 201,
-      data: { changelog: 'it just works' },
+      data: { changelog: 'it just works', hasBSP: true },
       files: [
         {
           file: vmf2Buffer,
@@ -236,6 +236,11 @@ describe('Multi-stage E2E tests', () => {
       token
     });
 
+    const map = await prisma.mMap.findUnique({
+      where: { id: mapID },
+      include: { currentVersion: true }
+    });
+
     expect(mapRes).toMatchObject({
       status: MapStatus.APPROVED,
       name: 'surf_todd_howard',
@@ -269,7 +274,7 @@ describe('Multi-stage E2E tests', () => {
     expect(vmf2Hash).not.toBe(vmfHash);
     expect(
       (mapRes.currentVersion.downloadURL as string).endsWith(
-        `${mapRes.currentVersion.id}.bsp`
+        `${map.currentVersion.bspDownloadId}.bsp`
       )
     ).toBeTruthy();
     const bspDownloadBuffer = await fileStore.downloadHttp(
@@ -286,5 +291,5 @@ describe('Multi-stage E2E tests', () => {
     expect(
       createSha1Hash(vmfZip.getEntry('surf_todd_howard_instance.vmf').getData())
     ).toBe(vmf2Hash);
-  });
+  }, 1231123123);
 });

@@ -50,6 +50,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { randomUUID } from 'node:crypto';
 
 describe('Admin', () => {
   let app,
@@ -1454,14 +1455,16 @@ describe('Admin', () => {
                     versionNum: 1,
                     bspHash,
                     zones: ZonesStubString,
-                    hasVmf: true,
+                    bspDownloadId: randomUUID(),
+                    vmfDownloadId: randomUUID(),
                     submitterID: u1.id
                   },
                   {
                     versionNum: 2,
                     bspHash,
                     zones: ZonesStubString,
-                    hasVmf: true,
+                    bspDownloadId: randomUUID(),
+                    vmfDownloadId: randomUUID(),
                     submitterID: u1.id
                   }
                 ]
@@ -1473,9 +1476,10 @@ describe('Admin', () => {
           const vmfZip = new Zip();
           vmfZip.addFile('map.vmf', vmfBuffer);
           for (const i of [0, 1]) {
-            const id = map.versions[i].id;
-            await fileStore.add(`maps/${id}_VMFs.zip`, vmfZip.toBuffer());
-            await fileStore.add(`maps/${id}.bsp`, bspBuffer);
+            const { bspDownloadId: bspId, vmfDownloadId: vmfId } =
+              map.versions[i];
+            await fileStore.add(`maps/${vmfId}_VMFs.zip`, vmfZip.toBuffer());
+            await fileStore.add(`maps/${bspId}.bsp`, bspBuffer);
           }
 
           await prisma.leaderboard.createMany({
@@ -1509,17 +1513,19 @@ describe('Admin', () => {
             currentVersion: { bspHash, versionNum: 2 }
           });
 
-          const id1 = map.versions[0].id;
-          const id2 = map.versions[1].id;
-          expect(await fileStore.exists(`maps/${id1}.bsp`)).toBeFalsy();
-          expect(await fileStore.exists(`maps/${id1}_VMFs.zip`)).toBeFalsy();
+          const { bspDownloadId: bspId1, vmfDownloadId: vmfId1 } =
+            map.versions[0];
+          const { bspDownloadId: bspId2, vmfDownloadId: vmfId2 } =
+            map.versions[1];
+          expect(await fileStore.exists(`maps/${bspId1}.bsp`)).toBeFalsy();
+          expect(await fileStore.exists(`maps/${vmfId1}_VMFs.zip`)).toBeFalsy();
 
-          expect(createSha1Hash(await fileStore.get(`maps/${id2}.bsp`))).toBe(
-            bspHash
-          );
+          expect(
+            createSha1Hash(await fileStore.get(`maps/${bspId2}.bsp`))
+          ).toBe(bspHash);
           expect(
             createSha1Hash(
-              new Zip(await fileStore.get(`maps/${id2}_VMFs.zip`))
+              new Zip(await fileStore.get(`maps/${vmfId2}_VMFs.zip`))
                 .getEntry('map.vmf')
                 .getData()
             )
