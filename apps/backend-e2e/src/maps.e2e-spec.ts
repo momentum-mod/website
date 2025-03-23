@@ -929,7 +929,7 @@ describe('Maps', () => {
 
           expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
             'maps',
-            `${currentVersion.id}.bsp`
+            `${createdMap.currentVersion.bspDownloadId}.bsp`
           ]);
 
           const downloadBuffer = await fileStore.downloadHttp(
@@ -946,7 +946,7 @@ describe('Maps', () => {
 
           expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
             'maps',
-            `${currentVersion.id}_VMFs.zip`
+            `${createdMap.currentVersion.vmfDownloadId}_VMFs.zip`
           ]);
 
           const downloadBuffer = await fileStore.downloadHttp(
@@ -1927,6 +1927,11 @@ describe('Maps', () => {
       });
 
       it('should upload the BSP and VMF files', async () => {
+        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
         const res = await req.postAttach({
@@ -1942,11 +1947,18 @@ describe('Maps', () => {
         });
 
         const currentVersion = res.body.currentVersion;
+        const newMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
 
         expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
           'maps',
-          `${currentVersion.id}.bsp`
+          `${newMap.currentVersion.bspDownloadId}.bsp`
         ]);
+        expect(newMap.currentVersion.bspDownloadId).not.toEqual(
+          oldVersion.bspDownloadId
+        );
 
         const bspDownloadBuffer = await fileStore.downloadHttp(
           currentVersion.downloadURL
@@ -1958,8 +1970,11 @@ describe('Maps', () => {
 
         expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
           'maps',
-          `${currentVersion.id}_VMFs.zip`
+          `${newMap.currentVersion.vmfDownloadId}_VMFs.zip`
         ]);
+        expect(newMap.currentVersion.vmfDownloadId).not.toEqual(
+          oldVersion.vmfDownloadId
+        );
 
         const vmfDownloadBuffer = await fileStore.downloadHttp(
           currentVersion.vmfDownloadURL
@@ -2245,7 +2260,12 @@ describe('Maps', () => {
         });
       });
 
-      it('should succed if only the VMF file is provided', async () => {
+      it('should succeed if only the VMF file is provided', async () => {
+        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
@@ -2253,9 +2273,22 @@ describe('Maps', () => {
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
+
+        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
+        expect(oldVersion.vmfDownloadId).not.toEqual(newVersion.vmfDownloadId);
       });
 
-      it('should succeed if VMF file is missing', async () => {
+      it('should succeed if only the BSP file is provided', async () => {
+        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
         await req.postAttach({
@@ -2264,16 +2297,40 @@ describe('Maps', () => {
           data: { changelog: 'who needs tests anyway', hasBSP: true },
           token: u1Token
         });
+
+        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(oldVersion.bspDownloadId).not.toEqual(newVersion.bspDownloadId);
+        expect(newVersion.vmfDownloadId).toBeFalsy();
       });
 
-      it('should succed if BSP file is missing', async () => {
+      it('should succeed if only zones are provided', async () => {
+        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 201,
-          data: { changelog: 'who needs tests anyway' },
-          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          data: {
+            changelog: 'Mlem',
+            zones: structuredClone(ZonesStub)
+          },
+          validate: MapDto,
           token: u1Token
         });
+
+        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
+        expect(newVersion.vmfDownloadId).toEqual(newVersion.vmfDownloadId);
       });
 
       it('should 400 if VMF file is invalid', async () => {
@@ -2384,6 +2441,9 @@ describe('Maps', () => {
 
         expect(oldMap.currentVersion.bspHash).toEqual(
           newMap.currentVersion.bspHash
+        );
+        expect(oldMap.currentVersion.bspDownloadId).toEqual(
+          newMap.currentVersion.bspDownloadId
         );
       });
 

@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -208,15 +208,16 @@ model MMap {
 model MapVersion {
   id String @id @default(uuid()) @db.Uuid // BSP file stored relative to this
 
-  versionNum Int     @db.SmallInt
-  changelog  String?
-  bspHash    String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
-  zoneHash   String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
-  hasVmf     Boolean @default(false)
+  versionNum    Int     @db.SmallInt
+  changelog     String?
+  bspHash       String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  zoneHash      String? @db.Char(40) // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  bspDownloadId String? @db.Uuid // Nullable as we set to null if we delete files if map gets "deleted" (disabled)
+  vmfDownloadId String? @db.Uuid // Nullable as map may not have vmf
   // Stringified JSON of MapZones model
   // We don't gain anything from storing as jsonb, text is (presumably) faster
   // and preserves whitespace so zoneHash is reliable.
-  zones      String?
+  zones         String?
 
   submitterID Int?
   submitter   User? @relation(fields: [submitterID], references: [id])

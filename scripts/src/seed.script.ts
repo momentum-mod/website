@@ -4,7 +4,7 @@
  * This script is my evil little JS monster, and I love it very much.
  */
 
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -441,7 +441,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
         return {
           versionNum: i + 1,
           bspHash: mapHash,
-          hasVmf: false, // Could add a VMF if we really want but leaving for now
+          bspDownloadId: randomUUID(),
+          vmfDownloadId: null, // Could add a VMF if we really want but leaving for now
           zones,
           zoneHash: createHash('sha1').update(zones).digest('hex'),
           changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
@@ -668,7 +669,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       await s3.send(
         new PutObjectCommand({
           Bucket: s3BucketName,
-          Key: bspPath(lastVersion.id),
+          Key: bspPath(lastVersion.bspDownloadId),
           Body: mapBuffer
         })
       );
@@ -1070,7 +1071,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       delete map.info.mapID;
 
       map.currentVersion.downloadURL = `${cdnUrl}/${bspPath(
-        map.currentVersion.id
+        map.currentVersion.bspDownloadId
       )}`;
 
       map.images = map.images.map((image) => ({

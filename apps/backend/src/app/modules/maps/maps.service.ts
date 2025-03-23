@@ -88,7 +88,7 @@ import { MapImageService } from './map-image.service';
 import * as LeaderboardHandler from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { MapWebhooksService } from './map-webhooks.service';
 
 @Injectable()
@@ -586,8 +586,9 @@ export class MapsService {
               : undefined;
 
             return this.uploadMapVersionFiles(
-              map.currentVersion.id,
+              map.currentVersion.bspDownloadId,
               bspFile,
+              map.currentVersion.vmfDownloadId,
               zippedVmf
             );
           })()
@@ -656,7 +657,9 @@ export class MapsService {
 
     let bspHash: string;
 
-    const bspFile = await this.tryGetBspFromTempUploads(userID);
+    const bspFile = dto.hasBSP
+      ? await this.tryGetBspFromTempUploads(userID)
+      : null;
 
     this.checkMapFiles(vmfFiles, bspFile);
 
@@ -675,7 +678,7 @@ export class MapsService {
 
     const hasVmf = vmfFiles?.length > 0;
 
-    if (!bspFile && !hasVmf && !dto.zones) {
+    if (!dto.hasBSP && !hasVmf && !dto.zones) {
       throw new BadRequestException(
         'No files or zones provided for map version'
       );
@@ -701,10 +704,15 @@ export class MapsService {
           data: {
             versionNum: newVersionNum,
             submitter: { connect: { id: userID } },
-            hasVmf,
             zones: zonesStr,
             bspHash,
             zoneHash: createHash('sha1').update(zonesStr).digest('hex'),
+            bspDownloadId: dto.hasBSP ? randomUUID() : oldVersion.bspDownloadId,
+            vmfDownloadId: hasVmf
+              ? randomUUID()
+              : dto.hasBSP
+                ? undefined
+                : oldVersion.vmfDownloadId,
             changelog: dto.changelog,
             mmap: { connect: { id: mapID } }
           }
@@ -744,8 +752,9 @@ export class MapsService {
               : undefined;
 
             await this.uploadMapVersionFiles(
-              newVersion.id,
-              bspFile instanceof Error ? undefined : bspFile,
+              newVersion.bspDownloadId,
+              bspFile,
+              newVersion.vmfDownloadId,
               zippedVmf
             );
           })()
@@ -845,8 +854,9 @@ export class MapsService {
             bspHash,
             zoneHash,
             zones,
-            hasVmf,
-            submitter: { connect: { id: submitterID } }
+            submitter: { connect: { id: submitterID } },
+            bspDownloadId: randomUUID(),
+            vmfDownloadId: hasVmf ? randomUUID() : undefined
           }
         },
         submission: {
@@ -1023,8 +1033,9 @@ export class MapsService {
   }
 
   private async uploadMapVersionFiles(
-    uuid: string,
+    bspId: string,
     bspFile?: File,
+    vmfId?: string,
     vmfZip?: Buffer
   ) {
     const storeFns: Promise<FileStoreFile | boolean>[] = [];
@@ -1033,18 +1044,18 @@ export class MapsService {
       if (bspFile.path) {
         storeFns.push(
           this.fileStoreService
-            .copyFile(bspFile.path, bspPath(uuid))
+            .copyFile(bspFile.path, bspPath(bspId))
             .then(() => this.fileStoreService.deleteFile(bspFile.path))
         );
       } else {
         storeFns.push(
-          this.fileStoreService.storeFile(bspFile.buffer, bspPath(uuid))
+          this.fileStoreService.storeFile(bspFile.buffer, bspPath(bspId))
         );
       }
     }
 
     if (vmfZip)
-      storeFns.push(this.fileStoreService.storeFile(vmfZip, vmfsPath(uuid)));
+      storeFns.push(this.fileStoreService.storeFile(vmfZip, vmfsPath(vmfId)));
 
     return Promise.all(storeFns);
   }
@@ -1601,7 +1612,12 @@ export class MapsService {
     await parallel(
       this.fileStoreService
         .deleteFiles(
-          versions.slice(0, -1).flatMap((v) => [bspPath(v.id), vmfsPath(v.id)])
+          versions
+            .slice(0, -1)
+            .flatMap((v) => [
+              bspPath(v.bspDownloadId),
+              vmfsPath(v.vmfDownloadId)
+            ])
         )
         .catch((error) => {
           error.message = `Failed to delete map version file for ${map.name}: ${error.message}`;
@@ -1637,6 +1653,8 @@ export class MapsService {
         versions: {
           create: {
             versionNum: map.versions.at(-1).versionNum + 1,
+            bspDownloadId: null,
+            vmfDownloadId: null,
             bspHash: null,
             submitter: { connect: { id: adminID } },
             zones: null
@@ -1657,7 +1675,10 @@ export class MapsService {
         this.fileStoreService.deleteFile(bspPath(map.name)),
         this.fileStoreService.deleteFile(vmfsPath(map.name)),
         this.fileStoreService.deleteFiles(
-          map.versions.flatMap((v) => [bspPath(v.id), vmfsPath(v.id)])
+          map.versions.flatMap((v) => [
+            bspPath(v.bspDownloadId),
+            vmfsPath(v.vmfDownloadId)
+          ])
         ),
         ...map.images.map((imageID) =>
           this.mapImageService.deleteStoredMapImage(imageID)

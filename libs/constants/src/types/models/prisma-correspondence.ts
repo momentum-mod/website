@@ -81,7 +81,7 @@ assertTypeCorrespondence<Follow, PFollow>();
 
 import { MMap, MapImage } from './models';
 import { MMap as PMap } from '@prisma/client';
-assertTypeCorrespondence<MMap, PMap, { hasVmf: OmitMe; images: MapImage[] }>();
+assertTypeCorrespondence<MMap, PMap, { images: MapImage[] }>();
 
 import { MapInfo } from './models';
 import { MapInfo as PMapInfo } from '@prisma/client';
@@ -132,7 +132,7 @@ import { MapVersion as PMapVersion } from '@prisma/client';
 assertTypeCorrespondence<
   MapVersion,
   PMapVersion,
-  { hasVmf: OmitMe; mapID: OmitMe }
+  { bspDownloadId: OmitMe; vmfDownloadId: OmitMe; mapID: OmitMe }
 >();
 
 //#endregion
