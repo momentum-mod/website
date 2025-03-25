@@ -4,6 +4,7 @@ import {
   Leaderboard,
   LeaderboardType,
   MapReview,
+  MapTag,
   MMap,
   TrackType
 } from '@momentum/constants';
@@ -13,7 +14,12 @@ export type GroupedMapLeaderboards = Array<GroupedMapLeaderboard>;
 export type GroupedMapLeaderboard = {
   gamemode: Gamemode;
   gamemodeName: string;
-  bonuses?: Array<{ num: number; tier: number; type: LeaderboardType }>;
+  bonuses?: Array<{
+    num: number;
+    tier: number;
+    type: LeaderboardType;
+    tags: MapTag[];
+  }>;
   reviews?: MapReview[];
   totalRuns?: number;
   allHidden: boolean;
@@ -21,6 +27,7 @@ export type GroupedMapLeaderboard = {
 } & RequireAllOrNone<{
   tier: number;
   type: LeaderboardType;
+  tags: MapTag[];
   linear: boolean;
   stages: number;
 }>;
@@ -42,6 +49,7 @@ export function groupMapLeaderboards(
       entry.tier = lb.tier;
       entry.type = lb.type;
       entry.linear = lb.linear;
+      entry.tags = lb.tags;
     } else if (lb.trackType === TrackType.STAGE) {
       if (!entry.stages) {
         entry.stages = 1;
@@ -54,7 +62,8 @@ export function groupMapLeaderboards(
       entry.bonuses.push({
         num: lb.trackNum,
         tier: lb.tier,
-        type: lb.type
+        type: lb.type,
+        tags: lb.tags
       });
     }
   }
