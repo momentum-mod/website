@@ -114,7 +114,7 @@ export function validateSuggestions(
       );
     }
 
-    if ('tier' in sugg) {
+    if ('tier' in sugg && type !== SuggestionType.REVIEW) {
       if (
         type === SuggestionType.APPROVAL &&
         (sugg as MapSubmissionApproval).type === LeaderboardType.HIDDEN
@@ -165,14 +165,12 @@ export function validateSuggestions(
         );
     }
 
-    if (sugg.tags) {
-      for (const tag of sugg.tags) {
-        const validTags = MapTags.get(gm) ?? [];
-        if (!validTags.includes(tag)) {
-          throw new SuggestionValidationError(
-            `Invalid tag ${tag} for ${leaderboardName(tt, tn, gm)}`
-          );
-        }
+    for (const tag of sugg.tags ?? []) {
+      const validTags = MapTags.get(gm) ?? [];
+      if (!validTags.includes(tag)) {
+        throw new SuggestionValidationError(
+          `Invalid tag ${tag} for ${leaderboardName(tt, tn, gm)}`
+        );
       }
     }
   }
