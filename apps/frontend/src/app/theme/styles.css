@@ -90,7 +90,7 @@
   .card-title {
     @apply font-display;
     font-weight: 700;
-    opacity: 0.875;
+    opacity: 0.9;
     line-height: 1;
     filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
       drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
@@ -202,8 +202,8 @@
 
   .btn-red {
     background: linear-gradient(
-      rgb(var(--red-500)),
-      color-mix(in srgb, rgb(var(--red-500)), rgb(var(--red-600)))
+      color-mix(in srgb, rgb(var(--red-400)), rgb(var(--red-500))),
+      rgb(var(--red-500))
     );
   }
 
@@ -518,12 +518,12 @@
   }
 
   .text-shadow {
-    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
   }
 
   .text-shadow-strong {
     text-shadow:
-      0 1px 6px rgba(0, 0, 0, 0.15),
-      0 2px 1px rgba(0, 0, 0, 0.2);
+      0 1px 1px rgba(0, 0, 0, 0.4),
+      0 1px 4px rgba(0, 0, 0, 0.3);
   }
 }
