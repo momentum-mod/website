@@ -5,6 +5,8 @@ import {
   LeaderboardType,
   MapLeaderboardGetQuery,
   MapStatus,
+  MapTag,
+  mapTagEnglishName,
   MMap,
   PagedResponse,
   TrackType
@@ -80,6 +82,7 @@ export class MapLeaderboardComponent implements OnChanges {
     { label: 'Around', type: LeaderboardFilterType.AROUND },
     { label: 'Friend', type: LeaderboardFilterType.FRIENDS }
   ];
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   @Input() map: MMap;
   protected leaderboards: GroupedMapLeaderboards;
@@ -90,6 +93,7 @@ export class MapLeaderboardComponent implements OnChanges {
   // support for scrolling, jump-tos, and filtering. For now it's just in sync
   // with the game version. We'll do fancier stuff at 0.11.0.
   protected activeType: LeaderboardFilterType;
+  protected activeTags: MapTag[];
 
   protected runs: LeaderboardRun[] = [];
   protected readonly load = new Subject<void>();
@@ -97,15 +101,26 @@ export class MapLeaderboardComponent implements OnChanges {
 
   protected showHiddenLeaderboards = false;
 
+  updateTags() {
+    this.activeTags =
+      this.activeTrack.type === TrackType.BONUS
+        ? this.activeMode.bonuses.find(
+            ({ num }) => num === this.activeTrack.num
+          )?.tags
+        : this.activeMode.tags;
+  }
+
   selectMode(modeIndex: number) {
     this.activeModeIndex = modeIndex;
     this.activeMode = this.leaderboards[modeIndex];
+    this.updateTags();
     this.load.next();
   }
 
   selectTrack(type: TrackType, num: number) {
     this.activeTrack.type = type;
     this.activeTrack.num = num;
+    this.updateTags();
     this.load.next();
   }
 
@@ -147,6 +162,7 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeType = LeaderboardFilterType.TOP10;
     this.activeTrack.type = TrackType.MAIN;
     this.activeTrack.num = 1;
+    this.activeTags = this.activeMode.tags;
 
     this.load.next();
   }

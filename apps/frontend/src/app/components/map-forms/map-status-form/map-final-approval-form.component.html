@@ -44,6 +44,36 @@
                   }
                 </div>
 
+                <p class="text-sm font-medium text-gray-200">Submitter Tags</p>
+                <div class="-mt-1 flex flex-wrap gap-1.5">
+                  @for (tag of leaderboard.subSugg?.tags; track $index) {
+                    <button
+                      (click)="leaderboard.tags.push(tag)"
+                      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 p-2 transition-colors hover:bg-opacity-60"
+                      type="button"
+                    >
+                      <p class="pointer-events-none font-medium text-gray-50">{{ mapTagEnglishName(tag) }}</p>
+                    </button>
+                  } @empty {
+                    <span class="font-medium">N/A</span>
+                  }
+                </div>
+                <p class="text-sm font-medium text-gray-200">Reviewer Tags</p>
+                <div class="-mt-1 mb-2 flex flex-wrap gap-1.5">
+                  @for (tuple of leaderboard.reviewTags; track $index) {
+                    <button
+                      (click)="leaderboard.tags.push(tuple[0])"
+                      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 p-2 transition-colors hover:bg-opacity-60"
+                      type="button"
+                    >
+                      <p class="pointer-events-none font-medium text-gray-50">{{ mapTagEnglishName(tuple[0]) }}</p>
+                      <p class="pointer-events-none text-sm font-medium text-gray-200">({{ tuple[1] }})</p>
+                    </button>
+                  } @empty {
+                    <span class="font-medium">N/A</span>
+                  }
+                </div>
+
                 <div class="flex items-center gap-4">
                   <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
                   <input
@@ -69,6 +99,16 @@
                     [disabled]="disabled"
                     (onChange)="onChange(value)"
                     appendTo="body"
+                  />
+
+                  <p>Tags</p>
+                  <m-chips
+                    class="flex-grow"
+                    [chips]="MapTags.get(leaderboard.gamemode)"
+                    [nameFn]="mapTagEnglishName"
+                    [ngModel]="leaderboard.tags"
+                    (ngModelChange)="updateTags(leaderboard, $event)"
+                    typeName="Tags"
                   />
                 </div>
               </div>

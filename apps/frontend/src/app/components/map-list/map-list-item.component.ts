@@ -51,6 +51,7 @@ export class MapListItemComponent implements OnChanges {
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MapStatus = MapStatus;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
   @Input() isSubmission = false;
@@ -64,6 +65,7 @@ export class MapListItemComponent implements OnChanges {
   name: string;
   prefix: string;
   tierStyle: string;
+  tags: MapTag[];
 
   constructor(
     protected readonly localUserService: LocalUserService,
