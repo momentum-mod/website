@@ -11,3 +11,5 @@ apps/frontend/src/app/theme/shared_styling
 
 /.nx/workspace-data
 /migrations.json
+
+maptags-poeditor.json
