@@ -18,7 +18,7 @@
     }
     @if (isReleasedMap(map) && !isAdminPage) {
       @if (map.currentModeLeaderboards; as lb) {
-        <div class="m-2 ml-auto mt-auto flex flex-wrap gap-2">
+        <div class="m-2 mb-auto mr-auto flex flex-wrap gap-2">
           <!-- prettier-ignore -->
           <div
           class="flex h-10 min-w-[2.5rem] rounded border border-white border-opacity-10 px-2 backdrop-blur-md shadow"
@@ -35,23 +35,32 @@
         </div>
           @if (lb.bonuses?.length > 0) {
             <p
-              class="text-shadow-strong flex h-10 items-center rounded border border-white border-opacity-10 bg-gray-300 bg-opacity-25 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
+              class="text-shadow-strong flex h-10 items-center rounded border border-white border-opacity-10 bg-gray-400 bg-opacity-50 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
             >
               {{ lb.bonuses?.length | plural: 'bonus' : 'bonuses' }}
             </p>
           }
           @if (lb.type === LeaderboardType.UNRANKED) {
             <p
-              class="text-shadow-strong flex h-10 items-center rounded border border-white border-opacity-10 bg-gray-300 bg-opacity-25 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
+              class="text-shadow-strong flex h-10 items-center rounded border border-white border-opacity-10 bg-gray-400 bg-opacity-50 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
               mTooltip="The leaderboard for this gamemode does not provide ranked points."
             >
               Unranked
             </p>
           }
         </div>
+        <div class="m-2 mr-auto mt-auto flex flex-wrap gap-2">
+          @for (tag of lb.tags; track $index) {
+            <p
+              class="text-shadow flex h-8 items-center rounded border border-white border-opacity-10 bg-blue-500 bg-opacity-75 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
+            >
+              {{ mapTagEnglishName(tag) }}
+            </p>
+          }
+        </div>
       } @else {
         <div
-          class="m-2 ml-auto mt-auto flex h-10 flex-wrap gap-2 rounded border border-white border-opacity-10 bg-gray-500 bg-opacity-50 p-1 shadow backdrop-blur-md"
+          class="m-2 mb-auto mr-auto flex h-10 flex-wrap gap-2 rounded border border-white border-opacity-10 bg-gray-500 bg-opacity-50 p-1 shadow backdrop-blur-md"
         >
           @for (leaderboard of map.groupedLeaderboards; track $index) {
             @if (!leaderboard.allHidden) {

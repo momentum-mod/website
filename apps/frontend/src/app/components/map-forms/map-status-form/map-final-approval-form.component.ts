@@ -3,6 +3,9 @@ import {
   GamemodeInfo,
   LeaderboardType,
   MapSubmissionApproval,
+  MapTag,
+  mapTagEnglishName,
+  MapTags,
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
@@ -22,6 +25,7 @@ import { Select } from 'primeng/select';
 import { KeyValuePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PluralPipe } from '../../../pipes/plural.pipe';
+import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
   selector: 'm-map-final-approval-form',
@@ -36,7 +40,8 @@ import { PluralPipe } from '../../../pipes/plural.pipe';
     NgClass,
     IconComponent,
     KeyValuePipe,
-    PluralPipe
+    PluralPipe,
+    ChipsComponent
   ],
   providers: [
     {
@@ -56,6 +61,8 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   ];
   protected readonly TTName = TrackTypeName;
   protected readonly GamemodeInfo = GamemodeInfo;
+  protected readonly MapTags = MapTags;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
   protected readonly TierChartOptions: ChartOptions;
   protected readonly RatingChartOptions: ChartOptions;
 
@@ -65,12 +72,13 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
       .flatMap(({ leaderboards }) =>
         leaderboards
           .filter(({ trackType }) => trackType !== TrackType.STAGE)
-          .map(({ gamemode, trackType, trackNum, tier, type }) => ({
+          .map(({ gamemode, trackType, trackNum, tier, type, tags }) => ({
             gamemode,
             trackType,
             trackNum,
             tier,
-            type
+            type,
+            tags
           }))
       )
       .toArray();
@@ -92,6 +100,11 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
 
   writeValue(): void {
     // Doesn't have an actual value as value, just a getter.
+  }
+
+  updateTags(leaderboard: MapSubmissionApproval, tags: MapTag[]) {
+    leaderboard.tags = tags;
+    this.onChange(this.value);
   }
 
   setDisabledState(isDisabled: boolean) {

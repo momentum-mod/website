@@ -51,30 +51,43 @@ export class MapReviewFormComponent {
   @Output() public readonly reviewPosted = new EventEmitter<void>();
   @Output() public readonly canceledEditing = new EventEmitter<void>();
 
-  public readonly form = new FormGroup({
-    mainText: new FormControl<string>('', {
-      validators: [Validators.required, Validators.maxLength(MAX_REVIEW_LENGTH)]
-    }),
-    needsResolving: new FormControl<boolean>(false),
-    suggestions: new FormControl<MapReviewSuggestion[]>(null, {
-      validators: [
-        // FormGroup is constructed at component class ctor but map is undefined
-        // at that point, and can change over time, so use pass a closure to
-        // validator that fetches the current map zones on the class whenever
-        // validator is run.
-        suggestionsValidator(
-          () => this.map?.currentVersion?.zones,
-          SuggestionType.REVIEW
+  public readonly form = new FormGroup(
+    {
+      mainText: new FormControl<string>('', {
+        validators: [
+          Validators.required,
+          Validators.maxLength(MAX_REVIEW_LENGTH)
+        ]
+      }),
+      needsResolving: new FormControl<boolean>(false),
+      suggestions: new FormControl<MapReviewSuggestion[]>(null, {
+        validators: [
+          // FormGroup is constructed at component class ctor but map is undefined
+          // at that point, and can change over time, so use pass a closure to
+          // validator that fetches the current map zones on the class whenever
+          // validator is run.
+          suggestionsValidator(
+            () => this.map?.currentVersion?.zones,
+            SuggestionType.REVIEW
+          )
+        ]
+      }),
+      images: new FormControl<File[]>(null, {
+        validators: [
+          FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
+          FileValidators.extension(['png', 'jpg', 'jpeg'])
+        ]
+      })
+    },
+    (group: FormGroup) =>
+      Object.entries(group?.controls)
+        .filter(([k]) => ['mainText', 'suggestions'].includes(k))
+        .some(([, { dirty, value }]) =>
+          dirty && Array.isArray(value) ? value.length > 0 : value != null
         )
-      ]
-    }),
-    images: new FormControl<File[]>(null, {
-      validators: [
-        FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
-        FileValidators.extension(['png', 'jpg', 'jpeg'])
-      ]
-    })
-  });
+        ? null
+        : { noChanges: true }
+  );
 
   get mainText() {
     return this.form.get('mainText') as FormControl<string>;
@@ -105,6 +118,15 @@ export class MapReviewFormComponent {
     this.loading = true;
     const suggestions =
       this.suggestions.value?.length > 0 ? this.suggestions.value : undefined;
+
+    // Ignore any empty suggestions
+    if (suggestions) {
+      suggestions.forEach(({ tier, gameplayRating, tags }, i) => {
+        if (tier == null && gameplayRating == null && !tags?.length) {
+          suggestions.splice(i, 1);
+        }
+      });
+    }
 
     const req = this.editing
       ? this.mapsService.updateMapReview(this.reviewID, {

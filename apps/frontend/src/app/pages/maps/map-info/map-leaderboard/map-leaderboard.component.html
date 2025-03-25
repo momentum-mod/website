@@ -38,13 +38,13 @@
       }"
     >
       <p
-        class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+        class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
       >
         Map
       </p>
       @if (activeMode.tier) {
         <p
-          class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-30 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+          class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
           [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + activeMode.tier + ') / 0.7)' }"
         >
           T{{ activeMode.tier }}
@@ -62,7 +62,7 @@
         class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
       >
         <p
-          class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 transition-all"
+          class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 transition-all"
         >
           Stage
         </p>
@@ -70,7 +70,7 @@
           @for (stage of activeMode.stages | range; track $index) {
             <button
               type="button"
-              class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-30 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+              class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
               [ngClass]="{
                 '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
                   activeTrack.type === TrackType.STAGE && activeTrack.num === stage + 1,
@@ -95,13 +95,13 @@
         }"
       >
         <p
-          class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-30 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+          class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
         >
           Bonus {{ bonus.num }}
         </p>
         @if (bonus.tier) {
           <p
-            class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-30 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+            class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
             [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + bonus.tier + ') / 0.7)' }"
           >
             T{{ bonus.tier }}
@@ -128,6 +128,20 @@
 
   @if (loading) {
     <m-spinner />
+  }
+
+  @if (map.status === MapStatus.APPROVED && activeTags.length > 0) {
+    <p class="text-lg">
+      <span class="flex flex-wrap gap-1.5">
+        @for (tag of activeTags; track $index) {
+          <p
+            class="text-shadow flex h-8 items-center rounded border border-white border-opacity-10 bg-blue-500 bg-opacity-75 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
+          >
+            {{ mapTagEnglishName(tag) }}
+          </p>
+        }
+      </span>
+    </p>
   }
   @if (!loading && runs.length === 0) {
     <h4 class="text-center">No runs found</h4>

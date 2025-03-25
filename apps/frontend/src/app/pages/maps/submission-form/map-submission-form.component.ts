@@ -270,14 +270,16 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
           trackType: TrackType.MAIN,
           trackNum: 1,
           type: LeaderboardType.RANKED,
-          tier: 1
+          tier: 1,
+          tags: []
         },
         ...(this.zones.tracks.bonuses?.map((_, i) => ({
           gamemode,
           trackType: TrackType.BONUS,
           trackNum: i + 1,
           type: LeaderboardType.RANKED as LeaderboardType.RANKED,
-          tier: 1
+          tier: 1,
+          tags: []
         })) ?? [])
       ])
     );

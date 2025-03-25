@@ -13,7 +13,8 @@ import {
   MapSubmissionType,
   MAX_REVIEW_COMMENT_LENGTH,
   MMap,
-  TrackType
+  TrackType,
+  mapTagEnglishName
 } from '@momentum/constants';
 import { UserComponent } from '../user/user.component';
 import {
@@ -72,6 +73,7 @@ export class MapReviewComponent {
   protected readonly TrackType = TrackType;
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   private _review: MapReview;
   get review() {

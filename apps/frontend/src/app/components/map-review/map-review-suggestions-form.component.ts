@@ -9,6 +9,9 @@ import {
   GamemodeInfo,
   IncompatibleGamemodes,
   MapReviewSuggestion,
+  MapTag,
+  mapTagEnglishName,
+  MapTags,
   MMap,
   TrackType
 } from '@momentum/constants';
@@ -17,6 +20,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { groupMapLeaderboards } from '../../util';
 import { Select } from 'primeng/select';
 import { IconComponent } from '../../icons';
+import { ChipsComponent } from '../chips/chips.component';
 
 @Component({
   selector: 'm-map-review-suggestions-form',
@@ -28,7 +32,7 @@ import { IconComponent } from '../../icons';
       multi: true
     }
   ],
-  imports: [DropdownModule, Select, FormsModule, IconComponent]
+  imports: [DropdownModule, Select, FormsModule, IconComponent, ChipsComponent]
 })
 export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected readonly TrackType = TrackType;
@@ -36,6 +40,8 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
     { type: TrackType.MAIN, label: 'Main' },
     { type: TrackType.BONUS, label: 'Bonus' }
   ];
+  protected readonly MapTags = MapTags;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   protected value: MapReviewSuggestion[] = [];
   protected disabled = false;
@@ -118,6 +124,11 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
 
     this.onChange(this.value);
     this.onTouched();
+  }
+
+  updateTags(item: MapReviewSuggestion, tags: MapTag[]) {
+    item.tags = tags;
+    this.onChange(this.value);
   }
 
   writeValue(value: MapReviewSuggestion[] | null): void {

@@ -9,6 +9,9 @@ import {
   GamemodeInfo,
   LeaderboardType,
   MapSubmissionSuggestion,
+  MapTag,
+  mapTagEnglishName,
+  MapTags,
   MapZones,
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
@@ -16,6 +19,8 @@ import {
 import * as Enum from '@momentum/enum';
 import { NgClass } from '@angular/common';
 import { Select } from 'primeng/select';
+import { DropdownModule } from 'primeng/dropdown';
+import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
   selector: 'm-map-leaderboards-selection',
@@ -27,11 +32,10 @@ import { Select } from 'primeng/select';
       multi: true
     }
   ],
-  imports: [NgClass, Select, FormsModule]
+  imports: [NgClass, Select, FormsModule, DropdownModule, ChipsComponent]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   public readonly LeaderboardType = LeaderboardType;
-
   protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({
     gamemode,
     label: GamemodeInfo.get(gamemode).name
@@ -42,8 +46,10 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     { type: TrackType.MAIN, label: 'Main' },
     { type: TrackType.BONUS, label: 'Bonus' }
   ];
+  protected readonly MapTags = MapTags;
   protected readonly MAX_MAP_SUGGESTION_COMMENT_LENGTH =
     MAX_MAP_SUGGESTION_COMMENT_LENGTH;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
 
   protected value: MapSubmissionSuggestion[] = [];
   protected disabled = false;
@@ -94,18 +100,12 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       trackType,
       tier: 1,
       trackNum,
-      type: LeaderboardType.RANKED
+      type: LeaderboardType.RANKED,
+      tags: []
     });
 
     this.onChange(this.value);
     this.onTouched();
-  }
-
-  setComment(item: MapSubmissionSuggestion, event: string) {
-    if (event?.length > 0) {
-      item.comment = event;
-    }
-    this.onChange(this.value);
   }
 
   removeItem(index: number) {
@@ -117,13 +117,19 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
+  updateRankedCheckbox(item: MapSubmissionSuggestion, isRanked: boolean) {
+    item.type = isRanked ? LeaderboardType.RANKED : LeaderboardType.UNRANKED;
+    this.onChange(this.value);
+  }
+
+  updateTags(item: MapSubmissionSuggestion, tags: MapTag[]) {
+    item.tags = tags;
+    this.onChange(this.value);
+  }
+
   writeValue(value: MapSubmissionSuggestion[] | null): void {
     if (!value) {
-      // Default value with empty gamemode/track selections whilst component
-      // is default before zone init
-      this.value = [
-        { trackNum: 1, type: LeaderboardType.UNRANKED, tier: 1 } as any
-      ];
+      this.value = [];
     } else {
       this.value = value;
     }
@@ -148,10 +154,5 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   onTouched = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
-  }
-
-  updateRankedCheckbox(item: MapSubmissionSuggestion, isRanked: boolean) {
-    item.type = isRanked ? LeaderboardType.RANKED : LeaderboardType.UNRANKED;
-    this.onChange(this.value);
   }
 }
