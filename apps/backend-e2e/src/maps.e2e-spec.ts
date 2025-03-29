@@ -3369,7 +3369,7 @@ describe('Maps', () => {
             token
           });
 
-          await rxjs.firstValueFrom(httpPostObs.pipe(rxjs.take(2)));
+          await rxjs.lastValueFrom(httpPostObs.pipe(rxjs.take(2)));
           expect(httpPostMock).toHaveBeenCalledTimes(2);
 
           const requestUrls = httpPostMock.mock.calls.map((call) => call[0]);
@@ -3388,6 +3388,74 @@ describe('Maps', () => {
               .sort()
               .map((a) => `**${a}**`)
               .join(', ')}`
+          );
+        });
+
+        it('should execute webhooks with different message for unranked gamemodes', async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            status: MapStatus.FINAL_APPROVAL,
+            credits: {
+              create: {
+                type: MapCreditType.AUTHOR,
+                user: { connect: { id: user.id } }
+              }
+            },
+            submission: {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date().toJSON()
+                  }
+                ],
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.RJ,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.CONC,
+                    tier: 1,
+                    type: LeaderboardType.UNRANKED
+                  },
+                  {
+                    trackType: TrackType.BONUS,
+                    trackNum: 1,
+                    gamemode: Gamemode.DEFRAG_CPM,
+                    tier: 1,
+                    type: LeaderboardType.UNRANKED
+                  }
+                ],
+                placeholders: [
+                  { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
+                ]
+              }
+            }
+          });
+
+          void req.patch({
+            url: `maps/${map.id}`,
+            status: 204,
+            body: {
+              status: MapStatus.PUBLIC_TESTING
+            },
+            token
+          });
+
+          await rxjs.lastValueFrom(httpPostObs.pipe(rxjs.take(2)));
+          expect(httpPostMock).toHaveBeenCalledTimes(2);
+
+          const requestBodies = httpPostMock.mock.calls.map((call) => call[1]);
+
+          expect(requestBodies[0].content).not.toEqual(
+            requestBodies[1].content
           );
         });
       });

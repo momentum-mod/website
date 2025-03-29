@@ -52,8 +52,16 @@ export class MapWebhooksService {
       ({ trackType }) => trackType === TrackType.MAIN
     );
 
-    const mainTrackGamemodes = new Set(
-      mainTrackSuggestions.map(({ gamemode }) => gamemode)
+    const mainTrackRankedGamemodes = new Set(
+      mainTrackSuggestions
+        .filter(({ type }) => type === LeaderboardType.RANKED)
+        .map(({ gamemode }) => gamemode)
+    );
+
+    const mainTrackUnrankedGamemodes = new Set(
+      mainTrackSuggestions
+        .filter(({ type }) => type === LeaderboardType.UNRANKED)
+        .map(({ gamemode }) => gamemode)
     );
 
     const mapAuthors = [
@@ -66,13 +74,22 @@ export class MapWebhooksService {
     ].sort();
 
     const webhookBody = this.createMapUpdateWebhookBody(
-      ':warning: A new map is available for public testing! :warning:',
       extendedMap,
       mapAuthors,
       mainTrackSuggestions
     );
 
-    await this.broadcastWebhookToCategories(mainTrackGamemodes, webhookBody);
+    await this.broadcastWebhookToCategories(
+      mainTrackRankedGamemodes,
+      ':warning: A new map is available for public testing! :warning:',
+      webhookBody
+    );
+
+    await this.broadcastWebhookToCategories(
+      mainTrackUnrankedGamemodes,
+      ':warning: A new **UNRANKED** map is available for public testing! :warning:',
+      webhookBody
+    );
   }
 
   async sendApprovedDiscordEmbed(
@@ -88,8 +105,16 @@ export class MapWebhooksService {
         trackType === TrackType.MAIN && type !== LeaderboardType.HIDDEN
     );
 
-    const mainTrackGamemodes = new Set(
-      mainTrackLeaderboards.map(({ gamemode }) => gamemode)
+    const mainTrackRankedGamemodes = new Set(
+      mainTrackLeaderboards
+        .filter(({ type }) => type === LeaderboardType.RANKED)
+        .map(({ gamemode }) => gamemode)
+    );
+
+    const mainTrackUnrankedGamemodes = new Set(
+      mainTrackLeaderboards
+        .filter(({ type }) => type === LeaderboardType.UNRANKED)
+        .map(({ gamemode }) => gamemode)
     );
 
     const mapAuthors = extendedMap.credits
@@ -98,17 +123,25 @@ export class MapWebhooksService {
       .sort();
 
     const webhookBody = this.createMapUpdateWebhookBody(
-      ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       extendedMap,
       mapAuthors,
       mainTrackLeaderboards
     );
 
-    await this.broadcastWebhookToCategories(mainTrackGamemodes, webhookBody);
+    await this.broadcastWebhookToCategories(
+      mainTrackRankedGamemodes,
+      ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
+      webhookBody
+    );
+
+    await this.broadcastWebhookToCategories(
+      mainTrackUnrankedGamemodes,
+      ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
+      webhookBody
+    );
   }
 
   createMapUpdateWebhookBody(
-    text: string,
     extendedMap: MMap & { info: MapInfo; submitter: User },
     authors: Array<string>,
     gamemodes: MapSubmissionSuggestion[] | Leaderboard[]
@@ -117,7 +150,6 @@ export class MapWebhooksService {
     const cdnUrl = this.config.getOrThrow('url.cdn');
 
     return {
-      content: text,
       embeds: [
         {
           title: extendedMap.name,
@@ -146,6 +178,7 @@ export class MapWebhooksService {
 
   async broadcastWebhookToCategories(
     gamemodes: Set<Gamemode>,
+    message: string,
     webhookBody: object
   ): Promise<void> {
     await Promise.all(
@@ -158,9 +191,13 @@ export class MapWebhooksService {
           if (webhookUrl === '') return;
 
           return firstValueFrom(
-            this.http.post(webhookUrl, webhookBody, {
-              headers: { 'Content-Type': 'application/json' }
-            })
+            this.http.post(
+              webhookUrl,
+              { content: message, ...webhookBody },
+              {
+                headers: { 'Content-Type': 'application/json' }
+              }
+            )
           );
         })
     ).catch((error) => this.logger.error('Failed to post to webhook', error));
