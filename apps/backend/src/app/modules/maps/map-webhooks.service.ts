@@ -66,7 +66,7 @@ export class MapWebhooksService {
     ].sort();
 
     const webhookBody = this.createMapUpdateWebhookBody(
-      'A new map is open for public testing!',
+      ':warning: A new map is available for public testing! :warning:',
       extendedMap,
       mapAuthors,
       mainTrackSuggestions
@@ -98,7 +98,7 @@ export class MapWebhooksService {
       .sort();
 
     const webhookBody = this.createMapUpdateWebhookBody(
-      'A new map has been added!',
+      ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       extendedMap,
       mapAuthors,
       mainTrackLeaderboards
