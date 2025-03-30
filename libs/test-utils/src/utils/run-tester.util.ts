@@ -207,6 +207,7 @@ export class RunTester {
       mapName: this.props.mapName,
       mapHash: this.props.mapHash,
       gamemode: this.props.gamemode,
+      compression: 1,
       tickInterval: TickIntervals.get(this.props.gamemode),
       playerSteamID: this.props.steamID,
       playerName: this.props.playerName,
