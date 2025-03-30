@@ -1,4 +1,8 @@
-﻿import { ReplayHeader } from './index';
+﻿import {
+  REPLAY_HEADER_SIZE,
+  REPLAY_SPLITS_OFFSET,
+  ReplayHeader
+} from './index';
 import { RunSplits } from '@momentum/constants';
 
 /**
@@ -14,12 +18,13 @@ export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
       mapName: readNullTerminatedString(buffer, 16),
       mapHash: readNullTerminatedString(buffer, 80),
       gamemode: buffer.readUInt8(121),
-      tickInterval: buffer.readFloatLE(122),
-      playerSteamID: buffer.readBigUInt64LE(126),
-      playerName: readNullTerminatedString(buffer, 134),
-      trackType: buffer.readUInt8(166),
-      trackNum: buffer.readUInt8(167),
-      runTime: buffer.readDoubleLE(168)
+      compression: buffer.readUInt8(122),
+      tickInterval: buffer.readFloatLE(123),
+      playerSteamID: buffer.readBigUInt64LE(127),
+      playerName: readNullTerminatedString(buffer, 135),
+      trackType: buffer.readUInt8(167),
+      trackNum: buffer.readUInt8(168),
+      runTime: buffer.readDoubleLE(169)
     };
   } catch (error) {
     throw new ReplayReadError(error.code, error.message);
@@ -33,9 +38,13 @@ export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
 export function readRunSplits(buffer: Readonly<Buffer>): RunSplits.Splits {
   let length: number, splits: string, lastChar: number;
   try {
-    length = buffer.readInt32LE(193) - 1;
-    splits = buffer.toString('utf8', 197, 197 + length);
-    lastChar = buffer.readUInt8(197 + length);
+    length = buffer.readInt32LE(REPLAY_HEADER_SIZE) - 1;
+    splits = buffer.toString(
+      'utf8',
+      REPLAY_SPLITS_OFFSET,
+      REPLAY_SPLITS_OFFSET + length
+    );
+    lastChar = buffer.readUInt8(REPLAY_SPLITS_OFFSET + length);
   } catch (error) {
     throw new ReplayReadError(error.code, error.message);
   }
