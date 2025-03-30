@@ -568,36 +568,36 @@ describe('validateSuggestions', () => {
         [
           {
             ...validApprovals[0],
-            // @ts-expect-error - delibately wrong
-            tags: ['Shoplifting', 'Aftercare']
+            // @ts-expect-error - deliberately wrong
+            tags: [9999, -1]
           }
         ],
         zones,
         SuggestionType.APPROVAL
       )
-    ).toThrow('Invalid tag Shoplifting for Ahop main');
+    ).toThrow('Invalid tag 9999 for Ahop main');
 
     expect(() =>
       validateSuggestions(
         [
           {
             ...validReviewSuggestions[0],
-            // @ts-expect-error - delibately wrong
-            tags: ['Polevaulting', 'Butter']
+            // @ts-expect-error - deliberately wrong
+            tags: [-1, 'Butter']
           }
         ],
         zones,
         SuggestionType.REVIEW
       )
-    ).toThrow('Invalid tag Polevaulting for Ahop main');
+    ).toThrow('Invalid tag -1 for Ahop main');
 
     expect(() =>
       validateSuggestions(
         [
           {
             ...validSubmissionSuggestions[0],
-            // @ts-expect-error - delibately wrong
-            tags: ['Daydreaming', 'Pantomime']
+            // @ts-expect-error - deliberately wrong
+            tags: ['Daydreaming', 1337]
           }
         ],
         zones,
