@@ -59,10 +59,10 @@ export class MapVersionDto implements MapVersion {
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
   readonly zones: MapZonesDto;
 
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   readonly bspDownloadId: string;
 
-  @Exclude()
+  @Exclude({ toPlainOnly: true })
   readonly vmfDownloadId: string;
 
   @ApiProperty({ type: String, description: 'URL to BSP in cloud storage' })
