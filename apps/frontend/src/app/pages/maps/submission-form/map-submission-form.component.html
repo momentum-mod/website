@@ -16,7 +16,7 @@
       <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
     </p>
   </m-alert>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" preventEnterSubmit>
     <div class="mt-4 flex flex-col">
       <!--  Evil fake fieldset using negative margins. Backdrop-filter extends
             to the header section of a real fieldset, looks like shite    -->
