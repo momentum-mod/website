@@ -70,6 +70,7 @@ import { HttpClient } from '@angular/common/http';
 import { IconComponent } from '../../../icons';
 import { NgClass } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { PreventEnterSubmitDirective } from '../../../directives/prevent-enter-submit.directive';
 
 @Component({
   selector: 'm-map-submission-form',
@@ -89,7 +90,8 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
     ReactiveFormsModule,
     IconComponent,
     NgClass,
-    TooltipDirective
+    TooltipDirective,
+    PreventEnterSubmitDirective
   ]
 })
 export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {

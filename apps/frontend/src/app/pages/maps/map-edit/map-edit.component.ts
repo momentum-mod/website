@@ -80,6 +80,7 @@ import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-veri
 import { CardHeaderComponent } from '../../../components/card/card-header.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { JsonPipe, NgClass } from '@angular/common';
+import { PreventEnterSubmitDirective } from '../../../directives/prevent-enter-submit.directive';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -106,7 +107,8 @@ export type FinalApprovalFormGroup = Record<
     ReactiveFormsModule,
     SpinnerDirective,
     NgClass,
-    JsonPipe
+    JsonPipe,
+    PreventEnterSubmitDirective
   ]
 })
 export class MapEditComponent implements OnInit, ConfirmDeactivate {
