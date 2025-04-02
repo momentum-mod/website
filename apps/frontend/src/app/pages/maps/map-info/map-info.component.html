@@ -27,7 +27,7 @@
         }
       }
       <div class="ml-auto flex items-end gap-2">
-        @if (isSubmitter || localUserService.isModOrAdmin) {
+        @if (isSubmitter || localUserService.isReviewerOrAbove) {
           <a [routerLink]="'/map-edit/' + map.name" class="btn btn-green">Edit Map</a>
         }
         <button class="btn btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">

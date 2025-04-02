@@ -39,7 +39,8 @@ import {
   UpdateMap,
   UpdateMapAdmin,
   User,
-  YOUTUBE_ID_REGEXP
+  YOUTUBE_ID_REGEXP,
+  Role
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -262,6 +263,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       .subscribe(async (map: MMap) => {
         this.isAdmin = this.localUserService.isAdmin;
         this.isMod = this.localUserService.isMod;
+        this.isReviewer = this.localUserService.hasRole(Role.REVIEWER);
         this.isSubmitter =
           map.submitterID === this.localUserService.user.value?.id;
         this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);

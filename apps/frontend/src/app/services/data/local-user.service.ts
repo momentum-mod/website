@@ -91,6 +91,10 @@ export class LocalUserService {
     return this.hasRole(CombinedRoles.MOD_OR_ADMIN);
   }
 
+  public get isReviewerOrAbove() {
+    return this.hasRole(CombinedRoles.REVIEWER_AND_ABOVE);
+  }
+
   public hasBan(bans: Ban, user?: User): boolean {
     if (!user && !this.isLoggedIn) return false;
     user ??= this.user.value as User;
