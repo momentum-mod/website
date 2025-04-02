@@ -21,12 +21,12 @@ export const MAX_ZONE_REGION_POINTS = 64;
 
 export const MAX_TRACK_SEGMENTS = 100;
 export const MAX_STAGE_TRACKS = MAX_TRACK_SEGMENTS;
-export const MAX_BONUS_TRACKS = 255;
+export const MAX_BONUS_TRACKS = 25;
 
-export const MAX_REGIONS = 512;
+export const MAX_REGIONS = 250;
 
 // Includes the segment start zone
-export const MAX_SEGMENT_CHECKPOINTS = 255;
+export const MAX_SEGMENT_CHECKPOINTS = 100;
 
 // From C++:
 // One segment start for max Main segments plus Main end zone plus start and end for each stage track.
