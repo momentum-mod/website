@@ -142,6 +142,8 @@ export class ProfileEditComponent implements OnInit {
       banMapSubmission: [false],
       verified: [false],
       mapper: [false],
+      porter: [false],
+      reviewer: [false],
       moderator: [false],
       admin: [false]
     });
@@ -272,6 +274,8 @@ export class ProfileEditComponent implements OnInit {
       banMapSubmission: this.hasBan(Ban.MAP_SUBMISSION),
       verified: this.hasRole(Role.VERIFIED),
       mapper: this.hasRole(Role.MAPPER),
+      porter: this.hasRole(Role.PORTER),
+      reviewer: this.hasRole(Role.REVIEWER),
       moderator: this.hasRole(Role.MODERATOR),
       admin: this.hasRole(Role.ADMIN)
     };
