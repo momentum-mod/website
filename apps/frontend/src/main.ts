@@ -40,7 +40,10 @@ bootstrapApplication(AppComponent, {
     provideHttpClient(withInterceptorsFromDi()),
     providePrimeNG({
       theme: {
-        preset: MomentumPreset
+        preset: MomentumPreset,
+        options: {
+          darkModeSelector: '.app-dark'
+        }
       }
     }),
     // These PrimeNg services don't have `providedIn: root` so need providing
