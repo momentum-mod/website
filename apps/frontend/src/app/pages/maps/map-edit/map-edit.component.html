@@ -84,7 +84,7 @@
   (ngSubmit)="submitMainForm()"
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col gap-8 overflow-visible p-4"
-  [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'"
+  [ngClass]="isAdmin || isMod || isSubmitter || isReviewer ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
   <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>
