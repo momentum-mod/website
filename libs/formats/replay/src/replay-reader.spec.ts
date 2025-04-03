@@ -9,7 +9,7 @@ describe('Replay Reader', () => {
 
   beforeAll(() => {
     // replay.mtv is a I did on bhop_eazy on a build from red feat/mom-0.10
-    // on 22/11/2024
+    // on 30/03/2025
     const filePath = join(__dirname, '../test/replay.mtv');
     buffer = readFileSync(filePath);
   });
@@ -18,17 +18,18 @@ describe('Replay Reader', () => {
     it('should correctly parse the replay header', () => {
       const expectedHeader: Partial<ReplayHeader> = {
         magic: REPLAY_MAGIC,
-        formatVersion: -1,
-        timestamp: 1732201279, // Note, this has since become ms-based, too lazy to re-record
+        formatVersion: -104,
+        timestamp: 1743356618301,
         mapName: 'bhop_eazy',
         mapHash: '07320480E9245C2363D806BC4D1661F8034709B5',
         gamemode: Gamemode.BHOP,
+        compression: 1, // lzma
         playerSteamID: 76561198039308694n,
         playerName: 'fingerprince',
         tickInterval: Math.fround(0.01),
         trackType: TrackType.MAIN,
         trackNum: 1,
-        runTime: 30.584999316371977
+        runTime: 33.62499924842268
       };
 
       const header = readHeader(buffer);

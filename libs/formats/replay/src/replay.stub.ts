@@ -10,6 +10,7 @@ export const ReplayHeaderStub: ReplayHeader = {
   mapName: 'bhop_map',
   mapHash: 'A'.repeat(40),
   gamemode: Gamemode.BHOP,
+  compression: 0,
   tickInterval: 0.00999999991324,
   playerSteamID: 1n,
   playerName: 'Abstract Barry',
