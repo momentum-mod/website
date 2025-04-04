@@ -51,14 +51,14 @@
 <fieldset class="card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
   <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
 
-  @for (version of versions.slice(0, visibleVersions); track $index) {
-    <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ versions.length - $index }}</p>
+  @for (version of versions.slice(0, visibleVersions); track version.versionNum) {
+    <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ version.versionNum }}</p>
     @if (version.changelog) {
       <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
     }
     <p class="mb-4 mt-1 last:mb-0">
       <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
-      <a class="link mr-4 cursor-pointer text-sm font-medium" (click)="downloadZoneFile(map)">Download Zones</a>
+      <a class="link mr-4 cursor-pointer text-sm font-medium" (click)="downloadOlderZoneFile(version.id)">Download Zones</a>
       @if (version.vmfDownloadURL) {
         <a class="link text-sm font-medium" [href]="version.vmfDownloadURL">Download VMF</a>
       }
