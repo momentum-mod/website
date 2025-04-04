@@ -51,6 +51,7 @@ export class MapDetailsFormComponent implements OnInit {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly MIN_MAP_DESCRIPTION_LENGTH = MIN_MAP_DESCRIPTION_LENGTH;
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
+  protected readonly maxDate = new Date();
   protected mapSubmissionTypeOptions: Array<{
     type: MapSubmissionType;
     label: string;
@@ -158,9 +159,5 @@ export class MapDetailsFormComponent implements OnInit {
     return this.formGroup.get(
       'submissionType'
     ) as FormControl<MapSubmissionType>;
-  }
-
-  get maxDate() {
-    return new Date();
   }
 }
