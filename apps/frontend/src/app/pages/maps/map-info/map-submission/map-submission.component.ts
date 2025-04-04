@@ -60,7 +60,9 @@ export class MapSubmissionComponent {
   @Input({ required: true }) set map(map: MMap) {
     this._map = map;
     this.suggestions = groupMapSuggestions(map.submission.suggestions);
-    this.versions = map?.versions.toReversed();
+    this.versions = map?.versions.sort(
+      (v1, v2) => v2.versionNum - v1.versionNum
+    );
     this.visibleVersions = 2;
     this.hasComments = [...this.suggestions.values()]
       .map((v) => [...v.values()])
