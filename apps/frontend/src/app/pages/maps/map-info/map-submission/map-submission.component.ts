@@ -23,6 +23,8 @@ import { IconComponent } from '../../../../icons';
 import { UserComponent } from '../../../../components/user/user.component';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { UnsortedKeyvaluePipe } from '../../../../pipes/unsorted-keyvalue.pipe';
+import { MapsService } from '../../../../services/data/maps.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'm-map-submission',
@@ -53,6 +55,8 @@ export class MapSubmissionComponent {
   protected visibleVersions: number;
   protected hasComments = false;
 
+  constructor(private readonly mapService: MapsService) {}
+
   private _map: MMap;
   get map() {
     return this._map;
@@ -68,5 +72,28 @@ export class MapSubmissionComponent {
       .map((v) => [...v.values()])
       .flat(2)
       .some(({ comment }) => comment);
+  }
+
+  // Since most of the times users won't need to download older
+  // zones we'd rather not load them while showing map info,
+  // and in case user needs this, instead of fetching all versions
+  // every time for a single version zones we cache them here
+  private mapWithVersionsZones?: MMap;
+  async downloadOlderZoneFile(versionId: string) {
+    if (!this.mapWithVersionsZones) {
+      this.mapWithVersionsZones = await firstValueFrom(
+        this.mapService.getMap(this._map.id, { expand: ['versionsWithZones'] })
+      );
+    }
+
+    const version = this.mapWithVersionsZones.versions.find(
+      (v) => v.id === versionId
+    );
+    if (!version || !version.zones) {
+      console.error('Bad version id, could not find version with zones');
+      return;
+    }
+
+    downloadZoneFile(this.mapWithVersionsZones, version.id);
   }
 }

@@ -5,8 +5,10 @@ import { MMap } from '@momentum/constants';
  * methods. Afaik this is genuinely considered a good approach.
  * https://stackoverflow.com/a/52183135
  */
-export function downloadZoneFile(map: MMap) {
-  const zones = map?.currentVersion?.zones;
+export function downloadZoneFile(map: MMap, versionId?: string) {
+  const zones = versionId
+    ? map?.versions.find((v) => v.id === versionId)?.zones
+    : map?.currentVersion?.zones;
   if (!zones?.formatVersion || !map.name) {
     console.error('Bad map data, could not create zones file!');
     return;
