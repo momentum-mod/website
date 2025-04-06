@@ -13,7 +13,8 @@ import {
   MapStatuses,
   CombinedRoles,
   MapCreditsGetExpand,
-  MapCreditType
+  MapCreditType,
+  MapSubmissionPlaceholder
 } from '@momentum/constants';
 import { findWithIndex } from '@momentum/util-fn';
 import { ConfigService } from '@nestjs/config';
@@ -78,9 +79,6 @@ export class MapCreditsService {
       throw new BadRequestException('Empty body');
     }
 
-    if (!body.some((credit) => credit.type === MapCreditType.AUTHOR))
-      throw new BadRequestException('Credits do not contain an AUTHOR');
-
     const maxCredits = this.config.getOrThrow('limits.maxCreditsExceptTesters');
     for (const type of [
       MapCreditType.AUTHOR,
@@ -96,12 +94,23 @@ export class MapCreditsService {
 
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { credits: true }
+      include: { credits: true, submission: { select: { placeholders: true } } }
     });
 
     if (!map) {
       throw new NotFoundException('Map not found');
     }
+
+    if (
+      !body.some((credit) => credit.type === MapCreditType.AUTHOR) &&
+      !(
+        MapStatuses.IN_SUBMISSION.includes(map.status) &&
+        (
+          map.submission.placeholders as unknown as MapSubmissionPlaceholder[]
+        )?.some(({ type }) => type === MapCreditType.AUTHOR)
+      )
+    )
+      throw new BadRequestException('Credits do not contain an AUTHOR');
 
     const { roles } = await this.db.user.findUnique({
       where: { id: loggedInUserID },
