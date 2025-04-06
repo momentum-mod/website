@@ -583,6 +583,22 @@ describe('Maps Part 2', () => {
           token: u1Token
         }));
 
+      it('should allow if no AUTHOR credits if has a AUTHOR placeholder suggestion', async () => {
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: {
+            placeholders: [{ alias: 'Bozo', type: MapCreditType.AUTHOR }]
+          }
+        });
+
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: [{ userID: u2.id, type: MapCreditType.TESTER }],
+          token: u1Token
+        });
+      });
+
       it('should 400 if the description is too long', () =>
         req.put({
           url: `maps/${map.id}/credits`,
