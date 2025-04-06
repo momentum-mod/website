@@ -16,13 +16,14 @@ import {
   Validators
 } from '@angular/forms';
 import {
-  MapStatuses,
   DateString,
   LeaderboardType,
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
   MAP_NAME_REGEXP,
+  MapCreditType,
   MapStatus,
+  MapStatuses,
   MapSubmissionApproval,
   MapSubmissionSuggestion,
   MapSubmissionType,
@@ -455,29 +456,57 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       try {
         const real = this.credits.value.getSubmittableRealUsers();
         const placeholders = this.credits.value.getSubmittablePlaceholders();
-
-        if (
-          !deepEquals(
-            this.map.credits.map(({ userID, type, description }) => ({
-              userID,
-              type,
-              description
-            })),
-            real
-          )
-        ) {
+        const realHasAuthors = real.some(
+          ({ type }) => type === MapCreditType.AUTHOR
+        );
+        const realChanged = !deepEquals(
+          this.map.credits.map(({ userID, type, description }) => ({
+            userID,
+            type,
+            description
+          })),
+          real
+        );
+        const placeholdersChanged = !deepEquals(
+          this.map.submission.placeholders,
+          placeholders
+        );
+        const updateReal = async () =>
           await firstValueFrom(
             this.mapsService.updateMapCredits(this.map.id, real)
           );
-        }
 
-        if (!deepEquals(this.map.submission.placeholders, placeholders)) {
+        const updatePlaceholders = async () =>
           await firstValueFrom(
             (this.isSubmitter ? this.mapsService : this.adminService).updateMap(
               this.map.id,
               { placeholders: this.credits.value.getSubmittablePlaceholders() }
             )
           );
+
+        // Backend won't allow us to be in state with no authors whatsoever,
+        // validators should guarantee one of these arrays has authors. So
+        // if we need to update real, and it doesn't contain authors, do the
+        // placeholders first. Similarly, if placeholders removes its authors,
+        // real must have added them (for form to be valid), so we do real
+        // first, then placeholders. Sorry for the spaghetti!
+        if (realChanged) {
+          if (!realHasAuthors) {
+            if (!placeholdersChanged)
+              // Validators should make this impossible.
+              throw new Error(
+                'Trying to update to state that would contain no authors!'
+              );
+
+            await updatePlaceholders();
+            await updateReal();
+          } else {
+            await updateReal();
+          }
+        }
+
+        if (placeholdersChanged && !(realChanged && !realHasAuthors)) {
+          await updatePlaceholders();
         }
       } catch (error) {
         this.messageService.add({
