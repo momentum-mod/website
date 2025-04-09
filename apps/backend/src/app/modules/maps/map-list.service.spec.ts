@@ -1,5 +1,6 @@
 import { FlatMapList } from '@momentum/constants';
 import { MapListService } from './map-list.service';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   PRISMA_MOCK_PROVIDER,
@@ -10,23 +11,29 @@ import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { promisify } from 'node:util';
 import * as zlib from 'node:zlib';
+import { ScheduleModule } from '@nestjs/schedule';
 
 describe('MapListService', () => {
   describe('onModuleInit', () => {
-    let service: MapListService, db: PrismaMock;
+    let service: MapListService, db: PrismaMock, module: TestingModule;
     const fileStoreMock = {
       listFileKeys: jest.fn(() => Promise.resolve([])),
       storeFile: jest.fn(),
       deleteFiles: jest.fn(),
       deleteFile: jest.fn()
     };
+    const configMock = {
+      get: () => '* * * * *'
+    };
 
     beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      module = await Test.createTestingModule({
+        imports: [ScheduleModule.forRoot()],
         providers: [
           MapListService,
           PRISMA_MOCK_PROVIDER,
-          { provide: FileStoreService, useValue: fileStoreMock }
+          { provide: FileStoreService, useValue: fileStoreMock },
+          { provide: ConfigService, useValue: configMock }
         ]
       })
         .useMocker(mockDeep)
@@ -34,6 +41,10 @@ describe('MapListService', () => {
 
       service = module.get(MapListService);
       db = module.get(EXTENDED_PRISMA_SERVICE);
+    });
+
+    afterEach(async () => {
+      await module.close();
     });
 
     describe('onModuleInit', () => {
@@ -106,7 +117,7 @@ describe('MapListService', () => {
       it('should generate a Momentum Static Map List file and send to filestore', async () => {
         db.mMap.findMany.mockResolvedValueOnce([storedMap as any]);
 
-        await service.updateMapList(FlatMapList.APPROVED);
+        await (service as any)['updateMapList'](FlatMapList.APPROVED);
 
         const buffer: Buffer = fileStoreMock.storeFile.mock.calls[0][0];
         expect(buffer.subarray(0, 4)).toMatchObject(

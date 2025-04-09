@@ -783,7 +783,7 @@ export class MapsService {
       map.status === MapStatus.PUBLIC_TESTING ||
       map.status === MapStatus.FINAL_APPROVAL
     )
-      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
 
     return DtoFactory(
       MapDto,
@@ -1179,7 +1179,7 @@ export class MapsService {
     });
 
     if (statusChanged)
-      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
   }
 
   /**
@@ -1320,12 +1320,12 @@ export class MapsService {
     // If submission -> approved or reverse, update both
     // If no submission (e.g. approved -> disabled), just update approved list
     if (numInSubmissionStatuses === 2) {
-      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
     } else if (numInSubmissionStatuses === 1) {
-      await this.mapListService.updateMapList(FlatMapList.APPROVED);
-      await this.mapListService.updateMapList(FlatMapList.SUBMISSION);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
     } else {
-      await this.mapListService.updateMapList(FlatMapList.APPROVED);
+      this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
   }
 
@@ -1707,7 +1707,7 @@ export class MapsService {
       map
     );
 
-    await this.mapListService.updateMapList(
+    this.mapListService.scheduleMapListUpdate(
       MapStatuses.IN_SUBMISSION.includes(map.status)
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED

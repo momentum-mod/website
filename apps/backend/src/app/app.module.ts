@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SentryModule } from '@sentry/nestjs/setup';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -55,6 +56,7 @@ import { pick } from '@momentum/util-fn';
       }),
       inject: [ConfigService]
     }),
+    ScheduleModule.forRoot(),
     DbModule,
     AuthModule,
     ActivitiesModule,

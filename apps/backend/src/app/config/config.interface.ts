@@ -50,5 +50,6 @@ export interface ConfigInterface {
     preSignedUrlExpTime: number;
   };
   discordWebhooks: Record<GamemodeCategory, string>;
+  mapListUpdateSchedule: string;
   logLevel: pino.LevelWithSilent;
 }
