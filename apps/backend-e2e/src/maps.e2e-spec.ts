@@ -2,6 +2,7 @@
 
 import { Config } from '../../backend/src/app/config';
 import { MapDto } from '../../backend/src/app/dto';
+import { MAPLIST_UPDATE_JOB_NAME } from '../../backend/src/app/modules/maps/map-list.service';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -51,13 +52,15 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 describe('Maps', () => {
   let app,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    fileStore: FileStoreUtil;
+    fileStore: FileStoreUtil,
+    checkScheduledMapListUpdates: () => Promise<void>;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -66,6 +69,10 @@ describe('Maps', () => {
     req = env.req;
     db = env.db;
     fileStore = env.fileStore;
+    const registry = env.app.get(SchedulerRegistry);
+    checkScheduledMapListUpdates = registry.getCronJob(
+      MAPLIST_UPDATE_JOB_NAME
+    ).fireOnTick;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app, prisma));
@@ -2146,6 +2153,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
+        await checkScheduledMapListUpdates();
+
         const newListVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
@@ -2179,6 +2188,8 @@ describe('Maps', () => {
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
         });
+
+        await checkScheduledMapListUpdates();
 
         const newListVersion = await req.get({
           url: 'maps/maplistversion',
@@ -3180,6 +3191,8 @@ describe('Maps', () => {
           token
         });
 
+        await checkScheduledMapListUpdates();
+
         const newListVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
@@ -3215,6 +3228,8 @@ describe('Maps', () => {
           },
           token
         });
+
+        await checkScheduledMapListUpdates();
 
         const newListVersion = await req.get({
           url: 'maps/maplistversion',

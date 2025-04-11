@@ -21,7 +21,6 @@ export const GamemodeTags = {
     MapTag.Booster,
     MapTag.Headsurf,
     MapTag.Bhop,
-    MapTag.Increased_Maxvel,
     MapTag.Fall,
     MapTag.Slide,
     MapTag.Rampstrafe,

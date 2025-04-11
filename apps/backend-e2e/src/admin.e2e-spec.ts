@@ -7,6 +7,7 @@ import {
   ReportDto,
   UserDto
 } from '../../backend/src/app/dto';
+import { MAPLIST_UPDATE_JOB_NAME } from '../../backend/src/app/modules/maps/map-list.service';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
@@ -52,6 +53,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import { randomUUID } from 'node:crypto';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 describe('Admin', () => {
   let app,
@@ -59,7 +61,8 @@ describe('Admin', () => {
     req: RequestUtil,
     db: DbUtil,
     fileStore: FileStoreUtil,
-    auth: AuthUtil;
+    auth: AuthUtil,
+    checkScheduledMapListUpdates: () => Promise<void>;
 
   async function expectAdminActivityWasCreated(
     userID: number,
@@ -79,6 +82,10 @@ describe('Admin', () => {
     db = env.db;
     auth = env.auth;
     fileStore = env.fileStore;
+    const registry = env.app.get(SchedulerRegistry);
+    checkScheduledMapListUpdates = registry.getCronJob(
+      MAPLIST_UPDATE_JOB_NAME
+    ).fireOnTick;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app, prisma));
@@ -1767,6 +1774,8 @@ describe('Admin', () => {
             token: adminToken
           });
 
+          await checkScheduledMapListUpdates();
+
           const newVersion = await req.get({
             url: 'maps/maplistversion',
             status: 200,
@@ -1835,6 +1844,8 @@ describe('Admin', () => {
           body: { status: MapStatus.DISABLED },
           token: adminToken
         });
+
+        await checkScheduledMapListUpdates();
 
         const newVersion = await req.get({
           url: 'maps/maplistversion',
@@ -1978,6 +1989,8 @@ describe('Admin', () => {
           status: 204,
           token: adminToken
         });
+
+        await checkScheduledMapListUpdates();
 
         const newVersion = await req.get({
           url: 'maps/maplistversion',

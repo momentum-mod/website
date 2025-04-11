@@ -79,6 +79,8 @@ export const ConfigFactory = (): ConfigInterface => {
           : (process.env[`DISCORD_WEBHOOK_${GamemodeCategory[cat]}_URL`] ?? '')
       ])
     ) as Record<GamemodeCategory, string>,
+    mapListUpdateSchedule:
+      process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
     logLevel: (process.env['LOG_LEVEL'] ??
       (isTest ? 'warn' : 'info')) as pino.LevelWithSilent
   };

@@ -13,18 +13,29 @@ import {
 import * as zlib from 'node:zlib';
 import { promisify } from 'node:util';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import { ConfigService } from '@nestjs/config';
+
+export const MAPLIST_UPDATE_JOB_NAME = 'MapListUpdateJob';
 
 @Injectable()
 export class MapListService implements OnModuleInit {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly fileStoreService: FileStoreService
+    private readonly fileStoreService: FileStoreService,
+    private readonly config: ConfigService,
+    private readonly schedulerRegistry: SchedulerRegistry
   ) {}
 
   // TODO: Move to Redis
   private version: Record<FlatMapList, number> = {
     [FlatMapList.APPROVED]: 0,
     [FlatMapList.SUBMISSION]: 0
+  };
+  private updateScheduledFlag: Record<FlatMapList, boolean> = {
+    [FlatMapList.APPROVED]: false,
+    [FlatMapList.SUBMISSION]: false
   };
 
   private readonly logger = new Logger('Map List Service');
@@ -49,6 +60,15 @@ export class MapListService implements OnModuleInit {
         );
       }
     }
+
+    const updateCronJob = CronJob.from({
+      cronTime: this.config.get('mapListUpdateSchedule'),
+      onTick: this.checkScheduledUpdates.bind(this),
+      waitForCompletion: true,
+      start: true
+    });
+
+    this.schedulerRegistry.addCronJob(MAPLIST_UPDATE_JOB_NAME, updateCronJob);
   }
 
   getMapList(): MapListVersionDto {
@@ -58,7 +78,20 @@ export class MapListService implements OnModuleInit {
     });
   }
 
-  async updateMapList(type: FlatMapList): Promise<void> {
+  scheduleMapListUpdate(type: FlatMapList) {
+    this.updateScheduledFlag[type] = true;
+  }
+
+  private async checkScheduledUpdates() {
+    for (const [type, flag] of Object.entries(this.updateScheduledFlag)) {
+      if (flag) {
+        await this.updateMapList(type as FlatMapList);
+        this.updateScheduledFlag[type] = false;
+      }
+    }
+  }
+
+  private async updateMapList(type: FlatMapList): Promise<void> {
     // Important: Seed script (seed.ts) copies this logic, if changing here,
     // change there as well.
     const maps = await this.db.mMap.findMany({
