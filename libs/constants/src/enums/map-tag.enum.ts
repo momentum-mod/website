@@ -107,5 +107,6 @@ export enum MapTag {
   _Num2__Way_Sym = 83,
   _Num4__Way_Sym = 84,
   Staged__Linear = 85,
-  Funkyboost = 86
+  Funkyboost = 86,
+  Mixed = 87
 }
