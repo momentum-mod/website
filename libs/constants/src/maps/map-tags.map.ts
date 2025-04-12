@@ -10,7 +10,8 @@ export const GlobalTags = [
   MapTag.Anti_Grav,
   MapTag.Moving_Surfaces,
   MapTag.Increased_Maxvel,
-  MapTag.Progressive_Difficulty
+  MapTag.Progressive_Difficulty,
+  MapTag.Mixed
 ];
 
 export const GamemodeTags = {
