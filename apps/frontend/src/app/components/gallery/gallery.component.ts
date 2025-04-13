@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -32,15 +33,27 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
   imports: [IconComponent],
   templateUrl: './gallery.component.html'
 })
-export class GalleryComponent implements OnInit {
+export class GalleryComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) items: GalleryItem[] = [];
   @Input() selectedItem: GalleryItem;
   @Output() selectedItemChange = new EventEmitter<GalleryItem>();
 
   @ViewChild('popover') popover: ElementRef<HTMLDivElement>;
+  @ViewChild('youtubeIframe') youtubeIframe: ElementRef<HTMLIFrameElement>;
 
   ngOnInit(): void {
     this.selectedItem ??= this.items[0];
+  }
+
+  ngAfterViewInit(): void {
+    this.popover.nativeElement.addEventListener('toggle', (ev: ToggleEvent) => {
+      if (ev.newState !== 'open' && this.youtubeIframe) {
+        this.youtubeIframe.nativeElement.contentWindow.postMessage(
+          '{"event":"command","func":"pauseVideo","args":""}',
+          '*'
+        );
+      }
+    });
   }
 
   show(): void {

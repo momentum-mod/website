@@ -220,7 +220,7 @@ export class MapInfoComponent implements OnInit {
       this.images.unshift({
         type: 'youtube',
         safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(
-          `https://www.youtube.com/embed/${youtubeID}`
+          `https://www.youtube.com/embed/${youtubeID}?enablejsapi=1`
         ),
         safeThumbnail: this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://img.youtube.com/vi/${youtubeID}/mqdefault.jpg`

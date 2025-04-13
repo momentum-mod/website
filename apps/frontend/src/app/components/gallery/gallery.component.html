@@ -16,7 +16,13 @@
       @if (selectedItem && selectedItem.type === 'image') {
         <img class="pointer-events-auto rounded shadow-lg" [src]="selectedItem.full" />
       } @else if (selectedItem && selectedItem.type === 'youtube') {
-        <iframe class="pointer-events-auto h-full shadow-lg" type="text/html" [src]="selectedItem.safeUrl"></iframe>
+        <iframe
+          #youtubeIframe
+          class="pointer-events-auto h-full w-full shadow-lg"
+          type="text/html"
+          [src]="selectedItem.safeUrl"
+          allowfullscreen="true"
+        ></iframe>
       }
     </div>
 
