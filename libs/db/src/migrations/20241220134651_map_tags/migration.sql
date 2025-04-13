@@ -6,4 +6,4 @@
 */
 -- AlterTable
 ALTER TABLE "Leaderboard" DROP COLUMN "tags",
-ADD COLUMN     "tags" INTEGER[];
+ADD COLUMN     "tags" SMALLINT[];
