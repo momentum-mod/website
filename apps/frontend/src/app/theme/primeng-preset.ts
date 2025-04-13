@@ -96,6 +96,9 @@ export const MomentumPreset = definePreset(Material, {
           margin: 0.125rem;
           transition: none;
         }`
+    },
+    tooltip: {
+      maxWidth: 'unset'
     }
   }
 });
