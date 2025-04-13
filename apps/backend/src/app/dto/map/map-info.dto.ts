@@ -4,7 +4,8 @@
   MapInfo,
   MAX_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_DESCRIPTION_LENGTH,
-  UpdateMapInfo
+  UpdateMapInfo,
+  SteamGame
 } from '@momentum/constants';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
@@ -14,7 +15,8 @@ import {
   IsString,
   Matches,
   MinLength,
-  MaxLength
+  MaxLength,
+  IsEnum
 } from 'class-validator';
 import { IsPastDate } from '../../validators/is-past-date';
 
@@ -44,13 +46,19 @@ export class MapInfoDto implements MapInfo {
   @IsDateString()
   @IsPastDate()
   readonly creationDate: DateString;
+
+  @ApiProperty({ description: 'Array of apps, which the map uses assets from' })
+  @IsEnum(SteamGame, { each: true })
+  @IsOptional()
+  readonly requiredGames: SteamGame[];
 }
 
 export class CreateMapInfoDto
   extends PickType(MapInfoDto, [
     'description',
     'youtubeID',
-    'creationDate'
+    'creationDate',
+    'requiredGames'
   ] as const)
   implements CreateMapInfo {}
 

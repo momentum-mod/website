@@ -136,11 +136,14 @@ export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
 
 export type CreateMapInfo = Pick<
   MapInfo,
-  'description' | 'youtubeID' | 'creationDate'
+  'description' | 'youtubeID' | 'creationDate' | 'requiredGames'
 >;
 
 export type UpdateMapInfo = Partial<
-  Pick<CreateMapInfo, 'description' | 'youtubeID' | 'creationDate'>
+  Pick<
+    CreateMapInfo,
+    'description' | 'youtubeID' | 'creationDate' | 'requiredGames'
+  >
 >;
 
 //#endregion

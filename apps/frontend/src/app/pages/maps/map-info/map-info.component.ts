@@ -11,7 +11,9 @@ import {
   MapStatusName,
   MapStatus,
   MMap,
-  ReportType
+  ReportType,
+  SteamGamesNames,
+  SteamGamesImages
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -98,6 +100,8 @@ export class MapInfoComponent implements OnInit {
   credits: GroupedMapCredits;
   images: GalleryItem[];
   selectedImage: GalleryItem;
+  requiredGamesNames: string[];
+  requiredGamesImages: string[];
 
   notify: MapNotify;
   notifications = false;
@@ -201,6 +205,13 @@ export class MapInfoComponent implements OnInit {
         }
       });
     }
+
+    this.requiredGamesNames = this.map.info.requiredGames.map(
+      (app) => SteamGamesNames.get(app) ?? app.toString()
+    );
+    this.requiredGamesImages = this.map.info.requiredGames
+      .map((app) => SteamGamesImages.get(app) ?? null)
+      .filter((url) => Boolean(url));
 
     // In favourites iff num mapfavorites entries for user > 0. sorry
     this.inFavorites = this.map.favorites?.length > 0;

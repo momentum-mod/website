@@ -35,7 +35,8 @@ import {
   YOUTUBE_ID_REGEXP,
   MAP_NAME_REGEXP,
   GamemodeInfo,
-  DateString
+  DateString,
+  SteamGame
 } from '@momentum/constants';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -162,7 +163,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
         [Validators.required, Validators.max(Date.now())]
       ],
       submissionType: [null as MapSubmissionType, [Validators.required]],
-      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]]
+      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
+      requiredGames: [[]]
     }),
     images: [
       null,
@@ -358,7 +360,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
                 description: this.description.value,
                 youtubeID: this.youtubeID.value || undefined,
                 creationDate:
-                  this.creationDate.value.toISOString() as DateString
+                  this.creationDate.value.toISOString() as DateString,
+                requiredGames: this.requiredGames.value
               }
             },
             vmfs: this.vmfs.value
@@ -483,6 +486,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
   get description() {
     return this.form.get('details.description') as FormControl<string>;
+  }
+
+  get requiredGames() {
+    return this.form.get('details.requiredGames') as FormControl<SteamGame[]>;
   }
 
   get portingChangelog() {

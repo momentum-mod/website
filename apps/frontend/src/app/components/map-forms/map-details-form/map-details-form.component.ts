@@ -11,7 +11,10 @@ import {
   MAX_MAP_DESCRIPTION_LENGTH,
   MAX_MAP_NAME_LENGTH,
   MIN_MAP_DESCRIPTION_LENGTH,
-  MIN_MAP_NAME_LENGTH
+  MIN_MAP_NAME_LENGTH,
+  SteamGame,
+  SteamGamesNames,
+  SteamGamesImages
 } from '@momentum/constants';
 import {
   FormControl,
@@ -24,12 +27,14 @@ import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import * as Enum from '@momentum/enum';
 
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DatePicker } from 'primeng/datepicker';
 import { IconComponent } from '../../../icons';
 import { Select } from 'primeng/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
+import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
   selector: 'm-map-details-form',
@@ -44,11 +49,13 @@ import { PluralPipe } from '../../../pipes/plural.pipe';
     ReactiveFormsModule,
     TooltipDirective,
     Select,
-    PluralPipe
+    PluralPipe,
+    ChipsComponent
   ]
 })
 export class MapDetailsFormComponent implements OnInit {
   protected readonly MapSubmissionType = MapSubmissionType;
+  protected readonly SteamGames = Enum.values(SteamGame);
   protected readonly MIN_MAP_DESCRIPTION_LENGTH = MIN_MAP_DESCRIPTION_LENGTH;
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
   protected readonly maxDate = new Date();
@@ -64,6 +71,7 @@ export class MapDetailsFormComponent implements OnInit {
     creationDate: FormControl<Date>;
     submissionType: FormControl<MapSubmissionType>;
     youtubeID: FormControl<string>;
+    requiredGames: FormControl<SteamGame[]>;
   }>;
 
   private _isModOrAdmin: boolean;
@@ -135,6 +143,9 @@ export class MapDetailsFormComponent implements OnInit {
     }
   }
 
+  steamGameName = (game: SteamGame) => SteamGamesNames.get(game);
+  steamGameImage = (game: SteamGame) => SteamGamesImages.get(game);
+
   get youtubeID() {
     return this.formGroup.get('youtubeID') as FormControl<string>;
   }
@@ -159,5 +170,9 @@ export class MapDetailsFormComponent implements OnInit {
     return this.formGroup.get(
       'submissionType'
     ) as FormControl<MapSubmissionType>;
+  }
+
+  get requiredGames() {
+    return this.formGroup.get('requiredGames') as FormControl<SteamGame[]>;
   }
 }

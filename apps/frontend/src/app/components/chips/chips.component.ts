@@ -48,6 +48,11 @@ export class ChipsComponent implements ControlValueAccessor {
    */
   @Input() nameFn?: (chip: number) => string;
 
+  /**
+   * Function to provide image urls for chips.
+   */
+  @Input() imageFn?: (chip: Chip) => string | null;
+
   protected disabled = false;
 
   add(chip: Chip) {
@@ -72,6 +77,11 @@ export class ChipsComponent implements ControlValueAccessor {
     }
 
     return chip;
+  }
+
+  getChipImage(chip: Chip): string | null {
+    if (this.imageFn) return this.imageFn(chip);
+    return null;
   }
 
   onChange: (value: Chip[]) => void = () => void 0;

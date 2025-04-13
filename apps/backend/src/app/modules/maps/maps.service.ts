@@ -883,7 +883,8 @@ export class MapsService {
           create: {
             description: createMapDto.info.description,
             creationDate: createMapDto.info.creationDate,
-            youtubeID: createMapDto.info.youtubeID
+            youtubeID: createMapDto.info.youtubeID,
+            requiredGames: createMapDto.info.requiredGames
           }
         },
         credits:
@@ -1344,7 +1345,8 @@ export class MapsService {
         update: {
           description: dto.info.description,
           youtubeID: dto.info.youtubeID,
-          creationDate: dto.info.creationDate
+          creationDate: dto.info.creationDate,
+          requiredGames: dto.info.requiredGames
         }
       };
     }

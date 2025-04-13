@@ -14,9 +14,12 @@
         @for (chip of available; track $index) {
           <button
             (click)="add(chip)"
-            class="rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
+            class="flex gap-2 rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
             type="button"
           >
+            @if (getChipImage(chip); as chipImage) {
+              <img class="aspect-square h-6" [src]="chipImage" />
+            }
             <span class="text-white">{{ getChipName(chip) }}</span>
           </button>
         }
@@ -27,6 +30,9 @@
     <div
       class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
     >
+      @if (getChipImage(chip); as chipImage) {
+        <img class="aspect-square h-6" [src]="chipImage" />
+      }
       <span class="pointer-events-none font-medium text-gray-50">{{ getChipName(chip) }}</span>
       <button
         (click)="remove(chip)"
