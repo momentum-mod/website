@@ -140,7 +140,27 @@
             <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
             <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="ml-auto flex items-center gap-1" [mTooltip]="dateTooltip">
+          <div class="ml-auto"></div>
+          @if (map.info.requiredGames.length > 0) {
+            <div class="flex items-center" [mTooltip]="requiredGamesTooltip">
+              @for (gameImage of requiredGamesImages; track $index) {
+                <img
+                  class="-mr-3 aspect-square h-6 rounded-md drop-shadow-[0_0_0.175rem_#000]"
+                  [style]="{ zIndex: -$index }"
+                  [src]="gameImage"
+                />
+              }
+            </div>
+            <ng-template #requiredGamesTooltip>
+              <p class="text-right"><b>This map requires assets from these games:</b></p>
+              <ul class="list-inside list-disc">
+                @for (gameName of requiredGamesNames; track $index) {
+                  <li>{{ gameName }}</li>
+                }
+              </ul>
+            </ng-template>
+          }
+          <div class="flex items-center gap-1" [mTooltip]="dateTooltip">
             <p class="font-display text-24 drop-shadow-md">{{ map.createdAt | date }}</p>
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>

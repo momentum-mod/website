@@ -41,7 +41,8 @@ import {
   UpdateMapAdmin,
   User,
   YOUTUBE_ID_REGEXP,
-  Role
+  Role,
+  SteamGame
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -157,7 +158,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         [Validators.required, Validators.max(Date.now())]
       ],
       submissionType: [null as MapSubmissionType, [Validators.required]],
-      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]]
+      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
+      requiredGames: [[]]
     }),
 
     images: new FormControl<File[]>(null, {
@@ -292,6 +294,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.description.setValue(this.map.info.description);
     this.creationDate.setValue(new Date(this.map.info.creationDate));
     this.youtubeID.setValue(this.map.info.youtubeID);
+    this.requiredGames.setValue(this.map.info.requiredGames);
     this.portingChangelog.setValue(
       this.map.versions.find((v) => v.versionNum === 1)?.changelog
     );
@@ -369,6 +372,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       body.info ??= {};
       body.info.youtubeID =
         this.youtubeID.value.length > 0 ? this.youtubeID.value : null;
+    }
+    if (this.requiredGames.dirty) {
+      body.info ??= {};
+      body.info.requiredGames = this.requiredGames.value;
     }
     if (this.suggestions.dirty) body.suggestions = this.suggestions.value;
     if (this.status.dirty) {
@@ -730,6 +737,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   get youtubeID() {
     return this.mainForm.get('details.youtubeID') as FormControl<string>;
+  }
+
+  get requiredGames() {
+    return this.mainForm.get('details.requiredGames') as FormControl<
+      SteamGame[]
+    >;
   }
 
   get name() {

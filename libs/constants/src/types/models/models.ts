@@ -22,7 +22,8 @@ import {
   uint16,
   MapTag,
   Flags,
-  DateString
+  DateString,
+  SteamGame
 } from '../../';
 
 // Collection of models used throughout the codebase, as well as in Panorama.
@@ -219,6 +220,7 @@ export interface MapInfo {
   description: string;
   youtubeID: string;
   creationDate: DateString;
+  requiredGames: SteamGame[];
 }
 
 export interface MapCredit {

@@ -264,6 +264,7 @@ model MapInfo {
   description  String   @default("")
   youtubeID    String?
   creationDate DateTime
+  requiredGames Int[]    @default([]) /// steam-game.enum.ts
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int  @unique
