@@ -98,7 +98,8 @@ export const MomentumPreset = definePreset(Material, {
         }`
     },
     tooltip: {
-      maxWidth: 'unset'
+      maxWidth: 'unset',
+      css: () => '.p-tooltip-text { word-break: unset; }'
     }
   }
 });
