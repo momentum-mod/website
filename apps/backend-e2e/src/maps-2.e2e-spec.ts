@@ -2154,10 +2154,11 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
+        // TODO: Change states to MapTestInviteState.UNREAD once they can be manually accepted
         expect(createdRequests).toMatchObject([
-          { userID: u2.id, state: MapTestInviteState.UNREAD },
-          { userID: u3.id, state: MapTestInviteState.UNREAD },
-          { userID: u4.id, state: MapTestInviteState.UNREAD }
+          { userID: u2.id, state: MapTestInviteState.ACCEPTED },
+          { userID: u3.id, state: MapTestInviteState.ACCEPTED },
+          { userID: u4.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
 
@@ -2178,8 +2179,9 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
+        // TODO: Change state to MapTestInviteState.UNREAD once they can be manually accepted
         expect(createdRequests).toMatchObject([
-          { userID: u3.id, state: MapTestInviteState.UNREAD }
+          { userID: u3.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
 
@@ -2229,7 +2231,8 @@ describe('Maps Part 2', () => {
         const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
           { userID: u3.id, state: MapTestInviteState.ACCEPTED },
-          { userID: u4.id, state: MapTestInviteState.UNREAD }
+          // TODO: Change this state to MapTestInviteState.UNREAD once they can be manually accepted
+          { userID: u4.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
 
