@@ -98,7 +98,9 @@ export class MapTestInviteService {
       data: difference(userIDs, existingInviteUserIDs).map((userID) => ({
         mapID,
         userID,
-        state: MapTestInviteState.UNREAD
+        // TODO: Change this to MapTestInviteState.UNREAD so invites can be
+        // manually accepted once we have the new notification system
+        state: MapTestInviteState.ACCEPTED
       }))
     });
 
