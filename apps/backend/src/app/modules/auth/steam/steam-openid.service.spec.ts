@@ -5,11 +5,10 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { mockDeep } from 'jest-mock-extended';
-import { SteamService } from '../../steam/steam.service';
 import { SteamOpenIDService } from './steam-openid.service';
 
 describe('SteamOpenIDService', () => {
-  let service: SteamOpenIDService, steamService: SteamService;
+  let service: SteamOpenIDService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,7 +31,6 @@ describe('SteamOpenIDService', () => {
       .compile();
 
     service = module.get(SteamOpenIDService);
-    steamService = module.get(SteamService);
   });
 
   it('should be defined', () => {
@@ -74,18 +72,13 @@ describe('SteamOpenIDService', () => {
   });
 
   describe('authenticate', () => {
-    let verifyAssertionSpy: jest.SpyInstance,
-      getSteamUserSummaryDataSpy: jest.SpyInstance;
+    let verifyAssertionSpy: jest.SpyInstance;
 
     beforeAll(() => {
       // Using bracket notation to access a private property here. JS is weird!
       verifyAssertionSpy = jest.spyOn(
         service['relyingParty'],
         'verifyAssertion'
-      );
-      getSteamUserSummaryDataSpy = jest.spyOn(
-        steamService,
-        'getSteamUserSummaryData'
       );
     });
 
@@ -97,8 +90,6 @@ describe('SteamOpenIDService', () => {
         })
       );
 
-      getSteamUserSummaryDataSpy.mockResolvedValueOnce('cabbage' as any);
-
       expect(
         await service.authenticate({
           query: {
@@ -108,8 +99,7 @@ describe('SteamOpenIDService', () => {
             'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
         } as any)
-      ).toBe('cabbage');
-      expect(getSteamUserSummaryDataSpy).toHaveBeenCalledWith(123n);
+      ).toBe(123n);
     });
 
     // Note this isn't testing the core part of the security; the real security
@@ -162,8 +152,6 @@ describe('SteamOpenIDService', () => {
         })
       );
 
-      getSteamUserSummaryDataSpy.mockResolvedValue('cabbage' as any);
-
       await expect(
         service.authenticate({
           query: {
@@ -209,7 +197,6 @@ describe('SteamOpenIDService', () => {
       ).rejects.toThrow(UnauthorizedException);
 
       verifyAssertionSpy.mockClear();
-      getSteamUserSummaryDataSpy.mockClear();
     });
 
     it('should reject invalid Steam IDs', async () => {
@@ -219,8 +206,6 @@ describe('SteamOpenIDService', () => {
           claimedIdentifier: 'https://steamcommunity.com/openid/id/walrus'
         })
       );
-
-      getSteamUserSummaryDataSpy.mockResolvedValueOnce('cabbage' as any);
 
       await expect(
         service.authenticate({

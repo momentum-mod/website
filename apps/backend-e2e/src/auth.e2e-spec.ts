@@ -174,7 +174,8 @@ describe('Auth', () => {
             data: {
               steamID: steamID,
               alias: steamData.personaname,
-              avatar: steamData.avatarhash
+              avatar: steamData.avatarhash,
+              country: steamData.loccountrycode
             }
           });
 
@@ -334,6 +335,7 @@ describe('Auth', () => {
       it('should create a new user and respond with a game JWT', async () => {
         const userSteamID = 1n;
         const userSteamSummary = {
+          profilestate: 1,
           steamid: userSteamID,
           personaname: 'Dogathan',
           avatarhash: 'ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg',
@@ -380,7 +382,12 @@ describe('Auth', () => {
 
       it('should find an existing user and respond with a game JWT', async () => {
         const userDB = await prisma.user.create({
-          data: { steamID: 1, alias: 'Dogathan', country: 'QA' }
+          data: {
+            steamID: 1,
+            alias: 'Dogathan',
+            avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240',
+            country: 'QA'
+          }
         });
         const userSteamSummary = {
           steamid: userDB.steamID,
@@ -418,14 +425,6 @@ describe('Auth', () => {
         expect(decrypted.steamID).toBe(userDB.steamID.toString());
 
         expect(decrypted.exp - decrypted.iat).toBe(60);
-
-        const updatedUserDB = await prisma.user.findFirst();
-        expect(updatedUserDB).toMatchObject({
-          steamID: userDB.steamID,
-          alias: userDB.alias,
-          country: userSteamSummary.loccountrycode,
-          avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240'
-        });
       });
 
       it('should 400 when header is missing ID', async () => {
@@ -535,6 +534,7 @@ describe('Auth', () => {
       it('should create a new user and respond with a game JWT', async () => {
         const userSteamID = 1n;
         const userSteamSummary = {
+          profilestate: 1,
           steamid: userSteamID,
           personaname: 'Dogathan',
           avatarhash: 'ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg',
@@ -584,7 +584,12 @@ describe('Auth', () => {
 
       it('should find an existing user and respond with a game JWT', async () => {
         const userDB = await prisma.user.create({
-          data: { steamID: 1, alias: 'Dogathan', country: 'QA' }
+          data: {
+            steamID: 1,
+            alias: 'Dogathan',
+            avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240',
+            country: 'QA'
+          }
         });
         const userSteamSummary = {
           steamid: userDB.steamID,
@@ -625,14 +630,6 @@ describe('Auth', () => {
         expect(decrypted.steamID).toBe(userDB.steamID.toString());
 
         expect(decrypted.exp - decrypted.iat).toBe(60);
-
-        const updatedUserDB = await prisma.user.findFirst();
-        expect(updatedUserDB).toMatchObject({
-          steamID: userDB.steamID,
-          alias: userDB.alias, // Alias should not change after logging in if Alias is defined.
-          country: userDB.country, // Country should not change after logging in if Country is defined.
-          avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240'
-        });
       });
 
       it('should 400 when header is missing ID', async () => {
