@@ -54,7 +54,7 @@ export class SteamService {
         data: getPlayerResponse.data,
         headers: getPlayerResponse.headers
       });
-      Sentry.getCurrentScope().setLevel('debug');
+      Sentry.getCurrentScope().setLevel('log');
       Sentry.captureException('Recieved rate limit from Steam');
     }
 
