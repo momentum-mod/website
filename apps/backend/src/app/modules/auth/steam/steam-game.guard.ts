@@ -60,7 +60,7 @@ export class SteamGameGuard implements CanActivate {
       );
     }
 
-    const user = await this.userService.findOrCreateFromGame(steamID);
+    const user = await this.userService.findOrCreateUser(steamID);
 
     if (!user)
       throw new InternalServerErrorException('Could not get or create user');

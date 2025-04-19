@@ -15,9 +15,9 @@ export class SteamWebGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: FastifyRequest = context.switchToHttp().getRequest();
 
-    const userData = await this.steamOpenID.authenticate(request);
+    const steamID = await this.steamOpenID.authenticate(request);
 
-    request.user = await this.userService.findOrCreateFromWeb(userData);
+    request.user = await this.userService.findOrCreateUser(steamID);
 
     return true;
   }

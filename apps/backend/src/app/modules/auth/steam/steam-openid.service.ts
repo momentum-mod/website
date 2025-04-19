@@ -6,8 +6,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import openid from 'openid';
 import { FastifyRequest } from 'fastify';
-import { SteamService } from '../../steam/steam.service';
-import { SteamUserSummaryData } from '../../steam/steam.interface';
 
 /**
  * Handles OpenID calls to Steam. Unfortunately, Steam still uses OpenID 2.0
@@ -20,10 +18,7 @@ import { SteamUserSummaryData } from '../../steam/steam.interface';
 export class SteamOpenIDService {
   private readonly relyingParty: openid.RelyingParty;
 
-  constructor(
-    private readonly config: ConfigService,
-    private readonly steam: SteamService
-  ) {
+  constructor(private readonly config: ConfigService) {
     const authUrl = `${this.config.getOrThrow('url.backend')}/auth`;
     const apiKey = this.config.getOrThrow('steam.webAPIKey');
 
@@ -53,7 +48,7 @@ export class SteamOpenIDService {
     });
   }
 
-  async authenticate(request: FastifyRequest): Promise<SteamUserSummaryData> {
+  async authenticate(request: FastifyRequest): Promise<bigint> {
     return new Promise((resolve) =>
       this.relyingParty.verifyAssertion(
         request,
@@ -88,9 +83,7 @@ export class SteamOpenIDService {
             )
           );
 
-          return this.steam
-            .getSteamUserSummaryData(steamID)
-            .then((data) => resolve(data));
+          return resolve(steamID);
         }
       )
     );

@@ -5,11 +5,10 @@ import {
   GoneException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Follow, Prisma, User, UserAuth } from '@prisma/client';
+import { Follow, Prisma, UserAuth } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,
@@ -42,7 +41,6 @@ import {
   UsersGetAllQueryDto
 } from '../../dto';
 import { AuthenticatedUser } from '../auth/auth.interface';
-import { SteamUserSummaryData } from '../steam/steam.interface';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
@@ -105,79 +103,27 @@ export class UsersService {
     return DtoFactory(UserDto, dbResponse);
   }
 
-  async findOrCreateFromGame(steamID: bigint): Promise<AuthenticatedUser> {
-    const summaryData = await this.steamService
-      .getSteamUserSummaryData(steamID)
-      .catch((_) => {
-        throw new ServiceUnavailableException(
-          'Failed to get player summary data from Steam'
-        );
-      });
-
-    if (steamID !== BigInt(summaryData.steamid))
-      throw new BadRequestException(
-        'User fetched is not the authenticated user!'
-      );
-
-    const profile = {
-      steamID,
-      alias: summaryData.personaname,
-      avatar: summaryData.avatarhash,
-      country: summaryData.loccountrycode
-    };
-
-    return this.findOrCreateUser(profile);
-  }
-
-  async findOrCreateFromWeb(
-    profile: SteamUserSummaryData
-  ): Promise<AuthenticatedUser> {
-    if (profile.profilestate !== 1)
-      throw new ForbiddenException(
-        'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
-      );
-
+  async findOrCreateUser(steamID: bigint): Promise<AuthenticatedUser> {
     const deletedSteamID = await this.db.deletedSteamID.findUnique({
-      where: { steamID: BigInt(profile.steamid) }
+      where: { steamID }
     });
 
     if (deletedSteamID)
       throw new ForbiddenException('Account with this SteamID was deleted.');
 
-    const user = await this.findOrCreateUser({
-      steamID: BigInt(profile.steamid),
-      alias: profile.personaname,
-      avatar: profile.avatarhash,
-      country: profile.loccountrycode
-    });
-
-    if (!user)
-      throw new InternalServerErrorException('Could not get or create user');
-
-    return user;
-  }
-
-  async findOrCreateUser(
-    userData: Pick<User, 'steamID' | 'alias' | 'avatar' | 'country'>
-  ): Promise<AuthenticatedUser> {
     const user = await this.db.user.findUnique({
-      where: { steamID: userData.steamID }
+      where: { steamID },
+      select: {
+        id: true,
+        steamID: true,
+        alias: true,
+        avatar: true,
+        country: true
+      }
     });
-
-    const isValidAlias = user ? NON_WHITESPACE_REGEXP.test(user?.alias) : false;
-
-    const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
-      alias: isValidAlias ? user.alias : userData.alias,
-      avatar: userData.avatar.replace('_full.jpg', ''),
-      country: user?.country || userData.country
-    };
 
     if (user) {
-      return await this.db.user.update({
-        where: { id: user.id },
-        data: input as Prisma.UserUpdateInput,
-        select: { id: true, steamID: true }
-      });
+      return user;
     } else if (
       this.killswitchService.checkKillswitch(KillswitchType.NEW_SIGNUPS)
     ) {
@@ -185,16 +131,37 @@ export class UsersService {
     } else {
       if (
         this.config.getOrThrow('steam.preventLimited') &&
-        (await this.steamService.isAccountLimited(userData.steamID))
+        (await this.steamService.isAccountLimited(steamID))
       )
         throw new ForbiddenException(
           'We do not authenticate limited Steam accounts. Buy something on Steam first!'
         );
 
-      input.steamID = userData.steamID;
+      const userData = await this.steamService
+        .getSteamUserSummaryData(steamID)
+        .catch((_) => {
+          throw new ServiceUnavailableException(
+            'Failed to get player summary data from Steam'
+          );
+        });
+
+      if (steamID !== BigInt(userData.steamid))
+        throw new BadRequestException(
+          'User fetched is not the authenticated user!'
+        );
+
+      if (userData.profilestate !== 1)
+        throw new ForbiddenException(
+          'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
+        );
 
       return await this.db.user.create({
-        data: input as Prisma.UserCreateInput,
+        data: {
+          steamID,
+          alias: userData.personaname,
+          avatar: userData.avatarhash.replace('_full.jpg', ''),
+          country: userData.loccountrycode
+        },
         select: { id: true, steamID: true }
       });
     }
