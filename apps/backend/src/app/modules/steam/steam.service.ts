@@ -12,6 +12,7 @@ import { catchError, lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { SteamFriendData, SteamUserSummaryData } from './steam.interface';
 import { AxiosError } from 'axios';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class SteamService {
@@ -37,21 +38,32 @@ export class SteamService {
     steamID: bigint
   ): Promise<SteamUserSummaryData> {
     const getPlayerResponse = await lastValueFrom(
-      this.http
-        .get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+      this.http.get(
+        'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/',
+        {
           params: {
             key: this.config.getOrThrow('steam.webAPIKey'),
             steamids: steamID.toString()
-          }
-        })
-        .pipe(map((res) => res.data))
+          },
+          validateStatus: () => true
+        }
+      )
     );
 
-    const userSummary = getPlayerResponse.response?.players?.[0];
+    if (getPlayerResponse.status === 429 && Sentry.isInitialized()) {
+      Sentry.setContext('Steam Response', {
+        data: getPlayerResponse.data,
+        headers: getPlayerResponse.headers
+      });
+      Sentry.getCurrentScope().setLevel('log');
+      Sentry.captureException('Recieved rate limit from Steam');
+    }
+
+    const userSummary = getPlayerResponse.data?.response?.players?.[0];
 
     if (
       !userSummary ||
-      getPlayerResponse.response.error ||
+      getPlayerResponse.data.response.error ||
       userSummary.personaname === undefined ||
       !userSummary.avatarhash
     )
