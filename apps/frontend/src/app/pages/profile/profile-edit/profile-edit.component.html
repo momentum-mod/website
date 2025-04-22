@@ -5,7 +5,7 @@
       <div class="mb-4 flex flex-col gap-4">
         <div [ngClass]="{ 'has-error': !alias.valid }">
           <p class="text-lg">Alias</p>
-          <div class="relative flex w-full items-stretch">
+          <div class="relative flex w-full items-stretch gap-2">
             <input class="textinput mb-1" formControlName="alias" type="text" />
             @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
               <div class="input-group-append">
@@ -38,6 +38,13 @@
             [filter]="true"
           />
         </div>
+
+        @if (!hasBan(Ban.AVATAR) || isModOrAdmin) {
+          <div>
+            <p class="text-lg">Avatar</p>
+            <button class="btn" type="button" (click)="resetAvatar()">Update from Steam</button>
+          </div>
+        }
 
         <div [ngClass]="{ 'has-error': !bio.valid }">
           <div class="flex items-end justify-between">

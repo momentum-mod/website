@@ -35,6 +35,11 @@ export class AdminService {
   updateUser(userID: number, body: AdminUpdateUser): Observable<void> {
     return this.http.patch(`admin/users/${userID}`, { body });
   }
+  updateUserAvatarFromSteam(userID: number): Observable<void> {
+    return this.http.patch(`admin/users/${userID}`, {
+      body: { resetAvatar: true }
+    });
+  }
 
   getReports(query?: AdminGetReportsQuery): Observable<PagedResponse<Report>> {
     return this.http.get<PagedResponse<Report>>('admin/reports', { query });

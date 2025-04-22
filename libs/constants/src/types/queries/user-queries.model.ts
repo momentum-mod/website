@@ -8,6 +8,7 @@ export interface UpdateUser {
   alias?: string;
   bio?: string;
   socials?: Socials;
+  resetAvatar?: boolean;
 }
 
 export interface AdminUpdateUser extends UpdateUser {
