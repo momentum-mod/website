@@ -191,6 +191,14 @@ export class ProfileEditComponent implements OnInit {
     this.checkUserPermissions();
   }
 
+  updateUser() {
+    this.usersService
+      .getUser(this.user.id, {
+        expand: ['profile', 'userStats']
+      })
+      .subscribe((user) => this.setUser(user));
+  }
+
   onSubmit(): void {
     if (!this.form.valid) return;
 
@@ -407,9 +415,13 @@ export class ProfileEditComponent implements OnInit {
   }
 
   resetAlias() {
-    this.localUserService.resetAliasToSteamAlias().subscribe({
+    (this.isLocal
+      ? this.localUserService.resetAliasToSteamAlias()
+      : this.adminService.resetUserAliasToSteamAlias(this.user.id)
+    ).subscribe({
       next: () => {
-        this.localUserService.refreshLocalUser();
+        if (this.isLocal) this.localUserService.refreshLocalUser();
+        else this.updateUser();
         this.messageService.add({
           severity: 'success',
           detail: 'Successfully reset alias to Steam name!'

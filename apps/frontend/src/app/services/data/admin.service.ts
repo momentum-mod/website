@@ -35,6 +35,11 @@ export class AdminService {
   updateUser(userID: number, body: AdminUpdateUser): Observable<void> {
     return this.http.patch(`admin/users/${userID}`, { body });
   }
+
+  resetUserAliasToSteamAlias(userID: number): Observable<void> {
+    return this.http.patch(`admin/users/${userID}`, { body: { alias: '' } });
+  }
+
   updateUserAvatarFromSteam(userID: number): Observable<void> {
     return this.http.patch(`admin/users/${userID}`, {
       body: { resetAvatar: true }
