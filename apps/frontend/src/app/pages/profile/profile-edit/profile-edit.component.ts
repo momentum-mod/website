@@ -131,7 +131,8 @@ export class ProfileEditComponent implements OnInit {
       ],
       bio: ['', [Validators.maxLength(MAX_BIO_LENGTH)]],
       country: [''],
-      socials: this.fb.group(socialsForm)
+      socials: this.fb.group(socialsForm),
+      resetAvatar: [false]
     });
 
     this.adminEditForm = this.fb.group({
@@ -418,6 +419,27 @@ export class ProfileEditComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to reset alias to Steam alias!',
+          detail: httpError.error.message
+        })
+    });
+  }
+
+  resetAvatar() {
+    (this.isLocal
+      ? this.localUserService.updateAvatarFromSteam()
+      : this.adminService.updateUserAvatarFromSteam(this.user.id)
+    ).subscribe({
+      next: () => {
+        if (this.isLocal) this.localUserService.refreshLocalUser();
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Successfully updated avatar!'
+        });
+      },
+      error: (httpError: HttpErrorResponse) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to update avatar!',
           detail: httpError.error.message
         })
     });

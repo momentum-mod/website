@@ -45,6 +45,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
+import { SteamUserSummaryData } from '../steam/steam.interface';
 
 @Injectable()
 export class UsersService {
@@ -177,6 +178,7 @@ export class UsersService {
     });
 
     const updateInput: Prisma.UserUpdateInput = {};
+    let userData: SteamUserSummaryData;
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
@@ -188,9 +190,10 @@ export class UsersService {
 
       // Reset alias to steam name
       if (update.alias === '') {
-        const userData = await this.steamService.getSteamUserSummaryData(
-          user.steamID
-        );
+        if (!userData)
+          userData = await this.steamService.getSteamUserSummaryData(
+            user.steamID
+          );
         update.alias = userData.personaname;
       }
 
@@ -223,6 +226,14 @@ export class UsersService {
       } else {
         updateInput.profile = { update: { bio: update.bio } };
       }
+    }
+
+    if (update.resetAvatar) {
+      if (!userData)
+        userData = await this.steamService.getSteamUserSummaryData(
+          user.steamID
+        );
+      updateInput.avatar = userData.avatarhash.replace('_full.jpg', '');
     }
 
     if (update.country) {

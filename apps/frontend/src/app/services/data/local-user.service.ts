@@ -211,6 +211,10 @@ export class LocalUserService {
     return this.http.patch('user', { body: { alias: '' } });
   }
 
+  public updateAvatarFromSteam(): Observable<void> {
+    return this.http.patch('user', { body: { resetAvatar: true } });
+  }
+
   public getSteamFriends(): Observable<User[]> {
     return this.http.get<User[]>('user/steamfriends');
   }

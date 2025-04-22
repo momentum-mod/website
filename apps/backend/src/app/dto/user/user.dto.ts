@@ -11,6 +11,7 @@ import {
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsInt,
   IsISO31661Alpha2,
   IsOptional,
@@ -125,6 +126,14 @@ export class UpdateUserDto {
   @IsISO31661Alpha2()
   @IsOptional()
   country?: string;
+
+  @ApiPropertyOptional({
+    type: Boolean,
+    description: 'Whether we need to get a new user avatar from Steam'
+  })
+  @IsBoolean()
+  @IsOptional()
+  resetAvatar?: boolean;
 
   @NestedProperty(UpdateSocialsDto)
   socials: UpdateSocialsDto;
