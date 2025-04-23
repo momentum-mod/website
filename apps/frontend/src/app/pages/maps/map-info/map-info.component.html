@@ -145,7 +145,7 @@
             <div class="flex items-center" [mTooltip]="requiredGamesTooltip">
               @for (gameImage of requiredGamesImages; track $index) {
                 <img
-                  class="-mr-3 aspect-square h-6 rounded-md drop-shadow-[0_0_0.175rem_#000]"
+                  class="{{ !$last ? '-mr-3' : '' }} aspect-square h-6 rounded-md drop-shadow-[0_0_0.175rem_#000]"
                   [style]="{ zIndex: -$index }"
                   [src]="gameImage"
                 />
