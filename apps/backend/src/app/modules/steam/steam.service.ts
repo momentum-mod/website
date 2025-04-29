@@ -39,7 +39,8 @@ export class SteamService {
   ): Promise<SteamUserSummaryData> {
     const getPlayerResponse = await lastValueFrom(
       this.http.get(
-        'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/',
+        this.config.get('steam.webAPIUrl') +
+          '/ISteamUser/GetPlayerSummaries/v2/',
         {
           params: {
             key: this.config.getOrThrow('steam.webAPIKey'),
@@ -80,13 +81,16 @@ export class SteamService {
   async getSteamFriends(steamID: bigint): Promise<SteamFriendData[]> {
     return lastValueFrom(
       this.http
-        .get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
-          params: {
-            key: this.steamApiKey,
-            steamID: steamID,
-            relationship: 'friend'
+        .get(
+          this.config.get('steam.webAPIUrl') + '/ISteamUser/GetFriendList/v1/',
+          {
+            params: {
+              key: this.steamApiKey,
+              steamID: steamID,
+              relationship: 'friend'
+            }
           }
-        })
+        )
         .pipe(
           map((res) => res?.data?.friendslist?.friends),
           catchError((error: AxiosError) => {
@@ -123,7 +127,8 @@ export class SteamService {
     const steamResponse = await lastValueFrom(
       this.http
         .get(
-          'https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
+          this.config.get('steam.webAPIUrl') +
+            '/ISteamUserAuth/AuthenticateUserTicket/v1/',
           {
             params: {
               key: this.config.getOrThrow('steam.webAPIKey'),

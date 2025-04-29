@@ -45,6 +45,10 @@ export const ConfigFactory = (): ConfigInterface => {
     sessionSecret: process.env['SESSION_SECRET'] || '',
     steam: {
       webAPIKey: process.env['STEAM_WEB_API_KEY'] || "This won't work!!",
+      webAPIUrl:
+        process.env['STEAM_USE_PARTNER_URL'] === 'true'
+          ? 'https://partner.steam-api.com'
+          : 'https://api.steampowered.com',
       preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' || true,
       useSteamTicketLibrary:
         process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' || false,

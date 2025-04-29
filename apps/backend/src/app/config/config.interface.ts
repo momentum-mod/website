@@ -25,6 +25,7 @@ export interface ConfigInterface {
   };
   steam: {
     webAPIKey: string;
+    webAPIUrl: string;
     preventLimited: boolean;
     useSteamTicketLibrary: boolean;
     ticketsSecretKey: string;
