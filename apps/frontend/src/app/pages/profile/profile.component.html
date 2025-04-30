@@ -17,7 +17,7 @@
           <div class="flex gap-1">
             <h1
               class="flex flex-grow items-center gap-2 font-medium"
-              [fontSizeLerp]="{ chars: user.alias.length, maxChars: 29, startAt: 16, baseRem: 2.25, minRem: 1.5 }"
+              [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
             >
               {{ user.alias }}
               @if (user.country && user.country.length === 2) {
