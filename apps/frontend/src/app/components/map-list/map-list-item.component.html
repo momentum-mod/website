@@ -80,7 +80,7 @@
     class="border-t-none flex grow flex-col rounded-b border border-white border-opacity-5 bg-white bg-opacity-5 p-4 pt-3.5 backdrop-blur-xl transition-colors group-hover:bg-opacity-10"
   >
     <div class="mb-2 flex min-h-[2rem] flex-wrap items-center gap-y-2">
-      <p class="contents min-h-[2rem]" [fontSizeLerp]="{ chars: name.length, maxChars: 29, startAt: 16, baseRem: 2, minRem: 1.75 }">
+      <p class="contents min-h-[2rem]" [fontSizeLerp]="{ chars: name.length + prefix?.length, startAt: 26, baseRem: 2 }">
         @if (prefix) {
           <span class="mr-1 font-display font-bold leading-none text-gray-250">{{ prefix }}</span>
         }

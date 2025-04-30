@@ -5,7 +5,7 @@
            padding. But vertical space is so precious here! -->
       <div class="-mt-4 flex h-24 flex-[1_1_auto] flex-col">
         <p class="card-title -mb-1 mt-auto text-[2rem] text-gray-200">{{ prefix }}</p>
-        <p class="card-title" [fontSizeLerp]="{ chars: name.length, maxChars: 29, startAt: 16, baseRem: 4.5, minRem: 2.5 }">
+        <p class="card-title" [fontSizeLerp]="{ chars: name.length, startAt: 16, baseRem: 4.5 }">
           {{ name }}
         </p>
       </div>
