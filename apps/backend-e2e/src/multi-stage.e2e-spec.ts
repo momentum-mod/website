@@ -173,6 +173,28 @@ describe('Multi-stage E2E tests', () => {
         {
           file: vmf2Buffer,
           field: 'vmfs',
+          fileName: 'surf_todd_howard_main_0.vmf'
+        },
+        {
+          file: vmf2Buffer,
+          field: 'vmfs',
+          fileName: 'surf_todd_howard_instance_0.vmf'
+        }
+      ],
+      validate: MapDto,
+      token
+    });
+
+    // Update VMFs once again without a new BSP file so we could test
+    // if last version file stays there
+    await req.postAttach({
+      url: `maps/${mapID}`,
+      status: 201,
+      data: { changelog: 'it just works' },
+      files: [
+        {
+          file: vmf2Buffer,
+          field: 'vmfs',
           fileName: 'surf_todd_howard_main.vmf'
         },
         {
