@@ -1556,15 +1556,12 @@ export class MapsService {
       )
     });
 
-    const {
-      currentVersion: { zones: dbZones },
-      versions
-    } = await this.db.mMap.findFirst({
+    const { currentVersion, versions } = await this.db.mMap.findFirst({
       where: { id: map.id },
       include: { currentVersion: true, versions: { omit: { zones: true } } }
     });
 
-    const zones = JSON.parse(dbZones);
+    const zones = JSON.parse(currentVersion.zones);
 
     // Is it getting approved for first time?
     if (
@@ -1627,11 +1624,15 @@ export class MapsService {
       this.fileStoreService
         .deleteFiles(
           versions
-            .slice(0, -1)
             .flatMap((v) => [
-              bspPath(v.bspDownloadId),
-              vmfsPath(v.vmfDownloadId)
+              currentVersion.bspDownloadId !== v.bspDownloadId
+                ? bspPath(v.bspDownloadId)
+                : undefined,
+              currentVersion.vmfDownloadId !== v.vmfDownloadId
+                ? vmfsPath(v.vmfDownloadId)
+                : undefined
             ])
+            .filter(Boolean)
         )
         .catch((error) => {
           error.message = `Failed to delete map version file for ${map.name}: ${error.message}`;
