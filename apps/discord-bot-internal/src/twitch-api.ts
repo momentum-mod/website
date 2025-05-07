@@ -81,13 +81,18 @@ export class TwitchAPI {
   }
 
   async getLiveMomentumModStreams(): Promise<TwitchStream[]> {
+    const additionalStreams =
+      config.twitch_momentum_mod_official_channels.length > 0
+        ? this.apiGet('helix/streams', {
+            user_id: config.twitch_momentum_mod_official_channels
+          })
+        : Promise.resolve({ data: [] });
+
     return await Promise.all([
       this.apiGet('helix/streams', {
         game_id: config.twitch_momentum_mod_game_id
       }),
-      this.apiGet('helix/streams', {
-        user_id: config.twitch_momentum_mod_official_channels.join(',')
-      })
+      additionalStreams
     ]).then((arr) => arr.flatMap(({ data }) => data));
   }
 
