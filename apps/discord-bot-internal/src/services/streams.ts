@@ -218,13 +218,28 @@ export class StreamsService extends Service {
   }
 
   async processEndedStreams(streams: TwitchStream[], messages: Message[]) {
-    const endedStreams = this.streamerIdMessageMap
+    let endedStreams = this.streamerIdMessageMap
       .entries()
       .filter(
         ([streamerId]) =>
           !streams.some((stream) => stream.user_id === streamerId)
       )
       .toArray();
+
+    if (endedStreams.length > 0) {
+      // Verify that streams really did end because Twitch API sucks
+      const liveStreams = await this.twitch.getStreams(
+        endedStreams.map(([id]) => id)
+      );
+      endedStreams = endedStreams.filter(
+        ([streamerId]) =>
+          !liveStreams.some(
+            (stream) =>
+              stream.user_id === streamerId &&
+              stream.game_id === config.twitch_momentum_mod_game_id
+          )
+      );
+    }
 
     for (const [streamerId, messageId] of endedStreams) {
       if (this.softBans.has(streamerId)) this.softBans.delete(streamerId);

@@ -96,6 +96,12 @@ export class TwitchAPI {
     ]).then((arr) => arr.flatMap(({ data }) => data));
   }
 
+  async getStreams(ids: string[]): Promise<TwitchStream[]> {
+    return await this.apiGet('helix/streams', {
+      user_id: ids
+    }).then(({ data }) => data);
+  }
+
   async getUser(id: string): Promise<TwitchUser | null> {
     return await this.apiGet('helix/users', { id }).then(
       ({ data }) => data[0] ?? null
