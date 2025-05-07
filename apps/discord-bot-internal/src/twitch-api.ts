@@ -14,11 +14,17 @@ export class TwitchAPI {
   private async apiGet(path: string, query: Record<string, any>) {
     await this.checkToken();
 
+    const searchParams = new URLSearchParams();
+    for (const [k, v] of Object.entries(query)) {
+      if (Array.isArray(v)) {
+        v.forEach((vv) => searchParams.append(k, vv));
+      } else {
+        searchParams.append(k, v);
+      }
+    }
+
     const response = await axios.get(
-      'https://api.twitch.tv/' +
-        path +
-        '?' +
-        new URLSearchParams(query).toString(),
+      'https://api.twitch.tv/' + path + '?' + searchParams.toString(),
       {
         headers: {
           Authorization: 'Bearer ' + this.token,
