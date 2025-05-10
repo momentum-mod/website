@@ -137,6 +137,12 @@ export class MapReviewCommentService {
       include: { mmap: true }
     });
 
+    if (!review) {
+      throw new BadRequestException(
+        'Review not found, maybe it has been deleted?'
+      );
+    }
+
     await this.mapsService.getMapAndCheckReadAccess({
       map: review.mmap,
       userID,
