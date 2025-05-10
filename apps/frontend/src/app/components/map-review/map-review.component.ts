@@ -236,12 +236,15 @@ export class MapReviewComponent {
           this._review.comments.unshift(res);
           this._review.numComments++;
         },
-        error: (httpError: HttpErrorResponse) =>
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             detail: httpError.error.message,
             summary: 'Failed to post comment!'
-          })
+          });
+          this.loadingComments = false;
+          this.updatedOrDeleted.next();
+        }
       });
     this.commentInput.reset();
   }
