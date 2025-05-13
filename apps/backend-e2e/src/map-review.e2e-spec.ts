@@ -489,6 +489,18 @@ describe('Map Reviews', () => {
 
       afterAll(() => db.cleanup('mMap', 'user'));
 
+      it('should 400 if commenting on non-existing review', () =>
+        req.post({
+          url: `map-review/${NULL_ID}/comments`,
+          status: 400,
+          body: {
+            data: {
+              text: 'Not disgusting!!'
+            }
+          },
+          token: token
+        }));
+
       it('should 503 if the killswitch is true', async () => {
         await req.patch({
           url: 'admin/killswitch',
