@@ -10,6 +10,7 @@ import {
   CURRENT_ZONE_FORMAT_VERSION,
   MAX_BONUS_TRACKS,
   MAX_COORD_FLOAT,
+  MAX_REGIONS,
   MAX_SEGMENT_CHECKPOINTS,
   MAX_TRACK_SEGMENTS,
   MAX_ZONE_REGION_POINTS,
@@ -74,7 +75,8 @@ describe('validateZoneFile', () => {
       const segment = input.tracks.main.zones.segments[0];
       const checkpoint = segment.checkpoints[0];
       const bonus = input.tracks.bonuses[0];
-
+      checkpoint.regions = [checkpoint.regions[0]];
+      segment.cancel = [];
       input.tracks.bonuses = [];
       input.tracks.main.stagesEndAtStageStarts = true;
       input.tracks.main.zones.segments = arrayFrom(MAX_TRACK_SEGMENTS).map(
@@ -88,7 +90,14 @@ describe('validateZoneFile', () => {
 
       input.tracks.bonuses = [bonus];
 
-      expect(() => validateZoneFile(input)).toThrow('Too many zones in total');
+      segment.checkpoints = arrayFrom(MAX_REGIONS).map(
+        () => ({
+          ...checkpoint
+        })
+      ) as Zone[];
+      input.tracks.main.zones.segments = [segment];
+
+      expect(() => validateZoneFile(input)).toThrow('Too many regions in total');
     });
 
     it('should throw if too many cancel zones', () => {
@@ -112,7 +121,7 @@ describe('validateZoneFile', () => {
         () => checkpoint
       );
 
-      expect(() => validateZoneFile(input)).toThrow('Too many zones in total');
+      expect(() => validateZoneFile(input)).toThrow('Too many regions in total');
     });
 
     it('should throw if the main track has stagesEndAtStageStarts false and a non-final segment has only 1 checkpoint', () => {
@@ -431,7 +440,7 @@ describe('validateZoneFile', () => {
     });
 
     // Actually impossible to reach this, since only main tracks can have
-    // segments, and the MAX_ZONES_ALL_TRACKS check will catch it first.
+    // segments, and the MAX_REGIONS check will catch it first.
     it.skip('should throw if a track has too many segments', () => {});
 
     it('should throw if a segment has no checkpoints', () => {
