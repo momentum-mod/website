@@ -96,4 +96,13 @@ export class MapSubmissionComponent {
 
     downloadZoneFile(this.mapWithVersionsZones, version.id);
   }
+
+  getLumperUrl(mapVersion: MapVersion): string {
+    // Angular (or something) does some sanitisation or something if we try to
+    // set a <a href> to lumper://https://cdn.momentum-mod.org/... and
+    // turns it in lumper://https//cdn.momentum-mod.org/...
+    // This is fine, but I'd rather do that transform ourselves in case Angular
+    // changes in the future.
+    return `lumper://${mapVersion.downloadURL.replace(/(?<=http|https):\/\//, '//')}`;
+  }
 }
