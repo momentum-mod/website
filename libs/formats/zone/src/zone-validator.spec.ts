@@ -431,7 +431,7 @@ describe('validateZoneFile', () => {
     });
 
     // Actually impossible to reach this, since only main tracks can have
-    // segments, and the MAX_ZONES_ALL_TRACKS check will catch it first.
+    // segments, and the MAX_REGIONS check will catch it first.
     it.skip('should throw if a track has too many segments', () => {});
 
     it('should throw if a segment has no checkpoints', () => {

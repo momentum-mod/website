@@ -28,12 +28,6 @@ export const MAX_REGIONS = 250;
 // Includes the segment start zone
 export const MAX_SEGMENT_CHECKPOINTS = 100;
 
-// From C++:
-// One segment start for max Main segments plus Main end zone plus start and end for each stage track.
-// The limit could be increased from here (barring region entity overload) but this is the bare minimum to allow for MAX_TRACK_SEGMENTS.
-export const MAX_ZONES_ALL_TRACKS =
-  MAX_TRACK_SEGMENTS + 1 + MAX_STAGE_TRACKS * 2;
-
 export class ZoneValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -147,9 +141,6 @@ export function validateZoneFile(input: MapZones): void {
 
     validateTrack(bonusTrack, `bonus ${bonusIndex}`);
   }
-
-  if (totalZones > MAX_ZONES_ALL_TRACKS)
-    throw new ZoneValidationError('Too many zones in total');
 
   function validateTrack(track: Track, debugName: string) {
     const { zones } = track;
