@@ -1,59 +1,42 @@
-import {
-  Gamemode,
-  IncompatibleGamemodes,
-  TrackType
-} from '@momentum/constants';
+import { Gamemode, TrackType } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
 import * as LeaderboardHandler from './leaderboard-handler.util';
 
 describe('LeaderboardHandler', () => {
   describe('getCompatibleSuggestions', () => {
     it('should expand an array of suggestions to everything compatible', () => {
-      jest.mock('@momentum/enum', () => ({
-        values: jest.fn().mockReturnValue([Gamemode.AHOP, Gamemode.BHOP])
-      }));
-
-      jest
-        .spyOn(IncompatibleGamemodes, 'get')
-        .mockImplementation((key) =>
-          key === Gamemode.AHOP ? new Set([Gamemode.BHOP]) : new Set()
-        );
-
-      const inMain = {
+      const main = {
         gamemode: Gamemode.AHOP,
         trackType: TrackType.MAIN,
         trackNum: 1
       };
 
-      const outMain = {
-        gamemode: Gamemode.AHOP,
-        trackType: TrackType.MAIN,
-        trackNum: 1
-      };
-
-      const inBonus = {
+      const bonus = {
         gamemode: Gamemode.BHOP,
         trackType: TrackType.BONUS,
         trackNum: 1
       };
 
-      const outBonus = {
-        gamemode: Gamemode.BHOP,
-        trackType: TrackType.BONUS,
-        trackNum: 1
-      };
+      const leaderboards = LeaderboardHandler.getCompatibleLeaderboards([
+        main,
+        bonus
+      ]);
 
-      expect(
-        LeaderboardHandler.getCompatibleLeaderboards([inMain, inBonus])
-      ).toEqual(
+      expect(leaderboards).toEqual(
         expect.arrayContaining([
-          outMain,
-          { ...outMain, gamemode: Gamemode.SURF },
-          outBonus,
-          { ...outBonus, gamemode: Gamemode.AHOP },
-          { ...outBonus, gamemode: Gamemode.SURF }
+          main,
+          { ...main, gamemode: Gamemode.BHOP },
+          bonus,
+          { ...bonus, gamemode: Gamemode.AHOP },
+          { ...bonus, gamemode: Gamemode.BHOP }
         ])
       );
+
+      // Surf is never compatible with Ahop
+      expect(leaderboards).not.toContainEqual({
+        ...main,
+        gamemode: Gamemode.SURF
+      });
     });
   });
 
