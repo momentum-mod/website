@@ -1,5 +1,7 @@
 import {
   Gamemode,
+  GamemodeCategories,
+  GamemodeCategory,
   IncompatibleGamemodes,
   LeaderboardType,
   MapSubmissionSuggestion,
@@ -23,10 +25,13 @@ export function getMaximalLeaderboards<T extends LeaderboardProps>(
   leaderboards: T[],
   zones: MapZones
 ): LeaderboardProps[] {
-  return getCompatibleLeaderboards([
-    ...setLeaderboardLinearity(leaderboards, zones),
-    ...getStageLeaderboards(leaderboards, zones)
-  ]);
+  return getCompatibleLeaderboards(
+    [
+      ...setLeaderboardLinearity(leaderboards, zones),
+      ...getStageLeaderboards(leaderboards, zones)
+    ],
+    zones
+  );
 }
 
 /**
@@ -35,7 +40,8 @@ export function getMaximalLeaderboards<T extends LeaderboardProps>(
  * E.g. a rocket jump track also gets a sticky jump entry, but not surf.
  */
 export function getCompatibleLeaderboards<T extends LeaderboardProps>(
-  leaderboards: T[]
+  leaderboards: T[],
+  zones: MapZones
 ): LeaderboardProps[] {
   return (
     leaderboards
@@ -54,6 +60,13 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
       )
       // Filter out any duplicates
       .filter((x, i, array) => !array.some((y, j) => isEqual(x, y) && i < j))
+      // Filter out any bonuses not in Defrag where the defragModifiers field is set
+      .filter(
+        ({ trackType, trackNum, gamemode }) =>
+          trackType !== TrackType.BONUS ||
+          GamemodeCategories.get(GamemodeCategory.DEFRAG).includes(gamemode) ||
+          !zones.tracks.bonuses[trackNum - 1]?.defragModifiers // ignore if undefined or 0
+      )
   );
 }
 
