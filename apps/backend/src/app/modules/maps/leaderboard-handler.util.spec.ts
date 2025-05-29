@@ -5,6 +5,8 @@ import * as LeaderboardHandler from './leaderboard-handler.util';
 describe('LeaderboardHandler', () => {
   describe('getCompatibleSuggestions', () => {
     it('should expand an array of suggestions to everything compatible', () => {
+      const zones = structuredClone(ZonesStub);
+
       const main = {
         gamemode: Gamemode.AHOP,
         trackType: TrackType.MAIN,
@@ -17,10 +19,10 @@ describe('LeaderboardHandler', () => {
         trackNum: 1
       };
 
-      const leaderboards = LeaderboardHandler.getCompatibleLeaderboards([
-        main,
-        bonus
-      ]);
+      const leaderboards = LeaderboardHandler.getCompatibleLeaderboards(
+        [main, bonus],
+        zones
+      );
 
       expect(leaderboards).toEqual(
         expect.arrayContaining([
@@ -36,6 +38,53 @@ describe('LeaderboardHandler', () => {
       expect(leaderboards).not.toContainEqual({
         ...main,
         gamemode: Gamemode.SURF
+      });
+    });
+
+    it('should ignore non-defrag bonuses in defrag with defragModifiers', () => {
+      const zones = structuredClone(ZonesStub);
+
+      const main = {
+        gamemode: Gamemode.DEFRAG_CPM,
+        trackType: TrackType.MAIN,
+        trackNum: 1
+      };
+
+      const bonus1 = {
+        gamemode: Gamemode.DEFRAG_CPM,
+        trackType: TrackType.BONUS,
+        trackNum: 1
+      };
+
+      const bonus2 = {
+        gamemode: Gamemode.DEFRAG_CPM,
+        trackType: TrackType.BONUS,
+        trackNum: 2
+      };
+
+      zones.tracks.bonuses.push({
+        ...zones.tracks.bonuses[0],
+        defragModifiers: 1
+      });
+
+      const leaderboards = LeaderboardHandler.getCompatibleLeaderboards(
+        [main, bonus1, bonus2],
+        zones
+      );
+
+      expect(leaderboards).toEqual(
+        expect.arrayContaining([
+          main,
+          { ...main, gamemode: Gamemode.AHOP },
+          bonus1,
+          { ...bonus1, gamemode: Gamemode.AHOP },
+          bonus2
+        ])
+      );
+
+      expect(leaderboards).not.toContainEqual({
+        ...bonus2,
+        gamemode: Gamemode.AHOP
       });
     });
   });
