@@ -13,12 +13,18 @@ import {
   VERSION_NEUTRAL
 } from '@nestjs/common';
 import {
+  ApiBadGatewayResponse,
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConflictResponse,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags
+  ApiServiceUnavailableResponse,
+  ApiTags,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { FastifyReply, FastifyRequest } from 'fastify';
@@ -108,6 +114,27 @@ export class AuthController {
   @ApiOkResponse({
     type: JWTResponseGameDto,
     description: 'Authorized steam user token'
+  })
+  @ApiForbiddenResponse({
+    description:
+      'For limited Steam accounts, or accounts that permanently deleted themselves'
+  })
+  @ApiServiceUnavailableResponse({
+    description:
+      'When authenticate requires us request from Steam, and Steam is down'
+  })
+  @ApiConflictResponse({
+    description:
+      "When player is a new account and we've temporarily disabled sign-ups"
+  })
+  @ApiUnauthorizedResponse({
+    description: 'When login token is invalid'
+  })
+  @ApiBadRequestResponse({
+    description: 'When provided login data is malformed'
+  })
+  @ApiBadGatewayResponse({
+    description: 'If this API is down'
   })
   async steamGameAuth(
     @Req() req: RawBodyRequest<FastifyRequest>,
