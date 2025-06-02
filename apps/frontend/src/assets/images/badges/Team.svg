@@ -1,22 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64">
-  <defs>
-    <linearGradient id="c">
-      <stop offset="0" style="stop-color:#ff6847;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#ff9e3c;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="b">
-      <stop offset="0" style="stop-color:#ff6847;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#ff9e3c;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="a">
-      <stop offset="0" style="stop-color:#ff6847;stop-opacity:1"/>
-      <stop offset="1" style="stop-color:#ff9e3c;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient xlink:href="#a" id="f" x1="-119.566" x2="-119.566" y1="237.309" y2="7.594" gradientTransform="translate(224.211 .427)" gradientUnits="userSpaceOnUse"/>
-    <linearGradient xlink:href="#b" id="e" x1="-111.566" x2="-111.566" y1="237.309" y2="7.594" gradientTransform="translate(224.211 .427)" gradientUnits="userSpaceOnUse"/>
-    <linearGradient xlink:href="#c" id="d" x1="-127.566" x2="-127.566" y1="237.309" y2="7.594" gradientTransform="translate(224.211 -.367)" gradientUnits="userSpaceOnUse"/>
-  </defs>
-  <path d="m85.049 79.934 42.474 42.969-42.474 42.923-42.938-42.923z" style="fill:url(#d);fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" transform="translate(-2.235 -2.235) scale(.2786)"/>
-  <path d="m104.645 17.52 104.408 106.177-104.407 104.542H35.073l103.344-104.542L35.073 17.52Z" style="fill:url(#e);fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" transform="translate(-2.235 -2.235) scale(.2786)"/>
-  <path d="M38.989 9.52h57.656c8 0 12 0 20 8l98.41 100.176c4 4 4 8 0 12l-98.41 98.543c-8 8-12 8-20 8H38.99c-7.93.059-15.91-8-7.91-16l47.968-47.62-42.017-42.923c-3.955-4-3.955-8 0-12l42.017-42.968L31.08 25.52c-8-8 0-16 3.992-16h3.918" style="fill:none;stroke:url(#f);stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" transform="translate(-2.235 -2.235) scale(.2786)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <path fill="#fff" d="M113.012 71.567 241.444 200 113.012 328.431h87.97L329.414 200 200.982 71.567z" />
+  <path fill="#fff" d="m119.035 200 51.611-51.612 51.612 51.611-51.612 51.612z" />
+  <path fill="#fff" d="M200 0C89.543 0 0 89.543 0 200s89.543 200 200 200 200-89.543 200-200S310.457 0 200 0m9.149 339.453a8.7 8.7 0 0 1-6.15 2.547H101.254c-7.748 0-11.628-9.368-6.15-14.847l65.948-65.948-55.189-55.189a8.51 8.51 0 0 1 0-12.034l55.189-55.188-65.948-65.947C89.626 67.367 93.506 58 101.254 58h101.745c2.307 0 4.52.916 6.15 2.547L342.453 193.85a8.697 8.697 0 0 1 0 12.299z" />
 </svg>

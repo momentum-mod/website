@@ -19,14 +19,18 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
       [src]="'assets/images/badges/' + role + '.svg'"
       [mTooltip]="role"
       [alt]="role + ' Badge'"
-      class="h-full aspect-square"
+      [class]="'h-full aspect-square opacity-90 drop-shadow ' + classes"
     />
   }`,
   styles: ':host { display: flex; gap: 0.25rem; }'
 })
 export class RoleBadgesComponent implements OnChanges {
   @Input({ required: true }) roles!: Flags<Role>;
+
   @Input() ignored: Role[];
+
+  @Input() classes: string = '';
+
   private readonly available: Role[] = [
     Role.ADMIN,
     Role.MODERATOR,
