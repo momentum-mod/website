@@ -54,4 +54,22 @@ export class CompletedRunDto implements CompletedRun {
 
   @NestedProperty(XpGainDto)
   readonly xp: XpGainDto;
+
+  @ApiProperty({
+    description: 'Total runs on the leaderboard, including the submitted run'
+  })
+  @IsInt()
+  readonly totalRuns: number;
+
+  @NestedProperty(LeaderboardRunDto, {
+    required: false,
+    description: 'The last personal best run of the player, if any'
+  })
+  readonly lastPB?: LeaderboardRunDto;
+
+  @NestedProperty(LeaderboardRunDto, {
+    required: false,
+    description: 'World record for the leaderboard, could be this run'
+  })
+  readonly worldRecord?: LeaderboardRunDto;
 }

@@ -253,10 +253,21 @@ export class RunSessionService {
 
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ run, xpGain, isWR }] = await parallel(
-      this.updateLeaderboards(tx, submittedRun, isPB, existingRun, replayHash),
-      this.updateReplayFiles(replayBuffer, replayHash, existingRun?.replayHash)
-    );
+    const [{ run, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
+      await parallel(
+        this.updateLeaderboards(
+          tx,
+          submittedRun,
+          isPB,
+          existingRun,
+          replayHash
+        ),
+        this.updateReplayFiles(
+          replayBuffer,
+          replayHash,
+          existingRun?.replayHash
+        )
+      );
 
     if (isWR) {
       await tx.activity.create({
@@ -279,8 +290,11 @@ export class RunSessionService {
     return DtoFactory(CompletedRunDto, {
       isNewPersonalBest: isPB,
       isNewWorldRecord: isWR,
-      run: run,
-      xp: xpGain
+      xp: xpGain,
+      run,
+      lastPB,
+      worldRecord,
+      totalRuns
     });
   }
 
@@ -290,7 +304,14 @@ export class RunSessionService {
     isPB: boolean,
     existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
     replayHash?: string
-  ): Promise<{ run?: LeaderboardRun; xpGain: XpGainDto; isWR: boolean }> {
+  ): Promise<{
+    run?: LeaderboardRun;
+    xpGain: XpGainDto;
+    isWR: boolean;
+    lastPB?: LeaderboardRun;
+    worldRecord?: LeaderboardRun;
+    totalRuns: number;
+  }> {
     // Base Where input we'll be using variants of
     const leaderboardWhere = {
       mapID: submittedRun.mapID,
@@ -379,10 +400,6 @@ export class RunSessionService {
       });
     }
 
-    if (!isPB) {
-      return { xpGain, isWR: false };
-    }
-
     // We're a PB, so time to do a million fucking DB writes
     const existingWorldRecord = await tx.leaderboardRun.findFirst({
       where: {
@@ -401,7 +418,19 @@ export class RunSessionService {
     let totalRuns = await tx.leaderboardRun.count({
       where: leaderboardWhere
     });
-    if (isPB) totalRuns++;
+
+    if (isPB) {
+      totalRuns++;
+    }
+
+    if (!isPB) {
+      return {
+        xpGain,
+        isWR: false,
+        totalRuns,
+        worldRecord: existingWorldRecord
+      };
+    }
 
     const fasterRuns = await tx.leaderboardRun.count({
       where: {
@@ -511,7 +540,14 @@ export class RunSessionService {
       }
     }
 
-    return { run, xpGain, isWR };
+    return {
+      run,
+      xpGain,
+      isWR,
+      lastPB: existingRun,
+      worldRecord: isWR ? run : existingWorldRecord,
+      totalRuns
+    };
   }
 
   private async updateReplayFiles(

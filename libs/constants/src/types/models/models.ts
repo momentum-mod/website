@@ -582,6 +582,9 @@ export interface CompletedRun {
   isNewPersonalBest: boolean;
   run: LeaderboardRun;
   xp: XpGain;
+  totalRuns: number;
+  lastPB?: LeaderboardRun;
+  worldRecord?: LeaderboardRun;
 }
 
 //#endregion
