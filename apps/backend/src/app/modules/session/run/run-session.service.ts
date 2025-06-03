@@ -252,16 +252,23 @@ export class RunSessionService {
 
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ run, xpGain, isWR }] = await Promise.all([
-      this.updateLeaderboards(tx, submittedRun, isPB, existingRun, replayHash),
-      isPB
-        ? this.updateReplayFiles(
-            replayBuffer,
-            replayHash,
-            existingRun?.replayHash
-          )
-        : Promise.resolve()
-    ]);
+    const [{ pbRun, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
+      await Promise.all([
+        this.updateLeaderboards(
+          tx,
+          submittedRun,
+          isPB,
+          existingRun,
+          replayHash
+        ),
+        isPB
+          ? this.updateReplayFiles(
+              replayBuffer,
+              replayHash,
+              existingRun?.replayHash
+            )
+          : Promise.resolve()
+      ]);
 
     if (isWR) {
       await tx.activity.create({
@@ -282,10 +289,14 @@ export class RunSessionService {
     }
 
     return DtoFactory(CompletedRunDto, {
+      time: submittedRun.time,
       isNewPersonalBest: isPB,
       isNewWorldRecord: isWR,
-      run: run,
-      xp: xpGain
+      xp: xpGain,
+      pbRun,
+      lastPB,
+      worldRecord,
+      totalRuns
     });
   }
 
@@ -295,7 +306,14 @@ export class RunSessionService {
     isPB: boolean,
     existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
     replayHash?: string
-  ): Promise<{ run?: LeaderboardRun; xpGain: XpGainDto; isWR: boolean }> {
+  ): Promise<{
+    pbRun?: LeaderboardRun;
+    lastPB?: LeaderboardRun;
+    isWR: boolean;
+    worldRecord?: LeaderboardRun;
+    totalRuns: number;
+    xpGain: XpGainDto;
+  }> {
     // Base Where input we'll be using variants of
     const leaderboardWhere = {
       mapID: submittedRun.mapID,
@@ -384,10 +402,6 @@ export class RunSessionService {
       });
     }
 
-    if (!isPB) {
-      return { xpGain, isWR: false };
-    }
-
     // We're a PB, so time to do a million fucking DB writes
     const existingWorldRecord = await tx.leaderboardRun.findFirst({
       where: {
@@ -401,12 +415,25 @@ export class RunSessionService {
 
     // If it's a PB we're be creating or updating a rank, then shifting all the
     // other affected rank
-    // If we don't have a rank we increment +1 since we want the total
-    // *after* we've added the new run
     let totalRuns = await tx.leaderboardRun.count({
       where: leaderboardWhere
     });
-    if (isPB) totalRuns++;
+
+    if (!isPB) {
+      return {
+        xpGain,
+        isWR: false,
+        totalRuns,
+        lastPB: existingRun,
+        worldRecord: existingWorldRecord
+      };
+    }
+
+    // If we don't have an existing run but we're a PB, increment totalRuns
+    // now we're about to add a new one.
+    if (!existingRun) {
+      totalRuns++;
+    }
 
     const fasterRuns = await tx.leaderboardRun.count({
       where: {
@@ -438,7 +465,7 @@ export class RunSessionService {
 
     // const t1 = Date.now();
 
-    await Promise.all(
+    await this.db.$transaction(
       ranks.map((rank) =>
         tx.leaderboardRun.updateMany({
           where: { ...leaderboardWhere, userID: rank.userID },
@@ -470,53 +497,60 @@ export class RunSessionService {
     // We could use a Prisma upsert here but we already know if the existing
     // rank exists or not
     let run: LeaderboardRun;
-    if (isPB) {
-      if (existingRun) {
-        run = await tx.leaderboardRun.update({
-          where: {
-            userID_gamemode_style_mapID_trackType_trackNum: {
-              userID: existingRun.userID,
-              mapID: existingRun.mapID,
-              gamemode: existingRun.gamemode,
-              trackType: existingRun.trackType,
-              trackNum: existingRun.trackNum,
-              style: existingRun.style
-            }
-          },
-          data: {
-            flags: submittedRun.flags,
-            time: submittedRun.time,
-            replayHash,
-            splits: submittedRun.splits,
-            rank,
-            rankXP,
-            pastRunID: pastRun.id,
-            createdAt: pastRun.createdAt
+    if (existingRun) {
+      run = await tx.leaderboardRun.update({
+        where: {
+          userID_gamemode_style_mapID_trackType_trackNum: {
+            userID: existingRun.userID,
+            mapID: existingRun.mapID,
+            gamemode: existingRun.gamemode,
+            trackType: existingRun.trackType,
+            trackNum: existingRun.trackNum,
+            style: existingRun.style
           }
-        });
-      } else {
-        run = await this.db.leaderboardRun.create({
-          data: {
-            userID: submittedRun.userID,
-            mapID: submittedRun.mapID,
-            gamemode: submittedRun.gamemode,
-            trackType: submittedRun.trackType,
-            trackNum: submittedRun.trackNum,
-            style: 0,
-            flags: submittedRun.flags,
-            time: submittedRun.time,
-            splits: submittedRun.splits,
-            replayHash,
-            rank,
-            rankXP,
-            pastRunID: pastRun.id,
-            createdAt: pastRun.createdAt
-          }
-        });
-      }
+        },
+        data: {
+          flags: submittedRun.flags,
+          time: submittedRun.time,
+          replayHash,
+          splits: submittedRun.splits,
+          rank,
+          rankXP,
+          pastRunID: pastRun.id,
+          createdAt: pastRun.createdAt
+        }
+      });
+    } else {
+      run = await this.db.leaderboardRun.create({
+        data: {
+          userID: submittedRun.userID,
+          mapID: submittedRun.mapID,
+          gamemode: submittedRun.gamemode,
+          trackType: submittedRun.trackType,
+          trackNum: submittedRun.trackNum,
+          style: 0,
+          flags: submittedRun.flags,
+          time: submittedRun.time,
+          splits: submittedRun.splits,
+          replayHash,
+          rank,
+          rankXP,
+          pastRunID: pastRun.id,
+          createdAt: pastRun.createdAt
+        }
+      });
+
+      totalRuns++;
     }
 
-    return { run, xpGain, isWR };
+    return {
+      xpGain,
+      totalRuns,
+      pbRun: run,
+      lastPB: existingRun,
+      isWR,
+      worldRecord: isWR ? run : existingWorldRecord
+    };
   }
 
   private async updateReplayFiles(

@@ -579,10 +579,14 @@ export interface XpGain {
 }
 
 export interface CompletedRun {
+  time: number;
   isNewWorldRecord: boolean;
   isNewPersonalBest: boolean;
-  run: LeaderboardRun;
   xp: XpGain;
+  totalRuns: number;
+  pbRun?: LeaderboardRun;
+  lastPB?: LeaderboardRun;
+  worldRecord?: LeaderboardRun;
 }
 
 //#endregion
