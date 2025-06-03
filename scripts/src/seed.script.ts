@@ -407,9 +407,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
           arrayFrom(randRange(vars.bonusesPerMap), (_) =>
             randRange({ min: 1, max: 3 })
           ),
-          8192,
           512,
-          512
+          64,
+          64
         );
 
       const submissionsDates = () => {
