@@ -1,5 +1,5 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt } from 'class-validator';
+import { IsBoolean, IsInt, IsNumber } from 'class-validator';
 import { CompletedRun, XpGain } from '@momentum/constants';
 import { NestedProperty } from '../decorators';
 import { LeaderboardRunDto } from './leaderboard-run.dto';
@@ -35,6 +35,13 @@ export class XpGainDto implements XpGain {
 
 export class CompletedRunDto implements CompletedRun {
   @ApiProperty({
+    type: Number,
+    description: 'The overall time of the run (ticks * tickRate)'
+  })
+  @IsNumber()
+  readonly time: number;
+
+  @ApiProperty({
     description: 'Whether the run is the new world record for this track',
     type: Boolean
   })
@@ -49,9 +56,26 @@ export class CompletedRunDto implements CompletedRun {
   @IsBoolean()
   readonly isNewPersonalBest: boolean;
 
-  @NestedProperty(LeaderboardRunDto)
-  readonly run: LeaderboardRunDto;
-
   @NestedProperty(XpGainDto)
   readonly xp: XpGainDto;
+
+  @ApiProperty({
+    description: 'Total runs on the leaderboard, including the submitted run'
+  })
+  @IsInt()
+  readonly totalRuns: number;
+
+  @NestedProperty(LeaderboardRunDto, { required: false })
+  readonly pbRun?: LeaderboardRunDto;
+
+  @NestedProperty(LeaderboardRunDto, {
+    required: false,
+    description: 'The last personal best run of the player, if any'
+  })
+  readonly lastPB?: LeaderboardRunDto;
+
+  @NestedProperty(LeaderboardRunDto, {
+    description: 'World record for the leaderboard, could be this run'
+  })
+  readonly worldRecord: LeaderboardRunDto;
 }
