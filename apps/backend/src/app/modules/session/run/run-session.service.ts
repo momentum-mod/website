@@ -13,7 +13,6 @@ import {
   TrackType,
   XpGain
 } from '@momentum/constants';
-import { parallel } from '@momentum/util-fn';
 import { FileStoreService } from '../../filestore/file-store.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
 import {
@@ -253,10 +252,16 @@ export class RunSessionService {
 
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ run, xpGain, isWR }] = await parallel(
+    const [{ run, xpGain, isWR }] = await Promise.all([
       this.updateLeaderboards(tx, submittedRun, isPB, existingRun, replayHash),
-      this.updateReplayFiles(replayBuffer, replayHash, existingRun?.replayHash)
-    );
+      isPB
+        ? this.updateReplayFiles(
+            replayBuffer,
+            replayHash,
+            existingRun?.replayHash
+          )
+        : Promise.resolve()
+    ]);
 
     if (isWR) {
       await tx.activity.create({
