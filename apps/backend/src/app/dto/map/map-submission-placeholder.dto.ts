@@ -12,7 +12,7 @@ export class MapSubmissionPlaceholderDto
 
   @ApiProperty()
   @IsString()
-  @MinLength(3)
+  @MinLength(1)
   @MaxLength(32)
   readonly alias: string;
 }
