@@ -43,7 +43,7 @@
     <m-user-search #searchInput [showProfileButton]="true" (selected)="addUser(type.key, $event, searchInput)" class="mb-2 mt-4" />
     <div class="flex">
       <input [formControl]="placeholderInputs.get(type.key)" class="textinput flex-grow" placeholder="Create placeholder..." />
-      @if (placeholderInputs.get(type.key).value?.length >= 3) {
+      @if (placeholderInputs.get(type.key).value?.length >= 1) {
         <button type="button" class="btn btn-green ml-2" (click)="addPlaceholder(type.key, placeholderInputs.get(type.key).value)">
           Add
         </button>
