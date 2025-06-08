@@ -1179,6 +1179,26 @@ describe('Maps', () => {
           });
         });
 
+        it('should accept a submission with placeholders as 1-character aliases', async () => {
+          const create = structuredClone(createMapObject);
+          delete create.credits;
+          create.placeholders = [
+            { alias: 'a', type: MapCreditType.AUTHOR },
+            { alias: 'b', type: MapCreditType.CONTRIBUTOR },
+            { alias: 'c', type: MapCreditType.TESTER },
+            { alias: 'd', type: MapCreditType.SPECIAL_THANKS }
+          ];
+
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: create,
+            token
+          });
+        });
+
         it('should reject a submission with no suggestions', async () => {
           const obj = structuredClone(createMapObject);
           delete obj.suggestions;
