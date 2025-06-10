@@ -35,7 +35,7 @@ import {
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import Zip from 'adm-zip';
 import * as Enum from '@momentum/enum';
 import {
@@ -729,23 +729,27 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let user,
-        token,
+      let user: User,
+        token: string,
         createMapObject,
-        u2,
-        u3,
-        bspBuffer,
-        nozipBspBuffer,
-        bspHash,
-        vmfBuffer,
-        vmfHash,
-        adminToken;
+        u2: User,
+        u3: User,
+        bspBuffer: Buffer,
+        nozipBspBuffer: Buffer,
+        bspHash: string,
+        vmfBuffer: Buffer,
+        vmfHash: string,
+        mapperToken: string,
+        adminToken: string;
 
       const zones = structuredClone(ZonesStub);
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
+        mapperToken = await db.loginNewUser({
+          data: { roles: Role.MAPPER }
+        });
         adminToken = await db.loginNewUser({
           data: { roles: Role.ADMIN }
         });
@@ -1850,7 +1854,15 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1, u1Token, u2Token, map, bspBuffer, bspHash, vmfBuffer, vmfHash;
+      let u1: User,
+        u1Token: string,
+        u2Token: string,
+        createInput: Partial<Prisma.MMapCreateInput>,
+        map,
+        bspBuffer: Buffer,
+        bspHash: string,
+        vmfBuffer: Buffer,
+        vmfHash: string;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
@@ -1872,42 +1884,41 @@ describe('Maps', () => {
       });
 
       beforeEach(async () => {
-        map = await db.createMap(
-          {
-            name: 'surf_map', // This is actually RJ now. deal with it lol
-            submitter: { connect: { id: u1.id } },
-            status: MapStatus.PRIVATE_TESTING,
-            versions: {
-              create: {
-                zones: ZonesStubString,
-                versionNum: 1,
-                bspHash: createSha1Hash(Buffer.from('hash browns')),
-                submitter: { connect: { id: u1.id } }
-              }
-            },
-            submission: {
-              create: {
-                type: MapSubmissionType.ORIGINAL,
-                suggestions: [
-                  {
-                    trackType: TrackType.MAIN,
-                    trackNum: 1,
-                    gamemode: Gamemode.RJ,
-                    tier: 10,
-                    type: LeaderboardType.RANKED
-                  }
-                ],
-                dates: [
-                  {
-                    status: MapStatus.PRIVATE_TESTING,
-                    date: new Date().toJSON()
-                  }
-                ]
-              }
+        createInput = {
+          name: 'surf_map', // This is actually RJ now. deal with it lol
+          submitter: { connect: { id: u1.id } },
+          status: MapStatus.PRIVATE_TESTING,
+          versions: {
+            create: {
+              zones: ZonesStubString,
+              versionNum: 1,
+              bspHash: createSha1Hash(bspBuffer),
+              submitter: { connect: { id: u1.id } }
             }
           },
-          true
-        );
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.RJ,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                }
+              ],
+              dates: [
+                {
+                  status: MapStatus.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ]
+            }
+          }
+        };
+
+        map = await db.createMap(createInput, true);
       });
 
       afterEach(() =>
