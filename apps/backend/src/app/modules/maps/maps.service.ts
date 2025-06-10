@@ -564,6 +564,15 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
+    const bspAlreadyUsed = await this.db.mMap.exists({
+      where: {
+        currentVersion: { bspHash }
+      }
+    });
+    if (bspAlreadyUsed) {
+      throw new ConflictException('Map with this file hash already exists');
+    }
+
     let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
 
     const tasks: Promise<any>[] = [
@@ -682,6 +691,21 @@ export class MapsService {
       await this.checkMapCompression(bspFile);
 
       bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+
+      const bspAlreadyUsed = await this.db.mMap.exists({
+        where: {
+          currentVersion: { bspHash },
+          // Ignore old map versions of same ID,
+          // since they get removed on map approval anyways.
+          // This allows version rollback.
+          NOT: {
+            id: mapID
+          }
+        }
+      });
+      if (bspAlreadyUsed) {
+        throw new ConflictException('Map with this file hash already exists');
+      }
     } else {
       bspHash = map.currentVersion.bspHash;
     }
