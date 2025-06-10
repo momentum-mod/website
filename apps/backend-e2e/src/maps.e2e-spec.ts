@@ -1264,6 +1264,36 @@ describe('Maps', () => {
           });
         });
 
+        it('should 409 if map with BSP hash already used by other map gets submitted', async () => {
+          await uploadBspToPreSignedUrl(bspBuffer, mapperToken);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token: mapperToken
+          });
+
+          const createOther = structuredClone(createMapObject);
+          // Already 409s on same map name before hash check is done, so change it.
+          createOther.name = 'surf_best';
+
+          await uploadBspToPreSignedUrl(bspBuffer, mapperToken);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 409,
+            data: createOther,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token: mapperToken
+          });
+        });
+
         it('should succeed if VMF file is missing', async () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
@@ -2506,6 +2536,23 @@ describe('Maps', () => {
             hasBSP: true
           },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        });
+      });
+
+      it('should 409 if map with BSP hash already used by other map gets submitted', async () => {
+        const createInput2 = structuredClone(createInput);
+        // Pass unique name invariant.
+        createInput2.name = 'surf_best';
+        // Pretend that previous BSP version is actually unique.
+        const map2 = await db.createMap(createInput2, true);
+
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
+          url: `maps/${map2.id}`,
+          status: 409,
+          data: { changelog: 'totally original BSP i swear', hasBSP: true },
           token: u1Token
         });
       });
