@@ -318,9 +318,15 @@ describe('Admin', () => {
             data: { roles: Role.ADMIN }
           }),
           db.createUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser(),
-          db.createUser({ data: { roles: Role.VERIFIED } }),
-          db.createUser({ data: { roles: Role.VERIFIED } }),
+          db.createAndLoginUser({
+            data: { alias: 'ButterOverflowEnthusiast' }
+          }),
+          db.createUser({
+            data: { roles: Role.VERIFIED, alias: 'YodaConditionCoder' }
+          }),
+          db.createUser({
+            data: { roles: Role.VERIFIED, alias: 'kebab-case-extraordinaire' }
+          }),
           db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
           db.createUser({ data: { roles: Role.MODERATOR } })
         ]);
@@ -368,7 +374,7 @@ describe('Admin', () => {
           token: adminToken
         }));
 
-      it("should allow an admin to set a unverified user's alias to something used by another verified user", () =>
+      it("should allow an admin to set an unverified user's alias to something used by another verified user", () =>
         req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
@@ -432,6 +438,62 @@ describe('Admin', () => {
           admin.id,
           AdminActivityType.USER_UPDATE
         );
+      });
+
+      it('should successfully make a non-verified user verified', async () => {
+        expect(Bitflags.has(u1.roles, Role.VERIFIED)).toBe(false);
+
+        await req.patch({
+          url: `admin/users/${u1.id}`,
+          status: 204,
+          body: { alias: u1.alias, roles: Role.VERIFIED },
+          token: adminToken
+        });
+
+        const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
+        expect(Bitflags.has(userDB.roles, Role.VERIFIED)).toBe(true);
+      });
+
+      it('should fail to verify a user if they share alias with another verified user', async () => {
+        const imitator = await db.createUser({ data: { alias: u2.alias } });
+
+        expect(Bitflags.has(imitator.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(u2.roles, Role.VERIFIED)).toBe(true);
+
+        await req.patch({
+          url: `admin/users/${imitator.id}`,
+          status: 409,
+          body: { roles: Role.VERIFIED },
+          token: adminToken
+        });
+
+        const imitatorDB = await prisma.user.findFirst({
+          where: { id: imitator.id }
+        });
+        const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
+        // Make sure role was not set before throwing 409.
+        expect(Bitflags.has(imitatorDB.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
+      });
+
+      // Very edge case where the admin is both
+      // changing the alias and giving verified role.
+      it('should fail to verify and update alias of a user if a verified user shares the new alias', async () => {
+        expect(Bitflags.has(u1.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(u2.roles, Role.VERIFIED)).toBe(true);
+
+        await req.patch({
+          url: `admin/users/${u1.id}`,
+          status: 409,
+          body: { alias: u2.alias, roles: Role.VERIFIED },
+          token: adminToken
+        });
+
+        const user1DB = await prisma.user.findFirst({ where: { id: u1.id } });
+        const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
+        expect(Bitflags.has(user1DB.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
+        expect(user1DB.alias).not.toEqual(user2DB.alias);
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
