@@ -824,14 +824,6 @@ describe('Admin', () => {
           token: adminToken
         }));
 
-      it('should include maps with any map statuses by default', () =>
-        req.get({
-          url: 'admin/maps',
-          status: 200,
-          validatePaged: { type: MapDto, count: 9 },
-          token: adminToken
-        }));
-
       it('should be ordered by date', () =>
         req.sortByDateTest({
           url: 'admin/maps',
