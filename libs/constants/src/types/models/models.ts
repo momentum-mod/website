@@ -220,6 +220,7 @@ export interface MapInfo {
   description: string;
   youtubeID: string;
   creationDate: DateString;
+  approvedDate: Date | null;
   requiredGames: SteamGame[];
 }
 

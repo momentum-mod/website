@@ -11,6 +11,7 @@ import {
 import {
   LeaderboardRun,
   MapCredit,
+  MapInfo,
   MapSubmission,
   MapVersion,
   MMap,
@@ -641,7 +642,8 @@ export class MapsService {
       include: {
         currentVersion: true,
         versions: { omit: { zones: true } },
-        submission: true
+        submission: true,
+        info: true
       }
     });
 
@@ -765,11 +767,7 @@ export class MapsService {
           // If the submitter is fixing the maps in a significant enough way to
           // still require a leaderboard reset, they should just get an admin to
           // do it.
-          if (
-            (map.submission.dates as unknown as MapSubmissionDate[]).some(
-              (date) => date.status === MapStatus.APPROVED
-            )
-          ) {
+          if (map.info.approvedDate) {
             throw new ForbiddenException(
               'Cannot reset leaderboards on a previously approved map.' +
                 ' Talk about it with an admin!'
@@ -1106,7 +1104,12 @@ export class MapsService {
 
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { submission: true, currentVersion: true, versions: true }
+      include: {
+        submission: true,
+        currentVersion: true,
+        versions: true,
+        info: true
+      }
     })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) throw new NotFoundException('Map does not exist');
@@ -1218,7 +1221,12 @@ export class MapsService {
 
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { currentVersion: true, versions: true, submission: true }
+      include: {
+        currentVersion: true,
+        versions: true,
+        submission: true,
+        info: true
+      }
     })) as unknown as MapWithSubmission; // TODO: #855;
 
     if (!map) {
@@ -1588,9 +1596,7 @@ export class MapsService {
     const zones = JSON.parse(currentVersion.zones);
 
     // Is it getting approved for first time?
-    if (
-      !map.submission.dates.some((date) => date.status === MapStatus.APPROVED)
-    ) {
+    if (!map.info.approvedDate) {
       if (!dto.finalLeaderboards || dto.finalLeaderboards.length === 0)
         throw new BadRequestException('Missing finalized leaderboards');
 
@@ -1637,6 +1643,12 @@ export class MapsService {
 
       this.checkZones(zones);
     }
+
+    // Update map approve date
+    await this.db.mapInfo.update({
+      where: { mapID: map.id },
+      data: { approvedDate: new Date() }
+    });
 
     // Do S3 stuff last in case something errors - this is well tested and
     // *should* behave well in production, but it's still complex stuff and
@@ -2020,6 +2032,7 @@ export class MapsService {
 interface MapWithSubmission extends MMap {
   currentVersion: MapVersion;
   versions: MapVersion[];
+  info: MapInfo;
   submission: Merge<
     MapSubmission,
     {

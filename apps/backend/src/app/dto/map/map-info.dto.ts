@@ -16,7 +16,8 @@ import {
   Matches,
   MinLength,
   MaxLength,
-  IsEnum
+  IsEnum,
+  IsDate
 } from 'class-validator';
 import { IsPastDate } from '../../validators/is-past-date';
 
@@ -46,6 +47,11 @@ export class MapInfoDto implements MapInfo {
   @IsDateString()
   @IsPastDate()
   readonly creationDate: DateString;
+
+  @ApiProperty()
+  @IsDate()
+  @IsOptional()
+  readonly approvedDate: Date | null;
 
   @ApiProperty({ description: 'Array of apps, which the map uses assets from' })
   @IsEnum(SteamGame, { each: true })

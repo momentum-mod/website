@@ -2701,6 +2701,13 @@ describe('Maps', () => {
                   }
                 ]
               }
+            },
+            info: {
+              update: {
+                data: {
+                  approvedDate: new Date(Date.now() - 3000)
+                }
+              }
             }
           }
         });
