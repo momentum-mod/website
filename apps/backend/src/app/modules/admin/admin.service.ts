@@ -248,6 +248,7 @@ export class AdminService {
       });
     }
 
+    // Check rest of fields not needed to be admin to update, separately.
     const updatedUser = await this.usersService.update(userID, update, true);
 
     await this.adminActivityService.create(
