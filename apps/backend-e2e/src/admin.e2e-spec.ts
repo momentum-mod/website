@@ -41,7 +41,7 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import Zip from 'adm-zip';
 import {
   BabyZonesStubString,
@@ -292,17 +292,17 @@ describe('Admin', () => {
 
   describe('admin/users/{userID}', () => {
     describe('PATCH', () => {
-      let admin,
-        adminToken,
-        adminGameToken,
-        admin2,
-        u1,
-        u1Token,
-        u2,
-        u3,
-        mod,
-        modToken,
-        mod2;
+      let admin: User,
+        adminToken: string,
+        adminGameToken: string,
+        admin2: User,
+        u1: User,
+        u1Token: string,
+        u2: User,
+        u3: User,
+        mod: User,
+        modToken: string,
+        mod2: User;
 
       beforeEach(async () => {
         [
@@ -784,7 +784,14 @@ describe('Admin', () => {
 
   describe('admin/maps', () => {
     describe('GET', () => {
-      let modToken, adminToken, reviewerToken, u1, u1Token, map1, caMap, faMap;
+      let modToken: string,
+        adminToken: string,
+        reviewerToken: string,
+        u1: User,
+        u1Token: string,
+        map1,
+        caMap,
+        faMap;
 
       beforeAll(async () => {
         [modToken, adminToken, reviewerToken, [u1, u1Token], [map1]] =
