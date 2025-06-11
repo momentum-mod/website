@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -236,6 +237,23 @@ export class AdminService {
           );
       } else if (Bitflags.has(user.roles, Role.ADMIN) && adminID !== userID)
         throw new ForbiddenException('Cannot update other admins');
+
+      // Keep verified user-unique-name invariant.
+      if (Bitflags.has(update.roles, Role.VERIFIED)) {
+        const sameNameMatches = await this.db.user.findMany({
+          where: { alias: update.alias, NOT: { id: userID } },
+          select: { roles: true }
+        });
+        if (
+          sameNameMatches.some((user) =>
+            Bitflags.has(user.roles, Role.VERIFIED)
+          )
+        ) {
+          throw new ConflictException(
+            'Cannot give user verified role since alias is already in use by another verified user'
+          );
+        }
+      }
 
       // If all we make it through all these checks, finally we can update the flags
       updateInput.roles = update.roles;
