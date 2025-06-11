@@ -3,7 +3,6 @@ import { Component, DestroyRef, OnInit } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   MapStatuses,
-  DateString,
   MapCreditNames,
   MapCreditType,
   MapImage,
@@ -312,11 +311,5 @@ export class MapInfoComponent implements OnInit {
 
   toggleMapBackground(): void {
     this.layoutService.toggleBackgroundEnable();
-  }
-
-  // TODO: https://github.com/momentum-mod/website/issues/903
-  getLatestStatusChangeDate(status: MapStatus): DateString {
-    return this.map.submission.dates.findLast((date) => date.status === status)
-      ?.date;
   }
 }
