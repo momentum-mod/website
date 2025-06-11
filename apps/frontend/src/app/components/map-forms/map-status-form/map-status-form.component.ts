@@ -142,9 +142,7 @@ export class MapStatusFormComponent implements OnChanges {
     }
 
     this.setupFinalApprovalForm(leaderboardStats, reviews.data);
-    this.hasBeenApprovedBefore = this.map.submission.dates.some(
-      (date) => date.status === MapStatus.APPROVED
-    );
+    this.hasBeenApprovedBefore = Boolean(this.map.info.approvedDate);
 
     this.firstEnteredPublicTesting = new Date(
       this.map.submission.dates.findLast(

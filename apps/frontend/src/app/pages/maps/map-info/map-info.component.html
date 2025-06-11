@@ -167,8 +167,7 @@
           <ng-template #dateTooltip>
             <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
             @if (map.status === MapStatus.APPROVED) {
-              <!-- TODO: New date thing -->
-              <p><b>Released in Momentum - </b>{{ getLatestStatusChangeDate(MapStatus.APPROVED) | date }}</p>
+              <p><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
             }
           </ng-template>
         </div>
