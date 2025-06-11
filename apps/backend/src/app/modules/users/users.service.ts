@@ -214,7 +214,7 @@ export class UsersService {
           )
         )
           throw new ConflictException(
-            'Alias is in use by another verified user'
+            'Cannot update to new alias as it is already used by another verified user'
           );
       }
     }
