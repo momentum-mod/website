@@ -36,7 +36,8 @@ import {
   MAP_NAME_REGEXP,
   GamemodeInfo,
   DateString,
-  SteamGame
+  SteamGame,
+  MMap
 } from '@momentum/constants';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -311,6 +312,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
     this.isUploading = true;
     let mapID: number;
+    let mapName: string;
 
     try {
       const { url: preSignedUrl } = await lastValueFrom(
@@ -377,11 +379,14 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
                   this.uploadPercentage =
                     80 + Math.round((event['loaded'] / event['total']) * 10);
                   break;
-                case HttpEventType.Response:
-                  mapID = JSON.parse(event.body).id;
+                case HttpEventType.Response: {
+                  const dto: MMap = JSON.parse(event.body);
+                  mapID = dto.id;
+                  mapName = dto.name;
                   this.uploadStatusDescription = 'Uploading images...';
                   this.uploadPercentage = 90;
                   break;
+                }
               }
             })
           )
@@ -429,7 +434,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       this.resetUpload();
       this.form.reset();
       this.form.markAsPristine();
-      this.router.navigate([`/maps/${mapID}`]);
+      this.router.navigate([`/maps/${mapName}`]);
     }, 1000);
   }
 
