@@ -29,7 +29,7 @@ export class RoleBadgesComponent implements OnChanges {
 
   @Input() ignored: Role[];
 
-  @Input() classes: string = '';
+  @Input() classes = '';
 
   private readonly available: Role[] = [
     Role.ADMIN,
