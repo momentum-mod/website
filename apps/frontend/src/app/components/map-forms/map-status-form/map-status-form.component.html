@@ -32,7 +32,7 @@
       }
     </p>
     @if (sub) {
-      <p class="mb-2">You can change the map to the follow states:</p>
+      <p class="mb-2">You can change the map to the following states:</p>
       <!-- See map-status-changers.map.ts for possible changes -->
       @if (isPossibleStatus(MapStatus.PRIVATE_TESTING)) {
         <i class="font-medium">Private Testing</i>
@@ -95,20 +95,20 @@
       <div class="prose max-w-[64rem]">
         <h2>Final Approval</h2>
         <p>
-          This section lets you pick the final leaderboards for the map. You should only be using this if you are a experienced in the main
+          This section lets you pick the final leaderboards for the map. You should only be using this if you are experienced in the main
           mode(s) of the current map. If you don't know what you're doing, ask in Discord, or leave this to someone else.
         </p>
         <p>
-          Most maps are submitted with an single intended gamemode in mind, and will <i> usually</i> be ranked in that mode, unless the
-          gameplay seems to be of very low quality. If that's the case and the submitter requested it be ranked, it may be worth leaving
-          some suggestions in a review, and keeping it in submission for a bit longer.
+          Most maps are submitted with a single intended gamemode in mind, and will usually become <b>ranked</b> in that mode, should the
+          resulting gameplay be of high enough quality. If the map was requested to be ranked by the submitter, it may be worth keeping it
+          in submission for a bit longer and leaving some suggestions in a review.
         </p>
         <p>
-          For non-intended modes, if you/others tried it on in that mode and it played reasonably well, usually give it an unranked
-          leaderboard. Remember, unranked leaderboards don't provide rank points, but they do appear in the map selector for that mode, so
-          don't give it a leaderboard if it's silly/gimmicky in that mode (e.g. don't rank a surf map in SJ just because someone airpogoed
-          the entire thing). In the future we'll have "hidden/secret" leaderboards for if people genuinely want to compete in a weird
-          off-mode, and a hidden leaderboard can always be switched to unranked in the future.
+          For non-intended modes; if you and/or others tried a mode and it played reasonably well, you can give it an unranked leaderboard.
+          Remember that unranked leaderboards don't provide rank points, but they do appear in the map selector for that mode. Don't add a
+          leaderboard if it's only for gimmicks in that mode (e.g. don't rank a surf map in SJ just because someone airpogoed the entire
+          thing). In the future we'll have "hidden/secret" leaderboards for if people genuinely want to compete in a weird off-mode, and a
+          hidden leaderboard can always be switched to unranked in the future.
         </p>
         @if (this.isBlockedForUnresolvedReviews) {
           <p class="font-medium text-red-500">Warning: map has unresolved reviews!</p>
