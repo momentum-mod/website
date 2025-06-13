@@ -10,10 +10,9 @@ import { Component } from '@angular/core';
       </p>
       <p>
         If you know their Steam account but not their name in Momentum, search
-        by their Steam Community ID - you can find that by pasting the full URL
-        of their Steam profile into a
-        <a href="https://steamid.io/">steamid.io</a> and copying the
-        <b>steamID64</b> value.
+        for their Steam Community ID - you can find it by pasting the full URL
+        of their Steam profile into
+        <b>steamid.io</b> and copying the <b>steamID64</b> value.
       </p>
       <p>
         Anyone who has ever played Momentum or signed in to our website should
