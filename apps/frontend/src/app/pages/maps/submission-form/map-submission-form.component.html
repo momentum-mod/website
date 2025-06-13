@@ -351,7 +351,7 @@
     <div class="mt-4 flex">
       @if (isUploading) {
         <div class="my-auto flex flex-grow flex-col">
-          <p-progressBar [value]="uploadPercentage" [showValue]="true" class="mr-6" />
+          <p-progressBar [value]="uploadPercentage" [showValue]="false" class="mr-6" />
           <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
         </div>
       }
