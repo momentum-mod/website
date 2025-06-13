@@ -7,10 +7,20 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 0
     reviewers:
       - "tsa96"
       - "GordiNoki"
+    # Stops non-security updates from being created
+    open-pull-requests-limit: 0
+    # Split prod and dev dependencies into separate groups -- prod is more
+    # important, and Nx-dependent dev stuff always requires manual work.
+    groups:
+      production-security-updates:
+        applies-to: security-updates
+        dependency-type: "production"
+      development-security-updates:
+        applies-to: security-updates
+        dependency-type: "development"
 
   - package-ecosystem: "github-actions"
     directory: "/"
