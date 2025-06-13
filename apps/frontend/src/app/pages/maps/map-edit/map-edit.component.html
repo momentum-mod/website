@@ -57,7 +57,7 @@
     </div>
   }
   @if (isUploading) {
-    <p-progressBar class="mb-2 mt-8" [value]="uploadPercentage" [showValue]="true" />
+    <p-progressBar class="mb-2 mt-8" [value]="uploadPercentage" [showValue]="false" />
     <p class="text-center italic">{{ uploadStatusDescription }}</p>
   }
 </form>
