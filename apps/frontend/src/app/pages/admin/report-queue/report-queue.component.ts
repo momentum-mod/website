@@ -4,7 +4,7 @@ import { ReportType, Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { merge, of, Subject } from 'rxjs';
-import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { PaginatorState } from 'primeng/paginator';
 
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
