@@ -50,3 +50,5 @@ Thumbs.db
 # Discord bot config and storage
 apps/discord-bot-internal/config/config.json
 apps/discord-bot-internal/data/bot_data.db
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
