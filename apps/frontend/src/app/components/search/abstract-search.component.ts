@@ -9,7 +9,7 @@ import {
 } from 'rxjs/operators';
 
 import { merge, Observable, Observer, Subject } from 'rxjs';
-import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { PaginatorState } from 'primeng/paginator';
 import { PagedResponse } from '@momentum/constants';
 
 @Directive()

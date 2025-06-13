@@ -2,7 +2,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
 import { merge, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { PaginatorState } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { MapReviewComponent } from './map-review.component';
