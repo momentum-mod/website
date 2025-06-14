@@ -66,13 +66,13 @@ export class CompletedRunDto implements CompletedRun {
   readonly totalRuns: number;
 
   @NestedProperty(LeaderboardRunDto, { required: false })
-  readonly pbRun?: LeaderboardRunDto;
+  readonly newPersonalBest?: LeaderboardRunDto;
 
   @NestedProperty(LeaderboardRunDto, {
     required: false,
     description: 'The last personal best run of the player, if any'
   })
-  readonly lastPB?: LeaderboardRunDto;
+  readonly lastPersonalBest?: LeaderboardRunDto;
 
   @NestedProperty(LeaderboardRunDto, {
     description: 'World record for the leaderboard, could be this run'
