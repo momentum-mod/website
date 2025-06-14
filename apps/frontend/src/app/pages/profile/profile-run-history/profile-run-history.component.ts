@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -38,6 +38,10 @@ import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
   ]
 })
 export class ProfileRunHistoryComponent implements OnInit {
+  private readonly pastRunsService = inject(PastRunsService);
+  private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
+
   protected readonly OrderByDropdown = [
     { label: 'Sort by Date', type: RunsGetAllOrder.DATE },
     { label: 'Sort by Time', type: RunsGetAllOrder.RUN_TIME }
@@ -80,12 +84,6 @@ export class ProfileRunHistoryComponent implements OnInit {
     orderBy: this.filterFG.value.orderBy,
     order: this.filterFG.value.order
   };
-
-  constructor(
-    private readonly pastRunsService: PastRunsService,
-    private readonly messageService: MessageService,
-    private readonly fb: FormBuilder
-  ) {}
 
   ngOnInit() {
     this.userSubject.subscribe((user) => {

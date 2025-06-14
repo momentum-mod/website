@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   PagedResponse,
@@ -13,7 +13,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getUsers(query?: UsersGetAllQuery): Observable<PagedResponse<User>> {
     return this.http.get<PagedResponse<User>>('users', { query });

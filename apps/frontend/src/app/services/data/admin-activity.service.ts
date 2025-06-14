@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   PagedResponse,
@@ -9,7 +9,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminActivityService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getAdminActivities(
     query?: AdminActivitiesGetQuery

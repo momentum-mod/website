@@ -5,7 +5,8 @@ import {
   forwardRef,
   HostBinding,
   HostListener,
-  Input
+  Input,
+  inject
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Icon, IconComponent } from '../../icons';
@@ -41,6 +42,8 @@ export type NStateButtonColor =
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NStateButtonComponent implements ControlValueAccessor {
+  private readonly cdRef = inject(ChangeDetectorRef);
+
   @Input({ required: true }) states: Array<{
     color: NStateButtonColor | null;
     text?: string;
@@ -66,8 +69,6 @@ export class NStateButtonComponent implements ControlValueAccessor {
   protected value = 0;
   protected currentState: (typeof this.states)[number];
   protected disabled = false;
-
-  constructor(private readonly cdRef: ChangeDetectorRef) {}
 
   onChange: (value: number) => void = () => void 0;
   registerOnChange(fn: () => void): void {

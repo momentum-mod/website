@@ -7,7 +7,8 @@ import {
   HostBinding,
   Input,
   createComponent,
-  ApplicationRef
+  ApplicationRef,
+  inject
 } from '@angular/core';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
 
@@ -21,6 +22,10 @@ import { SpinnerComponent } from '../components/spinner/spinner.component';
  */
 @Directive({ selector: '[mSpinner]', standalone: true })
 export class SpinnerDirective implements OnInit {
+  private appRef = inject(ApplicationRef);
+  private renderer = inject(Renderer2);
+  private directiveElement = inject(ElementRef);
+
   spinner: ComponentRef<SpinnerComponent>;
 
   @Input()
@@ -34,12 +39,6 @@ export class SpinnerDirective implements OnInit {
 
   @HostBinding('class.spinner-container--active')
   protected active = false;
-
-  constructor(
-    private appRef: ApplicationRef,
-    private renderer: Renderer2,
-    private directiveElement: ElementRef
-  ) {}
 
   ngOnInit() {
     this.spinner = createComponent(SpinnerComponent, {

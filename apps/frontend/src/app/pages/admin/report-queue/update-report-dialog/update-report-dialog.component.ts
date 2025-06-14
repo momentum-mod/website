@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
@@ -13,19 +13,17 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './update-report-dialog.component.html'
 })
 export class UpdateReportDialogComponent implements OnInit {
+  private readonly ref = inject(DynamicDialogRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly adminService = inject(AdminService);
+  private readonly messageService = inject(MessageService);
+
   @Input() report: Report;
 
   updateReportForm = this.fb.group({
     resolved: [false, Validators.required],
     resolutionMessage: ['', [Validators.required, Validators.maxLength(1000)]]
   });
-
-  constructor(
-    private readonly ref: DynamicDialogRef,
-    private readonly fb: FormBuilder,
-    private readonly adminService: AdminService,
-    private readonly messageService: MessageService
-  ) {}
 
   ngOnInit() {
     if (this.report) {

@@ -2,10 +2,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  forwardRef,
   HostBinding,
-  Inject,
-  Input
+  Input,
+  inject
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AccordionComponent } from './accordion.component';
@@ -86,6 +85,9 @@ import { IconComponent } from '../../icons';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionItemComponent {
+  private readonly parent = inject(AccordionComponent);
+  private readonly cdRef = inject(ChangeDetectorRef);
+
   @Input() title: string;
   @Input() titleClass = '';
 
@@ -107,12 +109,6 @@ export class AccordionItemComponent {
     this._open = val;
     this.cdRef.detectChanges();
   }
-
-  constructor(
-    @Inject(forwardRef(() => AccordionComponent))
-    private readonly parent: AccordionComponent,
-    private readonly cdRef: ChangeDetectorRef
-  ) {}
 
   toggle() {
     if (!this.hasContent) return;

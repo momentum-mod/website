@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MMap, User } from '@momentum/constants';
 import { UserSearchComponent } from './user-search.component';
@@ -27,11 +27,11 @@ enum SearchType {
   ]
 })
 export class MultiSearchComponent {
+  private readonly router = inject(Router);
+
   protected readonly SearchType = SearchType;
   protected activeType: SearchType = SearchType.MAP;
   @Output() readonly selected = new EventEmitter<void>();
-
-  constructor(private readonly router: Router) {}
 
   userSelected(user: User) {
     this.router.navigateByUrl(`/profile/${user.id}`);

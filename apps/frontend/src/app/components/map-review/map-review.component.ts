@@ -4,7 +4,8 @@ import {
   EventEmitter,
   Input,
   Output,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import {
   CombinedRoles,
@@ -70,6 +71,13 @@ import { PluralPipe } from '../../pipes/plural.pipe';
   templateUrl: './map-review.component.html'
 })
 export class MapReviewComponent {
+  private readonly cdRef = inject(ChangeDetectorRef);
+  private readonly mapsService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly adminService = inject(AdminService);
+
   protected readonly TrackType = TrackType;
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
@@ -118,14 +126,7 @@ export class MapReviewComponent {
 
   protected editing = false;
 
-  constructor(
-    private readonly cdRef: ChangeDetectorRef,
-    private readonly mapsService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly localUserService: LocalUserService,
-    private readonly confirmationService: ConfirmationService,
-    private readonly adminService: AdminService
-  ) {
+  constructor() {
     // Very simplistic pagination but don't want to overcomplicate this
     // component. List goes at most recent first, hitting the load button
     // fetches another 5 (older) and appends to comments array.

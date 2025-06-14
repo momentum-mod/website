@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PaginatorModule } from 'primeng/paginator';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { MMap } from '@momentum/constants';
@@ -13,9 +13,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   imports: [PaginatorModule, SpinnerDirective, ReactiveFormsModule]
 })
 export class MapSearchComponent extends AbstractSearchComponent<MMap> {
-  constructor(private readonly mapsService: MapsService) {
-    super();
-  }
+  private readonly mapsService = inject(MapsService);
 
   itemsName = 'maps';
 

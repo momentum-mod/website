@@ -4,7 +4,8 @@ import {
   HostListener,
   isDevMode,
   OnInit,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -97,20 +98,18 @@ import { PreventEnterSubmitDirective } from '../../../directives/prevent-enter-s
   ]
 })
 export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
+  private readonly mapsService = inject(MapsService);
+  private readonly router = inject(Router);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly ngHttp = inject(HttpClient);
+
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
-
-  constructor(
-    private readonly mapsService: MapsService,
-    private readonly router: Router,
-    private readonly localUserService: LocalUserService,
-    private readonly messageService: MessageService,
-    private readonly fb: FormBuilder,
-    private readonly destroyRef: DestroyRef,
-    private readonly ngHttp: HttpClient
-  ) {}
 
   @ViewChild(MapLeaderboardSelectionComponent)
   lbSelection: MapLeaderboardSelectionComponent;

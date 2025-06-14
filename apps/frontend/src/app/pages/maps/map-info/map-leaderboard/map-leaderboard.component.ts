@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Input, OnChanges } from '@angular/core';
+import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
   GamemodeInfo,
   LeaderboardRun,
@@ -72,6 +72,10 @@ export interface ActiveTrack {
   ]
 })
 export class MapLeaderboardComponent implements OnChanges {
+  private readonly leaderboardService = inject(LeaderboardsService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly TrackType = TrackType;
@@ -124,11 +128,7 @@ export class MapLeaderboardComponent implements OnChanges {
     this.load.next();
   }
 
-  constructor(
-    private readonly leaderboardService: LeaderboardsService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
-  ) {
+  constructor() {
     this.load
       .pipe(
         map(() =>

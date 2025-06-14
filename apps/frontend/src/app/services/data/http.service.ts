@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { QueryParam, QueryParamOptional } from '@momentum/constants';
 import { Observable } from 'rxjs';
 import { env } from '../../env/environment';
@@ -22,7 +22,7 @@ export interface BackendRequestOptions {
  */
 @Injectable({ providedIn: 'root' })
 export class HttpService {
-  constructor(private ngHttp: HttpClient) {}
+  private ngHttp = inject(HttpClient);
 
   get<T>(url: string, options?: BackendRequestOptions): Observable<T> {
     return this.request<T>('GET', url, options);

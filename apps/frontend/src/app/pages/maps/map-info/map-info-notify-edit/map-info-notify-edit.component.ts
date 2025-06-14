@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './map-info-notify-edit.component.html'
 })
 export class MapNotifyEditComponent implements OnInit {
+  private readonly ref = inject(DynamicDialogRef);
+
   protected readonly ActivityType = ActivityType;
 
   @Input() flags: number;
@@ -18,8 +20,6 @@ export class MapNotifyEditComponent implements OnInit {
     PB: { checked: false, value: ActivityType.PB_ACHIEVED },
     WR: { checked: false, value: ActivityType.WR_ACHIEVED }
   };
-
-  constructor(private readonly ref: DynamicDialogRef) {}
 
   ngOnInit() {
     for (const [type, { value }] of Object.entries(this.checkboxFlags))

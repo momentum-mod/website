@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Notification } from '@momentum/constants';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../../services/layout.service';
@@ -30,15 +30,13 @@ import { RouterLink } from '@angular/router';
   ]
 })
 export class HeaderComponent implements OnInit {
+  protected readonly localUserService = inject(LocalUserService);
+  private readonly layoutService = inject(LayoutService);
+  private readonly notificationService = inject(NotificationsService);
+
   protected menu: MenuItem[] = [];
   protected notifications: Notification[] = [];
   protected unreadNotificationCount = 0;
-
-  constructor(
-    protected readonly localUserService: LocalUserService,
-    private readonly layoutService: LayoutService,
-    private readonly notificationService: NotificationsService
-  ) {}
 
   ngOnInit() {
     this.notificationService.notifications.subscribe((notifs) => {

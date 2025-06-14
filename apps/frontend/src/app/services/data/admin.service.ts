@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
 import {
   AdminGetReportsQuery,
@@ -18,7 +18,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   updateMap(mapID: number, body: UpdateMapAdmin): Observable<MMap> {
     return this.http.patch(`admin/maps/${mapID}`, { body });

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map, catchError, of } from 'rxjs';
 import { HttpEvent } from '@angular/common/http';
 import {
@@ -29,7 +29,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class MapsService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getMap(nameOrId: number | string, query?: MapsGetQuery): Observable<MMap> {
     return this.http.get<MMap>(`maps/${nameOrId}`, { query });

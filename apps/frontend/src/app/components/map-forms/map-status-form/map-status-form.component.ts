@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  inject
+} from '@angular/core';
 import {
   Gamemode,
   Leaderboard,
@@ -69,6 +75,10 @@ export type GroupedLeaderboards = Map<
   ]
 })
 export class MapStatusFormComponent implements OnChanges {
+  private readonly mapsService = inject(MapsService);
+  private readonly leaderboardsService = inject(LeaderboardsService);
+  private readonly messageService = inject(MessageService);
+
   protected readonly MapStatus = MapStatus;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MIN_PUBLIC_TESTING_DURATION = MIN_PUBLIC_TESTING_DURATION;
@@ -97,12 +107,6 @@ export class MapStatusFormComponent implements OnChanges {
   protected loading = false;
 
   protected groupedLeaderboards: GroupedLeaderboards = new Map();
-
-  constructor(
-    private readonly mapsService: MapsService,
-    private readonly leaderboardsService: LeaderboardsService,
-    private readonly messageService: MessageService
-  ) {}
 
   async ngOnChanges(changes: SimpleChanges) {
     if (!changes['map'] || !this.map) return;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocalUserService } from '../../services/data/local-user.service';
 
@@ -11,10 +11,8 @@ import { LocalUserService } from '../../services/data/local-user.service';
   template: ''
 })
 export class ProfileRedirectComponent implements OnInit {
-  constructor(
-    private readonly router: Router,
-    private readonly localUserService: LocalUserService
-  ) {}
+  private readonly router = inject(Router);
+  private readonly localUserService = inject(LocalUserService);
 
   async ngOnInit(): Promise<void> {
     const localUser = this.localUserService.user.value;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   PagedResponse,
@@ -10,7 +10,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class PastRunsService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getRuns(query?: RunsGetAllQuery): Observable<PagedResponse<PastRun>> {
     return this.http.get<PagedResponse<PastRun>>('runs', { query });

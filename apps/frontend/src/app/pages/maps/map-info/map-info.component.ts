@@ -1,5 +1,5 @@
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   MapStatuses,
@@ -80,6 +80,17 @@ enum MapInfoSection {
   ]
 })
 export class MapInfoComponent implements OnInit {
+  protected readonly localUserService = inject(LocalUserService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly mapService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly layoutService = inject(LayoutService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly titleService = inject(TitleService);
+
   protected readonly ReportType = ReportType;
   protected readonly MapStatus = MapStatus;
   protected readonly MapCreditType = MapCreditType;
@@ -110,19 +121,6 @@ export class MapInfoComponent implements OnInit {
 
   currentSection?: MapInfoSection = null;
   sections = Enum.values(MapInfoSection);
-
-  constructor(
-    protected readonly localUserService: LocalUserService,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly mapService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly dialogService: DialogService,
-    private readonly layoutService: LayoutService,
-    private readonly sanitizer: DomSanitizer,
-    private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService
-  ) {}
 
   ngOnInit() {
     this.layoutService.reserveBackgroundUrl(

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapsGetAllSubmissionQuery,
   MapStatus,
@@ -40,6 +40,10 @@ type StatusFilters = Array<
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {
+  private readonly mapsService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly StatusDropdown = [
     { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
     { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
@@ -60,12 +64,6 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
-
-  constructor(
-    private readonly mapsService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     merge(

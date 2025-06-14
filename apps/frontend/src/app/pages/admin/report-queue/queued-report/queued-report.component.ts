@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject
+} from '@angular/core';
 import { ReportCategory, ReportType, Report } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
@@ -11,14 +18,14 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
   templateUrl: './queued-report.component.html'
 })
 export class QueuedReportComponent implements OnInit {
+  private readonly dialogService = inject(DialogService);
+
   @Input() report: Report;
   @Output() reportUpdate = new EventEmitter<Report>();
 
   typeText: string;
   categoryText: string;
   reportedResourceURL = '';
-
-  constructor(private readonly dialogService: DialogService) {}
 
   ngOnInit() {
     switch (this.report.type) {

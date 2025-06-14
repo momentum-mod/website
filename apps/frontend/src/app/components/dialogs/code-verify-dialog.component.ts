@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, SecurityContext } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  SecurityContext,
+  inject
+} from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -34,20 +40,20 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   `
 })
 export class CodeVerifyDialogComponent implements OnInit {
+  protected readonly ref = inject(DynamicDialogRef);
+  protected readonly config = inject<
+    DynamicDialogConfig<{
+      message: string;
+      actionText?: string;
+    }>
+  >(DynamicDialogConfig);
+  private sanitizer = inject(DomSanitizer);
+
   @Input() message: SafeHtml;
   @Input() actionText = 'Delete';
 
   protected randomCode: string;
   protected isCodeValid: boolean;
-
-  constructor(
-    protected readonly ref: DynamicDialogRef,
-    protected readonly config: DynamicDialogConfig<{
-      message: string;
-      actionText?: string;
-    }>,
-    private sanitizer: DomSanitizer
-  ) {}
 
   ngOnInit(): void {
     this.randomCode = this.generateNewCode();

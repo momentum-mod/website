@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { Notification } from '@momentum/constants';
 import { NotificationsService } from '../../services/notifications.service';
 import { ActivityContentComponent } from '../activity/activity-content.component';
@@ -12,9 +12,9 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
   imports: [ActivityContentComponent, NgClass, IconComponent, TimeAgoPipe]
 })
 export class NotificationComponent implements OnInit {
-  @Input() notifications: Notification[];
+  private readonly notificationService = inject(NotificationsService);
 
-  constructor(private readonly notificationService: NotificationsService) {}
+  @Input() notifications: Notification[];
 
   // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {

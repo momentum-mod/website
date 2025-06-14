@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { TwitchStream } from '@momentum/constants';
 import { finalize } from 'rxjs/operators';
 
@@ -12,10 +12,10 @@ import { CardComponent } from '../../../components/card/card.component';
   imports: [TwitchDataComponent, CardComponent]
 })
 export class CommunityTwitchStreamComponent implements OnInit {
+  private readonly twitchAPI = inject(TwitchAPIService);
+
   streams: TwitchStream[] = [];
   queriedStreams = false;
-
-  constructor(private readonly twitchAPI: TwitchAPIService) {}
 
   ngOnInit() {
     this.twitchAPI

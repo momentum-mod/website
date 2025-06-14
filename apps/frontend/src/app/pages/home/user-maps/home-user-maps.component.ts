@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { MapStatuses, MapStatus } from '@momentum/constants';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -12,16 +12,14 @@ import { CardComponent } from '../../../components/card/card.component';
   templateUrl: './home-user-maps.component.html'
 })
 export class HomeUserMapsComponent implements OnInit {
+  private readonly userService = inject(LocalUserService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly MapStatus = MapStatus;
   protected approved: number;
   protected submission: number;
 
   protected loading = true;
-
-  constructor(
-    private readonly userService: LocalUserService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     this.userService.user

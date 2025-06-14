@@ -1,4 +1,11 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
 import { PaginatorModule } from 'primeng/paginator';
@@ -37,12 +44,8 @@ export class UserSearchComponent
   extends AbstractSearchComponent<User>
   implements OnInit
 {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly localUserService: LocalUserService
-  ) {
-    super();
-  }
+  private readonly usersService = inject(UsersService);
+  private readonly localUserService = inject(LocalUserService);
 
   protected readonly Role = Role;
   public itemsName = 'users';

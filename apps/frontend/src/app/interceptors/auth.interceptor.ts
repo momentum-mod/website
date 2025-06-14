@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -17,6 +17,9 @@ import { AuthService } from '../services/data/auth.service';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthInterceptor implements HttpInterceptor {
+  private document = inject<Document>(DOCUMENT);
+  private readonly authService = inject(AuthService);
+
   private readonly allowedDomains = [
     'momentum-mod.org',
     new URL(env.api).host,
@@ -27,10 +30,7 @@ export class AuthInterceptor implements HttpInterceptor {
   private refreshInProgress: boolean;
   private refreshTokenSubject: BehaviorSubject<string | null>;
 
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private readonly authService: AuthService
-  ) {
+  constructor() {
     this.refreshInProgress = false;
     this.refreshTokenSubject = new BehaviorSubject<string | null>(null);
   }

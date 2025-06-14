@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
 import { merge, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -34,6 +34,10 @@ enum FilterType {
   templateUrl: './map-review-list.component.html'
 })
 export class MapReviewListComponent implements OnChanges {
+  private readonly mapsService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly localUserService = inject(LocalUserService);
+
   protected readonly Filters = [
     { type: FilterType.NONE, label: 'All reviews' },
     { type: FilterType.OFFICIAL, label: 'Official Reviewers' },
@@ -53,11 +57,7 @@ export class MapReviewListComponent implements OnChanges {
 
   protected filter = FilterType.NONE;
 
-  constructor(
-    private readonly mapsService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly localUserService: LocalUserService
-  ) {
+  constructor() {
     merge(
       this.pageChange.pipe(
         tap(({ first, rows }) => {
