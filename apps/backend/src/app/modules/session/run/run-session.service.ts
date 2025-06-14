@@ -252,7 +252,7 @@ export class RunSessionService {
 
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ pbRun, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
+    const [{ newPB, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
       await Promise.all([
         this.updateLeaderboards(
           tx,
@@ -293,8 +293,8 @@ export class RunSessionService {
       isNewPersonalBest: isPB,
       isNewWorldRecord: isWR,
       xp: xpGain,
-      pbRun,
-      lastPB,
+      newPersonalBest: newPB,
+      lastPersonalBest: lastPB,
       worldRecord,
       totalRuns
     });
@@ -307,7 +307,7 @@ export class RunSessionService {
     existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
     replayHash?: string
   ): Promise<{
-    pbRun?: LeaderboardRun;
+    newPB?: LeaderboardRun;
     lastPB?: LeaderboardRun;
     isWR: boolean;
     worldRecord?: LeaderboardRun;
@@ -496,9 +496,9 @@ export class RunSessionService {
 
     // We could use a Prisma upsert here but we already know if the existing
     // rank exists or not
-    let run: LeaderboardRun;
+    let newPB: LeaderboardRun;
     if (existingRun) {
-      run = await tx.leaderboardRun.update({
+      newPB = await tx.leaderboardRun.update({
         where: {
           userID_gamemode_style_mapID_trackType_trackNum: {
             userID: existingRun.userID,
@@ -521,7 +521,7 @@ export class RunSessionService {
         }
       });
     } else {
-      run = await this.db.leaderboardRun.create({
+      newPB = await this.db.leaderboardRun.create({
         data: {
           userID: submittedRun.userID,
           mapID: submittedRun.mapID,
@@ -546,10 +546,10 @@ export class RunSessionService {
     return {
       xpGain,
       totalRuns,
-      pbRun: run,
+      newPB,
       lastPB: existingRun,
       isWR,
-      worldRecord: isWR ? run : existingWorldRecord
+      worldRecord: isWR ? newPB : existingWorldRecord
     };
   }
 

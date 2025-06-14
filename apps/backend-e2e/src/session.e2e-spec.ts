@@ -744,7 +744,7 @@ describe('Session', () => {
           expect(res.statusCode).toBe(200);
           expect(res.body).toMatchObject({
             time: expect.any(Number),
-            pbRun: { rank: 2 },
+            newPersonalBest: { rank: 2 },
             xp: {
               rankXP: expect.any(Number),
               cosXP: {
