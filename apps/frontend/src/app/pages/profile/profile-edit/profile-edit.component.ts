@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -63,6 +63,18 @@ import { AvatarComponent } from '../../../components/avatar/avatar.component';
   ]
 })
 export class ProfileEditComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly usersService = inject(UsersService);
+  private readonly adminService = inject(AdminService);
+  private readonly authService = inject(AuthService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly titleService = inject(TitleService);
+
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)
     .sort(([_, a], [__, b]) => a.localeCompare(b))
     .map(([code, label]) => ({ code, label }));
@@ -101,19 +113,7 @@ export class ProfileEditComponent implements OnInit {
 
   protected readonly MAX_BIO_LENGTH = MAX_BIO_LENGTH;
 
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly localUserService: LocalUserService,
-    private readonly usersService: UsersService,
-    private readonly adminService: AdminService,
-    private readonly authService: AuthService,
-    private readonly messageService: MessageService,
-    private readonly dialogService: DialogService,
-    private readonly fb: FormBuilder,
-    private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService
-  ) {
+  constructor() {
     const socialsForm = {};
     for (const [name, { regex }] of Object.entries(SocialsData)) {
       socialsForm[name] = ['', [Validators.pattern(regex)]];

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
@@ -37,6 +37,9 @@ import { SpinnerDirective } from '../../../directives/spinner.directive';
   ]
 })
 export class AdminActivityComponent implements OnInit {
+  private readonly adminActivityService = inject(AdminActivityService);
+  private readonly messageService = inject(MessageService);
+
   // prettier-ignore
   protected readonly AdminActivitiesFilters = [
     { value: undefined, text: 'All' },
@@ -69,11 +72,6 @@ export class AdminActivityComponent implements OnInit {
   protected totalRecords = 0;
   protected first = 0;
   protected filter?: AdminActivityType;
-
-  constructor(
-    private readonly adminActivityService: AdminActivityService,
-    private readonly messageService: MessageService
-  ) {}
 
   ngOnInit() {
     merge(

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   ActivitiesGetQuery,
@@ -10,7 +10,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getFollowedActivity(query?: PagedQuery): Observable<PagedResponse<Activity>> {
     return this.http.get<PagedResponse<Activity>>('user/activities/followed', {

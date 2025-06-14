@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, inject } from '@angular/core';
 import { User } from '@momentum/constants';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { NgClass } from '@angular/common';
@@ -43,13 +43,13 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
   ]
 })
 export class UserComponent {
+  private readonly router = inject(Router);
+
   @Input({ required: true }) user!: User;
   @Input() aliasClass?: string;
   @Input() avatarClass?: string;
   @Input() badges = false;
   @Input() badgesClass?: string;
-
-  constructor(private readonly router: Router) {}
 
   @HostListener('click') click() {
     this.router.navigate([`profile/${this.user.id}`]);

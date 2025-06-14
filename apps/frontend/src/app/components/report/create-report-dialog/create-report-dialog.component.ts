@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
@@ -15,6 +15,11 @@ import { Select } from 'primeng/select';
   imports: [DropdownModule, ReactiveFormsModule, Select]
 })
 export class CreateReportDialogComponent implements OnInit {
+  protected readonly ref = inject(DynamicDialogRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly reportService = inject(ReportService);
+  private readonly messageService = inject(MessageService);
+
   protected readonly Categories = [
     {
       value: ReportCategory.INAPPROPRIATE_CONTENT,
@@ -34,13 +39,6 @@ export class CreateReportDialogComponent implements OnInit {
     category: [ReportCategory.INAPPROPRIATE_CONTENT, Validators.required],
     message: ['', [Validators.required, Validators.maxLength(1000)]]
   });
-
-  constructor(
-    protected readonly ref: DynamicDialogRef,
-    private readonly fb: FormBuilder,
-    private readonly reportService: ReportService,
-    private readonly messageService: MessageService
-  ) {}
 
   ngOnInit() {
     this.createReportForm.patchValue({

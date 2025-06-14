@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   Gamemode,
   Leaderboard,
@@ -44,6 +44,11 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
   ]
 })
 export class MapBrowserComponent implements OnInit {
+  protected readonly localUserService = inject(LocalUserService);
+  private readonly mapsService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
@@ -65,13 +70,6 @@ export class MapBrowserComponent implements OnInit {
   protected loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
-
-  constructor(
-    protected readonly localUserService: LocalUserService,
-    private readonly mapsService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     this.gamemode.valueChanges

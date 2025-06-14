@@ -12,7 +12,13 @@ import {
 export class TimeAgoPipe implements PipeTransform, OnDestroy {
   private timer: number | undefined;
   constructor(
+    // TODO: Using old ctor-based injection because I can't get unit tests to
+    // work with it -- TestBed.configureTestingModule/runInInjectionContext
+    // throws when attempted to provide ChangeDetectorRef.
+    // If I spend any longer on this I'll lose my mind.
+    // eslint-disable-next-line @angular-eslint/prefer-inject
     private changeDetectorRef: ChangeDetectorRef,
+    // eslint-disable-next-line @angular-eslint/prefer-inject
     private ngZone: NgZone
   ) {}
 

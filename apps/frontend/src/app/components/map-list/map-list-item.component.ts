@@ -4,7 +4,8 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import {
   GamemodeInfo,
@@ -47,6 +48,9 @@ import { PluralPipe } from '../../pipes/plural.pipe';
   ]
 })
 export class MapListItemComponent implements OnChanges {
+  protected readonly localUserService = inject(LocalUserService);
+  private readonly messageService = inject(MessageService);
+
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly LeaderboardType = LeaderboardType;
   protected readonly MapStatusName = MapStatusName;
@@ -66,11 +70,6 @@ export class MapListItemComponent implements OnChanges {
   prefix: string;
   tierStyle: string;
   tags: MapTag[];
-
-  constructor(
-    protected readonly localUserService: LocalUserService,
-    private readonly messageService: MessageService
-  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['map']) return;

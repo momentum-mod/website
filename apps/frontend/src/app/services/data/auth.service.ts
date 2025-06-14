@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -8,11 +8,11 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(
-    private cookieService: CookieService,
-    private http: HttpService,
-    private router: Router
-  ) {
+  private cookieService = inject(CookieService);
+  private http = inject(HttpService);
+  private router = inject(Router);
+
+  constructor() {
     this.moveCookieToLocalStorage('accessToken');
     this.moveCookieToLocalStorage('refreshToken');
   }

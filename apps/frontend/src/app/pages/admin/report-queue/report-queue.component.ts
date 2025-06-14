@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import { ReportType, Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
@@ -24,6 +24,9 @@ import { FormsModule } from '@angular/forms';
   ]
 })
 export class ReportQueueComponent implements OnInit {
+  private readonly adminService = inject(AdminService);
+  private readonly toasterService = inject(MessageService);
+
   protected readonly ReportType = ReportType;
 
   reportQueue: Report[] = [];
@@ -37,11 +40,6 @@ export class ReportQueueComponent implements OnInit {
   protected readonly pageChange = new Subject<PaginatorState>();
   protected readonly refresh = new Subject<void>();
   protected readonly filterChange = new Subject<void>();
-
-  constructor(
-    private readonly adminService: AdminService,
-    private readonly toasterService: MessageService
-  ) {}
 
   ngOnInit() {
     merge(

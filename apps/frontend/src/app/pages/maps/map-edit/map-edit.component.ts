@@ -4,7 +4,8 @@ import {
   HostListener,
   isDevMode,
   OnInit,
-  ViewChild
+  ViewChild,
+  inject
 } from '@angular/core';
 import { map, mergeAll, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -115,6 +116,19 @@ export type FinalApprovalFormGroup = Record<
   ]
 })
 export class MapEditComponent implements OnInit, ConfirmDeactivate {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly mapsService = inject(MapsService);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly adminService = inject(AdminService);
+  private readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
+  private readonly fb = inject(FormBuilder);
+  private readonly layoutService = inject(LayoutService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly titleService = inject(TitleService);
+  private readonly ngHttp = inject(HttpClient);
+
   protected readonly MapStatus = MapStatus;
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
@@ -221,21 +235,6 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   @ViewChild(MapLeaderboardSelectionComponent, { static: true })
   lbSelection: MapLeaderboardSelectionComponent;
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly mapsService: MapsService,
-    private readonly localUserService: LocalUserService,
-    private readonly adminService: AdminService,
-    private readonly dialogService: DialogService,
-    private readonly messageService: MessageService,
-    private readonly fb: FormBuilder,
-    private readonly layoutService: LayoutService,
-    private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService,
-    private readonly ngHttp: HttpClient
-  ) {}
 
   ngOnInit() {
     this.layoutService.reserveBackgroundUrl(/\/map-edit\/(?!submit)[\w-]+\/?$/);

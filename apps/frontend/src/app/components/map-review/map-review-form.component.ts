@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import {
   CombinedRoles,
   GamemodeInfo,
@@ -40,6 +40,10 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   templateUrl: './map-review-form.component.html'
 })
 export class MapReviewFormComponent {
+  private readonly mapsService = inject(MapsService);
+  private readonly messageService = inject(MessageService);
+  private readonly localUserService = inject(LocalUserService);
+
   protected readonly TrackType = TrackType;
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
@@ -106,12 +110,6 @@ export class MapReviewFormComponent {
   }
 
   protected loading = false;
-
-  constructor(
-    private readonly mapsService: MapsService,
-    private readonly messageService: MessageService,
-    private readonly localUserService: LocalUserService
-  ) {}
 
   submit() {
     if (this.form.invalid || this.form.pristine) return;

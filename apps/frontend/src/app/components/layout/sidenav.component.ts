@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CombinedRoles } from '@momentum/constants';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 
@@ -18,6 +18,9 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   imports: [IconComponent, RouterModule, AsyncPipe, TooltipDirective, NgClass]
 })
 export class SidenavComponent {
+  private readonly localUserService = inject(LocalUserService);
+  private readonly layoutService = inject(LayoutService);
+
   protected collapsed: Observable<boolean> =
     this.layoutService.sidenavToggled.pipe(
       map((state) => state === SidenavState.CLOSED)
@@ -38,9 +41,4 @@ export class SidenavComponent {
         }));
       })
     );
-
-  constructor(
-    private readonly localUserService: LocalUserService,
-    private readonly layoutService: LayoutService
-  ) {}
 }

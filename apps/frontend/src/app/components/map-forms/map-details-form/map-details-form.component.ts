@@ -4,7 +4,8 @@ import {
   Input,
   OnInit,
   QueryList,
-  ViewChildren
+  ViewChildren,
+  inject
 } from '@angular/core';
 import {
   MapSubmissionType,
@@ -54,6 +55,8 @@ import { ChipsComponent } from '../../chips/chips.component';
   ]
 })
 export class MapDetailsFormComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly SteamGames = Enum.values(SteamGame);
   protected readonly MIN_MAP_DESCRIPTION_LENGTH = MIN_MAP_DESCRIPTION_LENGTH;
@@ -94,8 +97,6 @@ export class MapDetailsFormComponent implements OnInit {
 
   @ViewChildren(TooltipDirective)
   tooltips: QueryList<TooltipDirective>;
-
-  constructor(private readonly destroyRef: DestroyRef) {}
 
   ngOnInit() {
     this.name.statusChanges

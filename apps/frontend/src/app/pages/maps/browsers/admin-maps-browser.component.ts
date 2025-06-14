@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapsGetAllAdminQuery,
   MapStatusName,
@@ -25,6 +25,10 @@ type StatusFilters = Array<MapStatus>;
   imports: [MapListComponent, MultiSelectModule, ReactiveFormsModule]
 })
 export class AdminMapsBrowserComponent implements OnInit {
+  private readonly adminService = inject(AdminService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = Enum.values(MapStatus).map(
     (status: MapStatus) => ({
@@ -45,12 +49,6 @@ export class AdminMapsBrowserComponent implements OnInit {
   protected loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
-
-  constructor(
-    private readonly adminService: AdminService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     merge(

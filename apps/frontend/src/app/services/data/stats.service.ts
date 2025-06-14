@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 // import { Observable } from 'rxjs';
 // import { env } from '@momentum/frontend/env';
 
 @Injectable({ providedIn: 'root' })
 export class StatsService {
-  constructor(private _http: HttpClient) {}
+  private _http = inject(HttpClient);
 
   // We haven't ported this from old API to Nest, going to rethink stats
   // completely. Leaving stubbed for now.

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { TooltipDirective } from '../../directives/tooltip.directive';
@@ -9,6 +9,8 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   templateUrl: './level-indicator.component.html'
 })
 export class LevelIndicatorComponent implements OnChanges {
+  private readonly xpService = inject(XpSystemsService);
+
   protected level: number;
   protected levelColor: string;
   protected prestige: number;
@@ -31,8 +33,6 @@ export class LevelIndicatorComponent implements OnChanges {
 
   @Input()
   totalLevel: number;
-
-  constructor(private readonly xpService: XpSystemsService) {}
 
   ngOnChanges() {
     this.level = this.xpService.getInnerLevel(this.totalLevel);

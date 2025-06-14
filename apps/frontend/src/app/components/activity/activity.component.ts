@@ -3,7 +3,8 @@ import {
   Input,
   OnChanges,
   OnInit,
-  SimpleChanges
+  SimpleChanges,
+  inject
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -46,6 +47,10 @@ import { NgStyle } from '@angular/common';
   ]
 })
 export class ActivityComponent implements OnInit, OnChanges {
+  private readonly activityService = inject(ActivityService);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly messageService = inject(MessageService);
+
   protected readonly Types = [
     { value: ActivityType.ALL, label: 'All' },
     { value: ActivityType.MAP_APPROVED, label: 'Maps Only' },
@@ -89,12 +94,6 @@ export class ActivityComponent implements OnInit, OnChanges {
   // Emits on first load, and whenever p-scroller wants new data
   protected readonly load = new Subject<void>();
   private readonly typeChange = new Subject<void>();
-
-  constructor(
-    private readonly activityService: ActivityService,
-    private readonly localUserService: LocalUserService,
-    private readonly messageService: MessageService
-  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['activityFetchType']) this.typeChange.next();

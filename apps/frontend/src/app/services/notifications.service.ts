@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import {
   filter,
@@ -17,16 +17,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private localUserService = inject(LocalUserService);
+  private messageService = inject(MessageService);
+
   notificationsSubject: ReplaySubject<Notification[]> = new ReplaySubject<
     Notification[]
   >(1);
-
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-    private localUserService: LocalUserService,
-    private messageService: MessageService
-  ) {}
 
   inject() {
     // this.checkNotifications();

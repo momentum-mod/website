@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, SecurityContext } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  SecurityContext,
+  inject
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
@@ -15,13 +21,15 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
     </div>`
 })
 export class ConfirmDialogComponent implements OnInit {
-  @Input() message: SafeHtml;
+  protected readonly ref = inject(DynamicDialogRef);
+  protected readonly config = inject<
+    DynamicDialogConfig<{
+      message: string;
+    }>
+  >(DynamicDialogConfig);
+  private sanitizer = inject(DomSanitizer);
 
-  constructor(
-    protected readonly ref: DynamicDialogRef,
-    protected readonly config: DynamicDialogConfig<{ message: string }>,
-    private sanitizer: DomSanitizer
-  ) {}
+  @Input() message: SafeHtml;
 
   ngOnInit() {
     const sanitizedMessage = this.sanitizer.sanitize(

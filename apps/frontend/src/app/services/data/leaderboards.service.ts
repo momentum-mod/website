@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   LeaderboardRun,
@@ -11,7 +11,7 @@ import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class LeaderboardsService {
-  constructor(private http: HttpService) {}
+  private http = inject(HttpService);
 
   getRuns(
     mapID: number,

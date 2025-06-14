@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   ActivatedRoute,
@@ -72,6 +72,16 @@ import { DialogModule } from 'primeng/dialog';
   ]
 })
 export class ProfileComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  protected readonly localUserService = inject(LocalUserService);
+  private readonly usersService = inject(UsersService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly titleService = inject(TitleService);
+  private readonly xpService = inject(XpSystemsService);
+  private readonly dialogService = inject(DialogService);
+
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
   protected readonly SocialsData = SocialsData as Readonly<
@@ -109,18 +119,6 @@ export class ProfileComponent implements OnInit {
   loadingSteamFriends = false;
   protected credits: MapCredit[];
   protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    protected readonly localUserService: LocalUserService,
-    private readonly usersService: UsersService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef,
-    private readonly titleService: TitleService,
-    private readonly xpService: XpSystemsService,
-    private readonly dialogService: DialogService
-  ) {}
 
   ngOnInit() {
     this.route.paramMap

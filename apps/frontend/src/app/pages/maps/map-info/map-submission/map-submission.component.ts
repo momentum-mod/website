@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {
   MMap,
   MapSubmissionType,
@@ -42,6 +42,8 @@ import { firstValueFrom } from 'rxjs';
   ]
 })
 export class MapSubmissionComponent {
+  private readonly mapService = inject(MapsService);
+
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly TrackType = TrackType;
   protected readonly LeaderboardType = LeaderboardType;
@@ -54,8 +56,6 @@ export class MapSubmissionComponent {
   protected versions: MapVersion[];
   protected visibleVersions: number;
   protected hasComments = false;
-
-  constructor(private readonly mapService: MapsService) {}
 
   private _map: MMap;
   get map() {

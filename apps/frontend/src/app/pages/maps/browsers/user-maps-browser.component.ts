@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   Ban,
   MapStatusName,
@@ -42,6 +42,10 @@ type StatusFilters = Array<
   ]
 })
 export class UserMapsBrowserComponent implements OnInit {
+  private readonly localUserService = inject(LocalUserService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = [
     { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
@@ -66,12 +70,6 @@ export class UserMapsBrowserComponent implements OnInit {
   protected loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
-
-  constructor(
-    private readonly localUserService: LocalUserService,
-    private readonly messageService: MessageService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   async ngOnInit() {
     if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {

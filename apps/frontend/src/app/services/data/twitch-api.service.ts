@@ -1,14 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class TwitchAPIService {
+  private http = inject(HttpClient);
+
   private readonly baseURL: string;
   private readonly clientID: string;
   private readonly gameID: string;
   private readonly headers: HttpHeaders;
-  constructor(private http: HttpClient) {
+  constructor() {
     this.baseURL = 'https://api.twitch.tv/helix';
     this.clientID = '5aerrhj5xm0lgbrpdjw50wjh6pnmbc';
     this.gameID = '492973';

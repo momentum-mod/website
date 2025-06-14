@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { filter, first } from 'rxjs/operators';
@@ -19,6 +19,8 @@ export enum BackgroundState {
 
 @Injectable({ providedIn: 'root' })
 export class LayoutService {
+  private readonly router = inject(Router);
+
   public readonly sidenavToggled = new BehaviorSubject<SidenavState>(
     SidenavState.OPEN
   );
@@ -28,7 +30,7 @@ export class LayoutService {
   public readonly backgroundChange = new BehaviorSubject<string | null>(null);
   public readonly backgroundEnable = new BehaviorSubject<boolean>(true);
 
-  constructor(private readonly router: Router) {
+  constructor() {
     const storedState = localStorage.getItem(
       SIDENAV_LS_KEY
     ) as SidenavState | null;

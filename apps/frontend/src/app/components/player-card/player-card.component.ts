@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { LevelIndicatorComponent } from '../level-indicator/level-indicator.component';
 import { XpSystemsService } from '../../services/xp-systems.service';
@@ -15,17 +15,15 @@ import {
   styleUrl: './player-card.component.css'
 })
 export class PlayerCardComponent implements OnInit {
+  private readonly localUserService = inject(LocalUserService);
+  private readonly xpService = inject(XpSystemsService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected user: FullUser;
   protected level: number;
   protected xp: number;
   protected currLevelXp: number;
   protected nextLevelXp: number;
-
-  constructor(
-    private readonly localUserService: LocalUserService,
-    private readonly xpService: XpSystemsService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     this.localUserService.user

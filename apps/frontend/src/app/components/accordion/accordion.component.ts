@@ -5,7 +5,8 @@ import {
   Component,
   ContentChildren,
   Input,
-  QueryList
+  QueryList,
+  inject
 } from '@angular/core';
 import { AccordionItemComponent } from './accordion-item.component';
 import { Subject, delay, takeWhile } from 'rxjs';
@@ -19,6 +20,8 @@ import { Subject, delay, takeWhile } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionComponent implements AfterContentInit {
+  private readonly cdRef = inject(ChangeDetectorRef);
+
   // Strategy: each accordion-item component injects this component, which calls
   // the below Subject  whenever it opens with a key unique to that component.
   // Then we just iterate over the query list of accordion items, opening the
@@ -37,8 +40,6 @@ export class AccordionComponent implements AfterContentInit {
 
   @ContentChildren(AccordionItemComponent)
   private items: QueryList<AccordionItemComponent>;
-
-  constructor(private readonly cdRef: ChangeDetectorRef) {}
 
   ngAfterContentInit() {
     this.itemOpened.subscribe((key) => this.onItemOpened(key));

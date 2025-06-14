@@ -3,7 +3,8 @@ import {
   Component,
   HostBinding,
   Input,
-  OnChanges
+  OnChanges,
+  inject
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { IconService } from './icon.service';
@@ -15,16 +16,14 @@ import { DEFAULT_ICON_PACK, Icon, IconPack } from './index';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IconComponent implements OnChanges {
+  private readonly iconService = inject(IconService);
+  private readonly sanitzer = inject(DomSanitizer);
+
   @Input({ required: true }) icon!: Icon | null;
   @Input() pack: IconPack = DEFAULT_ICON_PACK;
 
   @HostBinding('innerHtml')
   html: SafeHtml = '';
-
-  constructor(
-    private readonly iconService: IconService,
-    private readonly sanitzer: DomSanitizer
-  ) {}
 
   ngOnChanges() {
     this.renderIcon();

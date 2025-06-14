@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { User } from '@momentum/constants';
 import { HomeUserMapsComponent } from './user-maps/home-user-maps.component';
 import { HomeStatsComponent } from './stats/home-stats.component';
@@ -12,12 +12,12 @@ import { Router } from '@angular/router';
   imports: [HomeStatsComponent, HomeUserMapsComponent, ActivityComponent]
 })
 export class HomeComponent {
+  private readonly localUserService = inject(LocalUserService);
+  private readonly router = inject(Router);
+
   user: User;
 
-  constructor(
-    private readonly localUserService: LocalUserService,
-    private readonly router: Router
-  ) {
+  constructor() {
     this.localUserService.user.subscribe({
       next: (user) => {
         if (user == null) {

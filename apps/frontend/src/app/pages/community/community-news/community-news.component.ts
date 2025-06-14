@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -13,6 +13,8 @@ import { CardComponent } from '../../../components/card/card.component';
   encapsulation: ViewEncapsulation.None
 })
 export class CommunityNewsComponent implements OnInit {
+  private readonly blogService = inject(BlogService);
+
   // The number of blog posts to display on this component
   readonly POSTS_DISPLAYED = 10;
 
@@ -20,8 +22,6 @@ export class CommunityNewsComponent implements OnInit {
   loaded = false;
 
   parser = new XMLParser();
-
-  constructor(private readonly blogService: BlogService) {}
 
   ngOnInit() {
     this.blogService

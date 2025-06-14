@@ -4,7 +4,6 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Inject,
   Input,
   NgZone,
   OnDestroy,
@@ -12,7 +11,8 @@ import {
   PLATFORM_ID,
   Renderer2,
   ViewChild,
-  forwardRef
+  forwardRef,
+  inject
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomHandler } from 'primeng/dom';
@@ -158,6 +158,13 @@ export interface SliderSlideEndEvent {
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SliderComponent implements OnDestroy, ControlValueAccessor {
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
+  readonly el = inject(ElementRef);
+  readonly renderer = inject(Renderer2);
+  private readonly ngZone = inject(NgZone);
+  readonly cd = inject(ChangeDetectorRef);
+
   /** When present, it specifies that the element should be disabled */
   @Input() disabled: boolean;
 
@@ -216,15 +223,6 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   private startHandleValue: any;
   private startx?: number | null;
   private starty?: number | null;
-
-  constructor(
-    @Inject(DOCUMENT) private readonly document: Document,
-    @Inject(PLATFORM_ID) private readonly platformId: any,
-    public readonly el: ElementRef,
-    public readonly renderer: Renderer2,
-    private readonly ngZone: NgZone,
-    public readonly cd: ChangeDetectorRef
-  ) {}
 
   onMouseDown(event: Event, index?: number) {
     if (this.disabled) return;

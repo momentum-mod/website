@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './profile-notify-edit.component.html'
 })
 export class ProfileNotifyEditComponent implements OnInit {
+  private readonly ref = inject(DynamicDialogRef);
+
   protected readonly ActivityType = ActivityType;
 
   @Input() flags: number;
@@ -20,8 +22,6 @@ export class ProfileNotifyEditComponent implements OnInit {
     approved: { checked: false, value: ActivityType.MAP_APPROVED },
     uploaded: { checked: false, value: ActivityType.MAP_UPLOADED }
   };
-
-  constructor(private readonly ref: DynamicDialogRef) {}
 
   ngOnInit() {
     for (const [type, { value }] of Object.entries(this.checkboxFlags))

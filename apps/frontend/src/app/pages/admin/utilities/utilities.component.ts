@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { AdminService } from '../../../services/data/admin.service';
@@ -15,6 +15,10 @@ import { CardComponent } from '../../../components/card/card.component';
   templateUrl: './utilities.component.html'
 })
 export class UtilitiesComponent implements OnInit {
+  private readonly adminService = inject(AdminService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+
   protected readonly KillswitchTypes = Enum.values(KillswitchType);
 
   protected readonly userForm = new FormGroup({
@@ -30,12 +34,6 @@ export class UtilitiesComponent implements OnInit {
   get alias() {
     return this.userForm.get('alias');
   }
-
-  constructor(
-    private readonly adminService: AdminService,
-    private readonly messageService: MessageService,
-    private readonly dialogService: DialogService
-  ) {}
 
   ngOnInit() {
     this.adminService.getKillswitches().subscribe({

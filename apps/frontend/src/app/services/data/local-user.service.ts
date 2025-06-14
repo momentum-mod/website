@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   Ban,
@@ -33,10 +33,10 @@ export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 
 @Injectable({ providedIn: 'root' })
 export class LocalUserService {
-  constructor(
-    private authService: AuthService,
-    private http: HttpService
-  ) {
+  private authService = inject(AuthService);
+  private http = inject(HttpService);
+
+  constructor() {
     const storedUser =
       this.isLoggedIn && localStorage.getItem('user')
         ? (JSON.parse(localStorage.getItem('user') as string) as FullUser)

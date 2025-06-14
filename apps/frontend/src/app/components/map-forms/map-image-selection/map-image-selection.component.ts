@@ -1,4 +1,11 @@
-import { Component, DestroyRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  Input,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import {
   ControlContainer,
   FormControl,
@@ -53,6 +60,9 @@ export enum ImageSelectionType {
   ]
 })
 export class MapImageSelectionComponent implements OnInit {
+  private readonly layoutService = inject(LayoutService);
+  private readonly destroyRef = inject(DestroyRef);
+
   @Input({ required: true }) formControlPassthrough: FormControl<File[]>;
   @Input() icon: Icon;
   @Input() disabled = false;
@@ -63,11 +73,6 @@ export class MapImageSelectionComponent implements OnInit {
 
   protected readonly ImageSelectionType = ImageSelectionType;
   protected readonly max = 5;
-
-  constructor(
-    private readonly layoutService: LayoutService,
-    private readonly destroyRef: DestroyRef
-  ) {}
 
   ngOnInit() {
     this.formControlPassthrough.valueChanges

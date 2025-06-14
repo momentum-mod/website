@@ -3,7 +3,8 @@ import {
   OnChanges,
   HostBinding,
   ElementRef,
-  Input
+  Input,
+  inject
 } from '@angular/core';
 
 /**
@@ -17,12 +18,12 @@ import {
  */
 @Directive({ selector: '[smoothHeight]', standalone: true })
 export class SmoothHeightAnimDirective implements OnChanges {
+  private readonly elRef = inject(ElementRef);
+
   @Input() smoothHeight: boolean;
   @Input() display = 'block';
   private pulse: boolean;
   private startHeight: number;
-
-  constructor(private readonly elRef: ElementRef) {}
 
   @HostBinding('@grow')
   get grow() {
