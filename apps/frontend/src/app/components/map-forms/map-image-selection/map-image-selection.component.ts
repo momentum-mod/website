@@ -31,6 +31,7 @@ import {
   BackgroundState,
   LayoutService
 } from '../../../services/layout.service';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 export enum ImageSelectionType {
   THUMBNAIL,
@@ -55,6 +56,7 @@ export enum ImageSelectionType {
     FormsModule,
     ReactiveFormsModule,
     IconComponent,
+    TooltipDirective,
     CdkDropList,
     CdkDrag
   ]
