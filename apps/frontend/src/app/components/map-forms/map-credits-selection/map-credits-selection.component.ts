@@ -59,7 +59,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       new FormControl<string>('', {
         validators: [
           Validators.required,
-          Validators.minLength(3),
+          Validators.minLength(1),
           Validators.maxLength(32)
         ]
       })
