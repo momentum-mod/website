@@ -580,8 +580,8 @@ export interface XpGain {
 
 export interface CompletedRun {
   time: number;
-  isNewWorldRecord: boolean;
-  isNewPersonalBest: boolean;
+  isNewWR: boolean;
+  isNewPB: boolean;
   xp: XpGain;
   totalRuns: number;
   pbRun?: LeaderboardRun;
