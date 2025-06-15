@@ -7,9 +7,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    reviewers:
-      - "tsa96"
-      - "GordiNoki"
     # Stops non-security updates from being created
     open-pull-requests-limit: 0
     # Split prod and dev dependencies into separate groups -- prod is more
