@@ -290,8 +290,8 @@ export class RunSessionService {
 
     return DtoFactory(CompletedRunDto, {
       time: submittedRun.time,
-      isNewPersonalBest: isPB,
-      isNewWorldRecord: isWR,
+      isNewPB: isPB,
+      isNewWR: isWR,
       xp: xpGain,
       pbRun,
       lastPB,

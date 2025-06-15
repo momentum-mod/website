@@ -46,7 +46,7 @@ export class CompletedRunDto implements CompletedRun {
     type: Boolean
   })
   @IsBoolean()
-  readonly isNewWorldRecord: boolean;
+  readonly isNewWR: boolean;
 
   @ApiProperty({
     description:
@@ -54,7 +54,7 @@ export class CompletedRunDto implements CompletedRun {
     type: Boolean
   })
   @IsBoolean()
-  readonly isNewPersonalBest: boolean;
+  readonly isNewPB: boolean;
 
   @NestedProperty(XpGainDto)
   readonly xp: XpGainDto;
