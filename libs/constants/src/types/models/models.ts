@@ -318,7 +318,6 @@ export interface MapReviewSuggestion {
 
 export interface MapStats {
   reviews: number;
-  downloads: number;
   subscriptions: number;
   plays: number;
   favorites: number;

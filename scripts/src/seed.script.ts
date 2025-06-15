@@ -621,7 +621,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
           stats: {
             create: {
               reviews: Random.int(10000),
-              downloads: Random.int(10000),
               subscriptions: Random.int(10000),
               plays: Random.int(10000),
               favorites: Random.int(10000),

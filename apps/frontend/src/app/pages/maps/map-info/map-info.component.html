@@ -93,7 +93,7 @@
                 <button type="button" (click)="gallery.show()" class="absolute bottom-[-3px] right-4 cursor-zoom-in">
                   <m-icon icon="fullscreen" class="h-8 w-8" />
                 </button>
-                <!-- 
+                <!--
                 Note that between this and the m-gallery component, we create two
                 different youtube iframes. This really sucks, but I don't know how to
                 avoid it. ng-template + ngTemplateOutlet isn't helpful, just creates two
@@ -127,10 +127,6 @@
           <div class="flex items-center gap-1" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
             <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
-          </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.downloads | plural: 'Download' }}">
-            <m-icon class="text-24 leading-4 drop-shadow-md" icon="download-outline"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.downloads | thousandsSuffix: 1 }}</p>
           </div>
           <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
@@ -250,7 +246,7 @@
     <div>
       <div class="stack card card--fancy border-opacity-[0.0675] p-4">
         <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
-        <!-- Don't insert this at all if not in submission, we don't want to 
+        <!-- Don't insert this at all if not in submission, we don't want to
              try fetch extra data/images unless we're may actually display it.
          -->
         @if (this.map.status !== MapStatus.APPROVED) {

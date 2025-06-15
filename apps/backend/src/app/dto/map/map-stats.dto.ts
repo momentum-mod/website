@@ -14,10 +14,6 @@ export class MapStatsDto implements MapStats {
 
   @ApiProperty()
   @IsInt()
-  readonly downloads: number;
-
-  @ApiProperty()
-  @IsInt()
   readonly subscriptions: number;
 
   @ApiProperty()

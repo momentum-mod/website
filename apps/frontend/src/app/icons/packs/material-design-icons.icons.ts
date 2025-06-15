@@ -30,7 +30,6 @@ export {
   mdiStar,
   mdiStarOutline,
   mdiDownload,
-  mdiDownloadOutline,
   mdiPlayCircle,
   mdiPlayCircleOutline,
   mdiArrowRightThick,
