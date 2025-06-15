@@ -2012,7 +2012,7 @@ describe('Admin', () => {
 
         const updated = await prisma.mMap.findFirst({
           where: { id: map.id },
-          include: { versions: true }
+          include: { versions: { orderBy: { versionNum: 'asc' } } }
         });
 
         expect(updated.status).toBe(MapStatus.DISABLED);
