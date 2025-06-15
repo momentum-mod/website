@@ -275,7 +275,6 @@ model MapInfo {
 
 model MapStats {
   reviews           Int    @default(0)
-  downloads         Int    @default(0)
   subscriptions     Int    @default(0)
   plays             Int    @default(0)
   favorites         Int    @default(0)
