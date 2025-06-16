@@ -55,7 +55,8 @@ export const MomentumPreset = definePreset(Material, {
       value: {
         background:
           'linear-gradient(90deg, rgb(var(--blue-500)), rgb(var(--blue-300)))'
-      }
+      },
+      css: () => '.p-progressbar-value { transition: none !important; }'
     },
     dialog: {
       shadow: '1px 3px 8px rgb(0 0 0 / 0.5)',
