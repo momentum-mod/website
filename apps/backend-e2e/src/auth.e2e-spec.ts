@@ -27,6 +27,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import { Role } from '@momentum/constants';
+import { createHash } from 'node:crypto';
 
 describe('Auth', () => {
   const testJwtService = new JwtService({
@@ -182,7 +183,7 @@ describe('Auth', () => {
           response = await request();
         });
 
-        afterAll(() => db.cleanup('user', 'deletedSteamID'));
+        afterAll(() => db.cleanup('user', 'deletedUser'));
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
@@ -233,15 +234,19 @@ describe('Auth', () => {
       });
 
       it('should throw a ForbiddenException if account with this steamID was deleted', async () => {
-        await prisma.deletedSteamID.create({
-          data: { steamID: BigInt(steamID) }
+        const steamIDHash = createHash('sha256')
+          .update(steamID.toString())
+          .digest('hex');
+
+        await prisma.deletedUser.create({
+          data: { steamIDHash }
         });
 
         const res = await request();
         expect(res.statusCode).toBe(403);
 
-        await prisma.deletedSteamID.delete({
-          where: { steamID: BigInt(steamID) }
+        await prisma.deletedUser.delete({
+          where: { steamIDHash }
         });
       });
 

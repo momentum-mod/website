@@ -15,6 +15,7 @@ import {
 import { User } from '@prisma/client';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { KillswitchService } from '../killswitch/killswitch.service';
+import { createHash } from 'node:crypto';
 
 describe('UserService', () => {
   let usersService: UsersService;
@@ -205,6 +206,7 @@ describe('UserService', () => {
     });
 
     it('should error when profile state is not 1', async () => {
+      const steamID = 123456789n;
       const steamUserSummaryData: SteamUserSummaryData = {
         avatar: '',
         avatarfull: '',
@@ -220,25 +222,29 @@ describe('UserService', () => {
         profilestate: 2,
         profileurl: '',
         realname: '',
-        steamid: '123456789',
+        steamid: steamID.toString(),
         timecreated: 0
       };
       jest
         .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
         .mockResolvedValueOnce(steamUserSummaryData);
 
-      await expect(
-        usersService.findOrCreateUser(BigInt(123456789))
-      ).rejects.toThrow(ForbiddenException);
+      await expect(usersService.findOrCreateUser(steamID)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it('should error when steamid is deleted', async () => {
-      db.deletedSteamID.findUnique.mockResolvedValueOnce({
-        steamID: BigInt(123456789)
-      } as any);
-      await expect(
-        usersService.findOrCreateUser(BigInt(123456789))
-      ).rejects.toThrow(ForbiddenException);
+      const steamID = 1239127361928736n;
+      const steamIDHash = createHash('sha256')
+        .update(steamID.toString())
+        .digest('hex');
+
+      db.deletedUser.findUnique.mockResolvedValueOnce({ steamIDHash });
+
+      await expect(usersService.findOrCreateUser(steamID)).rejects.toThrow(
+        ForbiddenException
+      );
     });
   });
 });

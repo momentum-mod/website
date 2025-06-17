@@ -72,8 +72,8 @@ model UserStats {
   userID Int  @id
 }
 
-model DeletedSteamID {
-  steamID BigInt @id @db.BigInt
+model DeletedUser {
+  steamIDHash String @id @db.Char(64) /// SHA-256 hex hash of steamID
 }
 
 model Report {

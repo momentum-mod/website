@@ -37,6 +37,7 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
+import { createHash } from 'node:crypto';
 
 describe('User', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
@@ -392,18 +393,23 @@ describe('User', () => {
           'mMap',
           'report',
           'activity',
-          'deletedSteamID'
+          'deletedUser'
         )
       );
 
       it('should delete user data, leaving user with Role.DELETED', async () => {
+        const steamID = 12345;
+        const steamIDHash = createHash('sha256')
+          .update(steamID.toString())
+          .digest('hex');
+
         const followeeUser = await db.createUser();
         const map = await db.createMap();
         const user = await prisma.user.create({
           data: {
             roles: Role.MAPPER,
             bans: Ban.BIO,
-            steamID: 12345,
+            steamID,
             alias: 'User to be deleted',
             avatar: 'yeeeee',
             country: 'NA',
@@ -548,8 +554,8 @@ describe('User', () => {
           }
         });
 
-        const deletedSteamIDEntry = await prisma.deletedSteamID.findUnique({
-          where: { steamID: userBeforeDeletion.steamID }
+        const deletedSteamIDEntry = await prisma.deletedUser.findUnique({
+          where: { steamIDHash }
         });
 
         expect(deletedUser).toMatchObject({
