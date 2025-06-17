@@ -52,7 +52,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 describe('Admin', () => {
@@ -637,24 +637,23 @@ describe('Admin', () => {
       afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user'));
 
       afterAll(() =>
-        db.cleanup(
-          'mMap',
-          'report',
-          'activity',
-          'deletedSteamID',
-          'adminActivity'
-        )
+        db.cleanup('mMap', 'report', 'activity', 'deletedUser', 'adminActivity')
       );
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
         const map = await db.createMap();
 
+        const steamID = 919191919n;
+        const steamIDHash = createHash('sha256')
+          .update(steamID.toString())
+          .digest('hex');
+
         const user = await prisma.user.create({
           data: {
             roles: Role.MAPPER,
             bans: Ban.BIO,
-            steamID: 12345,
+            steamID,
             alias: 'User to be deleted',
             avatar: 'yeeeee',
             country: 'NA',
@@ -793,8 +792,8 @@ describe('Admin', () => {
           }
         });
 
-        const deletedSteamIDEntry = await prisma.deletedSteamID.findUnique({
-          where: { steamID: userBeforeDeletion.steamID }
+        const deletedSteamIDEntry = await prisma.deletedUser.findUnique({
+          where: { steamIDHash }
         });
 
         expect(deletedUser).toMatchObject({
