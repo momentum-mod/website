@@ -46,6 +46,7 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { SteamUserSummaryData } from '../steam/steam.interface';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class UsersService {
@@ -105,8 +106,8 @@ export class UsersService {
   }
 
   async findOrCreateUser(steamID: bigint): Promise<AuthenticatedUser> {
-    const deletedSteamID = await this.db.deletedSteamID.findUnique({
-      where: { steamID }
+    const deletedSteamID = await this.db.deletedUser.findUnique({
+      where: { steamIDHash: this.getSteamIDHash(steamID) }
     });
 
     if (deletedSteamID)
@@ -292,7 +293,9 @@ export class UsersService {
         data: updateInputToClean
       }),
       this.db.userAuth.deleteMany({ where: { userID } }),
-      this.db.deletedSteamID.create({ data: { steamID: user.steamID } })
+      this.db.deletedUser.create({
+        data: { steamIDHash: this.getSteamIDHash(user.steamID) }
+      })
     ]);
 
     if (adminID) {
@@ -772,6 +775,10 @@ export class UsersService {
     });
 
     return users.map((user) => DtoFactory(UserDto, user));
+  }
+
+  private getSteamIDHash(steamID: bigint): string {
+    return createHash('sha256').update(steamID.toString()).digest('hex');
   }
 
   //#endregion
