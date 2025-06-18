@@ -234,6 +234,15 @@ export class GlobalRegionsDto /* extends JsonifiableDto */
   @ArrayMinSize(0)
   @ArrayMaxSize(MAX_REGIONS)
   readonly allowBhop: RegionDto[];
+
+  @NestedProperty(RegionDto, {
+    isArray: true,
+    required: false,
+    description: 'A collection of overbounce regions'
+  })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(MAX_REGIONS)
+  readonly overbounce: RegionDto[];
 }
 
 export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
