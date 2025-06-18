@@ -401,6 +401,7 @@ export interface MainTrack {
 
 export interface BonusTrack {
   zones?: TrackZones;
+  /** Bitfield, value of 0 is functionality equivalent to being undefined */
   defragModifiers?: number;
   bhopEnabled?: boolean;
 }
