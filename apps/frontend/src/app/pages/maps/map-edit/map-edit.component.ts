@@ -325,7 +325,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.lbSelection.zones = this.map?.currentVersion?.zones;
     this.suggestions.setValue(this.map.submission.suggestions);
 
-    if (this.map.status === MapStatus.FINAL_APPROVAL) {
+    if (
+      this.map.status === MapStatus.FINAL_APPROVAL &&
+      !this.map.info.approvedDate
+    ) {
       const validatorFn = suggestionsValidator(
         () => this.map?.currentVersion?.zones,
         SuggestionType.APPROVAL
