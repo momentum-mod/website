@@ -119,13 +119,20 @@ export class RunProcessor {
         );
       }
 
-      let segment: Segment;
+      let segment: Segment | undefined;
       if (trackType === TrackType.STAGE) {
         segment = this.zones.tracks.main.zones.segments[trackNum - 1];
-      } else if (this.zones.tracks.bonuses[trackNum - 1].defragModifiers) {
+      } else if (this.zones.tracks.bonuses[trackNum - 1]?.defragModifiers) {
         segment = this.zones.tracks.main.zones.segments[0];
       } else {
-        segment = this.zones.tracks.bonuses[trackNum - 1].zones.segments[0];
+        segment = this.zones.tracks.bonuses[trackNum - 1]?.zones?.segments?.[0];
+      }
+
+      if (!segment) {
+        this.reject(
+          ErrorType.BAD_TIMESTAMPS,
+          'no segment for stage or bonus track'
+        );
       }
 
       this.validateSegment(segment, timestamps);
