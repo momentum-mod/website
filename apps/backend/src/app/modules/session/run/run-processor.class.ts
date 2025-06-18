@@ -119,16 +119,16 @@ export class RunProcessor {
         );
       }
 
-      const segment =
-        trackType === TrackType.STAGE
-          ? this.zones.tracks.main.zones.segments[trackNum - 1]
-          : this.zones.tracks.bonuses[trackNum - 1].defragModifiers !==
-              undefined
-            ? this.zones.tracks.main.zones.segments[0]
-            : this.zones.tracks.bonuses[trackNum - 1].zones.segments[0];
+      let segment: Segment;
+      if (trackType === TrackType.STAGE) {
+        segment = this.zones.tracks.main.zones.segments[trackNum - 1];
+      } else if (this.zones.tracks.bonuses[trackNum - 1].defragModifiers) {
+        segment = this.zones.tracks.main.zones.segments[0];
+      } else {
+        segment = this.zones.tracks.bonuses[trackNum - 1].zones.segments[0];
+      }
 
       this.validateSegment(segment, timestamps);
-
       return;
     }
 

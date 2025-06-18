@@ -612,7 +612,7 @@ describe('RunProcessor', () => {
       });
 
       it('should use main track segments if defragModifiers are used', () => {
-        zones.tracks.bonuses = [{ defragModifiers: 8 }];
+        zones.tracks.bonuses[0].defragModifiers = 8;
 
         expectPass({
           session: {
@@ -626,6 +626,33 @@ describe('RunProcessor', () => {
         });
 
         expectFail({
+          session: {
+            trackType: TrackType.BONUS,
+            timestamps: [
+              { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
+              { createdAt: cat(10000), time: 10, majorNum: 1, minorNum: 2 },
+              { createdAt: cat(20000), time: 20, majorNum: 1, minorNum: 3 }
+            ]
+          },
+          zones
+        });
+      });
+
+      it('should not use main track segments if defragModifiers are 0', () => {
+        zones.tracks.bonuses[0].defragModifiers = 0;
+
+        expectFail({
+          session: {
+            trackType: TrackType.BONUS,
+            timestamps: [
+              { createdAt: cat(0), time: 0, majorNum: 1, minorNum: 1 },
+              { createdAt: cat(10000), time: 10, majorNum: 1, minorNum: 2 }
+            ]
+          },
+          zones
+        });
+
+        expectPass({
           session: {
             trackType: TrackType.BONUS,
             timestamps: [
