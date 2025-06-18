@@ -1555,24 +1555,6 @@ export class MapsService {
       throw new BadRequestException('Map has unresolved reviews!');
     }
 
-    // Create placeholder users for all the users the submitter requested
-    // Can't use createMany due to nesting (thanks Prisma!!)
-    for (const placeholder of map.submission.placeholders ?? []) {
-      await tx.user.create({
-        data: {
-          alias: placeholder.alias,
-          roles: Role.PLACEHOLDER,
-          mapCredits: {
-            create: {
-              mmap: { connect: { id: map.id } },
-              type: placeholder.type,
-              description: placeholder.description
-            }
-          }
-        }
-      });
-    }
-
     // Create MAP_APPROVED activities for all authors
     const allCredits = await tx.mapCredit.findMany({
       where: { mapID: map.id, type: MapCreditType.AUTHOR }
@@ -1606,6 +1588,24 @@ export class MapsService {
         zones,
         SuggestionType.APPROVAL
       );
+
+      // Create placeholder users for all the users the submitter requested
+      // Can't use createMany due to nesting (thanks Prisma!!)
+      for (const placeholder of map.submission.placeholders ?? []) {
+        await tx.user.create({
+          data: {
+            alias: placeholder.alias,
+            roles: Role.PLACEHOLDER,
+            mapCredits: {
+              create: {
+                mmap: { connect: { id: map.id } },
+                type: placeholder.type,
+                description: placeholder.description
+              }
+            }
+          }
+        });
+      }
 
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
