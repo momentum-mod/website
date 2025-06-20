@@ -7,7 +7,12 @@ import {
   MMap,
   PagedResponse
 } from '@momentum/constants';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  FormsModule
+} from '@angular/forms';
 
 import { PaginatorModule } from 'primeng/paginator';
 import { EMPTY, merge, of, Subject } from 'rxjs';
@@ -27,6 +32,8 @@ import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { MapSortComponent } from '../sorting/map-sort.component';
+import { MapSortType } from '@momentum/constants';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -40,7 +47,9 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
     NgStyle,
     AsyncPipe,
     TooltipDirective,
-    CommonModule
+    CommonModule,
+    MapSortComponent,
+    FormsModule
   ]
 })
 export class MapBrowserComponent implements OnInit {
@@ -52,6 +61,18 @@ export class MapBrowserComponent implements OnInit {
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
+  protected readonly MapSortType = MapSortType;
+  protected readonly MapSortOptions = [
+    MapSortType.DATE_RELEASED_NEWEST,
+    MapSortType.DATE_RELEASED_OLDEST,
+    MapSortType.DATE_CREATED_NEWEST,
+    MapSortType.DATE_CREATED_OLDEST,
+    MapSortType.ALPHABETICAL,
+    MapSortType.REVERSE_ALPHABETICAL,
+    MapSortType.FAVORITED_MOST,
+    MapSortType.FAVORITED_LEAST
+  ];
+
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     gamemode: new FormControl<Gamemode>(null),
@@ -60,7 +81,8 @@ export class MapBrowserComponent implements OnInit {
     tiers: new FormControl<[number, number]>({
       value: [1, 10],
       disabled: true
-    })
+    }),
+    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
   });
 
   protected maps: Array<MapWithSpecificLeaderboard> = [];
@@ -101,7 +123,7 @@ export class MapBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { favorites, pb, tiers, name, gamemode } =
+          const { favorites, pb, tiers, name, gamemode, sortType } =
             this.filters?.value ?? {};
           const options: MapsGetAllQuery = {
             skip: this.skip,
@@ -127,6 +149,8 @@ export class MapBrowserComponent implements OnInit {
           } else if (pb === 2) {
             options.PB = false;
           }
+
+          if (sortType) options.sortType = sortType;
 
           return this.mapsService.getMaps({ ...options });
         }),
