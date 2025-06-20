@@ -22,6 +22,18 @@
     />
     <p class="ml-4 font-display text-24">Submitter</p>
     <m-user-select formControlName="submitter" />
+    @let mapSortOptions =
+      [
+        MapSortType.SUBMISSION_CREATED_NEWEST,
+        MapSortType.SUBMISSION_CREATED_OLDEST,
+        MapSortType.SUBMISSION_UPDATED_NEWEST,
+        MapSortType.SUBMISSION_UPDATED_OLDEST,
+        MapSortType.DATE_CREATED_NEWEST,
+        MapSortType.DATE_CREATED_OLDEST,
+        MapSortType.ALPHABETICAL,
+        MapSortType.REVERSE_ALPHABETICAL
+      ];
+    <m-map-sort [sorts]="mapSortOptions" formControlName="sortType" />
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />

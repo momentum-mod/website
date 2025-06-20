@@ -25,6 +25,19 @@
       <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <p class="font-display text-24">Status</p>
       <p-multiSelect formControlName="status" [options]="StatusDropdown" optionLabel="label" optionValue="type" [showHeader]="false" />
+
+      @let mapSortOptions =
+        [
+          MapSortType.SUBMISSION_CREATED_NEWEST,
+          MapSortType.SUBMISSION_CREATED_OLDEST,
+          MapSortType.SUBMISSION_UPDATED_NEWEST,
+          MapSortType.SUBMISSION_UPDATED_OLDEST,
+          MapSortType.DATE_CREATED_NEWEST,
+          MapSortType.DATE_CREATED_OLDEST,
+          MapSortType.ALPHABETICAL,
+          MapSortType.REVERSE_ALPHABETICAL
+        ];
+      <m-map-sort [sorts]="mapSortOptions" formControlName="sortType" />
     </form>
   </div>
   <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
