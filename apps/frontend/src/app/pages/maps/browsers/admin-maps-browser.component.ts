@@ -7,7 +7,12 @@ import {
   PagedResponse
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -17,17 +22,27 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { AdminService } from '../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MapSortComponent } from '../sorting/map-sort.component';
+import { MapSortType } from '@momentum/constants';
 
 type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
-  imports: [MapListComponent, MultiSelectModule, ReactiveFormsModule]
+  imports: [
+    MapListComponent,
+    MultiSelectModule,
+    ReactiveFormsModule,
+    MapSortComponent,
+    FormsModule
+  ]
 })
 export class AdminMapsBrowserComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly MapSortType = MapSortType;
 
   protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = Enum.values(MapStatus).map(
@@ -39,7 +54,8 @@ export class AdminMapsBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null)
+    status: new FormControl<StatusFilters>(null),
+    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
   });
 
   protected maps: MMap[] = [];
@@ -70,13 +86,14 @@ export class AdminMapsBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status } = this.filters?.value ?? {};
+          const { name, status, sortType } = this.filters?.value ?? {};
           const options: MapsGetAllAdminQuery = {
             skip: this.skip,
             take
           };
           if (name) options.search = name;
           if (status?.length > 0) options.filter = status as StatusFilters;
+          if (sortType) options.sortType = sortType;
 
           return this.adminService.getMaps({ ...options });
         }),

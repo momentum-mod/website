@@ -74,6 +74,18 @@
           formControlName="pb"
         />
       }
+      @let mapSortOptions =
+        [
+          MapSortType.DATE_RELEASED_NEWEST,
+          MapSortType.DATE_RELEASED_OLDEST,
+          MapSortType.DATE_CREATED_NEWEST,
+          MapSortType.DATE_CREATED_OLDEST,
+          MapSortType.ALPHABETICAL,
+          MapSortType.REVERSE_ALPHABETICAL,
+          MapSortType.FAVORITED_MOST,
+          MapSortType.FAVORITED_LEAST
+        ];
+      <m-map-sort [sorts]="mapSortOptions" formControlName="sortType" />
     </div>
   </div>
 </form>
