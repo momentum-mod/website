@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MapSortType } from '@momentum/constants';
 import { IconComponent } from '../../../icons';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import polyfill from '@oddbird/css-anchor-positioning/fn';
 @Component({
   selector: 'm-map-sort',
   templateUrl: 'map-sort.component.html',
@@ -24,7 +25,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ]
 })
-export class MapSortComponent implements ControlValueAccessor {
+export class MapSortComponent implements ControlValueAccessor, OnInit {
   protected currentSortOption: MapSortType;
 
   // First element is used as default for dropdown button in template.
@@ -72,5 +73,14 @@ export class MapSortComponent implements ControlValueAccessor {
   onTouched = () => void 0;
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  // Remove this polyfill when Firefox implements anchor positioning.
+  // NOTE: sometimes it just fucks off with the positioning until you F5.
+  // The menu is on the bottom-right instead of by the button, which is not horrible.
+  async ngOnInit() {
+    if (!('anchorName' in document.documentElement.style)) {
+      await polyfill();
+    }
   }
 }
