@@ -24,7 +24,8 @@ import {
   FlatMapList,
   GamemodeCategory,
   MAX_OPEN_MAP_SUBMISSIONS,
-  MapTag
+  MapTag,
+  MapSortType
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -774,6 +775,21 @@ describe('Maps', () => {
           validatePaged: { type: MapDto, count: 3 },
           token: u1Token
         });
+      });
+
+      it('should respond with maps in reverse alphabetical order when in sortType query', async () => {
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
+          validatePaged: { type: MapDto, count: 4 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].name).toBe(mWater.name);
+        expect(res.body.data[1].name).toBe(mEarth.name);
+        expect(res.body.data[2].name).toBe(mBeansOnToast.name);
+        expect(res.body.data[3].name).toBe(mAir.name);
       });
     });
 
@@ -3811,6 +3827,7 @@ describe('Maps', () => {
 
         await db.createMap({ status: MapStatus.APPROVED });
         pubMap1 = await db.createMap({
+          name: 'zesty_granola',
           status: MapStatus.PUBLIC_TESTING,
           ...mapCreate,
           reviews: {
@@ -3821,6 +3838,7 @@ describe('Maps', () => {
           }
         });
         pubMap2 = await db.createMap({
+          name: 'xtra_cool_map',
           status: MapStatus.PUBLIC_TESTING,
           ...mapCreate
         });
@@ -3968,6 +3986,18 @@ describe('Maps', () => {
           where: { id: pubMap1.id },
           data: { submitterID: null }
         });
+      });
+
+      it('should respond with maps in reverse alphabetical order when in sortType query', async () => {
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
+          token: u1Token
+        });
+
+        expect(res.body.data[0].name).toBe(pubMap1.name);
+        expect(res.body.data[1].name).toBe(pubMap2.name);
       });
 
       it('should respond with expanded current version data using the currentVersion expand parameter', () =>
