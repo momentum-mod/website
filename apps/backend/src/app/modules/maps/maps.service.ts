@@ -92,6 +92,7 @@ import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
 import { MapWebhooksService } from './map-webhooks.service';
+import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 
 @Injectable()
 export class MapsService {
@@ -125,6 +126,17 @@ export class MapsService {
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
+    // Default ordering is most recently created submission,
+    // as not all maps are approved.
+    // Changing to info: { creationDate: 'desc' }
+    // would require a LOT of changes to tests and testutils.
+    const orderBy: Prisma.MMapOrderByWithRelationInput =
+      query.sortType != null
+        ? MapSortTypeOrder.get(query.sortType)
+        : {
+            createdAt: 'desc'
+          };
+    // TODO validate userID if sortType is user-dependent
     let take: number | undefined = query.take;
     if (query.search) where.name = { contains: query.search };
     if (query.searchStartsWith)
@@ -316,11 +328,15 @@ export class MapsService {
           ];
         }
       }
-    } else {
+    } else if (query instanceof MapsGetAllAdminQueryDto) {
       // /admin/maps can filter by any map statuses
       if (query.filter) {
         where.status = { in: query.filter };
       }
+    } else {
+      throw new BadRequestException(
+        'Type of MapsGetAll query is not supported'
+      );
     }
 
     let incPB = false,
@@ -380,7 +396,7 @@ export class MapsService {
     const dbResponse = await this.db.mMap.findManyAndCount({
       where,
       include,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       skip: query.skip,
       take
     });
