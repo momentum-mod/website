@@ -92,7 +92,19 @@ describe('Maps', () => {
 
   describe('maps', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, m1, m2, m3, m4, imageID;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        mEarth,
+        mWater,
+        mAir,
+        mBeansOnToast,
+        // mPrivate,
+        // mDisabled,
+        // mFinal,
+        // mContent,
+        // mPubTest,
+        imageID: string;
 
       beforeEach(async () => {
         imageID = db.uuid(); // Gonna use this for *every* image
@@ -102,8 +114,38 @@ describe('Maps', () => {
           db.createAndLoginUser()
         ]);
 
-        [[m1, m2, m3, m4]] = await Promise.all([
-          db.createMaps(4, {
+        [
+          mEarth,
+          mWater,
+          mAir,
+          mBeansOnToast
+          // mPrivate,
+          // mDisabled,
+          // mFinal,
+          // mContent,
+          // mPubTest
+        ] = await Promise.all([
+          db.createMap({
+            name: 'earth',
+            status: MapStatus.APPROVED,
+            credits: { create: { type: 0, userID: u1.id } },
+            images: [imageID]
+          }),
+          db.createMap({
+            name: 'water',
+            status: MapStatus.APPROVED,
+            credits: { create: { type: 0, userID: u1.id } },
+            images: [imageID]
+          }),
+          db.createMap({
+            name: 'air',
+            status: MapStatus.APPROVED,
+            credits: { create: { type: 0, userID: u1.id } },
+            images: [imageID]
+          }),
+          db.createMap({
+            name: 'beans_on_toast',
+            status: MapStatus.APPROVED,
             credits: { create: { type: 0, userID: u1.id } },
             images: [imageID]
           }),
@@ -111,7 +153,10 @@ describe('Maps', () => {
             status: MapStatus.PRIVATE_TESTING,
             images: [imageID]
           }),
-          db.createMap({ images: [imageID], status: MapStatus.DISABLED }),
+          db.createMap({
+            images: [imageID],
+            status: MapStatus.DISABLED
+          }),
           db.createMap({
             status: MapStatus.FINAL_APPROVAL,
             images: [imageID]
@@ -183,8 +228,8 @@ describe('Maps', () => {
         req.skipTest({ url: 'maps', validate: MapDto, token: u1Token }));
 
       it('should respond with filtered map data using the search parameter', async () => {
-        m2 = await prisma.mMap.update({
-          where: { id: m2.id },
+        mWater = await prisma.mMap.update({
+          where: { id: mWater.id },
           data: { name: 'aaaaa' }
         });
 
@@ -199,8 +244,8 @@ describe('Maps', () => {
       });
 
       it('should respond with filtered map data using the searchStartsWith parameter', async () => {
-        m1 = await prisma.mMap.update({
-          where: { id: m1.id },
+        mEarth = await prisma.mMap.update({
+          where: { id: mEarth.id },
           data: { name: 'surf_bbbbb' }
         });
 
@@ -217,7 +262,7 @@ describe('Maps', () => {
 
       it('should respond with filtered map data using the submitter id parameter', async () => {
         await prisma.mMap.update({
-          where: { id: m2.id },
+          where: { id: mWater.id },
           data: { submitterID: u1.id }
         });
 
@@ -231,7 +276,7 @@ describe('Maps', () => {
 
         expect(res.body.data[0]).toMatchObject({
           submitterID: u1.id,
-          id: m2.id
+          id: mWater.id
         });
       });
 
@@ -335,10 +380,14 @@ describe('Maps', () => {
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.createMany({
           data: [
-            { mapID: m1.id, userID: u2.id, type: MapCreditType.AUTHOR },
-            { mapID: m2.id, userID: u2.id, type: MapCreditType.AUTHOR },
-            { mapID: m3.id, userID: u2.id, type: MapCreditType.AUTHOR },
-            { mapID: m4.id, userID: u2.id, type: MapCreditType.AUTHOR }
+            { mapID: mEarth.id, userID: u2.id, type: MapCreditType.AUTHOR },
+            { mapID: mWater.id, userID: u2.id, type: MapCreditType.AUTHOR },
+            { mapID: mAir.id, userID: u2.id, type: MapCreditType.AUTHOR },
+            {
+              mapID: mBeansOnToast.id,
+              userID: u2.id,
+              type: MapCreditType.AUTHOR
+            }
           ]
         });
 
@@ -384,7 +433,7 @@ describe('Maps', () => {
 
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
-          data: { userID: u1.id, mapID: m1.id }
+          data: { userID: u1.id, mapID: mEarth.id }
         });
 
         await req.expandTest({
@@ -399,7 +448,7 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
 
         const res = await req.get({
           url: 'maps',
@@ -409,7 +458,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.data.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === mEarth.id);
         expect(map).toMatchObject({
           worldRecords: [
             { rank: 1, gamemode: Gamemode.AHOP, user: { id: u2.id } }
@@ -418,8 +467,8 @@ describe('Maps', () => {
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
 
         const res = await req.get({
           url: 'maps',
@@ -429,15 +478,15 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.data.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === mEarth.id);
         expect(map).toMatchObject({
           personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
       it('should respond properly with both personalBest and worldRecord expansions', async () => {
-        await db.createLbRun({ map: m1, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: m1, user: u1, time: 10, rank: 2 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
 
         const res = await req.get({
           url: 'maps',
@@ -447,7 +496,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.data.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === mEarth.id);
         expect(map).toMatchObject({
           worldRecords: [{ rank: 1, user: { id: u2.id } }],
           personalBests: [{ rank: 2, user: { id: u1.id } }]
@@ -457,19 +506,19 @@ describe('Maps', () => {
       it('should respond with filtered maps when using the difficultyLow filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { tier: 1 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m3.id },
+            where: { mapID: mAir.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m4.id },
+            where: { mapID: mBeansOnToast.id },
             data: { tier: 5 }
           })
         ]);
@@ -486,19 +535,19 @@ describe('Maps', () => {
       it('should respond with filtered maps when using the difficultyHigh filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { tier: 1 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m3.id },
+            where: { mapID: mAir.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m4.id },
+            where: { mapID: mBeansOnToast.id },
             data: { tier: 5 }
           })
         ]);
@@ -515,19 +564,19 @@ describe('Maps', () => {
       it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { tier: 1 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m3.id },
+            where: { mapID: mAir.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m4.id },
+            where: { mapID: mBeansOnToast.id },
             data: { tier: 5 }
           })
         ]);
@@ -543,11 +592,11 @@ describe('Maps', () => {
       it('should respond with filtered maps when using the linear filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { linear: false }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { linear: false }
           })
         ]);
@@ -578,30 +627,30 @@ describe('Maps', () => {
       it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and linear filters', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { tier: 1 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m3.id },
+            where: { mapID: mAir.id },
             data: { tier: 3 }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m4.id },
+            where: { mapID: mBeansOnToast.id },
             data: { tier: 5 }
           })
         ]);
 
         await Promise.all([
           prisma.leaderboard.updateMany({
-            where: { mapID: m1.id },
+            where: { mapID: mEarth.id },
             data: { linear: false }
           }),
           prisma.leaderboard.updateMany({
-            where: { mapID: m2.id },
+            where: { mapID: mWater.id },
             data: { linear: false }
           })
         ]);
@@ -620,7 +669,7 @@ describe('Maps', () => {
       it('should respond with maps with a PB when using the PB filter', async () => {
         await prisma.leaderboard.create({
           data: {
-            mapID: m1.id,
+            mapID: mEarth.id,
             gamemode: Gamemode.RJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
@@ -632,7 +681,7 @@ describe('Maps', () => {
 
         await prisma.leaderboard.create({
           data: {
-            mapID: m2.id,
+            mapID: mWater.id,
             gamemode: Gamemode.SJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
@@ -651,7 +700,7 @@ describe('Maps', () => {
         });
 
         expect(res.body.data.map(({ id }) => id)).toMatchObject(
-          expect.arrayContaining([m1.id, m2.id])
+          expect.arrayContaining([mEarth.id, mWater.id])
         );
 
         const res2 = await req.get({
@@ -663,14 +712,14 @@ describe('Maps', () => {
         });
 
         expect(res2.body.data.map(({ id }) => id)).toMatchObject(
-          expect.arrayContaining([m3.id, m4.id])
+          expect.arrayContaining([mAir.id, mBeansOnToast.id])
         );
       });
 
       it('should respond with maps with a PB on a specific gamemode when given a gamemode and the PB filter', async () => {
         await prisma.leaderboard.create({
           data: {
-            mapID: m1.id,
+            mapID: mEarth.id,
             gamemode: Gamemode.RJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
@@ -682,7 +731,7 @@ describe('Maps', () => {
 
         await prisma.leaderboard.create({
           data: {
-            mapID: m2.id,
+            mapID: mWater.id,
             gamemode: Gamemode.SJ,
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
@@ -700,12 +749,12 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0].id).toBe(m1.id);
+        expect(res.body.data[0].id).toBe(mEarth.id);
       });
 
       it('should respond with favorited maps when using the favorites filter', async () => {
         await prisma.mapFavorite.create({
-          data: { userID: u1.id, mapID: m1.id }
+          data: { userID: u1.id, mapID: mEarth.id }
         });
 
         const res = await req.get({
@@ -716,7 +765,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0].id).toBe(m1.id);
+        expect(res.body.data[0].id).toBe(mEarth.id);
 
         await req.get({
           url: 'maps',
