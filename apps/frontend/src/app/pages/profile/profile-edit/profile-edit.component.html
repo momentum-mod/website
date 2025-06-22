@@ -149,6 +149,7 @@
       }
       <div class="flex gap-2">
         <button class="btn btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
+        <button type="button" header class="btn btn-blue mr-4" (click)="returnToProfile()">Return to Profile</button>
         @if (!hasRole(Role.DELETED)) {
           <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteUser()">Delete User</button>
         }
