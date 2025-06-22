@@ -150,6 +150,7 @@
       </p>
     }
     <button class="btn btn-green ml-auto" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
+    <button type="button" class="btn" [routerLink]="'/maps/' + map?.name">Return to Map</button>
   </div>
 </form>
 
