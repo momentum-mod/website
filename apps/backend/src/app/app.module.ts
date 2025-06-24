@@ -4,6 +4,7 @@ import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ScheduleModule } from '@nestjs/schedule';
+import * as Sentry from '@sentry/node';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -51,7 +52,77 @@ import { pick } from '@momentum/util-fn';
                   options: { singleLine: true }
                 }
               }
-            : {})
+            : {
+                stream: {
+                  // TODO: This is a hacky impl fromhttps://github.com/getsentry/sentry-javascript/issues/15952
+                  // Official integration for Pino is on the way, using til then.
+                  write: async (log) => {
+                    const cleanedLog = log
+                      .replace(/\\n/g, ' ')
+                      .replace(/\s+/g, ' ')
+                      .trim(); // Clean up log format
+                    const cleanedLogJson = JSON.parse(cleanedLog); // Parse cleaned log to JSON
+                    Sentry.addBreadcrumb({
+                      type:
+                        cleanedLogJson.type === 'error' ? 'error' : 'default',
+                      category: cleanedLogJson.type,
+                      level: cleanedLogJson.level,
+                      message: cleanedLogJson.message || 'Log message',
+                      data: cleanedLogJson // Parse cleaned log for Sentry
+                    });
+
+                    // TODO: Don't work
+                    // Sentry.setUser({
+                    //   id: this.userId ?? undefined
+                    // });
+
+                    switch (cleanedLogJson.level) {
+                      case 'trace':
+                        Sentry.logger.trace(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      case 'debug':
+                        Sentry.logger.debug(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      case 'info':
+                        Sentry.logger.info(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      case 'warn':
+                        Sentry.logger.warn(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      case 'error':
+                        Sentry.logger.error(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      case 'fatal':
+                        Sentry.logger.fatal(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                      default:
+                        Sentry.logger.info(
+                          cleanedLogJson.message,
+                          cleanedLogJson
+                        );
+                        break;
+                    }
+                  }
+                }
+              })
         }
       }),
       inject: [ConfigService]
