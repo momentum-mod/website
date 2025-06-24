@@ -92,7 +92,7 @@ import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
 import { MapWebhooksService } from './map-webhooks.service';
-import { MapSortTypeOrderByObj } from './queryUtils/sort-orderBy-obj';
+import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 
 @Injectable()
 export class MapsService {
@@ -132,7 +132,7 @@ export class MapsService {
     // would require a LOT of changes to tests and testutils.
     const orderBy: Prisma.MMapOrderByWithRelationInput =
       query.sortType != null
-        ? MapSortTypeOrderByObj.get(query.sortType)
+        ? MapSortTypeOrder.get(query.sortType)
         : {
             createdAt: 'desc'
           };
