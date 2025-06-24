@@ -1,6 +1,6 @@
 import { MapSortType } from '../enums/map-sort-type.enum';
 
-export const MapSortTypeText: ReadonlyMap<MapSortType, string> = new Map([
+export const MapSortTypeName: ReadonlyMap<MapSortType, string> = new Map([
   [MapSortType.DATE_RELEASED_NEWEST, 'Date Released (Newest)'],
   [MapSortType.DATE_RELEASED_OLDEST, 'Date Released (Oldest)'],
   [MapSortType.DATE_CREATED_NEWEST, 'Date Created (Newest)'],

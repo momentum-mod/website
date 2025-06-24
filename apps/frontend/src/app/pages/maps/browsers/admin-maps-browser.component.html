@@ -14,7 +14,7 @@
       [showHeader]="false"
       appendTo="body"
     />
-    <m-map-sort [sorts]="MapSortOptions" formControlName="sortType" />
+    <m-map-sort [entries]="MapSortOptions" formControlName="sortType" />
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isAdminPage]="true" />

@@ -4,6 +4,7 @@ import {
   Leaderboard,
   LeaderboardType,
   MapsGetAllQuery,
+  MapSortTypeName,
   MMap,
   PagedResponse
 } from '@momentum/constants';
@@ -62,6 +63,8 @@ export class MapBrowserComponent implements OnInit {
   protected readonly LeaderboardType = LeaderboardType;
 
   protected readonly MapSortType = MapSortType;
+  protected readonly MapSortNameFn = (sortType: MapSortType): string =>
+    MapSortTypeName.get(sortType) ?? '';
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
     MapSortType.DATE_RELEASED_OLDEST,

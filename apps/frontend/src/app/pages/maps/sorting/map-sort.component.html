@@ -1,16 +1,11 @@
-<button popovertarget="sortMenu" type="button" id="sortMenuOpenButton" class="card w-64 flex-row pl-2 font-display text-24">
-  <p class="">{{ MapSortTypeText.get(sorts[0]) }}</p>
+<button [attr.popovertarget]="id" [ngStyle]="{ 'anchor-name': '--' + id }" type="button" class="button">
+  <p class="">{{ entryNameFn(selectedEntry) }}</p>
   <m-icon icon="chevron-down" class="ml-auto h-9 w-9" />
 </button>
-<div popover id="sortMenu" class="m-0 gap-2 rounded-md p-0 font-display text-24">
-  @for (sortType of sorts; track $index) {
-    <button
-      popovertarget="sortMenu"
-      (click)="updateSortOption(sortType)"
-      type="button"
-      class="card--fancy block w-64 p-2 text-left hover:brightness-200"
-    >
-      {{ MapSortTypeText.get(sortType) }}
+<div popover [id]="id" [ngStyle]="{ 'position-anchor': '--' + id }" class="body">
+  @for (entry of entries; track $index) {
+    <button [attr.popovertarget]="id" (click)="select(entry)" type="button" class="entry">
+      {{ entryNameFn(entry) }}
     </button>
   }
 </div>
