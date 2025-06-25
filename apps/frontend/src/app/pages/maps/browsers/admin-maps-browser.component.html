@@ -1,6 +1,6 @@
 <div class="mb-4 flex flex-wrap items-end gap-4">
   <p class="card-title flex text-48">All Maps</p>
-  <p class="pb-1 text-sm italic">
+  <p class="w-96 pb-1 text-sm italic">
     This page is practically the same as the main map list, except it includes maps of all statuses, including disabled.
   </p>
   <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
@@ -14,6 +14,7 @@
       [showHeader]="false"
       appendTo="body"
     />
+    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isAdminPage]="true" />

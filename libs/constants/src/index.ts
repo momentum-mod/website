@@ -5,6 +5,8 @@ export * from './enums/map-status.enum';
 export * from './enums/report-type.enum';
 export * from './enums/activity-type.enum';
 export * from './enums/map-credit-type.enum';
+export * from './enums/map-sort-type.enum';
+export * from './maps/map-sort-type-text.map';
 export * from './enums/report-category.enum';
 export * from './enums/ban.enum';
 export * from './enums/country-codes.enum';
