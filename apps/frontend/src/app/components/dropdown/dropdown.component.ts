@@ -1,23 +1,23 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgStyle } from '@angular/common';
-import { IconComponent } from '../../../icons';
+import { IconComponent } from '../../icons';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import polyfill from '@oddbird/css-anchor-positioning/fn';
 
 @Component({
-  selector: 'm-map-sort',
-  templateUrl: 'map-sort.component.html',
-  styleUrl: 'map-sort.component.css',
+  selector: 'm-dropdown',
+  templateUrl: 'dropdown.component.html',
+  styleUrl: 'dropdown.component.css',
   imports: [IconComponent, NgStyle],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: MapSortComponent
+      useExisting: DropdownComponent
     }
   ]
 })
-export class MapSortComponent implements ControlValueAccessor, OnInit {
+export class DropdownComponent implements ControlValueAccessor, OnInit {
   // First element is used as default for dropdown button in template.
   @Input({ required: true }) entries: number[] = [];
 

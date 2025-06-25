@@ -33,7 +33,7 @@ import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { MapSortComponent } from '../sorting/map-sort.component';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { MapSortType } from '@momentum/constants';
 
 @Component({
@@ -49,7 +49,7 @@ import { MapSortType } from '@momentum/constants';
     AsyncPipe,
     TooltipDirective,
     CommonModule,
-    MapSortComponent,
+    DropdownComponent,
     FormsModule
   ]
 })

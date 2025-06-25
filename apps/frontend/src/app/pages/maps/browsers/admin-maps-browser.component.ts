@@ -23,7 +23,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { AdminService } from '../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MapSortComponent } from '../sorting/map-sort.component';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { MapSortType } from '@momentum/constants';
 
 type StatusFilters = Array<MapStatus>;
@@ -34,7 +34,7 @@ type StatusFilters = Array<MapStatus>;
     MapListComponent,
     MultiSelectModule,
     ReactiveFormsModule,
-    MapSortComponent,
+    DropdownComponent,
     FormsModule
   ]
 })

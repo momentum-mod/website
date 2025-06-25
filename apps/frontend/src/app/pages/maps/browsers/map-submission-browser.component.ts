@@ -25,7 +25,7 @@ import { MapsService } from '../../../services/data/maps.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { MapSortComponent } from '../sorting/map-sort.component';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -45,7 +45,7 @@ type StatusFilters = Array<
     IconComponent,
     TooltipDirective,
     ReactiveFormsModule,
-    MapSortComponent,
+    DropdownComponent,
     FormsModule
   ]
 })

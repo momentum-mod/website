@@ -28,7 +28,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { RouterLink } from '@angular/router';
-import { MapSortComponent } from '../sorting/map-sort.component';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -47,7 +47,7 @@ type StatusFilters = Array<
     SpinnerDirective,
     RouterLink,
     ReactiveFormsModule,
-    MapSortComponent,
+    DropdownComponent,
     FormsModule
   ]
 })
