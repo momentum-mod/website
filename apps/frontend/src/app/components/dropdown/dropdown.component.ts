@@ -7,7 +7,6 @@ import polyfill from '@oddbird/css-anchor-positioning/fn';
 @Component({
   selector: 'm-dropdown',
   templateUrl: 'dropdown.component.html',
-  styleUrl: 'dropdown.component.css',
   imports: [IconComponent, NgStyle],
   providers: [
     {
