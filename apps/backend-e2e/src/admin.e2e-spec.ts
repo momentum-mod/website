@@ -29,7 +29,13 @@ import {
   KillswitchType,
   Killswitches,
   MapTag,
-  MapSortType
+  MapSortType,
+  bspPath,
+  imgLargePath,
+  imgMediumPath,
+  imgSmallPath,
+  imgXlPath,
+  vmfsPath
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Enum from '@momentum/enum';
@@ -1965,10 +1971,10 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, admin, adminToken, u1, u1Token, map, imgID;
+      let modToken, admin, adminToken, user, token, map;
 
       beforeAll(async () => {
-        [modToken, [admin, adminToken], [u1, u1Token]] = await Promise.all([
+        [modToken, [admin, adminToken], [user, token]] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser({ data: { roles: Role.MAPPER } })
@@ -1980,45 +1986,164 @@ describe('Admin', () => {
       );
 
       beforeEach(async () => {
-        imgID = db.uuid();
         map = await db.createMap({
-          submitter: { connect: { id: u1.id } },
-          images: [imgID]
+          name: 'surf_bork',
+          status: MapStatus.CONTENT_APPROVAL,
+          submitter: { connect: { id: user.id } },
+          versions: {
+            create: {
+              zones: ZonesStubString,
+              versionNum: 1,
+              bspDownloadId: db.uuid(),
+              vmfDownloadId: db.uuid(),
+              bspHash: createSha1Hash(Buffer.from('buffer fish')),
+              submitter: { connect: { id: user.id } }
+            }
+          }
         });
-        await db.createLbRun({ map: map, user: u1, time: 1, rank: 1 });
       });
 
       afterEach(() =>
         Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
       );
 
-      it('should successfully disable the map and related stored data', async () => {
-        const fileName = 'my_cool_map';
+      it('should completely delete the map and related stored data if map was never approved', async () => {
+        const imgID = db.uuid();
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { name: fileName }
+          data: { images: [imgID] }
         });
 
         await fileStore.add(
-          `maps/${fileName}.bsp`,
+          bspPath(map.currentVersion.bspDownloadId),
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
-        for (const size of ['small', 'medium', 'large']) {
+        await fileStore.add(
+          vmfsPath(map.currentVersion.vmfDownloadId),
+          Buffer.from('bup')
+        );
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
           await fileStore.add(
-            `img/${imgID}-${size}.jpg`,
+            sizePath(imgID),
             readFileSync(__dirname + '/../files/image_jpg.jpg')
           );
         }
 
-        for (const size of ['small', 'medium', 'large']) {
-          expect(
-            await fileStore.exists(`img/${imgID}-${size}.jpg`)
-          ).toBeTruthy();
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
         }
 
-        const run = await prisma.leaderboardRun.findFirst({
+        const run = await db.createLbRun({
+          map: map,
+          user,
+          time: 1,
+          rank: 1
+        });
+        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
+
+        await req.del({
+          url: `admin/maps/${map.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        const updated = await prisma.mMap.findFirst({
+          where: { id: map.id }
+        });
+        const versions = await prisma.mapVersion.findMany({
           where: { mapID: map.id }
+        });
+
+        expect(updated).toBeNull();
+        expect(versions).toHaveLength(0);
+        expect(
+          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+        ).toBeFalsy();
+        expect(
+          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+        ).toBeFalsy();
+
+        const relatedRuns = await prisma.leaderboardRun.findMany({
+          where: { mapID: map.id }
+        });
+        expect(relatedRuns).toHaveLength(0);
+        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
+        }
+
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.MAP_CONTENT_DELETE
+        );
+      });
+
+      it('should successfully disable the map and related files if map was approved', async () => {
+        await prisma.mapInfo.update({
+          where: { mapID: map.id },
+          data: { approvedDate: new Date() }
+        });
+
+        const imgID = db.uuid();
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { images: [imgID], status: MapStatus.APPROVED }
+        });
+
+        await fileStore.add(
+          bspPath(map.currentVersion.bspDownloadId),
+          readFileSync(__dirname + '/../files/map.bsp')
+        );
+
+        await fileStore.add(
+          vmfsPath(map.currentVersion.vmfDownloadId),
+          Buffer.from('bup')
+        );
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          await fileStore.add(
+            sizePath(imgID),
+            readFileSync(__dirname + '/../files/image_jpg.jpg')
+          );
+        }
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
+        }
+
+        const run = await db.createLbRun({
+          map: map,
+          user,
+          time: 1,
+          rank: 1
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
@@ -2035,7 +2160,14 @@ describe('Admin', () => {
 
         expect(updated.status).toBe(MapStatus.DISABLED);
         expect(updated.versions.at(-1).bspHash).toBeNull();
-        expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
+        expect(updated.versions.at(-1).bspDownloadId).toBeNull();
+        expect(updated.versions.at(-1).vmfDownloadId).toBeNull();
+        expect(
+          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+        ).toBeFalsy();
+        expect(
+          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+        ).toBeFalsy();
 
         // We used to delete these, check we don't anymore
         const relatedRuns = await prisma.leaderboardRun.findMany({
@@ -2044,10 +2176,13 @@ describe('Admin', () => {
         expect(relatedRuns).toHaveLength(1);
         expect(await fileStore.exists(runPath(run.replayHash))).toBeTruthy();
 
-        for (const size of ['small', 'medium', 'large']) {
-          expect(
-            await fileStore.exists(`img/${imgID}-${size}.jpg`)
-          ).toBeFalsy();
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
         }
 
         await expectAdminActivityWasCreated(
@@ -2057,6 +2192,18 @@ describe('Admin', () => {
       });
 
       it('should update the map list version', async () => {
+        await checkScheduledMapListUpdates();
+
+        await prisma.mapInfo.update({
+          where: { mapID: map.id },
+          data: { approvedDate: new Date() }
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
         const oldVersion = await req.get({
           url: 'maps/maplistversion',
           status: 200,
@@ -2100,7 +2247,7 @@ describe('Admin', () => {
         req.del({
           url: `admin/maps/${map.id}`,
           status: 403,
-          token: u1Token
+          token: token
         }));
 
       it('should return 403 if a mod access token is given', () =>
