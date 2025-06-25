@@ -39,7 +39,8 @@ import {
   Role,
   TrackType,
   vmfsPath,
-  MAX_OPEN_MAP_SUBMISSIONS
+  MAX_OPEN_MAP_SUBMISSIONS,
+  runPath
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -1703,44 +1704,98 @@ export class MapsService {
 
   //#region Deletions
 
-  async delete(mapID: number, adminID: number): Promise<void> {
+  async delete(mapID: number, userID: number, isAdmin = false): Promise<void> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { versions: { omit: { zones: true } } }
+      include: { versions: { omit: { zones: true } }, info: true }
     });
+    if (!map) throw new NotFoundException('Map not found');
 
-    if (!map) throw new NotFoundException('No map found');
+    if (!isAdmin && userID !== map.submitterID)
+      throw new ForbiddenException('User is not the map submitter');
 
-    // Bump version with bspHash set to null to give frontend easy to tell bsp
-    // file has been deleted
-    const updated = await this.db.mMap.update({
-      where: { id: mapID },
-      data: {
-        status: MapStatus.DISABLED,
-        versions: {
-          create: {
-            versionNum: map.versions.at(-1).versionNum + 1,
-            bspDownloadId: null,
-            vmfDownloadId: null,
-            bspHash: null,
-            submitter: { connect: { id: adminID } },
-            zones: null
+    if (!isAdmin && map.info.approvedDate)
+      throw new ForbiddenException(
+        'Only admins can disable maps that were previously approved.'
+      );
+
+    await this.deleteMapFiles(mapID);
+
+    if (map.info.approvedDate) {
+      // Disable map without touching leaderboards
+
+      // Bump version with bspHash set to null to give frontend easy to tell bsp
+      // file has been deleted
+      const updated = await this.db.mMap.update({
+        where: { id: mapID },
+        data: {
+          status: MapStatus.DISABLED,
+          versions: {
+            create: {
+              versionNum: map.versions.at(-1).versionNum + 1,
+              bspDownloadId: null,
+              vmfDownloadId: null,
+              bspHash: null,
+              submitter: { connect: { id: userID } },
+              zones: null
+            }
           }
+        },
+        include: { versions: true }
+      });
+
+      await this.db.mMap.update({
+        where: { id: mapID },
+        data: {
+          currentVersion: { connect: { id: updated.versions.at(-1).id } }
         }
-      },
+      });
+    } else {
+      // Delete run files
+      const runs = await this.db.leaderboardRun.findMany({
+        where: { mapID: map.id }
+      });
+      await this.fileStoreService.deleteFiles(
+        runs.map((run) => runPath(run.replayHash))
+      );
+
+      // Nuke everything
+      await this.db.mMap.delete({
+        where: { id: mapID }
+      });
+    }
+
+    // TODO: Probably should make different activities for when
+    // map was deleted or only it's files, but admin activities
+    // are a bit broken rn, so will need to rework them after 0.10
+    if (isAdmin) {
+      await this.adminActivityService.create(
+        userID,
+        AdminActivityType.MAP_CONTENT_DELETE,
+        mapID,
+        {},
+        map
+      );
+    }
+
+    this.mapListService.scheduleMapListUpdate(
+      MapStatuses.IN_SUBMISSION.includes(map.status)
+        ? FlatMapList.SUBMISSION
+        : FlatMapList.APPROVED
+    );
+  }
+
+  private async deleteMapFiles(mapID: number) {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
       include: { versions: true }
     });
 
-    await this.db.mMap.update({
-      where: { id: mapID },
-      data: { currentVersion: { connect: { id: updated.versions.at(-1).id } } }
-    });
+    if (!map) throw new NotFoundException('Map not found');
 
     // Delete any stored map files. Doesn't matter if any of these don't exist.
     await Promise.all(
       [
-        this.fileStoreService.deleteFile(bspPath(map.name)),
-        this.fileStoreService.deleteFile(vmfsPath(map.name)),
         this.fileStoreService.deleteFiles(
           map.versions.flatMap((v) => [
             bspPath(v.bspDownloadId),
@@ -1752,20 +1807,6 @@ export class MapsService {
         ),
         this.mapReviewService.deleteAllReviewAssetsForMap(map.id)
       ].map((promise) => promise.catch(() => void 0))
-    );
-
-    await this.adminActivityService.create(
-      adminID,
-      AdminActivityType.MAP_CONTENT_DELETE,
-      mapID,
-      {},
-      map
-    );
-
-    this.mapListService.scheduleMapListUpdate(
-      MapStatuses.IN_SUBMISSION.includes(map.status)
-        ? FlatMapList.SUBMISSION
-        : FlatMapList.APPROVED
     );
   }
 

@@ -25,7 +25,14 @@ import {
   GamemodeCategory,
   MAX_OPEN_MAP_SUBMISSIONS,
   MapTag,
-  MapSortType
+  MapSortType,
+  runPath,
+  bspPath,
+  vmfsPath,
+  imgSmallPath,
+  imgMediumPath,
+  imgLargePath,
+  imgXlPath
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -36,7 +43,7 @@ import {
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { MapVersion, MMap, Prisma, PrismaClient, User } from '@prisma/client';
 import Zip from 'adm-zip';
 import * as Enum from '@momentum/enum';
 import {
@@ -3763,6 +3770,215 @@ describe('Maps', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1', 'patch'));
+    });
+
+    describe('DELETE', () => {
+      let user: User,
+        token: string,
+        map: MMap & {
+          currentVersion: MapVersion;
+        };
+
+      beforeAll(async () => {
+        [user, token] = await db.createAndLoginUser();
+      });
+
+      beforeEach(async () => {
+        map = await db.createMap({
+          name: 'surf_man',
+          status: MapStatus.CONTENT_APPROVAL,
+          submitter: { connect: { id: user.id } },
+          versions: {
+            create: {
+              zones: ZonesStubString,
+              versionNum: 1,
+              bspDownloadId: db.uuid(),
+              vmfDownloadId: db.uuid(),
+              bspHash: createSha1Hash(Buffer.from('shashashs')),
+              submitter: { connect: { id: user.id } }
+            }
+          }
+        });
+      });
+
+      afterEach(() =>
+        Promise.all([
+          db.cleanup('mMap', 'leaderboardRun'),
+          fileStore.deleteDirectory('/maplist')
+        ])
+      );
+
+      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
+
+      it('should successfully delete a map and all related stored data if map is in submission', async () => {
+        const imgID = db.uuid();
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { images: [imgID] }
+        });
+
+        await fileStore.add(
+          bspPath(map.currentVersion.bspDownloadId),
+          readFileSync(__dirname + '/../files/map.bsp')
+        );
+
+        await fileStore.add(
+          vmfsPath(map.currentVersion.vmfDownloadId),
+          Buffer.from('bup')
+        );
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          await fileStore.add(
+            sizePath(imgID),
+            readFileSync(__dirname + '/../files/image_jpg.jpg')
+          );
+        }
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
+        }
+
+        const run = await db.createLbRun({
+          map: map,
+          user,
+          time: 1,
+          rank: 1
+        });
+        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
+
+        await req.del({
+          url: `maps/${map.id}`,
+          status: 204,
+          token
+        });
+
+        const updated = await prisma.mMap.findFirst({
+          where: { id: map.id }
+        });
+        const versions = await prisma.mapVersion.findMany({
+          where: { mapID: map.id }
+        });
+
+        expect(updated).toBeNull();
+        expect(versions).toHaveLength(0);
+        expect(
+          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+        ).toBeFalsy();
+        expect(
+          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+        ).toBeFalsy();
+
+        const relatedRuns = await prisma.leaderboardRun.findMany({
+          where: { mapID: map.id }
+        });
+        expect(relatedRuns).toHaveLength(0);
+        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+
+        for (const sizePath of [
+          imgSmallPath,
+          imgMediumPath,
+          imgLargePath,
+          imgXlPath
+        ]) {
+          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
+        }
+      });
+
+      it('should update the map list version', async () => {
+        await checkScheduledMapListUpdates();
+
+        const oldVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token
+        });
+
+        await req.del({
+          url: `maps/${map.id}`,
+          status: 204,
+          token
+        });
+
+        await checkScheduledMapListUpdates();
+
+        const newVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token
+        });
+
+        expect(newVersion.body.submissions).toBe(
+          oldVersion.body.submissions + 1
+        );
+        expect(newVersion.body.approved).toBe(oldVersion.body.approved);
+
+        const { ident, numMaps, data } = await fileStore.getMapListVersion(
+          FlatMapList.SUBMISSION,
+          newVersion.body.submissions
+        );
+        expect(ident).toBe('MSML');
+        expect(numMaps).toBe(0);
+        expect(data).toHaveLength(0);
+      });
+
+      it('should 403 if map is approved', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            status: MapStatus.APPROVED,
+            info: { update: { approvedDate: new Date() } }
+          }
+        });
+
+        await req.del({
+          url: `maps/${map.id}`,
+          status: 403,
+          token
+        });
+      });
+
+      it('should 403 if map was ever approved', async () => {
+        await prisma.mapInfo.update({
+          where: { mapID: map.id },
+          data: { approvedDate: new Date() }
+        });
+
+        await req.del({
+          url: `maps/${map.id}`,
+          status: 403,
+          token
+        });
+      });
+
+      it('should 403 if user is not a submitter of the map', async () => {
+        const u1Token = await db.loginNewUser();
+
+        await req.del({
+          url: `maps/${map.id}`,
+          status: 403,
+          token: u1Token
+        });
+      });
+
+      it('should 404 when the map is not found', () =>
+        req.del({
+          url: `maps/${NULL_ID}`,
+          status: 404,
+          token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1', 'del'));
     });
   });
 
