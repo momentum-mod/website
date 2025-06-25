@@ -74,7 +74,7 @@
           formControlName="pb"
         />
       }
-      <m-map-sort [entries]="MapSortOptions" formControlName="sortType" />
+      <m-map-sort [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
     </div>
   </div>
 </form>

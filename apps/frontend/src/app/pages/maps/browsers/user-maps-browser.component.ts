@@ -7,7 +7,8 @@ import {
   MMap,
   PagedResponse,
   MapsGetAllUserSubmissionQuery,
-  MapSortType
+  MapSortType,
+  MapSortTypeName
 } from '@momentum/constants';
 import {
   FormControl,
@@ -64,6 +65,8 @@ export class UserMapsBrowserComponent implements OnInit {
   ];
 
   protected readonly MapSortType = MapSortType;
+  protected readonly MapSortNameFn = (type: MapSortType): string =>
+    MapSortTypeName.get(type);
   protected readonly MapSortOptions = [
     MapSortType.SUBMISSION_CREATED_NEWEST,
     MapSortType.SUBMISSION_CREATED_OLDEST,

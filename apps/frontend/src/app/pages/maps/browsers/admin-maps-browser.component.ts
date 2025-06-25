@@ -4,7 +4,8 @@ import {
   MapStatusName,
   MapStatus,
   MMap,
-  PagedResponse
+  PagedResponse,
+  MapSortTypeName
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import {
@@ -43,6 +44,8 @@ export class AdminMapsBrowserComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly MapSortType = MapSortType;
+  protected readonly MapSortNameFn = (type: MapSortType): string =>
+    MapSortTypeName.get(type);
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
     MapSortType.DATE_RELEASED_OLDEST,

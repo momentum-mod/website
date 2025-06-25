@@ -25,6 +25,7 @@ export class MapSortComponent implements ControlValueAccessor, OnInit {
 
   protected selectedEntry: number;
 
+  // HTML id needed for popover usage, can't use a class.
   protected readonly id = `dropdown-${Math.random().toString(36).substring(2, 12)}`;
 
   select(entry: number): void {
