@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -276,6 +277,23 @@ export class MapsController {
         throw new BadRequestException(`VMF file too large (> ${maxVmfSize})`);
       }
     }
+  }
+
+  @Delete('/:mapID')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Deletes a map and all related files and leaderboards'
+  })
+  @ApiNoContentResponse({ description: 'Successfully deleted a map' })
+  @ApiForbiddenResponse({ description: 'User is not a map submitter' })
+  @ApiForbiddenResponse({
+    description: 'Only admins can disable maps that were previously approved'
+  })
+  async deleteMap(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
+  ) {
+    return this.mapsService.delete(mapID, userID);
   }
 
   @Put('/:mapID/testInvite')

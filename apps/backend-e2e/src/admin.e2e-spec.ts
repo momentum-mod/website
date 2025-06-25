@@ -1974,6 +1974,8 @@ describe('Admin', () => {
         Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
       );
 
+      // should completely delete a map and related stored data if it was never approved
+      // should successfully disable the map and related stored data if map was ever approved
       it('should successfully disable the map and related stored data', async () => {
         const fileName = 'my_cool_map';
         await prisma.mMap.update({

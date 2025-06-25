@@ -3699,6 +3699,15 @@ describe('Maps', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1', 'patch'));
     });
+
+    describe('DELETE', () => {
+      // should successfully delete a map and related stored data when map is in submission
+      // should 403 if map is approved
+      // should 403 if map was ever approved
+      // should 403 if user is not a submitter of the map
+      // should 404 if map not found
+      // unautorized test
+    });
   });
 
   describe('maps/submissions', () => {
