@@ -184,9 +184,7 @@ export class RunSessionService {
       user
     );
 
-    return this.db.$transaction((tx) =>
-      this.saveSubmittedRun(tx, processedRun, replay)
-    );
+    return this.saveSubmittedRun(processedRun, replay);
   }
 
   private static processSubmittedRun(
@@ -230,11 +228,10 @@ export class RunSessionService {
   // - Insert runs into leaderboards for all compatible styles
   // - No clue how rank XP assignment works for styles
   private async saveSubmittedRun(
-    tx: ExtendedPrismaServiceTransaction,
     submittedRun: ProcessedRun,
     replayBuffer: Buffer
   ): Promise<CompletedRunDto> {
-    const existingRun = await tx.leaderboardRun.findFirst({
+    const existingRun = await this.db.leaderboardRun.findFirst({
       where: {
         mapID: submittedRun.mapID,
         gamemode: submittedRun.gamemode,
@@ -249,17 +246,18 @@ export class RunSessionService {
     const isPB = !(existingRun && existingRun.time <= submittedRun.time);
 
     const replayHash = FileStoreService.getHashForBuffer(replayBuffer);
-
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
     const [{ newPB, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
       await Promise.all([
-        this.updateLeaderboards(
-          tx,
-          submittedRun,
-          isPB,
-          existingRun,
-          replayHash
+        this.db.$transaction((tx) =>
+          this.updateLeaderboards(
+            tx,
+            submittedRun,
+            isPB,
+            existingRun,
+            replayHash
+          )
         ),
         isPB
           ? this.updateReplayFiles(
@@ -271,7 +269,7 @@ export class RunSessionService {
       ]);
 
     if (isWR) {
-      await tx.activity.create({
+      await this.db.activity.create({
         data: {
           type: ActivityType.WR_ACHIEVED,
           userID: submittedRun.userID,
@@ -279,7 +277,7 @@ export class RunSessionService {
         }
       });
     } else if (isPB) {
-      await tx.activity.create({
+      await this.db.activity.create({
         data: {
           type: ActivityType.PB_ACHIEVED,
           userID: submittedRun.userID,
