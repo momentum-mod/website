@@ -263,7 +263,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       imageBuffers = await Promise.all(
         arrayFrom(randRange(vars.imageFetches), () =>
           axios
-            .get('https://picsum.photos/2560/1440', {
+            .get('https://placedog.net/720/480', {
               responseType: 'arraybuffer'
             })
             .then(async (res) => ({
