@@ -420,6 +420,42 @@
       @apply border-red-500;
     }
   }
+
+  m-dropdown {
+    .button {
+      @apply card w-64 flex-row pl-2 font-display text-24;
+    }
+
+    .body {
+      top: anchor(bottom);
+      left: anchor(left);
+      right: anchor(right);
+      margin: 0;
+      padding: 0;
+      @apply card--fancy border border-white border-opacity-5;
+      border-radius: 0.25rem;
+      background-color: rgb(50 50 50 / 0.9);
+      background-color: rgba(110, 110, 110, 0.1);
+      box-shadow:
+        1px 3px 4px rgb(0 0 0 / 0.2),
+        2px 4px 24px rgb(0 0 0 / 0.2);
+      gap: 0.5rem;
+    }
+
+    .entry {
+      padding: 0.5rem;
+      display: block;
+      width: 16rem;
+      background-color: rgba(255, 255, 255, 0);
+      text-align: left;
+      transition: background-color 0.2s;
+      @apply transition-colors;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 
 @layer utilities {

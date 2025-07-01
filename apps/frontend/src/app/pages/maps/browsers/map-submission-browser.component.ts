@@ -1,12 +1,19 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapsGetAllSubmissionQuery,
+  MapSortType,
+  MapSortTypeName,
   MapStatus,
   MMap,
   PagedResponse,
   User
 } from '@momentum/constants';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
@@ -18,6 +25,7 @@ import { MapsService } from '../../../services/data/maps.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -36,7 +44,9 @@ type StatusFilters = Array<
     UserSelectComponent,
     IconComponent,
     TooltipDirective,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DropdownComponent,
+    FormsModule
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {
@@ -51,10 +61,25 @@ export class MapSubmissionBrowserComponent implements OnInit {
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
+  protected readonly MapSortType = MapSortType;
+  protected readonly MapSortNameFn = (type: MapSortType): string =>
+    MapSortTypeName.get(type);
+  protected readonly MapSortOptions = [
+    MapSortType.SUBMISSION_CREATED_NEWEST,
+    MapSortType.SUBMISSION_CREATED_OLDEST,
+    MapSortType.SUBMISSION_UPDATED_NEWEST,
+    MapSortType.SUBMISSION_UPDATED_OLDEST,
+    MapSortType.DATE_CREATED_NEWEST,
+    MapSortType.DATE_CREATED_OLDEST,
+    MapSortType.ALPHABETICAL,
+    MapSortType.REVERSE_ALPHABETICAL
+  ];
+
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
-    submitter: new FormControl<User>(null)
+    submitter: new FormControl<User>(null),
+    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
   });
 
   protected maps: MMap[] = [];
@@ -85,7 +110,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, submitter } = this.filters?.value ?? {};
+          const { name, status, submitter, sortType } =
+            this.filters?.value ?? {};
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
             take,
@@ -105,6 +131,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
           if (submitter) {
             options.submitterID = submitter.id;
           }
+          if (sortType) options.sortType = sortType;
 
           return this.mapsService.getMapSubmissions({ ...options });
         }),
