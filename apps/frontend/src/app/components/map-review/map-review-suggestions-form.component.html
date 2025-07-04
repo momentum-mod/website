@@ -5,7 +5,10 @@
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Gamemode</th>
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Track Type</th>
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Track Number</th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Tier</th>
+        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">
+          Tier
+          <m-icon icon="asterisk" class="mb-0.5 p-1 align-middle" mTooltip="Required" />
+        </th>
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Rating</th>
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Tags</th>
         <th></th>
@@ -16,7 +19,7 @@
         <tr class="mt-2 contents">
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.gamemode"
               [options]="availableGamemodes"
               optionLabel="label"
@@ -28,7 +31,7 @@
           </td>
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackType"
               [options]="TrackTypes"
               optionLabel="label"
@@ -40,7 +43,7 @@
           </td>
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackNum"
               optionLabel="label"
               optionValue="trackNum"
@@ -54,7 +57,7 @@
           <td>
             <input
               type="number"
-              class="textinput w-full"
+              class="textinput"
               min="1"
               max="10"
               step="1"
@@ -66,7 +69,7 @@
           <td>
             <input
               type="number"
-              class="textinput w-full"
+              class="textinput"
               min="1"
               max="10"
               step="1"

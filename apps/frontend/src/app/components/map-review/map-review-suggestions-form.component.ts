@@ -20,6 +20,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { groupMapLeaderboards } from '../../util';
 import { Select } from 'primeng/select';
 import { IconComponent } from '../../icons';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 import { ChipsComponent } from '../chips/chips.component';
 
 @Component({
@@ -32,7 +33,14 @@ import { ChipsComponent } from '../chips/chips.component';
       multi: true
     }
   ],
-  imports: [DropdownModule, Select, FormsModule, IconComponent, ChipsComponent]
+  imports: [
+    DropdownModule,
+    Select,
+    FormsModule,
+    ChipsComponent,
+    IconComponent,
+    TooltipDirective
+  ]
 })
 export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected readonly TrackType = TrackType;
