@@ -1,6 +1,12 @@
 <form [formGroup]="form" class="flex flex-col" (ngSubmit)="submit()">
   <div class="mb-4 flex gap-2">
-    <textarea [formControl]="mainText" class="textinput grow" rows="6" (keydown.control.enter)="submit()"></textarea>
+    <textarea
+      [formControl]="mainText"
+      placeholder="... (Required)"
+      class="textinput grow"
+      rows="6"
+      (keydown.control.enter)="submit()"
+    ></textarea>
     @if (!editing) {
       <m-multi-file-upload
         class="h-auto max-w-[20%]"
