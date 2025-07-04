@@ -154,6 +154,10 @@
   </div>
 </form>
 
-@if (isAdmin) {
-  <button class="btn btn-red ml-auto" type="button" (click)="deleteMap()">Disable map and delete files</button>
+@if (isAdmin && map.info.approvedDate) {
+  <button class="btn btn-red ml-auto" type="button" (click)="disableMap()">Disable map and delete files</button>
+}
+
+@if (inSubmission && !map.info.approvedDate && (isSubmitter || isAdmin)) {
+  <button class="btn btn-red ml-auto" type="button" (click)="deleteMap()">Delete map</button>
 }
