@@ -16,7 +16,7 @@
         <tr class="mt-2 contents">
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.gamemode"
               [options]="availableGamemodes"
               optionLabel="label"
@@ -28,7 +28,7 @@
           </td>
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackType"
               [options]="TrackTypes"
               optionLabel="label"
@@ -40,7 +40,7 @@
           </td>
           <td>
             <p-select
-              class="[&>*]:w-full [&>.p-dropdown]:rounded"
+              class="[&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackNum"
               optionLabel="label"
               optionValue="trackNum"
@@ -54,7 +54,7 @@
           <td>
             <input
               type="number"
-              class="textinput w-full"
+              class="textinput"
               min="1"
               max="10"
               step="1"
@@ -66,7 +66,7 @@
           <td>
             <input
               type="number"
-              class="textinput w-full"
+              class="textinput"
               min="1"
               max="10"
               step="1"
