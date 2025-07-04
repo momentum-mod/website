@@ -162,9 +162,10 @@
           </div>
           <ng-template #dateTooltip>
             <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
-            @if (map.status === MapStatus.APPROVED) {
-              <p><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
+            @if (map.info?.approvedDate) {
+              <p class="text-right"><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
             }
+            <p class="text-right"><b>Submitted By - </b>{{ map.submitter?.alias }}</p>
           </ng-template>
         </div>
 
