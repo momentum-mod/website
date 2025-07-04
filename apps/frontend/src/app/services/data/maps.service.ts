@@ -59,6 +59,10 @@ export class MapsService {
     return this.http.patch(`maps/${mapID}`, { body });
   }
 
+  deleteMap(mapID: number): Observable<void> {
+    return this.http.delete(`maps/${mapID}`);
+  }
+
   getMapCredits(mapID: number): Observable<PagedResponse<MapCredit>> {
     return this.http.get<PagedResponse<MapCredit>>(`maps/${mapID}/credits`);
   }

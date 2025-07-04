@@ -199,10 +199,10 @@ export class AdminController {
     required: true
   })
   deleteMap(
-    @LoggedInUser('id') adminID: number,
-    @Param('mapID', ParseInt32SafePipe) mapID: number
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
   ) {
-    return this.mapsService.delete(mapID, adminID);
+    return this.mapsService.delete(mapID, userID, true);
   }
 
   @Get('/reports')

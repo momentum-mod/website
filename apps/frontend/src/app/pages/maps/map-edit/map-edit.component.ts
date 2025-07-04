@@ -687,7 +687,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     return true;
   }
 
-  deleteMap() {
+  disableMap() {
     this.dialogService
       .open(CodeVerifyDialogComponent, {
         header: 'Delete map',
@@ -706,17 +706,48 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           next: () => {
             this.messageService.add({
               severity: 'success',
-              detail: 'Successfully deleted the map'
+              detail: 'Successfully disabled the map and deleted map files'
             });
             this.reload.next();
           },
           error: (error) =>
             this.messageService.add({
               severity: 'error',
-              summary: 'Failed to delete the map',
+              summary: 'Failed to disable the map',
               detail: error.message
             })
         });
+      });
+  }
+
+  deleteMap() {
+    this.dialogService
+      .open(CodeVerifyDialogComponent, {
+        header: 'Delete map',
+        data: {
+          message:
+            '<p>This will completly delete the map and all related files and data.</p>'
+        }
+      })
+      .onClose.subscribe((response) => {
+        if (!response) return;
+        (this.isSubmitter ? this.mapsService : this.adminService)
+          .deleteMap(this.map.id)
+          .subscribe({
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                detail: 'Successfully deleted the map'
+              });
+              this.router.navigate(['/maps']);
+            },
+            error: (error) =>
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Failed to delete the map',
+                detail: error.message
+              })
+          });
       });
   }
 
