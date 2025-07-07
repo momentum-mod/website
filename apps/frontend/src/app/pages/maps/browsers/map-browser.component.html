@@ -35,9 +35,23 @@
   </div>
   <div class="ml-auto flex flex-col justify-between gap-2">
     <div class="flex items-center gap-2">
-      <input class="textinput ml-auto h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
+      <m-slider
+        #slider
+        class="h-9 w-64"
+        [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
+        formControlName="tiers"
+        [range]="true"
+        [step]="1"
+        [min]="1"
+        [max]="10"
+        [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+        mTooltip="You must select a gamemode to use this filter"
+        [tooltipDisabled]="gamemode.value != null"
+      />
+      <input class="textinput ml-5 h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
     </div>
-    <div class="flex items-center gap-2">
+    <div class="ml-auto flex items-center gap-2">
       @if (localUserService.user | async) {
         <p class="font-display text-24">Favorites</p>
         <m-n-state-button
@@ -60,20 +74,7 @@
           formControlName="pb"
         />
       }
-      <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
-      <m-slider
-        #slider
-        class="h-9 w-64"
-        [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
-        formControlName="tiers"
-        [range]="true"
-        [step]="1"
-        [min]="1"
-        [max]="10"
-        [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-        mTooltip="You must select a gamemode to use this filter"
-        [tooltipDisabled]="gamemode.value != null"
-      />
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
     </div>
   </div>
 </form>
