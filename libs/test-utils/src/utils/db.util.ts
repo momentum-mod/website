@@ -136,7 +136,7 @@ export class DbUtil {
     const createdMap = await this.prisma.mMap.create({
       data: {
         ...({
-          name: `ahop_map${++this.maps}`,
+          name: mmap.name ?? `ahop_map${++this.maps}`,
           status: MapStatus.APPROVED,
           info: {
             create: {
