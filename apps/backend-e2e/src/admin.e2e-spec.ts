@@ -28,7 +28,8 @@ import {
   TrackType,
   KillswitchType,
   Killswitches,
-  MapTag
+  MapTag,
+  MapSortType
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Enum from '@momentum/enum';
@@ -865,8 +866,14 @@ describe('Admin', () => {
           ]);
 
         await db.createMap({ status: MapStatus.PRIVATE_TESTING });
-        caMap = await db.createMap({ status: MapStatus.CONTENT_APPROVAL });
-        faMap = await db.createMap({ status: MapStatus.FINAL_APPROVAL });
+        caMap = await db.createMap({
+          name: 'zebra_crossing_simulator',
+          status: MapStatus.CONTENT_APPROVAL
+        });
+        faMap = await db.createMap({
+          name: 'yes_very_good_map',
+          status: MapStatus.FINAL_APPROVAL
+        });
         await db.createMap({ status: MapStatus.PUBLIC_TESTING });
         await db.createMap({ status: MapStatus.DISABLED });
       });
@@ -966,6 +973,18 @@ describe('Admin', () => {
             expect.objectContaining({ id: faMap.id })
           ])
         );
+      });
+
+      it('should sort maps in reverse alphabetical order when in sortType query', async () => {
+        const res = await req.get({
+          url: 'admin/maps',
+          status: 200,
+          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
+          token: adminToken
+        });
+
+        expect(res.body.data[0].name).toBe(caMap.name);
+        expect(res.body.data[1].name).toBe(faMap.name);
       });
 
       it('should return 403 if a regular access token is given', () =>
