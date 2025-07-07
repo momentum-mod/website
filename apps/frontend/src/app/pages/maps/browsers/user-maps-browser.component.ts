@@ -6,9 +6,16 @@ import {
   MapSummary,
   MMap,
   PagedResponse,
-  MapsGetAllUserSubmissionQuery
+  MapsGetAllUserSubmissionQuery,
+  MapSortType,
+  MapSortTypeName
 } from '@momentum/constants';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 
 import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -21,6 +28,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { RouterLink } from '@angular/router';
+import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -38,7 +46,9 @@ type StatusFilters = Array<
     CardComponent,
     SpinnerDirective,
     RouterLink,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DropdownComponent,
+    FormsModule
   ]
 })
 export class UserMapsBrowserComponent implements OnInit {
@@ -54,11 +64,26 @@ export class UserMapsBrowserComponent implements OnInit {
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
+  protected readonly MapSortType = MapSortType;
+  protected readonly MapSortNameFn = (type: MapSortType): string =>
+    MapSortTypeName.get(type);
+  protected readonly MapSortOptions = [
+    MapSortType.SUBMISSION_CREATED_NEWEST,
+    MapSortType.SUBMISSION_CREATED_OLDEST,
+    MapSortType.SUBMISSION_UPDATED_NEWEST,
+    MapSortType.SUBMISSION_UPDATED_OLDEST,
+    MapSortType.DATE_CREATED_NEWEST,
+    MapSortType.DATE_CREATED_OLDEST,
+    MapSortType.ALPHABETICAL,
+    MapSortType.REVERSE_ALPHABETICAL
+  ];
+
   protected hasSubmissionBan = false;
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null)
+    status: new FormControl<StatusFilters>(null),
+    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
   });
 
   protected maps: MMap[] = [];
@@ -101,7 +126,7 @@ export class UserMapsBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status } = this.filters?.value ?? {};
+          const { name, status, sortType } = this.filters?.value ?? {};
           const options: MapsGetAllUserSubmissionQuery = {
             skip: this.skip,
             take,
@@ -110,6 +135,7 @@ export class UserMapsBrowserComponent implements OnInit {
           if (name) options.search = name;
           if (status?.length > 0)
             options.filter = status as StatusFilters as any; // TODO: Same bullshit as submission paeg
+          if (sortType) options.sortType = sortType;
 
           return this.localUserService.getSubmittedMaps({ ...options });
         }),
