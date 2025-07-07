@@ -420,6 +420,45 @@
       @apply border-red-500;
     }
   }
+
+  m-dropdown {
+    .head {
+      @apply card;
+      flex-direction: row;
+      width: 16rem;
+
+      & p {
+        padding-left: 0.5rem;
+        align-content: center;
+      }
+    }
+
+    .body {
+      top: anchor(bottom);
+      left: anchor(left);
+      right: anchor(right);
+      margin: 0;
+      padding: 0;
+      gap: 0.5rem;
+      @apply card card--fancy border border-white border-opacity-5;
+      /* Display flex from card breaks popover, so remove it. */
+      display: revert;
+    }
+
+    .entry {
+      padding: 0.5rem;
+      display: block;
+      width: 16rem;
+      background-color: rgba(255, 255, 255, 0);
+      text-align: left;
+      transition: background-color 0.2s;
+      @apply transition-colors;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
 }
 
 @layer utilities {
