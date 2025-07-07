@@ -3703,7 +3703,15 @@ describe('Maps', () => {
 
   describe('maps/submissions', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, pubMap1, pubMap2, privMap, caMap, faMap;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        pubMap1,
+        pubMap2,
+        privMap,
+        caMap,
+        faMap,
+        mapCreate: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
@@ -3711,7 +3719,7 @@ describe('Maps', () => {
           db.createUser()
         ]);
 
-        const mapCreate = {
+        mapCreate = {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
@@ -3836,8 +3844,14 @@ describe('Maps', () => {
         }));
 
       it('should respond with filtered map data using the search parameter', async () => {
+        const map = await db.createMap({
+          name: 'ahop_asdf',
+          status: MapStatus.PUBLIC_TESTING,
+          ...mapCreate
+        });
+
         await prisma.mMap.update({
-          where: { id: pubMap1.id },
+          where: { id: map.id },
           data: { name: 'aaaaa' }
         });
 
@@ -3849,11 +3863,21 @@ describe('Maps', () => {
           searchPropertyName: 'name',
           validate: { type: MapDto, count: 1 }
         });
+
+        await prisma.mMap.delete({
+          where: { id: map.id }
+        });
       });
 
       it('should respond with filtered map data using the searchStartsWith parameter', async () => {
+        const map = await db.createMap({
+          name: 'surf_the_dog',
+          status: MapStatus.PUBLIC_TESTING,
+          ...mapCreate
+        });
+
         await prisma.mMap.update({
-          where: { id: pubMap1.id },
+          where: { id: map.id },
           data: { name: 'bingus' }
         });
 
@@ -3865,6 +3889,10 @@ describe('Maps', () => {
           searchPropertyName: 'name',
           searchQueryName: 'searchStartsWith',
           validate: { type: MapDto, count: 1 }
+        });
+
+        await prisma.mMap.delete({
+          where: { id: map.id }
         });
       });
 
