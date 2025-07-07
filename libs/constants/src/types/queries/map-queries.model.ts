@@ -10,6 +10,7 @@ import {
   MapNotify,
   MapReview,
   MapReviewComment,
+  MapSortType,
   MapSubmissionApproval,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
@@ -49,6 +50,7 @@ type MapsGetAllBaseQuery = {
   search?: string;
   searchStartsWith?: string;
   submitterID?: number;
+  sortType?: MapSortType;
 };
 
 export type MapsGetAllQuery = MapsGetAllBaseQuery & {
