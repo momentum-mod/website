@@ -18,7 +18,8 @@ import {
   MapLeaderboardGetQuery,
   MapRunsGetExpand,
   MapRunsGetFilter,
-  MapLeaderboardGetRunQuery
+  MapLeaderboardGetRunQuery,
+  MapSortType
 } from '@momentum/constants';
 import {
   MapCreditsGetQuery,
@@ -66,6 +67,11 @@ class MapsGetAllBaseQueryDto extends QueryDto {
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
+
+  @EnumQueryProperty(MapSortType, {
+    description: 'Get maps in a given order with MapSortType'
+  })
+  readonly sortType?: MapSortType;
 }
 
 export class MapsGetAllQueryDto
