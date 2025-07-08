@@ -1,5 +1,5 @@
 import { Client, Events, GuildMember, Routes } from 'discord.js';
-import { setGlobalDispatcher, Agent } from 'undici';
+import { Agent } from 'undici';
 import { logger } from './logger';
 import { config } from './config';
 import { replyDescriptionEmbed } from './utils';
@@ -8,13 +8,10 @@ import { InteractionModule } from './types/interaction-module';
 import { initializeServices } from './services';
 import { interactionModules } from './interaction-modules';
 
-// Some discord api requests are done through undici and require
-// higher timeout. Undici is used internally by discord.js, so we
-// can't change it in any more elegant way
-// https://github.com/nodejs/undici/issues/1531#issuecomment-1178869993
-setGlobalDispatcher(new Agent({ connect: { timeout: 60000 } }));
-
 const client = new Client({ intents: [2 ** 25 - 1] });
+
+// https://github.com/nodejs/undici/issues/1531#issuecomment-1178869993
+client.rest.setAgent(new Agent({ connect: { timeout: 60000 } }));
 
 const commandMap = new Map<string, InteractionModule>();
 const contextMenus = new Map<string, InteractionModule>();
