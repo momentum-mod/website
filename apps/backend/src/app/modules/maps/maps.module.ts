@@ -14,7 +14,7 @@ import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 import { MapWebhooksService } from './map-webhooks.service';
-import { HttpModule } from '@nestjs/axios';
+import { DiscordModule } from '../discord/discord.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { HttpModule } from '@nestjs/axios';
     forwardRef(() => AdminModule),
     forwardRef(() => MapReviewModule),
     KillswitchModule,
-    HttpModule
+    DiscordModule
   ],
   controllers: [MapsController],
   providers: [
