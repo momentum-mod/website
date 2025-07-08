@@ -4,7 +4,7 @@ import { CompleteMap } from '../types/utils/compete-map.type';
 // prettier-ignore
 export const GamemodeCategories: ReadonlyMap<GamemodeCategory, Gamemode[]> = new Map([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
-  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
+  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_STAMINA, Gamemode.BHOP_HL1]],
   [GamemodeCategory.RJ,       [Gamemode.RJ]],
   [GamemodeCategory.SJ,       [Gamemode.SJ]],
   [GamemodeCategory.AHOP,     [Gamemode.AHOP]],
@@ -41,6 +41,16 @@ export const GamemodeInfo: ReadonlyMap<Gamemode, GamemodeInfoProperties> =
         name: 'Bhop',
         id: 'bhop',
         prefix: 'bhop',
+        icon: 'bhop'
+      }
+    ],
+    [
+      Gamemode.BHOP_STAMINA,
+      {
+        category: GamemodeCategory.BHOP,
+        name: 'Bhop (Scroll)',
+        id: 'bhop_stamina',
+        prefix: 'sbhop',
         icon: 'bhop'
       }
     ],
