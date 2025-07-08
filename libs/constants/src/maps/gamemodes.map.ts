@@ -6,7 +6,7 @@ export const GamemodeCategories: ReadonlyMap<
   Array<Gamemode>
 > = new Map([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
-  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
+  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_STAMINA, Gamemode.BHOP_HL1]],
   [GamemodeCategory.RJ,       [Gamemode.RJ]],
   [GamemodeCategory.SJ,       [Gamemode.SJ]],
   [GamemodeCategory.AHOP,     [Gamemode.AHOP]],
@@ -154,6 +154,16 @@ export const GamemodeInfo: ReadonlyMap<Gamemode, GamemodeInfoProperties> =
         id: 'df_vtg',
         prefix: 'df',
         icon: 'defrag'
+      }
+    ],
+    [
+      Gamemode.BHOP_STAMINA,
+      {
+        category: GamemodeCategory.BHOP,
+        name: 'Bhop (Stamina)',
+        id: 'bhop_stamina',
+        prefix: 'kz_bhop',
+        icon: 'bhop'
       }
     ]
   ]);

@@ -182,7 +182,7 @@ export const ZonesStubLeaderboards = [
       { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null  },
       { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null  }
   ]),
-  ...[ GM.RJ, GM.SJ, GM.AHOP, GM.BHOP, GM.BHOP_HL1, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
+  ...[ GM.RJ, GM.SJ, GM.AHOP, GM.BHOP, GM.BHOP_STAMINA, GM.BHOP_HL1, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
     .map((gamemode) => (
       { gamemode, trackType: TrackType.BONUS, trackNum: 1, linear: null }))
 ].sort();

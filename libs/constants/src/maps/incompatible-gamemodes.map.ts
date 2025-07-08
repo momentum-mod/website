@@ -28,6 +28,7 @@ export const IncompatibleGamemodes: ReadonlyMap<Gamemode, ReadonlySet<Gamemode>>
   [
     [G.SURF,        [Cats(GC.BHOP, GC.CLIMB)]],
     [G.BHOP,        [Cats(GC.SURF, GC.CLIMB)]],
+    [G.BHOP_STAMINA, [Cats(GC.SURF)]],
     [G.BHOP_HL1,    [Cats(GC.SURF, GC.CLIMB)]],
     [G.CLIMB_MOM,   [Cats(GC.SURF, GC.BHOP)]],
     [G.CLIMB_KZT,   [Cats(GC.SURF, GC.BHOP)]],

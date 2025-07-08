@@ -14,7 +14,8 @@ export enum Gamemode {
   CONC = 10,
   DEFRAG_CPM = 11,
   DEFRAG_VQ3 = 12,
-  DEFRAG_VTG = 13
+  DEFRAG_VTG = 13,
+  BHOP_STAMINA = 14
 }
 
 /**
@@ -34,7 +35,7 @@ export enum GamemodeCategory {
 // prettier-ignore
 export const GamemodeCategoryToGamemode = new Map<GamemodeCategory, Gamemode[]>([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
-  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
+  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_STAMINA, Gamemode.BHOP_HL1]],
   [GamemodeCategory.CLIMB,    [Gamemode.CLIMB_MOM, Gamemode.CLIMB_KZT, Gamemode.CLIMB_16]],
   [GamemodeCategory.RJ,       [Gamemode.RJ]],
   [GamemodeCategory.SJ,       [Gamemode.SJ]],
@@ -47,6 +48,7 @@ export const GamemodeCategoryToGamemode = new Map<GamemodeCategory, Gamemode[]>(
 export const GamemodeToGamemodeCategory = new Map<Gamemode, GamemodeCategory>([
   [Gamemode.SURF,           GamemodeCategory.SURF],
   [Gamemode.BHOP,           GamemodeCategory.BHOP],
+  [Gamemode.BHOP_STAMINA,   GamemodeCategory.BHOP],
   [Gamemode.BHOP_HL1,       GamemodeCategory.BHOP],
   [Gamemode.CLIMB_MOM,      GamemodeCategory.CLIMB],
   [Gamemode.CLIMB_KZT,      GamemodeCategory.CLIMB],

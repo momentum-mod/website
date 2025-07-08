@@ -18,6 +18,7 @@ import { float } from '../types/utils/numeric.type';
 export const TickIntervals: ReadonlyMap<Gamemode, float> = new Map([
   [Gamemode.AHOP,           Math.fround(0.015)],
   [Gamemode.BHOP,           Math.fround(0.01)],
+  [Gamemode.BHOP_STAMINA,   Math.fround(0.01)],
   [Gamemode.BHOP_HL1,       Math.fround(0.004)],
   [Gamemode.CLIMB_MOM,      Math.fround(0.01)],
   [Gamemode.CLIMB_KZT,      Math.fround(0.01)],
