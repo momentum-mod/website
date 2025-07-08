@@ -75,14 +75,22 @@ export const ConfigFactory = (): ConfigInterface => {
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS,
       preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
     },
-    discordWebhooks: Object.fromEntries(
-      Enum.values(GamemodeCategory).map((cat) => [
-        cat,
-        isTest
-          ? ''
-          : (process.env[`DISCORD_WEBHOOK_${GamemodeCategory[cat]}_URL`] ?? '')
-      ])
-    ) as Record<GamemodeCategory, string>,
+    discord: {
+      token: isTest ? '' : (process.env['DISCORD_TOKEN'] ?? ''),
+      guild: process.env['DISCORD_GUILD'] ?? '',
+      contentApprovalChannel:
+        process.env['DISCORD_CONTENT_APPROVAL_CHANNEL'] ?? '',
+      portingChannel: process.env['DISCORD_PORTING_CHANNEL'] ?? '',
+      statusChannels: Object.fromEntries(
+        Enum.values(GamemodeCategory).map((cat) => [
+          cat,
+          isTest
+            ? ''
+            : (process.env[`DISCORD_STATUS_CHANNEL_${GamemodeCategory[cat]}`] ??
+              '')
+        ])
+      ) as Record<GamemodeCategory, string>
+    },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
     logLevel: (process.env['LOG_LEVEL'] ??

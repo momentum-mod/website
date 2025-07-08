@@ -50,7 +50,13 @@ export interface ConfigInterface {
     maxCreditsExceptTesters: number;
     preSignedUrlExpTime: number;
   };
-  discordWebhooks: Record<GamemodeCategory, string>;
+  discord: {
+    token: string;
+    guild: string;
+    contentApprovalChannel: string;
+    portingChannel: string;
+    statusChannels: Record<GamemodeCategory, string>;
+  };
   mapListUpdateSchedule: string;
   logLevel: pino.LevelWithSilent;
 }

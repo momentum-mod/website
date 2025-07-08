@@ -110,7 +110,7 @@ export class MapsService {
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService,
-    private readonly discordWebhookService: MapWebhooksService
+    private readonly discordNotificationService: MapWebhooksService
   ) {}
 
   //#region Gets
@@ -1239,7 +1239,7 @@ export class MapsService {
               credits: { include: { user: true } }
             }
           });
-          void this.discordWebhookService.sendPublicTestingDiscordEmbed(
+          void this.discordNotificationService.sendPublicTestingNotification(
             extendedMap
           );
         } else if (statusHandler[2] === MapStatus.APPROVED) {
@@ -1252,7 +1252,9 @@ export class MapsService {
               credits: { include: { user: true } }
             }
           });
-          void this.discordWebhookService.sendApprovedDiscordEmbed(extendedMap);
+          void this.discordNotificationService.sendApprovedNotification(
+            extendedMap
+          );
         }
       } else {
         await tx.mMap.update({
@@ -1377,7 +1379,7 @@ export class MapsService {
               credits: { include: { user: true } }
             }
           });
-          void this.discordWebhookService.sendPublicTestingDiscordEmbed(
+          void this.discordNotificationService.sendPublicTestingNotification(
             extendedMap
           );
         } else if (statusHandler[2] === MapStatus.APPROVED) {
@@ -1390,7 +1392,9 @@ export class MapsService {
               credits: { include: { user: true } }
             }
           });
-          void this.discordWebhookService.sendApprovedDiscordEmbed(extendedMap);
+          void this.discordNotificationService.sendApprovedNotification(
+            extendedMap
+          );
         }
       } else {
         updatedMap = await tx.mMap.update({
@@ -2063,6 +2067,19 @@ export class MapsService {
     }
 
     throw new ForbiddenException('User not authorized to access map data');
+  }
+
+  async sendContentApprovalNotification(mapID: number) {
+    const extendedMap = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: {
+        info: true,
+        submission: true,
+        submitter: true,
+        credits: { include: { user: true } }
+      }
+    });
+    await this.discordNotificationService.sendMapAddedNotificaiton(extendedMap);
   }
 
   /**
