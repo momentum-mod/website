@@ -13,7 +13,6 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsInt,
-  IsISO31661Alpha2,
   IsOptional,
   IsString,
   Matches,
@@ -23,10 +22,9 @@ import { Exclude, Expose } from 'class-transformer';
 import { Ban } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
-import { IsSteamCommunityID } from '../../validators';
+import { IsCountryCode, IsSteamCommunityID } from '../../validators';
 import { ProfileDto } from './profile.dto';
 import { UserStatsDto } from './user-stats.dto';
-
 import { UpdateSocialsDto } from './socials.dto';
 
 export class UserDto implements User {
@@ -58,7 +56,7 @@ export class UserDto implements User {
     description: 'Two-letter (ISO 3166-1 Alpha-2) country code for the user'
   })
   @IsOptional()
-  @IsISO31661Alpha2()
+  @IsCountryCode()
   readonly country: string | null;
 
   @Exclude({ toPlainOnly: true })
@@ -123,7 +121,7 @@ export class UpdateUserDto {
     type: String,
     description: 'The country code to set (requires ISO Alpha-2 code)'
   })
-  @IsISO31661Alpha2()
+  @IsCountryCode()
   @IsOptional()
   country?: string;
 
