@@ -245,6 +245,7 @@ export enum ISOCountryCode {
   VU = 'Vanuatu',
   WF = 'Wallis and Futuna',
   WS = 'Samoa',
+  XK = 'Kosovo', // Is not officially assigned, but supported by Steam
   YE = 'Yemen',
   YT = 'Mayotte',
   ZA = 'South Africa',
