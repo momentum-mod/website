@@ -645,6 +645,10 @@ export class MapsService {
 
     await Promise.all(tasks);
 
+    if (!dto.wantsPrivateTesting) {
+      void this.sendContentApprovalNotification(map.id);
+    }
+
     return DtoFactory(MapDto, map);
   }
 
@@ -1484,6 +1488,16 @@ export class MapsService {
 
     // Call functions for specific status changes
     if (
+      oldStatus === MapStatus.PRIVATE_TESTING &&
+      newStatus === MapStatus.CONTENT_APPROVAL
+    ) {
+      if (
+        !map.submission.dates.some(
+          (date) => date.status === MapStatus.CONTENT_APPROVAL
+        )
+      )
+        void this.sendContentApprovalNotification(map.id);
+    } else if (
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
