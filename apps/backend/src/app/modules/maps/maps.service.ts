@@ -93,7 +93,7 @@ import * as LeaderboardHandler from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
-import { MapWebhooksService } from './map-webhooks.service';
+import { MapStatusNotifications } from './map-status-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 
 @Injectable()
@@ -110,7 +110,7 @@ export class MapsService {
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService,
-    private readonly discordNotificationService: MapWebhooksService
+    private readonly discordNotificationService: MapStatusNotifications
   ) {}
 
   //#region Gets
@@ -667,6 +667,10 @@ export class MapsService {
     ];
 
     await Promise.all(tasks);
+
+    if (!dto.wantsPrivateTesting) {
+      void this.sendContentApprovalNotification(map.id);
+    }
 
     return DtoFactory(MapDto, map);
   }
@@ -1519,6 +1523,16 @@ export class MapsService {
 
     // Call functions for specific status changes
     if (
+      oldStatus === MapStatus.PRIVATE_TESTING &&
+      newStatus === MapStatus.CONTENT_APPROVAL
+    ) {
+      if (
+        !map.submission.dates.some(
+          (date) => date.status === MapStatus.CONTENT_APPROVAL
+        )
+      )
+        void this.sendContentApprovalNotification(map.id);
+    } else if (
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
@@ -2079,7 +2093,9 @@ export class MapsService {
         credits: { include: { user: true } }
       }
     });
-    await this.discordNotificationService.sendMapAddedNotificaiton(extendedMap);
+    await this.discordNotificationService.sendMapContentApprovalNotification(
+      extendedMap
+    );
   }
 
   /**
