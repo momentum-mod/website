@@ -50,10 +50,12 @@ export interface ConfigInterface {
     maxCreditsExceptTesters: number;
     preSignedUrlExpTime: number;
   };
-  discordToken: string;
-  discordGuild: string;
-  discordPortingChannel: string;
-  discordStatusChannels: Record<GamemodeCategory, string>;
+  discord: {
+    token: string;
+    guild: string;
+    portingChannel: string;
+    statusChannels: Record<GamemodeCategory, string>;
+  };
   mapListUpdateSchedule: string;
   logLevel: pino.LevelWithSilent;
 }

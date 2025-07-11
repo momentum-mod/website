@@ -61,6 +61,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { DiscordService } from 'apps/backend/src/app/modules/discord/discord.service';
 
 describe('Maps', () => {
   let app,
@@ -3401,42 +3402,78 @@ describe('Maps', () => {
       });
 
       describe('Discord webhooks', () => {
-        let httpPostMock: jest.SpyInstance,
-          httpPostObs: rxjs.Subject<void>,
+        let restGetMock: jest.SpyInstance,
+          restPostMock: jest.SpyInstance,
           configMock: jest.SpyInstance;
 
         beforeAll(() => {
-          httpPostMock = jest.spyOn(app.get(HttpService), 'post');
-          httpPostObs = new rxjs.Subject();
-
-          httpPostMock.mockImplementation(() => {
-            httpPostObs.next();
-            return rxjs.of({
-              data: '',
-              status: 204,
-              statusText: 'No Content',
-              headers: {},
-              config: {}
-            });
-          });
-
           const configService = app.get(ConfigService);
           const getOrThrow = configService.getOrThrow;
           configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
-          configMock.mockImplementation((path) =>
-            path.startsWith('discordWebhooks.')
-              ? 'http://localhost/webhook_' +
-                path.replace('discordWebhooks.', '')
-              : getOrThrow.bind(configService, path)
+          configMock.mockImplementation((path) => {
+            if (path.startsWith('discord.')) {
+              const parts = path.split('.');
+              switch (parts[1]) {
+                case 'token':
+                  return 'A definitely working Discord token.';
+                case 'guild':
+                  return 'absolutely real guild id.';
+                case 'portingChannel':
+                  return 'porting';
+                case 'statusChannels':
+                  return parts[2];
+              }
+            }
+            return getOrThrow.bind(configService, path);
+          });
+
+          const discordService: DiscordService = app.get(DiscordService);
+          // Making sure that rest client won't actually go to discord
+          jest.replaceProperty(
+            discordService.rest.options,
+            'api',
+            'http://blackhole.invalid'
           );
+
+          restGetMock = jest.spyOn(discordService.rest, 'get');
+          restPostMock = jest.spyOn(discordService.rest, 'post');
+
+          restGetMock.mockImplementation((url: string) => {
+            if (url.startsWith('/')) url = url.slice(1);
+            const parts = url.split('/');
+            return new Promise((res) => {
+              switch (parts[0]) {
+                case 'channels':
+                  res({
+                    id: parts[1],
+                    name: 'mock-channel',
+                    type: 0, // Guild text channel
+                    guild_id: configService.getOrThrow('discord.guild'),
+                    flags: 0
+                  });
+                  break;
+                case 'guilds':
+                  res({ id: parts[1], name: 'Mock Server' });
+                  break;
+                default:
+                  res({});
+                  break;
+              }
+            });
+          });
+
+          restPostMock.mockImplementation((url) => {
+            if (url.startsWith('/')) url = url.slice(1);
+            const parts = url.split('/');
+            return new Promise((res) => {});
+          });
         });
 
         afterAll(() => {
-          httpPostMock.mockRestore();
-          configMock.mockRestore();
+          jest.restoreAllMocks();
         });
 
-        afterEach(() => httpPostMock.mockClear());
+        afterEach(() => restPostMock.mockClear());
 
         it('should execute discord webhook when map is in public testing', async () => {
           const map = await db.createMap({
