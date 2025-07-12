@@ -24,6 +24,9 @@
     <p class="ml-4 font-display text-24">Submitter</p>
     <m-user-select formControlName="submitter" />
     <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
+    <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
+      <m-icon icon="filter-remove" class="h-5 w-5" />
+    </button>
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />

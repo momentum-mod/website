@@ -1,3 +1,5 @@
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
 /**
@@ -55,4 +57,29 @@ export function getAllErrors(form: AbstractControl): Record<string, unknown> {
   }
 
   return null;
+}
+
+/**
+ * Sets the value of a form to the stored value in sessionStorage,
+ * if it exists.
+ *
+ * Creates an Observable which updates sessionStorage when the form changes.
+ * destroyRef is used to dispose the observable.
+ */
+export function setupPersistentForm(
+  form: AbstractControl,
+  key: string,
+  destroyRef: DestroyRef
+) {
+  const valueString = sessionStorage.getItem(key);
+
+  if (valueString) {
+    form.setValue(JSON.parse(valueString));
+  }
+
+  form.valueChanges
+    .pipe(takeUntilDestroyed(destroyRef))
+    .subscribe(() =>
+      sessionStorage.setItem(key, JSON.stringify(form.getRawValue()))
+    );
 }

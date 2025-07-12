@@ -46,6 +46,7 @@ export {
   mdiNotebookOutline,
   mdiForumOutline,
   mdiFileOutline,
+  mdiFilterRemove,
   mdiChartPieOutline,
   mdiImageEdit,
   mdiChartBoxOutline,

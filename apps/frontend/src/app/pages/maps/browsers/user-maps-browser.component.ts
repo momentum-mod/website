@@ -29,6 +29,8 @@ import { CardComponent } from '../../../components/card/card.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { RouterLink } from '@angular/router';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
+import { IconComponent } from '../../../icons';
+import { setupPersistentForm } from '../../../util/form-utils.util';
 
 type StatusFilters = Array<
   // | MapStatus.APPROVED // TODO: Need to support this on the backend
@@ -48,7 +50,8 @@ type StatusFilters = Array<
     RouterLink,
     ReactiveFormsModule,
     DropdownComponent,
-    FormsModule
+    FormsModule,
+    IconComponent
   ]
 })
 export class UserMapsBrowserComponent implements OnInit {
@@ -83,7 +86,7 @@ export class UserMapsBrowserComponent implements OnInit {
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
-    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
+    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -96,11 +99,17 @@ export class UserMapsBrowserComponent implements OnInit {
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
-  async ngOnInit() {
+  ngOnInit() {
     if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
       this.hasSubmissionBan = true;
       return;
     }
+
+    setupPersistentForm(
+      this.filters,
+      this.constructor.name + '_FILTERS',
+      this.destroyRef
+    );
 
     this.localUserService.getSubmittedMapSummary().subscribe((res) => {
       this.summaryLoading = false;
@@ -155,5 +164,13 @@ export class UserMapsBrowserComponent implements OnInit {
           });
         }
       });
+  }
+
+  resetFilters() {
+    this.filters.reset({
+      name: '',
+      status: null,
+      sortType: this.MapSortOptions[0]
+    });
   }
 }

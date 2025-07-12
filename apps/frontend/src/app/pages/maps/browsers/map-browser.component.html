@@ -50,6 +50,9 @@
         [tooltipDisabled]="gamemode.value != null"
       />
       <input class="textinput ml-5 h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
+        <m-icon icon="filter-remove" class="h-5 w-5" />
+      </button>
     </div>
     <div class="ml-auto flex items-center gap-2">
       @if (localUserService.user | async) {

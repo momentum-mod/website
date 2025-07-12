@@ -5,6 +5,7 @@ import {
   MapStatus,
   MMap,
   PagedResponse,
+  MapSortType,
   MapSortTypeName
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
@@ -24,7 +25,8 @@ import { MapListComponent } from '../../../components/map-list/map-list.componen
 import { AdminService } from '../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
-import { MapSortType } from '@momentum/constants';
+import { IconComponent } from '../../../icons/icon.component';
+import { setupPersistentForm } from '../../../util/form-utils.util';
 
 type StatusFilters = Array<MapStatus>;
 
@@ -35,7 +37,8 @@ type StatusFilters = Array<MapStatus>;
     MultiSelectModule,
     ReactiveFormsModule,
     DropdownComponent,
-    FormsModule
+    FormsModule,
+    IconComponent
   ]
 })
 export class AdminMapsBrowserComponent implements OnInit {
@@ -70,7 +73,7 @@ export class AdminMapsBrowserComponent implements OnInit {
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
-    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
+    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -82,6 +85,12 @@ export class AdminMapsBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
+    setupPersistentForm(
+      this.filters,
+      this.constructor.name + '_FILTERS',
+      this.destroyRef
+    );
+
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
@@ -128,5 +137,13 @@ export class AdminMapsBrowserComponent implements OnInit {
           });
         }
       });
+  }
+
+  resetFilters() {
+    this.filters.reset({
+      name: '',
+      status: null,
+      sortType: this.MapSortOptions[0]
+    });
   }
 }
