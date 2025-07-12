@@ -422,14 +422,24 @@
   }
 
   m-dropdown {
+    min-height: 2.5rem;
+
     .head {
       @apply card;
       flex-direction: row;
-      width: 16rem;
+      width: 100%;
 
       & p {
         padding-left: 0.5rem;
         align-content: center;
+      }
+
+      & m-icon {
+        margin: auto 0 auto auto;
+        min-width: 2.25rem;
+        min-height: 2.25rem;
+        width: 2.25rem;
+        height: 2.25rem;
       }
     }
 
@@ -439,6 +449,7 @@
       right: anchor(right);
       margin: 0;
       padding: 0;
+      width: auto;
       gap: 0.5rem;
       @apply card card--fancy border border-white border-opacity-5;
       /* Display flex from card breaks popover, so remove it. */
@@ -448,7 +459,7 @@
     .entry {
       padding: 0.5rem;
       display: block;
-      width: 16rem;
+      width: 100%;
       background-color: rgba(255, 255, 255, 0);
       text-align: left;
       transition: background-color 0.2s;

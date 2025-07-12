@@ -25,7 +25,7 @@
       <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <p class="font-display text-24">Status</p>
       <p-multiSelect formControlName="status" [options]="StatusDropdown" optionLabel="label" optionValue="type" [showHeader]="false" />
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
     </form>
   </div>
   <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />

@@ -14,7 +14,7 @@
       [showHeader]="false"
       appendTo="body"
     />
-    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isAdminPage]="true" />

@@ -22,7 +22,7 @@
     />
     <p class="ml-4 font-display text-24">Submitter</p>
     <m-user-select formControlName="submitter" />
-    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
