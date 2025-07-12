@@ -6,7 +6,8 @@ import {
   MapsGetAllQuery,
   MapSortTypeName,
   MMap,
-  PagedResponse
+  PagedResponse,
+  MapSortType
 } from '@momentum/constants';
 import {
   FormControl,
@@ -16,15 +17,16 @@ import {
 } from '@angular/forms';
 
 import { PaginatorModule } from 'primeng/paginator';
-import { EMPTY, merge, of, Subject } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, merge, of, Subject } from 'rxjs';
 import {
   MapWithSpecificLeaderboard,
   groupMapLeaderboards,
   getSpecificGroupedLeaderboard
 } from '../../../util';
+import { setupPersistentForm } from '../../../util/form-utils.util';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
 import { SliderComponent } from '../../../components/slider/slider.component';
@@ -34,7 +36,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
-import { MapSortType } from '@momentum/constants';
+import { IconComponent } from '../../../icons/icon.component';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -50,7 +52,8 @@ import { MapSortType } from '@momentum/constants';
     TooltipDirective,
     CommonModule,
     DropdownComponent,
-    FormsModule
+    FormsModule,
+    IconComponent
   ]
 })
 export class MapBrowserComponent implements OnInit {
@@ -85,7 +88,7 @@ export class MapBrowserComponent implements OnInit {
       value: [1, 10],
       disabled: true
     }),
-    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
+    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: Array<MapWithSpecificLeaderboard> = [];
@@ -97,6 +100,14 @@ export class MapBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
+    setupPersistentForm(
+      this.filters,
+      this.constructor.name + '_FILTERS',
+      this.destroyRef
+    );
+    // Tier slider starts disabled.
+    if (this.filters.value.gamemode) this.filters.controls.tiers.enable();
+
     this.gamemode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) =>
@@ -188,6 +199,17 @@ export class MapBrowserComponent implements OnInit {
           });
         }
       });
+  }
+
+  resetFilters() {
+    this.filters.reset({
+      name: '',
+      gamemode: null,
+      favorites: 0,
+      pb: 0,
+      tiers: [1, 10],
+      sortType: this.MapSortOptions[0]
+    });
   }
 
   get gamemode() {

@@ -26,6 +26,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
+import { setupPersistentForm } from '../../../util/form-utils.util';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -79,7 +80,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
     submitter: new FormControl<User>(null),
-    sortType: new FormControl<MapSortType>(MapSortType.DATE_RELEASED_NEWEST)
+    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -91,6 +92,12 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
+    setupPersistentForm(
+      this.filters,
+      this.constructor.name + '_FILTERS',
+      this.destroyRef
+    );
+
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
@@ -151,5 +158,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
           });
         }
       });
+  }
+
+  resetFilters() {
+    this.filters.reset({
+      name: '',
+      status: null,
+      submitter: null,
+      sortType: this.MapSortOptions[0]
+    });
   }
 }
