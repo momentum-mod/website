@@ -6,8 +6,8 @@
   class="head"
   (click)="fixUnsupportedAnchorPosition()"
 >
-  <p class="">{{ entryNameFn(selectedEntry) }}</p>
-  <m-icon icon="chevron-down" class="ml-auto h-9 w-9" />
+  <p>{{ entryNameFn(selectedEntry) }}</p>
+  <m-icon icon="chevron-down" />
 </button>
 <div #dropdown popover [id]="id" [ngStyle]="{ 'position-anchor': '--' + id }" class="body">
   @for (entry of entries; track $index) {

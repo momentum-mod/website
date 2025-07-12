@@ -63,6 +63,8 @@ export class DropdownComponent implements ControlValueAccessor {
         toggleElemCoords.bottom.toString() + 'px';
       this.dropdownElem.nativeElement.style.left =
         toggleElemCoords.left.toString() + 'px';
+      this.dropdownElem.nativeElement.style.width =
+        toggleElemCoords.width.toString() + 'px';
     }
   }
 }
