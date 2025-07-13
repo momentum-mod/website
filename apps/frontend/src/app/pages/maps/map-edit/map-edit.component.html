@@ -32,7 +32,11 @@
         <input type="checkbox" class="checkbox" [formControl]="resetLbs" />
       </div>
 
-      <button type="submit" class="btn btn-green self-end" [disabled]="loading || versionForm.pristine || versionForm.invalid">
+      <button
+        type="submit"
+        class="btn btn-green self-end"
+        [disabled]="loading || isSubmittingVersionForm || versionForm.pristine || versionForm.invalid"
+      >
         Submit
       </button>
     </div>
@@ -73,7 +77,7 @@
     type="button"
     (click)="submitTestInviteForm()"
     class="btn btn-green self-end"
-    [disabled]="loading || testInviteForm.pristine || testInviteForm.invalid"
+    [disabled]="loading || isSubmittingTestInviteForm || testInviteForm.pristine || testInviteForm.invalid"
   >
     Update Invites
   </button>
