@@ -751,72 +751,89 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
-    const tasks: Promise<any>[] = [
-      this.db.$transaction(async (tx) => {
-        const newVersion = await tx.mapVersion.create({
+    const newVersion = await this.db.$transaction(async (tx) => {
+      const newVersion = await tx.mapVersion.create({
+        data: {
+          versionNum: newVersionNum,
+          submitter: { connect: { id: userID } },
+          zones: zonesStr,
+          bspHash,
+          zoneHash: createHash('sha1').update(zonesStr).digest('hex'),
+          bspDownloadId: dto.hasBSP ? randomUUID() : oldVersion.bspDownloadId,
+          vmfDownloadId: hasVmf
+            ? randomUUID()
+            : dto.hasBSP
+              ? undefined
+              : oldVersion.vmfDownloadId,
+          changelog: dto.changelog,
+          mmap: { connect: { id: mapID } }
+        }
+      });
+
+      try {
+        await tx.mMap.update({
+          where: {
+            id: mapID,
+            // Ensure we only update if current version hasn't been changed in
+            // the time between reading the map and updating it.
+            currentVersionID: oldVersion.id
+          },
           data: {
-            versionNum: newVersionNum,
-            submitter: { connect: { id: userID } },
-            zones: zonesStr,
-            bspHash,
-            zoneHash: createHash('sha1').update(zonesStr).digest('hex'),
-            bspDownloadId: dto.hasBSP ? randomUUID() : oldVersion.bspDownloadId,
-            vmfDownloadId: hasVmf
-              ? randomUUID()
-              : dto.hasBSP
-                ? undefined
-                : oldVersion.vmfDownloadId,
-            changelog: dto.changelog,
-            mmap: { connect: { id: mapID } }
+            currentVersion: { connect: { id: newVersion.id } }
           }
         });
-
-        await this.generateSubmissionLeaderboards(
-          tx,
-          mapID,
-          map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
-          zones
-        );
-
-        if (dto.resetLeaderboards === true) {
-          // If it's been approved before, deleting runs is a majorly destructive
-          // action that we probably don't want to allow the submitter to do.
-          // If the submitter is fixing the maps in a significant enough way to
-          // still require a leaderboard reset, they should just get an admin to
-          // do it.
-          if (map.info.approvedDate) {
-            throw new ForbiddenException(
-              'Cannot reset leaderboards on a previously approved map.' +
-                ' Talk about it with an admin!'
-            );
-          }
-
-          await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
+      } catch (error) {
+        // Update failed to find a value, this means the map was updated by a
+        // separate transaction from another request; throw and let transaction
+        // rollback.
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2025'
+        ) {
+          throw new BadRequestException(
+            'Submission version update race, ignoring.'
+          );
         }
 
-        tasks.push(
-          (async () => {
-            const zippedVmf = hasVmf
-              ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
-              : undefined;
+        throw error;
+      }
 
-            await this.uploadMapVersionFiles(
-              newVersion.bspDownloadId,
-              bspFile,
-              newVersion.vmfDownloadId,
-              zippedVmf
-            );
-          })()
-        );
+      await this.generateSubmissionLeaderboards(
+        tx,
+        mapID,
+        map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
+        zones
+      );
 
-        await tx.mMap.update({
-          where: { id: mapID },
-          data: { currentVersion: { connect: { id: newVersion.id } } }
-        });
-      })
-    ];
+      if (dto.resetLeaderboards === true) {
+        // If it's been approved before, deleting runs is a majorly destructive
+        // action that we probably don't want to allow the submitter to do.
+        // If the submitter is fixing the maps in a significant enough way to
+        // still require a leaderboard reset, they should just get an admin to
+        // do it.
+        if (map.info.approvedDate) {
+          throw new ForbiddenException(
+            'Cannot reset leaderboards on a previously approved map.' +
+              ' Talk about it with an admin!'
+          );
+        }
 
-    await Promise.all(tasks);
+        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
+      }
+
+      return newVersion;
+    });
+
+    const zippedVmf = hasVmf
+      ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
+      : undefined;
+
+    await this.uploadMapVersionFiles(
+      newVersion.bspDownloadId,
+      bspFile,
+      newVersion.vmfDownloadId,
+      zippedVmf
+    );
 
     if (
       map.status === MapStatus.PUBLIC_TESTING ||
