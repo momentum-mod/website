@@ -149,6 +149,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   isUploading = false;
   uploadPercentage = 0;
   uploadStatusDescription = '';
+  protected isSubmittingVersionForm = false;
+  protected isSubmittingTestInviteForm = false;
 
   mainForm = this.fb.group({
     details: this.fb.group({
@@ -348,7 +350,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   async submitMainForm() {
-    if (this.mainForm.invalid) return;
+    if (this.mainForm.invalid || this.loading) return;
+
+    this.loading = true;
 
     const body: UpdateMap | UpdateMapAdmin = {};
 
@@ -394,9 +398,11 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       this.credits.dirty &&
       !deepEquals(this.credits.value, new GroupedMapCredits(this.map.credits));
 
-    if (isEmpty(body) && !hasImages && !hasCredits) return;
+    if (isEmpty(body) && !hasImages && !hasCredits) {
+      this.loading = false;
+      return;
+    }
 
-    this.loading = true;
     if (!isEmpty(body)) {
       try {
         // Use the non-admin endpoint for submitters, unless they're an admin
@@ -531,6 +537,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.messageService.add({ severity: 'success', summary: 'Map updated!' });
     if (body.name) this.lastMapName = body.name;
     this.reload.next();
+    this.loading = false;
   }
 
   setupVersionForm() {
@@ -538,7 +545,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   async submitVersionForm() {
-    if (this.versionForm.invalid) return;
+    if (this.versionForm.invalid || this.isSubmittingVersionForm) return;
+
+    this.isSubmittingVersionForm = true;
 
     if (this.bsp.value) {
       const { url: preSignedUrl } = await lastValueFrom(
@@ -611,6 +620,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       this.isUploading = false;
       this.uploadPercentage = 0;
       this.uploadStatusDescription = '';
+      this.isSubmittingVersionForm = false;
       return;
     }
 
@@ -623,6 +633,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     }, 1000);
 
     this.reload.next();
+    this.isSubmittingVersionForm = false;
   }
 
   setupTestInviteForm() {
@@ -638,7 +649,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   async submitTestInviteForm() {
-    if (this.testInviteForm.invalid) return;
+    if (this.testInviteForm.invalid || this.isSubmittingTestInviteForm) return;
+
+    this.isSubmittingTestInviteForm = true;
 
     try {
       await firstValueFrom(
@@ -652,6 +665,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         summary: 'Failed to update test invites!',
         detail: error.message
       });
+      this.isSubmittingTestInviteForm = false;
       return;
     }
 
@@ -662,6 +676,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     this.versionForm.markAsUntouched();
     this.versionForm.markAsPristine();
+    this.isSubmittingTestInviteForm = false;
   }
 
   @HostListener('window:beforeunload', ['$event'])
