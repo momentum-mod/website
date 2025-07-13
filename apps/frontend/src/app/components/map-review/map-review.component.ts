@@ -50,6 +50,7 @@ import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
 import { DatePipe } from '@angular/common';
 import { SpinnerDirective } from '../../directives/spinner.directive';
 import { PluralPipe } from '../../pipes/plural.pipe';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-review',
@@ -66,7 +67,8 @@ import { PluralPipe } from '../../pipes/plural.pipe';
     DatePipe,
     SpinnerDirective,
     PluralPipe,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TooltipDirective
   ],
   templateUrl: './map-review.component.html'
 })
