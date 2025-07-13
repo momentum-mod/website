@@ -15,10 +15,10 @@
                a component for displaying it. Not at all hard, low priority so leaving for now. -->
     <!-- prettier-ignore -->
     <p class="text-sm italic text-gray-100">
-      Posted <span 
-      class="font-medium">{{ review.createdAt | date:"MMM dd, hh:mm a"}}</span>@if 
-    (review.editHistory?.length > 1) {, edited <span 
-      class="font-medium">{{ review.editHistory.at(-1).date | 
+      Posted <span
+      class="font-medium">{{ review.createdAt | date:"MMM dd, hh:mm a"}}</span>@if
+    (review.editHistory?.length > 1) {, edited <span
+      class="font-medium">{{ review.editHistory.at(-1).date |
       date:"MMM dd, hh:mm a" }}</span>}
     </p>
     @if (isReviewAuthor) {
@@ -175,7 +175,7 @@
         </button>
       </div>
       <div>
-        <button type="submit" class="btn btn-green btn-thin" [disabled]="commentInput.invalid">Post</button>
+        <button type="submit" class="btn btn-green btn-thin" [disabled]="loadingComments || commentInput.invalid">Post</button>
       </div>
     }
   </form>
