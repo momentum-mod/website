@@ -29,7 +29,7 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { switchMap, take, tap } from 'rxjs/operators';
+import { finalize, switchMap, take, tap } from 'rxjs/operators';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
@@ -272,7 +272,9 @@ export class MapReviewComponent {
   }
 
   editComment(commentID: number): void {
+    if (this.loadingComments) return;
     this.loadingComments = true;
+
     this.mapsService
       .updateMapReviewComment(
         commentID,
@@ -280,7 +282,7 @@ export class MapReviewComponent {
       )
       .pipe(
         take(1),
-        tap(() => (this.loadingComments = false))
+        finalize(() => (this.loadingComments = false))
       )
       .subscribe({
         next: (res) => {

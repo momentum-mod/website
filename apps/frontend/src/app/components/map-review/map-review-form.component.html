@@ -57,6 +57,6 @@
         </p>
       </div>
     </ng-template>
-    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="form.invalid || form.pristine">Post</button>
+    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="loading || form.invalid || form.pristine">Post</button>
   </div>
 </form>
