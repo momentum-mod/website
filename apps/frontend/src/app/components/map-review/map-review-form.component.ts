@@ -17,7 +17,7 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { take, tap } from 'rxjs/operators';
+import { finalize, take } from 'rxjs/operators';
 import { FileValidators, suggestionsValidator } from '../../validators';
 import { MapReviewSuggestionsFormComponent } from './map-review-suggestions-form.component';
 import { SuggestionType } from '@momentum/formats/zone';
@@ -112,11 +112,11 @@ export class MapReviewFormComponent {
   protected loading = false;
 
   submit() {
-    if (this.form.invalid || this.form.pristine) return;
+    if (this.loading || this.form.invalid || this.form.pristine) return;
     this.loading = true;
+
     const suggestions =
       this.suggestions.value?.length > 0 ? this.suggestions.value : undefined;
-
     // Ignore any empty suggestions
     if (suggestions) {
       suggestions.forEach(({ tier, gameplayRating, tags }, i) => {
@@ -144,7 +144,7 @@ export class MapReviewFormComponent {
     req
       .pipe(
         take(1),
-        tap(() => (this.loading = false))
+        finalize(() => (this.loading = false))
       )
       .subscribe({
         next: () => {
