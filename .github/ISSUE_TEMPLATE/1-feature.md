@@ -1,8 +1,8 @@
 ---
 name: 'New Feature'
-about: Suggest an idea for this project
+about: Suggest new functionality for the website
 title: ''
-labels: 'Type: Feature'
+type: 'Feature'
 ---
 
 **Is your feature request related to a problem? Please describe.** A clear and
