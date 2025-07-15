@@ -51,7 +51,7 @@ export class MapInfoDto implements MapInfo {
   @ApiProperty()
   @IsDate()
   @IsOptional()
-  readonly approvedDate: Date | null;
+  readonly approvedDate: DateString | null;
 
   @ApiProperty({ description: 'Array of apps, which the map uses assets from' })
   @IsEnum(SteamGame, { each: true })
