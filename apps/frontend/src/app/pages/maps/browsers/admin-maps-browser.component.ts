@@ -85,11 +85,7 @@ export class AdminMapsBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
-    setupPersistentForm(
-      this.filters,
-      this.constructor.name + '_FILTERS',
-      this.destroyRef
-    );
+    setupPersistentForm(this.filters, 'ADMIN_MAPS_FILTERS', this.destroyRef);
 
     merge(
       of(this.initialItems),

@@ -100,11 +100,7 @@ export class MapBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
-    setupPersistentForm(
-      this.filters,
-      this.constructor.name + '_FILTERS',
-      this.destroyRef
-    );
+    setupPersistentForm(this.filters, 'MAIN_MAPS_FILTERS', this.destroyRef);
     // Tier slider starts disabled.
     if (this.filters.value.gamemode) this.filters.controls.tiers.enable();
 
