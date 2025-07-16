@@ -586,6 +586,7 @@ describe('Session', () => {
           expect(res.body).toBeValidDto(CompletedRunDto);
           expect(res.body.isNewPersonalBest).toBe(true);
           expect(res.body.isNewWorldRecord).toBe(false);
+          expect(res.body.totalRuns).toBe(11);
         });
 
         it('should be inserted in leaderboards, shifting other ranks', async () => {
@@ -657,6 +658,7 @@ describe('Session', () => {
           expect(res.statusCode).toBe(200);
           expect(res.body).toBeValidDto(CompletedRunDto);
           expect(res.body.isNewPersonalBest).toBe(true);
+          expect(res.body.totalRuns).toBe(10);
 
           const ranksAfter = await prisma.leaderboardRun.findMany({
             where: {
@@ -724,6 +726,7 @@ describe('Session', () => {
           expect(res.body).toBeValidDto(CompletedRunDto);
           expect(res.body.isNewPersonalBest).toBe(false);
           expect(res.body.xp.rankXP).toBe(0);
+          expect(res.body.totalRuns).toBe(10);
 
           const ranksAfter = await prisma.leaderboardRun.findMany({
             where: {
