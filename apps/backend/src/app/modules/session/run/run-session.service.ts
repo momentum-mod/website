@@ -537,8 +537,6 @@ export class RunSessionService {
           createdAt: pastRun.createdAt
         }
       });
-
-      totalRuns++;
     }
 
     return {
