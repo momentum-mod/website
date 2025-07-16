@@ -94,7 +94,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
   ngOnInit() {
     setupPersistentForm(
       this.filters,
-      this.constructor.name + '_FILTERS',
+      'SUBMISSION_MAPS_FILTERS',
       this.destroyRef
     );
 

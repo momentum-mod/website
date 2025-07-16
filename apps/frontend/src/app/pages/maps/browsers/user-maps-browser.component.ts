@@ -105,11 +105,7 @@ export class UserMapsBrowserComponent implements OnInit {
       return;
     }
 
-    setupPersistentForm(
-      this.filters,
-      this.constructor.name + '_FILTERS',
-      this.destroyRef
-    );
+    setupPersistentForm(this.filters, 'USER_MAPS_FILTERS', this.destroyRef);
 
     this.localUserService.getSubmittedMapSummary().subscribe((res) => {
       this.summaryLoading = false;
