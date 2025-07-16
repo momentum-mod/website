@@ -243,7 +243,7 @@ export class RunSessionService {
       include: { leaderboard: true }
     });
 
-    const isPB = !(existingRun && existingRun.time <= submittedRun.time);
+    const isPB = !(existingRun && existingRun.time < submittedRun.time);
 
     const replayHash = FileStoreService.getHashForBuffer(replayBuffer);
     // We have two quite expensive, independent operations here, including a
