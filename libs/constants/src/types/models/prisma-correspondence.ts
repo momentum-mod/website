@@ -191,13 +191,15 @@ type TransformPrismaType<Obj extends object, Schema extends Partial<Record<keyof
           ? Schema[K]
           // Replace Dates with DateString - when serialized out it's a ISO8061
           // string.
-          : Obj[K] extends Date
-            ? DateString
-            // Hack to remove JsonValue, since we can't currently make our models
-            // extend JsonObject. https://github.com/momentum-mod/website/issues/855
-            : Obj[K] extends Prisma.JsonValue
-              ? any
-              : Obj[K];
+          : Obj[K] extends Date | null
+            ? DateString | null
+            : Obj[K] extends Date
+              ? DateString
+              // Hack to remove JsonValue, since we can't currently make our models
+              // extend JsonObject. https://github.com/momentum-mod/website/issues/855
+              : Obj[K] extends Prisma.JsonValue
+                ? any
+                : Obj[K];
 };
 
 //#endregion
