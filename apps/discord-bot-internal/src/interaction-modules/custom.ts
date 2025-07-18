@@ -546,7 +546,9 @@ export class CustomModule implements InteractionModule {
     }
 
     const buttonComponent = message.components
-      .flatMap((row) => row.components)
+      .flatMap((row) =>
+        row.type === ComponentType.ActionRow ? row.components : []
+      )
       .find((component) => component.type === ComponentType.Button);
     if (buttonComponent && buttonComponent.url && buttonComponent.label) {
       createdCommand.button_url = buttonComponent.url;
