@@ -57,11 +57,11 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { DiscordService } from 'apps/backend/src/app/modules/discord/discord.service';
+import { Routes } from 'discord.js';
 
 describe('Maps', () => {
   let app,
@@ -3401,12 +3401,13 @@ describe('Maps', () => {
         );
       });
 
-      describe('Discord webhooks', () => {
+      describe('Discord notifications', () => {
         let restGetMock: jest.SpyInstance,
           restPostMock: jest.SpyInstance,
+          restPostObservable: rxjs.Subject<void>,
           configMock: jest.SpyInstance;
 
-        beforeAll(() => {
+        beforeAll(async () => {
           const configService = app.get(ConfigService);
           const getOrThrow = configService.getOrThrow;
           configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
@@ -3417,9 +3418,9 @@ describe('Maps', () => {
                 case 'token':
                   return 'A definitely working Discord token.';
                 case 'guild':
-                  return 'absolutely real guild id.';
+                  return '123';
                 case 'portingChannel':
-                  return 'porting';
+                  return '321';
                 case 'statusChannels':
                   return parts[2];
               }
@@ -3428,6 +3429,11 @@ describe('Maps', () => {
           });
 
           const discordService: DiscordService = app.get(DiscordService);
+          jest.replaceProperty(discordService, 'enabled', true);
+          discordService.rest.setToken(
+            configService.getOrThrow('discord.token')
+          );
+
           // Making sure that rest client won't actually go to discord
           jest.replaceProperty(
             discordService.rest.options,
@@ -3462,11 +3468,45 @@ describe('Maps', () => {
             });
           });
 
+          restPostObservable = new rxjs.Subject();
           restPostMock.mockImplementation((url) => {
             if (url.startsWith('/')) url = url.slice(1);
             const parts = url.split('/');
-            return new Promise((res) => {});
+            return new Promise((res) => {
+              if (
+                parts.length === 3 &&
+                parts[0] === 'channels' &&
+                parts[2] === 'messages'
+              ) {
+                res({
+                  id: '54321',
+                  type: 0,
+                  channel_id: parts[1],
+                  content: 'Look, a rope!'
+                });
+              } else if (
+                parts.length === 5 &&
+                parts[0] === 'channels' &&
+                parts[2] === 'messages' &&
+                parts[4] === 'threads'
+              ) {
+                res({
+                  id: parts[3],
+                  name: 'Yarn',
+                  type: 11, // Thread channel
+                  guild_id: configService.getOrThrow('discord.guild'),
+                  flags: 0
+                });
+              } else {
+                res({});
+              }
+              restPostObservable.next();
+            });
           });
+
+          await discordService.guilds.fetch(
+            configService.getOrThrow('discord.guild')
+          );
         });
 
         afterAll(() => {
@@ -3474,6 +3514,9 @@ describe('Maps', () => {
         });
 
         afterEach(() => restPostMock.mockClear());
+
+        // should send discord notification when map gets added
+        // should send discord notification when map moves to content approval
 
         it('should execute discord webhook when map is in public testing', async () => {
           const map = await db.createMap({
@@ -3526,10 +3569,10 @@ describe('Maps', () => {
             token
           });
 
-          await rxjs.firstValueFrom(httpPostObs);
-          expect(httpPostMock).toHaveBeenCalledTimes(1);
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
+          await rxjs.firstValueFrom(restPostObservable);
+          expect(restPostMock).toHaveBeenCalledTimes(1);
+          const requestBody = restPostMock.mock.lastCall[1];
+          const embed = requestBody.body.embeds[0];
 
           expect(embed.title).toBe(map.name);
           expect(embed.description).toBe(
@@ -3577,10 +3620,10 @@ describe('Maps', () => {
             token: adminToken
           });
 
-          await rxjs.firstValueFrom(httpPostObs);
-          expect(httpPostMock).toHaveBeenCalledTimes(1);
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
+          await rxjs.firstValueFrom(restPostObservable.pipe(rxjs.take(1)));
+          expect(restPostMock).toHaveBeenCalledTimes(1);
+          const requestBody = restPostMock.mock.lastCall[1];
+          const embed = requestBody.body.embeds[0];
 
           expect(embed.title).toBe(map.name);
           expect(embed.description).toBe(`By **${user.alias}**`);
@@ -3644,18 +3687,19 @@ describe('Maps', () => {
             token
           });
 
-          await rxjs.firstValueFrom(httpPostObs.pipe(rxjs.take(2)));
-          expect(httpPostMock).toHaveBeenCalledTimes(2);
+          await rxjs.firstValueFrom(restPostObservable);
+          await rxjs.firstValueFrom(restPostObservable);
+          expect(restPostMock).toHaveBeenCalledTimes(2);
 
-          const requestUrls = httpPostMock.mock.calls.map((call) => call[0]);
+          const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
           expect(requestUrls.sort()).toEqual(
-            [GamemodeCategory.RJ, GamemodeCategory.CONC].map(
-              (gc) => 'http://localhost/webhook_' + gc
+            [GamemodeCategory.RJ, GamemodeCategory.CONC].map((gc) =>
+              Routes.channelMessages(gc.toString())
             )
           );
 
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
+          const requestBody = restPostMock.mock.lastCall[1];
+          const embed = requestBody.body.embeds[0];
 
           expect(embed.title).toBe(map.name);
           expect(embed.description).toBe(

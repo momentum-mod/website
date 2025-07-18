@@ -12,7 +12,7 @@ export class DiscordService extends Client {
     // https://github.com/nodejs/undici/issues/1531#issuecomment-1178869993
     this.rest.setAgent(new Agent({ connect: { timeout: 60000 } }));
 
-    const token = config.getOrThrow('discordToken');
+    const token = config.getOrThrow('discord.token');
     if (!token) return;
 
     this.token = token;

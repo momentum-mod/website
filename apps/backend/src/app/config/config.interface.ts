@@ -53,6 +53,7 @@ export interface ConfigInterface {
   discord: {
     token: string;
     guild: string;
+    contentApprovalChannel: string;
     portingChannel: string;
     statusChannels: Record<GamemodeCategory, string>;
   };

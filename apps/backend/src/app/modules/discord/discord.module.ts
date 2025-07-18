@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (config: ConfigService) => {
         const discord = new DiscordService(config);
         if (discord.enabled) {
-          await discord.guilds.fetch(config.getOrThrow('discordGuild'));
+          await discord.guilds.fetch(config.getOrThrow('discord.guild'));
         }
         return discord;
       },

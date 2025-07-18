@@ -76,8 +76,10 @@ export const ConfigFactory = (): ConfigInterface => {
       preSignedUrlExpTime: PRE_SIGNED_URL_EXPIRE_TIME
     },
     discord: {
-      token: process.env['DISCORD_TOKEN'] ?? '',
+      token: isTest ? '' : (process.env['DISCORD_TOKEN'] ?? ''),
       guild: process.env['DISCORD_GUILD'] ?? '',
+      contentApprovalChannel:
+        process.env['DISCORD_CONTENT_APPROVAL_CHANNEL'] ?? '',
       portingChannel: process.env['DISCORD_PORTING_CHANNEL'] ?? '',
       statusChannels: Object.fromEntries(
         Enum.values(GamemodeCategory).map((cat) => [

@@ -42,15 +42,25 @@ export class MapWebhooksService {
   ) {
     if (!this.discord.enabled) return;
 
-    const portingChannelID = this.config.getOrThrow('discordPortingChannel');
-    if (!portingChannelID) return;
+    // TODO: Remove all that (no?). For content approvals send to a different
+    // channel just with a notification for a map to be approved.
 
-    const portingChannel = await this.discord.channels.fetch(portingChannelID);
-    if (!portingChannel || !portingChannel.isSendable()) {
-      this.logger.error("Porting channel doesn't exist or is not sendable.");
+    const contentApprovalChannelID = this.config.getOrThrow(
+      'discord.contentApprovalChannel'
+    );
+    if (!contentApprovalChannelID) return;
+
+    const contentApprovalChannel = await this.discord.channels.fetch(
+      contentApprovalChannelID
+    );
+    if (!contentApprovalChannel || !contentApprovalChannel.isSendable()) {
+      this.logger.error(
+        "Content approval channel doesn't exist or is not sendable."
+      );
       return;
     }
 
+    // TODO: Move all that to seperate functions, one for approved map and one for in-submission ones
     const suggestions =
       (extendedMap.submission
         .suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
@@ -78,11 +88,16 @@ export class MapWebhooksService {
       mainTrackSuggestions
     );
 
-    const message = await portingChannel.send({
-      content: ':tools: A new map is available for content approval :tools:',
-      embeds: [mapEmbed]
-    });
-    await message.startThread({ name: extendedMap.name });
+    try {
+      await contentApprovalChannel.send({
+        content: ':tools: A new map is available for content approval :tools:',
+        embeds: [mapEmbed]
+      });
+      // TODO: Do this for the public testing instead
+      // await message.startThread({ name: extendedMap.name });
+    } catch (error) {
+      this.logger.error('Failed to send discord notification', error);
+    }
   }
 
   async sendPublicTestingNotification(
@@ -94,6 +109,9 @@ export class MapWebhooksService {
     }
   ) {
     if (!this.discord.enabled) return;
+
+    // TODO: Send a message with a thread about new map in porting channel
+    // then send a link to this thread in category channels
 
     const suggestions =
       (extendedMap.submission
@@ -107,16 +125,13 @@ export class MapWebhooksService {
       ({ trackType }) => trackType === TrackType.MAIN
     );
 
-    const mainTrackRankedGamemodes = new Set(
-      mainTrackSuggestions
-        .filter(({ type }) => type === LeaderboardType.RANKED)
-        .map(({ gamemode }) => gamemode)
-    );
-    const mainTrackUnrankedGamemodes = new Set(
-      mainTrackSuggestions
-        .filter(({ type }) => type === LeaderboardType.UNRANKED)
-        .map(({ gamemode }) => gamemode)
-    );
+    const mainTrackRankedGamemodes = mainTrackSuggestions
+      .filter(({ type }) => type === LeaderboardType.RANKED)
+      .map(({ gamemode }) => gamemode);
+
+    const mainTrackUnrankedGamemodes = mainTrackSuggestions
+      .filter(({ type }) => type === LeaderboardType.UNRANKED)
+      .map(({ gamemode }) => gamemode);
 
     const mapAuthors = [
       ...placeholders
@@ -160,16 +175,13 @@ export class MapWebhooksService {
         trackType === TrackType.MAIN && type !== LeaderboardType.HIDDEN
     );
 
-    const mainTrackRankedGamemodes = new Set(
-      mainTrackLeaderboards
-        .filter(({ type }) => type === LeaderboardType.RANKED)
-        .map(({ gamemode }) => gamemode)
-    );
-    const mainTrackUnrankedGamemodes = new Set(
-      mainTrackLeaderboards
-        .filter(({ type }) => type === LeaderboardType.UNRANKED)
-        .map(({ gamemode }) => gamemode)
-    );
+    const mainTrackRankedGamemodes = mainTrackLeaderboards
+      .filter(({ type }) => type === LeaderboardType.RANKED)
+      .map(({ gamemode }) => gamemode);
+
+    const mainTrackUnrankedGamemodes = mainTrackLeaderboards
+      .filter(({ type }) => type === LeaderboardType.UNRANKED)
+      .map(({ gamemode }) => gamemode);
 
     const mapAuthors = extendedMap.credits
       .filter(({ type }) => type === MapCreditType.AUTHOR)
@@ -226,14 +238,14 @@ export class MapWebhooksService {
   async broadcastToCategories(
     text: string,
     embed: APIEmbed,
-    gamemodes: Set<Gamemode>
+    gamemodes: Array<Gamemode>
   ): Promise<void> {
     await Promise.all(
       GamemodeCategories.entries()
-        .filter(([, modes]) => modes.some((gm) => gamemodes.has(gm)))
+        .filter(([, modes]) => modes.some((gm) => gamemodes.includes(gm)))
         .map(async ([category]) => {
           const channelID = this.config.getOrThrow(
-            `discordStatusChannels.${category}`
+            `discord.statusChannels.${category}`
           );
           if (channelID === '') return;
 
@@ -245,6 +257,8 @@ export class MapWebhooksService {
 
           return channel.send({ content: text, embeds: [embed] });
         })
-    ).catch((error) => this.logger.error('Failed to post to webhook', error));
+    ).catch((error) =>
+      this.logger.error('Failed to send discord notification', error)
+    );
   }
 }
