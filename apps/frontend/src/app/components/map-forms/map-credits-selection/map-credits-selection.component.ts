@@ -91,10 +91,11 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     }
   }
 
-  removeUser(type: MapCreditType, userID: number) {
-    const userIndex = this.value
-      .get(type)
-      .findIndex((credit) => credit.userID === userID);
+  removeUser(type: MapCreditType, userID: number, alias: string) {
+    const userIndex = this.value.get(type).findIndex(
+      // If multiple placeholders have the same alias, the first gets removed.
+      (credit) => credit.userID === userID && credit.alias === alias
+    );
     if (userIndex === -1) return;
     this.value[type].splice(userIndex, 1);
     this.onChange(this.value);
