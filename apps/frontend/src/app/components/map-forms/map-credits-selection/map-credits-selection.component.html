@@ -31,7 +31,7 @@
           <div class="flex flex-grow flex-col">
             <div class="flex">
               <span class="mr-3 flex-grow">{{ credit.alias }}</span>
-              <button type="button" (click)="removeUser(type.key, credit.userID)">
+              <button type="button" (click)="removeUser(type.key, credit.userID, credit.alias)">
                 <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
               </button>
             </div>
