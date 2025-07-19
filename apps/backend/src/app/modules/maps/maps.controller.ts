@@ -42,7 +42,6 @@ import {
   MAX_MAP_IMAGE_SIZE,
   MAX_MAP_IMAGES,
   MAX_REVIEW_IMAGES,
-  Role,
   KillswitchType
 } from '@momentum/constants';
 import { ConfigService } from '@nestjs/config';
@@ -79,7 +78,7 @@ import {
   VALIDATION_PIPE_CONFIG,
   CreateMapVersionDto
 } from '../../dto';
-import { BypassJwtAuth, LoggedInUser, Roles } from '../../decorators';
+import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 import { ParseInt32SafePipe, ParseFilesPipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
@@ -399,7 +398,6 @@ export class MapsController {
   }
 
   @Put('/:mapID/credits')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @UseGuards(KillswitchGuard)
   @Killswitch(KillswitchType.MAP_SUBMISSION)
   @HttpCode(HttpStatus.CREATED)
