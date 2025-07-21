@@ -1,21 +1,23 @@
 <div [mSpinner]="!map">
   <div class="flex gap-4">
     <div class="flex grow flex-wrap gap-x-8 gap-y-2">
-      @for (groupedLeaderboard of getLeaderboards(); track $index) {
-        <button
-          type="button"
-          class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
-          (click)="selectMode($index)"
-          [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
-        >
-          <img
-            class="aspect-square h-11"
-            [src]="'assets/images/gamemodes/' + GamemodeInfo.get(groupedLeaderboard.gamemode).icon + '.png'"
-          />
-          <p class="font-display text-5xl font-bold leading-none">
-            {{ groupedLeaderboard.gamemodeName }}
-          </p>
-        </button>
+      @for (groupedLeaderboard of leaderboards; track $index) {
+        @if (!groupedLeaderboard.allHidden || showHiddenLeaderboards) {
+          <button
+            type="button"
+            class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
+            (click)="selectMode($index)"
+            [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
+          >
+            <img
+              class="aspect-square h-11"
+              [src]="'assets/images/gamemodes/' + GamemodeInfo.get(groupedLeaderboard.gamemode).icon + '.png'"
+            />
+            <p class="font-display text-5xl font-bold leading-none">
+              {{ groupedLeaderboard.gamemodeName }}
+            </p>
+          </button>
+        }
       }
     </div>
     @if (map.status === MapStatus.APPROVED && hasHiddenLeaderboards()) {
