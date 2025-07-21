@@ -32,12 +32,12 @@ export class RunProcessor {
     // then we add a second for every minute in the replay so longer replays
     // have more time to submit, up to a max of 30s.
     // Allowed time diff between recording finish and backend validation reached
-    AllowedSubmitDelayBase: 10_000,
-    AllowedSubmitDelayIncrement: 1000,
-    AllowedSubmitDelayMax: 30_000,
+    AllowedSubmitDelayBase: 30_000,
+    AllowedSubmitDelayIncrement: 5000,
+    AllowedSubmitDelayMax: 120_000,
 
     // Allowed time diff between split time and backend timestamp created
-    AllowedTimestampDelay: 5000
+    AllowedTimestampDelay: 20000
   };
 
   static readonly Logger = new Logger('RunProcessor');
