@@ -8,6 +8,7 @@ import {
   MMap,
   TrackType
 } from '@momentum/constants';
+import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { RequireAllOrNone } from 'type-fest';
 
 export type GroupedMapLeaderboards = Array<GroupedMapLeaderboard>;
@@ -32,6 +33,20 @@ export type GroupedMapLeaderboard = {
   stages: number;
 }>;
 
+export type MapWithGroupedLeaderboard = MMap & {
+  groupedLeaderboards: GroupedMapLeaderboards;
+};
+
+export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
+  currentModeLeaderboards?: GroupedMapLeaderboard;
+};
+
+/**
+ * Creates a new collection of leaderboards
+ * by removing unnecessary fields and
+ * adding new ones for utility.
+ * Keeps the same element order from input.
+ */
 export function groupMapLeaderboards(
   leaderboards: Leaderboard[]
 ): GroupedMapLeaderboards {
@@ -74,35 +89,51 @@ export function groupMapLeaderboards(
       !group.bonuses?.some((bonus) => bonus.type !== LeaderboardType.HIDDEN);
   }
 
-  // Try to guess at what mode the map is primarily intended for:
-  // If no tier, it has no main track, only bonuses (impossible to have stages
-  // but no main track), so rank stuff with main track higher.
-  // Then try main ranked > main unranked > main hidden
-  // Then if all lbs hidden
-  // Then try > number bonuses
-  arr.sort((a: GroupedMapLeaderboard, b: GroupedMapLeaderboard) => {
-    if (a.tier !== b.tier) return a.tier === null ? 1 : -1;
-    if (a.type !== b.type) return a.type - b.type;
-    if (a.allHidden !== b.allHidden) return a.allHidden ? 1 : -1;
-    if (a.bonuses?.length !== b.bonuses?.length)
-      return (a.bonuses?.length ?? 0) - (b.bonuses?.length ?? 0);
-    return 0;
-  });
-
   return arr;
 }
 
-export type MapWithGroupedLeaderboard = MMap & {
-  groupedLeaderboards: GroupedMapLeaderboards;
-};
-
-export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
-  currentModeLeaderboards?: GroupedMapLeaderboard;
-};
-
+/**
+ * Returns the leaderboard corresponding to given gamemode,
+ * undefined if not found.
+ */
 export function getSpecificGroupedLeaderboard(
   leaderboards: GroupedMapLeaderboards,
   mode: Gamemode
-): GroupedMapLeaderboard {
+): GroupedMapLeaderboard | undefined {
   return leaderboards.find(({ gamemode }) => gamemode === mode);
+}
+
+/**
+ * Finds index for main gamemode in leaderboards collection.
+ * First looks at map name to test for gamemode prefix,
+ * then picks first ranked gamemode, then tries first unranked.
+ * If nothing found, returns 0.
+ */
+export function findMainGamemodeIndex(
+  leaderboards: GroupedMapLeaderboards,
+  mapName: string
+): number {
+  const [, prefix] = extractPrefixFromMapName(mapName);
+  for (const [, info] of GamemodeInfo) {
+    if (info.prefix === prefix) {
+      const lbIndex = leaderboards.findIndex(
+        ({ gamemodeName }) => gamemodeName === info.name
+      );
+
+      if (lbIndex !== -1) return lbIndex;
+      else break;
+    }
+  }
+
+  const rankedIndex = leaderboards.findIndex(
+    ({ type }) => type === LeaderboardType.RANKED
+  );
+  if (rankedIndex !== -1) return rankedIndex;
+
+  const unrankedIndex = leaderboards.findIndex(
+    ({ type }) => type === LeaderboardType.UNRANKED
+  );
+  if (unrankedIndex !== -1) return unrankedIndex;
+
+  return 0;
 }
