@@ -19,6 +19,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import {
   GroupedMapLeaderboard,
   GroupedMapLeaderboards,
+  findMainGamemodeIndex,
   groupMapLeaderboards
 } from '../../../../util';
 import { distinctUntilChanged, map } from 'rxjs/operators';
@@ -156,9 +157,14 @@ export class MapLeaderboardComponent implements OnChanges {
   ngOnChanges(): void {
     if (!this.map) return;
 
-    this.leaderboards = groupMapLeaderboards(this.map.leaderboards);
-    this.activeMode = this.leaderboards[0];
-    this.activeModeIndex = 0;
+    this.leaderboards = groupMapLeaderboards(this.map.leaderboards).sort(
+      (a, b) => a.gamemodeName.localeCompare(b.gamemodeName)
+    );
+    this.activeModeIndex = findMainGamemodeIndex(
+      this.leaderboards,
+      this.map.name
+    );
+    this.activeMode = this.leaderboards[this.activeModeIndex];
     this.activeType = LeaderboardFilterType.TOP10;
     this.activeTrack.type = TrackType.MAIN;
     this.activeTrack.num = 1;
@@ -184,12 +190,6 @@ export class MapLeaderboardComponent implements OnChanges {
     return this.leaderboardService
       .getRuns(this.map.id, query)
       .pipe(mapHttpError(410, { data: [], totalCount: 0, returnCount: 0 }));
-  }
-
-  getLeaderboards() {
-    return this.showHiddenLeaderboards
-      ? this.leaderboards
-      : this.leaderboards.filter(({ allHidden }) => !allHidden);
   }
 
   hasHiddenLeaderboards() {
