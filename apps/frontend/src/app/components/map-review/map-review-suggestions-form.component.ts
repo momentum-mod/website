@@ -17,7 +17,7 @@ import {
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { DropdownModule } from 'primeng/dropdown';
-import { groupMapLeaderboards } from '../../util';
+import { findMainGamemodeIndex, groupMapLeaderboards } from '../../util';
 import { Select } from 'primeng/select';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives/tooltip.directive';
@@ -82,9 +82,9 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
         label: i + 1
       })) ?? [];
 
-    // Use leaderboards as this has sorting stuff for trying to determine
-    // most important gamemode
-    this.defaultMode = groupMapLeaderboards(map.leaderboards)[0].gamemode;
+    const lbs = groupMapLeaderboards(map.leaderboards);
+    const mainIndex = findMainGamemodeIndex(lbs, this.map.name);
+    this.defaultMode = lbs[mainIndex].gamemode;
 
     // Reset
     this.writeValue(null);
