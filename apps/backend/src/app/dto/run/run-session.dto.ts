@@ -7,11 +7,12 @@
   UpdateRunSession
 } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsInt, IsPositive, Min } from 'class-validator';
+import { IsInt, IsPositive, Min, Max } from 'class-validator';
 import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
+import { MAX_TRACK_SEGMENTS } from '@momentum/formats/zone';
 
 export class RunSessionDto implements RunSession {
-  @IdProperty({ bigint: true })
+  @IdProperty()
   readonly id: number;
 
   @ApiProperty({
@@ -41,6 +42,7 @@ export class RunSessionDto implements RunSession {
   })
   @IsInt()
   @Min(1)
+  @Max(MAX_TRACK_SEGMENTS + 1)
   readonly trackNum: number;
 
   @ApiProperty({

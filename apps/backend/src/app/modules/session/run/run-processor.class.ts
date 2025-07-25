@@ -1,4 +1,4 @@
-﻿import { RunSessionTimestamp, User } from '@momentum/db';
+﻿import { User } from '@momentum/db';
 import { Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import {
@@ -13,6 +13,7 @@ import * as ReplayFile from '@momentum/formats/replay';
 import {
   CompletedRunSession,
   ProcessedRun,
+  RunSessionTimestamp,
   Splits
 } from './run-session.interface';
 import { findWithIndex } from '@momentum/util-fn';
