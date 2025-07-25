@@ -87,6 +87,7 @@ describe('Session', () => {
         }
       });
 
+      // TODO: This is gonna take some evil mocking!!
       it('should delete any sessions not matching the given mapID or gamemode', async () => {
         const otherMap = await db.createMapWithFullLeaderboards(
           {

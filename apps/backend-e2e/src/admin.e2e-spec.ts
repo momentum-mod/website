@@ -700,14 +700,6 @@ describe('Admin', () => {
             },
             mapNotifies: {
               create: { mmap: { connect: { id: map.id } }, notifyOn: 8 }
-            },
-            runSessions: {
-              create: {
-                mapID: map.id,
-                gamemode: Gamemode.AHOP,
-                trackNum: 2,
-                trackType: TrackType.MAIN
-              }
             }
           }
         });
@@ -763,7 +755,6 @@ describe('Admin', () => {
             followers: true,
             mapNotifies: true,
             notifications: true,
-            runSessions: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -793,7 +784,6 @@ describe('Admin', () => {
             followers: true,
             mapNotifies: true,
             notifications: true,
-            runSessions: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -822,7 +812,6 @@ describe('Admin', () => {
           followers: [],
           mapNotifies: userBeforeDeletion.mapNotifies,
           notifications: [],
-          runSessions: [],
           leaderboardRuns: userBeforeDeletion.leaderboardRuns,
           pastRuns: userBeforeDeletion.pastRuns,
           reportSubmitted: userBeforeDeletion.reportSubmitted,
