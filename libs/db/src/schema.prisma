@@ -32,7 +32,6 @@ model User {
   followers            Follow[]           @relation("follow_follower")
   mapNotifies          MapNotify[]
   notifications        Notification[]
-  runSessions          RunSession[]
   leaderboardRuns      LeaderboardRun[]
   pastRuns             PastRun[]
   reportSubmitted      Report[]           @relation("report_submitter")
@@ -189,7 +188,6 @@ model MMap {
   leaderboards    Leaderboard[]
   leaderboardRuns LeaderboardRun[]
   pastRuns        PastRun[]
-  runSessions     RunSession[]
   credits         MapCredit[]
   favorites       MapFavorite[]
   notifies        MapNotify[]
@@ -527,44 +525,6 @@ model PastRun {
   // queried *very* frequently and is user-specific so bad caching), indexing
   // over [userID, gamemode, createdAt(desc)] would make a lot of sense.
   @@index([userID])
-}
-
-/// This model doesn't have a unique constraint on
-/// (userID, mapID, gamemode, trackType, trackNum) due to the cost of an
-/// index on a table that we insert into so frequently.
-model RunSession {
-  id BigInt @id @default(autoincrement())
-
-  trackType Int @db.SmallInt
-  trackNum  Int @db.SmallInt
-  gamemode  Int @db.SmallInt
-
-  timestamps RunSessionTimestamp[]
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  createdAt DateTime @default(now())
-
-  @@index([userID])
-}
-
-model RunSessionTimestamp {
-  id BigInt @id @default(autoincrement())
-
-  majorNum Int   @db.SmallInt
-  minorNum Int   @db.SmallInt
-  time     Float @db.DoublePrecision
-
-  session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
-  sessionID BigInt
-
-  createdAt DateTime @default(now())
-
-  @@index([sessionID])
 }
 
 model AdminActivity {
