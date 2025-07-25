@@ -36,7 +36,7 @@ describe('RunProcessor', () => {
     timestamps: [],
     mapID: 1,
     userID: 1,
-    id: 1n,
+    id: 1,
     mmap: {
       id: 1,
       name: 'bhop_map',

@@ -83,7 +83,7 @@ export class SessionController {
   invalidateSession(
     @LoggedInUser('id') userID: number,
     @Param('sessionID', ParseIntSafePipe) sessionID: number
-  ): Promise<void> {
+  ): void {
     return this.runSessionService.invalidateSession(userID, sessionID);
   }
 
@@ -104,7 +104,7 @@ export class SessionController {
     @LoggedInUser('id') userID: number,
     @Param('sessionID', ParseIntSafePipe) sessionID: number,
     @Body() body: UpdateRunSessionDto
-  ): Promise<void> {
+  ): void {
     return this.runSessionService.updateSession(userID, sessionID, body);
   }
 

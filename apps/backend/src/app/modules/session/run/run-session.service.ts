@@ -34,9 +34,13 @@ import {
   ExtendedPrismaServiceTransaction
 } from '../../database/prisma.extension';
 import { MapsService } from '../../maps/maps.service';
-import { CompletedRunSession, ProcessedRun } from './run-session.interface';
+import {
+  CompletedRunSession,
+  ProcessedRun,
+  RunSession,
+  SessionID
+} from './run-session.interface';
 import { RunProcessor } from './run-processor.class';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class RunSessionService {
@@ -46,6 +50,9 @@ export class RunSessionService {
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService
   ) {}
+
+  private sessions = new Map<SessionID, RunSession>();
+  private sessionCounter = 1;
 
   //#region Create Session
 
@@ -60,68 +67,70 @@ export class RunSessionService {
       trackType: body.trackType
     };
 
-    // if (body.trackType !== TrackType.MAIN && body.segment !== 0)
-    //   throw new BadRequestException('Stage/bonus must be on segment 0');
-
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
       throw new BadRequestException('Leaderboard does not exist');
 
-    // Delete any sessions not on this map and gamemode.
-    // Delete rather than upsert so we cascade delete those sessions and their
-    // timestamps.
-    // This is all pretty slow, but we just have to put up with that until we
-    // move to in-memory sessions.
-    await this.db.runSession.deleteMany({
-      where: {
-        AND: {
-          userID,
-          OR: [
-            leaderboardData,
-            { mapID: { not: body.mapID } },
-            { gamemode: { not: body.gamemode } }
-          ]
-        }
+    // Delete any existing sessions for this user on the same track type - the
+    // only way you can have multiple sessions is doing main and stage tracks
+    // at the same time.
+    //
+    // This is potentially quite slow for large numbers of sessions; we could
+    // maintain a second map of userIDs pointing to array of session IDs as well
+    // but not worth the complexity right now, let's do something like that when
+    // moving to Redis in the future.
+    for (const [key, value] of this.sessions.entries()) {
+      if (
+        value.userID === userID &&
+        value.trackType === body.trackType &&
+        // Don't delete session for other trackNums, since the run session
+        // end for that trackNum is likely to arrive AFTER the start of the
+        // session for the next trackNum since contains replay data. Since this
+        // isn't limited by map, the number of inactive sessions a user could
+        // maliciously created by the map with the largest number of genuine
+        // leaderboards which is limited to MAX_TRACK_SEGMENTS, so can't be
+        // exploited in a significant way. Still, we probably want to add some
+        // pruning logic or something in the future to remove old sessions,
+        // can wait til we do Redis.
+        value.trackNum === body.trackNum
+      ) {
+        this.sessions.delete(key);
       }
-    });
+    }
 
-    return DtoFactory(
-      RunSessionDto,
-      await this.db.runSession.create({
-        data: {
-          userID,
-          ...leaderboardData,
-          timestamps: {
-            create: { majorNum: 1, minorNum: 1, time: 0 }
-          }
-        }
-      })
-    );
+    const id = this.sessionCounter++;
+    const createdAt = new Date();
+    const session: RunSession = {
+      id,
+      userID,
+      createdAt,
+      ...leaderboardData,
+      timestamps: [{ majorNum: 1, minorNum: 1, time: 0, createdAt }]
+    };
+
+    this.sessions.set(id, session);
+
+    return DtoFactory(RunSessionDto, session);
   }
 
   //#endregion
 
   //#region Update Session
 
-  async updateSession(
+  updateSession(
     userID: number,
     sessionID: number,
     { majorNum, minorNum, time }: UpdateRunSessionDto
-  ): Promise<void> {
-    // I'm deliberately avoiding exception handling or informative errors here.
-    // The game should never send runs in invalidate order so long as the zone
-    // file has been validated sufficiently - if db insert fails, it's a major
-    // error on our part and we should debug internally; otherwise it's someone
-    // with a dodgy client and we shouldn't send them useful error messages.
-    const session = await this.db.runSession.findUnique({
-      where: { id: sessionID }
-    });
+  ): void {
+    const session = this.sessions.get(sessionID);
 
     if (!session) throw new BadRequestException();
-
     if (session.userID !== userID) throw new BadRequestException();
 
-    await this.db.runSessionTimestamp.create({
-      data: { sessionID, majorNum, minorNum, time }
+    session.timestamps.push({
+      majorNum,
+      minorNum,
+      time,
+      createdAt: new Date()
     });
   }
 
@@ -129,21 +138,12 @@ export class RunSessionService {
 
   //#region Invalidate Session
 
-  async invalidateSession(userID: number, sessionID: number): Promise<void> {
-    try {
-      await this.db.runSession.delete({ where: { userID, id: sessionID } });
-    } catch (error) {
-      // Save a DB call to check user matches session - if we hit a P2025 (https://www.prisma.io/docs/orm/reference/error-reference#p2025)
-      // either (a) session doesn't exist, or (b) it doesn't belong to that user.
-      // 400 is okay in both cases there, we don't need to show anything different
-      // on the client
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      )
-        throw new BadRequestException();
-      else throw error;
-    }
+  invalidateSession(userID: number, sessionID: number): void {
+    const session = this.sessions.get(sessionID);
+
+    if (!session || session.userID !== userID) throw new BadRequestException();
+
+    this.sessions.delete(sessionID);
   }
 
   //#endregion
@@ -155,33 +155,30 @@ export class RunSessionService {
     sessionID: number,
     replay?: Buffer
   ): Promise<CompletedRunDto> {
-    const session = await this.db.runSession.findUnique({
-      where: { id: sessionID },
-      include: {
-        timestamps: { orderBy: { createdAt: 'asc' } },
-        user: true,
-        mmap: { include: { currentVersion: true } }
-      }
-    });
+    const session = this.sessions.get(sessionID) as CompletedRunSession;
+    session.timestamps.sort(
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+    );
 
-    if (!session) {
+    if (!session || session.userID !== userID) {
       throw new BadRequestException('Invalid session');
     }
 
     // Check user has read permissions for this map. Someone *could* actually
     // start/update a session on this map through weird API calls, but that'd be
     // completely pointless since we block actual submission here.
-    await this.mapsService.getMapAndCheckReadAccess({
+    const map = await this.mapsService.getMapAndCheckReadAccess({
       mapID: session.mapID,
-      userID
+      userID,
+      include: { currentVersion: true }
     });
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (session.userID !== userID)
-      throw new BadRequestException('Invalid session');
+    session.mmap = map;
+    session.user = user;
 
-    await this.db.runSession.delete({ where: { id: sessionID } });
+    this.sessions.delete(sessionID);
 
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
