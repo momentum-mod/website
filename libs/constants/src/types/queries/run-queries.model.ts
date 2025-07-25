@@ -3,7 +3,6 @@ import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
 import { PagedQuery } from './pagination.model';
 import { Order } from './order.model';
-import { RunSession } from '../../';
 
 export type RunsGetAllExpand = Array<'user' | 'map' | 'leaderboardRun'>;
 export enum RunsGetAllOrder {
@@ -33,10 +32,12 @@ export type RunsGetQuery = {
   expand?: RunsGetExpand;
 };
 
-export type CreateRunSession = Pick<
-  RunSession,
-  'mapID' | 'gamemode' | 'trackType' | 'trackNum'
->;
+export interface CreateRunSession {
+  mapID: number;
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+}
 
 export interface UpdateRunSession {
   majorNum: number;

@@ -1,4 +1,4 @@
-﻿import { RunSessionTimestamp, User } from '@prisma/client';
+﻿import { User } from '@prisma/client';
 import { Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import {
@@ -11,7 +11,11 @@ import {
   RunSplits
 } from '@momentum/constants';
 import * as ReplayFile from '@momentum/formats/replay';
-import { CompletedRunSession, ProcessedRun } from './run-session.interface';
+import {
+  CompletedRunSession,
+  ProcessedRun,
+  RunSessionTimestamp
+} from './run-session.interface';
 import { findWithIndex } from '@momentum/util-fn';
 
 /**
