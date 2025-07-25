@@ -154,18 +154,6 @@ import { PastRun } from './models';
 import { PastRun as PPastRun } from '@momentum/db';
 assertTypeCorrespondence<PastRun, PPastRun, { id: number }>();
 
-import { RunSession } from './models';
-import { RunSession as PRunSession } from '@momentum/db';
-assertTypeCorrespondence<RunSession, PRunSession, { id: number }>();
-
-import { RunSessionTimestamp } from './models';
-import { RunSessionTimestamp as PRunSessionTimestamp } from '@momentum/db';
-assertTypeCorrespondence<
-  RunSessionTimestamp,
-  PRunSessionTimestamp,
-  { id: number; sessionID: number }
->();
-
 //#endregion
 //#region Utils
 

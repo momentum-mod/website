@@ -450,14 +450,6 @@ describe('User', () => {
             },
             mapNotifies: {
               create: { mmap: { connect: { id: map.id } }, notifyOn: 8 }
-            },
-            runSessions: {
-              create: {
-                mapID: map.id,
-                trackNum: 1,
-                gamemode: Gamemode.AHOP,
-                trackType: 0
-              }
             }
           }
         });
@@ -519,7 +511,6 @@ describe('User', () => {
             followers: true,
             mapNotifies: true,
             notifications: true,
-            runSessions: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -549,7 +540,6 @@ describe('User', () => {
             followers: true,
             mapNotifies: true,
             notifications: true,
-            runSessions: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -580,7 +570,6 @@ describe('User', () => {
           followers: [],
           mapNotifies: userBeforeDeletion.mapNotifies,
           notifications: [],
-          runSessions: [],
           reportSubmitted: userBeforeDeletion.reportSubmitted,
           reportResolved: userBeforeDeletion.reportResolved
         });

@@ -283,8 +283,7 @@ export class UsersService {
       activities: { deleteMany: {} },
       follows: { deleteMany: {} },
       followers: { deleteMany: {} },
-      notifications: { deleteMany: {} },
-      runSessions: { deleteMany: {} }
+      notifications: { deleteMany: {} }
     };
 
     const [deletedUser] = await this.db.$transaction([
