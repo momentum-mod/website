@@ -111,13 +111,6 @@ export class MapsService {
     });
   }
 
-  // TODO: Remove this endpoint, we should never stream from S3 -> backend -> consumer.
-  downloadMapFile(id: number): Observable<Blob> {
-    return this.http.get(`maps/${id}/download`, {
-      responseType: 'blob'
-    });
-  }
-
   updateMapImages(
     mapID: number,
     update: UpdateMapImagesWithFiles
