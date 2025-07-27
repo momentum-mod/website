@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+// Jest isn't resolving TS paths here, yuck!
+import { PrismaClient } from '../../../../libs/db/src/generated/client';
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,

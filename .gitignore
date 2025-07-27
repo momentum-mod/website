@@ -5,6 +5,9 @@
 node_modules/
 
 # Prisma
+# TODO: This can be removed in future Rust binary is gone
+# https://www.prisma.io/docs/orm/prisma-schema/overview/generators#3-exclude-the-generated-directory-from-version-control
+libs/db/src/generated/
 ERD.svg
 
 # Postgres, Grafana, MinIO, etc.

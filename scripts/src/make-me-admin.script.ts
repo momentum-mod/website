@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import { Role } from '@momentum/constants';
 import { prismaWrapper } from './prisma-wrapper.util';
 

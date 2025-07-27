@@ -19,7 +19,7 @@ import {
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';

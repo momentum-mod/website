@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../';
 
 export const nuke = async (prisma: PrismaClient) => {
   // Just to be extra safe...

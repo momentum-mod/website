@@ -1,4 +1,4 @@
-﻿import { RunSessionTimestamp, User } from '@prisma/client';
+﻿import { RunSessionTimestamp, User } from '@momentum/db';
 import { Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import {

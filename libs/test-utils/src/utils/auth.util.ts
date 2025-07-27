@@ -1,4 +1,4 @@
-﻿import { User } from '@prisma/client';
+﻿import { User } from '@momentum/db';
 import { JwtService } from '@nestjs/jwt';
 import { JWT_GAME_EXPIRY_TIME, JWT_WEB_EXPIRY_TIME } from '@momentum/constants';
 

@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@momentum/db';
 import { PRISMA_CLIENT_EXTENSIONS } from '@momentum/db';
 
 export const extendedNestJsPrismaClientFactory = (

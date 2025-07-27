@@ -9,7 +9,7 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import { MapStatus, Order, RunsGetAllOrder } from '@momentum/constants';
 import {
   setupE2ETestEnvironment,

@@ -4,7 +4,7 @@ import { ActivityDto } from '../../backend/src/app/dto';
 
 import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
 import { ActivityType, Role } from '@momentum/constants';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
   setupE2ETestEnvironment,

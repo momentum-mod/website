@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 import { ActivityType } from '@momentum/constants';
 import {
   ActivitiesGetQueryDto,

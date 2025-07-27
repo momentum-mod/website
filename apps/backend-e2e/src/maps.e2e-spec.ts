@@ -43,7 +43,7 @@ import {
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
-import { MapVersion, MMap, Prisma, PrismaClient, User } from '@prisma/client';
+import { MapVersion, MMap, Prisma, PrismaClient, User } from '@momentum/db';
 import Zip from 'adm-zip';
 import * as Enum from '@momentum/enum';
 import {

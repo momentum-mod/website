@@ -32,7 +32,7 @@ import {
   Socials,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment

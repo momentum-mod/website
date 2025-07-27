@@ -10,7 +10,7 @@
   Prisma,
   PrismaClient,
   User
-} from '@prisma/client';
+} from '@momentum/db';
 import { CamelCase, JsonValue, PartialDeep } from 'type-fest';
 import { v4 as uuid4 } from 'uuid';
 import { deepmerge } from '@fastify/deepmerge';

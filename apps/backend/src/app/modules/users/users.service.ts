@@ -8,7 +8,7 @@ import {
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Follow, Prisma, UserAuth } from '@prisma/client';
+import { Follow, Prisma, UserAuth } from '@momentum/db';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,

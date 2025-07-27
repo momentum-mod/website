@@ -7,7 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {

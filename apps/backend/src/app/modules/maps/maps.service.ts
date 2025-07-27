@@ -16,7 +16,7 @@ import {
   MapVersion,
   MMap,
   Prisma
-} from '@prisma/client';
+} from '@momentum/db';
 import {
   ActivityType,
   AdminActivityType,

@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import { faker } from '@faker-js/faker';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
@@ -41,7 +41,7 @@ import {
   MapTags
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
-import { nuke } from '@momentum/db';
+import { DbScripts } from '@momentum/db';
 import * as Random from '@momentum/random';
 import * as Zone from '@momentum/formats/zone';
 import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
@@ -206,7 +206,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   if (args.has('--reset')) {
     console.log('Resetting DB');
-    await nuke(prisma);
+    await DbScripts.nuke(prisma);
   }
 
   //#endregion
