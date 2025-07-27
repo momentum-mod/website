@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient } from '@prisma/client';
 import { deepmerge } from '@fastify/deepmerge';
+import { Prisma, PrismaClient } from './generated/client';
 
 const merge = deepmerge();
 export const PRISMA_CLIENT_EXTENSIONS = {

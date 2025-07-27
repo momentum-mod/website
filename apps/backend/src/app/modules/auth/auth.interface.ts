@@ -1,4 +1,4 @@
-﻿import { User } from '@prisma/client';
+﻿import { User } from '@momentum/db';
 import { JwtPayload } from 'jsonwebtoken';
 
 declare module 'fastify' {

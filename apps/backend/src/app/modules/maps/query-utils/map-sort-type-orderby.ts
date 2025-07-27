@@ -1,5 +1,5 @@
 import { MapSortType, Order } from '@momentum/constants';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 
 // Gets DB query orderBy obj with property and its order (asc / desc).
 export const MapSortTypeOrder: ReadonlyMap<

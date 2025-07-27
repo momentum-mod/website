@@ -4,7 +4,12 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
-import { Leaderboard, LeaderboardRun, Prisma, User } from '@prisma/client';
+import {
+  IntNullableFilter,
+  Leaderboard,
+  LeaderboardRun,
+  User
+} from '@momentum/db';
 import {
   ActivityType,
   runPath,
@@ -447,7 +452,7 @@ export class RunSessionService {
 
     // If we only improved our rank the range to update is [newRank,
     // oldRank), otherwise it's everything below
-    const rankRangeWhere: Prisma.IntNullableFilter = existingRun
+    const rankRangeWhere: IntNullableFilter = existingRun
       ? { gte: rank, lt: oldRank }
       : { gte: rank };
 

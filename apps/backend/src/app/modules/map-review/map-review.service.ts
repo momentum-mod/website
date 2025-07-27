@@ -15,7 +15,7 @@ import {
   MapReviewSuggestion,
   Role
 } from '@momentum/constants';
-import { MapReview, Prisma, User } from '@prisma/client';
+import { MapReview, Prisma, User } from '@momentum/db';
 import { File } from '@nest-lab/fastify-multer';
 import {
   expandToIncludes,

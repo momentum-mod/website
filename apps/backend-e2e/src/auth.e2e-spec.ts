@@ -11,7 +11,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import {
   DbUtil,
   ParsedResponse,

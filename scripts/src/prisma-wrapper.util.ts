@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 
 export const prismaWrapper = (fn: (prisma: PrismaClient) => Promise<void>) => {
   const prisma = new PrismaClient();

@@ -10,7 +10,7 @@ import {
   MapZones
 } from '@momentum/constants';
 import * as ReplayFile from '@momentum/formats/replay';
-import { User } from '@prisma/client';
+import { User } from '@momentum/db';
 import { ZonesStub } from '@momentum/formats/zone';
 import { ReplayHeader } from '@momentum/formats/replay';
 import { CompletedRunSession } from './run-session.interface';

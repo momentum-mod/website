@@ -7,7 +7,7 @@ import {
   MapSubmission,
   MMap,
   User
-} from '@prisma/client';
+} from '@momentum/db';
 import { HttpService } from '@nestjs/axios';
 import {
   MapSubmissionSuggestion,

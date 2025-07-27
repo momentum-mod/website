@@ -47,7 +47,11 @@ module.exports = [
           depConstraints: [
             {
               sourceTag: 'frontend',
-              bannedExternalImports: ['@nestjs/common', '@prisma/client']
+              bannedExternalImports: [
+                '@nestjs/common',
+                '@prisma/client',
+                '@momentum/db'
+              ]
             },
             {
               sourceTag: 'backend',

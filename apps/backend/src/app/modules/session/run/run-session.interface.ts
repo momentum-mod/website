@@ -1,4 +1,4 @@
-﻿import { Prisma, LeaderboardRun } from '@prisma/client';
+﻿import { Prisma, LeaderboardRun } from '@momentum/db';
 import { RunSplits, Style } from '@momentum/constants';
 
 export const RUN_SESSION_COMPLETED_INCLUDE = {

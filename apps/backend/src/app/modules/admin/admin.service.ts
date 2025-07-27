@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';

@@ -22,7 +22,7 @@ import {
   Role,
   steamAvatarUrl
 } from '@momentum/constants';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment

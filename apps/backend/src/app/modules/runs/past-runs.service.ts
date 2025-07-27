@@ -5,7 +5,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { MapStatus, RunsGetQuery } from '@momentum/constants';
-import { PastRun, Prisma } from '@prisma/client';
+import { PastRun, Prisma } from '@momentum/db';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { DtoFactory, PastRunDto, PastRunsGetAllQueryDto } from '../../dto';

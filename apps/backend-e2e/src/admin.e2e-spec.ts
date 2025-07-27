@@ -48,7 +48,7 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@momentum/db';
 import Zip from 'adm-zip';
 import {
   BabyZonesStubString,

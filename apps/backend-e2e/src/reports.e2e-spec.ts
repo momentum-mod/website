@@ -4,7 +4,7 @@ import { ReportDto } from '../../backend/src/app/dto';
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
 import { ReportCategory, ReportType } from '@momentum/constants';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment

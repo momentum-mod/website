@@ -12,7 +12,7 @@ import {
   UserDto
 } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import {
   AuthUtil,
   createSha1Hash,

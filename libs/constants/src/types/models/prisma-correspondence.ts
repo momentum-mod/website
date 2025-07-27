@@ -40,15 +40,15 @@ declare const assertTypeCorrespondence: <
 //#region User
 
 import { MapReviewSuggestion, User } from './models';
-import { User as PUser } from '@prisma/client';
+import { User as PUser } from '@momentum/db';
 assertTypeCorrespondence<User, PUser, { steamID: string; avatar: OmitMe }>();
 
 import { Profile } from './models';
-import { Profile as PProfile } from '@prisma/client';
+import { Profile as PProfile } from '@momentum/db';
 assertTypeCorrespondence<Profile, PProfile, { userID: OmitMe }>();
 
 import { UserStats } from './models';
-import { UserStats as PUserStats } from '@prisma/client';
+import { UserStats as PUserStats } from '@momentum/db';
 assertTypeCorrespondence<
   UserStats,
   PUserStats,
@@ -61,7 +61,7 @@ assertTypeCorrespondence<
 >();
 
 import { Activity } from './models';
-import { Activity as PActivity } from '@prisma/client';
+import { Activity as PActivity } from '@momentum/db';
 assertTypeCorrespondence<
   Activity,
   PActivity,
@@ -69,38 +69,38 @@ assertTypeCorrespondence<
 >();
 
 import { Notification } from './models';
-import { Notification as PNotification } from '@prisma/client';
+import { Notification as PNotification } from '@momentum/db';
 assertTypeCorrespondence<Notification, PNotification>();
 
 import { Follow } from './models';
-import { Follow as PFollow } from '@prisma/client';
+import { Follow as PFollow } from '@momentum/db';
 assertTypeCorrespondence<Follow, PFollow>();
 
 //#endregion
 //#region Maps
 
 import { MMap, MapImage } from './models';
-import { MMap as PMap } from '@prisma/client';
+import { MMap as PMap } from '@momentum/db';
 assertTypeCorrespondence<MMap, PMap, { images: MapImage[] }>();
 
 import { MapInfo } from './models';
-import { MapInfo as PMapInfo } from '@prisma/client';
+import { MapInfo as PMapInfo } from '@momentum/db';
 assertTypeCorrespondence<MapInfo, PMapInfo, { mapID: OmitMe }>();
 
 import { MapCredit } from './models';
-import { MapCredit as PMapCredit } from '@prisma/client';
+import { MapCredit as PMapCredit } from '@momentum/db';
 assertTypeCorrespondence<MapCredit, PMapCredit>();
 
 import { MapFavorite } from './models';
-import { MapFavorite as PMapFavorite } from '@prisma/client';
+import { MapFavorite as PMapFavorite } from '@momentum/db';
 assertTypeCorrespondence<MapFavorite, PMapFavorite>();
 
 import { MapNotify } from './models';
-import { MapNotify as PMapNotify } from '@prisma/client';
+import { MapNotify as PMapNotify } from '@momentum/db';
 assertTypeCorrespondence<MapNotify, PMapNotify>();
 
 import { MapReview } from './models';
-import { MapReview as PMapReview } from '@prisma/client';
+import { MapReview as PMapReview } from '@momentum/db';
 assertTypeCorrespondence<
   MapReview,
   PMapReview,
@@ -108,11 +108,11 @@ assertTypeCorrespondence<
 >();
 
 import { MapReviewComment } from './models';
-import { MapReviewComment as PMapReviewComment } from '@prisma/client';
+import { MapReviewComment as PMapReviewComment } from '@momentum/db';
 assertTypeCorrespondence<MapReviewComment, PMapReviewComment>();
 
 import { MapStats } from './models';
-import { MapStats as PMapStats } from '@prisma/client';
+import { MapStats as PMapStats } from '@momentum/db';
 assertTypeCorrespondence<
   MapStats,
   PMapStats,
@@ -120,7 +120,7 @@ assertTypeCorrespondence<
 >();
 
 import { MapSubmission } from './models';
-import { MapSubmission as PMapSubmission } from '@prisma/client';
+import { MapSubmission as PMapSubmission } from '@momentum/db';
 assertTypeCorrespondence<
   MapSubmission,
   PMapSubmission,
@@ -128,7 +128,7 @@ assertTypeCorrespondence<
 >();
 
 import { MapVersion } from './models';
-import { MapVersion as PMapVersion } from '@prisma/client';
+import { MapVersion as PMapVersion } from '@momentum/db';
 assertTypeCorrespondence<
   MapVersion,
   PMapVersion,
@@ -139,11 +139,11 @@ assertTypeCorrespondence<
 //#region Leaderboards and Runs
 
 import { Leaderboard } from './models';
-import { Leaderboard as PLeaderboard } from '@prisma/client';
+import { Leaderboard as PLeaderboard } from '@momentum/db';
 assertTypeCorrespondence<Leaderboard, PLeaderboard, { mapID: OmitMe }>();
 
 import { LeaderboardRun } from './models';
-import { LeaderboardRun as PLeaderboardRun } from '@prisma/client';
+import { LeaderboardRun as PLeaderboardRun } from '@momentum/db';
 assertTypeCorrespondence<
   LeaderboardRun,
   PLeaderboardRun,
@@ -151,15 +151,15 @@ assertTypeCorrespondence<
 >();
 
 import { PastRun } from './models';
-import { PastRun as PPastRun } from '@prisma/client';
+import { PastRun as PPastRun } from '@momentum/db';
 assertTypeCorrespondence<PastRun, PPastRun, { id: number }>();
 
 import { RunSession } from './models';
-import { RunSession as PRunSession } from '@prisma/client';
+import { RunSession as PRunSession } from '@momentum/db';
 assertTypeCorrespondence<RunSession, PRunSession, { id: number }>();
 
 import { RunSessionTimestamp } from './models';
-import { RunSessionTimestamp as PRunSessionTimestamp } from '@prisma/client';
+import { RunSessionTimestamp as PRunSessionTimestamp } from '@momentum/db';
 assertTypeCorrespondence<
   RunSessionTimestamp,
   PRunSessionTimestamp,
@@ -170,7 +170,7 @@ assertTypeCorrespondence<
 //#region Utils
 
 import { DateString } from '../../';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 type OmitMe = 'OmitMe' & never;
 type MakeOptional = 'MakeOptional' & never;
 

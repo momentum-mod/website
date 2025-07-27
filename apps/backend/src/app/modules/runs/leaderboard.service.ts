@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { MapsService } from '../maps/maps.service';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
-import { Leaderboard } from '@prisma/client';
+import { Leaderboard } from '@momentum/db';
 import { DtoFactory } from '../../dto';
 
 @Injectable()

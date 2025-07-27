@@ -2,7 +2,7 @@
 
 import { MapReviewCommentDto, MapReviewDto } from '../../backend/src/app/dto';
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import {
   DbUtil,
   FileStoreUtil,

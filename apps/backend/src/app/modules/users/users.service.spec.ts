@@ -12,7 +12,7 @@ import {
   ForbiddenException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User } from '@momentum/db';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { createHash } from 'node:crypto';

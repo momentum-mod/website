@@ -20,7 +20,7 @@ import {
   RunValidationErrorType,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 import { ZonesStubString } from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
