@@ -1,9 +1,5 @@
 import { PrismaClient } from '@momentum/db';
-import {
-  ExtendedPrismaClient,
-  getExtendedPrismaClient,
-  DbScripts
-} from '@momentum/db';
+import { ExtendedPrismaClient, getExtendedPrismaClient } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
 import { arrayFrom } from '@momentum/util-fn';
 
@@ -15,9 +11,9 @@ describe('Prisma Client Extensions', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient();
-    await DbScripts.nuke(prisma);
-    ePrisma = getExtendedPrismaClient();
     db = new DbUtil(prisma);
+    await db.nuke();
+    ePrisma = getExtendedPrismaClient();
   });
 
   afterAll(() => Promise.all([prisma.$disconnect, ePrisma.$disconnect()]));

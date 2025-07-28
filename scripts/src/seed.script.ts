@@ -41,7 +41,6 @@ import {
   MapTags
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
-import { DbScripts } from '@momentum/db';
 import * as Random from '@momentum/random';
 import * as Zone from '@momentum/formats/zone';
 import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
@@ -50,6 +49,7 @@ import axios from 'axios';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import { prismaWrapper } from './prisma-wrapper.util';
+import { nuke } from './reset.script';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M
@@ -206,7 +206,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   if (args.has('--reset')) {
     console.log('Resetting DB');
-    await DbScripts.nuke(prisma);
+    await nuke(prisma);
   }
 
   //#endregion
