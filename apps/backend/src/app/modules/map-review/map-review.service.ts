@@ -11,7 +11,6 @@ import {
   AdminActivityType,
   CombinedRoles,
   mapReviewAssetPath,
-  MapReviewEdit,
   MapReviewSuggestion,
   Role
 } from '@momentum/constants';
@@ -41,6 +40,11 @@ import { FileStoreService } from '../filestore/file-store.service';
 import { SuggestionType, validateSuggestions } from '@momentum/formats/zone';
 import { MapsService } from '../maps/maps.service';
 import { AdminActivityService } from '../admin/admin-activity.service';
+import {
+  InputJsonObject,
+  JsonArray,
+  JsonObject
+} from '@prisma/client/runtime/library';
 
 @Injectable()
 export class MapReviewService {
@@ -221,7 +225,7 @@ export class MapReviewService {
       file
     ]);
 
-    const newData: Partial<Prisma.MapReviewCreateInput> = {
+    const newData: JsonObject = {
       mainText: body.mainText,
       // If it needs resolving, set `resolved` to `false`. Otherwise it'll
       // be null, and it doesn't need resolving.
@@ -229,12 +233,12 @@ export class MapReviewService {
     };
 
     if (body.suggestions) {
-      // Ignore that suggestions that had neither tier, gameplay rating nor tag
-      // - frontend may allow it but this is meaningless data.
+      // Ignore that suggestions that had neither tier, gameplay rating nor tag,
+      // since may allow it but this is meaningless data.
       newData.suggestions = body.suggestions.filter(
         ({ tier, gameplayRating, tags }) =>
           tier != null || gameplayRating != null || tags != null
-      ) as Array<Record<string, any>>; // Fuck you typescript
+      ) as unknown as JsonArray; // TODO: #855
     }
 
     const [dbResponse] = await parallel(
@@ -330,6 +334,8 @@ export class MapReviewService {
       throw new BadRequestException();
     }
 
+    const suggestions = body.suggestions as unknown as InputJsonObject; // TODO: #855
+
     return DtoFactory(
       MapReviewDto,
       await this.db.mapReview.update({
@@ -337,16 +343,16 @@ export class MapReviewService {
         include: { resolver: true },
         data: {
           mainText: body.mainText,
-          suggestions: body.suggestions,
+          suggestions,
           resolved: body.resolved,
           resolverID: body.resolved ? userID : null,
           editHistory: [
-            ...((review.editHistory ?? []) as unknown as MapReviewEdit[]), // TODO: #855
+            ...(review.editHistory as JsonArray),
             {
               // We only want to log actual changes, so anything here being
               // undefined is fine.
               mainText: body.mainText,
-              suggestions: body.suggestions,
+              suggestions,
               resolved: body.resolved,
               editorID: userID,
               date: new Date()
@@ -396,7 +402,7 @@ export class MapReviewService {
           resolved: data.resolved,
           resolverID: data.resolved ? userID : null,
           editHistory: [
-            ...((review.editHistory ?? []) as unknown as MapReviewEdit[]), // TODO: #855
+            ...(review.editHistory as JsonArray),
             {
               resolved: data.resolved,
               editorID: userID,
