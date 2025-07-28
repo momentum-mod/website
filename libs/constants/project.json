@@ -29,7 +29,8 @@
         "outputPath": "dist/libs/constants",
         "main": "libs/constants/src/index.ts",
         "tsConfig": "libs/constants/tsconfig.prisma-types.json",
-        "assets": ["libs/constants/*.md"]
+        "assets": ["libs/constants/*.md"],
+        "rootDir": "../../../"
       }
     }
   }
