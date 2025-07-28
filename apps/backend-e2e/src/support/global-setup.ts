@@ -34,8 +34,6 @@ export default async function globalSetup() {
   process.env['NODE_ENV'] = 'test';
 }
 
-// Nx is having an issue resolving paths from this file, after trying to solve
-// for hours I'm just stuffing @momentum/db's nuke() in here. Sorry!
 async function nukeDB() {
   const prisma = new PrismaClient();
 
