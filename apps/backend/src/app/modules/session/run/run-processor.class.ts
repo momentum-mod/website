@@ -7,11 +7,14 @@ import {
   RunValidationErrorType as ErrorType,
   Segment,
   TickIntervals,
-  TrackType,
-  RunSplits
+  TrackType
 } from '@momentum/constants';
 import * as ReplayFile from '@momentum/formats/replay';
-import { CompletedRunSession, ProcessedRun } from './run-session.interface';
+import {
+  CompletedRunSession,
+  ProcessedRun,
+  Splits
+} from './run-session.interface';
 import { findWithIndex } from '@momentum/util-fn';
 
 /**
@@ -24,7 +27,7 @@ export class RunProcessor {
   readonly user: User;
   readonly zones: MapZones;
   readonly replayHeader: ReplayFile.ReplayHeader;
-  readonly splits: RunSplits.Splits;
+  readonly splits: Splits;
 
   // Could pull out to config file/env if needed
   static readonly Constants = {
@@ -53,7 +56,7 @@ export class RunProcessor {
     try {
       this.zones = JSON.parse(session.mmap.currentVersion.zones);
       this.replayHeader = ReplayFile.Reader.readHeader(this.buffer);
-      this.splits = ReplayFile.Reader.readRunSplits(this.buffer);
+      this.splits = ReplayFile.Reader.readRunSplits(this.buffer) as Splits;
     } catch (error) {
       this.reject(ErrorType.BAD_REPLAY_FILE, error);
     }
