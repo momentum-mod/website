@@ -28,9 +28,20 @@ import {
 } from './support/environment';
 import { arrayFrom } from '@momentum/util-fn';
 import * as ReplayFile from '@momentum/formats/replay';
+import { RunSessionService } from '../../backend/src/app/modules/session/run/run-session.service';
+import {
+  SessionID,
+  RunSession
+} from '../../backend/src/app/modules/session/run/run-session.interface';
 
 describe('Session', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, map;
+  let app,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    map,
+    runSessions: Map<SessionID, RunSession>,
+    getNewSessionID: () => number;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -46,6 +57,13 @@ describe('Session', () => {
       },
       [Gamemode.AHOP, Gamemode.BHOP]
     );
+
+    // Hack to access internal run session data since it's no longer in
+    // Postgres. In the future it'll be in Redis which we'll be able to access
+    // in similar way to we do Prisma/Postgres currently.
+    const runSessionService = app.get(RunSessionService);
+    runSessions = runSessionService['sessions'];
+    getNewSessionID = () => runSessionService['sessionCounter']++;
   });
 
   afterAll(async () => {
@@ -87,50 +105,51 @@ describe('Session', () => {
         }
       });
 
-      // TODO: This is gonna take some evil mocking!!
-      it('should delete any sessions not matching the given mapID or gamemode', async () => {
-        const otherMap = await db.createMapWithFullLeaderboards(
-          {
-            name: 'bhop_hello_panzer',
-            status: MapStatus.APPROVED
-          },
-          [Gamemode.AHOP, Gamemode.BHOP]
-        );
+      it('should delete any sessions on the same trackID', async () => {
+        runSessions.clear();
 
-        // Diff map, same gamemode - should die
-        await prisma.runSession.create({
-          data: {
-            userID: user.id,
-            mapID: otherMap.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }
+        // Test will start stage run on stage 2
+
+        // Main track - should live
+        const mainID = getNewSessionID();
+        runSessions.set(mainID, {
+          id: mainID,
+          userID: user.id,
+          mapID: map.id,
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          createdAt: new Date(),
+          timestamps: []
         });
 
-        // Same map, diff gamemode - should die
-        await prisma.runSession.create({
-          data: {
-            userID: user.id,
-            mapID: map.id,
-            gamemode: Gamemode.BHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }
+        // Stage track, different trackNum, should live
+        const stage1ID = getNewSessionID();
+        runSessions.set(stage1ID, {
+          id: stage1ID,
+          userID: user.id,
+          mapID: map.id,
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.STAGE,
+          trackNum: 1,
+          createdAt: new Date(),
+          timestamps: []
         });
 
-        // Same map, same gamemode, just different trackType - should live!
-        await prisma.runSession.create({
-          data: {
-            userID: user.id,
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }
+        // Stage track, same trackNum, should be deleted
+        const stage2ID = getNewSessionID();
+        runSessions.set(stage2ID, {
+          id: stage2ID,
+          userID: user.id,
+          mapID: map.id,
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.STAGE,
+          trackNum: 2,
+          createdAt: new Date(),
+          timestamps: []
         });
 
-        await req.post({
+        const res = await req.post({
           url: 'session/run',
           status: 200,
           token,
@@ -138,26 +157,33 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.STAGE,
-            trackNum: 1
+            trackNum: 2
           }
         });
 
-        const sessions = await prisma.runSession.findMany();
-        expect(sessions).toHaveLength(2);
+        const sessions = runSessions.values().toArray();
+        expect(sessions).toHaveLength(3);
         expect(sessions).toMatchObject([
           expect.objectContaining({
+            id: mainID,
             userID: user.id,
             mapID: map.id,
             trackType: TrackType.MAIN,
-            gamemode: Gamemode.AHOP,
             trackNum: 1
           }),
           expect.objectContaining({
+            id: stage1ID,
             userID: user.id,
             mapID: map.id,
             trackType: TrackType.STAGE,
-            gamemode: Gamemode.AHOP,
             trackNum: 1
+          }),
+          expect.objectContaining({
+            id: res.body.id,
+            userID: user.id,
+            mapID: map.id,
+            trackType: TrackType.STAGE,
+            trackNum: 2
           })
         ]);
       });
@@ -280,25 +306,35 @@ describe('Session', () => {
         [u1, u1Token] = await db.createAndLoginGameUser();
         u2Token = await db.loginNewGameUser();
 
-        s1 = await prisma.runSession.create({
-          data: {
+        runSessions.clear();
+
+        let id = getNewSessionID();
+        s1 = runSessions
+          .set(id, {
+            id,
             userID: u1.id,
+            mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            mapID: map.id
-          }
-        });
+            createdAt: new Date(),
+            timestamps: []
+          })
+          .get(id);
 
-        s2 = await prisma.runSession.create({
-          data: {
+        id = getNewSessionID();
+        s2 = runSessions
+          .set(id, {
+            id,
             userID: u1.id,
+            mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.STAGE,
             trackNum: 1,
-            mapID: map.id
-          }
-        });
+            createdAt: new Date(),
+            timestamps: []
+          })
+          .get(id);
       });
 
       afterEach(() => db.cleanup('user'));
@@ -310,7 +346,7 @@ describe('Session', () => {
           token: u1Token
         });
 
-        expect(await prisma.runSession.findMany()).toMatchObject([s2]);
+        expect(runSessions.values().toArray()).toMatchObject([s2]);
       });
 
       it("should 400 if session doesn't exist", async () => {
@@ -369,18 +405,22 @@ describe('Session', () => {
 
   describe('session/run/:sessionID', () => {
     describe('POST', () => {
-      let user, token, session;
+      let user, token, sessionID: number;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginGameUser();
-        session = await prisma.runSession.create({
-          data: {
-            userID: user.id,
-            mapID: map.id,
-            trackType: TrackType.MAIN,
-            gamemode: Gamemode.AHOP,
-            trackNum: 1
-          }
+
+        runSessions.clear();
+        sessionID = getNewSessionID();
+        runSessions.set(sessionID, {
+          id: sessionID,
+          userID: user.id,
+          mapID: map.id,
+          trackType: TrackType.MAIN,
+          gamemode: Gamemode.AHOP,
+          trackNum: 1,
+          createdAt: new Date(),
+          timestamps: []
         });
       });
 
@@ -388,20 +428,18 @@ describe('Session', () => {
 
       it('should update an existing run with the zone and tick', async () => {
         await req.post({
-          url: `session/run/${session.id}`,
+          url: `session/run/${sessionID}`,
           status: 204,
           body: { majorNum: 1, minorNum: 2, time: 510 },
           token
         });
 
-        const timestamps = await prisma.runSessionTimestamp.findMany({
-          orderBy: { createdAt: 'asc' }
-        });
+        expect(runSessions.size).toBe(1);
+        const timestamps = runSessions.get(sessionID).timestamps;
         expect(timestamps[0]).toMatchObject({
           majorNum: 1,
           minorNum: 2,
-          time: 510,
-          sessionID: session.id
+          time: 510
         });
       });
 
@@ -409,7 +447,7 @@ describe('Session', () => {
         const u2Token = await db.loginNewGameUser();
 
         await req.post({
-          url: `session/run/${session.id}`,
+          url: `session/run/${sessionID}`,
           status: 400,
           body: { majorNum: 1, minorNum: 2, time: 510 },
           token: u2Token
@@ -428,7 +466,7 @@ describe('Session', () => {
         const nonGameToken = await db.loginNewUser();
 
         await req.post({
-          url: `session/run/${session.id}`,
+          url: `session/run/${sessionID}`,
           status: 403,
           body: { majorNum: 1, minorNum: 2, time: 510 },
           token: nonGameToken
@@ -454,16 +492,6 @@ describe('Session', () => {
         // Run submission affects so much with ranks and stuff that's it's
         // easiest to just clear and reset all this after each test.
         [user, token] = await db.createAndLoginGameUser();
-
-        await prisma.runSession.create({
-          data: {
-            userID: user.id,
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }
-        });
 
         defaultTesterProperties = (): RunTesterProps => ({
           token,
