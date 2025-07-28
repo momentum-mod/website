@@ -17,11 +17,18 @@ jobs:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
-      - name: node_modules Cache with Prisma Client
+      - name: node_modules Cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
+
+      # TODO: Can be removed once on non-Rust Prisma client!
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v4
         with:
@@ -51,7 +58,13 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
-        
+
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -92,6 +105,12 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -122,6 +141,12 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -150,6 +175,12 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
+
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v4
         with:
@@ -194,6 +225,12 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
+
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v4
         with:
