@@ -44,7 +44,7 @@ export const PRISMA_CLIENT_EXTENSIONS = {
       /**
        * Create a User, ensuring profile and userStats entries are created.
        */
-      async create({ args, query }) {
+      async create({ args, query }: { args: any; query: any }) {
         return query(
           merge(
             { data: { profile: { create: {} }, userStats: { create: {} } } },
