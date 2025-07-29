@@ -138,7 +138,7 @@ const randRange = ({ min, max }: { min: number; max: number }) =>
 
 const xpSystems = new XpSystems();
 const randomLevelAndXp = () => {
-  const level = Random.int(1, COS_XP_PARAMS.levels.maxLevels);
+  const level = Random.int(1, COS_XP_PARAMS.levels.maxLevels - 1);
   return {
     level,
     cosXP:
