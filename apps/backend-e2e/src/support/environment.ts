@@ -23,6 +23,7 @@ import { PrismaClient } from '@momentum/db';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -79,8 +80,15 @@ export async function setupE2ETestEnvironment(
 
   const server = app.getHttpServer();
   // Uncomment to output Prisma's raw queries
-  // const prisma = new PrismaClient({ log: [{ level: 'query', emit: 'stdout' }] });
-  const prisma = new PrismaClient();
+  // const prisma = new PrismaClient({
+  //   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+  //   log: [{ level: 'error', emit: 'stdout' }]
+  // });
+
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+  });
+
   const auth = new AuthUtil();
   return {
     app,
