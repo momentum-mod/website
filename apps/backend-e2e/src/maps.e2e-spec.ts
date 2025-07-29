@@ -3434,13 +3434,6 @@ describe('Maps', () => {
             configService.getOrThrow('discord.token')
           );
 
-          // Making sure that rest client won't actually go to discord
-          jest.replaceProperty(
-            discordService.rest.options,
-            'api',
-            'http://blackhole.invalid'
-          );
-
           restGetMock = jest.spyOn(discordService.rest, 'get');
           restPostMock = jest.spyOn(discordService.rest, 'post');
 
@@ -3518,7 +3511,7 @@ describe('Maps', () => {
         // should send discord notification when map gets added
         // should send discord notification when map moves to content approval
 
-        it('should execute discord webhook when map is in public testing', async () => {
+        it('should send discord notification when map is in public testing', async () => {
           const map = await db.createMap({
             ...createMapData,
             status: MapStatus.FINAL_APPROVAL,
@@ -3569,9 +3562,14 @@ describe('Maps', () => {
             token
           });
 
-          await rxjs.firstValueFrom(restPostObservable);
-          expect(restPostMock).toHaveBeenCalledTimes(1);
+          await rxjs.firstValueFrom(restPostObservable); // Porting channel message
+          await rxjs.firstValueFrom(restPostObservable); // Thread creation
+          await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
+          expect(restPostMock).toHaveBeenCalledTimes(3);
+
           const requestBody = restPostMock.mock.lastCall[1];
+          expect(requestBody.body.content).toContain('123/54321'); // guild id/message id, see config and post mocks
+
           const embed = requestBody.body.embeds[0];
 
           expect(embed.title).toBe(map.name);
@@ -3583,7 +3581,7 @@ describe('Maps', () => {
           );
         });
 
-        it('should execute discord webhook when map has been approved', async () => {
+        it('should send discord notification when map has been approved', async () => {
           const map = await db.createMap({
             ...createMapData,
             status: MapStatus.FINAL_APPROVAL,
@@ -3629,7 +3627,7 @@ describe('Maps', () => {
           expect(embed.description).toBe(`By **${user.alias}**`);
         });
 
-        it('should execute multiple webhooks for different gamemode categories', async () => {
+        it('should send multiple discord notifications for different gamemode categories', async () => {
           const map = await db.createMap({
             ...createMapData,
             status: MapStatus.FINAL_APPROVAL,
@@ -3679,12 +3677,35 @@ describe('Maps', () => {
           });
 
           void req.patch({
-            url: `maps/${map.id}`,
+            url: `admin/maps/${map.id}`,
             status: 204,
             body: {
-              status: MapStatus.PUBLIC_TESTING
+              status: MapStatus.APPROVED,
+              finalLeaderboards: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.RJ,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  type: LeaderboardType.UNRANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.UNRANKED
+                }
+              ]
             },
-            token
+            token: adminToken
           });
 
           await rxjs.firstValueFrom(restPostObservable);

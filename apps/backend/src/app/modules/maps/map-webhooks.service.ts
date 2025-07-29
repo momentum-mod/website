@@ -19,7 +19,8 @@ import {
   MapSubmissionPlaceholder,
   LeaderboardType,
   Gamemode,
-  steamAvatarUrl
+  steamAvatarUrl,
+  MapStatuses
 } from '@momentum/constants';
 import { APIEmbed } from 'discord.js';
 
@@ -32,7 +33,7 @@ export class MapWebhooksService {
 
   private readonly logger = new Logger('Discord Notifications');
 
-  async sendMapAddedNotificaiton(
+  async sendMapContentApprovalNotification(
     extendedMap: MMap & {
       info: MapInfo;
       submission: MapSubmission;
@@ -41,9 +42,6 @@ export class MapWebhooksService {
     }
   ) {
     if (!this.discord.enabled) return;
-
-    // TODO: Remove all that (no?). For content approvals send to a different
-    // channel just with a notification for a map to be approved.
 
     const contentApprovalChannelID = this.config.getOrThrow(
       'discord.contentApprovalChannel'
@@ -60,32 +58,12 @@ export class MapWebhooksService {
       return;
     }
 
-    // TODO: Move all that to seperate functions, one for approved map and one for in-submission ones
-    const suggestions =
-      (extendedMap.submission
-        .suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
-
-    const placeholders =
-      (extendedMap.submission
-        .placeholders as unknown as MapSubmissionPlaceholder[]) ?? []; // TODO: #855
-
-    const mainTrackSuggestions = suggestions.filter(
-      ({ trackType }) => trackType === TrackType.MAIN
-    );
-
-    const mapAuthors = [
-      ...placeholders
-        .filter(({ type }) => type === MapCreditType.AUTHOR)
-        .map(({ alias }) => alias),
-      ...extendedMap.credits
-        .filter(({ type }) => type === MapCreditType.AUTHOR)
-        .map(({ user }) => user.alias)
-    ].sort();
+    const info = this.getMapInfoForNotification(extendedMap);
 
     const mapEmbed = this.createMapEmbed(
       extendedMap,
-      mapAuthors,
-      mainTrackSuggestions
+      info.authors,
+      info.leaderboards
     );
 
     try {
@@ -93,8 +71,6 @@ export class MapWebhooksService {
         content: ':tools: A new map is available for content approval :tools:',
         embeds: [mapEmbed]
       });
-      // TODO: Do this for the public testing instead
-      // await message.startThread({ name: extendedMap.name });
     } catch (error) {
       this.logger.error('Failed to send discord notification', error);
     }
@@ -110,53 +86,38 @@ export class MapWebhooksService {
   ) {
     if (!this.discord.enabled) return;
 
-    // TODO: Send a message with a thread about new map in porting channel
-    // then send a link to this thread in category channels
+    const portingChannelID = this.config.getOrThrow('discord.portingChannel');
+    if (!portingChannelID) return;
 
-    const suggestions =
-      (extendedMap.submission
-        .suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
+    const portingChannel = await this.discord.channels.fetch(portingChannelID);
+    if (!portingChannel || !portingChannel.isSendable()) {
+      this.logger.error("Porting channel doesn't exist or is not sendable.");
+      return;
+    }
 
-    const placeholders =
-      (extendedMap.submission
-        .placeholders as unknown as MapSubmissionPlaceholder[]) ?? []; // TODO: #855
-
-    const mainTrackSuggestions = suggestions.filter(
-      ({ trackType }) => trackType === TrackType.MAIN
-    );
-
-    const mainTrackRankedGamemodes = mainTrackSuggestions
-      .filter(({ type }) => type === LeaderboardType.RANKED)
-      .map(({ gamemode }) => gamemode);
-
-    const mainTrackUnrankedGamemodes = mainTrackSuggestions
-      .filter(({ type }) => type === LeaderboardType.UNRANKED)
-      .map(({ gamemode }) => gamemode);
-
-    const mapAuthors = [
-      ...placeholders
-        .filter(({ type }) => type === MapCreditType.AUTHOR)
-        .map(({ alias }) => alias),
-      ...extendedMap.credits
-        .filter(({ type }) => type === MapCreditType.AUTHOR)
-        .map(({ user }) => user.alias)
-    ].sort();
+    const info = this.getMapInfoForNotification(extendedMap);
 
     const mapEmbed = this.createMapEmbed(
       extendedMap,
-      mapAuthors,
-      mainTrackSuggestions
+      info.authors,
+      info.leaderboards
     );
 
+    const message = await portingChannel.send({
+      content: ':warning: A new map is available for public testing! :warning:',
+      embeds: [mapEmbed]
+    });
+    const thread = await message.startThread({ name: extendedMap.name });
+
     await this.broadcastToCategories(
-      ':warning: A new map is available for public testing! :warning:',
+      `:warning: A new map is available for public testing! :warning: ${thread.url}`,
       mapEmbed,
-      mainTrackRankedGamemodes
+      info.rankedGamemodes
     );
     await this.broadcastToCategories(
-      ':warning: A new **UNRANKED** map is available for public testing! :warning:',
+      `:warning: A new **UNRANKED** map is available for public testing! :warning: ${thread.url}`,
       mapEmbed,
-      mainTrackUnrankedGamemodes
+      info.unrankedGamemodes
     );
   }
 
@@ -170,39 +131,23 @@ export class MapWebhooksService {
   ) {
     if (!this.discord.enabled) return;
 
-    const mainTrackLeaderboards = extendedMap.leaderboards.filter(
-      ({ trackType, type }) =>
-        trackType === TrackType.MAIN && type !== LeaderboardType.HIDDEN
-    );
-
-    const mainTrackRankedGamemodes = mainTrackLeaderboards
-      .filter(({ type }) => type === LeaderboardType.RANKED)
-      .map(({ gamemode }) => gamemode);
-
-    const mainTrackUnrankedGamemodes = mainTrackLeaderboards
-      .filter(({ type }) => type === LeaderboardType.UNRANKED)
-      .map(({ gamemode }) => gamemode);
-
-    const mapAuthors = extendedMap.credits
-      .filter(({ type }) => type === MapCreditType.AUTHOR)
-      .map(({ user }) => user.alias)
-      .sort();
+    const info = this.getMapInfoForNotification(extendedMap);
 
     const mapEmbed = this.createMapEmbed(
       extendedMap,
-      mapAuthors,
-      mainTrackLeaderboards
+      info.authors,
+      info.leaderboards
     );
 
     await this.broadcastToCategories(
       ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      mainTrackRankedGamemodes
+      info.rankedGamemodes
     );
     await this.broadcastToCategories(
       ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      mainTrackUnrankedGamemodes
+      info.unrankedGamemodes
     );
   }
 
@@ -235,7 +180,7 @@ export class MapWebhooksService {
     };
   }
 
-  async broadcastToCategories(
+  private async broadcastToCategories(
     text: string,
     embed: APIEmbed,
     gamemodes: Array<Gamemode>
@@ -260,5 +205,61 @@ export class MapWebhooksService {
     ).catch((error) =>
       this.logger.error('Failed to send discord notification', error)
     );
+  }
+
+  private getMapInfoForNotification(
+    extendedMap: MMap & {
+      info: MapInfo;
+      leaderboards?: Array<Leaderboard>;
+      submission?: MapSubmission;
+      submitter: User;
+      credits: Array<MapCredit & { user: User }>;
+    }
+  ): {
+    authors: Array<string>;
+    leaderboards: MapSubmissionSuggestion[] | Leaderboard[];
+    rankedGamemodes: Gamemode[];
+    unrankedGamemodes: Gamemode[];
+  } {
+    const authors = extendedMap.credits
+      .filter(({ type }) => type === MapCreditType.AUTHOR)
+      .map(({ user }) => user.alias);
+
+    let leaderboards: MapSubmissionSuggestion[] | Leaderboard[] =
+      extendedMap.leaderboards?.filter(
+        ({ trackType, type }) =>
+          trackType === TrackType.MAIN && type !== LeaderboardType.HIDDEN
+      );
+
+    if (MapStatuses.IN_SUBMISSION.includes(extendedMap.status)) {
+      const suggestions =
+        (extendedMap.submission
+          .suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
+
+      leaderboards = suggestions.filter(
+        ({ trackType }) => trackType === TrackType.MAIN
+      );
+
+      const placeholders =
+        (extendedMap.submission
+          .placeholders as unknown as MapSubmissionPlaceholder[]) ?? []; // TODO: #855
+
+      authors.push(
+        ...placeholders
+          .filter(({ type }) => type === MapCreditType.AUTHOR)
+          .map(({ alias }) => alias)
+      );
+    }
+
+    return {
+      authors: authors.sort(),
+      leaderboards,
+      rankedGamemodes: leaderboards
+        .filter(({ type }) => type === LeaderboardType.RANKED)
+        .map(({ gamemode }) => gamemode),
+      unrankedGamemodes: leaderboards
+        .filter(({ type }) => type === LeaderboardType.UNRANKED)
+        .map(({ gamemode }) => gamemode)
+    };
   }
 }

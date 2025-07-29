@@ -1198,7 +1198,12 @@ export class MapsService {
         statusChanged = statusHandler[1] !== statusHandler[2];
 
         // Ensure that discord notification will be sent after update
-        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+        if (
+          statusHandler[2] === MapStatus.PUBLIC_TESTING &&
+          !map.submission.dates.some(
+            (date) => date.status === MapStatus.PUBLIC_TESTING
+          )
+        ) {
           const extendedMap = await tx.mMap.findUnique({
             where: { id: map.id },
             include: {
@@ -1338,7 +1343,12 @@ export class MapsService {
         newStatus = statusHandler[2];
 
         // Ensure that discord notification will be sent after update
-        if (statusHandler[2] === MapStatus.PUBLIC_TESTING) {
+        if (
+          statusHandler[2] === MapStatus.PUBLIC_TESTING &&
+          !map.submission.dates.some(
+            (date) => date.status === MapStatus.PUBLIC_TESTING
+          )
+        ) {
           const extendedMap = await tx.mMap.findUnique({
             where: { id: map.id },
             include: {
@@ -2049,7 +2059,9 @@ export class MapsService {
         credits: { include: { user: true } }
       }
     });
-    await this.discordNotificationService.sendMapAddedNotificaiton(extendedMap);
+    await this.discordNotificationService.sendMapContentApprovalNotification(
+      extendedMap
+    );
   }
 
   /**
