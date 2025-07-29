@@ -21,6 +21,9 @@
         "main": "scripts/src/seed.script.ts",
         "tsConfig": "scripts/tsconfig.json",
         "bundle": true,
+        "esbuildOptions": {
+          "conditions": ["require"]
+        },
         "format": ["cjs"],
         "additionalEntryPoints": [
           "scripts/src/reset.script.ts",
