@@ -25,4 +25,4 @@ export async function nuke(prisma: PrismaClient) {
   }
 }
 
-prismaWrapper(nuke);
+if (require.main === module) prismaWrapper(nuke);
