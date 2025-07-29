@@ -52,7 +52,7 @@
     "@sentry/profiling-node": "9.19.0",
     "@types/sharp": "0.32.0",
     "adm-zip": "0.5.16",
-    "axios": "1.10.0",
+    "axios": "1.11.0",
     "chart.js": "4.4.7",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
