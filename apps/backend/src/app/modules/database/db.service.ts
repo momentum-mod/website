@@ -5,6 +5,7 @@ import {
   OnModuleInit
 } from '@nestjs/common';
 import { PrismaClient } from '@momentum/db';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
 export class DbService
@@ -12,6 +13,12 @@ export class DbService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger('Prisma Service');
+
+  constructor() {
+    super({
+      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+    });
+  }
 
   async onModuleInit() {
     try {

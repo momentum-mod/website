@@ -1,10 +1,14 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@momentum/db';
 
 export const prismaWrapper = (
   fn: (prisma: PrismaClient) => Promise<void>,
   options = {} /* Prisma.PrismaClientOptions, use { log: ['query'] } to print queries */
 ) => {
-  const prisma = new PrismaClient(options);
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    ...options
+  });
 
   const env = process.env.NODE_ENV;
   if (!(env === 'dev' || env === 'test')) {

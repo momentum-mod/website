@@ -1,4 +1,5 @@
 import { deepmerge } from '@fastify/deepmerge';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from './generated/client';
 
 const merge = deepmerge();
@@ -67,6 +68,9 @@ export type ExtendedTransactionClient = Omit<
 >;
 
 export const getExtendedPrismaClient = () => {
-  const prisma = new PrismaClient();
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] })
+  });
+
   return prismaExtensionFactory(prisma);
 };
