@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException
 } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import {
   IntNullableFilter,
   Leaderboard,
@@ -109,6 +110,10 @@ export class RunSessionService {
 
     this.sessions.set(id, session);
 
+    if (Sentry.isInitialized()) {
+      Sentry.setTag('session_id', id);
+    }
+
     return DtoFactory(RunSessionDto, session);
   }
 
@@ -125,6 +130,10 @@ export class RunSessionService {
 
     if (!session) throw new BadRequestException();
     if (session.userID !== userID) throw new BadRequestException();
+
+    if (Sentry.isInitialized()) {
+      Sentry.setTag('session_id', sessionID);
+    }
 
     session.timestamps.push({
       majorNum,
@@ -143,6 +152,10 @@ export class RunSessionService {
 
     if (!session || session.userID !== userID) throw new BadRequestException();
 
+    if (Sentry.isInitialized()) {
+      Sentry.setTag('session_id', sessionID);
+    }
+
     this.sessions.delete(sessionID);
   }
 
@@ -156,13 +169,22 @@ export class RunSessionService {
     replay?: Buffer
   ): Promise<CompletedRunDto> {
     const session = this.sessions.get(sessionID) as CompletedRunSession;
+
+    if (Sentry.isInitialized()) {
+      Sentry.setTag('session_id', sessionID);
+    }
+
+    if (!session || session.userID !== userID) {
+      if (Sentry.isInitialized()) {
+        Sentry.getCurrentScope().setLevel('log');
+        Sentry.captureException('Invalid session ID on run end');
+      }
+      throw new BadRequestException('Invalid session');
+    }
+
     session.timestamps.sort(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
     );
-
-    if (!session || session.userID !== userID) {
-      throw new BadRequestException('Invalid session');
-    }
 
     // Check user has read permissions for this map. Someone *could* actually
     // start/update a session on this map through weird API calls, but that'd be
