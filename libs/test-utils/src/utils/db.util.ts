@@ -215,8 +215,27 @@ export class DbUtil {
         // Spread will replace any default values above with given values
         ...mmap
       } as any,
-      include: { versions: true }
+      include: { versions: true, submission: { include: { dates: true } } }
     });
+
+    // Add Dates if caller didn't already.
+    // Do it later to avoid needing to create new users.
+    if (createdMap.submission.dates.length === 0) {
+      await this.prisma.mapSubmission.update({
+        where: { mapID: createdMap.id },
+        data: {
+          dates: {
+            create: [
+              {
+                status: MapStatus.PUBLIC_TESTING,
+                date: new Date(Date.now() - 1000),
+                user: { connect: { id: createdMap.submitterID } }
+              }
+            ]
+          }
+        }
+      });
+    }
 
     const latestVersion = createdMap?.versions?.at(-1)?.id;
     return this.prisma.mMap.update({
@@ -232,7 +251,7 @@ export class DbUtil {
         versions: true,
         currentVersion: true,
         leaderboards: true,
-        submission: true
+        submission: { include: { dates: { include: { user: true } } } }
       }
     });
   }
