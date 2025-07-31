@@ -15,7 +15,8 @@ import {
   MapSubmission,
   MapVersion,
   MMap,
-  Prisma
+  Prisma,
+  User
 } from '@momentum/db';
 import {
   ActivityType,
@@ -350,7 +351,7 @@ export class MapsService {
       include = {
         versions: true,
         currentVersion: true,
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         info: true,
         leaderboards: true,
         submitter: true,
@@ -378,9 +379,13 @@ export class MapsService {
 
       if (query instanceof MapsGetAllSubmissionQueryDto) {
         if (include) {
-          include.submission = true;
+          include.submission = {
+            include: { dates: { include: { user: true } } }
+          };
         } else {
-          include = { submission: true };
+          include = {
+            submission: { include: { dates: { include: { user: true } } } }
+          };
         }
       }
 
@@ -428,6 +433,10 @@ export class MapsService {
           expand: 'inFavorites',
           model: 'favorites',
           value: { where: { userID: userID } }
+        },
+        {
+          expand: 'submission',
+          value: { include: { dates: { include: { user: true } } } }
         }
       ]
     });
@@ -659,7 +668,7 @@ export class MapsService {
       include: {
         currentVersion: true,
         versions: { omit: { zones: true } },
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
     });
@@ -845,7 +854,11 @@ export class MapsService {
       MapDto,
       await this.db.mMap.findUnique({
         where: { id: mapID },
-        include: { currentVersion: true, versions: true, submission: true }
+        include: {
+          currentVersion: true,
+          versions: true,
+          submission: { include: { dates: { include: { user: true } } } }
+        }
       })
     );
   }
@@ -930,7 +943,15 @@ export class MapsService {
             type: createMapDto.submissionType,
             placeholders: createMapDto.placeholders,
             suggestions: createMapDto.suggestions,
-            dates: [{ status, date: new Date().toJSON() }]
+            dates: {
+              create: [
+                {
+                  status,
+                  date: new Date(),
+                  user: { connect: { id: submitterID } }
+                }
+              ]
+            }
           }
         },
         stats: { create: {} },
@@ -978,7 +999,7 @@ export class MapsService {
         stats: true,
         currentVersion: true,
         versions: true,
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         submitter: true,
         credits: { include: { user: true } }
       }
@@ -1139,7 +1160,7 @@ export class MapsService {
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
       include: {
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         currentVersion: true,
         versions: true,
         info: true
@@ -1169,7 +1190,7 @@ export class MapsService {
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
-    const { roles } = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
     let statusChanged = false;
     await this.db.$transaction(async (tx) => {
@@ -1179,7 +1200,7 @@ export class MapsService {
         tx,
         map,
         dto,
-        roles,
+        user,
         true
       );
 
@@ -1199,7 +1220,7 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: true,
+              submission: { include: { dates: { include: { user: true } } } },
               submitter: true,
               credits: { include: { user: true } }
             }
@@ -1258,7 +1279,7 @@ export class MapsService {
       include: {
         currentVersion: true,
         versions: true,
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
     })) as unknown as MapWithSubmission; // TODO: #855;
@@ -1267,10 +1288,10 @@ export class MapsService {
       throw new NotFoundException('Map does not exist');
     }
 
-    const { roles } = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (!Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)) {
-      if (Bitflags.has(roles, Role.REVIEWER)) {
+    if (!Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
+      if (Bitflags.has(user.roles, Role.REVIEWER)) {
         // The *only* things reviewer is allowed is to go from
         // content approval -> public testing or rejected
         if (
@@ -1313,7 +1334,7 @@ export class MapsService {
         tx,
         map,
         dto,
-        roles,
+        user,
         false
       );
 
@@ -1337,7 +1358,7 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: true,
+              submission: { include: { dates: { include: { user: true } } } },
               submitter: true,
               credits: { include: { user: true } }
             }
@@ -1451,7 +1472,7 @@ export class MapsService {
     tx: ExtendedPrismaServiceTransaction,
     map: MapWithSubmission,
     dto: UpdateMapDto | UpdateMapAdminDto,
-    userRoles: number,
+    user: User,
     isSubmitter: boolean
   ): Promise<[Prisma.MMapUpdateInput, MapStatus, MapStatus] | undefined> {
     const oldStatus = map.status;
@@ -1469,7 +1490,7 @@ export class MapsService {
     const isChangeAllowed = allowedRoles.some((allowedRole) => {
       if (allowedRole === 'submitter') {
         if (isSubmitter) return true;
-      } else if (Bitflags.has(userRoles, allowedRole)) {
+      } else if (Bitflags.has(user.roles, allowedRole)) {
         return true;
       }
       return false;
@@ -1483,7 +1504,7 @@ export class MapsService {
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
-      await this.updateStatusFromPublicToFA(map, userRoles);
+      await this.updateStatusFromPublicToFA(map, user.roles);
     } else if (
       oldStatus === MapStatus.FINAL_APPROVAL &&
       newStatus === MapStatus.APPROVED
@@ -1504,10 +1525,13 @@ export class MapsService {
         status: newStatus,
         submission: {
           update: {
-            dates: [
-              ...map.submission.dates,
-              { status: newStatus, date: new Date().toJSON() }
-            ]
+            dates: {
+              create: {
+                status: newStatus,
+                date: new Date(),
+                user: { connect: { id: user.id } }
+              }
+            }
           }
         }
       },
