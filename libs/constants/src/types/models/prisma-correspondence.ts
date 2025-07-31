@@ -127,6 +127,10 @@ assertTypeCorrespondence<
   { mapID: OmitMe; currentVersionID: OmitMe }
 >();
 
+import { MapSubmissionDate } from './models';
+import { MapSubmissionDate as PMapSubmissionDate } from '@momentum/db';
+assertTypeCorrespondence<MapSubmissionDate, PMapSubmissionDate>();
+
 import { MapVersion } from './models';
 import { MapVersion as PMapVersion } from '@momentum/db';
 assertTypeCorrespondence<
