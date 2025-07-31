@@ -342,10 +342,15 @@ export interface MapSubmissionApproval {
   tags?: MapTag[];
 }
 
-export type MapSubmissionDate = {
+export interface MapSubmissionDate {
+  id: number;
   status: MapStatus;
   date: DateString;
-};
+  userID: number | null;
+  user?: User | null;
+  submissionMapID: number;
+  submission?: MapSubmission;
+}
 
 export interface MapSubmissionPlaceholder {
   alias: string;
