@@ -21,7 +21,6 @@ import {
   MapCreditType,
   mapReviewAssetPath,
   MapStatus,
-  MapSubmissionDate,
   MapSubmissionType,
   MAX_BIO_LENGTH,
   ReportCategory,
@@ -263,6 +262,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       imageBuffers = await Promise.all(
         arrayFrom(randRange(vars.imageFetches), () =>
           axios
+            // Sometimes picsum will fail and break script.
+            // Temp substitute; pictures are very low res, and wrong format.
+            // .get('https://placedog.net/480/360', {
             .get('https://picsum.photos/2560/1440', {
               responseType: 'arraybuffer'
             })
@@ -413,22 +415,23 @@ prismaWrapper(async (prisma: PrismaClient) => {
         );
 
       const submissionsDates = () => {
-        const dates: MapSubmissionDate[] = [];
+        const dates = [];
 
         let currStatus: MapStatus = Random.chance()
           ? MapStatus.PRIVATE_TESTING
           : MapStatus.CONTENT_APPROVAL;
-        let currDate = Random.pastDateSince(1e6).toDateString();
+        let currDate = Random.pastDateSince(1e6);
 
         while (currStatus !== null) {
           dates.push({
             status: currStatus,
-            date: currDate
+            date: currDate,
+            user: { connect: { id: Random.element(userIDs) } }
           });
 
           currDate = new Date(
             new Date(currDate).getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
-          ).toDateString();
+          );
           currStatus = Random.weighted(
             weights.submissionGraphWeights[currStatus]
           );
@@ -441,6 +444,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const zones = JSON.stringify(randomZones());
         return {
           versionNum: i + 1,
+          // Has to be submitterID; connect is not supported by createMany.
+          submitterID: Random.element(userIDs),
           bspHash: mapHash,
           bspDownloadId: randomUUID(),
           vmfDownloadId: null, // Could add a VMF if we really want but leaving for now
@@ -652,15 +657,15 @@ prismaWrapper(async (prisma: PrismaClient) => {
                   description: faker.lorem.words({ min: 1, max: 4 })
                 })
               ),
-              dates: submissionsDates(),
+              dates: { create: submissionsDates() },
               suggestions: submissionSuggestions()
             }
           },
           leaderboards: { createMany: { data: leaderboards } }
         },
         include: {
-          versions: true,
-          submission: true,
+          versions: { include: { submitter: true } },
+          submission: { include: { dates: { include: { user: true } } } },
           reviews: { include: { comments: true } }
         }
       });
