@@ -1,12 +1,14 @@
 generator client {
   provider = "prisma-client"
-  output = "./generated/"
+  output   = "./generated/"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// NOTE: ? after type in this file means field can be null (but still exists).
 
 model User {
   id Int @id @default(autoincrement())
@@ -24,21 +26,22 @@ model User {
   profile              Profile?
   userStats            UserStats?
   submittedMaps        MMap[]
+  submittedMapDates    MapSubmissionDate[]
   submittedMapVersions MapVersion[]
   mapCredits           MapCredit[]
   mapFavorites         MapFavorite[]
   activities           Activity[]
-  follows              Follow[]           @relation("follow_follow")
-  followers            Follow[]           @relation("follow_follower")
+  follows              Follow[]            @relation("follow_follow")
+  followers            Follow[]            @relation("follow_follower")
   mapNotifies          MapNotify[]
   notifications        Notification[]
   leaderboardRuns      LeaderboardRun[]
   pastRuns             PastRun[]
-  reportSubmitted      Report[]           @relation("report_submitter")
-  reportResolved       Report[]           @relation("report_resolver")
+  reportSubmitted      Report[]            @relation("report_submitter")
+  reportResolved       Report[]            @relation("report_resolver")
   testInvites          MapTestInvite[]
-  reviewsSubmitted     MapReview[]        @relation("mapreview_reviewer")
-  reviewsResolved      MapReview[]        @relation("mapreview_resolver")
+  reviewsSubmitted     MapReview[]         @relation("mapreview_reviewer")
+  reviewsResolved      MapReview[]         @relation("mapreview_resolver")
   reviewComments       MapReviewComment[]
   adminActivities      AdminActivity[]
 
@@ -306,9 +309,24 @@ model MapSubmission {
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
-  suggestions  Json  @default("[]") /// Array of MapSubmissionSuggestion model
-  placeholders Json? /// Array of MapSubmissionPlaceholder model
-  dates        Json  @default("[]") /// Array of MapSubmissionDate model
+  /// Array of MapSubmissionSuggestion model
+  suggestions  Json                @default("[]")
+  /// Array of MapSubmissionPlaceholder model
+  placeholders Json?
+  dates        MapSubmissionDate[]
+}
+
+model MapSubmissionDate {
+  id Int @id @default(autoincrement())
+
+  status Int      @db.SmallInt /// map-status.enum.ts
+  date   DateTime @default(now())
+
+  user   User? @relation(fields: [userID], references: [id], onDelete: SetNull)
+  userID Int?
+
+  submission      MapSubmission @relation(fields: [submissionMapID], references: [mapID], onDelete: Cascade)
+  submissionMapID Int
 }
 
 // This model will be greatly expanded in the future to include screenshots,
