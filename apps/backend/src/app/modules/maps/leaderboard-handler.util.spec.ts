@@ -8,13 +8,13 @@ describe('LeaderboardHandler', () => {
       const zones = structuredClone(ZonesStub);
 
       const main = {
-        gamemode: Gamemode.AHOP,
+        gamemode: Gamemode.BHOP,
         trackType: TrackType.MAIN,
         trackNum: 1
       };
 
       const bonus = {
-        gamemode: Gamemode.BHOP,
+        gamemode: Gamemode.AHOP,
         trackType: TrackType.BONUS,
         trackNum: 1
       };
@@ -34,7 +34,7 @@ describe('LeaderboardHandler', () => {
         ])
       );
 
-      // Surf is never compatible with Ahop
+      // Surf is never compatible with Bhop
       expect(leaderboards).not.toContainEqual({
         ...main,
         gamemode: Gamemode.SURF
