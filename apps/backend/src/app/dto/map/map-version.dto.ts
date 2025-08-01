@@ -5,6 +5,7 @@ import {
   DateString,
   MapVersion,
   MAX_CHANGELOG_LENGTH,
+  User,
   vmfsPath
 } from '@momentum/constants';
 import {
@@ -22,6 +23,7 @@ import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { Config } from '../../config';
 import { MapZonesDto } from './map-zones.dto';
 import { DtoFactory } from '../functions';
+import { UserDto } from '../user/user.dto';
 
 const CDN_URL = Config.url.cdn;
 
@@ -97,6 +99,9 @@ export class MapVersionDto implements MapVersion {
       ? `${CDN_URL}/${vmfsPath(this.vmfDownloadId)}`
       : undefined;
   }
+
+  @NestedProperty(UserDto, { lazy: true })
+  readonly submitter: User;
 
   @IdProperty()
   readonly submitterID: number;

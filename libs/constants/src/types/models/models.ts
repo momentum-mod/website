@@ -206,7 +206,8 @@ export interface MMap {
 export interface MapVersion {
   id: string;
   versionNum: number;
-  submitterID: number | null;
+  submitterID: number;
+  submitter?: User;
   changelog: string;
   zones: MapZones;
   bspHash: string;
