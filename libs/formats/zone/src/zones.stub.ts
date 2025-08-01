@@ -176,13 +176,17 @@ export const ZonesStubString = JSON.stringify(ZonesStub);
  */
 // prettier-ignore
 export const ZonesStubLeaderboards = [
-  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
+  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG,
+       GM.SURF, GM.BHOP, GM.AHOP, GM.BHOP_HL1, GM.CLIMB_MOM, GM.CLIMB_16,
+       GM.CLIMB_KZT ]
     .flatMap((gamemode) => [
       { gamemode, trackType: TrackType.MAIN,  trackNum: 1, linear: false },
       { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null  },
       { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null  }
   ]),
-  ...[ GM.RJ, GM.SJ, GM.AHOP, GM.BHOP, GM.BHOP_HL1, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG ]
+  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG,
+       GM.SURF, GM.BHOP, GM.AHOP, GM.BHOP_HL1, GM.CLIMB_MOM, GM.CLIMB_16,
+       GM.CLIMB_KZT ]
     .map((gamemode) => (
       { gamemode, trackType: TrackType.BONUS, trackNum: 1, linear: null }))
 ].sort();
