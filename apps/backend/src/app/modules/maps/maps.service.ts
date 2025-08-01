@@ -349,7 +349,7 @@ export class MapsService {
     let include: Prisma.MMapInclude;
     if (query instanceof MapsGetAllAdminQueryDto) {
       include = {
-        versions: true,
+        versions: { include: { submitter: true } },
         currentVersion: true,
         submission: { include: { dates: { include: { user: true } } } },
         info: true,
@@ -366,8 +366,15 @@ export class MapsService {
           // submission if they want all that stuff
           { expand: 'currentVersion', value: { omit: { zones: true } } },
           { expand: 'currentVersionWithZones', model: 'currentVersion' },
-          { expand: 'versions', value: { omit: { zones: true } } },
-          { expand: 'versionsWithZones', model: 'versions' },
+          {
+            expand: 'versions',
+            value: { omit: { zones: true }, include: { submitter: true } }
+          },
+          {
+            expand: 'versionsWithZones',
+            model: 'versions',
+            value: { include: { submitter: true } }
+          },
           { expand: 'credits', value: { include: { user: true } } },
           {
             expand: 'inFavorites',
@@ -425,8 +432,15 @@ export class MapsService {
       mappings: [
         { expand: 'currentVersion', value: { omit: { zones: true } } },
         { expand: 'currentVersionWithZones', model: 'currentVersion' },
-        { expand: 'versions', value: { omit: { zones: true } } },
-        { expand: 'versionsWithZones', model: 'versions' },
+        {
+          expand: 'versions',
+          value: { omit: { zones: true }, include: { submitter: true } }
+        },
+        {
+          expand: 'versionsWithZones',
+          value: { include: { submitter: true } },
+          model: 'versions'
+        },
         { expand: 'credits', value: { include: { user: true } } },
         { expand: 'testInvites', value: { include: { user: true } } },
         {
@@ -667,7 +681,7 @@ export class MapsService {
       where: { id: mapID },
       include: {
         currentVersion: true,
-        versions: { omit: { zones: true } },
+        versions: { omit: { zones: true }, include: { submitter: true } },
         submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
@@ -856,7 +870,7 @@ export class MapsService {
         where: { id: mapID },
         include: {
           currentVersion: true,
-          versions: true,
+          versions: { include: { submitter: true } },
           submission: { include: { dates: { include: { user: true } } } }
         }
       })
@@ -998,7 +1012,7 @@ export class MapsService {
         info: true,
         stats: true,
         currentVersion: true,
-        versions: true,
+        versions: { include: { submitter: true } },
         submission: { include: { dates: { include: { user: true } } } },
         submitter: true,
         credits: { include: { user: true } }
@@ -1162,7 +1176,7 @@ export class MapsService {
       include: {
         submission: { include: { dates: { include: { user: true } } } },
         currentVersion: true,
-        versions: true,
+        versions: { include: { submitter: true } },
         info: true
       }
     })) as unknown as MapWithSubmission; // TODO: #855;
@@ -1278,7 +1292,7 @@ export class MapsService {
       where: { id: mapID },
       include: {
         currentVersion: true,
-        versions: true,
+        versions: { include: { submitter: true } },
         submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
@@ -1630,7 +1644,10 @@ export class MapsService {
 
     const { currentVersion, versions } = await this.db.mMap.findFirst({
       where: { id: map.id },
-      include: { currentVersion: true, versions: { omit: { zones: true } } }
+      include: {
+        currentVersion: true,
+        versions: { omit: { zones: true }, include: { submitter: true } }
+      }
     });
 
     const zones = JSON.parse(currentVersion.zones);
@@ -1748,7 +1765,10 @@ export class MapsService {
   async delete(mapID: number, userID: number, isAdmin = false): Promise<void> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { versions: { omit: { zones: true } }, info: true }
+      include: {
+        versions: { omit: { zones: true }, include: { submitter: true } },
+        info: true
+      }
     });
     if (!map) throw new NotFoundException('Map not found');
 
@@ -1782,7 +1802,7 @@ export class MapsService {
             }
           }
         },
-        include: { versions: true }
+        include: { versions: { include: { submitter: true } } }
       });
 
       await this.db.mMap.update({
@@ -1829,7 +1849,7 @@ export class MapsService {
   private async deleteMapFiles(mapID: number) {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { versions: true }
+      include: { versions: { include: { submitter: true } } }
     });
 
     if (!map) throw new NotFoundException('Map not found');
