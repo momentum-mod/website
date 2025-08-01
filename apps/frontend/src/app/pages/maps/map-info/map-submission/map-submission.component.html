@@ -52,7 +52,10 @@
   <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
 
   @for (version of versions.slice(0, visibleVersions); track version.versionNum) {
-    <p class="mt-1 text-sm font-medium uppercase text-gray-200">Version {{ version.versionNum }}</p>
+    <div class="mt-1 flex w-fit gap-3" [mTooltip]="'Version submitted by ' + (version.submitter ? version.submitter.alias : 'N/A')">
+      <p class="text-sm font-medium uppercase">Version {{ version.versionNum }}</p>
+      <p class="text-sm font-medium text-gray-200">{{ version.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
+    </div>
     @if (version.changelog) {
       <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
     }
