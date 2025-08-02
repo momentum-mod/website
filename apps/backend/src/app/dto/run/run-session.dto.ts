@@ -15,12 +15,9 @@ export class RunSessionDto implements RunSession {
   @IdProperty()
   readonly id: number;
 
-  @ApiProperty({
-    description: 'ID of the map the run is on',
-    type: Number,
-    required: true
+  @IdProperty({
+    description: 'ID of the map the run is on'
   })
-  @IsInt()
   readonly mapID: number;
 
   @EnumProperty(Gamemode, {
@@ -45,12 +42,9 @@ export class RunSessionDto implements RunSession {
   @Max(MAX_TRACK_SEGMENTS + 1)
   readonly trackNum: number;
 
-  @ApiProperty({
-    description: 'The ID of the user submitting the run',
-    type: Number,
-    required: true
+  @IdProperty({
+    description: 'The ID of the user submitting the run'
   })
-  @IsPositive()
   readonly userID: number;
 
   @CreatedAtProperty()

@@ -15,7 +15,8 @@ import {
   MapSubmission,
   MapVersion,
   MMap,
-  Prisma
+  Prisma,
+  User
 } from '@momentum/db';
 import {
   ActivityType,
@@ -348,9 +349,9 @@ export class MapsService {
     let include: Prisma.MMapInclude;
     if (query instanceof MapsGetAllAdminQueryDto) {
       include = {
-        versions: true,
+        versions: { include: { submitter: true } },
         currentVersion: true,
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         info: true,
         leaderboards: true,
         submitter: true,
@@ -365,8 +366,15 @@ export class MapsService {
           // submission if they want all that stuff
           { expand: 'currentVersion', value: { omit: { zones: true } } },
           { expand: 'currentVersionWithZones', model: 'currentVersion' },
-          { expand: 'versions', value: { omit: { zones: true } } },
-          { expand: 'versionsWithZones', model: 'versions' },
+          {
+            expand: 'versions',
+            value: { omit: { zones: true }, include: { submitter: true } }
+          },
+          {
+            expand: 'versionsWithZones',
+            model: 'versions',
+            value: { include: { submitter: true } }
+          },
           { expand: 'credits', value: { include: { user: true } } },
           {
             expand: 'inFavorites',
@@ -378,9 +386,13 @@ export class MapsService {
 
       if (query instanceof MapsGetAllSubmissionQueryDto) {
         if (include) {
-          include.submission = true;
+          include.submission = {
+            include: { dates: { include: { user: true } } }
+          };
         } else {
-          include = { submission: true };
+          include = {
+            submission: { include: { dates: { include: { user: true } } } }
+          };
         }
       }
 
@@ -420,14 +432,25 @@ export class MapsService {
       mappings: [
         { expand: 'currentVersion', value: { omit: { zones: true } } },
         { expand: 'currentVersionWithZones', model: 'currentVersion' },
-        { expand: 'versions', value: { omit: { zones: true } } },
-        { expand: 'versionsWithZones', model: 'versions' },
+        {
+          expand: 'versions',
+          value: { omit: { zones: true }, include: { submitter: true } }
+        },
+        {
+          expand: 'versionsWithZones',
+          value: { include: { submitter: true } },
+          model: 'versions'
+        },
         { expand: 'credits', value: { include: { user: true } } },
         { expand: 'testInvites', value: { include: { user: true } } },
         {
           expand: 'inFavorites',
           model: 'favorites',
           value: { where: { userID: userID } }
+        },
+        {
+          expand: 'submission',
+          value: { include: { dates: { include: { user: true } } } }
         }
       ]
     });
@@ -658,8 +681,8 @@ export class MapsService {
       where: { id: mapID },
       include: {
         currentVersion: true,
-        versions: { omit: { zones: true } },
-        submission: true,
+        versions: { omit: { zones: true }, include: { submitter: true } },
+        submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
     });
@@ -845,7 +868,11 @@ export class MapsService {
       MapDto,
       await this.db.mMap.findUnique({
         where: { id: mapID },
-        include: { currentVersion: true, versions: true, submission: true }
+        include: {
+          currentVersion: true,
+          versions: { include: { submitter: true } },
+          submission: { include: { dates: { include: { user: true } } } }
+        }
       })
     );
   }
@@ -930,7 +957,15 @@ export class MapsService {
             type: createMapDto.submissionType,
             placeholders: createMapDto.placeholders,
             suggestions: createMapDto.suggestions,
-            dates: [{ status, date: new Date().toJSON() }]
+            dates: {
+              create: [
+                {
+                  status,
+                  date: new Date(),
+                  user: { connect: { id: submitterID } }
+                }
+              ]
+            }
           }
         },
         stats: { create: {} },
@@ -977,8 +1012,8 @@ export class MapsService {
         info: true,
         stats: true,
         currentVersion: true,
-        versions: true,
-        submission: true,
+        versions: { include: { submitter: true } },
+        submission: { include: { dates: { include: { user: true } } } },
         submitter: true,
         credits: { include: { user: true } }
       }
@@ -1139,9 +1174,9 @@ export class MapsService {
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
       include: {
-        submission: true,
+        submission: { include: { dates: { include: { user: true } } } },
         currentVersion: true,
-        versions: true,
+        versions: { include: { submitter: true } },
         info: true
       }
     })) as unknown as MapWithSubmission; // TODO: #855;
@@ -1169,7 +1204,7 @@ export class MapsService {
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 
-    const { roles } = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
     let statusChanged = false;
     await this.db.$transaction(async (tx) => {
@@ -1179,7 +1214,7 @@ export class MapsService {
         tx,
         map,
         dto,
-        roles,
+        user,
         true
       );
 
@@ -1199,7 +1234,7 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: true,
+              submission: { include: { dates: { include: { user: true } } } },
               submitter: true,
               credits: { include: { user: true } }
             }
@@ -1257,8 +1292,8 @@ export class MapsService {
       where: { id: mapID },
       include: {
         currentVersion: true,
-        versions: true,
-        submission: true,
+        versions: { include: { submitter: true } },
+        submission: { include: { dates: { include: { user: true } } } },
         info: true
       }
     })) as unknown as MapWithSubmission; // TODO: #855;
@@ -1267,10 +1302,10 @@ export class MapsService {
       throw new NotFoundException('Map does not exist');
     }
 
-    const { roles } = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (!Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)) {
-      if (Bitflags.has(roles, Role.REVIEWER)) {
+    if (!Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
+      if (Bitflags.has(user.roles, Role.REVIEWER)) {
         // The *only* things reviewer is allowed is to go from
         // content approval -> public testing or rejected
         if (
@@ -1313,7 +1348,7 @@ export class MapsService {
         tx,
         map,
         dto,
-        roles,
+        user,
         false
       );
 
@@ -1337,7 +1372,7 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: true,
+              submission: { include: { dates: { include: { user: true } } } },
               submitter: true,
               credits: { include: { user: true } }
             }
@@ -1451,7 +1486,7 @@ export class MapsService {
     tx: ExtendedPrismaServiceTransaction,
     map: MapWithSubmission,
     dto: UpdateMapDto | UpdateMapAdminDto,
-    userRoles: number,
+    user: User,
     isSubmitter: boolean
   ): Promise<[Prisma.MMapUpdateInput, MapStatus, MapStatus] | undefined> {
     const oldStatus = map.status;
@@ -1469,7 +1504,7 @@ export class MapsService {
     const isChangeAllowed = allowedRoles.some((allowedRole) => {
       if (allowedRole === 'submitter') {
         if (isSubmitter) return true;
-      } else if (Bitflags.has(userRoles, allowedRole)) {
+      } else if (Bitflags.has(user.roles, allowedRole)) {
         return true;
       }
       return false;
@@ -1483,7 +1518,7 @@ export class MapsService {
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
-      await this.updateStatusFromPublicToFA(map, userRoles);
+      await this.updateStatusFromPublicToFA(map, user.roles);
     } else if (
       oldStatus === MapStatus.FINAL_APPROVAL &&
       newStatus === MapStatus.APPROVED
@@ -1504,10 +1539,13 @@ export class MapsService {
         status: newStatus,
         submission: {
           update: {
-            dates: [
-              ...map.submission.dates,
-              { status: newStatus, date: new Date().toJSON() }
-            ]
+            dates: {
+              create: {
+                status: newStatus,
+                date: new Date(),
+                user: { connect: { id: user.id } }
+              }
+            }
           }
         }
       },
@@ -1606,7 +1644,10 @@ export class MapsService {
 
     const { currentVersion, versions } = await this.db.mMap.findFirst({
       where: { id: map.id },
-      include: { currentVersion: true, versions: { omit: { zones: true } } }
+      include: {
+        currentVersion: true,
+        versions: { omit: { zones: true }, include: { submitter: true } }
+      }
     });
 
     const zones = JSON.parse(currentVersion.zones);
@@ -1724,7 +1765,10 @@ export class MapsService {
   async delete(mapID: number, userID: number, isAdmin = false): Promise<void> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { versions: { omit: { zones: true } }, info: true }
+      include: {
+        versions: { omit: { zones: true }, include: { submitter: true } },
+        info: true
+      }
     });
     if (!map) throw new NotFoundException('Map not found');
 
@@ -1758,7 +1802,7 @@ export class MapsService {
             }
           }
         },
-        include: { versions: true }
+        include: { versions: { include: { submitter: true } } }
       });
 
       await this.db.mMap.update({
@@ -1805,7 +1849,7 @@ export class MapsService {
   private async deleteMapFiles(mapID: number) {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include: { versions: true }
+      include: { versions: { include: { submitter: true } } }
     });
 
     if (!map) throw new NotFoundException('Map not found');

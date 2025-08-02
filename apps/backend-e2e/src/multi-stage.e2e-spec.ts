@@ -8,7 +8,6 @@ import {
   LeaderboardType,
   MapCreditType,
   MapStatus,
-  MapSubmissionDate,
   MapSubmissionType,
   MIN_PUBLIC_TESTING_DURATION,
   Role,
@@ -218,12 +217,10 @@ describe('Multi-stage E2E tests', () => {
     // would be Jest's `setSystemTime`, but then MinIO will refuse S3 operations
     // because it's system time is ridiculously out of sync with ours.
     // So, boring way, just patch the date in DB.
-    const tmpMap = await prisma.mapSubmission.findUnique({ where: { mapID } });
-    const dates = tmpMap.dates as MapSubmissionDate[];
-    dates.find((x) => x.status === MapStatus.PUBLIC_TESTING).date = new Date(
-      Date.now() - MIN_PUBLIC_TESTING_DURATION
-    ).toISOString();
-    await prisma.mapSubmission.update({ where: { mapID }, data: { dates } });
+    await prisma.mapSubmissionDate.updateMany({
+      where: { submissionMapID: mapID, status: MapStatus.PUBLIC_TESTING },
+      data: { date: new Date(Date.now() - MIN_PUBLIC_TESTING_DURATION) }
+    });
 
     await req.patch({
       url: `maps/${mapID}`,

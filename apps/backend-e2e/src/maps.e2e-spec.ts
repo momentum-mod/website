@@ -361,6 +361,8 @@ describe('Maps', () => {
         req.expandTest({
           url: 'maps',
           expand: 'versions',
+          // Nested submitter should be included with versions.
+          expectedPropertyName: 'versions[0].submitter',
           paged: true,
           validate: MapDto,
           token: u1Token
@@ -915,7 +917,7 @@ describe('Maps', () => {
               leaderboards: true,
               currentVersion: true,
               versions: true,
-              submission: true
+              submission: { include: { dates: true } }
             }
           });
         });
@@ -960,7 +962,7 @@ describe('Maps', () => {
               dates: [
                 {
                   status: MapStatus.PRIVATE_TESTING,
-                  date: expect.any(String)
+                  date: expect.any(Date)
                 }
               ]
             },
@@ -1658,7 +1660,7 @@ describe('Maps', () => {
 
   describe('maps/{mapID}', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, map;
+      let u1: User, u1Token: string, u2: User, map;
 
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
@@ -1697,7 +1699,15 @@ describe('Maps', () => {
                   comment: 'I will kill again'
                 }
               ],
-              dates: [{ status: MapStatus.APPROVED, date: new Date().toJSON() }]
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.APPROVED,
+                    date: new Date(),
+                    user: { connect: { id: u1.id } }
+                  }
+                ]
+              }
             }
           },
           reviews: {
@@ -1773,6 +1783,16 @@ describe('Maps', () => {
           token: u1Token
         });
       });
+
+      it('should respond with expanded map data using the submission expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'submission',
+          // Nested dates and author should be included with submission.
+          expectedPropertyName: 'submission.dates[0].user',
+          token: u1Token
+        }));
 
       it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
@@ -1896,7 +1916,8 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'versions',
-          expectedPropertyName: 'versions[1]',
+          // Nested submitter should be included with versions.
+          expectedPropertyName: 'versions[1].submitter',
           token: u1Token
         }));
 
@@ -2010,12 +2031,15 @@ describe('Maps', () => {
                   type: LeaderboardType.RANKED
                 }
               ],
-              dates: [
-                {
-                  status: MapStatus.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ]
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date(),
+                    user: { connect: { id: u1.id } }
+                  }
+                ]
+              }
             }
           }
         };
@@ -2758,20 +2782,25 @@ describe('Maps', () => {
             submission: {
               update: {
                 type: MapSubmissionType.ORIGINAL,
-                dates: [
-                  {
-                    status: MapStatus.APPROVED,
-                    date: new Date(Date.now() - 3000)
-                  },
-                  {
-                    status: MapStatus.DISABLED,
-                    date: new Date(Date.now() - 2000)
-                  },
-                  {
-                    status: MapStatus.PRIVATE_TESTING,
-                    date: new Date(Date.now() - 1000)
-                  }
-                ]
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.APPROVED,
+                      date: new Date(Date.now() - 3000),
+                      user: { connect: { id: u1.id } }
+                    },
+                    {
+                      status: MapStatus.DISABLED,
+                      date: new Date(Date.now() - 2000),
+                      user: { connect: { id: u1.id } }
+                    },
+                    {
+                      status: MapStatus.PRIVATE_TESTING,
+                      date: new Date(Date.now() - 1000),
+                      user: { connect: { id: u1.id } }
+                    }
+                  ]
+                }
               }
             },
             info: {
@@ -2854,12 +2883,15 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
-              dates: [
-                {
-                  status: MapStatus.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date(),
+                    user: { connect: { id: user.id } }
+                  }
+                ]
+              },
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
@@ -3041,12 +3073,15 @@ describe('Maps', () => {
                       type: LeaderboardType.RANKED
                     }
                   ],
-                  dates: [
-                    {
-                      status: s1,
-                      date: new Date().toJSON()
-                    }
-                  ]
+                  dates: {
+                    create: [
+                      {
+                        status: s1,
+                        date: new Date(),
+                        user: { connect: { id: user.id } }
+                      }
+                    ]
+                  }
                 }
               },
               versions: {
@@ -3082,12 +3117,17 @@ describe('Maps', () => {
           status: MapStatus.PUBLIC_TESTING,
           submission: {
             create: {
-              dates: [
-                {
-                  status: MapStatus.PUBLIC_TESTING,
-                  date: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PUBLIC_TESTING,
+                    date: new Date(
+                      Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
+                    ),
+                    user: { connect: { id: user.id } }
+                  }
+                ]
+              },
               type: MapSubmissionType.PORT,
               suggestions: [
                 {
@@ -3136,12 +3176,15 @@ describe('Maps', () => {
           status: MapStatus.PUBLIC_TESTING,
           submission: {
             create: {
-              dates: [
-                {
-                  status: MapStatus.PUBLIC_TESTING,
-                  date: Date.now() - 1000
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PUBLIC_TESTING,
+                    date: new Date(Date.now() - 1000),
+                    user: { connect: { id: user.id } }
+                  }
+                ]
+              },
               type: MapSubmissionType.PORT,
               suggestions: [
                 {
@@ -3186,12 +3229,15 @@ describe('Maps', () => {
           submitter: { connect: { id: mod.id } },
           submission: {
             create: {
-              dates: [
-                {
-                  status: MapStatus.PUBLIC_TESTING,
-                  date: Date.now() - 1000
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PUBLIC_TESTING,
+                    date: new Date(Date.now() - 1000),
+                    user: { connect: { id: mod.id } }
+                  }
+                ]
+              },
               type: MapSubmissionType.PORT,
               suggestions: [
                 {
@@ -3451,12 +3497,15 @@ describe('Maps', () => {
             submission: {
               create: {
                 type: MapSubmissionType.ORIGINAL,
-                dates: [
-                  {
-                    status: MapStatus.PRIVATE_TESTING,
-                    date: new Date().toJSON()
-                  }
-                ],
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.PRIVATE_TESTING,
+                      date: new Date(),
+                      user: { connect: { id: user.id } }
+                    }
+                  ]
+                },
                 suggestions: [
                   {
                     trackType: TrackType.MAIN,
@@ -3562,12 +3611,15 @@ describe('Maps', () => {
             submission: {
               create: {
                 type: MapSubmissionType.ORIGINAL,
-                dates: [
-                  {
-                    status: MapStatus.PRIVATE_TESTING,
-                    date: new Date().toJSON()
-                  }
-                ],
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.PRIVATE_TESTING,
+                      date: new Date(),
+                      user: { connect: { id: user.id } }
+                    }
+                  ]
+                },
                 suggestions: [
                   {
                     trackType: TrackType.MAIN,
@@ -4004,12 +4056,15 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
-              dates: [
-                {
-                  status: MapStatus.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date(),
+                    user: { connect: { id: u1.id } }
+                  }
+                ]
+              },
               suggestions: [
                 {
                   track: 1,

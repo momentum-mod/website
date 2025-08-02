@@ -1058,12 +1058,15 @@ describe('Admin', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
-              dates: [
-                {
-                  status: MapStatus.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ],
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: new Date(),
+                    user: { connect: { id: u1.id } }
+                  }
+                ]
+              },
               suggestions: [
                 {
                   gamemode: Gamemode.RJ,
@@ -1389,16 +1392,20 @@ describe('Admin', () => {
             currentVersionID: map.versions[0].id,
             submission: {
               update: {
-                dates: [
-                  {
-                    status: MapStatus.APPROVED,
-                    date: new Date(Date.now() - 2000)
-                  },
-                  {
-                    status: MapStatus.DISABLED,
-                    date: new Date(Date.now() - 1000)
-                  }
-                ]
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.APPROVED,
+                      date: new Date(Date.now() - 2000),
+                      user: { connect: { id: admin.id } }
+                    },
+                    {
+                      status: MapStatus.DISABLED,
+                      date: new Date(Date.now() - 1000),
+                      user: { connect: { id: admin.id } }
+                    }
+                  ]
+                }
               }
             }
           }
