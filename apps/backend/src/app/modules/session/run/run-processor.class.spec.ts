@@ -22,6 +22,9 @@ describe('RunProcessor', () => {
 
   beforeAll(() => {
     jest.useFakeTimers();
+
+    // Suppress spammy run rejection logs
+    jest.spyOn(RunProcessor.Logger, 'log').mockImplementation(() => {});
   });
 
   beforeEach(() => {
