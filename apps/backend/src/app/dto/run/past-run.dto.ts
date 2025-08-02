@@ -6,7 +6,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsNumber, IsPositive, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsNumber, Min } from 'class-validator';
 import { Exclude, Expose, plainToInstance, Type } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
 import { UserDto } from '../user/user.dto';
@@ -63,8 +63,7 @@ export class PastRunDto implements PastRun {
   @IsBoolean()
   readonly isPB: boolean;
 
-  @ApiProperty()
-  @IsPositive()
+  @IdProperty()
   readonly userID: number;
 
   @NestedProperty(UserDto, { required: false, lazy: true })

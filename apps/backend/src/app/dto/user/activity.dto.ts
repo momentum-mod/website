@@ -1,6 +1,5 @@
 import { Activity, DateString } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
-import { IsPositive } from 'class-validator';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -17,7 +16,6 @@ export class ActivityDto implements Activity {
   @IdProperty({
     description: 'The ID of the user the activity is associated with'
   })
-  @IsPositive()
   readonly userID: number;
 
   @NestedProperty(UserDto, {

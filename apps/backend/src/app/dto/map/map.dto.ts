@@ -17,7 +17,6 @@ import {
   IsBoolean,
   IsInt,
   IsOptional,
-  IsPositive,
   IsUUID,
   MaxLength,
   MinLength
@@ -64,9 +63,7 @@ export class MapDto implements MMap {
   @EnumProperty(MapStatus)
   readonly status: MapStatus;
 
-  @ApiProperty()
-  @IsPositive()
-  @IsOptional()
+  @IdProperty({ required: false })
   readonly submitterID: number;
 
   @NestedProperty(MapInfoDto)
@@ -257,9 +254,10 @@ export class UpdateMapAdminDto
   @IsOptional()
   readonly status: MapStatus;
 
-  @ApiProperty({ description: 'UserID to update the submitter to' })
-  @IsPositive()
-  @IsOptional()
+  @IdProperty({
+    required: false,
+    description: 'UserID to update the submitter to'
+  })
   readonly submitterID: number;
 
   @NestedProperty(MapZonesDto, {

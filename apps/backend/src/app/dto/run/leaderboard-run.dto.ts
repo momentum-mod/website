@@ -13,7 +13,6 @@ import {
   IsInt,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUrl,
   Min
@@ -105,15 +104,13 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsInt()
   readonly rankXP: number;
 
-  @ApiProperty()
-  @IsPositive()
+  @IdProperty()
   readonly userID: number;
 
   @NestedProperty(UserDto, { required: false, lazy: true })
   readonly user: UserDto;
 
-  @IdProperty()
-  @IsOptional()
+  @IdProperty({ required: false })
   readonly mapID: number;
 
   @NestedProperty(MapDto, { required: false })
