@@ -10,7 +10,6 @@ import {
   ActivityType,
   Ban,
   MapStatuses,
-  Gamemode as GM,
   Gamemode,
   MapCreditType,
   MapStatus,
@@ -50,7 +49,8 @@ import {
   generateRandomMapZones,
   ZonesStub,
   ZonesStubLeaderboards,
-  ZonesStubString
+  ZonesStubString,
+  ZoneStubCompatGamemodes
 } from '@momentum/formats/zone';
 import { arrayFrom } from '@momentum/util-fn';
 import {
@@ -846,16 +846,16 @@ describe('Maps', () => {
             {
               trackType: TrackType.MAIN,
               trackNum: 1,
-              gamemode: Gamemode.RJ,
+              gamemode: Gamemode.SURF,
               tier: 1,
               type: LeaderboardType.RANKED,
               comment: 'I love you',
-              tags: [MapTag.Sync] // Assuming we'll never get rid of the "Sync" tag
+              tags: [MapTag.Unit]
             },
             {
               trackType: TrackType.BONUS,
               trackNum: 1,
-              gamemode: Gamemode.DEFRAG_CPM,
+              gamemode: Gamemode.AHOP,
               tier: 2,
               type: LeaderboardType.RANKED,
               comment: 'comment'
@@ -889,7 +889,6 @@ describe('Maps', () => {
 
           res = await req.postAttach({
             url: 'maps',
-            status: 201,
             data: createMapObject,
             files: [
               {
@@ -942,16 +941,16 @@ describe('Maps', () => {
                 {
                   trackType: TrackType.MAIN,
                   trackNum: 1,
-                  gamemode: Gamemode.RJ,
+                  gamemode: Gamemode.SURF,
                   tier: 1,
                   type: LeaderboardType.RANKED,
                   comment: 'I love you',
-                  tags: [MapTag.Sync]
+                  tags: [MapTag.Unit]
                 },
                 {
                   trackType: TrackType.BONUS,
                   trackNum: 1,
-                  gamemode: Gamemode.DEFRAG_CPM,
+                  gamemode: Gamemode.AHOP,
                   tier: 2,
                   type: LeaderboardType.RANKED,
                   comment: 'comment'
@@ -1987,7 +1986,7 @@ describe('Maps', () => {
 
       beforeEach(async () => {
         createInput = {
-          name: 'surf_map', // This is actually RJ now. deal with it lol
+          name: 'surf_map',
           submitter: { connect: { id: u1.id } },
           status: MapStatus.PRIVATE_TESTING,
           versions: {
@@ -2005,7 +2004,7 @@ describe('Maps', () => {
                 {
                   trackType: TrackType.MAIN,
                   trackNum: 1,
-                  gamemode: Gamemode.RJ,
+                  gamemode: Gamemode.SURF,
                   tier: 10,
                   type: LeaderboardType.RANKED
                 }
@@ -2207,14 +2206,12 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        // prettier-ignore
-        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG]
-          .flatMap((gamemode) => [
-            { gamemode, trackType: TrackType.MAIN,  trackNum: 1, linear: false },
-            { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null },
-            { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null },
-            { gamemode, trackType: TrackType.STAGE, trackNum: 3, linear: null }
-          ]);
+        const expected = ZoneStubCompatGamemodes.flatMap((gamemode) => [
+          { gamemode, trackType: TrackType.MAIN, trackNum: 1, linear: false },
+          { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null },
+          { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null },
+          { gamemode, trackType: TrackType.STAGE, trackNum: 3, linear: null }
+        ]);
 
         const leaderboards = await prisma.leaderboard.findMany({
           where: { mapID: map.id },
@@ -2886,7 +2883,8 @@ describe('Maps', () => {
               bspHash: createSha1Hash(Buffer.from('shashashs')),
               submitter: { connect: { id: user.id } }
             }
-          }
+          },
+          leaderboards: { createMany: { data: [] } }
         };
       });
 
