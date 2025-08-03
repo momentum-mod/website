@@ -6,9 +6,11 @@ export class ImageSelectionItem {
   private constructor() {}
 
   static async create(
-    input: File | string,
+    input: File | string | null,
     existingID?: string
   ): Promise<ImageSelectionItem | null> {
+    if (input === null) return null;
+
     const instance = new ImageSelectionItem();
     if (typeof input == 'string') {
       instance.dataUrl = input;
