@@ -10,7 +10,8 @@ import {
   MapZones,
   TrackType as TT,
   TrackType,
-  TrackTypeName as TTName
+  TrackTypeName as TTName,
+  DisabledGamemodes
 } from '@momentum/constants';
 import { arrayFrom } from '@momentum/util-fn';
 
@@ -58,6 +59,12 @@ export function validateSuggestions(
   let hasMainTrack = false;
   for (const sugg of suggestions) {
     const { trackType: tt, trackNum: tn, gamemode: gm, tier } = sugg;
+    if (DisabledGamemodes.has(gm)) {
+      throw new SuggestionValidationError(
+        `Disabled gamemode ${GamemodeInfo.get(gm)!.name} on ${leaderboardName(tt, tn)}`
+      );
+    }
+
     for (const sugg2 of suggestions) {
       const { trackType: tt2, trackNum: tn2, gamemode: gm2 } = sugg2;
       if (tt === tt2 && tn === tn2) {

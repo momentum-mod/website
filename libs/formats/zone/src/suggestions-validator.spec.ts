@@ -1,4 +1,5 @@
 import {
+  DisabledGamemodes,
   Gamemode,
   IncompatibleGamemodes,
   LeaderboardType,
@@ -25,6 +26,10 @@ describe('validateSuggestions', () => {
       else return new Set();
     }
   );
+
+  jest
+    .spyOn(DisabledGamemodes, 'has')
+    .mockImplementation((key) => key === Gamemode.CONC);
 
   const ahopTags = MapTags.get(Gamemode.AHOP);
   const validSubmissionSuggestions: MapSubmissionSuggestion[] = [
@@ -471,6 +476,60 @@ describe('validateSuggestions', () => {
         SuggestionType.REVIEW
       )
     ).not.toThrow();
+  });
+
+  it('should not allow suggestions for disabled gamemodes', () => {
+    expect(() =>
+      validateSuggestions(
+        [
+          ...validSubmissionSuggestions,
+          {
+            trackType: TT.MAIN,
+            trackNum: 1,
+            gamemode: Gamemode.CONC,
+            tier: 1,
+            comment: 'someComment',
+            type: LeaderboardType.RANKED
+          }
+        ],
+        zones,
+        SuggestionType.SUBMISSION
+      )
+    ).toThrow('Disabled gamemode Conc on main track');
+
+    expect(() =>
+      validateSuggestions(
+        [
+          ...validApprovals,
+          {
+            trackType: TT.MAIN,
+            trackNum: 1,
+            gamemode: Gamemode.CONC,
+            tier: 1,
+            type: LeaderboardType.RANKED
+          }
+        ],
+        zones,
+        SuggestionType.APPROVAL
+      )
+    ).toThrow('Disabled gamemode Conc on main track');
+
+    expect(() =>
+      validateSuggestions(
+        [
+          ...validSubmissionSuggestions,
+          {
+            trackType: TT.MAIN,
+            trackNum: 1,
+            gamemode: Gamemode.CONC,
+            tier: 1,
+            gameplayRating: 6
+          }
+        ],
+        zones,
+        SuggestionType.REVIEW
+      )
+    ).toThrow('Disabled gamemode Conc on main track');
   });
 
   it('should throw for bad tiers, types or gameplayRating', () => {

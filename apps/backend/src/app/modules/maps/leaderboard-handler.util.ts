@@ -3,6 +3,7 @@ import {
   GamemodeCategories,
   GamemodeCategory,
   IncompatibleGamemodes,
+  DisabledGamemodes,
   LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
@@ -51,6 +52,7 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
             (newGamemode) =>
               !IncompatibleGamemodes.get(gamemode).has(newGamemode)
           )
+          .filter((newGamemode) => !DisabledGamemodes.has(newGamemode))
           .map((newGamemode) => ({
             trackType,
             trackNum,

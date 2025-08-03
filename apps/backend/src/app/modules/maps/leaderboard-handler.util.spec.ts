@@ -1,4 +1,9 @@
-import { Gamemode, TrackType } from '@momentum/constants';
+import {
+  Gamemode,
+  IncompatibleGamemodes,
+  DisabledGamemodes,
+  TrackType
+} from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
 import * as LeaderboardHandler from './leaderboard-handler.util';
 
@@ -19,6 +24,16 @@ describe('LeaderboardHandler', () => {
         trackNum: 1
       };
 
+      const incompat = structuredClone(IncompatibleGamemodes);
+      jest.spyOn(IncompatibleGamemodes, 'get').mockImplementation((key) => {
+        if (key === Gamemode.SURF) return new Set([Gamemode.BHOP]);
+        return incompat.get(key);
+      });
+
+      jest.spyOn(DisabledGamemodes, 'has').mockImplementation((key) => {
+        return key === Gamemode.CONC;
+      });
+
       const leaderboards = LeaderboardHandler.getCompatibleLeaderboards(
         [main, bonus],
         zones
@@ -34,10 +49,16 @@ describe('LeaderboardHandler', () => {
         ])
       );
 
-      // Surf is never compatible with Bhop
+      // Incompatible gamemodes: Surf is never compatible with Bhop
       expect(leaderboards).not.toContainEqual({
         ...main,
         gamemode: Gamemode.SURF
+      });
+
+      // Disabled gamemodes: Fuck conc
+      expect(leaderboards).not.toContainEqual({
+        ...main,
+        gamemode: Gamemode.CONC
       });
     });
 
