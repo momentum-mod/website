@@ -302,17 +302,19 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     this.images.reset();
 
-    this.imageSelection.items[ImageSelectionType.THUMBNAIL] = [
-      await ImageSelectionItem.create(
-        this.map.images[0].large,
-        this.map.images[0].id
-      )
-    ];
-    this.imageSelection.items[ImageSelectionType.EXTRA] = await Promise.all(
-      this.map.images
-        .slice(1)
-        .map(({ id, large }) => ImageSelectionItem.create(large, id))
-    );
+    if (this.map.images.length > 0) {
+      this.imageSelection.items[ImageSelectionType.THUMBNAIL] = [
+        await ImageSelectionItem.create(
+          this.map.images[0]?.large,
+          this.map.images[0]?.id
+        )
+      ];
+      this.imageSelection.items[ImageSelectionType.EXTRA] = await Promise.all(
+        this.map.images
+          .slice(1)
+          .map(({ id, large }) => ImageSelectionItem.create(large, id))
+      );
+    }
 
     await this.imageSelection.onFileSelectionChanged();
     this.imageSelection.onThumbnailChanged();
