@@ -5,6 +5,7 @@ import {
   NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import {
+  DisabledGamemodes,
   Gamemode,
   GamemodeInfo,
   LeaderboardType,
@@ -36,10 +37,12 @@ import { ChipsComponent } from '../../chips/chips.component';
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   public readonly LeaderboardType = LeaderboardType;
-  protected readonly Gamemodes = Enum.values(Gamemode).map((gamemode) => ({
-    gamemode,
-    label: GamemodeInfo.get(gamemode).name
-  }));
+  protected readonly Gamemodes = Enum.values(Gamemode)
+    .filter((gamemode) => !DisabledGamemodes.has(gamemode))
+    .map((gamemode) => ({
+      gamemode,
+      label: GamemodeInfo.get(gamemode).name
+    }));
 
   protected readonly TrackType = TrackType;
   protected readonly TrackTypes = [

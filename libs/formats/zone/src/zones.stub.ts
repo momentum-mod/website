@@ -189,6 +189,7 @@ export const ZonesStubLeaderboards = [
       { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null  }
   ]),
   ...Enum.values(GM)
+    .filter((gamemode => gamemode !== GM.CLIMB_KZT && gamemode !== GM.CLIMB_MOM ))
     .map((gamemode) => (
       { gamemode, trackType: TrackType.BONUS, trackNum: 1, linear: null }))
 ].sort();

@@ -5,6 +5,7 @@ import {
   NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import {
+  DisabledGamemodes,
   Gamemode,
   GamemodeInfo,
   IncompatibleGamemodes,
@@ -72,6 +73,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
             IncompatibleGamemodes.get(sugg.gamemode).has(gamemode)
           )
       )
+      .filter((gamemode: Gamemode) => !DisabledGamemodes.has(gamemode))
       .map((gamemode: Gamemode) => ({
         gamemode,
         label: GamemodeInfo.get(gamemode).name
