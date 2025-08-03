@@ -1,4 +1,5 @@
 import { Gamemode as GM, MapZones, TrackType } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 
 /**
  * An example MapZones object for use in testing.
@@ -170,23 +171,24 @@ export const ZonesStubString = JSON.stringify(ZonesStub);
 
 /**
  * Defining properties of all the leaderboards that *should* be generated from
- * ZonesStub, for a main track on RJ and bonus on CPM Defrag.
+ * ZonesStub, for a main track on Surf and bonus on Ahop.
  * This'll break every time we add more submodes, but is very useful
  * for tests where we want to be precise about leaderboard generation.
  */
 // prettier-ignore
+export const ZoneStubCompatGamemodes =
+  [ GM.SURF, GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG, 
+    GM.AHOP, GM.CLIMB_16 ];
+
+// prettier-ignore
 export const ZonesStubLeaderboards = [
-  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG,
-       GM.SURF, GM.BHOP, GM.AHOP, GM.BHOP_HL1, GM.CLIMB_MOM, GM.CLIMB_16,
-       GM.CLIMB_KZT ]
+  ...ZoneStubCompatGamemodes
     .flatMap((gamemode) => [
       { gamemode, trackType: TrackType.MAIN,  trackNum: 1, linear: false },
       { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null  },
       { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null  }
   ]),
-  ...[ GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG,
-       GM.SURF, GM.BHOP, GM.AHOP, GM.BHOP_HL1, GM.CLIMB_MOM, GM.CLIMB_16,
-       GM.CLIMB_KZT ]
+  ...Enum.values(GM)
     .map((gamemode) => (
       { gamemode, trackType: TrackType.BONUS, trackNum: 1, linear: null }))
 ].sort();

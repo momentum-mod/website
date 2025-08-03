@@ -1554,6 +1554,7 @@ describe('Admin', () => {
                 ]
               }
             },
+            leaderboards: { createMany: { data: [] } },
             status: MapStatus.FINAL_APPROVAL
           });
 
