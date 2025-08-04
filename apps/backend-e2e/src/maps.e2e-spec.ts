@@ -57,10 +57,11 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { DiscordService } from 'apps/backend/src/app/modules/discord/discord.service';
+import { Client, Routes } from 'discord.js';
 
 describe('Maps', () => {
   let app,
@@ -3444,242 +3445,6 @@ describe('Maps', () => {
         );
       });
 
-      describe('Discord webhooks', () => {
-        let httpPostMock: jest.SpyInstance,
-          httpPostObs: rxjs.Subject<void>,
-          configMock: jest.SpyInstance;
-
-        beforeAll(() => {
-          httpPostMock = jest.spyOn(app.get(HttpService), 'post');
-          httpPostObs = new rxjs.Subject();
-
-          httpPostMock.mockImplementation(() => {
-            httpPostObs.next();
-            return rxjs.of({
-              data: '',
-              status: 204,
-              statusText: 'No Content',
-              headers: {},
-              config: {}
-            });
-          });
-
-          const configService = app.get(ConfigService);
-          const getOrThrow = configService.getOrThrow;
-          configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
-          configMock.mockImplementation((path) =>
-            path.startsWith('discordWebhooks.')
-              ? 'http://localhost/webhook_' +
-                path.replace('discordWebhooks.', '')
-              : getOrThrow.bind(configService, path)
-          );
-        });
-
-        afterAll(() => {
-          httpPostMock.mockRestore();
-          configMock.mockRestore();
-        });
-
-        afterEach(() => httpPostMock.mockClear());
-
-        it('should execute discord webhook when map is in public testing', async () => {
-          const map = await db.createMap({
-            ...createMapData,
-            status: MapStatus.FINAL_APPROVAL,
-            credits: {
-              create: {
-                type: MapCreditType.AUTHOR,
-                user: { connect: { id: user.id } }
-              }
-            },
-            submission: {
-              create: {
-                type: MapSubmissionType.ORIGINAL,
-                dates: {
-                  create: [
-                    {
-                      status: MapStatus.PRIVATE_TESTING,
-                      date: new Date(),
-                      user: { connect: { id: user.id } }
-                    }
-                  ]
-                },
-                suggestions: [
-                  {
-                    trackType: TrackType.MAIN,
-                    trackNum: 1,
-                    gamemode: Gamemode.RJ,
-                    tier: 1,
-                    type: LeaderboardType.RANKED
-                  },
-                  {
-                    trackType: TrackType.BONUS,
-                    trackNum: 1,
-                    gamemode: Gamemode.DEFRAG_CPM,
-                    tier: 1,
-                    type: LeaderboardType.UNRANKED
-                  }
-                ],
-                placeholders: [
-                  { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
-                ]
-              }
-            }
-          });
-
-          void req.patch({
-            url: `maps/${map.id}`,
-            status: 204,
-            body: {
-              status: MapStatus.PUBLIC_TESTING
-            },
-            token
-          });
-
-          await rxjs.firstValueFrom(httpPostObs);
-          expect(httpPostMock).toHaveBeenCalledTimes(1);
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
-
-          expect(embed.title).toBe(map.name);
-          expect(embed.description).toBe(
-            `By ${[user.alias, 'The Map Author']
-              .sort()
-              .map((a) => `**${a}**`)
-              .join(', ')}`
-          );
-        });
-
-        it('should execute discord webhook when map has been approved', async () => {
-          const map = await db.createMap({
-            ...createMapData,
-            status: MapStatus.FINAL_APPROVAL,
-            credits: {
-              create: {
-                type: MapCreditType.AUTHOR,
-                user: { connect: { id: user.id } }
-              }
-            }
-          });
-
-          void req.patch({
-            url: `admin/maps/${map.id}`,
-            status: 204,
-            body: {
-              status: MapStatus.APPROVED,
-              finalLeaderboards: [
-                {
-                  trackType: TrackType.MAIN,
-                  trackNum: 1,
-                  gamemode: Gamemode.RJ,
-                  tier: 1,
-                  type: LeaderboardType.RANKED
-                },
-                {
-                  trackType: TrackType.BONUS,
-                  trackNum: 1,
-                  gamemode: Gamemode.DEFRAG_CPM,
-                  tier: 1,
-                  type: LeaderboardType.UNRANKED
-                }
-              ]
-            },
-            token: adminToken
-          });
-
-          await rxjs.firstValueFrom(httpPostObs);
-          expect(httpPostMock).toHaveBeenCalledTimes(1);
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
-
-          expect(embed.title).toBe(map.name);
-          expect(embed.description).toBe(`By **${user.alias}**`);
-        });
-
-        it('should execute multiple webhooks for different gamemode categories', async () => {
-          const map = await db.createMap({
-            ...createMapData,
-            status: MapStatus.FINAL_APPROVAL,
-            credits: {
-              create: {
-                type: MapCreditType.AUTHOR,
-                user: { connect: { id: user.id } }
-              }
-            },
-            submission: {
-              create: {
-                type: MapSubmissionType.ORIGINAL,
-                dates: {
-                  create: [
-                    {
-                      status: MapStatus.PRIVATE_TESTING,
-                      date: new Date(),
-                      user: { connect: { id: user.id } }
-                    }
-                  ]
-                },
-                suggestions: [
-                  {
-                    trackType: TrackType.MAIN,
-                    trackNum: 1,
-                    gamemode: Gamemode.RJ,
-                    tier: 1,
-                    type: LeaderboardType.RANKED
-                  },
-                  {
-                    trackType: TrackType.MAIN,
-                    trackNum: 1,
-                    gamemode: Gamemode.CONC,
-                    tier: 1,
-                    type: LeaderboardType.UNRANKED
-                  },
-                  {
-                    trackType: TrackType.BONUS,
-                    trackNum: 1,
-                    gamemode: Gamemode.DEFRAG_CPM,
-                    tier: 1,
-                    type: LeaderboardType.UNRANKED
-                  }
-                ],
-                placeholders: [
-                  { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
-                ]
-              }
-            }
-          });
-
-          void req.patch({
-            url: `maps/${map.id}`,
-            status: 204,
-            body: {
-              status: MapStatus.PUBLIC_TESTING
-            },
-            token
-          });
-
-          await rxjs.firstValueFrom(httpPostObs.pipe(rxjs.take(2)));
-          expect(httpPostMock).toHaveBeenCalledTimes(2);
-
-          const requestUrls = httpPostMock.mock.calls.map((call) => call[0]);
-          expect(requestUrls.sort()).toEqual(
-            [GamemodeCategory.RJ, GamemodeCategory.CONC].map(
-              (gc) => 'http://localhost/webhook_' + gc
-            )
-          );
-
-          const requestBody = httpPostMock.mock.lastCall[1];
-          const embed = requestBody.embeds[0];
-
-          expect(embed.title).toBe(map.name);
-          expect(embed.description).toBe(
-            `By ${[user.alias, 'The Map Author']
-              .sort()
-              .map((a) => `**${a}**`)
-              .join(', ')}`
-          );
-        });
-      });
-
       it('should 400 for invalid suggestions', async () => {
         const map = await db.createMap({
           ...createMapData,
@@ -4925,6 +4690,448 @@ describe('Maps', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/getMapUploadUrl', 'get'));
+    });
+  });
+
+  describe('Discord notifications', () => {
+    let user: User,
+      token: string,
+      adminToken: string,
+      createMapData,
+      bspBuffer: Buffer,
+      restGetMock: jest.SpyInstance,
+      restPostMock: jest.SpyInstance,
+      restPostObservable: rxjs.Subject<void>,
+      configMock: jest.SpyInstance;
+
+    beforeAll(async () => {
+      [[user, token], adminToken] = await Promise.all([
+        db.createAndLoginUser(),
+        db.loginNewUser({ data: { roles: Role.ADMIN } })
+      ]);
+
+      createMapData = {
+        name: 'surf_map',
+        submitter: { connect: { id: user.id } },
+        credits: {
+          create: {
+            type: MapCreditType.AUTHOR,
+            user: { connect: { id: user.id } }
+          }
+        },
+        submission: {
+          create: {
+            placeholders: [
+              { type: MapCreditType.AUTHOR, alias: 'The Map Author' }
+            ],
+            type: MapSubmissionType.ORIGINAL,
+            dates: {
+              create: [
+                {
+                  status: MapStatus.PRIVATE_TESTING,
+                  date: new Date(),
+                  user: { connect: { id: user.id } }
+                }
+              ]
+            },
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                gamemode: Gamemode.RJ,
+                tier: 1,
+                type: LeaderboardType.RANKED,
+                tags: [MapTag.Sync]
+              },
+              {
+                trackType: TrackType.BONUS,
+                trackNum: 1,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 1,
+                type: LeaderboardType.UNRANKED
+              }
+            ]
+          }
+        },
+        versions: {
+          create: {
+            zones: ZonesStubString,
+            versionNum: 1,
+            bspHash: createSha1Hash(Buffer.from('shashashs')),
+            submitter: { connect: { id: user.id } }
+          }
+        },
+        leaderboards: { createMany: { data: [] } }
+      };
+
+      bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+
+      const configService = app.get(ConfigService);
+      const getOrThrow = configService.getOrThrow;
+      configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
+      configMock.mockImplementation((path) => {
+        if (path.startsWith('discord.')) {
+          const parts = path.split('.');
+          switch (parts[1]) {
+            case 'token':
+              return 'A definitely working Discord token.';
+            case 'guild':
+              return '123';
+            case 'contentApprovalChannel':
+              return '1337';
+            case 'portingChannel':
+              return '321';
+            case 'statusChannels':
+              return parts[2];
+          }
+        }
+        return getOrThrow.bind(configService)(path);
+      });
+
+      const discordService: DiscordService = app.get(DiscordService);
+
+      jest
+        .spyOn(discordService, 'isEnabled')
+        .mockImplementation((): this is Client => true);
+      if (!discordService.isEnabled()) return;
+      discordService.rest.setToken(configService.getOrThrow('discord.token'));
+
+      restGetMock = jest.spyOn(discordService.rest, 'get');
+      restPostMock = jest.spyOn(discordService.rest, 'post');
+
+      restGetMock.mockImplementation((url: string) => {
+        if (url.startsWith('/')) url = url.slice(1);
+        const parts = url.split('/');
+        return new Promise((res) => {
+          switch (parts[0]) {
+            case 'channels':
+              res({
+                id: parts[1],
+                name: 'mock-channel',
+                type: 0, // Guild text channel
+                guild_id: configService.getOrThrow('discord.guild'),
+                flags: 0
+              });
+              break;
+            case 'guilds':
+              res({ id: parts[1], name: 'Mock Server' });
+              break;
+            default:
+              res({});
+              break;
+          }
+        });
+      });
+
+      restPostObservable = new rxjs.Subject();
+      restPostMock.mockImplementation((url) => {
+        if (url.startsWith('/')) url = url.slice(1);
+        const parts = url.split('/');
+        return new Promise((res) => {
+          if (
+            parts.length === 3 &&
+            parts[0] === 'channels' &&
+            parts[2] === 'messages'
+          ) {
+            res({
+              id: '54321',
+              type: 0,
+              channel_id: parts[1],
+              content: 'Look, a rope!'
+            });
+          } else if (
+            parts.length === 5 &&
+            parts[0] === 'channels' &&
+            parts[2] === 'messages' &&
+            parts[4] === 'threads'
+          ) {
+            res({
+              id: parts[3],
+              name: 'Yarn',
+              type: 11, // Thread channel
+              guild_id: configService.getOrThrow('discord.guild'),
+              flags: 0
+            });
+          } else {
+            res({});
+          }
+          restPostObservable.next();
+        });
+      });
+
+      await discordService.guilds.fetch(
+        configService.getOrThrow('discord.guild')
+      );
+    });
+
+    afterAll(() => jest.restoreAllMocks());
+
+    afterEach(() =>
+      Promise.all([db.cleanup('mMap'), restPostMock.mockClear()])
+    );
+
+    it('should send discord notification when map gets submitted to content approval', async () => {
+      await uploadBspToPreSignedUrl(bspBuffer, token);
+
+      void req.postAttach({
+        url: 'maps',
+        status: 201,
+        data: {
+          name: 'surf_map',
+          info: {
+            description: 'mampmampmampmampmampmampmampmamp',
+            creationDate: '2022-07-07T18:33:33.000Z'
+          },
+          submissionType: MapSubmissionType.ORIGINAL,
+          placeholders: [
+            { alias: 'The Map Author', type: MapCreditType.AUTHOR }
+          ],
+          suggestions: [
+            {
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.SURF,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            },
+            {
+              trackType: TrackType.BONUS,
+              trackNum: 1,
+              gamemode: Gamemode.DEFRAG_CPM,
+              tier: 1,
+              type: LeaderboardType.UNRANKED
+            }
+          ],
+          wantsPrivateTesting: false,
+          credits: [
+            {
+              userID: user.id,
+              type: MapCreditType.AUTHOR
+            }
+          ],
+          zones: structuredClone(ZonesStub)
+        },
+        token
+      });
+
+      await rxjs.firstValueFrom(restPostObservable);
+      expect(restPostMock).toHaveBeenCalledTimes(1);
+
+      const requestBody = restPostMock.mock.lastCall[1];
+
+      const embed = requestBody.body.embeds[0];
+
+      expect(embed.title).toBe(createMapData.name);
+      expect(embed.description).toBe(
+        `By ${[user.alias, 'The Map Author']
+          .sort()
+          .map((a) => `**${a}**`)
+          .join(', ')}`
+      );
+    });
+    it('should send discord notification when map moves to content approval', async () => {
+      const map = await db.createMap({
+        ...createMapData,
+        status: MapStatus.PRIVATE_TESTING
+      });
+
+      void req.patch({
+        url: `maps/${map.id}`,
+        status: 204,
+        body: {
+          status: MapStatus.CONTENT_APPROVAL
+        },
+        token
+      });
+
+      await rxjs.firstValueFrom(restPostObservable);
+      expect(restPostMock).toHaveBeenCalledTimes(1);
+
+      const requestBody = restPostMock.mock.lastCall[1];
+
+      const embed = requestBody.body.embeds[0];
+
+      expect(embed.title).toBe(map.name);
+      expect(embed.description).toBe(
+        `By ${[user.alias, 'The Map Author']
+          .sort()
+          .map((a) => `**${a}**`)
+          .join(', ')}`
+      );
+    });
+
+    it('should send discord notification when map is in public testing', async () => {
+      const map = await db.createMap({
+        ...createMapData,
+        status: MapStatus.FINAL_APPROVAL
+      });
+
+      void req.patch({
+        url: `maps/${map.id}`,
+        status: 204,
+        body: {
+          status: MapStatus.PUBLIC_TESTING
+        },
+        token
+      });
+
+      await rxjs.firstValueFrom(restPostObservable); // Porting channel message
+      await rxjs.firstValueFrom(restPostObservable); // Thread creation
+      await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
+      expect(restPostMock).toHaveBeenCalledTimes(3);
+
+      const requestBody = restPostMock.mock.lastCall[1];
+      expect(requestBody.body.content).toContain('123/54321'); // guild id/message id, see config and post mocks
+
+      const embed = requestBody.body.embeds[0];
+
+      expect(embed.title).toBe(map.name);
+      expect(embed.description).toBe(
+        `By ${[user.alias, 'The Map Author']
+          .sort()
+          .map((a) => `**${a}**`)
+          .join(', ')}`
+      );
+    });
+
+    it('should send discord notification when map has been approved', async () => {
+      const map = await db.createMap({
+        ...createMapData,
+        status: MapStatus.FINAL_APPROVAL,
+        credits: {
+          create: {
+            type: MapCreditType.AUTHOR,
+            user: { connect: { id: user.id } }
+          }
+        }
+      });
+
+      void req.patch({
+        url: `admin/maps/${map.id}`,
+        status: 204,
+        body: {
+          status: MapStatus.APPROVED,
+          finalLeaderboards: [
+            {
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.RJ,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            },
+            {
+              trackType: TrackType.BONUS,
+              trackNum: 1,
+              gamemode: Gamemode.DEFRAG_CPM,
+              tier: 1,
+              type: LeaderboardType.UNRANKED
+            }
+          ]
+        },
+        token: adminToken
+      });
+
+      await rxjs.firstValueFrom(restPostObservable.pipe(rxjs.take(1)));
+      expect(restPostMock).toHaveBeenCalledTimes(1);
+      const requestBody = restPostMock.mock.lastCall[1];
+      const embed = requestBody.body.embeds[0];
+
+      expect(embed.title).toBe(map.name);
+      expect(embed.description).toBe(
+        `By ${[user.alias, 'The Map Author']
+          .sort()
+          .map((a) => `**${a}**`)
+          .join(', ')}`
+      );
+    });
+
+    it('should send multiple discord notifications for different gamemode categories', async () => {
+      const map = await db.createMap({
+        ...createMapData,
+        status: MapStatus.FINAL_APPROVAL,
+        submission: {
+          create: {
+            ...createMapData.submission.create,
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                gamemode: Gamemode.RJ,
+                tier: 1,
+                type: LeaderboardType.RANKED
+              },
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                gamemode: Gamemode.CONC,
+                tier: 1,
+                type: LeaderboardType.UNRANKED
+              },
+              {
+                trackType: TrackType.BONUS,
+                trackNum: 1,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 1,
+                type: LeaderboardType.UNRANKED
+              }
+            ]
+          }
+        }
+      });
+
+      void req.patch({
+        url: `admin/maps/${map.id}`,
+        status: 204,
+        body: {
+          status: MapStatus.APPROVED,
+          finalLeaderboards: [
+            {
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.RJ,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            },
+            {
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.CONC,
+              tier: 1,
+              type: LeaderboardType.UNRANKED
+            },
+            {
+              trackType: TrackType.BONUS,
+              trackNum: 1,
+              gamemode: Gamemode.DEFRAG_CPM,
+              tier: 1,
+              type: LeaderboardType.UNRANKED
+            }
+          ]
+        },
+        token: adminToken
+      });
+
+      await rxjs.firstValueFrom(restPostObservable);
+      await rxjs.firstValueFrom(restPostObservable);
+      expect(restPostMock).toHaveBeenCalledTimes(2);
+
+      const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
+      expect(requestUrls.sort()).toEqual(
+        [GamemodeCategory.RJ, GamemodeCategory.CONC].map((gc) =>
+          Routes.channelMessages(gc.toString())
+        )
+      );
+
+      const requestBody = restPostMock.mock.lastCall[1];
+      const embed = requestBody.body.embeds[0];
+
+      expect(embed.title).toBe(map.name);
+      expect(embed.description).toBe(
+        `By ${[user.alias, 'The Map Author']
+          .sort()
+          .map((a) => `**${a}**`)
+          .join(', ')}`
+      );
     });
   });
 });
