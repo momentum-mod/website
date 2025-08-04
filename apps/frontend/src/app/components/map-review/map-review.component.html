@@ -133,7 +133,8 @@
                 (keydown.control.enter)="editComment(comment.id)"
                 [formControl]="editForm.controls.textInput"
                 placeholder="Update comment"
-                class="textinput my-1 grow px-2 py-1"
+                class="textinput my-1 grow resize-none overflow-hidden px-2 py-1"
+                dynamicTextareaHeight
               ></textarea>
               <div class="ml-auto flex gap-1">
                 <button
@@ -161,7 +162,8 @@
       (keydown.control.enter)="postComment()"
       [formControl]="commentInput.controls.textInput"
       placeholder="Leave a comment"
-      class="textinput grow px-2 py-1"
+      class="textinput grow resize-none overflow-hidden px-2 py-1"
+      dynamicTextareaHeight
     ></textarea>
     @if (commentInput.dirty) {
       <div>

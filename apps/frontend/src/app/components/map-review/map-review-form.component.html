@@ -3,9 +3,10 @@
     <textarea
       [formControl]="mainText"
       placeholder="... (Required)"
-      class="textinput grow"
+      class="textinput grow resize-none overflow-hidden"
       rows="6"
       (keydown.control.enter)="submit()"
+      dynamicTextareaHeight
     ></textarea>
     @if (!editing) {
       <m-multi-file-upload
