@@ -27,6 +27,7 @@ import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { DynamicTextareaHeightDirective } from '../../directives/dynamic-textarea-height.directive';
 
 @Component({
   selector: 'm-map-review-form',
@@ -35,7 +36,8 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
     MultiFileUploadComponent,
     ReactiveFormsModule,
     IconComponent,
-    TooltipDirective
+    TooltipDirective,
+    DynamicTextareaHeightDirective
   ],
   templateUrl: './map-review-form.component.html'
 })

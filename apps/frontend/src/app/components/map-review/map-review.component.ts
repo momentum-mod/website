@@ -51,6 +51,7 @@ import { DatePipe } from '@angular/common';
 import { SpinnerDirective } from '../../directives/spinner.directive';
 import { PluralPipe } from '../../pipes/plural.pipe';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { DynamicTextareaHeightDirective } from '../../directives/dynamic-textarea-height.directive';
 
 @Component({
   selector: 'm-map-review',
@@ -68,7 +69,8 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
     SpinnerDirective,
     PluralPipe,
     ReactiveFormsModule,
-    TooltipDirective
+    TooltipDirective,
+    DynamicTextareaHeightDirective
   ],
   templateUrl: './map-review.component.html'
 })
