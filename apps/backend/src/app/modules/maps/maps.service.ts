@@ -710,7 +710,7 @@ export class MapsService {
           ).map((obj) => ({
             mapID: map.id,
             ...obj,
-            style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
+            style: obj.style,
             type: LeaderboardType.IN_SUBMISSION
           }))
         });
@@ -1157,7 +1157,7 @@ export class MapsService {
     const existingLeaderboards: LeaderboardHandler.LeaderboardProps[] =
       await this.db.leaderboard.findMany({
         where: { mapID },
-        select: { gamemode: true, trackNum: true, trackType: true }
+        select: { gamemode: true, trackNum: true, trackType: true, style: true }
       });
 
     const desiredLeaderboards = LeaderboardHandler.getMaximalLeaderboards(
@@ -1180,7 +1180,7 @@ export class MapsService {
         data: toCreate.map((obj) => ({
           mapID,
           ...obj,
-          style: 0, // TODO: Styles
+          style: obj.style,
           type: LeaderboardType.IN_SUBMISSION
         }))
       });
