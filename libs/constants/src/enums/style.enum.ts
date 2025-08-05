@@ -1,7 +1,12 @@
 export enum Style {
-  NONE = 0,
-  HSW = 1 << 0,
-  SW = 1 << 1,
-  BW = 1 << 2
-  // TODO: More!
+  // Surf + Bhop
+  NORMAL = 0,
+  HALF_SIDEWAYS,
+  SIDEWAYS,
+  W_ONLY,
+  AD_ONLY,
+  S_ONLY,
+
+  // Climb
+  NO_TELEPORT
 }

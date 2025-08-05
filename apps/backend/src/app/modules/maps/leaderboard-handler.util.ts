@@ -6,7 +6,9 @@ import {
   LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
-  TrackType
+  TrackType,
+  GamemodeStyles,
+  Style
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
@@ -51,12 +53,20 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
             (newGamemode) =>
               !IncompatibleGamemodes.get(gamemode).has(newGamemode)
           )
-          .map((newGamemode) => ({
-            trackType,
-            trackNum,
-            linear,
-            gamemode: newGamemode
-          }))
+          // Add a style for each compatible gamemode
+          .flatMap((newGamemode) => {
+            // Get all valid styles for this gamemode
+            const validStyles =
+              GamemodeStyles.get(newGamemode) || new Set([Style.NORMAL]);
+
+            return Array.from(validStyles).map((style) => ({
+              trackType,
+              trackNum,
+              linear,
+              gamemode: newGamemode,
+              style
+            }));
+          })
       )
       // Filter out any duplicates
       .filter((x, i, array) => !array.some((y, j) => isEqual(x, y) && i < j))
