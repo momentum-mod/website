@@ -4825,6 +4825,7 @@ describe('Maps', () => {
 
       restPostObservable = new rxjs.Subject();
       restPostMock.mockImplementation((url) => {
+        console.log(url);
         if (url.startsWith('/')) url = url.slice(1);
         const parts = url.split('/');
         return new Promise((res) => {
@@ -4840,13 +4841,12 @@ describe('Maps', () => {
               content: 'Look, a rope!'
             });
           } else if (
-            parts.length === 5 &&
+            parts.length === 3 &&
             parts[0] === 'channels' &&
-            parts[2] === 'messages' &&
-            parts[4] === 'threads'
+            parts[2] === 'threads'
           ) {
             res({
-              id: parts[3],
+              id: '91212',
               name: 'Yarn',
               type: 11, // Thread channel
               guild_id: configService.getOrThrow('discord.guild'),
@@ -4975,13 +4975,13 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable); // Porting channel message
       await rxjs.firstValueFrom(restPostObservable); // Thread creation
+      await rxjs.firstValueFrom(restPostObservable); // Porting channel message
       await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
       expect(restPostMock).toHaveBeenCalledTimes(3);
 
       const requestBody = restPostMock.mock.lastCall[1];
-      expect(requestBody.body.content).toContain('123/54321'); // guild id/message id, see config and post mocks
+      expect(requestBody.body.content).toContain('123/91212'); // guild id/message id, see config and post mocks
 
       const embed = requestBody.body.embeds[0];
 
