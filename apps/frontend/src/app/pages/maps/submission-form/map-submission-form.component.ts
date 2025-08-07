@@ -65,8 +65,6 @@ import { MapCreditsSelectionComponent } from '../../../components/map-forms/map-
 import { MapTestInviteSelectionComponent } from '../../../components/map-forms/map-test-invite-selection/map-test-invite-selection.component';
 import { AlertComponent } from '../../../components/alert/alert.component';
 import { MapDetailsFormComponent } from '../../../components/map-forms/map-details-form/map-details-form.component';
-import { LeaderboardsInfoComponent } from '../../../components/tooltips/leaderboards-info.component';
-import { CreditsInfoComponent } from '../../../components/tooltips/credits-info.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpClient } from '@angular/common/http';
@@ -88,8 +86,6 @@ import { PreventEnterSubmitDirective } from '../../../directives/prevent-enter-s
     ProgressBarModule,
     AlertComponent,
     MapDetailsFormComponent,
-    LeaderboardsInfoComponent,
-    CreditsInfoComponent,
     ReactiveFormsModule,
     IconComponent,
     NgClass,
