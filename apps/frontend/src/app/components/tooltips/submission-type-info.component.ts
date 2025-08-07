@@ -18,10 +18,7 @@ import { Component } from '@angular/core';
       <p>
         <i><b>Ports</b></i> are maps already released in other games. In these
         cases the aim is to try as true to the map in the original game as
-        possible (<i>especially</i>
-        if porter is not the original author!), and simply fix any
-        Momentum-related issues. Please don't leave reviews asking for sweeping
-        changes!
+        possible <i>especially</i> if porter is not the original author!
       </p>
     </div>
   `
