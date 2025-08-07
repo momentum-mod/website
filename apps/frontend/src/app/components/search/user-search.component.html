@@ -16,13 +16,16 @@
   />
 </div>
 <ng-template #results>
-  <div class="flex min-h-[3.75rem] flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }">
+  <div class="flex min-h-12 flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }">
     @if (search.status === 'INVALID' && search.value?.length > 0 && found.length === 0) {
-      <p class="p-2 text-center text-lg text-gray-200">
-        {{ getFirstError() }}
-      </p>
+      <div class="flex flex-row flex-wrap justify-center gap-4">
+        <p class="my-auto text-center text-lg text-gray-200">
+          {{ getFirstError() }}
+        </p>
+        <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
+      </div>
     } @else if (search.value?.length > 0) {
-      @for (user of found; track user) {
+      @for (user of found; track user; let isLast = $last) {
         <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
           <div class="flex items-center">
             <img class="h-10 w-10 rounded" [src]="user.avatarURL" />
@@ -54,18 +57,21 @@
             </div>
           </div>
         </div>
+        @if (isLast) {
+          <p-paginator
+            class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
+            (onPageChange)="pageChange.next($event)"
+            [first]="first"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [showCurrentPageReport]="true"
+            [alwaysShow]="false"
+          />
+          <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
+        }
       } @empty {
         <m-spinner />
       }
-      <p-paginator
-        class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
-        (onPageChange)="pageChange.next($event)"
-        [first]="first"
-        [rows]="rows"
-        [totalRecords]="totalRecords"
-        [showCurrentPageReport]="true"
-        [alwaysShow]="false"
-      />
     }
   </div>
 </ng-template>
