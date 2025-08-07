@@ -22,7 +22,7 @@ import {
   steamAvatarUrl,
   MapStatuses
 } from '@momentum/constants';
-import { APIEmbed } from 'discord.js';
+import { APIEmbed, ChannelType } from 'discord.js';
 
 @Injectable()
 export class MapStatusNotifications {
@@ -80,8 +80,10 @@ export class MapStatusNotifications {
 
     // Cached in Discord.js
     const portingChannel = await this.discord.channels.fetch(portingChannelID);
-    if (!portingChannel || !portingChannel.isSendable()) {
-      this.logger.error("Porting channel doesn't exist or is not sendable.");
+    if (!portingChannel || portingChannel.type !== ChannelType.GuildText) {
+      this.logger.error(
+        "Porting channel doesn't exist or is not a guild text channel."
+      );
       return;
     }
 
@@ -93,11 +95,13 @@ export class MapStatusNotifications {
       info.leaderboards
     );
 
-    const message = await portingChannel.send({
+    const thread = await portingChannel.threads.create({
+      name: extendedMap.name
+    });
+    await thread.send({
       content: ':warning: A new map is available for public testing! :warning:',
       embeds: [mapEmbed]
     });
-    const thread = await message.startThread({ name: extendedMap.name });
 
     await this.broadcastToCategories(
       `:warning: A new map is available for public testing! :warning: ${thread.url}`,
