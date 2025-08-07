@@ -14,10 +14,13 @@
   <p class="mt-4 text-sm font-medium uppercase text-gray-200">Timeline</p>
   <ul class="flex flex-wrap gap-x-8">
     @for (date of map.submission.dates; track $index) {
-      <li [mTooltip]="'Authored by ' + (date.user ? date.user.alias : 'N/A')">
+      <li [mTooltip]="timelineTooltip">
         <p class="font-medium">{{ MapStatusName.get(date.status) }}</p>
         <p class="text-sm text-gray-200">{{ date.date | date: 'yyyy-MM-dd HH:mm' }}</p>
       </li>
+      <ng-template #timelineTooltip>
+        <p><b>Authored By - </b>{{ date.user ? date.user.alias : 'N/A' }}</p>
+      </ng-template>
     }
   </ul>
 
@@ -52,10 +55,13 @@
   <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
 
   @for (version of versions.slice(0, visibleVersions); track version.versionNum) {
-    <div class="mt-1 flex w-fit gap-3" [mTooltip]="'Version submitted by ' + (version.submitter ? version.submitter.alias : 'N/A')">
+    <div class="mt-1 flex w-fit gap-3" [mTooltip]="versionTooltip">
       <p class="text-sm font-medium uppercase">Version {{ version.versionNum }}</p>
       <p class="text-sm font-medium text-gray-200">{{ version.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
     </div>
+    <ng-template #versionTooltip>
+      <p><b>Version Submitted By - </b>{{ version.submitter ? version.submitter.alias : 'N/A' }}</p>
+    </ng-template>
     @if (version.changelog) {
       <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
     }
