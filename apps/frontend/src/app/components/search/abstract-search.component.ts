@@ -15,7 +15,7 @@ import { PagedResponse } from '@momentum/constants';
 @Directive()
 export abstract class AbstractSearchComponent<T> implements OnInit {
   @Output() public readonly selected = new EventEmitter<T>();
-  public readonly search: FormControl<string> = new FormControl();
+  public readonly search = new FormControl<string>('');
   protected readonly pageChange = new Subject<PaginatorState>();
 
   abstract readonly itemsName: string;

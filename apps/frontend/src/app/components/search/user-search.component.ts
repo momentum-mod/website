@@ -3,6 +3,7 @@ import {
   ElementRef,
   Input,
   OnInit,
+  TemplateRef,
   ViewChild,
   inject
 } from '@angular/core';
@@ -58,6 +59,12 @@ export class UserSearchComponent
    */
   @Input() showProfileButton = false;
   @Input() useOverlay = true;
+
+  /**
+   * If set, will be put after default no results/error message,
+   * and paginator if results found.
+   */
+  @Input() appendTemplate?: TemplateRef<any>;
 
   @ViewChild('searchMain') mainEl: ElementRef;
   @ViewChild('searchOverlay') overlay: Popover;
