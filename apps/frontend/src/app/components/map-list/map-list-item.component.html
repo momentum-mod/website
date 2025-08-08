@@ -30,7 +30,7 @@
           }"
           [mTooltip]="'Tier ' + lb.tier"
         >
-          <p 
+          <p
           class="text-shadow-strong m-auto font-display font-bold text-28 leading-none">T{{ lb.tier }}</p>
         </div>
           @if (lb.bonuses?.length > 0) {
@@ -89,6 +89,7 @@
     </div>
     <div class="flex grow flex-col !text-14">
       <p class="inline-block text-gray-300" (click)="$event.stopPropagation(); $event.preventDefault()">
+        <!-- At least 1 author is always required. -->
         By
         @if (authors[0]?.id) {
           <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[0].alias }}</a>
@@ -104,7 +105,7 @@
             }
           }
         <!-- prettier-ignore -->
-        @if (authors.length > 2) {, + {{ authors.length - 1 | plural: 'author' }}}
+        @if (authors.length > 2) {, + {{ authors.length - 2 | plural: 'author' }}}
       </p>
       @if (isSubmission) {
         @if (!isSubmitterAnAuthor(map)) {
