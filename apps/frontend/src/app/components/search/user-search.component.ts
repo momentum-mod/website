@@ -6,7 +6,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
-import { Role, User } from '@momentum/constants';
+import { Role, STEAM_ID_64_DIGIT_COUNT, User } from '@momentum/constants';
 import { of } from 'rxjs';
 import { PaginatorModule } from 'primeng/paginator';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
@@ -64,8 +64,12 @@ export class UserSearchComponent
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {
-      if (Number.isNaN(+searchString)) {
-        this.search.setErrors({ error: 'Input is not a Steam ID!' });
+      if (
+        Number.isNaN(+searchString) ||
+        // Reconversion catches Scientific notation.
+        +searchString.toString().length !== STEAM_ID_64_DIGIT_COUNT
+      ) {
+        this.search.setErrors({ error: 'Input is not a Steam64 ID!' });
         return of(null);
       }
       return this.usersService.getUsers({ steamID: searchString });
