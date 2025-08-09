@@ -20,7 +20,8 @@ import {
   LeaderboardType,
   Gamemode,
   steamAvatarUrl,
-  MapStatuses
+  MapStatuses,
+  GamemodeCategory
 } from '@momentum/constants';
 import { APIEmbed, ChannelType } from 'discord.js';
 
@@ -103,15 +104,20 @@ export class MapStatusNotifications {
       embeds: [mapEmbed]
     });
 
+    const categories = this.getGamemodeCategories(
+      info.rankedGamemodes,
+      info.unrankedGamemodes
+    );
+
     await this.broadcastToCategories(
       `:warning: A new map is available for public testing! :warning: ${thread.url}`,
       mapEmbed,
-      info.rankedGamemodes
+      categories.ranked
     );
     await this.broadcastToCategories(
       `:warning: A new **UNRANKED** map is available for public testing! :warning: ${thread.url}`,
       mapEmbed,
-      info.unrankedGamemodes
+      categories.unranked
     );
   }
 
@@ -126,15 +132,20 @@ export class MapStatusNotifications {
       info.leaderboards
     );
 
+    const categories = this.getGamemodeCategories(
+      info.rankedGamemodes,
+      info.unrankedGamemodes
+    );
+
     await this.broadcastToCategories(
       ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      info.rankedGamemodes
+      categories.ranked
     );
     await this.broadcastToCategories(
       ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      info.unrankedGamemodes
+      categories.unranked
     );
   }
 
@@ -170,28 +181,26 @@ export class MapStatusNotifications {
   private async broadcastToCategories(
     text: string,
     embed: APIEmbed,
-    gamemodes: Array<Gamemode>
+    categories: Array<GamemodeCategory>
   ): Promise<void> {
     await Promise.all(
-      GamemodeCategories.entries()
-        .filter(([, modes]) => modes.some((gm) => gamemodes.includes(gm)))
-        .map(async ([category]) => {
-          if (!this.discord.isEnabled()) return;
+      categories.map(async (category) => {
+        if (!this.discord.isEnabled()) return;
 
-          const channelID = this.config.getOrThrow(
-            `discord.statusChannels.${category}`
+        const channelID = this.config.getOrThrow(
+          `discord.statusChannels.${category}`
+        );
+        if (channelID === '') return;
+
+        // Cached in Discord.js
+        const channel = await this.discord.channels.fetch(channelID);
+        if (!channel || !channel.isSendable())
+          throw new Error(
+            "Channel specified doesn't exist or is not sendable."
           );
-          if (channelID === '') return;
 
-          // Cached in Discord.js
-          const channel = await this.discord.channels.fetch(channelID);
-          if (!channel || !channel.isSendable())
-            throw new Error(
-              "Channel specified doesn't exist or is not sendable."
-            );
-
-          return channel.send({ content: text, embeds: [embed] });
-        })
+        return channel.send({ content: text, embeds: [embed] });
+      })
     ).catch((error) =>
       this.logger.error('Failed to send discord notification', error)
     );
@@ -247,6 +256,27 @@ export class MapStatusNotifications {
         .filter(({ type }) => type === LeaderboardType.UNRANKED)
         .map(({ gamemode }) => gamemode)
     };
+  }
+
+  private getGamemodeCategories(
+    rankedGamemodes: Gamemode[],
+    unrankedGamemodes: Gamemode[]
+  ): {
+    ranked: GamemodeCategory[];
+    unranked: GamemodeCategory[];
+  } {
+    const ranked = GamemodeCategories.entries()
+      .toArray()
+      .filter(([, modes]) => modes.some((gm) => rankedGamemodes.includes(gm)))
+      .map(([cat]) => cat);
+
+    const unranked = GamemodeCategories.entries()
+      .toArray()
+      .filter(([, modes]) => modes.some((gm) => unrankedGamemodes.includes(gm)))
+      .map(([cat]) => cat)
+      .filter((cat) => !ranked.includes(cat));
+
+    return { ranked, unranked };
   }
 }
 
