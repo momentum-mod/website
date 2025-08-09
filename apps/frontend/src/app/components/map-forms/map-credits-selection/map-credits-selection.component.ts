@@ -1,13 +1,16 @@
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
-  FormControl,
-  Validators,
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
-import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
+import {
+  MAX_USER_ALIAS_LENGTH,
+  MapCreditNames,
+  MapCreditType,
+  User
+} from '@momentum/constants';
 import {
   CdkDragDrop,
   moveItemInArray,
@@ -53,19 +56,6 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
 
   protected readonly connectedTo = Enum.values(MapCreditType).map(String);
 
-  protected readonly placeholderInputs = new Map(
-    Enum.values(MapCreditType).map((type) => [
-      type,
-      new FormControl<string>('', {
-        validators: [
-          Validators.required,
-          Validators.minLength(1),
-          Validators.maxLength(32)
-        ]
-      })
-    ])
-  );
-
   @ViewChildren(TooltipDirective)
   tooltips: QueryList<TooltipDirective>;
 
@@ -101,9 +91,16 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     this.onChange(this.value);
   }
 
-  addPlaceholder(type: MapCreditType, input: string) {
-    this.value.add({ type, alias: input });
-    this.placeholderInputs.get(type).reset();
+  addPlaceholder(type: MapCreditType, searchComponent: UserSearchComponent) {
+    if (searchComponent.search.value.length > MAX_USER_ALIAS_LENGTH) {
+      searchComponent.search.setErrors({
+        error: `Placeholder cannot be longer than ${MAX_USER_ALIAS_LENGTH} characters!`
+      });
+      return;
+    }
+
+    this.value.add({ type, alias: searchComponent.search.value });
+    searchComponent.resetSearchBox();
     this.onChange(this.value);
   }
 

@@ -7,7 +7,8 @@ import {
   User,
   NON_WHITESPACE_REGEXP,
   DateString,
-  steamAvatarUrl
+  steamAvatarUrl,
+  MAX_USER_ALIAS_LENGTH
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
@@ -43,11 +44,10 @@ export class UserDto implements User {
   @ApiProperty({
     type: String,
     description:
-      "The user's alias, which is either a current or previous Steam name, or something they set themselves",
-    maxLength: 32
+      "The user's alias, which is either a current or previous Steam name, or something they set themselves"
   })
   @IsString()
-  @MaxLength(32)
+  @MaxLength(MAX_USER_ALIAS_LENGTH)
   @Matches(NON_WHITESPACE_REGEXP)
   readonly alias: string;
 
@@ -104,7 +104,7 @@ export class UpdateUserDto {
     description: 'The new alias to set'
   })
   @IsString()
-  @MaxLength(32)
+  @MaxLength(MAX_USER_ALIAS_LENGTH)
   @IsOptional()
   alias?: string;
 
