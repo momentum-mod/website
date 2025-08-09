@@ -14,7 +14,7 @@ import { Component, Input } from '@angular/core';
         some cases players may find it fun to compete on them.
       </p>
       <p>
-        Like unranked leaderboards these don't grant ranked points. They also
+        Like unranked leaderboards, these don't grant ranked points. They also
         don't show up in the in-game map selector, and to play them you need to
         launch the map with your gamemode overriden!
       </p>
