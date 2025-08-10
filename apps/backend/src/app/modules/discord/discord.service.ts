@@ -22,12 +22,12 @@ export class DiscordService {
 
   static async factory(config: ConfigService) {
     const client = new DiscordService();
-    client.enabled = true;
-
-    if (!client.isEnabled()) return client;
 
     const token = config.getOrThrow('discord.token');
     if (!token) return client;
+    client.enabled = true;
+
+    if (!client.isEnabled()) return client;
 
     client.token = token;
     client.rest.setToken(token);
