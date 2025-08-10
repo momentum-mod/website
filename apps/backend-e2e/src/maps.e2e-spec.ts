@@ -61,7 +61,7 @@ import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { DiscordService } from 'apps/backend/src/app/modules/discord/discord.service';
-import { Client, Routes } from 'discord.js';
+import { ChannelType, Client, Routes } from 'discord.js';
 
 describe('Maps', () => {
   let app,
@@ -4766,6 +4766,8 @@ describe('Maps', () => {
 
       bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
 
+      const reviewChannelId = '3412';
+
       const configService = app.get(ConfigService);
       const getOrThrow = configService.getOrThrow;
       configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
@@ -4779,8 +4781,8 @@ describe('Maps', () => {
               return '123';
             case 'contentApprovalChannel':
               return '1337';
-            case 'portingChannel':
-              return '321';
+            case 'reviewChannel':
+              return reviewChannelId;
             case 'statusChannels':
               return parts[2];
           }
@@ -4808,7 +4810,10 @@ describe('Maps', () => {
               res({
                 id: parts[1],
                 name: 'mock-channel',
-                type: 0, // Guild text channel
+                type:
+                  parts[1] === reviewChannelId
+                    ? ChannelType.GuildForum
+                    : ChannelType.GuildText,
                 guild_id: configService.getOrThrow('discord.guild'),
                 flags: 0
               });
@@ -4975,10 +4980,9 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable); // Thread creation
-      await rxjs.firstValueFrom(restPostObservable); // Porting channel message
+      await rxjs.firstValueFrom(restPostObservable); // Thread creation with a starting message
       await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
-      expect(restPostMock).toHaveBeenCalledTimes(3);
+      expect(restPostMock).toHaveBeenCalledTimes(2);
 
       const requestBody = restPostMock.mock.lastCall[1];
       expect(requestBody.body.content).toContain('123/91212'); // guild id/message id, see config and post mocks
