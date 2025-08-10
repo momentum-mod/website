@@ -111,12 +111,12 @@ export class MapStatusNotifications {
     );
 
     await this.broadcastToCategories(
-      `:warning: A new map is available for public testing! :warning: ${thread.url}`,
+      `:warning: A new map is available for public testing! :warning: Post feedback in ${thread.url}`,
       mapEmbed,
       categories.ranked
     );
     await this.broadcastToCategories(
-      `:warning: A new **UNRANKED** map is available for public testing! :warning: ${thread.url}`,
+      `:warning: A new **UNRANKED** map is available for public testing! :warning: Post feedback in ${thread.url}`,
       mapEmbed,
       categories.unranked
     );
