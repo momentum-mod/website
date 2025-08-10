@@ -97,11 +97,12 @@ export class MapStatusNotifications {
     );
 
     const thread = await reviewChannel.threads.create({
-      name: extendedMap.name
-    });
-    await thread.send({
-      content: ':warning: A new map is available for public testing! :warning:',
-      embeds: [mapEmbed]
+      name: extendedMap.name,
+      message: {
+        content:
+          ':warning: A new map is available for public testing! :warning:',
+        embeds: [mapEmbed]
+      }
     });
 
     const categories = this.getGamemodeCategories(
