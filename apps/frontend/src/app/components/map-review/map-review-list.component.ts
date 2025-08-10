@@ -36,7 +36,7 @@ enum FilterType {
 export class MapReviewListComponent implements OnChanges {
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
-  private readonly localUserService = inject(LocalUserService);
+  protected readonly localUserService = inject(LocalUserService);
 
   protected readonly Filters = [
     { type: FilterType.NONE, label: 'All reviews' },
