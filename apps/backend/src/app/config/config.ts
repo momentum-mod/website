@@ -80,7 +80,7 @@ export const ConfigFactory = (): ConfigInterface => {
       guild: process.env['DISCORD_GUILD'] ?? '',
       contentApprovalChannel:
         process.env['DISCORD_CONTENT_APPROVAL_CHANNEL'] ?? '',
-      portingChannel: process.env['DISCORD_PORTING_CHANNEL'] ?? '',
+      reviewChannel: process.env['DISCORD_REVIEW_CHANNEL'] ?? '',
       statusChannels: Object.fromEntries(
         Enum.values(GamemodeCategory).map((cat) => [
           cat,

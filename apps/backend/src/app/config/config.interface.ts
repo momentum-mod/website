@@ -54,7 +54,7 @@ export interface ConfigInterface {
     token: string;
     guild: string;
     contentApprovalChannel: string;
-    portingChannel: string;
+    reviewChannel: string;
     statusChannels: Record<GamemodeCategory, string>;
   };
   mapListUpdateSchedule: string;

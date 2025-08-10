@@ -76,14 +76,14 @@ export class MapStatusNotifications {
   async sendPublicTestingNotification(extendedMap: MapWithInfoInSubmission) {
     if (!this.discord.isEnabled()) return;
 
-    const portingChannelID = this.config.getOrThrow('discord.portingChannel');
-    if (!portingChannelID) return;
+    const reviewChannelID = this.config.getOrThrow('discord.reviewChannel');
+    if (!reviewChannelID) return;
 
     // Cached in Discord.js
-    const portingChannel = await this.discord.channels.fetch(portingChannelID);
-    if (!portingChannel || portingChannel.type !== ChannelType.GuildText) {
+    const reviewChannel = await this.discord.channels.fetch(reviewChannelID);
+    if (!reviewChannel || reviewChannel.type !== ChannelType.GuildForum) {
       this.logger.error(
-        "Porting channel doesn't exist or is not a guild text channel."
+        "Review channel doesn't exist or is not a guild forum channel."
       );
       return;
     }
@@ -96,7 +96,7 @@ export class MapStatusNotifications {
       info.leaderboards
     );
 
-    const thread = await portingChannel.threads.create({
+    const thread = await reviewChannel.threads.create({
       name: extendedMap.name
     });
     await thread.send({
