@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { IconComponent } from '../../icons';
 import { SafeUrl } from '@angular/platform-browser';
+import { NgClass } from '@angular/common';
 
 export interface GalleryImageItem {
   type: 'image';
@@ -31,13 +32,13 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
  */
 @Component({
   selector: 'm-gallery',
-  imports: [IconComponent],
+  imports: [NgClass, IconComponent],
   templateUrl: './gallery.component.html'
 })
 export class GalleryComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) items: GalleryItem[] = [];
   @Input() selectedItem: GalleryItem;
-  private selectedItemIndex = 0;
+  protected selectedItemIndex = 0;
   @Output() selectedItemChange = new EventEmitter<GalleryItem>();
 
   @ViewChild('popover') popover: ElementRef<HTMLDivElement>;

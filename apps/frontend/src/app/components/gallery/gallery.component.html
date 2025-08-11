@@ -6,19 +6,34 @@
     ></div>
     <button
       type="button"
-      class="absolute right-0 top-0 z-20 m-[1.5vh] h-16 w-16 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-10"
+      class="absolute right-0 top-0 z-20 m-[1.5vh] size-20 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-10"
       (click)="popover.hidePopover()"
     >
-      <m-icon class="h-16 w-16 p-2" icon="close" />
+      <m-icon class="size-full p-2" icon="close" />
+    </button>
+
+    <button
+      type="button"
+      class="absolute left-4 z-20 size-32 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-5"
+      (click)="cycleLeft()"
+    >
+      <m-icon icon="menu-left" class="size-full opacity-85" />
+    </button>
+    <button
+      type="button"
+      class="absolute right-4 z-20 size-32 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-5"
+      (click)="cycleRight()"
+    >
+      <m-icon icon="menu-right" class="size-full opacity-85" />
     </button>
 
     <div #parent class="pointer-events-none z-10 grid aspect-video min-h-0 basis-[87.5%] place-items-center">
       @if (selectedItem && selectedItem.type === 'image') {
-        <img class="pointer-events-auto rounded shadow-lg" [src]="selectedItem.full" />
+        <img class="pointer-events-auto size-full rounded shadow-lg" [src]="selectedItem.full" />
       } @else if (selectedItem && selectedItem.type === 'youtube') {
         <iframe
           #youtubeIframe
-          class="pointer-events-auto h-full w-full shadow-lg"
+          class="pointer-events-auto size-full shadow-lg"
           type="text/html"
           [src]="selectedItem.safeUrl"
           allowfullscreen="true"
@@ -33,7 +48,8 @@
           <!-- Needed for hover effect -->
           <button
             type="button"
-            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded shadow-lg"
+            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded shadow-lg outline-none"
+            [ngClass]="{ 'border-2': i === selectedItemIndex }"
             (click)="selectItem(i)"
           >
             <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />
