@@ -351,7 +351,11 @@ export class MapsService {
       include = {
         versions: { include: { submitter: true } },
         currentVersion: true,
-        submission: { include: { dates: { include: { user: true } } } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        },
         info: true,
         leaderboards: true,
         submitter: true,
@@ -387,11 +391,17 @@ export class MapsService {
       if (query instanceof MapsGetAllSubmissionQueryDto) {
         if (include) {
           include.submission = {
-            include: { dates: { include: { user: true } } }
+            include: {
+              dates: { orderBy: { date: 'asc' }, include: { user: true } }
+            }
           };
         } else {
           include = {
-            submission: { include: { dates: { include: { user: true } } } }
+            submission: {
+              include: {
+                dates: { orderBy: { date: 'asc' }, include: { user: true } }
+              }
+            }
           };
         }
       }
@@ -450,7 +460,11 @@ export class MapsService {
         },
         {
           expand: 'submission',
-          value: { include: { dates: { include: { user: true } } } }
+          value: {
+            include: {
+              dates: { orderBy: { date: 'asc' }, include: { user: true } }
+            }
+          }
         }
       ]
     });
@@ -686,7 +700,11 @@ export class MapsService {
       include: {
         currentVersion: true,
         versions: { omit: { zones: true }, include: { submitter: true } },
-        submission: { include: { dates: { include: { user: true } } } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        },
         info: true
       }
     });
@@ -875,7 +893,11 @@ export class MapsService {
         include: {
           currentVersion: true,
           versions: { include: { submitter: true } },
-          submission: { include: { dates: { include: { user: true } } } }
+          submission: {
+            include: {
+              dates: { orderBy: { date: 'asc' }, include: { user: true } }
+            }
+          }
         }
       })
     );
@@ -1017,7 +1039,11 @@ export class MapsService {
         stats: true,
         currentVersion: true,
         versions: { include: { submitter: true } },
-        submission: { include: { dates: { include: { user: true } } } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        },
         submitter: true,
         credits: { include: { user: true } }
       }
@@ -1178,7 +1204,11 @@ export class MapsService {
     const map = (await this.db.mMap.findUnique({
       where: { id: mapID },
       include: {
-        submission: { include: { dates: { include: { user: true } } } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        },
         currentVersion: true,
         versions: { include: { submitter: true } },
         info: true
@@ -1243,7 +1273,11 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: { include: { dates: { include: { user: true } } } },
+              submission: {
+                include: {
+                  dates: { orderBy: { date: 'asc' }, include: { user: true } }
+                }
+              },
               submitter: true,
               credits: { include: { user: true } }
             }
@@ -1304,7 +1338,11 @@ export class MapsService {
       include: {
         currentVersion: true,
         versions: { include: { submitter: true } },
-        submission: { include: { dates: { include: { user: true } } } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        },
         info: true
       }
     })) as unknown as MapWithSubmission; // TODO: #855;
@@ -1388,7 +1426,11 @@ export class MapsService {
             where: { id: map.id },
             include: {
               info: true,
-              submission: { include: { dates: { include: { user: true } } } },
+              submission: {
+                include: {
+                  dates: { orderBy: { date: 'asc' }, include: { user: true } }
+                }
+              },
               submitter: true,
               credits: { include: { user: true } }
             }
