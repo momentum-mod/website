@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   OnInit,
   Output,
@@ -36,10 +37,35 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
 export class GalleryComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) items: GalleryItem[] = [];
   @Input() selectedItem: GalleryItem;
+  private selectedItemIndex = 0;
   @Output() selectedItemChange = new EventEmitter<GalleryItem>();
 
   @ViewChild('popover') popover: ElementRef<HTMLDivElement>;
   @ViewChild('youtubeIframe') youtubeIframe: ElementRef<HTMLIFrameElement>;
+
+  @HostListener('window:keydown.ArrowLeft')
+  @HostListener('window:keydown.a')
+  cycleLeft() {
+    if (!this.popover.nativeElement.matches(':popover-open')) return;
+
+    if (this.selectedItemIndex === 0) {
+      this.selectItem(this.items.length - 1);
+    } else {
+      this.selectItem(this.selectedItemIndex - 1);
+    }
+  }
+
+  @HostListener('window:keydown.ArrowRight')
+  @HostListener('window:keydown.d')
+  cycleRight() {
+    if (!this.popover.nativeElement.matches(':popover-open')) return;
+
+    if (this.selectedItemIndex === this.items.length - 1) {
+      this.selectItem(0);
+    } else {
+      this.selectItem(this.selectedItemIndex + 1);
+    }
+  }
 
   ngOnInit(): void {
     this.selectedItem ??= this.items[0];
@@ -60,8 +86,9 @@ export class GalleryComponent implements OnInit, AfterViewInit {
     this.popover.nativeElement.showPopover();
   }
 
-  selectItem(item: GalleryItem): void {
-    this.selectedItem = item;
-    this.selectedItemChange.emit(item);
+  selectItem(index: number): void {
+    this.selectedItemIndex = index;
+    this.selectedItem = this.items[index];
+    this.selectedItemChange.emit(this.selectedItem);
   }
 }
