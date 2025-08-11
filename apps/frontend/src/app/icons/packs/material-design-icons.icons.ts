@@ -8,6 +8,8 @@ export {
   mdiCloseOutline,
   mdiCloseCircleOutline,
   mdiMenu,
+  mdiMenuLeft,
+  mdiMenuRight,
   mdiPanorama,
   mdiPanoramaOutline,
   mdiPanoramaVariantOutline,
