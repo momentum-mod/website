@@ -29,12 +29,12 @@
     @if (items.length > 1) {
       <!-- Make sure high in z-order so clicking in between thumbnails doesn't trigger close (annoying!)-->
       <div class="z-10 mt-[1.5vh] flex min-h-0 basis-[12.5%] items-center justify-center gap-[1.5vh] overflow-x-auto">
-        @for (item of items; track $index) {
+        @for (item of items; track $index; let i = $index) {
           <!-- Needed for hover effect -->
           <button
             type="button"
             class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded shadow-lg"
-            (click)="selectItem(item)"
+            (click)="selectItem(i)"
           >
             <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />
           </button>

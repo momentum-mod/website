@@ -64,8 +64,12 @@
       @if (review.images?.length > 0) {
         <m-gallery #gallery [items]="images" />
         <div class="grid grid-cols-6 gap-2 rounded bg-black bg-opacity-20 p-1.5">
-          @for (image of images; track $index) {
-            <button type="button" class="hover-white-overlay rounded-sm shadow-lg" (click)="gallery.selectItem(image); gallery.show()">
+          @for (image of images; track $index; let galleryImageIndex = $index) {
+            <button
+              type="button"
+              class="hover-white-overlay rounded-sm shadow-lg"
+              (click)="gallery.selectItem(galleryImageIndex); gallery.show()"
+            >
               <img [src]="image.thumbnail" />
             </button>
           }
