@@ -917,7 +917,11 @@ describe('Maps', () => {
               leaderboards: true,
               currentVersion: true,
               versions: true,
-              submission: { include: { dates: true } }
+              submission: {
+                include: {
+                  dates: { orderBy: { date: 'asc' }, include: { user: true } }
+                }
+              }
             }
           });
         });

@@ -251,7 +251,11 @@ export class DbUtil {
         versions: true,
         currentVersion: true,
         leaderboards: true,
-        submission: { include: { dates: { include: { user: true } } } }
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
+          }
+        }
       }
     });
   }
