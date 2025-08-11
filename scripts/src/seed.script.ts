@@ -9,7 +9,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
-import { PrismaClient } from '@momentum/db';
+import {
+  MapSubmissionDateCreateWithoutSubmissionInput,
+  PrismaClient
+} from '@momentum/db';
 import { faker } from '@faker-js/faker';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
@@ -262,9 +265,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       imageBuffers = await Promise.all(
         arrayFrom(randRange(vars.imageFetches), () =>
           axios
-            // Sometimes picsum will fail and break script.
-            // Temp substitute; pictures are very low res, and wrong format.
+            // Sometimes picsum will fail and break script; temp substitutes:
             // .get('https://placedog.net/480/360', {
+            // .get('http://placebeard.it/2560/1440', {
             .get('https://picsum.photos/2560/1440', {
               responseType: 'arraybuffer'
             })
@@ -415,7 +418,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         );
 
       const submissionsDates = () => {
-        const dates = [];
+        const dates: MapSubmissionDateCreateWithoutSubmissionInput[] = [];
 
         let currStatus: MapStatus = Random.chance()
           ? MapStatus.PRIVATE_TESTING
@@ -430,7 +433,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           });
 
           currDate = new Date(
-            new Date(currDate).getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
+            currDate.getTime() + Random.int(1000 * 60 * 60 * 24 * 30) // Monf
           );
           currStatus = Random.weighted(
             weights.submissionGraphWeights[currStatus]
