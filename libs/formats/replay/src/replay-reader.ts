@@ -24,7 +24,16 @@ export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
       playerName: readNullTerminatedString(buffer, 135),
       trackType: buffer.readUInt8(167),
       trackNum: buffer.readUInt8(168),
-      runTime: buffer.readDoubleLE(169)
+      runTime: buffer.readDoubleLE(169),
+      // frameCount: buffer.readInt32LE(177),
+      // keyFrameCount: buffer.readInt32LE(181),
+      // baselineCount: buffer.readInt32LE(185),
+      // classCount: buffer.readUint8(189),
+      // tempEntClassCount: buffer.readUint8(190),
+      // sampleCount: buffer.readUint8(191),
+      // propBits: buffer.readUint8(192),
+      // tempEntClassBits: buffer.readUint8(193),
+      style: buffer.readUInt8(194)
     };
   } catch (error) {
     throw new ReplayReadError(error.code, error.message);
