@@ -17,8 +17,8 @@ import { Component } from '@angular/core';
       </p>
       <p>
         <i><b>Ports</b></i> are maps already released in other games. In these
-        cases the aim is to try as true to the map in the original game as
-        possible <i>especially</i> if porter is not the original author!
+        cases the aim is to be as true to the map in the original game as
+        possible, <i>especially</i> if porter is not the original author!
       </p>
     </div>
   `

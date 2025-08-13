@@ -2,11 +2,11 @@
 
 @if (isMapperOrPorter || !hasMapInSubmission || true) {
   <m-alert class="alert--fancy my-8 bg-blue-700 bg-opacity-20">
-    <p class="pr-6">
+    <p class="max-w-[70rem] pr-6">
       If this is your first time submitting a map, please check our
       <a href="https://docs.momentum-mod.org/guide/map_submission/map_submission/">docs page</a>, plus you can hover over
-      <m-icon class="h-4 w-4 translate-y-1" icon="tooltip-question" /> icons for guidance. Reviewing maps is a community effort; please
-      respect everyones's time by reading the guide first, plus we're happy to answer any questions in our
+      <m-icon class="h-4 w-4 translate-y-1" icon="tooltip-question" mTooltip="Hello :)" /> icons for guidance. Reviewing maps is a community
+      effort; please respect everyones's time by reading the guide first, plus we're happy to answer any questions in our
       <a href="https://discord.gg/momentummod">Discord</a>!
     </p>
   </m-alert>
@@ -45,7 +45,7 @@
           </p>
           <p class="mb-6 mt-3 block w-auto flex-grow text-balance px-3 text-center text-sm">
             This is the main map file for your map. It should have all custom assets packed into it, and must be
-            <a class="link" href="https://docs.momentum-mod.org/guides/map_submission/map_submission/#compression">compressed</a>.
+            <a class="link" href="https://docs.momentum-mod.org/guide/map_submission/map_submission/#compression">compressed</a>.
           </p>
           <div>
             @if (bsp.errors?.['required'] && bsp.dirty) {
@@ -339,7 +339,7 @@
               </p>
               <p>
                 This is intended to make sharing and versioning your map files simpler. Rather than share each change manually over Discord
-                or wheever, you can just submit new versions via this site and their game clients will download the latest version when
+                or wherever, you can just submit new versions via this site and their game clients will download the latest version when
                 launching.
               </p>
               <p>
