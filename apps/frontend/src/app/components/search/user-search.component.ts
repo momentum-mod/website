@@ -71,8 +71,11 @@ export class UserSearchComponent
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {
-      if (Number.isNaN(+searchString)) {
-        this.search.setErrors({ error: 'Input is not a Steam ID!' });
+      if (
+        Number.isNaN(+searchString) ||
+        BigInt(searchString.toString()) >= BigInt(2 ** 63)
+      ) {
+        this.search.setErrors({ error: 'Input is not a Steam64 ID!' });
         return of(null);
       }
       return this.usersService.getUsers({ steamID: searchString });
