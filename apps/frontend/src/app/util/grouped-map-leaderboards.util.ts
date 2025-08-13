@@ -6,6 +6,7 @@ import {
   MapReview,
   MapTag,
   MMap,
+  Style,
   TrackType
 } from '@momentum/constants';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
@@ -21,6 +22,7 @@ export type GroupedMapLeaderboard = {
     type: LeaderboardType;
     tags: MapTag[];
   }>;
+  styles: Style[];
   reviews?: MapReview[];
   totalRuns?: number;
   allHidden: boolean;
@@ -60,26 +62,33 @@ export function groupMapLeaderboards(
       arr.push(entry);
     }
 
-    if (lb.trackType === TrackType.MAIN) {
-      entry.tier = lb.tier;
-      entry.type = lb.type;
-      entry.linear = lb.linear;
-      entry.tags = lb.tags;
-    } else if (lb.trackType === TrackType.STAGE) {
-      if (!entry.stages) {
-        entry.stages = 1;
+    if (!entry.styles) entry.styles = [];
+    if (!entry.styles.includes(lb.style)) {
+      entry.styles.push(lb.style);
+    }
+
+    if (lb.style === Style.NORMAL) {
+      if (lb.trackType === TrackType.MAIN) {
+        entry.tier = lb.tier;
+        entry.type = lb.type;
+        entry.linear = lb.linear;
+        entry.tags = lb.tags;
+      } else if (lb.trackType === TrackType.STAGE) {
+        if (!entry.stages) {
+          entry.stages = 1;
+        } else {
+          entry.stages++;
+        }
       } else {
-        entry.stages++;
+        // Bonuses
+        if (!entry.bonuses) entry.bonuses = [];
+        entry.bonuses.push({
+          num: lb.trackNum,
+          tier: lb.tier,
+          type: lb.type,
+          tags: lb.tags
+        });
       }
-    } else {
-      // Bonuses
-      if (!entry.bonuses) entry.bonuses = [];
-      entry.bonuses.push({
-        num: lb.trackNum,
-        tier: lb.tier,
-        type: lb.type,
-        tags: lb.tags
-      });
     }
   }
 
