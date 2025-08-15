@@ -19,7 +19,7 @@ export class DropdownComponent implements ControlValueAccessor {
   // First element is used as default for dropdown button in template.
   @Input({ required: true }) entries: number[] = [];
 
-  @Input() entryNameFn?: (entry: number) => string;
+  @Input({ required: true }) entryNameFn?: (entry: number) => string;
 
   protected selectedEntry: number;
 
@@ -54,6 +54,7 @@ export class DropdownComponent implements ControlValueAccessor {
   @ViewChild('dropdown', { static: false })
   dropdownElem: ElementRef<HTMLDivElement>;
 
+  // NOTE: left-aligned; standard is right-aligned to toggle element.
   fixUnsupportedAnchorPosition() {
     if (!('anchorName' in document.documentElement.style)) {
       const toggleElemCoords =
@@ -63,8 +64,6 @@ export class DropdownComponent implements ControlValueAccessor {
         toggleElemCoords.bottom.toString() + 'px';
       this.dropdownElem.nativeElement.style.left =
         toggleElemCoords.left.toString() + 'px';
-      this.dropdownElem.nativeElement.style.width =
-        toggleElemCoords.width.toString() + 'px';
     }
   }
 }

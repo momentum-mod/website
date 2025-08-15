@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
+  MapCreditName,
+  MapCreditType,
   MapsGetAllSubmissionQuery,
   MapSortType,
   MapSortTypeName,
@@ -27,6 +29,7 @@ import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
+import { fastValuesNumeric } from '@momentum/enum';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -62,9 +65,10 @@ export class MapSubmissionBrowserComponent implements OnInit {
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
-  protected readonly MapSortType = MapSortType;
-  protected readonly MapSortNameFn = (type: MapSortType): string =>
-    MapSortTypeName.get(type);
+  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
+    MapCreditName.get(creditType) ?? '';
+
   protected readonly MapSortOptions = [
     MapSortType.SUBMISSION_CREATED_NEWEST,
     MapSortType.SUBMISSION_CREATED_OLDEST,
@@ -75,11 +79,15 @@ export class MapSubmissionBrowserComponent implements OnInit {
     MapSortType.ALPHABETICAL,
     MapSortType.REVERSE_ALPHABETICAL
   ];
+  protected readonly MapSortNameFn = (type: MapSortType): string =>
+    MapSortTypeName.get(type);
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
     submitter: new FormControl<User>(null),
+    credit: new FormControl<User | null>(null),
+    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -117,7 +125,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, submitter, sortType } =
+          const { name, status, submitter, credit, creditType, sortType } =
             this.filters?.value ?? {};
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
@@ -137,6 +145,10 @@ export class MapSubmissionBrowserComponent implements OnInit {
             options.filter = status as StatusFilters as any;
           if (submitter) {
             options.submitterID = submitter.id;
+          }
+          if (credit) {
+            options.creditID = credit.id;
+            options.creditType = creditType;
           }
           if (sortType) options.sortType = sortType;
 
@@ -165,6 +177,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
       name: '',
       status: null,
       submitter: null,
+      credit: null,
+      creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
     });
   }

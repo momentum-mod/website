@@ -3,11 +3,14 @@ import {
   Gamemode,
   Leaderboard,
   LeaderboardType,
+  MapCreditName,
+  MapCreditType,
   MapsGetAllQuery,
+  MapSortType,
   MapSortTypeName,
   MMap,
   PagedResponse,
-  MapSortType
+  User
 } from '@momentum/constants';
 import {
   FormControl,
@@ -29,6 +32,7 @@ import {
 import { setupPersistentForm } from '../../../util/form-utils.util';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
+import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -37,12 +41,15 @@ import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { IconComponent } from '../../../icons/icon.component';
+import { fastValuesNumeric } from '@momentum/enum';
 
 @Component({
   templateUrl: 'map-browser.component.html',
   imports: [
     MapListComponent,
     NStateButtonComponent,
+    UserSelectComponent,
+    DropdownComponent,
     PaginatorModule,
     SliderComponent,
     ReactiveFormsModule,
@@ -51,7 +58,6 @@ import { IconComponent } from '../../../icons/icon.component';
     AsyncPipe,
     TooltipDirective,
     CommonModule,
-    DropdownComponent,
     FormsModule,
     IconComponent
   ]
@@ -65,9 +71,10 @@ export class MapBrowserComponent implements OnInit {
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
-  protected readonly MapSortType = MapSortType;
-  protected readonly MapSortNameFn = (sortType: MapSortType): string =>
-    MapSortTypeName.get(sortType) ?? '';
+  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
+    MapCreditName.get(creditType) ?? '';
+
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
     MapSortType.DATE_RELEASED_OLDEST,
@@ -78,6 +85,8 @@ export class MapBrowserComponent implements OnInit {
     MapSortType.FAVORITED_MOST,
     MapSortType.FAVORITED_LEAST
   ];
+  protected readonly MapSortNameFn = (sortType: MapSortType): string =>
+    MapSortTypeName.get(sortType) ?? '';
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
@@ -88,6 +97,8 @@ export class MapBrowserComponent implements OnInit {
       value: [1, 10],
       disabled: true
     }),
+    credit: new FormControl<User | null>(null),
+    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -133,8 +144,17 @@ export class MapBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { favorites, pb, tiers, name, gamemode, sortType } =
-            this.filters?.value ?? {};
+          const {
+            favorites,
+            pb,
+            tiers,
+            name,
+            gamemode,
+            credit,
+            creditType,
+            sortType
+          } = this.filters?.value ?? {};
+
           const options: MapsGetAllQuery = {
             skip: this.skip,
             take,
@@ -142,13 +162,11 @@ export class MapBrowserComponent implements OnInit {
           };
           if (name) options.search = name;
           if (gamemode) options.gamemode = gamemode;
-
           if (tiers) {
             const [low, high] = tiers;
             if (low > 1 && low <= 10) options.difficultyLow = low;
             if (high > 1 && high < 10) options.difficultyHigh = high;
           }
-
           if (favorites === 1) {
             options.favorite = true;
           } else if (favorites === 2) {
@@ -159,7 +177,10 @@ export class MapBrowserComponent implements OnInit {
           } else if (pb === 2) {
             options.PB = false;
           }
-
+          if (credit) {
+            options.creditID = credit.id;
+            options.creditType = creditType;
+          }
           if (sortType) options.sortType = sortType;
 
           return this.mapsService.getMaps({ ...options });
@@ -204,6 +225,8 @@ export class MapBrowserComponent implements OnInit {
       favorites: 0,
       pb: 0,
       tiers: [1, 10],
+      credit: null,
+      creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
     });
   }
