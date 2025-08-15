@@ -444,11 +444,11 @@
 
     .body {
       top: anchor(bottom);
-      left: anchor(left);
+      left: initial; /* Override browser defaulting to left: 0px */
       right: anchor(right);
       margin: 0;
       padding: 0;
-      width: auto;
+      width: fit-content;
       gap: 0.5rem;
       @apply card card--fancy border border-white border-opacity-5;
       /* Display flex from card breaks popover, so remove it. */

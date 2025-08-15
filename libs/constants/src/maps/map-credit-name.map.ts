@@ -1,5 +1,12 @@
 import { MapCreditType } from '../';
 
+export const MapCreditName: ReadonlyMap<MapCreditType, string> = new Map([
+  [MapCreditType.AUTHOR, 'Author'],
+  [MapCreditType.CONTRIBUTOR, 'Contributor'],
+  [MapCreditType.TESTER, 'Tester'],
+  [MapCreditType.SPECIAL_THANKS, 'Special']
+]);
+
 export const MapCreditNames: ReadonlyMap<MapCreditType, string> = new Map([
   [MapCreditType.AUTHOR, 'Authors'],
   [MapCreditType.CONTRIBUTOR, 'Contributors'],

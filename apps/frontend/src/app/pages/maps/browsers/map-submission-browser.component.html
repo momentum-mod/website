@@ -15,6 +15,10 @@
         <p class="font-display text-24">Submitter</p>
         <m-user-select formControlName="submitter" />
       </div>
+      <div class="flex items-center gap-2">
+        <m-user-select formControlName="credit" />
+        <m-dropdown [entries]="MapCreditOptions" [entryNameFn]="MapCreditNameFn" formControlName="creditType" />
+      </div>
       <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
         <m-icon icon="filter-remove" class="size-5" />
