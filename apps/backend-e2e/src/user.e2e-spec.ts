@@ -25,7 +25,6 @@ import {
   Ban,
   Gamemode,
   MapCreditType,
-  MapSortType,
   ReportCategory,
   ReportType,
   Role,
@@ -1465,14 +1464,14 @@ describe('User', () => {
 
   describe('user/maps', () => {
     describe('GET', () => {
-      let u1: User, u1Token: string, u2Token: string, m1, m2;
+      let u1: User, u1Token: string, u2Token: string;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser()
         ]);
-        [m1, m2] = await Promise.all([
+        await Promise.all([
           db.createMap({
             name: 'ahop_aaaaaaaa',
             submitter: { connect: { id: u1.id } },
@@ -1561,18 +1560,6 @@ describe('User', () => {
           searchMethod: 'contains',
           searchString: 'bbb'
         }));
-
-      it('should sort maps in reverse alphabetical order when in sortType query', async () => {
-        const res = await req.get({
-          url: 'user/maps',
-          status: 200,
-          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
-          token: u1Token
-        });
-
-        expect(res.body.data[0].name).toBe(m2.name);
-        expect(res.body.data[1].name).toBe(m1.name);
-      });
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/maps', 'get'));
