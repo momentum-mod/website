@@ -74,7 +74,14 @@ export function setupPersistentForm(
   const valueString = sessionStorage.getItem(key);
 
   if (valueString) {
-    form.setValue(JSON.parse(valueString));
+    // If form has different fields than when user last interacted with it,
+    // e.g. from new commits to main, just reset storage instead of throwing.
+    try {
+      form.setValue(JSON.parse(valueString));
+      // eslint-disable-next-line unused-imports/no-unused-vars
+    } catch (e) {
+      sessionStorage.removeItem(key);
+    }
   }
 
   form.valueChanges
