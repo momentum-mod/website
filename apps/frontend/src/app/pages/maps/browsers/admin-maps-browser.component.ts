@@ -1,12 +1,15 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
+  MapCreditName,
+  MapCreditType,
   MapsGetAllAdminQuery,
+  MapSortType,
+  MapSortTypeName,
   MapStatusName,
   MapStatus,
   MMap,
   PagedResponse,
-  MapSortType,
-  MapSortTypeName
+  User
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import {
@@ -21,6 +24,11 @@ import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
+import {
+  NStateButtonComponent,
+  NStateButtonStates
+} from '../../../components/n-state-button/n-state-button.component';
+import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { AdminService } from '../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -35,6 +43,8 @@ type StatusFilters = Array<MapStatus>;
   imports: [
     MapListComponent,
     MultiSelectModule,
+    NStateButtonComponent,
+    UserSelectComponent,
     ReactiveFormsModule,
     DropdownComponent,
     FormsModule,
@@ -45,6 +55,13 @@ export class AdminMapsBrowserComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly MapCreditOptions: NStateButtonStates = [
+    { text: MapCreditName.get(MapCreditType.AUTHOR), color: 'pale' },
+    { text: MapCreditName.get(MapCreditType.CONTRIBUTOR), color: 'green' },
+    { text: MapCreditName.get(MapCreditType.TESTER), color: 'red' },
+    { text: MapCreditName.get(MapCreditType.SPECIAL_THANKS), color: 'yellow' }
+  ];
 
   protected readonly MapSortType = MapSortType;
   protected readonly MapSortNameFn = (type: MapSortType): string =>
@@ -73,6 +90,8 @@ export class AdminMapsBrowserComponent implements OnInit {
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
+    credit: new FormControl<User | null>(null),
+    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -106,13 +125,18 @@ export class AdminMapsBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, sortType } = this.filters?.value ?? {};
+          const { name, status, credit, creditType, sortType } =
+            this.filters?.value ?? {};
           const options: MapsGetAllAdminQuery = {
             skip: this.skip,
             take
           };
           if (name) options.search = name;
           if (status?.length > 0) options.filter = status as StatusFilters;
+          if (credit) {
+            options.creditID = credit.id;
+            options.creditType = creditType;
+          }
           if (sortType) options.sortType = sortType;
 
           return this.adminService.getMaps({ ...options });
@@ -139,6 +163,8 @@ export class AdminMapsBrowserComponent implements OnInit {
     this.filters.reset({
       name: '',
       status: null,
+      credit: null,
+      creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
     });
   }

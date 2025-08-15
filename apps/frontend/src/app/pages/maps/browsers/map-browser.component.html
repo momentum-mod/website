@@ -46,6 +46,16 @@
   <div class="ml-auto flex basis-1/2 flex-col gap-2">
     <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
       <div class="flex items-center gap-2">
+        <m-n-state-button class="h-10 w-24 p-0 saturate-[0.75]" [states]="MapCreditOptions" formControlName="creditType" />
+        <m-user-select formControlName="credit" />
+      </div>
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
+        <m-icon icon="filter-remove" class="size-5" />
+      </button>
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
         <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
         <m-slider
           #slider
@@ -61,10 +71,7 @@
           [tooltipDisabled]="gamemode.value != null"
         />
       </div>
-      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-      <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
-        <m-icon icon="filter-remove" class="size-5" />
-      </button>
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
     </div>
     <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
       @if (localUserService.user | async) {
@@ -93,7 +100,6 @@
           />
         </div>
       }
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
     </div>
   </div>
 </form>
