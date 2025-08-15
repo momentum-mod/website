@@ -126,8 +126,9 @@ export class MapsService {
       | MapsGetAllUserSubmissionQueryDto,
     userID?: number
   ): Promise<PagedResponseDto<MapDto>> {
-    // Where
-    const where: Prisma.MMapWhereInput = {};
+    // Handle base query options.
+
+    let take: number | undefined = query.take;
     // Default ordering is most recently created submission,
     // as not all maps are approved.
     // Changing to info: { creationDate: 'desc' }
@@ -139,7 +140,8 @@ export class MapsService {
             createdAt: 'desc'
           };
     // TODO validate userID if sortType is user-dependent
-    let take: number | undefined = query.take;
+
+    const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
     if (query.searchStartsWith)
       where.name = { startsWith: query.searchStartsWith };
@@ -148,6 +150,18 @@ export class MapsService {
       !(query instanceof MapsGetAllUserSubmissionQueryDto)
     )
       where.submitterID = query.submitterID;
+    if (query.creditID != null || query.creditType != null) {
+      if (query.creditID == null || query.creditType == null) {
+        throw new BadRequestException(
+          'creditID and creditType must both be or not be present in query'
+        );
+      }
+      where.credits = {
+        some: { userID: query.creditID, type: query.creditType }
+      };
+    }
+
+    // Handle query variants.
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
       where.status = MapStatus.APPROVED;
@@ -226,6 +240,7 @@ export class MapsService {
 
       if (roles == null) throw new BadRequestException();
 
+      // TODO surely we should restrict this in all map browsers
       // Allow unlimited take for reviewers and above
       if (take === -1) {
         take = Bitflags.has(roles, CombinedRoles.REVIEWER_AND_ABOVE)

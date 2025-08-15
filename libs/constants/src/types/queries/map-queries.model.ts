@@ -6,6 +6,7 @@ import { PagedQuery } from './pagination.model';
 import { MapSubmissionType } from '../../enums/map-submission-type.enum';
 import {
   MapCredit,
+  MapCreditType,
   MapInfo,
   MapNotify,
   MapReview,
@@ -50,6 +51,8 @@ type MapsGetAllBaseQuery = {
   search?: string;
   searchStartsWith?: string;
   submitterID?: number;
+  creditID?: number;
+  creditType?: MapCreditType;
   sortType?: MapSortType;
 };
 
