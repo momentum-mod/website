@@ -23,6 +23,12 @@ export type NStateButtonColor =
   | 'purple'
   | 'yellow';
 
+export type NStateButtonStates = Array<{
+  color: NStateButtonColor | null;
+  text?: string;
+  icon?: Icon;
+}>;
+
 @Component({
   template: `@if (currentState.text; as text) {
       <p [ngClass]="textClass">{{ text }}</p>
@@ -44,11 +50,7 @@ export type NStateButtonColor =
 export class NStateButtonComponent implements ControlValueAccessor {
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  @Input({ required: true }) states: Array<{
-    color: NStateButtonColor | null;
-    text?: string;
-    icon?: Icon;
-  }>;
+  @Input({ required: true }) states: NStateButtonStates;
 
   @Input() type: 'button' | 'submit' = 'button';
   @Input() textClass: string;
