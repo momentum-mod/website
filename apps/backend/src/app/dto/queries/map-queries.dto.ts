@@ -19,7 +19,8 @@ import {
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
-  MapSortType
+  MapSortType,
+  MapCreditType
 } from '@momentum/constants';
 import {
   MapCreditsGetQuery,
@@ -67,6 +68,14 @@ class MapsGetAllBaseQueryDto extends QueryDto {
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
+
+  @IntQueryProperty({ description: 'Filter by a user in map credits' })
+  readonly creditID?: number;
+
+  @EnumQueryProperty(MapCreditType, {
+    description: 'Type of credit for creditID field'
+  })
+  readonly creditType?: MapCreditType;
 
   @EnumQueryProperty(MapSortType, {
     description: 'Get maps in a given order with MapSortType'

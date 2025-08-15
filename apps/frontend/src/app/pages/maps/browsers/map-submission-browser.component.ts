@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
+  MapCreditName,
+  MapCreditType,
   MapsGetAllSubmissionQuery,
   MapSortType,
   MapSortTypeName,
@@ -19,6 +21,10 @@ import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MultiSelectModule } from 'primeng/multiselect';
+import {
+  NStateButtonComponent,
+  NStateButtonStates
+} from '../../../components/n-state-button/n-state-button.component';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { MapsService } from '../../../services/data/maps.service';
@@ -42,6 +48,7 @@ type StatusFilters = Array<
   imports: [
     MapListComponent,
     MultiSelectModule,
+    NStateButtonComponent,
     UserSelectComponent,
     IconComponent,
     TooltipDirective,
@@ -62,6 +69,13 @@ export class MapSubmissionBrowserComponent implements OnInit {
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
+  protected readonly MapCreditOptions: NStateButtonStates = [
+    { text: MapCreditName.get(MapCreditType.AUTHOR), color: 'pale' },
+    { text: MapCreditName.get(MapCreditType.CONTRIBUTOR), color: 'green' },
+    { text: MapCreditName.get(MapCreditType.TESTER), color: 'red' },
+    { text: MapCreditName.get(MapCreditType.SPECIAL_THANKS), color: 'yellow' }
+  ];
+
   protected readonly MapSortType = MapSortType;
   protected readonly MapSortNameFn = (type: MapSortType): string =>
     MapSortTypeName.get(type);
@@ -80,6 +94,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
     submitter: new FormControl<User>(null),
+    credit: new FormControl<User | null>(null),
+    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -117,7 +133,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, submitter, sortType } =
+          const { name, status, submitter, credit, creditType, sortType } =
             this.filters?.value ?? {};
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
@@ -137,6 +153,10 @@ export class MapSubmissionBrowserComponent implements OnInit {
             options.filter = status as StatusFilters as any;
           if (submitter) {
             options.submitterID = submitter.id;
+          }
+          if (credit) {
+            options.creditID = credit.id;
+            options.creditType = creditType;
           }
           if (sortType) options.sortType = sortType;
 
@@ -165,6 +185,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
       name: '',
       status: null,
       submitter: null,
+      credit: null,
+      creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
     });
   }
