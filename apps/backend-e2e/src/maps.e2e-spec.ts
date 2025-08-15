@@ -289,6 +289,57 @@ describe('Maps', () => {
         });
       });
 
+      it('should respond with filtered map data based on the creditID parameter', async () => {
+        const newUser = await db.createUser();
+
+        const newCredit = await prisma.mapCredit.update({
+          where: {
+            mapID_userID: { mapID: mEarth.id, userID: u1.id },
+            type: MapCreditType.AUTHOR
+          },
+          data: { user: { connect: newUser } }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            creditID: newUser.id,
+            creditType: MapCreditType.AUTHOR,
+            expand: 'credits'
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0]).toMatchObject({
+          id: mEarth.id,
+          credits: [newCredit]
+        });
+
+        await prisma.user.delete({ where: { id: newUser.id } });
+      });
+
+      it('should 400 if creditID or creditType parameter is used but not the other', async () => {
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            creditID: u1.id
+          },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            creditType: MapCreditType.AUTHOR
+          },
+          token: u1Token
+        });
+      });
+
       it('should respond with filtered map data based on the supported gamemodes', async () => {
         const gamemode = Gamemode.BHOP;
         const map = await db.createMap({
@@ -4834,7 +4885,6 @@ describe('Maps', () => {
 
       restPostObservable = new rxjs.Subject();
       restPostMock.mockImplementation((url) => {
-        console.log(url);
         if (url.startsWith('/')) url = url.slice(1);
         const parts = url.split('/');
         return new Promise((res) => {
