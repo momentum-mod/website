@@ -9,20 +9,19 @@
   <p-popover #searchOverlay>
     <m-multisearch (selected)="searchOverlay.hide()" />
   </p-popover>
-  <div class="item">
-    <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
+  <div class="item" (click)="searchOverlay.toggle($event)">
+    <m-icon class="h-auto" icon="magnify"> </m-icon>
   </div>
 
   @if (localUserService.user | async) {
     <p-popover #notificationsOverlay> <m-notifications [notifications]="notifications" /> </p-popover>
-    <div class="item">
+    <div class="item" (click)="notificationsOverlay.toggle($event)">
       @if (unreadNotificationCount > 0) {
         <p class="badge badge-blue absolute bottom-2 right-2">
           {{ unreadNotificationCount.toString() }}
         </p>
       }
-      <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
-      </m-icon>
+      <m-icon class="h-auto !p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'"> </m-icon>
     </div>
     <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />

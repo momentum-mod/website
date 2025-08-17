@@ -1,11 +1,10 @@
 <form class="mb-4 flex" [formGroup]="filters">
-  <div class="flex flex-col">
-    <p class="card-title -mb-4 text-48">Browse Maps</p>
-    <div class="flex flex-wrap items-end gap-4">
+  <div class="flex basis-4/10 flex-col">
+    <div class="flex flex-wrap items-end gap-x-4 gap-y-1">
       <ng-template #gm let-mode="mode" let-name="name" let-size="size">
         <button type="button" (click)="gamemode.setValue(mode)">
           <p
-            class="font-display text-32 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50"
+            class="text-left font-display text-36 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50"
             [ngClass]="{
               'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': gamemode.value === mode
             }"
@@ -22,62 +21,84 @@
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SJ, name: 'Sticky Jump' }" />
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.AHOP, name: 'Ahop' }" />
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CONC, name: 'Conc' }" />
-      <div class="grid grid-cols-2 grid-rows-1 gap-x-2">
+      <div class="grid grid-cols-3 grid-rows-1 gap-x-2">
         <p
-          class="pointer-events-none col-span-2 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
+          class="pointer-events-none col-span-3 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
         >
           Defrag
         </p>
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_CPM, name: 'CPM' }" />
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
+      </div>
+      <!-- TODO more climb modes when done. Currently positioned after defrag to wrap nicely with 1080p monitor and 100%-->
+      <div class="grid grid-cols-1 grid-rows-1 gap-x-2">
+        <p
+          class="pointer-events-none col-span-1 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
+        >
+          Climb
+        </p>
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_16, name: '1.6' }" />
       </div>
     </div>
   </div>
-  <div class="ml-auto flex flex-col justify-between gap-2">
-    <div class="flex items-center gap-2">
-      <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
-      <m-slider
-        #slider
-        class="h-9 w-64"
-        [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
-        formControlName="tiers"
-        [range]="true"
-        [step]="1"
-        [min]="1"
-        [max]="10"
-        [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-        mTooltip="You must select a gamemode to use this filter"
-        [tooltipDisabled]="gamemode.value != null"
-      />
-      <input class="textinput ml-5 h-10 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-      <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
-        <m-icon icon="filter-remove" class="h-5 w-5" />
+  <div class="ml-auto flex basis-6/10 flex-col gap-2">
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <m-user-select formControlName="credit" />
+        <m-dropdown [entries]="MapCreditOptions" [entryNameFn]="MapCreditNameFn" formControlName="creditType" />
+      </div>
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
+        <m-icon icon="filter-remove" class="size-5" />
       </button>
     </div>
-    <div class="ml-auto flex items-center gap-2">
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
+        <m-slider
+          #slider
+          class="h-9 w-64"
+          [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
+          formControlName="tiers"
+          [range]="true"
+          [step]="1"
+          [min]="1"
+          [max]="10"
+          [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+          mTooltip="You must select a gamemode to use this filter"
+          [tooltipDisabled]="gamemode.value != null"
+        />
+      </div>
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
       @if (localUserService.user | async) {
-        <p class="font-display text-24">Favorites</p>
-        <m-n-state-button
-          class="mr-4 h-8 w-8 p-0"
-          [states]="[
-            { icon: 'star', color: null },
-            { icon: 'star', color: 'blue' },
-            { icon: 'star', color: 'red' }
-          ]"
-          formControlName="favorites"
-        />
-        <p class="font-display text-24">Completed</p>
-        <m-n-state-button
-          class="mr-4 h-8 w-8 p-0"
-          [states]="[
-            { icon: 'flag-outline', color: null },
-            { icon: 'flag-outline', color: 'blue' },
-            { icon: 'flag-outline', color: 'red' }
-          ]"
-          formControlName="pb"
-        />
+        <div class="flex items-center gap-2">
+          <p class="font-display text-24">Favorites</p>
+          <m-n-state-button
+            class="size-8 p-0"
+            [states]="[
+              { icon: 'star', color: null },
+              { icon: 'star', color: 'blue' },
+              { icon: 'star', color: 'red' }
+            ]"
+            formControlName="favorites"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <p class="font-display text-24">Completed</p>
+          <m-n-state-button
+            class="size-8 p-0"
+            [states]="[
+              { icon: 'flag-outline', color: null },
+              { icon: 'flag-outline', color: 'blue' },
+              { icon: 'flag-outline', color: 'red' }
+            ]"
+            formControlName="pb"
+          />
+        </div>
       }
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-[18.5rem]" />
     </div>
   </div>
 </form>

@@ -1,5 +1,5 @@
-<div class="grid grid-flow-col grid-cols-[minmax(auto,20rem)_1fr] grid-rows-[auto_auto] gap-4">
-  <p class="card-title text-48">Your Maps</p>
+<div class="grid grid-flow-col grid-cols-[minmax(auto,14rem)_1fr] grid-rows-[auto_auto] gap-4">
+  <p class="card-title text-nowrap text-48">Your Maps</p>
   <div class="flex flex-col gap-4">
     @if (hasSubmissionBan) {
       <p>You are banned from map submission</p>
@@ -20,22 +20,32 @@
     }
   </div>
 
-  <div class="flex flex-wrap items-end gap-4 self-end">
-    <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
-      <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-      <p class="font-display text-24">Status</p>
-      <p-multiSelect
-        formControlName="status"
-        [options]="StatusDropdown"
-        optionLabel="label"
-        optionValue="type"
-        [showHeader]="false"
-        [maxSelectedLabels]="2"
-      />
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
-      <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
-        <m-icon icon="filter-remove" class="h-5 w-5" />
-      </button>
+  <div class="flex items-end self-end">
+    <form class="ml-auto flex flex-col gap-2" [formGroup]="filters">
+      <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+        <div class="flex items-center gap-2">
+          <m-user-select formControlName="credit" />
+          <m-dropdown [entries]="MapCreditOptions" [entryNameFn]="MapCreditNameFn" formControlName="creditType" />
+        </div>
+        <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+        <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
+          <m-icon icon="filter-remove" class="size-5" />
+        </button>
+      </div>
+      <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+        <div class="flex items-center gap-2">
+          <p class="font-display text-24">Status</p>
+          <p-multiSelect
+            formControlName="status"
+            [options]="StatusDropdown"
+            optionLabel="label"
+            optionValue="type"
+            [showHeader]="false"
+            [maxSelectedLabels]="2"
+          />
+        </div>
+        <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+      </div>
     </form>
   </div>
   <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />

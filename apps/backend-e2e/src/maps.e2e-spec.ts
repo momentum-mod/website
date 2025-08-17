@@ -289,6 +289,57 @@ describe('Maps', () => {
         });
       });
 
+      it('should respond with filtered map data based on the creditID parameter', async () => {
+        const newUser = await db.createUser();
+
+        const newCredit = await prisma.mapCredit.update({
+          where: {
+            mapID_userID: { mapID: mEarth.id, userID: u1.id },
+            type: MapCreditType.AUTHOR
+          },
+          data: { user: { connect: newUser } }
+        });
+
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            creditID: newUser.id,
+            creditType: MapCreditType.AUTHOR,
+            expand: 'credits'
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        expect(res.body.data[0]).toMatchObject({
+          id: mEarth.id,
+          credits: [newCredit]
+        });
+
+        await prisma.user.delete({ where: { id: newUser.id } });
+      });
+
+      it('should 400 if creditID or creditType parameter is used but not the other', async () => {
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            creditID: u1.id
+          },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            creditType: MapCreditType.AUTHOR
+          },
+          token: u1Token
+        });
+      });
+
       it('should respond with filtered map data based on the supported gamemodes', async () => {
         const gamemode = Gamemode.BHOP;
         const map = await db.createMap({
@@ -3865,7 +3916,6 @@ describe('Maps', () => {
 
         await db.createMap({ status: MapStatus.APPROVED });
         pubMap1 = await db.createMap({
-          name: 'zesty_granola',
           status: MapStatus.PUBLIC_TESTING,
           ...mapCreate,
           reviews: {
@@ -3876,7 +3926,6 @@ describe('Maps', () => {
           }
         });
         pubMap2 = await db.createMap({
-          name: 'xtra_cool_map',
           status: MapStatus.PUBLIC_TESTING,
           ...mapCreate
         });
@@ -4024,18 +4073,6 @@ describe('Maps', () => {
           where: { id: pubMap1.id },
           data: { submitterID: null }
         });
-      });
-
-      it('should respond with maps in reverse alphabetical order when in sortType query', async () => {
-        const res = await req.get({
-          url: 'maps/submissions',
-          status: 200,
-          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
-          token: u1Token
-        });
-
-        expect(res.body.data[0].name).toBe(pubMap1.name);
-        expect(res.body.data[1].name).toBe(pubMap2.name);
       });
 
       it('should respond with expanded current version data using the currentVersion expand parameter', () =>
@@ -4834,7 +4871,6 @@ describe('Maps', () => {
 
       restPostObservable = new rxjs.Subject();
       restPostMock.mockImplementation((url) => {
-        console.log(url);
         if (url.startsWith('/')) url = url.slice(1);
         const parts = url.split('/');
         return new Promise((res) => {

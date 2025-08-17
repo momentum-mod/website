@@ -1,24 +1,36 @@
-<div class="mb-4 flex flex-wrap items-end gap-4">
-  <p class="card-title flex text-48">All Maps</p>
-  <p class="w-96 pb-1 text-sm italic">
-    This page is practically the same as the main map list, except it includes maps of all statuses, including disabled.
-  </p>
-  <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
-    <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-    <p class="font-display text-24">Status</p>
-    <p-multiSelect
-      formControlName="status"
-      [options]="StatusDropdown"
-      optionLabel="label"
-      optionValue="type"
-      [showHeader]="false"
-      appendTo="body"
-      [maxSelectedLabels]="2"
-    />
-    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
-    <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
-      <m-icon icon="filter-remove" class="h-5 w-5" />
-    </button>
+<div class="mb-4 flex gap-4">
+  <div class="flex flex-col">
+    <p class="card-title flex text-nowrap text-48">All Maps</p>
+    <p class="max-w-96 pb-1 text-sm italic">
+      This page is practically the same as the main map list, except it includes maps of all statuses, including disabled.
+    </p>
+  </div>
+  <form class="ml-auto flex flex-col gap-2" [formGroup]="filters">
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <m-user-select formControlName="credit" />
+        <m-dropdown [entries]="MapCreditOptions" [entryNameFn]="MapCreditNameFn" formControlName="creditType" />
+      </div>
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
+        <m-icon icon="filter-remove" class="size-5" />
+      </button>
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24">Status</p>
+        <p-multiSelect
+          formControlName="status"
+          [options]="StatusDropdown"
+          optionLabel="label"
+          optionValue="type"
+          [showHeader]="false"
+          appendTo="body"
+          [maxSelectedLabels]="2"
+        />
+      </div>
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+    </div>
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isAdminPage]="true" />

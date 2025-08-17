@@ -1,6 +1,6 @@
-<div class="mb-4 flex flex-wrap items-end gap-4">
-  <p class="card-title flex text-48">
-    Beta Maps <m-icon class="ml-2 h-5 w-5 self-start pt-1" icon="help-circle" [mTooltip]="infoTooltip" />
+<div class="mb-4 flex items-start gap-4">
+  <p class="card-title flex text-nowrap text-48">
+    Beta Maps <m-icon class="ml-2 size-5 self-start pt-1" icon="help-circle" [mTooltip]="infoTooltip" />
   </p>
   <ng-template #infoTooltip>
     <div class="prose p-3">
@@ -9,24 +9,36 @@
       <p>However, they may be subject to change in the future, and any runs you submit will be wiped when the map is released.</p>
     </div>
   </ng-template>
-  <form class="ml-auto flex flex-wrap items-center gap-4" [formGroup]="filters">
-    <input class="textinput mr-4 w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-    <p class="font-display text-24">Status</p>
-    <p-multiSelect
-      formControlName="status"
-      [options]="StatusDropdown"
-      optionLabel="label"
-      optionValue="type"
-      [showHeader]="false"
-      appendTo="body"
-      [maxSelectedLabels]="2"
-    />
-    <p class="ml-4 font-display text-24">Submitter</p>
-    <m-user-select formControlName="submitter" />
-    <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" class="w-64" />
-    <button (click)="resetFilters()" type="button" class="btn h-8 w-8 p-0">
-      <m-icon icon="filter-remove" class="h-5 w-5" />
-    </button>
+  <form class="ml-auto flex flex-col gap-2" [formGroup]="filters">
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24">Submitter</p>
+        <m-user-select formControlName="submitter" />
+      </div>
+      <div class="flex items-center gap-2">
+        <m-user-select formControlName="credit" />
+        <m-dropdown [entries]="MapCreditOptions" [entryNameFn]="MapCreditNameFn" formControlName="creditType" />
+      </div>
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
+      <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
+        <m-icon icon="filter-remove" class="size-5" />
+      </button>
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24">Status</p>
+        <p-multiSelect
+          formControlName="status"
+          [options]="StatusDropdown"
+          optionLabel="label"
+          optionValue="type"
+          [showHeader]="false"
+          appendTo="body"
+          [maxSelectedLabels]="2"
+        />
+      </div>
+      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
+    </div>
   </form>
 </div>
 <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
