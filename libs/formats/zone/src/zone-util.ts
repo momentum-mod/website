@@ -8,6 +8,8 @@ import {
 import { arrayFrom } from '@momentum/util-fn';
 
 export function isLinearMainTrack(zoneData: MapZones): boolean {
+  if (!zoneData.tracks.main) return false;
+
   return zoneData.tracks.main.zones.segments.length === 1;
 }
 
