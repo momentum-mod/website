@@ -392,6 +392,7 @@ export interface MapZones {
 export interface GlobalRegions {
   allowBhop?: Region[];
   overbounce?: Region[];
+  cancel?: Region[];
 }
 
 export interface MapTracks {
