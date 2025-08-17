@@ -10,7 +10,7 @@
     <m-multisearch (selected)="searchOverlay.hide()" />
   </p-popover>
   <div class="item">
-    <m-icon icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
+    <m-icon class="h-auto" icon="magnify" (click)="searchOverlay.toggle($event)"> </m-icon>
   </div>
 
   @if (localUserService.user | async) {
@@ -21,7 +21,11 @@
           {{ unreadNotificationCount.toString() }}
         </p>
       }
-      <m-icon class="!p-[1.125rem]" [icon]="notifications.length ? 'bell-alert' : 'bell'" (click)="notificationsOverlay.toggle($event)">
+      <m-icon
+        class="h-auto !p-[1.125rem]"
+        [icon]="notifications.length ? 'bell-alert' : 'bell'"
+        (click)="notificationsOverlay.toggle($event)"
+      >
       </m-icon>
     </div>
     <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
