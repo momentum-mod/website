@@ -45,6 +45,12 @@ describe('validateZoneFile', () => {
       expect(() => validateZoneFile(input)).toThrow('Missing tracks');
     });
 
+    it('should throw if main track is missing', () => {
+      input.tracks.main = undefined;
+
+      expect(() => validateZoneFile(input)).toThrow('Missing main track');
+    });
+
     it('should throw if formatVersion is not CURRENT_ZONE_FORMAT_VERSION', () => {
       input.formatVersion = CURRENT_ZONE_FORMAT_VERSION + 1;
 

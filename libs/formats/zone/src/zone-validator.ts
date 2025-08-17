@@ -54,6 +54,8 @@ export function validateZoneFile(input: MapZones): void {
 
   if (!tracks) throw new ZoneValidationError('Missing tracks');
 
+  if (!tracks.main) throw new ZoneValidationError('Missing main track');
+
   if (formatVersion !== CURRENT_ZONE_FORMAT_VERSION)
     throw new ZoneValidationError('Bad format version');
 
