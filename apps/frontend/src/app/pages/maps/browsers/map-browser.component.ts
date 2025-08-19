@@ -12,6 +12,7 @@ import {
   PagedResponse,
   User
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   FormControl,
   FormGroup,
@@ -41,7 +42,6 @@ import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { IconComponent } from '../../../icons/icon.component';
-import { fastValuesNumeric } from '@momentum/enum';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -71,9 +71,20 @@ export class MapBrowserComponent implements OnInit {
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
-  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
-  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
-    MapCreditName.get(creditType) ?? '';
+  // Set value as if submitter was last entry in MapCredit enum.
+  protected readonly submitterCreditValue =
+    Enum.fastLengthNumeric(MapCreditType);
+  protected readonly MapCreditOptions = [
+    ...Enum.fastValuesNumeric(MapCreditType),
+    this.submitterCreditValue
+  ];
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string => {
+    if (creditType === this.submitterCreditValue) {
+      return 'Submitter';
+    } else {
+      return MapCreditName.get(creditType) ?? '';
+    }
+  };
 
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
@@ -98,7 +109,7 @@ export class MapBrowserComponent implements OnInit {
       disabled: true
     }),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
+    creditType: new FormControl<number>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -178,8 +189,12 @@ export class MapBrowserComponent implements OnInit {
             options.PB = false;
           }
           if (credit) {
-            options.creditID = credit.id;
-            options.creditType = creditType;
+            if (creditType === this.submitterCreditValue) {
+              options.submitterID = credit.id;
+            } else {
+              options.creditID = credit.id;
+              options.creditType = creditType;
+            }
           }
           if (sortType) options.sortType = sortType;
 

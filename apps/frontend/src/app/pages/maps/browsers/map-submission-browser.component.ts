@@ -10,6 +10,7 @@ import {
   PagedResponse,
   User
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   FormControl,
   FormGroup,
@@ -29,7 +30,6 @@ import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
-import { fastValuesNumeric } from '@momentum/enum';
 
 type StatusFilters = Array<
   | MapStatus.PUBLIC_TESTING
@@ -65,9 +65,20 @@ export class MapSubmissionBrowserComponent implements OnInit {
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
-  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
-  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
-    MapCreditName.get(creditType) ?? '';
+  // Set value as if submitter was last entry in MapCredit enum.
+  protected readonly submitterCreditValue =
+    Enum.fastLengthNumeric(MapCreditType);
+  protected readonly MapCreditOptions = [
+    ...Enum.fastValuesNumeric(MapCreditType),
+    this.submitterCreditValue
+  ];
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string => {
+    if (creditType === this.submitterCreditValue) {
+      return 'Submitter';
+    } else {
+      return MapCreditName.get(creditType) ?? '';
+    }
+  };
 
   protected readonly MapSortOptions = [
     MapSortType.SUBMISSION_CREATED_NEWEST,
@@ -85,9 +96,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<StatusFilters>(null),
-    submitter: new FormControl<User>(null),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
+    creditType: new FormControl<number>(this.submitterCreditValue),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -125,7 +135,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => !this.filters || this.filters?.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, submitter, credit, creditType, sortType } =
+          const { name, status, credit, creditType, sortType } =
             this.filters?.value ?? {};
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
@@ -143,12 +153,13 @@ export class MapSubmissionBrowserComponent implements OnInit {
           // filters.
           if (status?.length > 0)
             options.filter = status as StatusFilters as any;
-          if (submitter) {
-            options.submitterID = submitter.id;
-          }
           if (credit) {
-            options.creditID = credit.id;
-            options.creditType = creditType;
+            if (creditType === this.submitterCreditValue) {
+              options.submitterID = credit.id;
+            } else {
+              options.creditID = credit.id;
+              options.creditType = creditType;
+            }
           }
           if (sortType) options.sortType = sortType;
 
@@ -177,9 +188,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
     this.filters.reset({
       name: '',
       status: null,
-      submitter: null,
       credit: null,
-      creditType: MapCreditType.AUTHOR,
+      creditType: this.submitterCreditValue,
       sortType: this.MapSortOptions[0]
     });
   }
