@@ -31,7 +31,8 @@ import {
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
-  imgXlPath
+  imgXlPath,
+  SetQualifier
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -834,6 +835,123 @@ describe('Maps', () => {
           status: 200,
           query: { favorite: false },
           validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
+      });
+
+      it('should respond with maps based on tags and tagsQualifier filters', async () => {
+        const upsertLb = async (mapID: number) => {
+          await prisma.leaderboard.upsert({
+            where: {
+              mapID_gamemode_trackType_trackNum_style: {
+                mapID: mapID,
+                gamemode: Gamemode.AHOP,
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                style: 0
+              }
+            },
+            update: {
+              tags: [] // Has to exist or query will fail.
+            },
+            create: {
+              mapID: mapID,
+              gamemode: Gamemode.AHOP,
+              type: LeaderboardType.RANKED,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style: 0,
+              tags: [] // Has to exist or query will fail.
+            }
+          });
+        };
+
+        await Promise.all([
+          upsertLb(mEarth.id),
+          upsertLb(mWater.id),
+          upsertLb(mAir.id),
+          upsertLb(mBeansOnToast.id)
+        ]);
+
+        await prisma.leaderboard.updateMany({
+          where: {
+            mapID: mEarth.id,
+            gamemode: Gamemode.AHOP
+          },
+          data: {
+            tags: [MapTag.HL2, MapTag.Speed_Control, MapTag.Bhop]
+          }
+        });
+
+        // Default to include if no qualifier given.
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tags: [MapTag.HL2, MapTag.Speed_Control]
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tags: [MapTag.HL2, MapTag.Speed_Control, MapTag.Wallshot],
+            tagsQualifier: SetQualifier.INCLUDE
+          },
+          validatePaged: { type: MapDto, count: 0 },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tags: [MapTag.HL2],
+            tagsQualifier: SetQualifier.EXCLUDE
+          },
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tags: [MapTag.Air_Jump, MapTag.HL2, MapTag.Surf],
+            tagsQualifier: SetQualifier.AT_LEAST_ONE
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+      });
+
+      it('should 400 if tags filter is used but without a gamemode', async () => {
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            tags: [MapTag.HL2],
+            tagsQualifier: SetQualifier.INCLUDE
+          },
+          token: u1Token
+        });
+      });
+
+      it('should 400 if tagsQualifier filter is used but without tags', async () => {
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tagsQualifier: SetQualifier.AT_LEAST_ONE
+          },
           token: u1Token
         });
       });
