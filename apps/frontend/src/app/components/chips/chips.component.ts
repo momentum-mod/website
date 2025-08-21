@@ -1,8 +1,8 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Popover } from 'primeng/popover';
 import { IconComponent } from '../../icons';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
 export type Chip = number | string;
@@ -10,7 +10,7 @@ export type Chip = number | string;
 @Component({
   selector: 'm-chips',
   standalone: true,
-  imports: [CommonModule, IconComponent, OverlayPanelModule, TooltipDirective],
+  imports: [CommonModule, IconComponent, TooltipDirective, Popover],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -64,6 +64,11 @@ export class ChipsComponent implements ControlValueAccessor {
 
   remove(chip: Chip) {
     this.selected.splice(this.selected.indexOf(chip), 1);
+    this.onChange(this.selected);
+  }
+
+  reset() {
+    this.selected = [];
     this.onChange(this.selected);
   }
 
