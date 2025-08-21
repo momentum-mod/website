@@ -7,7 +7,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { EnumProperty } from '../decorators';
 
@@ -40,11 +40,11 @@ export class LeaderboardDto implements Leaderboard {
   readonly tier: number;
 
   @ApiProperty({
-    type: String,
+    type: Number,
     isArray: true,
     description: 'The tags of the leaderboard'
   })
-  @IsString({ each: true })
+  @IsEnum(MapTag, { each: true })
   readonly tags: MapTag[];
 
   @EnumProperty(LeaderboardType, {
