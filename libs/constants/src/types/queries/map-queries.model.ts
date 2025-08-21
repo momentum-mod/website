@@ -15,9 +15,11 @@ import {
   MapSubmissionApproval,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
+  MapTag,
   MapVersion,
   MapZones,
-  MMap
+  MMap,
+  SetQualifier
 } from '../../';
 
 //#region Map
@@ -64,6 +66,8 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   linear?: boolean;
   favorite?: boolean;
   PB?: boolean;
+  tags?: MapTag[];
+  tagsQualifier?: SetQualifier;
 };
 
 export type MapsGetAllAdminFilter = Array<MapStatus>;

@@ -1,11 +1,13 @@
 import {
-  MapStatus,
   Gamemode,
-  MapReviewsGetQuery,
-  MapsGetAllExpand,
-  MapReviewsGetExpand,
   MapCreditsGetExpand,
+  MapCreditsGetQuery,
+  MapReviewsGetExpand,
+  MapReviewsGetQuery,
   MapsGetExpand,
+  MapsGetQuery,
+  MapsGetAllExpand,
+  MapsGetAllQuery,
   MapsGetAllAdminQuery,
   MapsGetAllSubmissionQuery,
   MapsGetAllSubmissionFilter,
@@ -13,20 +15,19 @@ import {
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery,
-  TrackType,
-  Style,
+  MapStatus,
   MapLeaderboardGetQuery,
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
   MapSortType,
-  MapCreditType
+  MapCreditType,
+  MapTag,
+  SetQualifier,
+  Style,
+  TrackType
 } from '@momentum/constants';
-import {
-  MapCreditsGetQuery,
-  MapsGetAllQuery,
-  MapsGetQuery
-} from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -126,6 +127,16 @@ export class MapsGetAllQueryDto
       'If a gamemode is provided, uses that. Otherwise uses any mode.'
   })
   readonly PB?: boolean;
+
+  @EnumFilterQueryProperty(Enum.fastValuesNumeric(MapTag), {
+    description: "Tags for a map's specific leaderboard"
+  })
+  tags?: MapTag[];
+
+  @EnumQueryProperty(SetQualifier, {
+    description: 'Qualifier for tags property, e.g. exclude given tags'
+  })
+  tagsQualifier?: SetQualifier;
 }
 
 export class MapsGetAllAdminQueryDto
