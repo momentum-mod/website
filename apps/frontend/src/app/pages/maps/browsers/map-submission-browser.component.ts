@@ -136,7 +136,8 @@ export class MapSubmissionBrowserComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
-            this.filters?.value ?? {};
+            this.filters?.getRawValue() ?? {};
+
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
             take,

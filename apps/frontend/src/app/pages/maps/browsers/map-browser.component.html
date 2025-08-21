@@ -31,7 +31,7 @@
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
       </div>
-      <!-- TODO more climb modes when done. Currently positioned after defrag to wrap nicely with 1080p monitor and 100%-->
+      <!-- TODO more climb modes when they get added. -->
       <div class="grid grid-cols-1 grid-rows-1 gap-x-2">
         <p
           class="pointer-events-none col-span-1 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
@@ -70,12 +70,8 @@
           [tooltipDisabled]="gamemode.value != null"
         />
       </div>
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
-    </div>
-    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
       @if (localUserService.user | async) {
         <div class="flex items-center gap-2">
-          <p class="font-display text-24">Favorites</p>
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
@@ -83,11 +79,9 @@
               { icon: 'star', color: 'blue' },
               { icon: 'star', color: 'red' }
             ]"
+            mTooltip="Favorites"
             formControlName="favorites"
           />
-        </div>
-        <div class="flex items-center gap-2">
-          <p class="font-display text-24">Completed</p>
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
@@ -95,10 +89,33 @@
               { icon: 'flag-outline', color: 'blue' },
               { icon: 'flag-outline', color: 'red' }
             ]"
+            mTooltip="Completed"
             formControlName="pb"
           />
         </div>
       }
+      <m-dropdown [entries]="MapSortOptions" [nameFn]="MapSortNameFn" formControlName="sortType" />
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tags</p>
+        <m-chips
+          typeName="Tags"
+          [chips]="gamemode.value ? MapTags.get(gamemode.value) : []"
+          [nameFn]="mapTagEnglishName"
+          mTooltip="You must select a gamemode to use this filter"
+          [tooltipDisabled]="gamemode.value != null"
+          formControlName="tags"
+        />
+        <m-dropdown
+          class="mb-auto text-nowrap"
+          [entries]="TagsQualifierOptions"
+          [nameFn]="TagsQualifierNameFn"
+          mTooltip="You must select a gamemode to use this filter"
+          [tooltipDisabled]="gamemode.value != null"
+          formControlName="tagsQualifier"
+        />
+      </div>
     </div>
   </div>
 </form>
