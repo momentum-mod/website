@@ -3,16 +3,17 @@
   [attr.popovertarget]="id"
   [ngStyle]="{ 'anchor-name': '--' + id }"
   type="button"
+  [disabled]="disabled"
   class="head"
   (click)="fixUnsupportedAnchorPosition()"
 >
-  <p>{{ entryNameFn(selectedEntry) }}</p>
+  <p>{{ nameFn(selectedEntry) }}</p>
   <m-icon icon="chevron-down" />
 </button>
 <div #dropdown popover [id]="id" [ngStyle]="{ 'position-anchor': '--' + id }" class="body">
   @for (entry of entries; track $index) {
     <button [attr.popovertarget]="id" (click)="select(entry)" type="button" class="entry">
-      {{ entryNameFn(entry) }}
+      {{ nameFn(entry) }}
     </button>
   }
 </div>
