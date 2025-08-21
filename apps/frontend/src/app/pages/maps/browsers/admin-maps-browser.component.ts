@@ -128,7 +128,8 @@ export class AdminMapsBrowserComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
-            this.filters?.value ?? {};
+            this.filters?.getRawValue() ?? {};
+
           const options: MapsGetAllAdminQuery = {
             skip: this.skip,
             take
