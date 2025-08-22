@@ -230,9 +230,10 @@ export class MapsService {
         }
       ];
 
-      if (query.filter) {
-        where.status = { in: query.filter };
-      }
+      where.status = {
+        notIn: [MapStatus.DISABLED]
+      };
+      if (query.filter) where.status.in = query.filter;
     } else if (query instanceof MapsGetAllSubmissionQueryDto) {
       const user = await this.db.user.findUnique({
         where: { id: userID },
