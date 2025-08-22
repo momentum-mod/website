@@ -1,6 +1,7 @@
 import { Tooltip as PTooltip, TooltipStyle } from 'primeng/tooltip';
 import { Directive, Input, QueryList, TemplateRef } from '@angular/core';
 import { UniqueComponentId } from 'primeng/utils';
+import { DomHandler } from 'primeng/dom';
 
 /**
  * Overriden PrimeNG Tooltip directive adding extra utilities for
@@ -66,6 +67,96 @@ export class TooltipDirective extends PTooltip {
     hideOnEscape: true,
     id: UniqueComponentId() + '_tooltip'
   };
+
+  override alignTop() {
+    this.preAlign('top');
+
+    const viewport = DomHandler.getViewport();
+    const hostOffset = this.getHostOffset();
+    const tooltipWidth = this.getBoxWidth(this.container);
+
+    let offsetLeft =
+      (this.getBoxWidth(this.el.nativeElement) - tooltipWidth) / 2;
+    const offsetTop = DomHandler.getOuterHeight(this.container);
+
+    if (hostOffset.left + offsetLeft < 0) {
+      offsetLeft = 0;
+    }
+
+    if (hostOffset.left + offsetLeft + tooltipWidth > viewport.width) {
+      offsetLeft = viewport.width - tooltipWidth - hostOffset.left;
+    }
+
+    this.alignTooltip(Math.floor(offsetLeft), -offsetTop);
+
+    const arrowElement = this.getArrowElement();
+    arrowElement.style.top = null;
+    arrowElement.style.right = null;
+    arrowElement.style.bottom = '0';
+    arrowElement.style.left = this.getParentCenterOffset() + 'px';
+  }
+
+  override alignBottom() {
+    this.preAlign('bottom');
+
+    const viewport = DomHandler.getViewport();
+    const hostOffset = this.getHostOffset();
+    const tooltipWidth = this.getBoxWidth(this.container);
+
+    let offsetLeft =
+      (this.getBoxWidth(this.el.nativeElement) - tooltipWidth) / 2;
+    const offsetTop = DomHandler.getOuterHeight(this.el.nativeElement);
+
+    if (hostOffset.left + offsetLeft < 0) {
+      offsetLeft = 0;
+    }
+
+    if (hostOffset.left + offsetLeft + tooltipWidth > viewport.width) {
+      offsetLeft = viewport.width - tooltipWidth - hostOffset.left;
+    }
+
+    this.alignTooltip(Math.floor(offsetLeft), offsetTop);
+
+    const arrowElement = this.getArrowElement();
+    arrowElement.style.top = '0';
+    arrowElement.style.right = null;
+    arrowElement.style.bottom = null;
+    arrowElement.style.left = this.getParentCenterOffset() + 'px';
+  }
+
+  override alignLeft() {
+    super.alignLeft();
+    this.resetArrowOffset();
+  }
+
+  override alignRight() {
+    super.alignRight();
+    this.resetArrowOffset();
+  }
+
+  private getParentCenterOffset() {
+    const parent = this.el.nativeElement;
+    const parrentOffset = DomHandler.getOffset(parent);
+    const parentWidth = DomHandler.getOuterWidth(parent);
+    const tootltipOffset = DomHandler.getOffset(this.container);
+    return parentWidth / 2 + parrentOffset.left - tootltipOffset.left;
+  }
+
+  private resetArrowOffset() {
+    const arrowElement = this.getArrowElement();
+    arrowElement.style.top = null;
+    arrowElement.style.right = null;
+    arrowElement.style.bottom = null;
+    arrowElement.style.left = null;
+  }
+
+  private getBoxWidth(el: HTMLElement) {
+    return el.getBoundingClientRect().width;
+  }
+
+  private getArrowElement() {
+    return DomHandler.findSingle(this.container, '.p-tooltip-arrow');
+  }
 
   /**
    * Pick out a specific tooltip from a @ViewChildren querylist based on some
