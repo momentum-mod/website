@@ -84,10 +84,21 @@ export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
   filter?: MapsGetAllSubmissionFilter;
 };
 
-export type MapsGetAllUserSubmissionQuery = Omit<
-  MapsGetAllSubmissionQuery,
-  'submitterID'
+export type MapsGetAllUserSubmissionFilter = Array<
+  | MapStatus.PUBLIC_TESTING
+  | MapStatus.PRIVATE_TESTING
+  | MapStatus.CONTENT_APPROVAL
+  | MapStatus.FINAL_APPROVAL
+  | MapStatus.APPROVED
 >;
+
+export type MapsGetAllUserSubmissionQuery = Omit<
+  MapsGetAllBaseQuery,
+  'submitterID'
+> & {
+  expand?: MapsGetAllSubmissionExpand; // Re-use from submission.
+  filter?: MapsGetAllUserSubmissionFilter;
+};
 
 export type MapsGetExpand = Array<
   MapsGetAllSubmissionExpand[number] | 'submission' | 'testInvites'
