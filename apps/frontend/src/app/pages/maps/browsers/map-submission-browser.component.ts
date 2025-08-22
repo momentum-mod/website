@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
+  MapsGetAllSubmissionFilter,
   MapsGetAllSubmissionQuery,
   MapSortType,
   MapSortTypeName,
@@ -30,13 +31,7 @@ import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
-
-type StatusFilters = Array<
-  | MapStatus.PUBLIC_TESTING
-  | MapStatus.PRIVATE_TESTING
-  | MapStatus.CONTENT_APPROVAL
-  | MapStatus.FINAL_APPROVAL
->;
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 // This component is very similar to the MapBrowserComponent, found it easier to
 // split them up. Try to keep any styling synced up.
@@ -54,13 +49,13 @@ type StatusFilters = Array<
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {
+  private readonly localUserService = inject(LocalUserService);
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly StatusDropdown = [
-    { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
-    { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+  // Default for users. More options get added if user is mod/admin.
+  protected StatusDropdown = [
     { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
@@ -95,7 +90,9 @@ export class MapSubmissionBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null),
+    status: new FormControl<MapsGetAllSubmissionFilter>([], {
+      nonNullable: true
+    }),
     credit: new FormControl<User | null>(null),
     creditType: new FormControl<number>(this.submitterCreditValue),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
@@ -110,6 +107,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
+    if (this.localUserService.isModOrAdmin) {
+      this.StatusDropdown = [
+        { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
+        { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+        ...this.StatusDropdown
+      ];
+    }
+
     setupPersistentForm(
       this.filters,
       'SUBMISSION_MAPS_FILTERS',
@@ -149,10 +154,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
             ]
           };
           if (name) options.search = name;
-          // TODO: Remove this `as any` once below endpoint supports all these
-          // filters.
-          if (status?.length > 0)
-            options.filter = status as StatusFilters as any;
+          if (status.length > 0) options.filter = status;
           if (credit) {
             if (creditType === this.submitterCreditValue) {
               options.submitterID = credit.id;
@@ -187,7 +189,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
   resetFilters() {
     this.filters.reset({
       name: '',
-      status: null,
+      status: [],
       credit: null,
       creditType: this.submitterCreditValue,
       sortType: this.MapSortOptions[0]

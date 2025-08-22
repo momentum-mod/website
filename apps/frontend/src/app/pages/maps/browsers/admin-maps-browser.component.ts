@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
+  MapsGetAllAdminFilter,
   MapsGetAllAdminQuery,
   MapSortType,
   MapSortTypeName,
@@ -31,8 +32,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { IconComponent } from '../../../icons/icon.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
-
-type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
@@ -91,7 +90,7 @@ export class AdminMapsBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null),
+    status: new FormControl<MapsGetAllAdminFilter>([], { nonNullable: true }),
     credit: new FormControl<User | null>(null),
     creditType: new FormControl<number>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
@@ -134,7 +133,7 @@ export class AdminMapsBrowserComponent implements OnInit {
             take
           };
           if (name) options.search = name;
-          if (status?.length > 0) options.filter = status as StatusFilters;
+          if (status.length > 0) options.filter = status;
           if (credit) {
             if (creditType === this.submitterCreditValue) {
               options.submitterID = credit.id;
@@ -169,7 +168,7 @@ export class AdminMapsBrowserComponent implements OnInit {
   resetFilters() {
     this.filters.reset({
       name: '',
-      status: null,
+      status: [],
       credit: null,
       creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
