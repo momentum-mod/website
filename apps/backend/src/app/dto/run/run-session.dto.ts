@@ -4,6 +4,7 @@
   Gamemode,
   RunSession,
   TrackType,
+  Style,
   UpdateRunSession
 } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -42,6 +43,12 @@ export class RunSessionDto implements RunSession {
   @Max(MAX_TRACK_SEGMENTS + 1)
   readonly trackNum: number;
 
+  @EnumProperty(Style, {
+    description: 'Style the run is on',
+    required: true
+  })
+  readonly style: Style;
+
   @IdProperty({
     description: 'The ID of the user submitting the run'
   })
@@ -56,7 +63,8 @@ export class CreateRunSessionDto
     'mapID',
     'gamemode',
     'trackType',
-    'trackNum'
+    'trackNum',
+    'style'
   ] as const)
   implements CreateRunSession {}
 

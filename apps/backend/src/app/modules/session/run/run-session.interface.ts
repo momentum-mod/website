@@ -15,6 +15,7 @@ export interface RunSession extends Record<string, unknown> {
   gamemode: Gamemode;
   trackType: TrackType;
   trackNum: number;
+  style: Style;
   timestamps: RunSessionTimestamp[];
   // Tom: I would've moved this to plain unix timestamp during moving to
   // in-memory sessions but would require updating a game api model, not worth
@@ -42,7 +43,7 @@ export interface ProcessedRun {
   gamemode: Gamemode;
   trackType: TrackType;
   trackNum: number;
+  style: Style;
   time: number;
   splits: Splits;
-  flags: Style[];
 }
