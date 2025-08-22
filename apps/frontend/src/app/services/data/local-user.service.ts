@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
+import { DialogService } from 'primeng/dynamicdialog';
 import {
   Ban,
   CombinedRoles,
@@ -15,6 +16,7 @@ import {
   PagedResponse,
   Profile,
   Role,
+  TOS_VERSION,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
@@ -26,6 +28,7 @@ import { AuthService } from './auth.service';
 import { HttpService } from './http.service';
 import { env } from '../../env/environment';
 import { POST_AUTH_REDIRECT_KEY } from '../../guards/redirect.guard';
+import { TosDialogComponent } from '../../components/dialogs/tos-dialog.component';
 
 export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 
@@ -33,6 +36,7 @@ export type FullUser = User & { profile?: Profile; userStats?: UserStats };
 export class LocalUserService {
   private authService = inject(AuthService);
   private http = inject(HttpService);
+  private dialogService = inject(DialogService);
 
   constructor() {
     const storedUser =
@@ -60,7 +64,23 @@ export class LocalUserService {
       );
   }
 
-  public login() {
+  public async login() {
+    const acceptedTos = +localStorage.getItem('tos');
+    if (!acceptedTos || acceptedTos < TOS_VERSION) {
+      const isFirstTime = !acceptedTos;
+      const res = await firstValueFrom(
+        this.dialogService.open(TosDialogComponent, {
+          header: isFirstTime
+            ? 'Momentum Mod Account Creation'
+            : 'Momentum Mod Legal Update',
+          data: {
+            isFirstTime
+          }
+        }).onClose
+      );
+      if (!res) return;
+    }
+
     sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, window.location.pathname);
     window.location.href = env.auth + '/web';
   }

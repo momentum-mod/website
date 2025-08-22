@@ -60,3 +60,4 @@ export * from './consts/file-store-paths.const';
 export * from './consts/limits.const';
 export * from './consts/socials.const';
 export * from './consts/steam-avatar.const';
+export * from './consts/tos-version.const';
