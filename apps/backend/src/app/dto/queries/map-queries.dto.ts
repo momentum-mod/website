@@ -25,7 +25,8 @@ import {
   MapTag,
   SetQualifier,
   Style,
-  TrackType
+  TrackType,
+  MapsGetAllUserSubmissionFilter
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import {
@@ -188,9 +189,35 @@ export class MapsGetAllSubmissionQueryDto
 }
 
 export class MapsGetAllUserSubmissionQueryDto
-  extends MapsGetAllSubmissionQueryDto
+  extends MapsGetAllBaseQueryDto
   implements MapsGetAllUserSubmissionQuery
 {
+  @ExpandQueryProperty([
+    'leaderboards',
+    'info',
+    'currentVersion',
+    'currentVersionWithZones',
+    'versions',
+    'versionsWithZones',
+    'stats',
+    'submitter',
+    'credits',
+    'inFavorites',
+    'personalBest',
+    'worldRecord',
+    'reviews'
+  ])
+  readonly expand?: MapsGetAllSubmissionExpand;
+
+  @EnumFilterQueryProperty([
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.CONTENT_APPROVAL,
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.FINAL_APPROVAL,
+    MapStatus.APPROVED
+  ])
+  readonly filter?: MapsGetAllUserSubmissionFilter;
+
   // Stupid hack because OmitType above applies some index signature that
   // completely breaks types in MapsService.getAll. I hate class-based DTOs!
   override submitterID: never = undefined as never;
