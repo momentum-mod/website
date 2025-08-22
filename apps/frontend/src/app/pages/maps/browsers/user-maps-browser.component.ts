@@ -3,6 +3,7 @@ import {
   Ban,
   MapCreditName,
   MapCreditType,
+  MapsGetAllUserSubmissionFilter,
   MapsGetAllUserSubmissionQuery,
   MapStatus,
   MapStatusName,
@@ -37,14 +38,6 @@ import { IconComponent } from '../../../icons';
 import { setupPersistentForm } from '../../../util/form-utils.util';
 import { fastValuesNumeric } from '@momentum/enum';
 
-type StatusFilters = Array<
-  // | MapStatus.APPROVED // TODO: Need to support this on the backend
-  | MapStatus.PUBLIC_TESTING
-  | MapStatus.PRIVATE_TESTING
-  | MapStatus.CONTENT_APPROVAL
-  | MapStatus.FINAL_APPROVAL
->;
-
 @Component({
   templateUrl: 'user-maps-browser.component.html',
   imports: [
@@ -70,7 +63,8 @@ export class UserMapsBrowserComponent implements OnInit {
     { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
     { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
     { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
-    { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
+    { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' },
+    { type: MapStatus.APPROVED, label: 'Approved' }
   ];
 
   protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
@@ -94,7 +88,9 @@ export class UserMapsBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null),
+    status: new FormControl<MapsGetAllUserSubmissionFilter>([], {
+      nonNullable: true
+    }),
     credit: new FormControl<User | null>(null),
     creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
@@ -150,8 +146,7 @@ export class UserMapsBrowserComponent implements OnInit {
             expand: ['info', 'credits', 'leaderboards', 'submitter']
           };
           if (name) options.search = name;
-          if (status?.length > 0)
-            options.filter = status as StatusFilters as any; // TODO: Same bullshit as submission paeg
+          if (status.length > 0) options.filter = status;
           if (credit) {
             options.creditID = credit.id;
             options.creditType = creditType;
@@ -182,7 +177,7 @@ export class UserMapsBrowserComponent implements OnInit {
   resetFilters() {
     this.filters.reset({
       name: '',
-      status: null,
+      status: [],
       credit: null,
       creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]
