@@ -23,7 +23,8 @@ import {
   MapTag,
   Flags,
   DateString,
-  SteamGame
+  SteamGame,
+  NotificationType
 } from '../../';
 
 // Collection of models used throughout the codebase, as well as in Panorama.
@@ -88,17 +89,6 @@ export interface Activity {
   data: number;
   type: ActivityType;
   user?: User;
-  createdAt: DateString;
-  updatedAt: DateString;
-}
-
-export interface Notification {
-  id: number;
-  read: boolean;
-  userID: number;
-  user?: User;
-  activityID: number;
-  activity?: Activity;
   createdAt: DateString;
   updatedAt: DateString;
 }
@@ -595,6 +585,52 @@ export interface CompletedRun {
   lastPersonalBest?: LeaderboardRun;
   worldRecord?: LeaderboardRun;
   totalRuns: number;
+}
+
+//#endregion
+//#region Notifications
+
+export type AbstractNotification<T = keyof NotificationType> = {
+  id: number;
+  type: T;
+};
+
+export type Notification =
+  | AnnouncementNotification
+  | WRAchievedNotification
+  | MapStatusChangeNotification
+  | MapTestingRequestNotification
+  | MapReviewPostedNotification;
+
+export interface AnnouncementNotification
+  extends AbstractNotification<NotificationType.ANNOUNCEMENT> {
+  message: string;
+}
+
+export interface WRAchievedNotification
+  extends AbstractNotification<NotificationType.WR_ACHIEVED> {
+  map: MMap;
+  run: LeaderboardRun;
+}
+
+export interface MapStatusChangeNotification
+  extends AbstractNotification<NotificationType.MAP_STATUS_CHANGE> {
+  map: MMap;
+  oldStatus: MapStatus;
+  newStatus: MapStatus;
+  changedBy: User;
+}
+
+export interface MapTestingRequestNotification
+  extends AbstractNotification<NotificationType.MAP_TEST_INVITE> {
+  map: MMap;
+  invitedBy: User;
+}
+
+export interface MapReviewPostedNotification
+  extends AbstractNotification<NotificationType.REVIEW_POSTED> {
+  map: MMap;
+  review: MapReview;
 }
 
 //#endregion

@@ -70,7 +70,17 @@ assertTypeCorrespondence<
 
 import { Notification } from './models';
 import { Notification as PNotification } from '@momentum/db';
-assertTypeCorrespondence<Notification, PNotification>();
+assertTypeCorrespondence<
+  Notification,
+  PNotification,
+  {
+    userID: OmitMe;
+    mapID: OmitMe;
+    runID: OmitMe;
+    reviewID: OmitMe;
+    notifiedUserID: OmitMe;
+  }
+>();
 
 import { Follow } from './models';
 import { Follow as PFollow } from '@momentum/db';
