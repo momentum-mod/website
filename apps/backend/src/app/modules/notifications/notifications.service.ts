@@ -8,40 +8,12 @@ import {
   NotificationDto,
   NotifsMarkAsReadQueryDto,
   PagedResponseDto,
-  NotifsGetQueryDto
+  NotifsGetQueryDto,
+  AnnouncementNotificationDto,
+  DtoFactory
 } from '../../dto';
 import { NotificationType } from '@momentum/constants';
 import { Prisma } from '@momentum/db';
-
-export type AnnouncementData = {
-  type: NotificationType.ANNOUNCEMENT;
-  message: string;
-};
-export type WRAchievedData = {
-  type: NotificationType.WR_ACHIEVED;
-  runID: bigint;
-};
-export type MapStatusChangeData = {
-  type: NotificationType.MAP_STATUS_CHANGE;
-  mapID: number;
-};
-export type MapTestReqData = {
-  type: NotificationType.MAP_TEST_INVITE;
-  requesterID: number;
-  mapID: number;
-};
-export type ReviewPostedData = {
-  type: NotificationType.REVIEW_POSTED;
-  reviewerID: number;
-  mapID: number;
-  reviewID: number;
-};
-export type NotificationData =
-  | AnnouncementData
-  | WRAchievedData
-  | MapStatusChangeData
-  | MapTestReqData
-  | ReviewPostedData;
 
 @Injectable()
 export class NotificationsService {
@@ -55,7 +27,7 @@ export class NotificationsService {
     // Only a couple of these fields are on a notification at a time
     // However, the include will only fetch those fields if they exist
     // This is faster than explicitly checking
-    const dbResponse = await this.db.notification.findManyAndCount({
+    const [data, count] = await this.db.notification.findManyAndCount({
       where: { notifiedUserID: userID },
       include: {
         user: true,
@@ -66,7 +38,25 @@ export class NotificationsService {
       skip: query.skip,
       take: query.take
     });
-    return new PagedResponseDto(NotificationDto, dbResponse);
+
+    return {
+      totalCount: count,
+      returnCount: data.length,
+      data: data.map((item) => {
+        switch (item.type) {
+          // TODO glyph: fill out the rest here
+          // ALSO TODO: I haven't updated announcement notification to just
+          // json field instead of message
+          case NotificationType.ANNOUNCEMENT: {
+            return DtoFactory(AnnouncementNotificationDto, {
+              id: item.id,
+              type: item.type,
+              message: (item.json as { message: string }).message
+            });
+          }
+        }
+      })
+    };
   }
 
   async markAsRead(

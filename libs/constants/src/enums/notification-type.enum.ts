@@ -4,4 +4,5 @@ export enum NotificationType {
   MAP_STATUS_CHANGE = 2,
   MAP_TEST_INVITE = 3,
   REVIEW_POSTED = 4
+  // TODO: REVIEW_COMMENT_POSTED = 5
 }

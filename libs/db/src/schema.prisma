@@ -145,7 +145,7 @@ model Notification {
   notifiedUser   User @relation("notifs_to", fields: [notifiedUserID], references: [id], onDelete: Cascade)
   notifiedUserID Int
 
-  message String?
+  json   Json?
 
   user   User? @relation("notifs_about", fields: [userID], references: [id], onDelete: Cascade)
   userID Int?

@@ -1,87 +1,21 @@
-﻿import {
-  DateString,
-  Notification,
-  NotificationType
-} from '@momentum/constants';
-import {
-  CreatedAtProperty,
-  EnumProperty,
-  IdProperty,
-  NestedProperty
-} from '../decorators';
-import { UserDto } from '../user/user.dto';
-import { IsOptional, IsString } from 'class-validator';
+﻿import { AbstractNotification, NotificationType } from '@momentum/constants';
+import { EnumProperty, IdProperty } from '../decorators';
+import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { MapDto } from '../map/map.dto';
-import { PastRunDto } from '../run/past-run.dto';
-import { MapReviewDto } from '../map/map-review.dto';
-import { Exclude } from 'class-transformer';
 
-export class NotificationDto implements Notification {
+export class NotificationDto implements AbstractNotification<NotificationType> {
   @IdProperty()
   readonly id: number;
 
   @EnumProperty(NotificationType)
   readonly type: NotificationType;
+}
 
-  @IdProperty({
-    description: 'The ID of the user that the notification is sent to'
-  })
-  @Exclude()
-  readonly notifiedUserID: number;
-
-  @NestedProperty(UserDto)
-  readonly notifiedUser: UserDto;
-
-  @ApiProperty({
-    description: 'The text of the announcement notification'
-  })
-  @IsOptional()
+export class AnnouncementNotificationDto extends NotificationDto {
+  @ApiProperty()
   @IsString()
   readonly message: string;
-
-  @IdProperty({
-    description:
-      'The ID of the user that achieved the wr or sent the map testing request',
-    required: false
-  })
-  @Exclude()
-  readonly userID: number;
-
-  @NestedProperty(UserDto, { required: false })
-  readonly user: UserDto;
-
-  @IdProperty({
-    description:
-      'The ID of the map that the testing request is about or the map that changed status',
-    required: false
-  })
-  @Exclude()
-  readonly mapID: number;
-
-  @NestedProperty(MapDto, { required: false })
-  readonly map: MapDto;
-
-  @IdProperty({
-    description: 'The ID of the PastRun that has just been achieved',
-    required: false
-  })
-  @Exclude()
-  readonly runID: bigint;
-
-  @NestedProperty(PastRunDto, { required: false })
-  readonly run: PastRunDto;
-
-  @IdProperty({
-    description: 'The ID of the MapReview that has just been posted',
-    required: false
-  })
-  @Exclude()
-  readonly reviewID: number;
-
-  @NestedProperty(MapReviewDto, { required: false })
-  readonly review: MapReviewDto;
-
-  @CreatedAtProperty()
-  readonly createdAt: DateString;
 }
+
+// TODO glyph: implement DTOS for rest of models, then finish stuff
+// in getNotifications creating instances of each
