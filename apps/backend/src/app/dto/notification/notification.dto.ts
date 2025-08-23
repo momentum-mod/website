@@ -1,4 +1,8 @@
-﻿import { DateString, Notification, NotificationType } from '@momentum/constants';
+﻿import {
+  DateString,
+  Notification,
+  NotificationType
+} from '@momentum/constants';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -11,6 +15,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { MapDto } from '../map/map.dto';
 import { PastRunDto } from '../run/past-run.dto';
 import { MapReviewDto } from '../map/map-review.dto';
+import { Exclude } from 'class-transformer';
 
 export class NotificationDto implements Notification {
   @IdProperty()
@@ -22,6 +27,7 @@ export class NotificationDto implements Notification {
   @IdProperty({
     description: 'The ID of the user that the notification is sent to'
   })
+  @Exclude()
   readonly notifiedUserID: number;
 
   @NestedProperty(UserDto)
@@ -39,6 +45,7 @@ export class NotificationDto implements Notification {
       'The ID of the user that achieved the wr or sent the map testing request',
     required: false
   })
+  @Exclude()
   readonly userID: number;
 
   @NestedProperty(UserDto, { required: false })
@@ -49,6 +56,7 @@ export class NotificationDto implements Notification {
       'The ID of the map that the testing request is about or the map that changed status',
     required: false
   })
+  @Exclude()
   readonly mapID: number;
 
   @NestedProperty(MapDto, { required: false })
@@ -58,6 +66,7 @@ export class NotificationDto implements Notification {
     description: 'The ID of the PastRun that has just been achieved',
     required: false
   })
+  @Exclude()
   readonly runID: bigint;
 
   @NestedProperty(PastRunDto, { required: false })
@@ -67,6 +76,7 @@ export class NotificationDto implements Notification {
     description: 'The ID of the MapReview that has just been posted',
     required: false
   })
+  @Exclude()
   readonly reviewID: number;
 
   @NestedProperty(MapReviewDto, { required: false })
