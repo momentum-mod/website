@@ -11,7 +11,7 @@ import {
   NotifsGetQueryDto
 } from '../../dto';
 import { NotificationType } from '@momentum/constants';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@momentum/db';
 
 export type AnnouncementData = {
   type: NotificationType.ANNOUNCEMENT;
@@ -101,9 +101,10 @@ export class NotificationsService {
     data: NotificationData,
     tx: ExtendedPrismaServiceTransaction = this.db
   ): Promise<void> {
-    const newNotif: Partial<Prisma.NotificationCreateManyInput> = {
-      type: data.type
-    };
+    const newNotif: Omit<Prisma.NotificationCreateManyInput, 'notifiedUserID'> =
+      {
+        type: data.type
+      };
     switch (data.type) {
       case NotificationType.ANNOUNCEMENT:
         newNotif.message = data.message;
