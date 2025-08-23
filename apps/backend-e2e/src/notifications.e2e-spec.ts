@@ -1,7 +1,7 @@
 // noinspection DuplicatedCode
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@momentum/db';
 
 import {
   setupE2ETestEnvironment,
@@ -22,7 +22,7 @@ describe('Notifications', () => {
     db = env.db;
   });
 
-  afterAll(async () => await teardownE2ETestEnvironment(app));
+  afterAll(async () => await teardownE2ETestEnvironment(app, prisma));
 
   beforeEach(async () => {
     [user, userToken] = await db.createAndLoginUser();
