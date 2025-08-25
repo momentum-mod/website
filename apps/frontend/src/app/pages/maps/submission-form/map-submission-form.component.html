@@ -182,7 +182,7 @@
       <div class="card card--fancy mt-6 p-4 pt-10">
         <p class="mb-2">
           A thumbnail, and up to four additional images. Images <i>must </i> be 2560x1440px PNGs; you can use the
-          <i>mom_screenshot_official</i> command ingame to take one, even if you don't have a 1440p monitor.
+          <i>mom_official_screenshot</i> command ingame to take one, even if you don't have a 1440p monitor.
         </p>
         <p class="mb-6">
           Drag selected images around to change their order, and make sure the image in the thumbnail slot is your favorite, as it will be
@@ -203,7 +203,7 @@
           }
           @if (images.errors?.['imageFileDimensionsError']) {
             <p class="mt-2 text-right text-lg text-red-400">
-              <b>Error: </b>All images must be 2560x1440 - use the mom_screenshot_official command!
+              <b>Error: </b>All images must be 2560x1440 - use the mom_official_screenshot command!
             </p>
           }
           @if (images.errors?.['imageFileReadError']) {
