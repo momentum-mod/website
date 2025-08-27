@@ -588,7 +588,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               mainText: faker.lorem.paragraph(),
               date: Random.pastDateInYears()
             }))
-          : null,
+          : [],
         ...(Random.chance()
           ? { resolved: true, resolverID: Random.element(userIDs) }
           : {})
