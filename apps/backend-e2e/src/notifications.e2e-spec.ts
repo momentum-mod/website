@@ -1,18 +1,22 @@
 // noinspection DuplicatedCode
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
-import { PrismaClient } from '@prisma/client';
-
+import { MMap, PrismaClient, User } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
 import { MapStatus, NotificationType } from '@momentum/constants';
 import { NotificationDto } from 'apps/backend/src/app/dto';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { RawServerDefault } from 'fastify';
 
 describe('Notifications', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
-  let user, userToken, map, user2;
+  let app: NestFastifyApplication<RawServerDefault>,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil;
+  let user: User, userToken: string, map: MMap, user2: User;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -22,7 +26,7 @@ describe('Notifications', () => {
     db = env.db;
   });
 
-  afterAll(async () => await teardownE2ETestEnvironment(app));
+  afterAll(async () => await teardownE2ETestEnvironment(app, prisma));
 
   beforeEach(async () => {
     [user, userToken] = await db.createAndLoginUser();
@@ -40,28 +44,28 @@ describe('Notifications', () => {
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'Game will explode in 10 minutes'
+          json: { message: 'Game will explode in 10 minutes' }
         },
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'nvm game is fine'
+          json: { message: 'nvm game is fine' }
         },
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'web dev needed urgently'
+          json: { message: 'web dev needed urgently' }
         },
         {
           notifiedUserID: user.id,
-          type: NotificationType.MAP_TEST_INVITE,
+          type: NotificationType.MAP_TESTING_INVITE,
           mapID: map.id,
           userID: user2.id
         },
         {
           notifiedUserID: user2.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'this is just for u <3'
+          json: { message: 'this is just for u <3' }
         }
       ]
     });
@@ -123,22 +127,23 @@ describe('Notifications', () => {
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'web dev needed urgently'
+          json: { message: 'web dev needed urgently' }
         },
 
         {
           notifiedUserID: user.id,
-          type: NotificationType.MAP_TEST_INVITE,
+          type: NotificationType.MAP_TESTING_INVITE,
           mapID: map.id,
           userID: user2.id
         }
       ]);
     });
+
     it('should not delete a map testing request notification', async () => {
       const notif = await prisma.notification.findFirst({
         where: {
           notifiedUserID: user.id,
-          type: NotificationType.MAP_TEST_INVITE
+          type: NotificationType.MAP_TESTING_INVITE
         }
       });
 
@@ -159,21 +164,21 @@ describe('Notifications', () => {
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'Game will explode in 10 minutes'
+          json: { message: 'Game will explode in 10 minutes' }
         },
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'nvm game is fine'
+          json: { message: 'nvm game is fine' }
         },
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'web dev needed urgently'
+          json: { message: 'web dev needed urgently' }
         },
         {
           notifiedUserID: user.id,
-          type: NotificationType.MAP_TEST_INVITE,
+          type: NotificationType.MAP_TESTING_INVITE,
           mapID: map.id,
           userID: user2.id
         }
@@ -203,7 +208,7 @@ describe('Notifications', () => {
         {
           notifiedUserID: user2.id,
           type: NotificationType.ANNOUNCEMENT,
-          message: 'this is just for u <3'
+          json: { message: 'this is just for u <3' }
         }
       ]);
     });
@@ -225,7 +230,7 @@ describe('Notifications', () => {
       expect(notifs).toMatchObject([
         {
           notifiedUserID: user.id,
-          type: NotificationType.MAP_TEST_INVITE,
+          type: NotificationType.MAP_TESTING_INVITE,
           mapID: map.id,
           userID: user2.id
         }
