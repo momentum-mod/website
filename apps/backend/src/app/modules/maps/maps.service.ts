@@ -93,7 +93,7 @@ import * as LeaderboardHandler from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
-import { MapStatusNotifications } from './map-status-notifications.service';
+import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 
 @Injectable()
@@ -110,7 +110,7 @@ export class MapsService {
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService,
-    private readonly discordNotificationService: MapStatusNotifications
+    private readonly discordNotificationService: MapDiscordNotifications
   ) {}
 
   //#region Gets

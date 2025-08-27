@@ -46,7 +46,7 @@ import {
   JsonArray,
   JsonObject
 } from '@prisma/client/runtime/library';
-import { MapStatusNotifications } from '../maps/map-status-notifications.service';
+import { MapDiscordNotifications } from '../maps/map-discord-notifications.service';
 
 @Injectable()
 export class MapReviewService {
@@ -56,7 +56,7 @@ export class MapReviewService {
     private readonly mapsService: MapsService,
     private readonly fileStoreService: FileStoreService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly discordNotificationService: MapStatusNotifications
+    private readonly discordNotificationService: MapDiscordNotifications
   ) {}
 
   async getAllReviews(
