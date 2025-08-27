@@ -332,6 +332,7 @@ export interface MapSubmission {
   suggestions: MapSubmissionSuggestion[];
   placeholders: MapSubmissionPlaceholder[];
   dates: MapSubmissionDate[];
+  discordReviewThread: string | null;
 }
 
 export interface MapSubmissionApproval {

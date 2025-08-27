@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   Leaderboard,
   MapCredit,
   MapInfo,
+  MapReview,
   MapSubmission,
   MMap,
   User
@@ -21,13 +22,19 @@ import {
   Gamemode,
   steamAvatarUrl,
   MapStatuses,
-  GamemodeCategory
+  GamemodeCategory,
+  MapReviewSuggestion,
+  TrackTypeName,
+  mapTagEnglishName
 } from '@momentum/constants';
 import { APIEmbed, ChannelType } from 'discord.js';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapStatusNotifications {
   constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private config: ConfigService,
     private discord: DiscordService
   ) {}
@@ -105,6 +112,13 @@ export class MapStatusNotifications {
       }
     });
 
+    await this.db.mapSubmission.update({
+      where: { mapID: extendedMap.id },
+      data: {
+        discordReviewThread: thread.id
+      }
+    });
+
     const categories = this.getGamemodeCategories(
       info.rankedGamemodes,
       info.unrankedGamemodes
@@ -150,6 +164,47 @@ export class MapStatusNotifications {
     );
   }
 
+  async sendMapReviewToMapThread(review: ReviewWithInfo) {
+    if (!this.discord.isEnabled()) return;
+
+    const submission = await this.db.mapSubmission.findUnique({
+      where: { mapID: review.mapID }
+    });
+    if (!submission || !submission.discordReviewThread) return;
+
+    const reviewChannelID = this.config.getOrThrow('discord.reviewChannel');
+    if (!reviewChannelID) return;
+
+    // Cached in Discord.js
+    const reviewChannel = await this.discord.channels.fetch(reviewChannelID);
+    if (!reviewChannel || reviewChannel.type !== ChannelType.GuildForum) {
+      this.logger.error(
+        "Review channel doesn't exist or is not a guild forum channel."
+      );
+      return;
+    }
+
+    const thread = await this.discord.channels.fetch(
+      submission.discordReviewThread
+    );
+
+    if (!thread || !thread.isThread()) {
+      this.logger.error(
+        'Could not find a review thread for a map with id ' + review.mapID
+      );
+      return;
+    }
+
+    const reviewEmbed = this.createReviewEmbed(review);
+    try {
+      await thread.send({
+        embeds: [reviewEmbed]
+      });
+    } catch (error) {
+      this.logger.error('Failed to send a review to discord thread', error);
+    }
+  }
+
   createMapEmbed(
     extendedMap: MMap & { info: MapInfo; submitter: User },
     authors: Array<string>,
@@ -177,6 +232,57 @@ export class MapStatusNotifications {
         text: extendedMap.submitter.alias
       }
     };
+  }
+
+  createReviewEmbed(review: ReviewWithInfo) {
+    const frontendUrl = this.config.getOrThrow('url.frontend');
+
+    const embed = {
+      title: 'A new review was posted',
+      description: review.mainText,
+      url: `${frontendUrl}/maps/${review.mmap.name}`,
+      timestamp: review.createdAt.toISOString(),
+      color: 1611475,
+      author: {
+        icon_url: steamAvatarUrl(review.reviewer.avatar),
+        name: review.reviewer.alias
+      }
+    };
+
+    if (review.resolved !== null) {
+      embed['footer'] = {
+        text: 'This review requires resolving'
+      };
+    }
+
+    const suggestions = review.suggestions as unknown as MapReviewSuggestion[]; // TODO: #855
+    if (suggestions.length > 0) {
+      let suggestionsText = suggestions
+        .map((sugg) => {
+          const title = `${GamemodeInfo.get(sugg.gamemode).name} - ${TrackTypeName.get(sugg.trackType)}`;
+          const tier = sugg.tier ? 'Tier ' + sugg.tier : null;
+          const rating = sugg.gameplayRating
+            ? 'Rating ' + sugg.gameplayRating
+            : null;
+          const tags =
+            sugg.tags && sugg.tags.length > 0
+              ? 'Tags ' + sugg.tags?.map(mapTagEnglishName)?.join(', ')
+              : null;
+          return `${title}: ${[tier, rating, tags].filter(Boolean).join('; ')}`;
+        })
+        .slice(0, 10)
+        .join('\n');
+      if (suggestions.length > 10) suggestionsText += '\n...';
+
+      embed['fields'] = [
+        {
+          name: 'Suggestions',
+          value: suggestionsText
+        }
+      ];
+    }
+
+    return embed;
   }
 
   private async broadcastToCategories(
@@ -292,4 +398,9 @@ export interface MapWithInfoInSubmission extends MapWithInfo {
 
 export interface MapWithInfoApproved extends MapWithInfo {
   leaderboards: Array<Leaderboard>;
+}
+
+export interface ReviewWithInfo extends MapReview {
+  mmap: MMap;
+  reviewer: User;
 }

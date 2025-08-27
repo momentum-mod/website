@@ -37,6 +37,6 @@ import { DiscordModule } from '../discord/discord.module';
     MapListService,
     MapStatusNotifications
   ],
-  exports: [MapsService]
+  exports: [MapsService, MapStatusNotifications]
 })
 export class MapsModule {}

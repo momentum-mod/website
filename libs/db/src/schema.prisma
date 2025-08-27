@@ -310,10 +310,11 @@ model MapSubmission {
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
   /// Array of MapSubmissionSuggestion model
-  suggestions  Json                @default("[]")
+  suggestions         Json                @default("[]")
   /// Array of MapSubmissionPlaceholder model
-  placeholders Json?
-  dates        MapSubmissionDate[]
+  placeholders        Json?
+  dates               MapSubmissionDate[]
+  discordReviewThread String?
 }
 
 model MapSubmissionDate {
