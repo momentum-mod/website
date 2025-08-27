@@ -448,7 +448,7 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}/comments', () => {
     describe('GET', () => {
-      let user, token, map, reviewID;
+      let user: User, token: string, map: MMap, reviewID: number;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
@@ -584,6 +584,36 @@ describe('Map Reviews', () => {
         expect(notifs[0]).toMatchObject({
           notifiedUserID: user1.id,
           userID: user2.id
+        });
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it('should NOT send a notification if the review commented on their own review', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text:
+              'nah my bad this is fire, ' +
+              'hit me up on soundcloud i can fix some tunes for you'
+          },
+          token: u1Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(0);
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
         });
       });
     });
