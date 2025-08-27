@@ -17,7 +17,6 @@ export class MapNotifyEditComponent implements OnInit {
   @Input() flags: number;
 
   checkboxFlags = {
-    PB: { checked: false, value: ActivityType.PB_ACHIEVED },
     WR: { checked: false, value: ActivityType.WR_ACHIEVED }
   };
 
