@@ -350,6 +350,8 @@ model MapReview {
   resolved   Boolean? /// If NULL, the review does not need resolving to pass to FINAL_APPROVAL
   resolver   User?    @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
   resolverID Int?
+  
+  approves   Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

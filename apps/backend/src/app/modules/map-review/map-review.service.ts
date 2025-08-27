@@ -215,11 +215,13 @@ export class MapReviewService {
       }
     }
 
-    if (body.needsResolving) {
+    if (body.needsResolving || body.approves) {
       const user = await this.db.user.findUnique({ where: { id: userID } });
       if (!Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE))
         throw new ForbiddenException(
-          'You cannot submit reviews that need resolving'
+          body.needsResolving
+            ? 'You cannot submit reviews that need resolving'
+            : 'You cannot submit an approving review'
         );
     }
 
@@ -228,21 +230,19 @@ export class MapReviewService {
       file
     ]);
 
-    const newData: JsonObject = {
+    const newData = {
       mainText: body.mainText,
+      suggestions: body.suggestions
+        ? (body.suggestions.filter(
+            ({ tier, gameplayRating, tags }) =>
+              tier != null || gameplayRating != null || tags != null
+          ) as unknown as JsonArray)
+        : undefined,
       // If it needs resolving, set `resolved` to `false`. Otherwise it'll
       // be null, and it doesn't need resolving.
-      resolved: body.needsResolving ? false : null
-    };
-
-    if (body.suggestions) {
-      // Ignore that suggestions that had neither tier, gameplay rating nor tag,
-      // since may allow it but this is meaningless data.
-      newData.suggestions = body.suggestions.filter(
-        ({ tier, gameplayRating, tags }) =>
-          tier != null || gameplayRating != null || tags != null
-      ) as unknown as JsonArray; // TODO: #855
-    }
+      resolved: body.needsResolving ? false : null,
+      approves: body.approves
+    } satisfies JsonObject;
 
     const [dbResponse] = await parallel(
       this.db.mapReview.create({
@@ -251,6 +251,7 @@ export class MapReviewService {
           mmap: { connect: { id: mapID } },
           imageIDs: images.map(([id]) => id),
           mainText: body.mainText,
+          approves: body.approves,
           ...newData,
           editHistory: [{ ...newData, editorID: userID, date: new Date() }]
         },
@@ -272,6 +273,10 @@ export class MapReviewService {
 
     if (MapStatuses.IN_SUBMISSION.includes(map.status)) {
       void this.discordNotificationService.sendMapReviewToMapThread(dbResponse);
+    }
+
+    if (body.approves) {
+      await this.updateApprovingReviewStatus(mapID);
     }
 
     return DtoFactory(MapReviewDto, dbResponse);
@@ -341,37 +346,46 @@ export class MapReviewService {
       throw new ForbiddenException();
     }
 
+    if (!isReviewer && body.approves) {
+      throw new ForbiddenException();
+    }
+
     if (review.resolved && body.needsResolving === false) {
       throw new BadRequestException();
     }
 
     const suggestions = body.suggestions as unknown as InputJsonObject; // TODO: #855
 
-    return DtoFactory(
-      MapReviewDto,
-      await this.db.mapReview.update({
-        where: { id: reviewID },
-        include: { resolver: true },
-        data: {
-          mainText: body.mainText,
-          suggestions,
-          resolved: body.resolved,
-          resolverID: body.resolved ? userID : null,
-          editHistory: [
-            ...(review.editHistory as JsonArray),
-            {
-              // We only want to log actual changes, so anything here being
-              // undefined is fine.
-              mainText: body.mainText,
-              suggestions,
-              resolved: body.resolved,
-              editorID: userID,
-              date: new Date()
-            }
-          ]
-        }
-      })
-    );
+    const updated = await this.db.mapReview.update({
+      where: { id: reviewID },
+      include: { resolver: true },
+      data: {
+        mainText: body.mainText,
+        suggestions,
+        resolved: body.resolved,
+        approves: body.approves,
+        resolverID: body.resolved ? userID : null,
+        editHistory: [
+          ...(review.editHistory as JsonArray),
+          {
+            // We only want to log actual changes, so anything here being
+            // undefined is fine.
+            mainText: body.mainText,
+            suggestions,
+            resolved: body.resolved,
+            approves: body.approves,
+            editorID: userID,
+            date: new Date()
+          }
+        ]
+      }
+    });
+
+    if (body.approves !== undefined) {
+      await this.updateApprovingReviewStatus(review.mapID);
+    }
+
+    return DtoFactory(MapReviewDto, updated);
   }
 
   /**
@@ -464,6 +478,10 @@ export class MapReviewService {
         review.imageIDs.map((id) => mapReviewAssetPath(id))
       )
     );
+
+    if (review.approves) {
+      await this.updateApprovingReviewStatus(review.mapID);
+    }
   }
 
   /** Remove every stored file for every map review */
@@ -477,5 +495,16 @@ export class MapReviewService {
       );
 
     await this.fileStoreService.deleteFiles(imagePaths);
+  }
+
+  private async updateApprovingReviewStatus(mapID: number): Promise<void> {
+    const hasApproved = await this.db.mapReview.exists({
+      where: { mapID, approves: true }
+    });
+
+    await this.db.mapSubmission.update({
+      where: { mapID },
+      data: { hasApprovingReview: hasApproved }
+    });
   }
 }

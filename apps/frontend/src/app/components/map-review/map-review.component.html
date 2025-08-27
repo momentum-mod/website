@@ -6,7 +6,7 @@
       <m-icon icon="shield-star" class="text-orange-500" mTooltip="Review requires resolving. The map cannot be approved until resolved." />
     } @else if (review.resolved === true) {
       <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
-      <m-icon icon="check-outline" class="mr-1.5 text-green-500" />
+      <m-icon icon="shield-check" class="mr-1.5 text-blue-400" />
       <p class="mr-2 text-sm italic">Resolved by</p>
       <m-user [user]="review.resolver" avatarClass="!h-5" aliasClass="font-normal text-sm mr-1" />
     }

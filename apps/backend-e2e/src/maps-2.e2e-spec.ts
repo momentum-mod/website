@@ -35,7 +35,8 @@ import {
   MapTestInviteState,
   MAX_CREDITS_EXCEPT_TESTERS,
   Role,
-  TrackType
+  TrackType,
+  MapSubmissionType
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1931,9 +1932,17 @@ describe('Maps Part 2', () => {
           db.loginNewUser({ data: { roles: Role.REVIEWER } }),
           db.createUser()
         ]);
+      });
 
+      beforeEach(async () => {
         pubTestMap = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              hasApprovingReview: false
+            }
+          },
           submitter: { connect: { id: miscUser.id } }
         });
 
@@ -1948,9 +1957,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
+      afterAll(() => db.cleanup('user'));
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(() => db.cleanup('mMap'));
 
       it('should successfully create a review', async () => {
         const imageBuffer = readFileSync(
@@ -2082,6 +2091,43 @@ describe('Maps Part 2', () => {
           validate: MapReviewDto,
           token: reviewerToken
         }));
+
+      it('should not allow a regular user to set approves', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 403,
+          data: { mainText: 'Please add gronc', approves: true },
+          token: normalToken
+        }));
+
+      it('should allow a reviewer user to set approves', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'Please add gronc', approves: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        }));
+
+      it('should update hasApprovingReview if needed', async () => {
+        const before = await prisma.mapSubmission.findUnique({
+          where: { mapID: pubTestMap.id }
+        });
+        expect(before.hasApprovingReview).toBe(false);
+
+        await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'Please add dogs', approves: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        const after = await prisma.mapSubmission.findUnique({
+          where: { mapID: pubTestMap.id }
+        });
+        expect(after.hasApprovingReview).toBe(true);
+      });
 
       it('should 400 if image is too large', async () =>
         req.postAttach({

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MapSubmission, MapSubmissionType } from '@momentum/constants';
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { NestedProperty } from '../decorators';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
@@ -26,6 +26,9 @@ export class MapSubmissionDto implements MapSubmission {
   @IsArray()
   @IsOptional()
   readonly dates: MapSubmissionDateDto[];
+
+  @IsBoolean()
+  readonly hasApprovingReview: boolean;
 
   @Exclude()
   readonly mapID: number;

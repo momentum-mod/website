@@ -484,6 +484,8 @@ export class MapsService {
       ]
     });
 
+    // TODO NEXT: finish getting rid of hasApprovingReview, finish MapReviewSummary model and construct it here.
+
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
 
@@ -1686,15 +1688,25 @@ export class MapsService {
       );
     }
 
-    // All reviewer, mod and admin reviews must be resolved
-    const reviews = await this.db.mapReview.findMany({
-      where: { mapID: map.id, resolved: false },
-      include: { reviewer: true }
+    // All "required resolving" reviews must have been resolved.
+    // Only reviewers and above can create these, however they can also
+    // mark a non-reviewer review as needing resolving.
+    const hasUnresolvedReview = await this.db.mapReview.exists({
+      where: { mapID: map.id, resolved: false }
     });
 
-    for (const review of reviews)
-      if ((review.reviewer.roles & CombinedRoles.REVIEWER_AND_ABOVE) !== 0)
-        throw new ForbiddenException('Map has unresolved reviews');
+    if (hasUnresolvedReview) {
+      throw new ForbiddenException('Map has unresolved reviews');
+    }
+
+    // Must have at least one approving review.
+    const hasApprovingReview = await this.db.mapReview.exists({
+      where: { mapID: map.id, approves: true }
+    });
+
+    if (!hasApprovingReview) {
+      throw new ForbiddenException('Map has no approving reviews');
+    }
   }
 
   /**
