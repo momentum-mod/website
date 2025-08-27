@@ -1,9 +1,7 @@
 <p>Notify me when a</p>
 <ul class="my-4 grid items-center gap-x-2 gap-y-4 [grid-template-columns:auto_1fr]">
-  <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.PB.checked" />
-  <p>personal best is set</p>
   <input type="checkbox" class="checkbox" [(ngModel)]="checkboxFlags.WR.checked" />
-  <p>world record is set</p>
+  <p>world record is set (TODO this doesn't work yet!)</p>
 </ul>
 <div class="grid grid-cols-2 gap-2">
   <button type="button" class="btn" (click)="close()">Close</button>
