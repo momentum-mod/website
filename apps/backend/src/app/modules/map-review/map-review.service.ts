@@ -12,6 +12,7 @@ import {
   CombinedRoles,
   mapReviewAssetPath,
   MapReviewSuggestion,
+  MapStatuses,
   Role
 } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@momentum/db';
@@ -45,6 +46,7 @@ import {
   JsonArray,
   JsonObject
 } from '@prisma/client/runtime/library';
+import { MapStatusNotifications } from '../maps/map-status-notifications.service';
 
 @Injectable()
 export class MapReviewService {
@@ -53,7 +55,8 @@ export class MapReviewService {
     @Inject(forwardRef(() => MapsService))
     private readonly mapsService: MapsService,
     private readonly fileStoreService: FileStoreService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly discordNotificationService: MapStatusNotifications
   ) {}
 
   async getAllReviews(
@@ -250,6 +253,10 @@ export class MapReviewService {
           mainText: body.mainText,
           ...newData,
           editHistory: [{ ...newData, editorID: userID, date: new Date() }]
+        },
+        include: {
+          mmap: true,
+          reviewer: true
         }
       }),
       ...images.map(([id, file]) =>
@@ -262,6 +269,10 @@ export class MapReviewService {
         )
       )
     );
+
+    if (MapStatuses.IN_SUBMISSION.includes(map.status)) {
+      void this.discordNotificationService.sendMapReviewToMapThread(dbResponse);
+    }
 
     return DtoFactory(MapReviewDto, dbResponse);
   }

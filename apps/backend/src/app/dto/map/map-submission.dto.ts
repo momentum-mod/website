@@ -29,4 +29,7 @@ export class MapSubmissionDto implements MapSubmission {
 
   @Exclude()
   readonly mapID: number;
+
+  @Exclude()
+  readonly discordReviewThread: string | null;
 }
