@@ -73,17 +73,20 @@ export class MapReviewCommentService {
       where: { id: comment.review.mapID }
     });
 
-    await this.notificationService.sendNotifications({
-      data: {
-        type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
-        notifiedUserID: comment.review.reviewerID,
-        mapID: map.id,
-        reviewID,
-        reviewCommentID: comment.id,
-        userID, // reviewCommenter,
-        createdAt: new Date()
-      }
-    });
+    // Only send notifications if someone else commented on the review.
+    if (userID !== comment.review.reviewerID) {
+      await this.notificationService.sendNotifications({
+        data: {
+          type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+          notifiedUserID: comment.review.reviewerID,
+          mapID: map.id,
+          reviewID,
+          reviewCommentID: comment.id,
+          userID, // reviewCommenter,
+          createdAt: new Date()
+        }
+      });
+    }
 
     return DtoFactory(MapReviewCommentDto, comment);
   }
