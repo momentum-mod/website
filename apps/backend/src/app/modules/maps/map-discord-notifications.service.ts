@@ -32,7 +32,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
-export class MapStatusNotifications {
+export class MapDiscordNotifications {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private config: ConfigService,

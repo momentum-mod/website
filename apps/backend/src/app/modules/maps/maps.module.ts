@@ -13,7 +13,7 @@ import { MapTestInviteService } from './map-test-invite.service';
 import { MapListService } from './map-list.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
-import { MapStatusNotifications } from './map-status-notifications.service';
+import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { DiscordModule } from '../discord/discord.module';
 
 @Module({
@@ -35,8 +35,8 @@ import { DiscordModule } from '../discord/discord.module';
     MapImageService,
     MapTestInviteService,
     MapListService,
-    MapStatusNotifications
+    MapDiscordNotifications
   ],
-  exports: [MapsService, MapStatusNotifications]
+  exports: [MapsService, MapDiscordNotifications]
 })
 export class MapsModule {}
