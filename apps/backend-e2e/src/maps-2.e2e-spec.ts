@@ -12,7 +12,7 @@ import {
   UserDto
 } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
-import { PrismaClient } from '@momentum/db';
+import { MMap, PrismaClient, User } from '@momentum/db';
 import {
   AuthUtil,
   createSha1Hash,
@@ -1919,13 +1919,13 @@ describe('Maps Part 2', () => {
     });
 
     describe('POST', () => {
-      let normalToken,
-        normalUser,
-        reviewerToken,
-        miscUser,
-        approvedMap,
-        pubTestMap,
-        privTestMap;
+      let normalUser: User,
+        normalToken: string,
+        reviewerToken: string,
+        miscUser: User,
+        approvedMap: MMap,
+        pubTestMap: MMap,
+        privTestMap: MMap;
 
       beforeAll(async () => {
         [[normalUser, normalToken], reviewerToken, miscUser] =
@@ -1988,7 +1988,7 @@ describe('Maps Part 2', () => {
         expect(createSha1Hash(image)).toBe(imageHash);
       });
 
-      it('should create a REVIEW_POSTED notification for the submitter', async () => {
+      it('should create a MAP_REVIEW_POSTED notification for the submitter', async () => {
         const res = await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 201,
@@ -1999,7 +1999,7 @@ describe('Maps Part 2', () => {
               {
                 gamemode: Gamemode.AHOP,
                 trackType: 0,
-                trackNum: 0,
+                trackNum: 1,
                 tier: 1,
                 gameplayRating: 1
               }
@@ -2011,7 +2011,7 @@ describe('Maps Part 2', () => {
         const notifs = await prisma.notification.findMany({
           where: {
             notifiedUserID: miscUser.id,
-            type: NotificationType.REVIEW_POSTED,
+            type: NotificationType.MAP_REVIEW_POSTED,
             userID: normalUser.id,
             mapID: pubTestMap.id,
             reviewID: res.body.id
@@ -2020,7 +2020,7 @@ describe('Maps Part 2', () => {
         expect(notifs).toMatchObject([
           {
             notifiedUserID: miscUser.id,
-            type: NotificationType.REVIEW_POSTED,
+            type: NotificationType.MAP_REVIEW_POSTED,
             userID: normalUser.id,
             mapID: pubTestMap.id,
             reviewID: res.body.id
@@ -2340,18 +2340,18 @@ describe('Maps Part 2', () => {
         });
 
         const notifs = await prisma.notification.findMany({
-          where: { type: NotificationType.MAP_TEST_INVITE }
+          where: { type: NotificationType.MAP_TESTING_INVITE }
         });
         expect(notifs).toMatchObject([
           {
             notifiedUserID: u3.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           },
           {
             notifiedUserID: u4.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           }
@@ -2372,12 +2372,12 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
         const notifs = await prisma.notification.findMany({
-          where: { type: NotificationType.MAP_TEST_INVITE }
+          where: { type: NotificationType.MAP_TESTING_INVITE }
         });
         expect(notifs).toMatchObject([
           {
             notifiedUserID: u4.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           }
@@ -2457,7 +2457,7 @@ describe('Maps Part 2', () => {
         await prisma.notification.create({
           data: {
             notifiedUserID: user.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           }

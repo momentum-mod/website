@@ -2,7 +2,13 @@
 
 import { MapReviewCommentDto, MapReviewDto } from '../../backend/src/app/dto';
 
-import { PrismaClient } from '@momentum/db';
+import {
+  MapReview,
+  MMap,
+  Notification,
+  PrismaClient,
+  User
+} from '@momentum/db';
 import {
   DbUtil,
   FileStoreUtil,
@@ -281,7 +287,13 @@ describe('Map Reviews', () => {
         req.unauthorizedTest('map-review/1', 'patch'));
     });
     describe('DELETE', () => {
-      let user, token, u2Token, modToken, map, review, notif;
+      let user: User,
+        token: string,
+        u2Token: string,
+        modToken: string,
+        map: MMap,
+        review: MapReview,
+        _notif: Notification;
       const assetPath = mapReviewAssetPath('1');
 
       beforeAll(async () => {
@@ -317,9 +329,9 @@ describe('Map Reviews', () => {
             resolved: true
           }
         });
-        notif = await prisma.notification.create({
+        _notif = await prisma.notification.create({
           data: {
-            type: NotificationType.REVIEW_POSTED,
+            type: NotificationType.MAP_REVIEW_POSTED,
             notifiedUserID: map.submitterID,
             userID: review.reviewerID,
             mapID: map.id,
@@ -477,10 +489,17 @@ describe('Map Reviews', () => {
     });
 
     describe('POST', () => {
-      let user, token, adminToken, map, reviewID;
+      let user1: User,
+        user2: User,
+        u1Token: string,
+        u2Token: string,
+        adminToken: string,
+        map: MMap,
+        reviewID: number;
 
       beforeAll(async () => {
-        [[user, token], adminToken] = await Promise.all([
+        [[user1, u1Token], [user2, u2Token], adminToken] = await Promise.all([
+          db.createAndLoginUser(),
           db.createAndLoginUser(),
           db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
@@ -491,7 +510,7 @@ describe('Map Reviews', () => {
           data: {
             mainText: 'DISGUSTING',
             mmap: { connect: { id: map.id } },
-            reviewer: { connect: { id: user.id } },
+            reviewer: { connect: { id: user1.id } },
             resolved: false
           }
         });
@@ -499,9 +518,9 @@ describe('Map Reviews', () => {
 
         await prisma.mapReviewComment.createMany({
           data: [
-            { reviewID, userID: user.id, text: 'no it isnt!!' },
-            { reviewID, userID: user.id, text: 'we are the same person' },
-            { reviewID, userID: user.id, text: 'oh' }
+            { reviewID, userID: user1.id, text: 'no it isnt!!' },
+            { reviewID, userID: user1.id, text: 'we are the same person' },
+            { reviewID, userID: user1.id, text: 'oh' }
           ]
         });
       });
@@ -517,7 +536,7 @@ describe('Map Reviews', () => {
               text: 'Not disgusting!!'
             }
           },
-          token: token
+          token: u1Token
         }));
 
       it('should 503 if the killswitch is true', async () => {
@@ -538,15 +557,43 @@ describe('Map Reviews', () => {
               text: 'something'
             }
           },
-          token: token
+          token: u1Token
         });
 
         await resetKillswitches(req, adminToken);
       });
+
+      it('should send a notification to the reviewer on created comment', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text: 'Hey man this is my friends map, please be nicer :('
+          },
+          token: u2Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(1);
+        expect(notifs[0]).toMatchObject({
+          notifiedUserID: user1.id,
+          userID: user2.id
+        });
+      });
     });
 
     describe('PATCH', () => {
-      let user, token, adminToken, map, reviewID;
+      let user: User,
+        token: string,
+        adminToken: string,
+        map: MMap,
+        reviewID: number;
 
       beforeAll(async () => {
         [[user, token], adminToken] = await Promise.all([
