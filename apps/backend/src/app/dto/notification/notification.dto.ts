@@ -1,87 +1,116 @@
 ﻿import {
-  DateString,
-  Notification,
-  NotificationType
+  AbstractNotification,
+  AnnouncementNotification,
+  LeaderboardRun,
+  MapReview,
+  MapReviewComment,
+  MapReviewCommentPostedNotification,
+  MapReviewPostedNotification,
+  MapStatus,
+  MapStatusChangeNotification,
+  MapTestingInviteNotification,
+  MMap,
+  NotificationType,
+  User,
+  WRAchievedNotification
 } from '@momentum/constants';
-import {
-  CreatedAtProperty,
-  EnumProperty,
-  IdProperty,
-  NestedProperty
-} from '../decorators';
-import { UserDto } from '../user/user.dto';
-import { IsOptional, IsString } from 'class-validator';
+import { EnumProperty, IdProperty, NestedProperty } from '../decorators';
+import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapDto } from '../map/map.dto';
-import { PastRunDto } from '../run/past-run.dto';
+import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
+import { UserDto } from '../user/user.dto';
 import { MapReviewDto } from '../map/map-review.dto';
-import { Exclude } from 'class-transformer';
+import { MapReviewCommentDto } from '../map/map-review-comment.dto';
 
-export class NotificationDto implements Notification {
+export class NotificationDto<T = NotificationType>
+  implements AbstractNotification<T>
+{
   @IdProperty()
   readonly id: number;
 
-  @EnumProperty(NotificationType)
-  readonly type: NotificationType;
-
-  @IdProperty({
-    description: 'The ID of the user that the notification is sent to'
+  @EnumProperty(NotificationType, {
+    description:
+      'Determines which variation of notification it is. Used for determining which accompanying data fields exist'
   })
-  @Exclude()
-  readonly notifiedUserID: number;
+  readonly type: T;
+}
 
-  @NestedProperty(UserDto)
-  readonly notifiedUser: UserDto;
-
-  @ApiProperty({
-    description: 'The text of the announcement notification'
-  })
-  @IsOptional()
+export class AnnouncementNotificationDto
+  extends NotificationDto<NotificationType.ANNOUNCEMENT>
+  implements AnnouncementNotification
+{
+  @ApiProperty()
   @IsString()
   readonly message: string;
+}
 
-  @IdProperty({
-    description:
-      'The ID of the user that achieved the wr or sent the map testing request',
-    required: false
-  })
-  @Exclude()
-  readonly userID: number;
+export class WRAchievedNotificationDto
+  extends NotificationDto<NotificationType.WR_ACHIEVED>
+  implements WRAchievedNotification
+{
+  @NestedProperty(MapDto, { lazy: true })
+  readonly map: MMap;
 
-  @NestedProperty(UserDto, { required: false })
-  readonly user: UserDto;
+  @NestedProperty(LeaderboardRunDto, { lazy: true })
+  readonly run: LeaderboardRun;
+}
 
-  @IdProperty({
-    description:
-      'The ID of the map that the testing request is about or the map that changed status',
-    required: false
-  })
-  @Exclude()
-  readonly mapID: number;
+export class MapStatusChangeNotificationDto
+  extends NotificationDto<NotificationType.MAP_STATUS_CHANGE>
+  implements MapStatusChangeNotification
+{
+  @EnumProperty(MapStatus)
+  readonly oldStatus: MapStatus;
 
-  @NestedProperty(MapDto, { required: false })
-  readonly map: MapDto;
+  @EnumProperty(MapStatus)
+  readonly newStatus: MapStatus;
 
-  @IdProperty({
-    description: 'The ID of the PastRun that has just been achieved',
-    required: false
-  })
-  @Exclude()
-  readonly runID: bigint;
+  @NestedProperty(MapDto, { lazy: true })
+  readonly map: MMap;
 
-  @NestedProperty(PastRunDto, { required: false })
-  readonly run: PastRunDto;
+  @NestedProperty(UserDto, { lazy: true })
+  readonly changedBy: User;
+}
 
-  @IdProperty({
-    description: 'The ID of the MapReview that has just been posted',
-    required: false
-  })
-  @Exclude()
-  readonly reviewID: number;
+export class MapTestingInviteNotificationDto
+  extends NotificationDto<NotificationType.MAP_TESTING_INVITE>
+  implements MapTestingInviteNotification
+{
+  @NestedProperty(MapDto, { lazy: true })
+  readonly map: MMap;
 
-  @NestedProperty(MapReviewDto, { required: false })
-  readonly review: MapReviewDto;
+  @NestedProperty(UserDto, { lazy: true })
+  readonly invitedBy: User;
+}
 
-  @CreatedAtProperty()
-  readonly createdAt: DateString;
+export class MapReviewPostedNotificationDto
+  extends NotificationDto<NotificationType.MAP_REVIEW_POSTED>
+  implements MapReviewPostedNotification
+{
+  @NestedProperty(MapDto, { lazy: true })
+  readonly map: MMap;
+
+  @NestedProperty(MapReviewDto, { lazy: true })
+  readonly review: MapReview;
+
+  @NestedProperty(UserDto, { lazy: true })
+  readonly reviewer: User;
+}
+
+export class MapReviewCommentPostedNotificationDto
+  extends NotificationDto<NotificationType.MAP_REVIEW_COMMENT_POSTED>
+  implements MapReviewCommentPostedNotification
+{
+  @NestedProperty(MapDto, { lazy: true })
+  readonly map: MMap;
+
+  @NestedProperty(MapReviewDto, { lazy: true })
+  readonly review: MapReview;
+
+  @NestedProperty(MapReviewCommentDto, { lazy: true })
+  readonly reviewComment: MapReviewComment;
+
+  @NestedProperty(UserDto, { lazy: true })
+  readonly reviewCommenter: User;
 }

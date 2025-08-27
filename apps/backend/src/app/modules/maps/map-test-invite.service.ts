@@ -76,7 +76,7 @@ export class MapTestInviteService {
       where: {
         notifiedUserID: userID,
         mapID,
-        type: NotificationType.MAP_TEST_INVITE
+        type: NotificationType.MAP_TESTING_INVITE
       }
     });
   }
@@ -127,11 +127,16 @@ export class MapTestInviteService {
     const map = await tx.mMap.findUnique({ where: { id: mapID } });
 
     await this.notifsService.sendNotifications(
-      difference(userIDs, existingInviteUserIDs),
       {
-        type: NotificationType.MAP_TEST_INVITE,
-        mapID: mapID,
-        requesterID: map.submitterID
+        data: difference(userIDs, existingInviteUserIDs).map(
+          (notifiedUserID) => ({
+            type: NotificationType.MAP_TESTING_INVITE,
+            notifiedUserID,
+            mapID,
+            userID: map.submitterID,
+            createdAt: new Date()
+          })
+        )
       },
       tx
     );
@@ -140,7 +145,7 @@ export class MapTestInviteService {
       where: {
         notifiedUserID: { in: difference(existingInviteUserIDs, userIDs) },
         mapID: mapID,
-        type: NotificationType.MAP_TEST_INVITE
+        type: NotificationType.MAP_TESTING_INVITE
       }
     });
   }

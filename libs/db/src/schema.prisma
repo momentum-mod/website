@@ -142,10 +142,24 @@ model Notification {
 
   type Int /// notification-type.enum.ts
 
+  //  Object containing non-nested fields (non-relations) of Notification variants.
+  //  AnnouncementNotification fields:
+  //  json: {
+  //    message: string;
+  //  }
+  //  WRAchievedNotification fields:
+  //  json: {
+  //    TODO
+  //  }
+  //  MapStatusChangeNotification fields:
+  //  json: {
+  //    oldStatus: MapStatus;
+  //    newStatus: MapStatus;
+  //  }
+  json Json? @default("{}")
+
   notifiedUser   User @relation("notifs_to", fields: [notifiedUserID], references: [id], onDelete: Cascade)
   notifiedUserID Int
-
-  message String?
 
   user   User? @relation("notifs_about", fields: [userID], references: [id], onDelete: Cascade)
   userID Int?
@@ -153,11 +167,11 @@ model Notification {
   map   MMap? @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int?
 
-  run   PastRun? @relation(fields: [runID], references: [id], onDelete: Cascade)
-  runID BigInt?
-
   review   MapReview? @relation(fields: [reviewID], references: [id], onDelete: Cascade)
   reviewID Int?
+
+  reviewComment   MapReviewComment? @relation(fields: [reviewCommentID], references: [id], onDelete: Cascade)
+  reviewCommentID Int?
 
   createdAt DateTime @default(now())
 
@@ -385,6 +399,8 @@ model MapReviewComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  notifsAbout Notification[]
+
   @@index([reviewID, createdAt])
 }
 
@@ -542,7 +558,6 @@ model PastRun {
   flags Int[] @db.SmallInt
 
   leaderboardRun LeaderboardRun?
-  notifsAbout    Notification[]
 
   createdAt DateTime @default(now())
 

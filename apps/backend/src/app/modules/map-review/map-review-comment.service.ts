@@ -17,15 +17,21 @@ import {
 import { MapsService } from '../maps/maps.service';
 import { isEmpty, parallel } from '@momentum/util-fn';
 import * as Bitflags from '@momentum/bitflags';
-import { AdminActivityType, CombinedRoles } from '@momentum/constants';
+import {
+  AdminActivityType,
+  CombinedRoles,
+  NotificationType
+} from '@momentum/constants';
 import { AdminActivityService } from '../admin/admin-activity.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MapReviewCommentService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly mapsService: MapsService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly notificationService: NotificationsService
   ) {}
 
   async getComments(
@@ -58,13 +64,28 @@ export class MapReviewCommentService {
 
     await this.checkReviewPerms(reviewID, userID);
 
-    return DtoFactory(
-      MapReviewCommentDto,
-      await this.db.mapReviewComment.create({
-        data: { text: body.text, reviewID, userID },
-        include: { user: true }
-      })
-    );
+    const comment = await this.db.mapReviewComment.create({
+      data: { text: body.text, reviewID, userID },
+      include: { user: true, review: true }
+    });
+
+    const map = await this.db.mMap.findUnique({
+      where: { id: comment.review.mapID }
+    });
+
+    await this.notificationService.sendNotifications({
+      data: {
+        type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+        notifiedUserID: comment.review.reviewerID,
+        mapID: map.id,
+        reviewID,
+        reviewCommentID: comment.id,
+        userID, // reviewCommenter,
+        createdAt: new Date()
+      }
+    });
+
+    return DtoFactory(MapReviewCommentDto, comment);
   }
 
   async updateComment(

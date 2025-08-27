@@ -4,7 +4,7 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 
 @Module({
-  imports: [DbModule.forRoot()],
+  imports: [DbModule],
   controllers: [NotificationsController],
   providers: [NotificationsService],
   exports: [NotificationsService]
