@@ -20,6 +20,7 @@ import {
   FILES_PATH,
   FileStoreUtil,
   futureDateOffset,
+  mockDiscordService,
   NULL_ID,
   RequestUtil,
   resetKillswitches
@@ -50,6 +51,7 @@ import {
 import { MapListVersionDto } from '../../backend/src/app/dto/map/map-list-version.dto';
 import path from 'node:path';
 import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-stats.dto';
+import * as rxjs from 'rxjs';
 
 describe('Maps Part 2', () => {
   let app,
@@ -2123,6 +2125,56 @@ describe('Maps Part 2', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/reviews', 'post'));
+
+      describe('Discord notifications', () => {
+        let restPostMock: jest.SpyInstance,
+          restPostObservable: rxjs.Subject<void>;
+
+        beforeAll(async () => {
+          const discordMock = await mockDiscordService(app);
+          restPostMock = discordMock.restPostMock;
+          restPostObservable = discordMock.restPostObservable;
+        });
+
+        afterAll(() => jest.restoreAllMocks());
+        afterEach(() => restPostMock.mockClear());
+
+        it('should send a review to discord thread', async () => {
+          await prisma.mapSubmission.update({
+            where: { mapID: pubTestMap.id },
+            data: {
+              discordReviewThread: '5242003' // Ends with 003 - public thread. See discord.util.ts
+            }
+          });
+
+          const reviewDesctiption = 'Please add conc';
+          req.postAttach({
+            url: `maps/${pubTestMap.id}/reviews`,
+            status: 201,
+            data: {
+              mainText: reviewDesctiption,
+              suggestions: [
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: 0,
+                  trackNum: 1,
+                  tier: 1,
+                  gameplayRating: 1
+                }
+              ]
+            },
+            validate: MapReviewDto,
+            token: normalToken
+          });
+
+          await rxjs.firstValueFrom(restPostObservable);
+          expect(restPostMock).toHaveBeenCalledTimes(1);
+
+          const requestBody = restPostMock.mock.lastCall[1];
+          const embed = requestBody.body.embeds[0];
+          expect(embed.description).toBe(reviewDesctiption);
+        });
+      });
     });
   });
 
