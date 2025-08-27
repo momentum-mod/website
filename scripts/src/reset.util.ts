@@ -1,5 +1,4 @@
 import { PrismaClient } from '@momentum/db';
-import { prismaWrapper } from './prisma-wrapper.util';
 
 export async function nuke(prisma: PrismaClient) {
   const env = process.env.NODE_ENV;
@@ -24,5 +23,3 @@ export async function nuke(prisma: PrismaClient) {
     console.log({ error });
   }
 }
-
-if (require.main === module) prismaWrapper(nuke);

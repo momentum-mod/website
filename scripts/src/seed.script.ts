@@ -51,7 +51,7 @@ import axios from 'axios';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import { prismaWrapper } from './prisma-wrapper.util';
-import { nuke } from './reset.script';
+import { nuke } from './reset.util';
 
 //#region Configuration
 // Can be overridden with --key=N or --key=N-M

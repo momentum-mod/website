@@ -65,6 +65,13 @@
         "cwd": "."
       }
     },
+    "reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma db push --force-reset --accept-data-loss",
+        "cwd": "libs/db/src"
+      }
+    },
     "studio": {
       "executor": "nx:run-commands",
       "options": {
