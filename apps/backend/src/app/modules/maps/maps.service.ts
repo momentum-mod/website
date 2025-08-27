@@ -96,6 +96,7 @@ import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
 import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MapsService {
@@ -111,7 +112,8 @@ export class MapsService {
     private readonly mapReviewService: MapReviewService,
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService,
-    private readonly discordNotificationService: MapDiscordNotifications
+    private readonly discordNotificationService: MapDiscordNotifications,
+    private readonly notificationService: NotificationsService
   ) {}
 
   //#region Gets
@@ -1594,12 +1596,18 @@ export class MapsService {
       oldStatus === MapStatus.PRIVATE_TESTING &&
       newStatus === MapStatus.CONTENT_APPROVAL
     ) {
+      await this.deletePrivateTestingInviteNotifications(map.id);
       if (
         !map.submission.dates.some(
           (date) => date.status === MapStatus.CONTENT_APPROVAL
         )
-      )
-        void this.sendContentApprovalNotification(map.id);
+      ) {
+        await this.sendContentApprovalNotification(map.id);
+      }
+
+      await this.db.mapTestInvite.deleteMany({
+        where: { state: MapTestInviteState.UNREAD, mapID: map.id }
+      });
     } else if (
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
@@ -1609,7 +1617,7 @@ export class MapsService {
       oldStatus === MapStatus.FINAL_APPROVAL &&
       newStatus === MapStatus.APPROVED
     ) {
-      await this.updateStatusFromFAToApproved(tx, map, dto);
+      await this.updateStatusFromFAToApproved(tx, map, dto, user.id);
     } else if (
       oldStatus === MapStatus.DISABLED &&
       newStatus === MapStatus.APPROVED &&
@@ -1706,7 +1714,8 @@ export class MapsService {
   private async updateStatusFromFAToApproved(
     tx: ExtendedPrismaServiceTransaction,
     map: MapWithSubmission,
-    dto: UpdateMapAdminDto
+    dto: UpdateMapAdminDto,
+    adminID: number
   ) {
     // Check we don't have any unresolved reviews. Even admins shouldn't be able
     // to bypass this, if needed they can just go in and resolve those reviews!
@@ -1751,6 +1760,17 @@ export class MapsService {
         zones,
         SuggestionType.APPROVAL
       );
+
+      // Send a notification to the submitter.
+      await this.notificationService.sendNotifications({
+        data: {
+          type: NotificationType.MAP_STATUS_CHANGE,
+          notifiedUserID: map.submitterID,
+          json: { oldStatus: map.status, newStatus: dto.status },
+          mapID: map.id,
+          userID: adminID
+        }
+      });
 
       // Create placeholder users for all the users the submitter requested
       // Can't use createMany due to nesting (thanks Prisma!!)
@@ -1856,7 +1876,7 @@ export class MapsService {
       where: { mapID: map.id, state: MapTestInviteState.UNREAD }
     });
     await tx.notification.deleteMany({
-      where: { type: NotificationType.MAP_TEST_INVITE, mapID: map.id }
+      where: { type: NotificationType.MAP_TESTING_INVITE, mapID: map.id }
     });
   }
 
@@ -2165,6 +2185,12 @@ export class MapsService {
     }
 
     throw new ForbiddenException('User not authorized to access map data');
+  }
+
+  async deletePrivateTestingInviteNotifications(mapID: number) {
+    await this.db.notification.deleteMany({
+      where: { mapID, type: NotificationType.MAP_TESTING_INVITE }
+    });
   }
 
   async sendContentApprovalNotification(mapID: number) {

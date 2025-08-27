@@ -266,15 +266,19 @@ export class MapReviewService {
         });
 
         await this.notifService.sendNotifications(
-          [map.submitter.id],
           {
-            type: NotificationType.REVIEW_POSTED,
-            reviewerID: userID,
-            reviewID: newReview.id,
-            mapID: mapID
+            data: {
+              type: NotificationType.MAP_REVIEW_POSTED,
+              notifiedUserID: map.submitter.id,
+              userID,
+              mapID,
+              reviewID: newReview.id,
+              createdAt: new Date()
+            }
           },
           tx
         );
+
         return newReview;
       }),
       ...images.map(([id, file]) =>
@@ -480,7 +484,10 @@ export class MapReviewService {
       this.db.$transaction([
         this.db.mapReview.delete({ where: { id: reviewID } }),
         this.db.notification.deleteMany({
-          where: { type: NotificationType.REVIEW_POSTED, reviewID: reviewID }
+          where: {
+            type: NotificationType.MAP_REVIEW_POSTED,
+            reviewID: reviewID
+          }
         })
       ]),
       this.fileStoreService.deleteFiles(

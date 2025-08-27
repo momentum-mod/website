@@ -71,7 +71,7 @@ function conditionalDecorator(
  *  - @ApiProperty
  *  - @Type
  *  - @ValidateNested
- *  - @IsOptional if options.required = true
+ *  - @IsOptional if options.required = false
  *
  *  Optional by default!
  *
@@ -459,6 +459,7 @@ export function IntCsvQueryProperty(
       value.split(',').map((v) => (bigint ? BigInt(v) : Number.parseInt(v)))
     ),
     IsArray(),
+    IsInt({ each: true }),
     conditionalDecorator(!required, IsOptional)
   );
 }
