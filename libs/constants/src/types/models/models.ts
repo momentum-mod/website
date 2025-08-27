@@ -23,7 +23,8 @@ import {
   MapTag,
   Flags,
   DateString,
-  SteamGame
+  SteamGame,
+  NotificationType
 } from '../../';
 
 // Collection of models used throughout the codebase, as well as in Panorama.
@@ -90,18 +91,6 @@ export interface Activity {
   user?: User;
   createdAt: DateString;
   updatedAt: DateString;
-}
-
-export interface Notification {
-  id: number;
-  type: number;
-  notifiedUser: User;
-  message: string | null;
-  user?: User;
-  map?: MMap;
-  run?: PastRun;
-  review?: MapReview;
-  createdAt: DateString;
 }
 
 export interface Follow {
@@ -597,6 +586,64 @@ export interface CompletedRun {
   lastPersonalBest?: LeaderboardRun;
   worldRecord?: LeaderboardRun;
   totalRuns: number;
+}
+
+//#endregion
+//#region Notifications
+
+export type AbstractNotification<T = NotificationType> = {
+  id: number;
+  type: T;
+};
+
+export type Notification =
+  | AnnouncementNotification
+  | WRAchievedNotification
+  | MapStatusChangeNotification
+  | MapTestingInviteNotification
+  | MapReviewPostedNotification
+  | MapReviewCommentPostedNotification;
+
+export interface AnnouncementNotification
+  extends AbstractNotification<NotificationType.ANNOUNCEMENT> {
+  message: string;
+}
+
+export interface WRAchievedNotification
+  extends AbstractNotification<NotificationType.WR_ACHIEVED> {
+  // TODO fields that would be stored as json in db.
+  // Take what's needed from a LeaderboardRun and create separate fields.
+  map: MMap;
+  run: LeaderboardRun;
+}
+
+export interface MapStatusChangeNotification
+  extends AbstractNotification<NotificationType.MAP_STATUS_CHANGE> {
+  oldStatus: MapStatus;
+  newStatus: MapStatus;
+  map: MMap;
+  changedBy: User;
+}
+
+export interface MapTestingInviteNotification
+  extends AbstractNotification<NotificationType.MAP_TESTING_INVITE> {
+  map: MMap;
+  invitedBy: User;
+}
+
+export interface MapReviewPostedNotification
+  extends AbstractNotification<NotificationType.MAP_REVIEW_POSTED> {
+  map: MMap;
+  review: MapReview;
+  reviewer: User;
+}
+
+export interface MapReviewCommentPostedNotification
+  extends AbstractNotification<NotificationType.MAP_REVIEW_COMMENT_POSTED> {
+  map: MMap;
+  review: MapReview;
+  reviewComment: MapReviewComment;
+  reviewCommenter: User;
 }
 
 //#endregion

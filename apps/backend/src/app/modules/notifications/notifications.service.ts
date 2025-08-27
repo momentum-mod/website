@@ -8,40 +8,17 @@ import {
   NotificationDto,
   NotifsMarkAsReadQueryDto,
   PagedResponseDto,
-  NotifsGetQueryDto
+  NotifsGetQueryDto,
+  AnnouncementNotificationDto,
+  DtoFactory,
+  WRAchievedNotificationDto,
+  MapStatusChangeNotificationDto,
+  MapTestingInviteNotificationDto,
+  MapReviewPostedNotificationDto,
+  MapReviewCommentPostedNotificationDto
 } from '../../dto';
-import { NotificationType } from '@momentum/constants';
-import { Prisma } from '@prisma/client';
-
-export type AnnouncementData = {
-  type: NotificationType.ANNOUNCEMENT;
-  message: string;
-};
-export type WRAchievedData = {
-  type: NotificationType.WR_ACHIEVED;
-  runID: bigint;
-};
-export type MapStatusChangeData = {
-  type: NotificationType.MAP_STATUS_CHANGE;
-  mapID: number;
-};
-export type MapTestReqData = {
-  type: NotificationType.MAP_TEST_INVITE;
-  requesterID: number;
-  mapID: number;
-};
-export type ReviewPostedData = {
-  type: NotificationType.REVIEW_POSTED;
-  reviewerID: number;
-  mapID: number;
-  reviewID: number;
-};
-export type NotificationData =
-  | AnnouncementData
-  | WRAchievedData
-  | MapStatusChangeData
-  | MapTestReqData
-  | ReviewPostedData;
+import { MapStatus, NotificationType } from '@momentum/constants';
+import { Prisma } from '@momentum/db';
 
 @Injectable()
 export class NotificationsService {
@@ -55,18 +32,82 @@ export class NotificationsService {
     // Only a couple of these fields are on a notification at a time
     // However, the include will only fetch those fields if they exist
     // This is faster than explicitly checking
-    const dbResponse = await this.db.notification.findManyAndCount({
+    const [data, count] = await this.db.notification.findManyAndCount({
       where: { notifiedUserID: userID },
       include: {
         user: true,
         map: true,
-        run: true,
-        review: true
+        review: true,
+        reviewComment: true
       },
       skip: query.skip,
       take: query.take
     });
-    return new PagedResponseDto(NotificationDto, dbResponse);
+
+    return {
+      totalCount: count,
+      returnCount: data.length,
+      data: data.map((item) => {
+        switch (item.type) {
+          case NotificationType.ANNOUNCEMENT: {
+            return DtoFactory(AnnouncementNotificationDto, {
+              id: item.id,
+              type: item.type,
+              message: (item.json as { message: string }).message
+            });
+          }
+          case NotificationType.WR_ACHIEVED: {
+            return DtoFactory(WRAchievedNotificationDto, {
+              // TODO more fields when adding this, see models.ts
+              id: item.id,
+              type: item.type,
+              map: item.map
+            });
+          }
+          case NotificationType.MAP_STATUS_CHANGE: {
+            const jsonField = item.json as {
+              oldStatus: MapStatus;
+              newStatus: MapStatus;
+            };
+            return DtoFactory(MapStatusChangeNotificationDto, {
+              id: item.id,
+              type: item.type,
+              map: item.map,
+              oldStatus: jsonField.oldStatus,
+              newStatus: jsonField.newStatus,
+              changedBy: item.user
+            });
+          }
+          case NotificationType.MAP_TESTING_INVITE: {
+            return DtoFactory(MapTestingInviteNotificationDto, {
+              id: item.id,
+              type: item.type,
+              map: item.map,
+              invitedBy: item.user
+            });
+          }
+          case NotificationType.MAP_REVIEW_POSTED: {
+            return DtoFactory(MapReviewPostedNotificationDto, {
+              id: item.id,
+              type: item.type,
+              map: item.map,
+              review: item.review,
+              reviewer: item.user
+            });
+          }
+          case NotificationType.MAP_REVIEW_COMMENT_POSTED: {
+            return DtoFactory(MapReviewCommentPostedNotificationDto, {
+              id: item.id,
+              type: item.type,
+              map: item.map,
+              review: item.review,
+              reviewComment: item.reviewComment,
+              reviewCommenter: item.user
+            });
+          }
+        }
+      })
+    };
   }
 
   async markAsRead(
@@ -77,66 +118,28 @@ export class NotificationsService {
       await this.db.notification.deleteMany({
         where: {
           notifiedUserID: userID,
-          type: { not: NotificationType.MAP_TEST_INVITE }
+          // Don't delete Map Testing notifications, as those are handled by
+          // MapTestInviteService. User needs to explicitly accept/reject.
+          type: { not: NotificationType.MAP_TESTING_INVITE }
         }
       });
     } else {
       if (!query.notifIDs)
         throw new BadRequestException('notifIDs required if all is false');
-      for (const notifID of query.notifIDs)
-        if (Number.isNaN(notifID))
-          throw new BadRequestException('notifIDs must contain numbers only');
       await this.db.notification.deleteMany({
         where: {
           id: { in: query.notifIDs },
           notifiedUserID: userID,
-          type: { not: NotificationType.MAP_TEST_INVITE }
+          type: { not: NotificationType.MAP_TESTING_INVITE }
         }
       });
     }
   }
 
   async sendNotifications(
-    toUserIDs: number[],
-    data: NotificationData,
+    createManyArgs: Prisma.NotificationCreateManyArgs,
     tx: ExtendedPrismaServiceTransaction = this.db
   ): Promise<void> {
-    const newNotif: Partial<Prisma.NotificationCreateManyInput> = {
-      type: data.type
-    };
-    switch (data.type) {
-      case NotificationType.ANNOUNCEMENT:
-        newNotif.message = data.message;
-        break;
-      case NotificationType.WR_ACHIEVED:
-        newNotif.runID = data.runID;
-        break;
-      case NotificationType.MAP_STATUS_CHANGE:
-        newNotif.mapID = data.mapID;
-        break;
-      case NotificationType.MAP_TEST_INVITE:
-        newNotif.userID = data.requesterID;
-        newNotif.mapID = data.mapID;
-        break;
-      case NotificationType.REVIEW_POSTED:
-        newNotif.userID = data.reviewerID;
-        newNotif.mapID = data.mapID;
-        newNotif.reviewID = data.reviewID;
-        break;
-      default:
-        throw new Error(
-          'Malformed data argument! Look at the types in notifications.service.ts'
-        );
-    }
-
-    await tx.notification.createMany({
-      data: toUserIDs.map(
-        (userID) =>
-          ({
-            ...newNotif,
-            notifiedUserID: userID
-          }) as Prisma.NotificationCreateManyInput
-      )
-    });
+    await tx.notification.createMany(createManyArgs);
   }
 }

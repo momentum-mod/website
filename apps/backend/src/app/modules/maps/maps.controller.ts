@@ -516,16 +516,16 @@ export class MapsController {
   @ApiOperation({
     summary: `
       Sets the images for a map, given an 'imageIDs' array.
-      
-      For new images, give an stringified integer between one-five for each place, 
+
+      For new images, give an stringified integer between one-five for each place,
       which will be used to index into the array of files on the multipart form.
-      
+
       For existing images, give its ID (uuid). Any IDs *not* included will be deleted.
       Say a map has two existing images (shortened here), abcdefgh-1234, stuvwxyz-6789.
-      
+
       For example, calling this endpoint two image files and imageIDs = [1, abcdefgh-1234, 0],
       and we would order the second file first, then abcdefgh-1234, then the first file,
-      deleting stuvwxyz-6789. The two new images would be issued new uuids, and stored 
+      deleting stuvwxyz-6789. The two new images would be issued new uuids, and stored
       relative to that ID.
       `
   })
