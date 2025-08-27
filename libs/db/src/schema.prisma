@@ -438,7 +438,7 @@ model LeaderboardRun {
 
   /// We don't store ticks in anticipation of future sub-tick system. If ticks
   /// are required, they can be calculated with `time * tickrate of gamemode`.
-  time Float @db.Real
+  time Float @db.DoublePrecision
 
   /// We store this for LeaderboardRun and *not* PastRun for space efficiency.
   splits Json /// RunSplits model
@@ -523,7 +523,7 @@ model PastRun {
   trackNum  Int @db.SmallInt
   style     Int @db.SmallInt
 
-  time Float @db.Real
+  time Float @db.DoublePrecision
 
   flags Int[] @db.SmallInt
 
