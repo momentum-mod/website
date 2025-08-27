@@ -2919,7 +2919,14 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, mod, modToken, createMapData;
+      let user: User,
+        token: string,
+        u2: User,
+        u2Token: string,
+        adminToken: string,
+        mod: User,
+        modToken: string,
+        createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
         [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
@@ -3187,7 +3194,7 @@ describe('Maps', () => {
         await prisma.notification.create({
           data: {
             notifiedUserID: u2.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           }
@@ -3200,7 +3207,7 @@ describe('Maps', () => {
         });
         const notifs = await prisma.notification.findMany({
           where: {
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id
           }
         });

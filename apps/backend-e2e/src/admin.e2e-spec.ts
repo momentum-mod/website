@@ -1517,7 +1517,7 @@ describe('Admin', () => {
         await prisma.notification.create({
           data: {
             notifiedUserID: u2.id,
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id,
             userID: map.submitterID
           }
@@ -1530,7 +1530,7 @@ describe('Admin', () => {
         });
         const notifs = await prisma.notification.findMany({
           where: {
-            type: NotificationType.MAP_TEST_INVITE,
+            type: NotificationType.MAP_TESTING_INVITE,
             mapID: map.id
           }
         });
@@ -1684,6 +1684,28 @@ describe('Admin', () => {
           expect(
             mapApprovedActvities.map((activity) => activity.userID).sort()
           ).toEqual([u1.id, admin.id, mod.id].sort());
+        });
+
+        it('should send a notification to the map submitter on approval', async () => {
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+
+          const notifs = await prisma.notification.findMany({
+            where: { mapID: map.id, type: NotificationType.MAP_STATUS_CHANGE }
+          });
+          expect(notifs.length).toBe(1);
+          expect(notifs[0]).toMatchObject({
+            notifiedUserID: map.submitterID,
+            userID: admin.id,
+            json: {
+              oldStatus: MapStatus.FINAL_APPROVAL,
+              newStatus: MapStatus.APPROVED
+            }
+          });
         });
 
         it('should create leaderboards based on finalLeaderboards and clear all existing', async () => {
@@ -2004,7 +2026,12 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let modToken, admin, adminToken, user, token, map;
+      let modToken: string,
+        admin: User,
+        adminToken: string,
+        user: User,
+        token: string,
+        map;
 
       beforeAll(async () => {
         [modToken, [admin, adminToken], [user, token]] = await Promise.all([
