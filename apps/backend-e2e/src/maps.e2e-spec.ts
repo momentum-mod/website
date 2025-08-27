@@ -38,6 +38,7 @@ import {
   DbUtil,
   FILES_PATH,
   FileStoreUtil,
+  mockDiscordService,
   NULL_ID,
   RequestUtil,
   resetKillswitches
@@ -57,11 +58,9 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { ConfigService } from '@nestjs/config';
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { DiscordService } from 'apps/backend/src/app/modules/discord/discord.service';
-import { ChannelType, Client, Routes } from 'discord.js';
+import { Routes } from 'discord.js';
 
 describe('Maps', () => {
   let app,
@@ -4740,10 +4739,8 @@ describe('Maps', () => {
       adminToken: string,
       createMapData,
       bspBuffer: Buffer,
-      restGetMock: jest.SpyInstance,
       restPostMock: jest.SpyInstance,
-      restPostObservable: rxjs.Subject<void>,
-      configMock: jest.SpyInstance;
+      restPostObservable: rxjs.Subject<void>;
 
     beforeAll(async () => {
       [[user, token], adminToken] = await Promise.all([
@@ -4807,106 +4804,9 @@ describe('Maps', () => {
 
       bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
 
-      const reviewChannelId = '3412';
-
-      const configService = app.get(ConfigService);
-      const getOrThrow = configService.getOrThrow;
-      configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
-      configMock.mockImplementation((path) => {
-        if (path.startsWith('discord.')) {
-          const parts = path.split('.');
-          switch (parts[1]) {
-            case 'token':
-              return 'A definitely working Discord token.';
-            case 'guild':
-              return '123';
-            case 'contentApprovalChannel':
-              return '1337';
-            case 'reviewChannel':
-              return reviewChannelId;
-            case 'statusChannels':
-              return parts[2];
-          }
-        }
-        return getOrThrow.bind(configService)(path);
-      });
-
-      const discordService: DiscordService = app.get(DiscordService);
-
-      jest
-        .spyOn(discordService, 'isEnabled')
-        .mockImplementation((): this is Client => true);
-      if (!discordService.isEnabled()) return;
-      discordService.rest.setToken(configService.getOrThrow('discord.token'));
-
-      restGetMock = jest.spyOn(discordService.rest, 'get');
-      restPostMock = jest.spyOn(discordService.rest, 'post');
-
-      restGetMock.mockImplementation((url: string) => {
-        if (url.startsWith('/')) url = url.slice(1);
-        const parts = url.split('/');
-        return new Promise((res) => {
-          switch (parts[0]) {
-            case 'channels':
-              res({
-                id: parts[1],
-                name: 'mock-channel',
-                type:
-                  parts[1] === reviewChannelId
-                    ? ChannelType.GuildForum
-                    : ChannelType.GuildText,
-                guild_id: configService.getOrThrow('discord.guild'),
-                flags: 0
-              });
-              break;
-            case 'guilds':
-              res({ id: parts[1], name: 'Mock Server' });
-              break;
-            default:
-              res({});
-              break;
-          }
-        });
-      });
-
-      restPostObservable = new rxjs.Subject();
-      restPostMock.mockImplementation((url) => {
-        if (url.startsWith('/')) url = url.slice(1);
-        const parts = url.split('/');
-        return new Promise((res) => {
-          if (
-            parts.length === 3 &&
-            parts[0] === 'channels' &&
-            parts[2] === 'messages'
-          ) {
-            res({
-              id: '54321',
-              type: 0,
-              channel_id: parts[1],
-              content: 'Look, a rope!'
-            });
-          } else if (
-            parts.length === 3 &&
-            parts[0] === 'channels' &&
-            parts[2] === 'threads'
-          ) {
-            res({
-              id: '91212',
-              name: 'Yarn',
-              type: 11, // Thread channel
-              guild_id: configService.getOrThrow('discord.guild'),
-              flags: 0
-            });
-          } else {
-            res({});
-          }
-          restPostObservable.next();
-        });
-      });
-
-      await discordService.guilds.fetch(
-        configService.getOrThrow('discord.guild')
-      );
+      const discordMock = await mockDiscordService(app);
+      restPostMock = discordMock.restPostMock;
+      restPostObservable = discordMock.restPostObservable;
     });
 
     afterAll(() => jest.restoreAllMocks());
@@ -5025,7 +4925,7 @@ describe('Maps', () => {
       expect(restPostMock).toHaveBeenCalledTimes(2);
 
       const requestBody = restPostMock.mock.lastCall[1];
-      expect(requestBody.body.content).toContain('123/91212'); // guild id/message id, see config and post mocks
+      expect(requestBody.body.content).toContain('123/9121003'); // guild id/message id, see test util discord.util.ts
 
       const embed = requestBody.body.embeds[0];
 

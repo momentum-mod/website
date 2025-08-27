@@ -5,5 +5,6 @@ export * from './utils/crypto.util';
 export * from './utils/random.util';
 export * from './utils/request.util';
 export * from './utils/run-tester.util';
+export * from './utils/discord.util';
 export * from './matchers/to-be-valid-dto';
 export * from './files-path.const';
