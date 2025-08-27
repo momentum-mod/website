@@ -21,6 +21,7 @@ import {
   mapReviewAssetPath,
   MapStatus,
   NotificationType,
+  MapSubmissionType,
   Role,
   TrackType
 } from '@momentum/constants';
@@ -150,13 +151,13 @@ describe('Map Reviews', () => {
           db.createAndLoginUser(),
           db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
         ]);
-
-        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      afterAll(() => db.cleanup('user'));
 
       beforeEach(async () => {
+        map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
+
         review1 = await prisma.mapReview.create({
           data: {
             mainText: 'delete this stage or i will have you killed',
@@ -171,7 +172,8 @@ describe('Map Reviews', () => {
             ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u1.id } },
-            resolved: false
+            resolved: null,
+            approves: false
           }
         });
 
@@ -185,11 +187,11 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(() => db.cleanup('mMap'));
 
       it('should successfully update a review', async () => {
         const res = await req.patch({
-          url: `map-review/${review1.id}`,
+          url: `map-review/${review2.id}`,
           status: 200,
           body: {
             mainText: 'actually i like this stage',
@@ -201,13 +203,15 @@ describe('Map Reviews', () => {
                 tier: 1,
                 gameplayRating: 10
               }
-            ]
+            ],
+            approves: true
           },
           validate: MapReviewDto,
-          token: u1Token
+          token: u2Token
         });
 
         expect(res.body.mainText).toBe('actually i like this stage');
+        expect(res.body.approves).toBe(true);
       });
 
       it('should 400 for bad update data', () =>
@@ -247,10 +251,45 @@ describe('Map Reviews', () => {
       it('should not allow unofficial reviewer to resolve their review', async () =>
         req.patch({
           url: `map-review/${review1.id}`,
-          status: 200,
+          status: 403,
           body: { resolved: true },
           token: u1Token
         }));
+
+      it('should allow official reviewer to mark their review as approves', async () =>
+        req.patch({
+          url: `map-review/${review2.id}`,
+          status: 200,
+          body: { approves: true },
+          token: u2Token
+        }));
+
+      it('should not allow unofficial reviewer mark their review as approves', async () =>
+        req.patch({
+          url: `map-review/${review1.id}`,
+          status: 403,
+          body: { approves: true },
+          token: u1Token
+        }));
+
+      it('should update hasApprovingReview on map when needed', async () => {
+        const before = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id }
+        });
+        expect(before.hasApprovingReview).toBe(false);
+
+        await req.patch({
+          url: `map-review/${review2.id}`,
+          status: 200,
+          body: { approves: true },
+          token: u2Token
+        });
+
+        const after = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id }
+        });
+        expect(after.hasApprovingReview).toBe(true);
+      });
 
       it('should return 403 if map not in submission', async () => {
         const approvedMap = await db.createMap({
@@ -286,6 +325,7 @@ describe('Map Reviews', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('map-review/1', 'patch'));
     });
+
     describe('DELETE', () => {
       let user: User,
         token: string,
@@ -299,18 +339,24 @@ describe('Map Reviews', () => {
       beforeAll(async () => {
         [[user, token], u2Token, modToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.loginNewUser(),
+          db.loginNewUser({ data: { roles: Role.REVIEWER } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
-
-        map = await db.createMap({
-          status: MapStatus.PUBLIC_TESTING
-        });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      afterAll(() => db.cleanup('user'));
 
       beforeEach(async () => {
+        map = await db.createMap({
+          status: MapStatus.PUBLIC_TESTING,
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              hasApprovingReview: true
+            }
+          }
+        });
+
         review = await prisma.mapReview.create({
           data: {
             mainText: 'This map was E Z',
@@ -326,7 +372,8 @@ describe('Map Reviews', () => {
             ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: user.id } },
-            resolved: true
+            resolved: true,
+            approves: true
           }
         });
         _notif = await prisma.notification.create({
@@ -343,7 +390,7 @@ describe('Map Reviews', () => {
 
       afterEach(async () => {
         await fileStore.delete(assetPath);
-        await db.cleanup('mapReview', 'notification');
+        await db.cleanup('mMap', 'notification');
       });
 
       it('should allow a user to delete their own review', () =>
@@ -401,6 +448,24 @@ describe('Map Reviews', () => {
         });
 
         expect(await fileStore.exists(assetPath)).toBe(false);
+      });
+
+      it('should update hasApprovingReview on map when needed', async () => {
+        const before = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id }
+        });
+        expect(before.hasApprovingReview).toBe(true);
+
+        await req.del({
+          url: `map-review/${review.id}`,
+          status: 204,
+          token
+        });
+
+        const after = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id }
+        });
+        expect(after.hasApprovingReview).toBe(false);
       });
 
       it('should delete relevant notifications', async () => {

@@ -80,6 +80,7 @@ export {
   mdiDeleteOutline,
   mdiCalendar,
   mdiShieldStar,
+  mdiShieldCheck,
   mdiEye,
   mdiEyeClosed,
   mdiEyeOff,

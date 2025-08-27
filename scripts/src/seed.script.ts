@@ -268,8 +268,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
             axios
               // Sometimes picsum will fail and break script; temp substitutes:
               // .get('https://placedog.net/480/360', {
-              // .get('http://placebeard.it/2560/1440', {
-              .get('https://picsum.photos/2560/1440', {
+              .get('https://placehold.co/2560x1440', {
+                // .get('https://picsum.photos/2560/1440', {
                 responseType: 'arraybuffer'
               })
               .then(async (res) => ({

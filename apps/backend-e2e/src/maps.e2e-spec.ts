@@ -2943,6 +2943,7 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
+              hasApprovingReview: true,
               dates: {
                 create: [
                   {
@@ -3134,6 +3135,7 @@ describe('Maps', () => {
                       type: LeaderboardType.RANKED
                     }
                   ],
+                  hasApprovingReview: true,
                   dates: {
                     create: [
                       {
@@ -3239,6 +3241,7 @@ describe('Maps', () => {
                 ]
               },
               type: MapSubmissionType.PORT,
+              hasApprovingReview: true,
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
@@ -3267,9 +3270,8 @@ describe('Maps', () => {
           }
         });
 
-        await req.patch({
+        const res = await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
           body: { status: MapStatus.FINAL_APPROVAL },
           token
         });
@@ -3296,6 +3298,7 @@ describe('Maps', () => {
                 ]
               },
               type: MapSubmissionType.PORT,
+              hasApprovingReview: true,
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
@@ -3349,6 +3352,7 @@ describe('Maps', () => {
                 ]
               },
               type: MapSubmissionType.PORT,
+              hasApprovingReview: true,
               suggestions: [
                 {
                   trackType: TrackType.MAIN,
@@ -3382,6 +3386,78 @@ describe('Maps', () => {
           status: 204,
           body: { status: MapStatus.FINAL_APPROVAL },
           token: modToken
+        });
+      });
+
+      it('should allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has a resolved review', async () => {
+        const map = await db.createMap(createMapData);
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'help me',
+            resolved: true
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it('should allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has a neutral review', async () => {
+        const map = await db.createMap(createMapData);
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'where am i',
+            resolved: null
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it('should not allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has unresolved reviews', async () => {
+        const map = await db.createMap(createMapData);
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'who am i',
+            resolved: true
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it("should not allow changing from PUBLIC_TESTING to FINAL_APPROVAL if map doesn't have at least one approving review", async () => {
+        createMapData.submission.create.hasApprovingReview = false;
+        const map = await db.createMap(createMapData);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
         });
       });
 

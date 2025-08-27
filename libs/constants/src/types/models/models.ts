@@ -275,6 +275,7 @@ export interface MapReview {
   resolved: boolean | null;
   resolverID: number;
   resolver?: User;
+  approves: boolean;
   createdAt: DateString;
   updatedAt: DateString;
 }
@@ -322,6 +323,7 @@ export interface MapSubmission {
   suggestions: MapSubmissionSuggestion[];
   placeholders: MapSubmissionPlaceholder[];
   dates: MapSubmissionDate[];
+  hasApprovingReview: boolean;
   discordReviewThread: string | null;
 }
 

@@ -92,6 +92,9 @@ export class MapReviewDto implements MapReview {
   @IsOptional()
   readonly resolverID: number;
 
+  @IsBoolean()
+  readonly approves: boolean;
+
   @CreatedAtProperty()
   readonly createdAt: DateString;
 
@@ -110,6 +113,10 @@ export class CreateMapReviewDto
   @IsBoolean()
   @IsOptional()
   readonly needsResolving?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  readonly approves?: boolean;
 }
 
 export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {

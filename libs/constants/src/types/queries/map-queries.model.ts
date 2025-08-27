@@ -38,11 +38,7 @@ export type MapsGetAllExpand = Array<
 >;
 
 export type MapsGetAllSubmissionExpand = Array<
-  | BaseMapsGetAllExpand
-  | 'inFavorites'
-  | 'personalBest'
-  | 'worldRecord'
-  | 'reviews'
+  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
 >;
 
 type MapsGetAllBaseQuery = {
@@ -90,7 +86,10 @@ export type MapsGetAllUserSubmissionQuery = Omit<
 >;
 
 export type MapsGetExpand = Array<
-  MapsGetAllSubmissionExpand[number] | 'submission' | 'testInvites'
+  | MapsGetAllSubmissionExpand[number]
+  | 'submission'
+  | 'testInvites'
+  | 'reviewSummary'
 >;
 
 export type MapsGetQuery = { expand?: MapsGetExpand };
