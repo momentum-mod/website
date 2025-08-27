@@ -4875,7 +4875,7 @@ describe('Maps', () => {
     it('should send discord notification when map gets submitted to content approval', async () => {
       await uploadBspToPreSignedUrl(bspBuffer, token);
 
-      void req.postAttach({
+      await req.postAttach({
         url: 'maps',
         status: 201,
         data: {
@@ -4916,8 +4916,9 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(1);
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
 
@@ -4937,7 +4938,7 @@ describe('Maps', () => {
         status: MapStatus.PRIVATE_TESTING
       });
 
-      void req.patch({
+      await req.patch({
         url: `maps/${map.id}`,
         status: 204,
         body: {
@@ -4946,8 +4947,9 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(1);
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
 
@@ -4968,7 +4970,7 @@ describe('Maps', () => {
         status: MapStatus.FINAL_APPROVAL
       });
 
-      void req.patch({
+      await req.patch({
         url: `maps/${map.id}`,
         status: 204,
         body: {
@@ -4976,10 +4978,9 @@ describe('Maps', () => {
         },
         token
       });
-
-      await rxjs.firstValueFrom(restPostObservable); // Thread creation with a starting message
-      await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
-      expect(restPostMock).toHaveBeenCalledTimes(2);
+      while (restPostMock.mock.calls.length !== 2) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
       expect(requestBody.body.content).toContain('123/9121003'); // guild id/message id, see test util discord.util.ts
@@ -5007,7 +5008,7 @@ describe('Maps', () => {
         }
       });
 
-      void req.patch({
+      await req.patch({
         url: `admin/maps/${map.id}`,
         status: 204,
         body: {
@@ -5031,9 +5032,10 @@ describe('Maps', () => {
         },
         token: adminToken
       });
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
-      await rxjs.firstValueFrom(restPostObservable.pipe(rxjs.take(1)));
-      expect(restPostMock).toHaveBeenCalledTimes(1);
       const requestBody = restPostMock.mock.lastCall[1];
       const embed = requestBody.body.embeds[0];
 
@@ -5080,7 +5082,7 @@ describe('Maps', () => {
         }
       });
 
-      void req.patch({
+      await req.patch({
         url: `admin/maps/${map.id}`,
         status: 204,
         body: {
@@ -5112,9 +5114,9 @@ describe('Maps', () => {
         token: adminToken
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(2);
+      while (restPostMock.mock.calls.length !== 2) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
       expect(requestUrls.sort()).toEqual(
