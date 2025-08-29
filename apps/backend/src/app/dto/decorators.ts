@@ -71,7 +71,7 @@ function conditionalDecorator(
  *  - @ApiProperty
  *  - @Type
  *  - @ValidateNested
- *  - @IsOptional if options.required = true
+ *  - @IsOptional if options.required = false
  *
  *  Optional by default!
  *

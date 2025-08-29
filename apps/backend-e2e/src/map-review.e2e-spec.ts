@@ -2,7 +2,13 @@
 
 import { MapReviewCommentDto, MapReviewDto } from '../../backend/src/app/dto';
 
-import { PrismaClient } from '@momentum/db';
+import {
+  MapReview,
+  MMap,
+  Notification,
+  PrismaClient,
+  User
+} from '@momentum/db';
 import {
   DbUtil,
   FileStoreUtil,
@@ -14,6 +20,7 @@ import {
   Gamemode,
   mapReviewAssetPath,
   MapStatus,
+  NotificationType,
   Role,
   TrackType
 } from '@momentum/constants';
@@ -280,7 +287,13 @@ describe('Map Reviews', () => {
         req.unauthorizedTest('map-review/1', 'patch'));
     });
     describe('DELETE', () => {
-      let user, token, u2Token, modToken, map, review;
+      let user: User,
+        token: string,
+        u2Token: string,
+        modToken: string,
+        map: MMap,
+        review: MapReview,
+        _notif: Notification;
       const assetPath = mapReviewAssetPath('1');
 
       beforeAll(async () => {
@@ -316,13 +329,21 @@ describe('Map Reviews', () => {
             resolved: true
           }
         });
-
+        _notif = await prisma.notification.create({
+          data: {
+            type: NotificationType.MAP_REVIEW_POSTED,
+            notifiedUserID: map.submitterID,
+            userID: review.reviewerID,
+            mapID: map.id,
+            reviewID: review.id
+          }
+        });
         await fileStore.add(assetPath, Buffer.alloc(1024));
       });
 
       afterEach(async () => {
         await fileStore.delete(assetPath);
-        await db.cleanup('mapReview');
+        await db.cleanup('mapReview', 'notification');
       });
 
       it('should allow a user to delete their own review', () =>
@@ -382,6 +403,16 @@ describe('Map Reviews', () => {
         expect(await fileStore.exists(assetPath)).toBe(false);
       });
 
+      it('should delete relevant notifications', async () => {
+        await req.del({
+          url: `map-review/${review.id}`,
+          status: 204,
+          token: token
+        });
+        const notifs = await prisma.notification.findMany();
+        expect(notifs).toHaveLength(0);
+      });
+
       it("should 403 if map isn't in submission", async () => {
         const approvedMap = await db.createMap({
           status: MapStatus.APPROVED
@@ -417,7 +448,7 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}/comments', () => {
     describe('GET', () => {
-      let user, token, map, reviewID;
+      let user: User, token: string, map: MMap, reviewID: number;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
@@ -458,10 +489,17 @@ describe('Map Reviews', () => {
     });
 
     describe('POST', () => {
-      let user, token, adminToken, map, reviewID;
+      let user1: User,
+        user2: User,
+        u1Token: string,
+        u2Token: string,
+        adminToken: string,
+        map: MMap,
+        reviewID: number;
 
       beforeAll(async () => {
-        [[user, token], adminToken] = await Promise.all([
+        [[user1, u1Token], [user2, u2Token], adminToken] = await Promise.all([
+          db.createAndLoginUser(),
           db.createAndLoginUser(),
           db.loginNewUser({ data: { roles: Role.ADMIN } })
         ]);
@@ -472,7 +510,7 @@ describe('Map Reviews', () => {
           data: {
             mainText: 'DISGUSTING',
             mmap: { connect: { id: map.id } },
-            reviewer: { connect: { id: user.id } },
+            reviewer: { connect: { id: user1.id } },
             resolved: false
           }
         });
@@ -480,9 +518,9 @@ describe('Map Reviews', () => {
 
         await prisma.mapReviewComment.createMany({
           data: [
-            { reviewID, userID: user.id, text: 'no it isnt!!' },
-            { reviewID, userID: user.id, text: 'we are the same person' },
-            { reviewID, userID: user.id, text: 'oh' }
+            { reviewID, userID: user1.id, text: 'no it isnt!!' },
+            { reviewID, userID: user1.id, text: 'we are the same person' },
+            { reviewID, userID: user1.id, text: 'oh' }
           ]
         });
       });
@@ -498,7 +536,7 @@ describe('Map Reviews', () => {
               text: 'Not disgusting!!'
             }
           },
-          token: token
+          token: u1Token
         }));
 
       it('should 503 if the killswitch is true', async () => {
@@ -519,15 +557,73 @@ describe('Map Reviews', () => {
               text: 'something'
             }
           },
-          token: token
+          token: u1Token
         });
 
         await resetKillswitches(req, adminToken);
       });
+
+      it('should send a notification to the reviewer on created comment', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text: 'Hey man this is my friends map, please be nicer :('
+          },
+          token: u2Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(1);
+        expect(notifs[0]).toMatchObject({
+          notifiedUserID: user1.id,
+          userID: user2.id
+        });
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it('should NOT send a notification if the review commented on their own review', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text:
+              'nah my bad this is fire, ' +
+              'hit me up on soundcloud i can fix some tunes for you'
+          },
+          token: u1Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(0);
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
     });
 
     describe('PATCH', () => {
-      let user, token, adminToken, map, reviewID;
+      let user: User,
+        token: string,
+        adminToken: string,
+        map: MMap,
+        reviewID: number;
 
       beforeAll(async () => {
         [[user, token], adminToken] = await Promise.all([

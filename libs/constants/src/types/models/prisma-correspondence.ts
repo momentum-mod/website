@@ -70,7 +70,21 @@ assertTypeCorrespondence<
 
 import { Notification } from './models';
 import { Notification as PNotification } from '@momentum/db';
-assertTypeCorrespondence<Notification, PNotification>();
+assertTypeCorrespondence<
+  Notification,
+  PNotification,
+  {
+    notifiedUserID: OmitMe;
+    userID: OmitMe;
+    mapID: OmitMe;
+    reviewID: OmitMe;
+    reviewCommentID: OmitMe;
+    createdAt: OmitMe;
+    // This stores most of the non-relation fields as a json object.
+    // See schema.prisma for a breakdown.
+    json: OmitMe;
+  }
+>();
 
 import { Follow } from './models';
 import { Follow as PFollow } from '@momentum/db';

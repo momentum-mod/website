@@ -5,18 +5,24 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { MapStatus, MapTestInviteState } from '@momentum/constants';
+import {
+  MapStatus,
+  MapTestInviteState,
+  NotificationType
+} from '@momentum/constants';
 import { difference } from '@momentum/util-fn';
 import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../database/prisma.extension';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MapTestInviteService {
   constructor(
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly notifsService: NotificationsService
   ) {}
 
   async updateTestInvites(mapID: number, requestIDs: number[], userID: number) {
@@ -65,6 +71,14 @@ export class MapTestInviteService {
           : MapTestInviteState.DECLINED
       }
     });
+
+    await this.db.notification.deleteMany({
+      where: {
+        notifiedUserID: userID,
+        mapID,
+        type: NotificationType.MAP_TESTING_INVITE
+      }
+    });
   }
 
   async createOrUpdatePrivateTestingInvites(
@@ -107,6 +121,31 @@ export class MapTestInviteService {
     await tx.mapTestInvite.deleteMany({
       where: {
         userID: { in: difference(existingInviteUserIDs, userIDs) }
+      }
+    });
+
+    const map = await tx.mMap.findUnique({ where: { id: mapID } });
+
+    await this.notifsService.sendNotifications(
+      {
+        data: difference(userIDs, existingInviteUserIDs).map(
+          (notifiedUserID) => ({
+            type: NotificationType.MAP_TESTING_INVITE,
+            notifiedUserID,
+            mapID,
+            userID: map.submitterID,
+            createdAt: new Date()
+          })
+        )
+      },
+      tx
+    );
+
+    await tx.notification.deleteMany({
+      where: {
+        notifiedUserID: { in: difference(existingInviteUserIDs, userIDs) },
+        mapID: mapID,
+        type: NotificationType.MAP_TESTING_INVITE
       }
     });
   }

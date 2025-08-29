@@ -1,0 +1,8 @@
+export enum NotificationType {
+  ANNOUNCEMENT = 0,
+  WR_ACHIEVED = 1,
+  MAP_STATUS_CHANGE = 2,
+  MAP_TESTING_INVITE = 3,
+  MAP_REVIEW_POSTED = 4,
+  MAP_REVIEW_COMMENT_POSTED = 5
+}

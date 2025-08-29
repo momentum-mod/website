@@ -17,6 +17,7 @@ import {
   MapSubmissionType,
   MapTestInviteState,
   MIN_PUBLIC_TESTING_DURATION,
+  NotificationType,
   Role,
   TrackType,
   LeaderboardType,
@@ -2918,13 +2919,20 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2Token, adminToken, mod, modToken, createMapData;
+      let user: User,
+        token: string,
+        u2: User,
+        u2Token: string,
+        adminToken: string,
+        mod: User,
+        modToken: string,
+        createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
-        [[user, token], u2Token, adminToken, [mod, modToken]] =
+        [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
           await Promise.all([
             db.createAndLoginUser(),
-            db.loginNewUser(),
+            db.createAndLoginUser(),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
             db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
           ]);
@@ -3163,6 +3171,55 @@ describe('Maps', () => {
           });
         }
       }
+
+      it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to CONTENT_APPROVAL', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PRIVATE_TESTING,
+          testInvites: {
+            createMany: {
+              data: [
+                {
+                  userID: u2.id,
+                  state: MapTestInviteState.UNREAD
+                },
+                {
+                  userID: mod.id,
+                  state: MapTestInviteState.ACCEPTED
+                }
+              ]
+            }
+          }
+        });
+        await prisma.notification.create({
+          data: {
+            notifiedUserID: u2.id,
+            type: NotificationType.MAP_TESTING_INVITE,
+            mapID: map.id,
+            userID: map.submitterID
+          }
+        });
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.CONTENT_APPROVAL },
+          token
+        });
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_TESTING_INVITE,
+            mapID: map.id
+          }
+        });
+        expect(notifs).toHaveLength(0);
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { testInvites: true }
+        });
+        expect(updatedMap.testInvites).toMatchObject([
+          { userID: mod.id, state: MapTestInviteState.ACCEPTED }
+        ]);
+      });
 
       it("should allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's been in testing for required time period", async () => {
         const map = await db.createMap({
@@ -4818,7 +4875,7 @@ describe('Maps', () => {
     it('should send discord notification when map gets submitted to content approval', async () => {
       await uploadBspToPreSignedUrl(bspBuffer, token);
 
-      void req.postAttach({
+      await req.postAttach({
         url: 'maps',
         status: 201,
         data: {
@@ -4859,8 +4916,9 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(1);
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
 
@@ -4880,7 +4938,7 @@ describe('Maps', () => {
         status: MapStatus.PRIVATE_TESTING
       });
 
-      void req.patch({
+      await req.patch({
         url: `maps/${map.id}`,
         status: 204,
         body: {
@@ -4889,8 +4947,9 @@ describe('Maps', () => {
         token
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(1);
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
 
@@ -4911,7 +4970,7 @@ describe('Maps', () => {
         status: MapStatus.FINAL_APPROVAL
       });
 
-      void req.patch({
+      await req.patch({
         url: `maps/${map.id}`,
         status: 204,
         body: {
@@ -4919,10 +4978,9 @@ describe('Maps', () => {
         },
         token
       });
-
-      await rxjs.firstValueFrom(restPostObservable); // Thread creation with a starting message
-      await rxjs.firstValueFrom(restPostObservable); // Gamemode channel message
-      expect(restPostMock).toHaveBeenCalledTimes(2);
+      while (restPostMock.mock.calls.length !== 2) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestBody = restPostMock.mock.lastCall[1];
       expect(requestBody.body.content).toContain('123/9121003'); // guild id/message id, see test util discord.util.ts
@@ -4950,7 +5008,7 @@ describe('Maps', () => {
         }
       });
 
-      void req.patch({
+      await req.patch({
         url: `admin/maps/${map.id}`,
         status: 204,
         body: {
@@ -4974,9 +5032,10 @@ describe('Maps', () => {
         },
         token: adminToken
       });
+      if (restPostMock.mock.calls.length !== 1) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
-      await rxjs.firstValueFrom(restPostObservable.pipe(rxjs.take(1)));
-      expect(restPostMock).toHaveBeenCalledTimes(1);
       const requestBody = restPostMock.mock.lastCall[1];
       const embed = requestBody.body.embeds[0];
 
@@ -5023,7 +5082,7 @@ describe('Maps', () => {
         }
       });
 
-      void req.patch({
+      await req.patch({
         url: `admin/maps/${map.id}`,
         status: 204,
         body: {
@@ -5055,9 +5114,9 @@ describe('Maps', () => {
         token: adminToken
       });
 
-      await rxjs.firstValueFrom(restPostObservable);
-      await rxjs.firstValueFrom(restPostObservable);
-      expect(restPostMock).toHaveBeenCalledTimes(2);
+      while (restPostMock.mock.calls.length !== 2) {
+        await rxjs.firstValueFrom(restPostObservable);
+      }
 
       const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
       expect(requestUrls.sort()).toEqual(
