@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
+  MapsGetAllAdminFilter,
   MapsGetAllAdminQuery,
   MapSortType,
   MapSortTypeName,
@@ -31,9 +32,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { IconComponent } from '../../../icons/icon.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
-import { fastValuesNumeric } from '@momentum/enum';
-
-type StatusFilters = Array<MapStatus>;
 
 @Component({
   templateUrl: 'admin-maps-browser.component.html',
@@ -52,9 +50,20 @@ export class AdminMapsBrowserComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
-  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
-    MapCreditName.get(creditType) ?? '';
+  // Set value as if submitter was last entry in MapCredit enum.
+  protected readonly submitterCreditValue =
+    Enum.fastLengthNumeric(MapCreditType);
+  protected readonly MapCreditOptions = [
+    ...Enum.fastValuesNumeric(MapCreditType),
+    this.submitterCreditValue
+  ];
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string => {
+    if (creditType === this.submitterCreditValue) {
+      return 'Submitter';
+    } else {
+      return MapCreditName.get(creditType) ?? '';
+    }
+  };
 
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
@@ -81,9 +90,9 @@ export class AdminMapsBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null),
+    status: new FormControl<MapsGetAllAdminFilter>([], { nonNullable: true }),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
+    creditType: new FormControl<number>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -118,16 +127,21 @@ export class AdminMapsBrowserComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
-            this.filters?.value ?? {};
+            this.filters?.getRawValue() ?? {};
+
           const options: MapsGetAllAdminQuery = {
             skip: this.skip,
             take
           };
           if (name) options.search = name;
-          if (status?.length > 0) options.filter = status as StatusFilters;
+          if (status.length > 0) options.filter = status;
           if (credit) {
-            options.creditID = credit.id;
-            options.creditType = creditType;
+            if (creditType === this.submitterCreditValue) {
+              options.submitterID = credit.id;
+            } else {
+              options.creditID = credit.id;
+              options.creditType = creditType;
+            }
           }
           if (sortType) options.sortType = sortType;
 
@@ -154,7 +168,7 @@ export class AdminMapsBrowserComponent implements OnInit {
   resetFilters() {
     this.filters.reset({
       name: '',
-      status: null,
+      status: [],
       credit: null,
       creditType: MapCreditType.AUTHOR,
       sortType: this.MapSortOptions[0]

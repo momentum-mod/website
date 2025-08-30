@@ -1,5 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
+  SetQualifier,
+  SetQualifierName,
   Gamemode,
   Leaderboard,
   LeaderboardType,
@@ -8,10 +10,14 @@ import {
   MapsGetAllQuery,
   MapSortType,
   MapSortTypeName,
+  MapTag,
+  mapTagEnglishName,
+  MapTags,
   MMap,
   PagedResponse,
   User
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   FormControl,
   FormGroup,
@@ -40,8 +46,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
+import { ChipsComponent } from '../../../components/chips/chips.component';
 import { IconComponent } from '../../../icons/icon.component';
-import { fastValuesNumeric } from '@momentum/enum';
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -50,6 +56,7 @@ import { fastValuesNumeric } from '@momentum/enum';
     NStateButtonComponent,
     UserSelectComponent,
     DropdownComponent,
+    ChipsComponent,
     PaginatorModule,
     SliderComponent,
     ReactiveFormsModule,
@@ -71,9 +78,20 @@ export class MapBrowserComponent implements OnInit {
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
-  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
-  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
-    MapCreditName.get(creditType) ?? '';
+  // Set value as if submitter was last entry in MapCredit enum.
+  protected readonly submitterCreditValue =
+    Enum.fastLengthNumeric(MapCreditType);
+  protected readonly MapCreditOptions = [
+    ...Enum.fastValuesNumeric(MapCreditType),
+    this.submitterCreditValue
+  ];
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string => {
+    if (creditType === this.submitterCreditValue) {
+      return 'Submitter';
+    } else {
+      return MapCreditName.get(creditType) ?? '';
+    }
+  };
 
   protected readonly MapSortOptions = [
     MapSortType.DATE_RELEASED_NEWEST,
@@ -88,9 +106,28 @@ export class MapBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (sortType: MapSortType): string =>
     MapSortTypeName.get(sortType) ?? '';
 
+  protected readonly MapTags = MapTags;
+  protected readonly mapTagEnglishName = mapTagEnglishName;
+  protected readonly TagsQualifierOptions =
+    Enum.fastValuesNumeric(SetQualifier);
+  protected readonly TagsQualifierNameFn = (
+    tagsQualifier: SetQualifier
+  ): string => SetQualifierName.get(tagsQualifier) ?? '';
+
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    gamemode: new FormControl<Gamemode>(null),
+    gamemode: new FormControl<Gamemode | null>(null),
+    tags: new FormControl<Array<MapTag>>(
+      {
+        value: [],
+        disabled: true
+      },
+      { nonNullable: true }
+    ),
+    tagsQualifier: new FormControl<SetQualifier>({
+      value: SetQualifier.INCLUDE,
+      disabled: true
+    }),
     favorites: new FormControl<0 | 1 | 2>(0),
     pb: new FormControl<0 | 1 | 2>(0),
     tiers: new FormControl<[number, number]>({
@@ -98,7 +135,7 @@ export class MapBrowserComponent implements OnInit {
       disabled: true
     }),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
+    creditType: new FormControl<number>(MapCreditType.AUTHOR),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -111,15 +148,18 @@ export class MapBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
-    setupPersistentForm(this.filters, 'MAIN_MAPS_FILTERS', this.destroyRef);
-    // Tier slider starts disabled.
-    if (this.filters.value.gamemode) this.filters.controls.tiers.enable();
-
     this.gamemode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) =>
-        this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false })
-      );
+      .subscribe((value) => {
+        this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false });
+        this.tags[value != null ? 'enable' : 'disable']({ emitEvent: false });
+        this.tagsQualifier[value != null ? 'enable' : 'disable']({
+          emitEvent: false
+        });
+      });
+
+    // This will trigger gamemode observable as well, enabling/disabling filters.
+    setupPersistentForm(this.filters, 'MAIN_MAPS_FILTERS', this.destroyRef);
 
     merge(
       of(this.initialItems),
@@ -150,10 +190,12 @@ export class MapBrowserComponent implements OnInit {
             tiers,
             name,
             gamemode,
+            tags,
+            tagsQualifier,
             credit,
             creditType,
             sortType
-          } = this.filters?.value ?? {};
+          } = this.filters?.getRawValue() ?? {};
 
           const options: MapsGetAllQuery = {
             skip: this.skip,
@@ -161,11 +203,17 @@ export class MapBrowserComponent implements OnInit {
             expand: ['info', 'credits', 'leaderboards', 'inFavorites']
           };
           if (name) options.search = name;
-          if (gamemode) options.gamemode = gamemode;
-          if (tiers) {
-            const [low, high] = tiers;
-            if (low > 1 && low <= 10) options.difficultyLow = low;
-            if (high > 1 && high < 10) options.difficultyHigh = high;
+          if (gamemode != null) {
+            options.gamemode = gamemode;
+            if (tiers) {
+              const [low, high] = tiers;
+              if (low > 1 && low <= 10) options.difficultyLow = low;
+              if (high > 1 && high < 10) options.difficultyHigh = high;
+            }
+            if (tags.length > 0) {
+              options.tags = tags;
+              options.tagsQualifier = tagsQualifier;
+            }
           }
           if (favorites === 1) {
             options.favorite = true;
@@ -178,8 +226,12 @@ export class MapBrowserComponent implements OnInit {
             options.PB = false;
           }
           if (credit) {
-            options.creditID = credit.id;
-            options.creditType = creditType;
+            if (creditType === this.submitterCreditValue) {
+              options.submitterID = credit.id;
+            } else {
+              options.creditID = credit.id;
+              options.creditType = creditType;
+            }
           }
           if (sortType) options.sortType = sortType;
 
@@ -222,6 +274,8 @@ export class MapBrowserComponent implements OnInit {
     this.filters.reset({
       name: '',
       gamemode: null,
+      tags: [],
+      tagsQualifier: SetQualifier.INCLUDE,
       favorites: 0,
       pb: 0,
       tiers: [1, 10],
@@ -237,5 +291,13 @@ export class MapBrowserComponent implements OnInit {
 
   get tiers() {
     return this.filters.get('tiers') as FormControl<[number, number]>;
+  }
+
+  get tags() {
+    return this.filters.get('tags') as FormControl<[MapTag]>;
+  }
+
+  get tagsQualifier() {
+    return this.filters.get('tagsQualifier') as FormControl<SetQualifier>;
   }
 }

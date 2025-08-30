@@ -41,7 +41,8 @@ import {
   TrackType,
   vmfsPath,
   MAX_OPEN_MAP_SUBMISSIONS,
-  runPath
+  runPath,
+  SetQualifier
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -171,6 +172,7 @@ export class MapsService {
         // what future stage/bonus-specific searches will behave so not sure
         // exactly how to implement
         trackType: TrackType.MAIN
+        // NOT: {} is used by tagsQualifier
       };
 
       // Gamemode 0 doesn't exist, so non-zero check makes sense here
@@ -216,6 +218,38 @@ export class MapsService {
           where.leaderboardRuns[quantifier].gamemode = query.gamemode;
         }
       }
+
+      if (query.tags) {
+        if (!query.gamemode) {
+          throw new BadRequestException(
+            'tags query can only be used together with a specific gamemode'
+          );
+        }
+        if (
+          // Don't require qualifier, default to include all tags.
+          query.tagsQualifier == null ||
+          query.tagsQualifier === SetQualifier.INCLUDE
+        ) {
+          leaderboardSome.tags = { hasEvery: query.tags };
+        } else if (query.tagsQualifier === SetQualifier.EXCLUDE) {
+          // There are no negation keywords for array queries.
+          leaderboardSome.NOT = {
+            tags: {
+              hasSome: query.tags
+            }
+          };
+        } else if (query.tagsQualifier === SetQualifier.AT_LEAST_ONE) {
+          leaderboardSome.tags = { hasSome: query.tags };
+        } else {
+          throw new BadRequestException(
+            'used tagsQualifier value is not supported'
+          );
+        }
+      } else if (query.tagsQualifier) {
+        throw new BadRequestException(
+          'tagsQualifier query can only be used together with tags'
+        );
+      }
     } else if (query instanceof MapsGetAllUserSubmissionQueryDto) {
       where.OR = [
         { submitterID: userID },
@@ -227,9 +261,10 @@ export class MapsService {
         }
       ];
 
-      if (query.filter) {
-        where.status = { in: query.filter };
-      }
+      where.status = {
+        notIn: [MapStatus.DISABLED]
+      };
+      if (query.filter) where.status.in = query.filter;
     } else if (query instanceof MapsGetAllSubmissionQueryDto) {
       const user = await this.db.user.findUnique({
         where: { id: userID },
