@@ -288,6 +288,10 @@ export class RunProcessor {
       this.reject(ErrorType.BAD_META, 'header.trackNum != session.trackNum');
     }
 
+    if (header.style !== session.style) {
+      this.reject(ErrorType.BAD_META, 'header.style != session.style');
+    }
+
     if (header.magic !== ReplayFile.REPLAY_MAGIC) {
       this.reject(ErrorType.BAD_META, 'header.magic != REPLAY_MAGIC');
     }
@@ -456,9 +460,9 @@ export class RunProcessor {
       gamemode: this.session.gamemode,
       trackType: this.session.trackType,
       trackNum: this.session.trackNum,
+      style: this.session.style,
       time: this.replayHeader.runTime,
-      splits: this.splits,
-      flags: []
+      splits: this.splits
     };
   }
 

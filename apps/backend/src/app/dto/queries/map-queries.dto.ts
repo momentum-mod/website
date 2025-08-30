@@ -238,7 +238,7 @@ export class MapLeaderboardGetQueryDto
   trackNum = 1;
 
   @EnumQueryProperty(Style, { required: false })
-  style = Style.NONE;
+  style = Style.NORMAL;
 
   @SingleExpandQueryProperty('splits')
   readonly expand?: MapRunsGetExpand;
@@ -279,7 +279,7 @@ export class MapLeaderboardGetRunQueryDto
   trackNum = 1;
 
   @EnumQueryProperty(Style, { required: false })
-  style = Style.NONE;
+  style = Style.NORMAL;
 
   @IntQueryProperty({
     required: false,
