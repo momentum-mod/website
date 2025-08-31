@@ -71,7 +71,8 @@ export const GamemodeTags = {
     MapTag.Buttons,
     MapTag.Limited_Ammo,
     MapTag.Water,
-    MapTag.Teledoor
+    MapTag.Teledoor,
+    MapTag.Pogo
   ],
   [GamemodeCategory.SJ]: [
     MapTag.Airpogo,
@@ -82,7 +83,8 @@ export const GamemodeTags = {
     MapTag.Downair,
     MapTag.Slanted_Walls,
     MapTag.Teledoor,
-    MapTag.Holes
+    MapTag.Holes,
+    MapTag.Pogo
   ],
   [GamemodeCategory.AHOP]: [
     MapTag.HL2,
@@ -121,7 +123,8 @@ export const GamemodeTags = {
     MapTag.Strafe_Pads,
     MapTag.Lightning_Gun,
     MapTag.Staged__Linear,
-    MapTag.Funkyboost
+    MapTag.Funkyboost,
+    MapTag.Gauntlet
   ]
 } satisfies Record<GamemodeCategory, number[]>;
 
