@@ -1,27 +1,20 @@
 import Material from '@primeng/themes/material';
 import { definePreset } from '@primeng/themes';
+import { ComponentsDesignTokens, Preset } from '@primeng/themes/types';
 
 const selectStyles = {
   background: 'rgb(0 0 0 / 0.25)',
-  border: {
-    color: 'rgb(255 255 255 / 0.1)'
-  },
+  borderColor: 'rgb(255 255 255 / 0.1)',
   shadow: 'inset 0 0 0.75rem rgb(0 0 0 / 0.1)',
-  padding: {
-    x: '1rem',
-    y: '.5rem'
-  },
+  paddingX: '1rem',
+  paddingY: '.5rem',
   dropdown: {
     width: '2rem'
   },
-  focus: {
-    border: {
-      color: ''
-    }
-  }
+  focusBorderColor: ''
 };
 
-export const MomentumPreset = definePreset(Material, {
+const presetSettings: Preset<ComponentsDesignTokens> = {
   semantic: {
     primary: {
       50: '{blue.50}',
@@ -39,19 +32,21 @@ export const MomentumPreset = definePreset(Material, {
   },
   components: {
     select: {
-      ...selectStyles,
+      root: selectStyles,
       css: () => '.p-select-label { box-shadow: inset 0 0 .75rem #0000001a; }'
     },
     multiselect: {
-      ...selectStyles
+      root: selectStyles
     },
     inputtext: {
-      ...selectStyles
+      root: selectStyles
     },
     progressbar: {
-      height: '0.5rem',
-      border: { radius: '0.25rem' },
-      background: 'rgb(var(--pale-800))',
+      root: {
+        height: '0.5rem',
+        background: 'rgb(var(--pale-800))',
+        borderRadius: '0.25rem'
+      },
       value: {
         background:
           'linear-gradient(90deg, rgb(var(--blue-500)), rgb(var(--blue-300)))'
@@ -59,24 +54,27 @@ export const MomentumPreset = definePreset(Material, {
       css: () => '.p-progressbar-value { transition: none !important; }'
     },
     dialog: {
-      shadow: '1px 3px 8px rgb(0 0 0 / 0.5)',
-      background: '#262626',
-      border: {
-        color: 'rgb(255 255 255 / 0.05)',
-        radius: '0.25rem'
+      root: {
+        shadow: '1px 3px 8px rgb(0 0 0 / 0.5)',
+        background: '#262626',
+        borderRadius: '0.25rem',
+        borderColor: 'rgb(255 255 255 / 0.05)'
       },
-      css: () => '.p-dialog { backdrop-filter: blur(48px); }'
+      css: () => `.p-dialog { backdrop-filter: blur(48px); }
+      .p-dialog-mask { background-color: rgb(0 0 0 / 0.3); pointer-events: auto !important; }`
     },
     popover: {
-      border: { radius: '0.25rem', color: 'rgb(255 255 255 / 0.05)' },
+      root: {
+        borderRadius: '0.25rem',
+        borderColor: 'rgb(255 255 255 / 0.05)'
+      },
       content: { padding: '0.75rem' }
     },
     paginator: {
-      background: 'rgb(var(--gray-700) / 0.75)',
-      padding: '0.25rem 0.75rem',
-      border: {
-        color: 'rgb(255 255 255 / 0.1)',
-        radius: '0.25rem'
+      root: {
+        background: 'rgb(var(--gray-700) / 0.75)',
+        padding: '0.25rem 0.75rem',
+        borderRadius: '0.25rem'
       },
       navButton: {
         background: 'transparent',
@@ -99,8 +97,12 @@ export const MomentumPreset = definePreset(Material, {
         }`
     },
     tooltip: {
-      maxWidth: 'unset',
+      root: {
+        maxWidth: 'unset'
+      },
       css: () => '.p-tooltip-text { word-break: unset; }'
     }
   }
-});
+};
+
+export const MomentumPreset = definePreset(Material, presetSettings);
