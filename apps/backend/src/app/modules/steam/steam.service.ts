@@ -28,7 +28,6 @@ export class SteamService {
   private readonly steamApiKey: string;
   private readonly steamTicketsSecretKey: string;
 
-
   /**
    * Handler for ISteamUser/GetPlayerSummaries/v2/
    */
@@ -183,22 +182,33 @@ export class SteamService {
     }
   }
 
+  private readonly limitedAccountRegex = new RegExp(
+    /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/
+  );
+
   /**
    * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5
-   * or more on Steam. Unfortunately Steam Web API doesn't supply this anywhere,
-   * so we have to use this messier method of parsing the profile page as XML.
+   * or more on Steam, or hasn't even set up a Steam Community profile.
+   *
+   * Unfortunately Steam Web API doesn't supply this anywhere, so we have to use
+   * this messier method of parsing the profile page as XML.
    */
   isAccountLimited(steamID: bigint): Promise<boolean> {
     return lastValueFrom(
       this.http
         .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
         .pipe(
-          map(
-            (res) =>
-              /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/.exec(
-                res.data
-              )[0] === '1'
-          )
+          map((res) => {
+            const found = this.limitedAccountRegex.exec(res.data);
+
+            // Block doesn't exist, doesn't have a profile setup
+            if (!found) {
+              return true;
+            }
+
+            // We're in a block like <isLimitedAccount>0</isLimitedAccount>
+            return found[0] === '1';
+          })
         )
     );
   }
