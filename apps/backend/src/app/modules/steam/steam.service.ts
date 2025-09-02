@@ -3,7 +3,6 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
-  Logger,
   ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
@@ -29,7 +28,6 @@ export class SteamService {
   private readonly steamApiKey: string;
   private readonly steamTicketsSecretKey: string;
 
-  private readonly logger = new Logger('Steam Service');
 
   /**
    * Handler for ISteamUser/GetPlayerSummaries/v2/
