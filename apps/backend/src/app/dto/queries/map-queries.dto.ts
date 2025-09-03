@@ -1,11 +1,13 @@
 import {
-  MapStatus,
   Gamemode,
-  MapReviewsGetQuery,
-  MapsGetAllExpand,
-  MapReviewsGetExpand,
   MapCreditsGetExpand,
+  MapCreditsGetQuery,
+  MapReviewsGetExpand,
+  MapReviewsGetQuery,
   MapsGetExpand,
+  MapsGetQuery,
+  MapsGetAllExpand,
+  MapsGetAllQuery,
   MapsGetAllAdminQuery,
   MapsGetAllSubmissionQuery,
   MapsGetAllSubmissionFilter,
@@ -13,20 +15,20 @@ import {
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery,
-  TrackType,
-  Style,
+  MapStatus,
   MapLeaderboardGetQuery,
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
   MapSortType,
-  MapCreditType
+  MapCreditType,
+  MapTag,
+  SetQualifier,
+  Style,
+  TrackType,
+  MapsGetAllUserSubmissionFilter
 } from '@momentum/constants';
-import {
-  MapCreditsGetQuery,
-  MapsGetAllQuery,
-  MapsGetQuery
-} from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
@@ -126,6 +128,16 @@ export class MapsGetAllQueryDto
       'If a gamemode is provided, uses that. Otherwise uses any mode.'
   })
   readonly PB?: boolean;
+
+  @EnumFilterQueryProperty(Enum.fastValuesNumeric(MapTag), {
+    description: "Tags for a map's specific leaderboard"
+  })
+  tags?: MapTag[];
+
+  @EnumQueryProperty(SetQualifier, {
+    description: 'Qualifier for tags property, e.g. exclude given tags'
+  })
+  tagsQualifier?: SetQualifier;
 }
 
 export class MapsGetAllAdminQueryDto
@@ -177,9 +189,35 @@ export class MapsGetAllSubmissionQueryDto
 }
 
 export class MapsGetAllUserSubmissionQueryDto
-  extends MapsGetAllSubmissionQueryDto
+  extends MapsGetAllBaseQueryDto
   implements MapsGetAllUserSubmissionQuery
 {
+  @ExpandQueryProperty([
+    'leaderboards',
+    'info',
+    'currentVersion',
+    'currentVersionWithZones',
+    'versions',
+    'versionsWithZones',
+    'stats',
+    'submitter',
+    'credits',
+    'inFavorites',
+    'personalBest',
+    'worldRecord',
+    'reviews'
+  ])
+  readonly expand?: MapsGetAllSubmissionExpand;
+
+  @EnumFilterQueryProperty([
+    MapStatus.PRIVATE_TESTING,
+    MapStatus.CONTENT_APPROVAL,
+    MapStatus.PUBLIC_TESTING,
+    MapStatus.FINAL_APPROVAL,
+    MapStatus.APPROVED
+  ])
+  readonly filter?: MapsGetAllUserSubmissionFilter;
+
   // Stupid hack because OmitType above applies some index signature that
   // completely breaks types in MapsService.getAll. I hate class-based DTOs!
   override submitterID: never = undefined as never;

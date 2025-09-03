@@ -4,12 +4,12 @@
     [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
     [disabled]="available.length === 0"
     type="button"
-    class="grid h-7 w-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
+    class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
   >
-    <m-icon icon="plus-thick" class="h-6 w-6" />
+    <m-icon icon="plus-thick" class="size-6" />
     <!-- This overlay can overlap the visible tags, but can't figure out a
          way to align to the parent container... -->
-    <p-overlayPanel #op [classList]="'p-0'">
+    <p-popover #op [classList]="'p-0'">
       <div class="flex max-w-xl flex-wrap gap-2">
         @for (chip of available; track $index) {
           <button
@@ -24,7 +24,16 @@
           </button>
         }
       </div>
-    </p-overlayPanel>
+    </p-popover>
+  </button>
+  <button
+    type="button"
+    (click)="reset()"
+    [mTooltip]="available.length > 0 ? 'Reset ' + typeName : null"
+    [disabled]="selected.length === 0"
+    class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
+  >
+    <m-icon icon="close-thick" class="size-6" />
   </button>
   @for (chip of selected; track $index) {
     <div
@@ -39,7 +48,7 @@
         class="flex items-center rounded-full bg-white bg-opacity-0 p-0.5 text-gray-50 transition-colors hover:bg-opacity-20"
         type="button"
       >
-        <m-icon icon="close-thick" class="h-4 w-4" />
+        <m-icon icon="close-thick" class="size-4" />
       </button>
     </div>
   }

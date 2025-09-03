@@ -47,7 +47,7 @@ describe('MapsService', () => {
 
       await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(InternalServerErrorException);
     });
-    
+
     it('should only allow mod and admins to access APPROVED maps when submissionOnly is true', async () => {
       for (const role of Enum.values(Role)) {
         db.user.findUnique.mockResolvedValueOnce({ id: 1, roles: role } as any);
@@ -75,7 +75,7 @@ describe('MapsService', () => {
         }
       }
     })
-    
+
      it('should only non-logged in requests to access APPROVED and PUBLIC_TESTING maps', async () => {
        for (const status of Enum.values(MapStatus)) {
            db.mMap.findUnique.mockResolvedValueOnce({id: 1, status } as any);
@@ -103,11 +103,11 @@ describe('MapsService', () => {
       pass
         ? expect(await service.getMapAndCheckReadAccess({ mapID: map.id, userID })).toMatchObject(map)
         : await expect(service.getMapAndCheckReadAccess({ mapID: map.id, userID })).rejects.toThrow(ForbiddenException);
-    
+
     const mockMapValue = (map) => db.mMap.findUnique.mockResolvedValueOnce(map);
     const mockUserValue = (user) => db.user.findUnique.mockResolvedValueOnce(user);
-    const mockTestInviteExists = (exists) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
-    const mockMapCreditExists = (exists) => db.mapCredit.exists.mockResolvedValueOnce(exists);
+    const mockTestInviteExists = (exists: boolean) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
+    const mockMapCreditExists = (exists: boolean) => db.mapCredit.exists.mockResolvedValueOnce(exists);
 
     for (const status of Enum.values(MapStatus)) {
       describe(MapStatus[status], () => {
