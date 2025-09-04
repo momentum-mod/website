@@ -113,4 +113,16 @@ export class NotificationsMenuComponent implements OnInit {
         error: () => (this.loading = false)
       });
   }
+
+  /**
+   * Sub-components may perform actions that should prevent the user from
+   * interacting with the menu.
+   */
+  handleLoadingRequest(loading: boolean) {
+    this.loading = loading;
+  }
+
+  handleRefreshRequest() {
+    this.refresh.next();
+  }
 }

@@ -81,6 +81,7 @@ export {
   mdiDelete,
   mdiDeleteOutline,
   mdiCalendar,
+  mdiEmailAlert,
   mdiShieldStar,
   mdiEye,
   mdiEyeClosed,

@@ -29,6 +29,13 @@
             @case (NotificationType.MAP_STATUS_CHANGE) {
               <m-map-status-change-notification [notification]="notif" (dismiss)="removeNotification(i)" />
             }
+            @case (NotificationType.MAP_TESTING_INVITE) {
+              <m-map-testing-invite-notification
+                [notification]="notif"
+                (shouldBeLoading)="handleLoadingRequest($event)"
+                (refreshNotifications)="handleRefreshRequest()"
+              />
+            }
           }
         }
       </div>
