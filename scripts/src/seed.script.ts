@@ -11,7 +11,8 @@ import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 import {
   MapSubmissionDateCreateWithoutSubmissionInput,
-  PrismaClient
+  PrismaClient,
+  User
 } from '@momentum/db';
 import { faker } from '@faker-js/faker';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -40,11 +41,14 @@ import {
   GamemodeInfo,
   bspPath,
   steamAvatarUrl,
-  MapTags
+  MapTags,
+  NotificationType,
+  MapTestInviteState
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Random from '@momentum/random';
 import * as Zone from '@momentum/formats/zone';
+import * as Enum from '@momentum/enum';
 import { arrayFrom, parallel, promiseAllSync } from '@momentum/util-fn';
 import { COS_XP_PARAMS, XpSystems } from '@momentum/xp-systems';
 import axios from 'axios';
@@ -1152,11 +1156,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const personalSteamIDs = process.env['ADMIN_STEAM_ID64S'];
   if (!personalSteamIDs) return;
 
-  const steamIDs = personalSteamIDs.split(',');
-  for (const [i, steamID] of steamIDs.entries()) {
-    console.log(`Making user ${steamID} an admin`);
-    await prisma.user
-      .create({
+  const devUsers = await Promise.all(
+    personalSteamIDs.split(',').map(async (steamID, i) => {
+      console.log(`Making user ${steamID} an admin`);
+      return prisma.user.create({
         data: {
           steamID: BigInt(steamID),
           roles: Role.ADMIN,
@@ -1166,9 +1169,116 @@ prismaWrapper(async (prisma: PrismaClient) => {
             create: randomLevelAndXp()
           }
         }
+      });
+    })
+  );
+
+  //#endregion
+
+  //#region Notifications
+
+  console.log('Creating notifications');
+
+  // Wrap in IIFE to allow short-circuiting if test data is missing.
+  await (async () => {
+    if (devUsers.length === 0) return;
+
+    const notifReview = await prisma.mapReview.findFirst({
+      include: { reviewer: true }
+    });
+    if (notifReview == null) return;
+
+    const [notifComment, notifTestInviteMap] = await Promise.all([
+      prisma.mapReviewComment.create({
+        data: {
+          text: faker.lorem.paragraph(1),
+          userID: Random.element(userIDs),
+          reviewID: notifReview.id
+        },
+        include: { user: true }
+      }),
+      // Somewhat unreliable, but don't want the hassle of even more map creation.
+      prisma.mMap.findFirst({
+        where: {
+          status: MapStatus.PRIVATE_TESTING,
+          NOT: { submitterID: { in: devUsers.map((u: User) => u.id) } }
+        }
       })
-      .catch(() => {});
-  }
+    ]);
+    if (notifTestInviteMap == null) {
+      console.log(
+        'No Private-testing map found, cancelling notification generation'
+      );
+      return;
+    }
+
+    const mapStatuses = Enum.fastValuesNumeric(MapStatus);
+    const spamUserID = Random.element(userIDs);
+
+    for (const user of devUsers) {
+      // Need this for testing to prevent invalid request to backend on accept/reject.
+      await prisma.mapTestInvite.create({
+        data: {
+          state: MapTestInviteState.UNREAD,
+          mapID: notifTestInviteMap.id,
+          userID: user.id
+        }
+      });
+
+      const notifiedUserID = user.id;
+
+      await prisma.notification.createMany({
+        data: Array.from({ length: 35 }, () => ({
+          notifiedUserID,
+          type: NotificationType.ANNOUNCEMENT,
+          json: {
+            message: faker.lorem.paragraph()
+          },
+          userID: spamUserID
+        }))
+      });
+
+      await prisma.notification.createMany({
+        data: Array.from({ length: Enum.length(MapStatus) - 1 }, (_v, i) => ({
+          notifiedUserID,
+          type: NotificationType.MAP_STATUS_CHANGE,
+          json: {
+            oldStatus: mapStatuses[i],
+            newStatus: mapStatuses[i + 1]
+          },
+          mapID: Random.element(maps).id,
+          userID: Random.element(userIDs)
+        }))
+      });
+
+      await prisma.notification.createMany({
+        data: Random.shuffle([
+          // TODO WR achieved
+          {
+            notifiedUserID,
+            type: NotificationType.MAP_TESTING_INVITE,
+            mapID: notifTestInviteMap.id,
+            userID: Random.element(userIDs)
+          },
+          {
+            notifiedUserID,
+            type: NotificationType.MAP_REVIEW_POSTED,
+            mapID: notifReview.mapID,
+            reviewID: notifReview.id,
+            userID: notifReview.reviewer.id
+          },
+          {
+            notifiedUserID,
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: notifReview.mapID,
+            reviewID: notifReview.id,
+            reviewCommentID: notifComment.id,
+            userID: notifComment.userID // Commenter
+          }
+        ])
+      });
+    }
+  })();
 
   //#endregion
 
