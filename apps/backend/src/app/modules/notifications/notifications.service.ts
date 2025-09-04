@@ -6,9 +6,9 @@ import {
 } from '../database/prisma.extension';
 import {
   NotificationDto,
-  NotifsMarkAsReadQueryDto,
+  NotificationsMarkAsReadQueryDto,
   PagedResponseDto,
-  NotifsGetQueryDto,
+  NotificationsGetQueryDto,
   AnnouncementNotificationDto,
   DtoFactory,
   WRAchievedNotificationDto,
@@ -27,7 +27,7 @@ export class NotificationsService {
   ) {}
   async getNotifications(
     userID: number,
-    query: NotifsGetQueryDto
+    query: NotificationsGetQueryDto
   ): Promise<PagedResponseDto<NotificationDto>> {
     // Only a couple of these fields are on a notification at a time
     // However, the include will only fetch those fields if they exist
@@ -112,7 +112,7 @@ export class NotificationsService {
 
   async markAsRead(
     userID: number,
-    query: NotifsMarkAsReadQueryDto
+    query: NotificationsMarkAsReadQueryDto
   ): Promise<void> {
     if (query.all) {
       await this.db.notification.deleteMany({
