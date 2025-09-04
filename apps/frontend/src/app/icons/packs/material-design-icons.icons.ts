@@ -2,6 +2,7 @@ export {
   mdiAlert,
   mdiAlertCircleOutline,
   mdiAlertOutline,
+  mdiBullhorn,
   mdiFlagOutline,
   mdiClose,
   mdiCloseThick,

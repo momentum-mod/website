@@ -20,7 +20,12 @@
       <div class="flex flex-col gap-1 p-1" [inert]="loading || notifications.length === 0">
         @for (notif of notifications; track $index; let i = $index) {
           @switch (notif.type) {
-            <!-- -->
+            @case (NotificationType.ANNOUNCEMENT) {
+              <m-announcement-notification [notification]="notif" (dismiss)="removeNotification(i)" />
+            }
+            @case (NotificationType.WR_ACHIEVED) {
+              <!-- TODO WR -->
+            }
           }
         }
       </div>
