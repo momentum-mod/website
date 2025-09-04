@@ -185,7 +185,6 @@ export class MapBrowserComponent implements OnInit {
 
           return this.mapsService.getMaps({ ...options });
         }),
-        tap(() => (this.loading = false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -207,6 +206,7 @@ export class MapBrowserComponent implements OnInit {
             })
           );
           this.skip += res.returnCount;
+          this.loading = false;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -214,6 +214,7 @@ export class MapBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
+          this.loading = false;
         }
       });
   }

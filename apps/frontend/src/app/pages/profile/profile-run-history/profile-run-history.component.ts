@@ -108,20 +108,22 @@ export class ProfileRunHistoryComponent implements OnInit {
             take: this.rows,
             skip: this.first
           })
-        ),
-        tap(() => (this.loading = false))
+        )
       )
       .subscribe({
         next: (response) => {
           this.totalRecords = response.totalCount;
           this.runs = response.data;
+          this.loading = false;
         },
-        error: (httpError: HttpErrorResponse) =>
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Cannot get user runs',
             detail: httpError.error.message
-          })
+          });
+          this.loading = false;
+        }
       });
   }
 
