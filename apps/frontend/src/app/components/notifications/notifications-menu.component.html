@@ -26,6 +26,9 @@
             @case (NotificationType.WR_ACHIEVED) {
               <!-- TODO WR -->
             }
+            @case (NotificationType.MAP_STATUS_CHANGE) {
+              <m-map-status-change-notification [notification]="notif" (dismiss)="removeNotification(i)" />
+            }
           }
         }
       </div>
