@@ -34,6 +34,7 @@ export class NotificationsService {
     // This is faster than explicitly checking
     const [data, count] = await this.db.notification.findManyAndCount({
       where: { notifiedUserID: userID },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: true,
         map: true,
@@ -53,7 +54,8 @@ export class NotificationsService {
             return DtoFactory(AnnouncementNotificationDto, {
               id: item.id,
               type: item.type,
-              message: (item.json as { message: string }).message
+              message: (item.json as { message: string }).message,
+              createdAt: item.createdAt
             });
           }
           case NotificationType.WR_ACHIEVED: {
@@ -61,7 +63,8 @@ export class NotificationsService {
               // TODO more fields when adding this, see models.ts
               id: item.id,
               type: item.type,
-              map: item.map
+              map: item.map,
+              createdAt: item.createdAt
             });
           }
           case NotificationType.MAP_STATUS_CHANGE: {
@@ -75,7 +78,8 @@ export class NotificationsService {
               map: item.map,
               oldStatus: jsonField.oldStatus,
               newStatus: jsonField.newStatus,
-              changedBy: item.user
+              changedBy: item.user,
+              createdAt: item.createdAt
             });
           }
           case NotificationType.MAP_TESTING_INVITE: {
@@ -83,7 +87,8 @@ export class NotificationsService {
               id: item.id,
               type: item.type,
               map: item.map,
-              invitedBy: item.user
+              invitedBy: item.user,
+              createdAt: item.createdAt
             });
           }
           case NotificationType.MAP_REVIEW_POSTED: {
@@ -92,7 +97,8 @@ export class NotificationsService {
               type: item.type,
               map: item.map,
               review: item.review,
-              reviewer: item.user
+              reviewer: item.user,
+              createdAt: item.createdAt
             });
           }
           case NotificationType.MAP_REVIEW_COMMENT_POSTED: {
@@ -102,7 +108,8 @@ export class NotificationsService {
               map: item.map,
               review: item.review,
               reviewComment: item.reviewComment,
-              reviewCommenter: item.user
+              reviewCommenter: item.user,
+              createdAt: item.createdAt
             });
           }
         }
