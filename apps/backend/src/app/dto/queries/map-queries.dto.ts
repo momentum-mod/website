@@ -307,7 +307,7 @@ export class MapReviewsGetQueryDto
 {
   // Stupidly high maximum so admins can always fetch everything
   @TakeQueryProperty(20, 1000)
-  readonly take?: number = 20;
+  override readonly take?: number = 20;
 
   @BooleanQueryProperty({
     description: 'Filter by official or unofficial reviews'
