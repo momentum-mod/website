@@ -158,17 +158,18 @@ export class ActivityComponent implements OnInit, OnChanges {
           ).pipe(
             filter(() => this.canLoadMore),
             tap(() => (this.loading = true)),
-            switchMap(() => fetchFn()),
-            tap(() => (this.loading = false))
+            switchMap(() => fetchFn())
           );
         })
       )
       .subscribe({
         next: (res: PagedResponse<Activity>) => {
           this.canLoadMore = res.returnCount === this.ITEMS_PER_PAGE;
-          if (res.returnCount === 0) return;
-          this.activities.push(...res.data);
-          this.filterActivities();
+          if (res.returnCount !== 0) {
+            this.activities.push(...res.data);
+            this.filterActivities();
+          }
+          this.loading = false;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -177,6 +178,7 @@ export class ActivityComponent implements OnInit, OnChanges {
             detail: httpError.error.message
           });
           this.page = Math.max(0, this.page - 1);
+          this.loading = false;
         }
       });
 

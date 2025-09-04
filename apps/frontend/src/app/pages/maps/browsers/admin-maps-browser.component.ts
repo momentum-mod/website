@@ -133,13 +133,13 @@ export class AdminMapsBrowserComponent implements OnInit {
 
           return this.adminService.getMaps({ ...options });
         }),
-        tap(() => (this.loading = false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (res: PagedResponse<MMap>) => {
           this.maps.push(...res.data);
           this.skip += res.returnCount;
+          this.loading = false;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -147,6 +147,7 @@ export class AdminMapsBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
+          this.loading = false;
         }
       });
   }
