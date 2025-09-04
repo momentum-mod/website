@@ -23,7 +23,8 @@ import {
   UpdateMapImagesWithFiles,
   CreateMapVersionWithFiles,
   CreateMapTestInvite,
-  MapPreSignedUrl
+  MapPreSignedUrl,
+  UpdateMapTestInvite
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -133,6 +134,15 @@ export class MapsService {
     invites: CreateMapTestInvite
   ): Observable<void> {
     return this.http.put(`maps/${mapID}/testInvite`, { body: invites });
+  }
+
+  submitMapTestInviteResponse(
+    mapID: number,
+    response: UpdateMapTestInvite
+  ): Observable<void> {
+    return this.http.patch(`maps/${mapID}/testInviteResponse`, {
+      body: response
+    });
   }
 
   getMapReviews(
