@@ -48,6 +48,7 @@ export {
   mdiNoteEdit,
   mdiNotebookOutline,
   mdiForumOutline,
+  mdiForward,
   mdiFileOutline,
   mdiFilterRemove,
   mdiChartPieOutline,
