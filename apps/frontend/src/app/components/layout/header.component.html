@@ -14,7 +14,19 @@
   </div>
 
   @if (localUserService.user | async) {
-    <p-menu #userMenu [model]="menu" [popup]="true"></p-menu>
+    <p-popover #notificationsOverlay>
+      <m-notifications-menu class="max-h-[80vh] w-[30rem]" (unreadNotificationsCount)="updateUnreadNotificationsCount($event)" />
+    </p-popover>
+    <div class="item relative" (click)="notificationsOverlay.toggle($event)">
+      @if (unreadNotificationsCount > 0) {
+        <p class="badge badge-blue absolute right-1.5 top-1.5 z-10">
+          {{ unreadNotificationsCount.toString() }}
+        </p>
+      }
+      <m-icon class="size-auto !p-[1.125rem]" [icon]="unreadNotificationsCount > 0 ? 'bell-alert' : 'bell'"> </m-icon>
+    </div>
+
+    <p-menu #userMenu [model]="profileDropdownMenu" [popup]="true"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
   } @else {
     <button type="button" class="ml-2 mr-3 transition-all hover:brightness-110" (click)="localUserService.login()">
