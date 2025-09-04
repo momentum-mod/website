@@ -8,6 +8,8 @@ export {
   mdiCloseThick,
   mdiCloseOutline,
   mdiCloseCircleOutline,
+  mdiMessageDraw,
+  mdiMessageReplyText,
   mdiMenu,
   mdiMenuLeft,
   mdiMenuRight,

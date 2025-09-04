@@ -36,6 +36,12 @@
                 (refreshNotifications)="handleRefreshRequest()"
               />
             }
+            @case (NotificationType.MAP_REVIEW_POSTED) {
+              <m-map-review-posted-notification [notification]="notif" (dismiss)="removeNotification(i)" />
+            }
+            @case (NotificationType.MAP_REVIEW_COMMENT_POSTED) {
+              <m-map-review-comment-posted-notification [notification]="notif" (dismiss)="removeNotification(i)" />
+            }
           }
         }
       </div>
