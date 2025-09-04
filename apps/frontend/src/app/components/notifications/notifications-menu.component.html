@@ -1,0 +1,37 @@
+@if (notifications.length === 0) {
+  <p class="mx-auto"><i>No notifications</i></p>
+} @else {
+  <div class="flex flex-col">
+    <div class="flex flex-row items-center p-2">
+      <p class="p-0 text-24">Notifications</p>
+      <div class="ml-auto flex flex-row items-center gap-2">
+        <button type="button" class="btn py-1" [disabled]="loading || notifications.length === 0" (click)="clearNotifications()">
+          Clear All
+        </button>
+        <m-icon
+          icon="tooltip-question-outline"
+          mTooltip="Not all notifications can be bulk-cleared. For example, you need to explicitly Accept or Reject a private map testing invitation."
+          tooltipPosition="right"
+        />
+      </div>
+    </div>
+
+    <div class="overflow-auto">
+      <div class="flex flex-col gap-1 p-1" [inert]="loading || notifications.length === 0">
+        @for (notif of notifications; track $index; let i = $index) {
+          @switch (notif.type) {
+            <!-- -->
+          }
+        }
+      </div>
+    </div>
+    <p-paginator
+      (onPageChange)="pageChange.next($event)"
+      [first]="first"
+      [rows]="rows"
+      [totalRecords]="_unreadCount"
+      [showCurrentPageReport]="true"
+      [alwaysShow]="false"
+    />
+  </div>
+}

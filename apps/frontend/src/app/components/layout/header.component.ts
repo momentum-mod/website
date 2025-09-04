@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Notification } from '@momentum/constants';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../../services/layout.service';
 import { MultiSearchComponent } from '../search/multi-search.component';
@@ -10,6 +9,7 @@ import { IconComponent } from '../../icons';
 import { AsyncPipe } from '@angular/common';
 import { Popover } from 'primeng/popover';
 import { RouterLink } from '@angular/router';
+import { NotificationsMenuComponent } from '../notifications/notifications-menu.component';
 
 @Component({
   selector: 'm-header',
@@ -22,21 +22,22 @@ import { RouterLink } from '@angular/router';
     IconComponent,
     AsyncPipe,
     Popover,
-    RouterLink
+    RouterLink,
+    NotificationsMenuComponent
   ]
 })
 export class HeaderComponent implements OnInit {
   protected readonly localUserService = inject(LocalUserService);
   private readonly layoutService = inject(LayoutService);
 
-  protected menu: MenuItem[] = [];
-  protected notifications: Notification[] = [];
-  protected unreadNotificationCount = 0;
+  protected unreadNotificationsCount = 0;
+
+  protected profileDropdownMenu: MenuItem[] = [];
 
   ngOnInit() {
     this.localUserService.user.subscribe(() => {
       const userID = this.localUserService.user.value?.id;
-      this.menu = [
+      this.profileDropdownMenu = [
         {
           label: 'Profile',
           // If `user` hasn't been fetched yet, just navigate to ProfileRedirect
@@ -57,5 +58,9 @@ export class HeaderComponent implements OnInit {
 
   protected toggleSidenav() {
     this.layoutService.toggleSidenavState();
+  }
+
+  protected updateUnreadNotificationsCount(count: number) {
+    this.unreadNotificationsCount = count;
   }
 }
