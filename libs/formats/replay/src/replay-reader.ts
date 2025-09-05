@@ -24,7 +24,8 @@ export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
       playerName: readNullTerminatedString(buffer, 135),
       trackType: buffer.readUInt8(167),
       trackNum: buffer.readUInt8(168),
-      runTime: buffer.readDoubleLE(169)
+      style: buffer.readUInt8(169),
+      runTime: buffer.readDoubleLE(170)
     };
   } catch (error) {
     throw new ReplayReadError(error.code, error.message);
