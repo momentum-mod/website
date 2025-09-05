@@ -19,8 +19,8 @@ import { LoggedInUser } from '../../decorators';
 import {
   ApiOkPagedResponse,
   NotificationDto,
-  NotifsGetQueryDto,
-  NotifsMarkAsReadQueryDto,
+  NotificationsGetQueryDto,
+  NotificationsMarkAsReadQueryDto,
   PagedResponseDto
 } from '../../dto';
 
@@ -37,14 +37,14 @@ export class NotificationsController {
   })
   async getNotifications(
     @LoggedInUser('id') userID: number,
-    @Query() query?: NotifsGetQueryDto
+    @Query() query?: NotificationsGetQueryDto
   ): Promise<PagedResponseDto<NotificationDto>> {
     return this.notifsService.getNotifications(userID, query);
   }
 
   @Delete('/markAsRead')
   @ApiOperation({ description: 'Marks the given notifications as read.' })
-  @ApiQuery({ type: NotifsMarkAsReadQueryDto })
+  @ApiQuery({ type: NotificationsMarkAsReadQueryDto })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({
     description: 'Notifications marked as read successfully'
@@ -52,7 +52,7 @@ export class NotificationsController {
   @ApiBadRequestResponse({ description: 'Invalid notifIDs' })
   async markNotificationsAsRead(
     @LoggedInUser('id') userID: number,
-    @Query() query: NotifsMarkAsReadQueryDto
+    @Query() query: NotificationsMarkAsReadQueryDto
   ): Promise<void> {
     return this.notifsService.markAsRead(userID, query);
   }

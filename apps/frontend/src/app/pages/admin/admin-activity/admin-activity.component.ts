@@ -51,7 +51,7 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.MAP_CONTENT_DELETE, text: 'Map deleted' },
     { value: AdminActivityType.REPORT_UPDATE, text: 'Report update' },
     { value: AdminActivityType.REPORT_RESOLVE, text: 'Report resolve' },
-    { value: AdminActivityType.REVIEW_DELETED, text: 'Review deleted' }, 
+    { value: AdminActivityType.REVIEW_DELETED, text: 'Review deleted' },
     { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' }
   ];
 
@@ -97,8 +97,7 @@ export class AdminActivityComponent implements OnInit {
             return this.adminActivityService.getAdminActivities(query);
           }
         }),
-        mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 }),
-        tap(() => (this.loading = false))
+        mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 })
       )
       .subscribe({
         next: (response) => {
@@ -107,6 +106,7 @@ export class AdminActivityComponent implements OnInit {
             activity,
             entry: AdminActivityEntryComponent.getActivityData(activity)
           }));
+          this.loading = false;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -116,6 +116,7 @@ export class AdminActivityComponent implements OnInit {
           });
           this.activities = [];
           this.totalRecords = 0;
+          this.loading = false;
         }
       });
   }

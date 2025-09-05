@@ -31,7 +31,7 @@ export class TooltipDirective extends PTooltip {
   @Input('mTooltip') override content:
     | string
     | TemplateRef<HTMLElement>
-    | undefined;
+    | undefined = undefined;
 
   /**
    * String by which to distuingish multiple instances in a QueryList

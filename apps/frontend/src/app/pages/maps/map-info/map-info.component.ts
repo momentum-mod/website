@@ -150,11 +150,13 @@ export class MapInfoComponent implements OnInit {
             ]
           })
         ),
-        tap(() => (this.loading = false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (map) => this.setMap(map),
+        next: (map) => {
+          this.setMap(map);
+          this.loading = false;
+        },
         error: () => this.router.navigate(['/404'])
       });
   }

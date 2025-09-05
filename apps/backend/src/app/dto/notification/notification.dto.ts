@@ -1,6 +1,7 @@
 ﻿import {
   AbstractNotification,
   AnnouncementNotification,
+  DateString,
   LeaderboardRun,
   MapReview,
   MapReviewComment,
@@ -14,7 +15,12 @@
   User,
   WRAchievedNotification
 } from '@momentum/constants';
-import { EnumProperty, IdProperty, NestedProperty } from '../decorators';
+import {
+  CreatedAtProperty,
+  EnumProperty,
+  IdProperty,
+  NestedProperty
+} from '../decorators';
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapDto } from '../map/map.dto';
@@ -34,6 +40,9 @@ export class NotificationDto<T = NotificationType>
       'Determines which variation of notification it is. Used for determining which accompanying data fields exist'
   })
   readonly type: T;
+
+  @CreatedAtProperty()
+  readonly createdAt: DateString;
 }
 
 export class AnnouncementNotificationDto

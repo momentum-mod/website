@@ -62,13 +62,13 @@ export class ReportQueueComponent implements OnInit {
             take: this.rows,
             skip: this.first
           })
-        ),
-        tap(() => (this.loading = false))
+        )
       )
       .subscribe({
         next: (response) => {
           this.totalRecords = response.totalCount;
           this.reportQueue = response.data;
+          this.loading = false;
         },
         error: (error) => {
           console.error(error);
@@ -77,6 +77,7 @@ export class ReportQueueComponent implements OnInit {
             summary: 'Failed to load report queue',
             detail: error.message
           });
+          this.loading = false;
         }
       });
   }

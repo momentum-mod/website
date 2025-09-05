@@ -44,6 +44,16 @@ export class MapTestInviteService {
   }
 
   async testInviteResponse(mapID: number, userID: number, accept: boolean) {
+    // Delete notifications regardless of the invite being valid, as these
+    // can't be auto-cleared (with markAsRead) but must be deleted here.
+    await this.db.notification.deleteMany({
+      where: {
+        notifiedUserID: userID,
+        mapID,
+        type: NotificationType.MAP_TESTING_INVITE
+      }
+    });
+
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { testInvites: true }
@@ -69,14 +79,6 @@ export class MapTestInviteService {
         state: accept
           ? MapTestInviteState.ACCEPTED
           : MapTestInviteState.DECLINED
-      }
-    });
-
-    await this.db.notification.deleteMany({
-      where: {
-        notifiedUserID: userID,
-        mapID,
-        type: NotificationType.MAP_TESTING_INVITE
       }
     });
   }
@@ -112,9 +114,7 @@ export class MapTestInviteService {
       data: difference(userIDs, existingInviteUserIDs).map((userID) => ({
         mapID,
         userID,
-        // TODO: Change this to MapTestInviteState.UNREAD so invites can be
-        // manually accepted once we have the new notification system
-        state: MapTestInviteState.ACCEPTED
+        state: MapTestInviteState.UNREAD
       }))
     });
 

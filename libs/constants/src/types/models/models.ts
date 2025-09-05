@@ -594,6 +594,7 @@ export interface CompletedRun {
 export type AbstractNotification<T = NotificationType> = {
   id: number;
   type: T;
+  createdAt: DateString;
 };
 
 export type Notification =
@@ -614,7 +615,6 @@ export interface WRAchievedNotification
   // TODO fields that would be stored as json in db.
   // Take what's needed from a LeaderboardRun and create separate fields.
   map: MMap;
-  run: LeaderboardRun;
 }
 
 export interface MapStatusChangeNotification

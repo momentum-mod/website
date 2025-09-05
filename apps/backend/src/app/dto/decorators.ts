@@ -368,7 +368,7 @@ export function BooleanQueryProperty(
     ApiProperty({ ...options, type: Boolean, required: required }),
     Transform(({ value }) => {
       if (value && typeof value == 'string') return value === 'true';
-      return;
+      return Boolean(value);
     }),
     IsBoolean(),
     conditionalDecorator(!required, IsOptional)

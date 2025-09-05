@@ -37,6 +37,7 @@ export * from './types/models/models';
 export * from './types/models/paged-response.model';
 export * from './types/queries/pagination.model';
 export * from './types/queries/map-queries.model';
+export * from './types/queries/notifications-queries.model';
 export * from './types/queries/run-queries.model';
 export * from './types/queries/user-queries.model';
 export * from './types/queries/admin-queries.model';

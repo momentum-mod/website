@@ -86,13 +86,13 @@ export class MapReviewListComponent implements OnChanges {
             take: this.rows,
             skip: this.first
           });
-        }),
-        tap(() => (this.loading = false))
+        })
       )
       .subscribe({
         next: (res) => {
           this.reviews = res.data;
           this.totalRecords = res.totalCount;
+          this.loading = false;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -100,6 +100,7 @@ export class MapReviewListComponent implements OnChanges {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
+          this.loading = false;
         }
       });
   }

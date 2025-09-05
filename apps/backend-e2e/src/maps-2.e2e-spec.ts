@@ -2223,7 +2223,13 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/testInvite', () => {
     describe('PUT', () => {
-      let u1, u1Token, u2, u2Token, u3, u4, map;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        u2Token: string,
+        u3: User,
+        u4: User,
+        map: MMap;
       beforeEach(async () => {
         [[u1, u1Token], [u2, u2Token], u3, u4] = await Promise.all([
           db.createAndLoginUser(),
@@ -2249,11 +2255,10 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        // TODO: Change states to MapTestInviteState.UNREAD once they can be manually accepted
         expect(createdRequests).toMatchObject([
-          { userID: u2.id, state: MapTestInviteState.ACCEPTED },
-          { userID: u3.id, state: MapTestInviteState.ACCEPTED },
-          { userID: u4.id, state: MapTestInviteState.ACCEPTED }
+          { userID: u2.id, state: MapTestInviteState.UNREAD },
+          { userID: u3.id, state: MapTestInviteState.UNREAD },
+          { userID: u4.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
@@ -2274,9 +2279,8 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        // TODO: Change state to MapTestInviteState.UNREAD once they can be manually accepted
         expect(createdRequests).toMatchObject([
-          { userID: u3.id, state: MapTestInviteState.ACCEPTED }
+          { userID: u3.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
@@ -2326,8 +2330,7 @@ describe('Maps Part 2', () => {
         const createdRequests = await prisma.mapTestInvite.findMany();
         expect(createdRequests).toMatchObject([
           { userID: u3.id, state: MapTestInviteState.ACCEPTED },
-          // TODO: Change this state to MapTestInviteState.UNREAD once they can be manually accepted
-          { userID: u4.id, state: MapTestInviteState.ACCEPTED }
+          { userID: u4.id, state: MapTestInviteState.UNREAD }
         ]);
       });
 
@@ -2440,7 +2443,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/testInviteResponse', () => {
     describe('PATCH', () => {
-      let user, user2, token, map;
+      let user: User, token: string, user2: User, map: MMap;
       beforeEach(async () => {
         [[user, token], [user2]] = await Promise.all([
           db.createAndLoginUser(),

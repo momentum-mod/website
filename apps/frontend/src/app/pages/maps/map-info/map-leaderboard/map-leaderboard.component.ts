@@ -138,19 +138,21 @@ export class MapLeaderboardComponent implements OnChanges {
         distinctUntilChanged(),
         tap(() => (this.loading = true)),
         switchMap(() => this.fetchRuns()),
-        tap(() => (this.loading = false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response) => {
           this.runs = response.data;
+          this.loading = false;
         },
-        error: (error) =>
+        error: (error) => {
           this.messageService.add({
             severity: 'error',
             detail: error.message,
             summary: 'Error fetching runs'
-          })
+          });
+          this.loading = false;
+        }
       });
   }
 

@@ -6,8 +6,15 @@ import {
 } from '../decorators';
 import { QueryDto } from './query.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  NotificationsGetQuery,
+  NotificationsMarkAsReadQuery
+} from '@momentum/constants';
 
-export class NotifsMarkAsReadQueryDto extends QueryDto {
+export class NotificationsMarkAsReadQueryDto
+  extends QueryDto
+  implements NotificationsMarkAsReadQuery
+{
   @IntCsvQueryProperty({
     description: 'List of notification IDs to mark as read',
     required: false
@@ -21,7 +28,10 @@ export class NotifsMarkAsReadQueryDto extends QueryDto {
   @BooleanQueryProperty({ required: false })
   all?: boolean;
 }
-export class NotifsGetQueryDto extends QueryDto {
+export class NotificationsGetQueryDto
+  extends QueryDto
+  implements NotificationsGetQuery
+{
   @SkipQueryProperty(0)
   skip = 0;
 
