@@ -191,6 +191,7 @@ export interface MMap {
   worldRecords: LeaderboardRun[];
   personalBests: LeaderboardRun[];
   testInvites?: MapTestInvite[];
+  reviewStats?: MapReviewStats;
 }
 
 export interface MapVersion {
@@ -280,6 +281,13 @@ export interface MapReview {
   updatedAt: DateString;
 }
 
+export interface MapReviewStats {
+  total: number;
+  approvals: number;
+  resolved: number;
+  unresolved: number;
+}
+
 export interface MapReviewComment {
   id: number;
   reviewID: number;
@@ -323,7 +331,6 @@ export interface MapSubmission {
   suggestions: MapSubmissionSuggestion[];
   placeholders: MapSubmissionPlaceholder[];
   dates: MapSubmissionDate[];
-  hasApprovingReview: boolean;
   discordReviewThread: string | null;
 }
 

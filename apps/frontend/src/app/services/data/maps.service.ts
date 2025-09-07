@@ -23,7 +23,8 @@ import {
   UpdateMapImagesWithFiles,
   CreateMapVersionWithFiles,
   CreateMapTestInvite,
-  MapPreSignedUrl
+  MapPreSignedUrl,
+  MapReviewStats
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -140,6 +141,10 @@ export class MapsService {
     query?: MapReviewsGetQuery
   ): Observable<PagedResponse<MapReview>> {
     return this.http.get(`maps/${id}/reviews`, { query });
+  }
+
+  getMapReviewStats(mapID: number): Observable<MapReviewStats> {
+    return this.http.get(`maps/${mapID}/reviewStats`);
   }
 
   postMapReview(

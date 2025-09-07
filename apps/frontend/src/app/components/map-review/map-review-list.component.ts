@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
-import { merge, Subject } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { forkJoin, merge, Subject } from 'rxjs';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { PaginatorState } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
@@ -51,7 +51,7 @@ export class MapReviewListComponent implements OnChanges {
   public readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
   protected loading = false;
-  protected rows = 5;
+  protected rows = 10;
   protected totalRecords = 0;
   protected first = 0;
 
@@ -79,20 +79,26 @@ export class MapReviewListComponent implements OnChanges {
               filter = false;
               break;
           }
-          return this.mapsService.getMapReviews(this.map.id, {
-            expand: ['reviewer', 'resolver'],
-            official: filter,
-            comments: 5,
-            take: this.rows,
-            skip: this.first
-          });
+          return forkJoin([
+            this.mapsService.getMapReviews(this.map.id, {
+              expand: ['reviewer', 'resolver'],
+              official: filter,
+              comments: 5,
+              take: this.rows,
+              skip: this.first
+            }),
+            this.mapsService.getMapReviewStats(this.map.id)
+          ]);
         }),
         tap(() => (this.loading = false))
       )
       .subscribe({
-        next: (res) => {
-          this.reviews = res.data;
-          this.totalRecords = res.totalCount;
+        next: ([pagedRes, statsRes]) => {
+          this.reviews = pagedRes.data;
+          this.totalRecords = pagedRes.totalCount;
+          // Mutating actual map object here so don't have to re-request the
+          // entire thing just to update stats.
+          this.map.reviewStats = statsRes;
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({

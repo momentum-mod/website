@@ -27,9 +27,6 @@ export class MapSubmissionDto implements MapSubmission {
   @IsOptional()
   readonly dates: MapSubmissionDateDto[];
 
-  @IsBoolean()
-  readonly hasApprovingReview: boolean;
-
   @Exclude()
   readonly mapID: number;
 

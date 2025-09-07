@@ -89,7 +89,7 @@ export type MapsGetExpand = Array<
   | MapsGetAllSubmissionExpand[number]
   | 'submission'
   | 'testInvites'
-  | 'reviewSummary'
+  | 'reviewStats'
 >;
 
 export type MapsGetQuery = { expand?: MapsGetExpand };
@@ -241,6 +241,7 @@ type PickMapReview = Pick<MapReview, 'mainText'> &
 
 export interface CreateMapReview extends PickMapReview {
   needsResolving?: boolean;
+  approves?: boolean;
 }
 
 export interface CreateMapReviewWithFiles {

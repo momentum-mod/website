@@ -114,9 +114,12 @@ export class CreateMapReviewDto
   @IsOptional()
   readonly needsResolving?: boolean;
 
+  @ApiProperty({
+    description:
+      'Whether the review grants approval to the map, needed to enter FINAL_APPROVAL.Only accessible to Reviewers, Mods and Admins.'
+  })
   @IsBoolean()
-  @IsOptional()
-  readonly approves?: boolean;
+  readonly approves: boolean;
 }
 
 export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {

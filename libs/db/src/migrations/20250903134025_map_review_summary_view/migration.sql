@@ -1,0 +1,14 @@
+-- -- AlterTable
+-- ALTER TABLE "MapReview"
+--     ADD COLUMN "approves" BOOLEAN NOT NULL DEFAULT false;
+-- 
+-- -- Create Map Review Summary View - this is a manual migration!
+-- CREATE VIEW "MapReviewSummary" AS
+-- SELECT m.id                                          AS "mapID",
+--        COUNT(r.id)                                   AS total,
+--        COUNT(r.id) FILTER (WHERE r.approves = TRUE)  AS approvals,
+--        COUNT(r.id) FILTER (WHERE r.resolved = TRUE)  AS resolved,
+--        COUNT(r.id) FILTER (WHERE r.resolved = FALSE) AS unresolved
+-- FROM "MMap" m
+--          LEFT JOIN "MapReview" r ON m.id = r."mapID"
+-- GROUP BY m.id;

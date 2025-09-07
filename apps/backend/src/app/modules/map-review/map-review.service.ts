@@ -49,6 +49,7 @@ import {
 } from '@prisma/client/runtime/library';
 import { MapDiscordNotifications } from '../maps/map-discord-notifications.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 
 @Injectable()
 export class MapReviewService {
@@ -111,12 +112,9 @@ export class MapReviewService {
 
     // Filter by official/unofficial if exists on query
     const filteredResponse = hasRoleFiltering
-      ? dbResponse.filter((x) => {
-          const hasOfficialRole = [
-            Role.ADMIN,
-            Role.MODERATOR,
-            Role.REVIEWER
-          ].includes(x.reviewer.roles);
+      ? dbResponse.filter(({ reviewer }) => {
+          const hasOfficialRole =
+            reviewer.roles & (Role.ADMIN | Role.MODERATOR | Role.REVIEWER);
           return query.official ? hasOfficialRole : !hasOfficialRole;
         })
       : dbResponse;
@@ -160,6 +158,19 @@ export class MapReviewService {
     });
 
     return DtoFactory(MapReviewDto, review);
+  }
+
+  async getReviewStats(
+    mapID: number,
+    userID: number
+  ): Promise<MapReviewStatsDto> {
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      select: { reviewStats: true }
+    });
+
+    return DtoFactory(MapReviewStatsDto, map.reviewStats);
   }
 
   async createReview(
@@ -257,13 +268,14 @@ export class MapReviewService {
             imageIDs: images.map(([id]) => id),
             mainText: body.mainText,
             approves: body.approves,
-          ...newData,
-          editHistory: [{ ...newData, editorID: userID, date: new Date() }]
-        },
-        include: {
-          mmap: true,
-          reviewer: true
-        }});
+            ...newData,
+            editHistory: [{ ...newData, editorID: userID, date: new Date() }]
+          },
+          include: {
+            mmap: true,
+            reviewer: true
+          }
+        });
 
         await this.notifService.sendNotifications(
           {
@@ -296,9 +308,7 @@ export class MapReviewService {
       void this.discordNotificationService.sendMapReviewToMapThread(dbResponse);
     }
 
-    if (body.approves) {
-      await this.updateApprovingReviewStatus(mapID);
-    }
+    await this.updateReviewStats(mapID);
 
     return DtoFactory(MapReviewDto, dbResponse);
   }
@@ -402,9 +412,7 @@ export class MapReviewService {
       }
     });
 
-    if (body.approves !== undefined) {
-      await this.updateApprovingReviewStatus(review.mapID);
-    }
+    await this.updateReviewStats(review.mapID);
 
     return DtoFactory(MapReviewDto, updated);
   }
@@ -438,26 +446,26 @@ export class MapReviewService {
 
     // Not creating admin activities here, since review resolution is very
     // 'normal' behaviour, and gets tracked in the edit history.
+    const updated = await this.db.mapReview.update({
+      where: { id: reviewID },
+      include: { resolver: true },
+      data: {
+        resolved: data.resolved,
+        resolverID: data.resolved ? userID : null,
+        editHistory: [
+          ...(review.editHistory as JsonArray),
+          {
+            resolved: data.resolved,
+            editorID: userID,
+            date: new Date()
+          }
+        ]
+      }
+    });
 
-    return DtoFactory(
-      MapReviewDto,
-      await this.db.mapReview.update({
-        where: { id: reviewID },
-        include: { resolver: true },
-        data: {
-          resolved: data.resolved,
-          resolverID: data.resolved ? userID : null,
-          editHistory: [
-            ...(review.editHistory as JsonArray),
-            {
-              resolved: data.resolved,
-              editorID: userID,
-              date: new Date()
-            }
-          ]
-        }
-      })
-    );
+    await this.updateReviewStats(updated.mapID);
+
+    return DtoFactory(MapReviewDto, updated);
   }
 
   async deleteReview(
@@ -508,9 +516,7 @@ export class MapReviewService {
       )
     );
 
-    if (review.approves) {
-      await this.updateApprovingReviewStatus(review.mapID);
-    }
+    await this.updateReviewStats(review.mapID);
   }
 
   /** Remove every stored file for every map review */
@@ -526,14 +532,21 @@ export class MapReviewService {
     await this.fileStoreService.deleteFiles(imagePaths);
   }
 
-  private async updateApprovingReviewStatus(mapID: number): Promise<void> {
-    const hasApproved = await this.db.mapReview.exists({
-      where: { mapID, approves: true }
-    });
+  // TODO: Doing this is in JS is silly, but reviews are posted fairly
+  // infrequently, whilst this table is queried a lot. Tempted to use
+  // a view/materialized view but Prisma support is quite limited. Worth
+  // reconsidering in the future!
+  private async updateReviewStats(mapID: number): Promise<void> {
+    const reviews = await this.db.mapReview.findMany({ where: { mapID } });
 
-    await this.db.mapSubmission.update({
+    await this.db.mapReviewStats.update({
       where: { mapID },
-      data: { hasApprovingReview: hasApproved }
+      data: {
+        total: reviews.length,
+        approvals: reviews.filter(({ approves }) => approves).length,
+        resolved: reviews.filter(({ resolved }) => resolved === true).length,
+        unresolved: reviews.filter(({ resolved }) => resolved === false).length
+      }
     });
   }
 }
