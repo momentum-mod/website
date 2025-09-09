@@ -22,6 +22,7 @@ export * from './enums/killswitch.enum';
 export * from './enums/map-tag.enum';
 export * from './enums/steam-game.enum';
 export * from './maps/gamemodes.map';
+export * from './maps/gamemode-styles.map';
 export * from './maps/map-credit-name.map';
 export * from './maps/tick-intervals.map';
 export * from './maps/map-status-name.map';
