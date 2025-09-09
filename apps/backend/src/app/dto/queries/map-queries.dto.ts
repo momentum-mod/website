@@ -1,11 +1,14 @@
 import {
-  MapStatus,
+  AllowedTagsWithQualifiers,
   Gamemode,
-  MapReviewsGetQuery,
-  MapsGetAllExpand,
-  MapReviewsGetExpand,
   MapCreditsGetExpand,
+  MapCreditsGetQuery,
+  MapReviewsGetExpand,
+  MapReviewsGetQuery,
   MapsGetExpand,
+  MapsGetQuery,
+  MapsGetAllExpand,
+  MapsGetAllQuery,
   MapsGetAllAdminQuery,
   MapsGetAllSubmissionQuery,
   MapsGetAllSubmissionFilter,
@@ -13,19 +16,16 @@ import {
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery,
+  MapStatus,
   MapLeaderboardGetQuery,
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
   MapSortType,
   MapCreditType,
-  MapCreditsGetQuery,
-  MapsGetAllQuery,
-  MapsGetQuery,
-  MapTag,
+  MapsGetAllUserSubmissionFilter,
   Style,
-  TrackType,
-  MapsGetAllUserSubmissionFilter
+  TrackType
 } from '@momentum/constants';
 import {
   BooleanQueryProperty,
@@ -126,6 +126,17 @@ export class MapsGetAllQueryDto
       'If a gamemode is provided, uses that. Otherwise uses any mode.'
   })
   readonly PB?: boolean;
+
+  @FilterQueryProperty(AllowedTagsWithQualifiers, {
+    example: "['12;1', '33;0', '52;1', '29;1]",
+    description:
+      'Array containing semicolon-separated 2-tuple strings, ' +
+      'where the first part in the tuple is a MapTag value, ' +
+      'and the second either a 1 (to include) or 0 (to exclude the tag).' +
+      "Important! malformed string elements (e.g. '-5;4' and '1;1;1') don't throw, " +
+      "but simply don't get added to the resulting array."
+  })
+  tagsWithQualifiers?: string[];
 }
 
 export class MapsGetAllAdminQueryDto

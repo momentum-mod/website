@@ -15,10 +15,12 @@ import {
   MapSubmissionApproval,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
+  MapTag,
   MapVersion,
   MapZones,
   MMap
 } from '../../';
+import * as Enum from '@momentum/enum';
 
 //#region Map
 
@@ -56,6 +58,18 @@ type MapsGetAllBaseQuery = {
   sortType?: MapSortType;
 };
 
+export enum TagQualifier {
+  INCLUDE = 1,
+  EXCLUDE = 0
+}
+export const AllowedTagsWithQualifiers = Enum.fastValuesNumeric(MapTag).flatMap(
+  (tag) => [
+    `${tag};${TagQualifier.INCLUDE}` as const,
+    `${tag};${TagQualifier.EXCLUDE}` as const
+  ]
+);
+export type TagWithQualifier = (typeof AllowedTagsWithQualifiers)[number];
+
 export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: MapsGetAllExpand;
   gamemode?: Gamemode;
@@ -64,6 +78,10 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   linear?: boolean;
   favorite?: boolean;
   PB?: boolean;
+  // Array containing semicolon-separated 2-tuple strings,
+  // where the first part in the tuple is a MapTag value,
+  // and the second either a 1 (to include) or 0 (to exclude the tag).
+  tagsWithQualifiers?: string[];
 };
 
 export type MapsGetAllAdminFilter = Array<MapStatus>;
