@@ -42,7 +42,9 @@ import {
   TrackType,
   vmfsPath,
   MAX_OPEN_MAP_SUBMISSIONS,
-  runPath
+  runPath,
+  MapTag,
+  TagQualifier
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -174,6 +176,7 @@ export class MapsService {
         // what future stage/bonus-specific searches will behave so not sure
         // exactly how to implement
         trackType: TrackType.MAIN
+        // NOT field is used by tagsWithQualifiers filter.
       };
 
       // Gamemode 0 doesn't exist, so non-zero check makes sense here
@@ -218,6 +221,28 @@ export class MapsService {
         if (query.gamemode) {
           where.leaderboardRuns[quantifier].gamemode = query.gamemode;
         }
+      }
+
+      if (query.tagsWithQualifiers?.length > 0) {
+        if (!query.gamemode) {
+          throw new BadRequestException(
+            'tags query can only be used together with a specific gamemode'
+          );
+        }
+
+        const includeTags: MapTag[] = [];
+        const excludeTags: MapTag[] = [];
+        for (const elemStr of query.tagsWithQualifiers) {
+          const [tag, qualifier] = elemStr.split(';').map((v) => parseInt(v));
+          if (qualifier === TagQualifier.INCLUDE) includeTags.push(tag);
+          else excludeTags.push(tag);
+        }
+
+        if (includeTags.length > 0)
+          leaderboardSome.tags = { hasSome: includeTags };
+        // There are no negation keywords for array queries.
+        if (excludeTags.length > 0)
+          leaderboardSome.NOT = { tags: { hasSome: excludeTags } };
       }
     } else if (query instanceof MapsGetAllUserSubmissionQueryDto) {
       where.OR = [

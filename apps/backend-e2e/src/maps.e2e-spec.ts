@@ -838,6 +838,102 @@ describe('Maps', () => {
         });
       });
 
+      it('should respond with maps based on tagsWithQualifiers filter', async () => {
+        const upsertLb = async (mapID: number) => {
+          await prisma.leaderboard.upsert({
+            where: {
+              mapID_gamemode_trackType_trackNum_style: {
+                mapID: mapID,
+                gamemode: Gamemode.AHOP,
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                style: 0
+              }
+            },
+            update: {
+              tags: [] // Has to exist or query will fail.
+            },
+            create: {
+              mapID: mapID,
+              gamemode: Gamemode.AHOP,
+              type: LeaderboardType.RANKED,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style: 0,
+              tags: [] // Has to exist or query will fail.
+            }
+          });
+        };
+
+        await Promise.all([
+          upsertLb(mEarth.id),
+          upsertLb(mWater.id),
+          upsertLb(mAir.id),
+          upsertLb(mBeansOnToast.id)
+        ]);
+
+        await prisma.leaderboard.updateMany({
+          where: {
+            mapID: mEarth.id,
+            gamemode: Gamemode.AHOP
+          },
+          data: {
+            tags: [MapTag.HL2, MapTag.Speed_Control, MapTag.Bhop]
+          }
+        });
+
+        // Should ignore tagsWithQualifiers if array exists but is empty.
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tagsWithQualifiers: []
+          },
+          validatePaged: { type: MapDto, count: 4 },
+          token: u1Token
+        });
+
+        // Only include maps with at least one of the given tags.
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tagsWithQualifiers: [
+              MapTag.Air_Jump.toString() + ';1',
+              MapTag.HL2.toString() + ';1',
+              MapTag.Surf.toString() + ';1'
+            ]
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        // Get all Ahop maps without HL2 tag.
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            tagsWithQualifiers: [MapTag.HL2.toString() + ';0']
+          },
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
+      });
+
+      it('should 400 if tags filter is used without a gamemode', async () => {
+        await req.get({
+          url: 'maps',
+          status: 400,
+          query: {
+            tagsWithQualifiers: [MapTag.HL2.toString() + ';1']
+          },
+          token: u1Token
+        });
+      });
+
       it('should respond with maps in reverse alphabetical order when in sortType query', async () => {
         const res = await req.get({
           url: 'maps',
