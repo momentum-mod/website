@@ -125,7 +125,7 @@ export class UserMapsBrowserComponent implements OnInit {
         filter(() => !this.loading),
         map(() => this.itemsPerLoad)
       ),
-      this.filters?.valueChanges.pipe(
+      this.filters.valueChanges.pipe(
         debounceTime(200),
         tap(() => {
           this.maps = [];
@@ -135,11 +135,12 @@ export class UserMapsBrowserComponent implements OnInit {
       ) ?? EMPTY
     )
       .pipe(
-        filter(() => !this.filters || this.filters?.valid),
+        filter(() => this.filters.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
-            this.filters?.value ?? {};
+            this.filters.getRawValue();
+
           const options: MapsGetAllUserSubmissionQuery = {
             skip: this.skip,
             take,

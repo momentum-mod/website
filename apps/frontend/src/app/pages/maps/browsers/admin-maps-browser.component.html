@@ -7,11 +7,11 @@
   </div>
   <form class="ml-auto flex flex-col gap-2" [formGroup]="filters">
     <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <div class="flex items-center gap-2">
         <m-user-select formControlName="credit" />
         <m-dropdown [entries]="MapCreditOptions" [nameFn]="MapCreditNameFn" formControlName="creditType" />
       </div>
-      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
         <m-icon icon="filter-remove" class="size-5" />
       </button>

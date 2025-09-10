@@ -31,7 +31,7 @@
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
       </div>
-      <!-- TODO more climb modes when done. Currently positioned after defrag to wrap nicely with 1080p monitor and 100%-->
+      <!-- TODO more climb modes when they get added. -->
       <div class="grid grid-cols-1 grid-rows-1 gap-x-2">
         <p
           class="pointer-events-none col-span-1 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
@@ -44,11 +44,11 @@
   </div>
   <div class="ml-auto flex basis-6/10 flex-col gap-2">
     <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <div class="flex items-center gap-2">
         <m-user-select formControlName="credit" />
         <m-dropdown [entries]="MapCreditOptions" [nameFn]="MapCreditNameFn" formControlName="creditType" />
       </div>
-      <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
       <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
         <m-icon icon="filter-remove" class="size-5" />
       </button>
@@ -70,12 +70,8 @@
           [tooltipDisabled]="gamemode.value != null"
         />
       </div>
-      <m-dropdown [entries]="MapSortOptions" [entryNameFn]="MapSortNameFn" formControlName="sortType" />
-    </div>
-    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
       @if (localUserService.user | async) {
         <div class="flex items-center gap-2">
-          <p class="font-display text-24">Favorites</p>
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
@@ -83,11 +79,9 @@
               { icon: 'star', color: 'blue' },
               { icon: 'star', color: 'red' }
             ]"
+            mTooltip="Favorites"
             formControlName="favorites"
           />
-        </div>
-        <div class="flex items-center gap-2">
-          <p class="font-display text-24">Completed</p>
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
@@ -95,10 +89,40 @@
               { icon: 'flag-outline', color: 'blue' },
               { icon: 'flag-outline', color: 'red' }
             ]"
+            mTooltip="Completed"
             formControlName="pb"
           />
         </div>
       }
+      <m-dropdown [entries]="MapSortOptions" [nameFn]="MapSortNameFn" formControlName="sortType" />
+    </div>
+    <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
+      <div class="flex items-center gap-2">
+        <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tags</p>
+        <m-chips
+          typeName="Tags"
+          [chips]="currentAllowedTAndQs"
+          [nameFn]="MapTagNameFn"
+          [includesFn]="MapTagIncludesFn"
+          [appendEachSelectedTemplate]="toggleQualifierBtn"
+          mTooltip="You must select a gamemode to use this filter"
+          [tooltipDisabled]="gamemode.value != null"
+          formControlName="tagsAndQualifiers"
+        />
+        <ng-template #toggleQualifierBtn let-index="index">
+          <div
+            role="button"
+            class="btn m-0 flex size-4 rounded p-0 transition-colors hover:bg-opacity-20"
+            [ngClass]="tagsAndQualifiers.getRawValue()[index]?.[1] === TagQualifier.EXCLUDE ? 'btn-red' : 'btn-green'"
+            [mTooltip]="
+              tagsAndQualifiers.getRawValue()[index]?.[1] === TagQualifier.EXCLUDE
+                ? 'Maps with this tag are Excluded'
+                : 'Maps with this tag are Included'
+            "
+            (click)="toggleTagQualifier(index)"
+          ></div>
+        </ng-template>
+      </div>
     </div>
   </div>
 </form>
