@@ -28,6 +28,7 @@ import { LocalUserService } from '../../services/data/local-user.service';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { DynamicTextareaHeightDirective } from '../../directives/dynamic-textarea-height.directive';
+import { PluralPipe } from '../../pipes/plural.pipe';
 
 @Component({
   selector: 'm-map-review-form',
@@ -37,7 +38,8 @@ import { DynamicTextareaHeightDirective } from '../../directives/dynamic-textare
     ReactiveFormsModule,
     IconComponent,
     TooltipDirective,
-    DynamicTextareaHeightDirective
+    DynamicTextareaHeightDirective,
+    PluralPipe
   ],
   templateUrl: './map-review-form.component.html'
 })
@@ -50,6 +52,7 @@ export class MapReviewFormComponent {
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly MAX_REVIEW_IMAGES = MAX_REVIEW_IMAGES;
+  protected readonly MAX_REVIEW_LENGTH = MAX_REVIEW_LENGTH;
 
   @Input({ required: true }) map: MMap;
   @Input() editing = false;
