@@ -64,13 +64,13 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     user: User,
     searchComponent: UserSearchComponent
   ) {
-    const alreadyContainsUser = this.value
+    const existingUserCredit = this.value
       .getAll()
-      .some((userEntry) => userEntry.userID === user.id);
-    if (alreadyContainsUser) {
+      .find((userEntry) => userEntry.userID === user.id);
+    if (existingUserCredit) {
       TooltipDirective.findByContext(this.tooltips, type).setAndShow(
         `User is already in the "${MapCreditNames.get(
-          type
+          existingUserCredit.type
         )}" credits, just drag the credit instead!`,
         true
       );
@@ -83,7 +83,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
 
   removeUser(type: MapCreditType, userID: number, alias: string) {
     const userIndex = this.value.get(type).findIndex(
-      // If multiple placeholders have the same alias, the first gets removed.
+      // Also check for alias to remove the correct placeholder.
       (credit) => credit.userID === userID && credit.alias === alias
     );
     if (userIndex === -1) return;
@@ -92,6 +92,22 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
   }
 
   addPlaceholder(type: MapCreditType, searchComponent: UserSearchComponent) {
+    const existingPlaceholderCredit = this.value
+      .getAll()
+      .find(
+        (placeholderEntry) =>
+          placeholderEntry.alias === searchComponent.search.value
+      );
+    if (existingPlaceholderCredit) {
+      TooltipDirective.findByContext(this.tooltips, type).setAndShow(
+        `Placeholder is already in the "${MapCreditNames.get(
+          existingPlaceholderCredit.type
+        )}" credits, just drag the credit instead!`,
+        true
+      );
+      return;
+    }
+
     if (searchComponent.search.value.length > MAX_USER_ALIAS_LENGTH) {
       searchComponent.search.setErrors({
         error: `Placeholder cannot be longer than ${MAX_USER_ALIAS_LENGTH} characters!`
