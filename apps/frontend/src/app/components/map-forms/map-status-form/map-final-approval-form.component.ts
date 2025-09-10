@@ -26,6 +26,7 @@ import { KeyValuePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ChipsComponent } from '../../chips/chips.component';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-map-final-approval-form',
@@ -41,7 +42,8 @@ import { ChipsComponent } from '../../chips/chips.component';
     IconComponent,
     KeyValuePipe,
     PluralPipe,
-    ChipsComponent
+    ChipsComponent,
+    TooltipDirective
   ],
   providers: [
     {
