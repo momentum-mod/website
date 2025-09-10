@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
+  MapsGetAllSubmissionFilter,
   MapsGetAllSubmissionQuery,
   MapSortType,
   MapSortTypeName,
@@ -10,6 +11,7 @@ import {
   PagedResponse,
   User
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   FormControl,
   FormGroup,
@@ -29,14 +31,7 @@ import { IconComponent } from '../../../icons';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
-import { fastValuesNumeric } from '@momentum/enum';
-
-type StatusFilters = Array<
-  | MapStatus.PUBLIC_TESTING
-  | MapStatus.PRIVATE_TESTING
-  | MapStatus.CONTENT_APPROVAL
-  | MapStatus.FINAL_APPROVAL
->;
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 // This component is very similar to the MapBrowserComponent, found it easier to
 // split them up. Try to keep any styling synced up.
@@ -54,20 +49,31 @@ type StatusFilters = Array<
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {
+  private readonly localUserService = inject(LocalUserService);
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly StatusDropdown = [
-    { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
-    { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+  // Default for users. More options get added if user is mod/admin.
+  protected StatusDropdown = [
     { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
 
-  protected readonly MapCreditOptions = fastValuesNumeric(MapCreditType);
-  protected readonly MapCreditNameFn = (creditType: MapCreditType): string =>
-    MapCreditName.get(creditType) ?? '';
+  // Set value as if submitter was last entry in MapCredit enum.
+  protected readonly submitterCreditValue =
+    Enum.fastLengthNumeric(MapCreditType);
+  protected readonly MapCreditOptions = [
+    ...Enum.fastValuesNumeric(MapCreditType),
+    this.submitterCreditValue
+  ];
+  protected readonly MapCreditNameFn = (creditType: MapCreditType): string => {
+    if (creditType === this.submitterCreditValue) {
+      return 'Submitter';
+    } else {
+      return MapCreditName.get(creditType) ?? '';
+    }
+  };
 
   protected readonly MapSortOptions = [
     MapSortType.SUBMISSION_CREATED_NEWEST,
@@ -84,10 +90,11 @@ export class MapSubmissionBrowserComponent implements OnInit {
 
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
-    status: new FormControl<StatusFilters>(null),
-    submitter: new FormControl<User>(null),
+    status: new FormControl<MapsGetAllSubmissionFilter>([], {
+      nonNullable: true
+    }),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
+    creditType: new FormControl<number>(this.submitterCreditValue),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
   });
 
@@ -100,6 +107,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
+    if (this.localUserService.isModOrAdmin) {
+      this.StatusDropdown = [
+        { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
+        { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
+        ...this.StatusDropdown
+      ];
+    }
+
     setupPersistentForm(
       this.filters,
       'SUBMISSION_MAPS_FILTERS',
@@ -112,7 +127,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => !this.loading),
         map(() => this.itemsPerLoad)
       ),
-      this.filters?.valueChanges.pipe(
+      this.filters.valueChanges.pipe(
         debounceTime(200),
         tap(() => {
           this.maps = [];
@@ -122,11 +137,12 @@ export class MapSubmissionBrowserComponent implements OnInit {
       ) ?? EMPTY
     )
       .pipe(
-        filter(() => !this.filters || this.filters?.valid),
+        filter(() => this.filters.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, submitter, credit, creditType, sortType } =
-            this.filters?.value ?? {};
+          const { name, status, credit, creditType, sortType } =
+            this.filters.getRawValue();
+
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
             take,
@@ -139,16 +155,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
             ]
           };
           if (name) options.search = name;
-          // TODO: Remove this `as any` once below endpoint supports all these
-          // filters.
-          if (status?.length > 0)
-            options.filter = status as StatusFilters as any;
-          if (submitter) {
-            options.submitterID = submitter.id;
-          }
+          if (status.length > 0) options.filter = status;
           if (credit) {
-            options.creditID = credit.id;
-            options.creditType = creditType;
+            if (creditType === this.submitterCreditValue) {
+              options.submitterID = credit.id;
+            } else {
+              options.creditID = credit.id;
+              options.creditType = creditType;
+            }
           }
           if (sortType) options.sortType = sortType;
 
@@ -176,10 +190,9 @@ export class MapSubmissionBrowserComponent implements OnInit {
   resetFilters() {
     this.filters.reset({
       name: '',
-      status: null,
-      submitter: null,
+      status: [],
       credit: null,
-      creditType: MapCreditType.AUTHOR,
+      creditType: this.submitterCreditValue,
       sortType: this.MapSortOptions[0]
     });
   }

@@ -1,16 +1,23 @@
-import { Component, Input, forwardRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, TemplateRef, forwardRef } from '@angular/core';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Popover } from 'primeng/popover';
 import { IconComponent } from '../../icons';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
-export type Chip = number | string;
+// Many defaults are supported for number and string.
+export type Chip = unknown;
 
 @Component({
   selector: 'm-chips',
   standalone: true,
-  imports: [CommonModule, IconComponent, OverlayPanelModule, TooltipDirective],
+  imports: [
+    CommonModule,
+    IconComponent,
+    TooltipDirective,
+    Popover,
+    NgTemplateOutlet
+  ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -33,30 +40,43 @@ export class ChipsComponent implements ControlValueAccessor {
     this._chips = chips;
 
     this.selected =
-      this.selected?.filter((selected) => chips.includes(selected)) ?? [];
+      this.selected?.filter((selected) => this.includesFn(chips, selected)) ??
+      [];
   }
 
   get available() {
-    return this.chips.filter((chip) => !this.selected?.includes(chip));
+    return this.chips.filter((chip) => !this.includesFn(this.selected, chip));
   }
 
   @Input() typeName = 'Chip';
 
   /**
-   * If chip type is numeric (e.g. enum vals), you can provide a function that
-   * maps values to strings. Otherwise just provide plain strings!
+   * You can provide a function that maps values to strings.
    */
-  @Input() nameFn?: (chip: number) => string;
+  @Input() nameFn?: (chip: Chip) => string;
 
   /**
    * Function to provide image urls for chips.
    */
   @Input() imageFn?: (chip: Chip) => string | null;
 
+  /**
+   * Check that a collection of chips includes the given chip.
+   * This defaults to .includes() array method, so needs to be set if chips
+   * are of an object type.
+   */
+  @Input() includesFn = (collection: Chip[], chip: Chip) =>
+    collection.includes(chip);
+
+  /**
+   * Placed at the end (within) each selected tag.
+   */
+  @Input() appendEachSelectedTemplate?: TemplateRef<any>;
+
   protected disabled = false;
 
   add(chip: Chip) {
-    if (this.disabled || this.selected?.includes(chip)) return;
+    if (this.disabled || this.includesFn(this.selected, chip)) return;
 
     this.selected.push(chip);
     this.onChange(this.selected);
@@ -67,16 +87,21 @@ export class ChipsComponent implements ControlValueAccessor {
     this.onChange(this.selected);
   }
 
-  getChipName(chip: number | string): string {
-    if (typeof chip == 'number') {
-      if (this.nameFn) {
-        return this.nameFn(chip);
-      } else {
-        return chip.toString();
-      }
-    }
+  reset() {
+    this.selected = [];
+    this.onChange(this.selected);
+  }
 
-    return chip;
+  getChipName(chip: Chip): string {
+    if (this.nameFn) {
+      return this.nameFn(chip);
+    } else if (typeof chip === 'number') {
+      return chip.toString();
+    } else if (typeof chip === 'string') {
+      return chip;
+    } else {
+      return '';
+    }
   }
 
   getChipImage(chip: Chip): string | null {
