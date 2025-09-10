@@ -1,10 +1,11 @@
-import { IsString } from 'class-validator';
+import { IsString, MaxLength } from 'class-validator';
 import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
 import { UserDto } from '../user/user.dto';
 import {
   CreateMapReviewComment,
   DateString,
   MapReviewComment,
+  MAX_REVIEW_COMMENT_LENGTH,
   UpdateMapReviewComment
 } from '@momentum/constants';
 import { PickType } from '@nestjs/swagger';
@@ -17,6 +18,7 @@ export class MapReviewCommentDto implements MapReviewComment {
   readonly reviewID: number;
 
   @IsString()
+  @MaxLength(MAX_REVIEW_COMMENT_LENGTH)
   readonly text: string;
 
   @NestedProperty(UserDto, { lazy: true })
