@@ -140,7 +140,12 @@
                 class="textinput my-1 grow resize-none overflow-hidden px-2 py-1"
                 dynamicTextareaHeight
               ></textarea>
-              <div class="ml-auto flex gap-1">
+              <div class="flex gap-1">
+                @if (MAX_REVIEW_COMMENT_LENGTH / 2 < editForm.value.textInput?.length) {
+                  <span class="ml-2 self-start text-sm"
+                    >{{ MAX_REVIEW_COMMENT_LENGTH - editForm.value.textInput?.length | plural: 'character' }} remaining</span
+                  >
+                }
                 <button
                   type="button"
                   class="btn btn-red btn-thin ml-auto"
@@ -149,7 +154,7 @@
                 >
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-green btn-thin ml-auto" [disabled]="commentInput.invalid">Update</button>
+                <button type="submit" class="btn btn-green btn-thin" [disabled]="commentInput.invalid">Update</button>
               </div>
             </form>
           } @else {
@@ -185,6 +190,9 @@
       </div>
     }
   </form>
+  @if (MAX_REVIEW_COMMENT_LENGTH / 2 < commentInput.value.textInput?.length) {
+    <span class="ml-2 text-sm">{{ MAX_REVIEW_COMMENT_LENGTH - commentInput.value.textInput?.length | plural: 'character' }} remaining</span>
+  }
 
   @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>

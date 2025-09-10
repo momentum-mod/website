@@ -120,6 +120,7 @@ export class MapReviewComponent {
       ]
     })
   });
+  protected readonly MAX_REVIEW_COMMENT_LENGTH = MAX_REVIEW_COMMENT_LENGTH;
 
   protected loadComments = new Subject<void>();
   protected loadingComments = false;
