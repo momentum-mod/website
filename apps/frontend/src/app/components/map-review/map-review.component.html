@@ -35,7 +35,7 @@
 
   @if (!editing) {
     <div class="flex flex-col gap-4">
-      <p class="whitespace-pre-wrap [word-wrap:anywhere]">{{ review.mainText }}</p>
+      <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ review.mainText }}</p>
       @if (suggestions?.size > 0) {
         <div class="grid grid-flow-row grid-cols-[auto_auto_auto_minmax(auto,1fr)] items-center gap-x-5">
           <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
@@ -45,14 +45,14 @@
 
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
             @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
-              <p class="text-sm text-gray-100 text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
+              <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.gameplayRating ?? '' }}</p>
               <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
             }
 
             @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-              <p class="text-sm text-gray-100 text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
+              <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
               <p class="justify-self-center font-medium">{{ bonus.tier ?? '' }}</p>
               <p class="justify-self-center font-medium">{{ bonus.gameplayRating ?? '' }}</p>
               <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
@@ -153,7 +153,7 @@
               </div>
             </form>
           } @else {
-            <p class="whitespace-pre-wrap">{{ comment.text }}</p>
+            <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ comment.text }}</p>
           }
         </div>
       }
