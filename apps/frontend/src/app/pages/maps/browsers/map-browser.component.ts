@@ -8,8 +8,12 @@ import {
   MapsGetAllQuery,
   MapSortType,
   MapSortTypeName,
+  MapTag,
+  mapTagEnglishName,
+  MapTags,
   MMap,
   PagedResponse,
+  TagQualifier,
   User
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
@@ -41,7 +45,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
+import { ChipsComponent } from '../../../components/chips/chips.component';
 import { IconComponent } from '../../../icons/icon.component';
+
+type TagAndQualifier = [MapTag, TagQualifier];
 
 @Component({
   templateUrl: 'map-browser.component.html',
@@ -50,6 +57,7 @@ import { IconComponent } from '../../../icons/icon.component';
     NStateButtonComponent,
     UserSelectComponent,
     DropdownComponent,
+    ChipsComponent,
     PaginatorModule,
     SliderComponent,
     ReactiveFormsModule,
@@ -99,9 +107,25 @@ export class MapBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (sortType: MapSortType): string =>
     MapSortTypeName.get(sortType) ?? '';
 
+  protected currentAllowedTAndQs = [];
+  protected readonly TagQualifier = TagQualifier;
+  protected readonly MapTagNameFn = (tagAndQualifier: TagAndQualifier) =>
+    mapTagEnglishName(tagAndQualifier[0]);
+  protected readonly MapTagIncludesFn = (
+    arr: Array<TagAndQualifier>,
+    tAndQ: TagAndQualifier
+  ) => arr.some((elem) => elem[0] === tAndQ[0]); // Don't check qualifier.
+
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     gamemode: new FormControl<Gamemode>(null),
+    tagsAndQualifiers: new FormControl<Array<TagAndQualifier>>(
+      {
+        value: [],
+        disabled: true
+      },
+      { nonNullable: true }
+    ),
     favorites: new FormControl<0 | 1 | 2>(0),
     pb: new FormControl<0 | 1 | 2>(0),
     tiers: new FormControl<[number, number]>({
@@ -122,15 +146,18 @@ export class MapBrowserComponent implements OnInit {
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
-    setupPersistentForm(this.filters, 'MAIN_MAPS_FILTERS', this.destroyRef);
-    // Tier slider starts disabled.
-    if (this.filters.value.gamemode) this.filters.controls.tiers.enable();
-
     this.gamemode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) =>
-        this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false })
-      );
+      .subscribe((value) => {
+        this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false });
+        this.tagsAndQualifiers[value != null ? 'enable' : 'disable']({
+          emitEvent: false
+        });
+        this.updateTagsAndQualifiers(value);
+      });
+
+    // This will trigger gamemode observable as well, enabling/disabling filters.
+    setupPersistentForm(this.filters, 'MAIN_MAPS_FILTERS', this.destroyRef);
 
     merge(
       of(this.initialItems),
@@ -138,7 +165,7 @@ export class MapBrowserComponent implements OnInit {
         filter(() => !this.loading),
         map(() => this.itemsPerLoad)
       ),
-      this.filters?.valueChanges.pipe(
+      this.filters.valueChanges.pipe(
         // Can't get this working, always previous value is always identical
         // to the current one.
         // Pretty rare that this operator is actually needed, leaving for now.
@@ -152,7 +179,7 @@ export class MapBrowserComponent implements OnInit {
       ) ?? EMPTY
     )
       .pipe(
-        filter(() => !this.filters || this.filters?.valid),
+        filter(() => this.filters.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
           const {
@@ -161,10 +188,11 @@ export class MapBrowserComponent implements OnInit {
             tiers,
             name,
             gamemode,
+            tagsAndQualifiers,
             credit,
             creditType,
             sortType
-          } = this.filters?.value ?? {};
+          } = this.filters.getRawValue();
 
           const options: MapsGetAllQuery = {
             skip: this.skip,
@@ -172,11 +200,18 @@ export class MapBrowserComponent implements OnInit {
             expand: ['info', 'credits', 'leaderboards', 'inFavorites']
           };
           if (name) options.search = name;
-          if (gamemode) options.gamemode = gamemode;
-          if (tiers) {
-            const [low, high] = tiers;
-            if (low > 1 && low <= 10) options.difficultyLow = low;
-            if (high > 1 && high < 10) options.difficultyHigh = high;
+          if (gamemode) {
+            options.gamemode = gamemode;
+            if (tiers) {
+              const [low, high] = tiers;
+              if (low > 1 && low <= 10) options.difficultyLow = low;
+              if (high > 1 && high < 10) options.difficultyHigh = high;
+            }
+            if (tagsAndQualifiers.length > 0) {
+              options.tagsWithQualifiers = tagsAndQualifiers.map(
+                (tAndQ) => tAndQ[0].toString() + ';' + tAndQ[1].toString()
+              );
+            }
           }
           if (favorites === 1) {
             options.favorite = true;
@@ -238,6 +273,7 @@ export class MapBrowserComponent implements OnInit {
     this.filters.reset({
       name: '',
       gamemode: null,
+      tagsAndQualifiers: [],
       favorites: 0,
       pb: 0,
       tiers: [1, 10],
@@ -253,5 +289,37 @@ export class MapBrowserComponent implements OnInit {
 
   get tiers() {
     return this.filters.get('tiers') as FormControl<[number, number]>;
+  }
+
+  get tagsAndQualifiers() {
+    return this.filters.get('tagsAndQualifiers') as FormControl<
+      Array<TagAndQualifier>
+    >;
+  }
+
+  updateTagsAndQualifiers(gamemode: Gamemode | 0 | undefined | null) {
+    this.currentAllowedTAndQs = (gamemode ? MapTags.get(gamemode) : []).map(
+      (tag: MapTag) => [
+        tag,
+        TagQualifier.INCLUDE // Default to include.
+      ]
+    );
+
+    this.tagsAndQualifiers.setValue(
+      this.tagsAndQualifiers
+        .getRawValue()
+        .filter((tAndQ) =>
+          this.MapTagIncludesFn(this.currentAllowedTAndQs, tAndQ)
+        )
+    );
+  }
+
+  toggleTagQualifier(index: number) {
+    const arr = this.tagsAndQualifiers.value;
+    arr[index][1] =
+      arr[index][1] === TagQualifier.INCLUDE
+        ? TagQualifier.EXCLUDE
+        : TagQualifier.INCLUDE;
+    this.tagsAndQualifiers.setValue(arr);
   }
 }

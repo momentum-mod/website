@@ -35,7 +35,7 @@
   >
     <m-icon icon="close-thick" class="size-6" />
   </button>
-  @for (chip of selected; track $index) {
+  @for (chip of selected; track $index; let sIndex = $index) {
     <div
       class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
     >
@@ -50,6 +50,7 @@
       >
         <m-icon icon="close-thick" class="size-4" />
       </button>
+      <ng-container [ngTemplateOutlet]="appendEachSelectedTemplate" [ngTemplateOutletContext]="{ index: sIndex }"></ng-container>
     </div>
   }
 </div>
