@@ -63,7 +63,7 @@
       <p><b>Version Submitted By - </b>{{ version.submitter ? version.submitter.alias : 'N/A' }}</p>
     </ng-template>
     @if (version.changelog) {
-      <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
+      <p class="mt-2 whitespace-pre-wrap text-sm [overflow-wrap:anywhere]">{{ version.changelog }}</p>
     }
     <p class="mb-4 mt-1 last:mb-0">
       <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
