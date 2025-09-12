@@ -24,7 +24,7 @@
     }
   </ul>
 
-  <div class="mt-5 grid grid-flow-row grid-cols-[auto_auto_auto_auto_minmax(auto,1fr)] items-center gap-x-5">
+  <div class="mt-5 grid grid-flow-row grid-cols-[auto_auto_auto_auto_auto] gap-x-4 gap-y-1">
     <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
     <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
     <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
@@ -63,7 +63,7 @@
       <p><b>Version Submitted By - </b>{{ version.submitter ? version.submitter.alias : 'N/A' }}</p>
     </ng-template>
     @if (version.changelog) {
-      <p class="mt-2 whitespace-pre-wrap text-sm">{{ version.changelog }}</p>
+      <p class="mt-2 whitespace-pre-wrap text-sm [word-wrap:anywhere]">{{ version.changelog }}</p>
     }
     <p class="mb-4 mt-1 last:mb-0">
       <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>

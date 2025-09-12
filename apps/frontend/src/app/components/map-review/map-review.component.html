@@ -45,14 +45,14 @@
 
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
             @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
-              <p class="text-sm text-gray-100 text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
+              <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.gameplayRating ?? '' }}</p>
               <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
             }
 
             @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-              <p class="text-sm text-gray-100 text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
+              <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
               <p class="justify-self-center font-medium">{{ bonus.tier ?? '' }}</p>
               <p class="justify-self-center font-medium">{{ bonus.gameplayRating ?? '' }}</p>
               <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
@@ -140,7 +140,12 @@
                 class="textinput my-1 grow resize-none overflow-hidden px-2 py-1"
                 dynamicTextareaHeight
               ></textarea>
-              <div class="ml-auto flex gap-1">
+              <div class="flex gap-1">
+                @if (MAX_REVIEW_COMMENT_LENGTH / 2 < editForm.value.textInput?.length) {
+                  <span class="ml-2 self-start text-sm"
+                    >{{ MAX_REVIEW_COMMENT_LENGTH - editForm.value.textInput?.length | plural: 'character' }} remaining</span
+                  >
+                }
                 <button
                   type="button"
                   class="btn btn-red btn-thin ml-auto"
@@ -149,11 +154,11 @@
                 >
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-green btn-thin ml-auto" [disabled]="commentInput.invalid">Update</button>
+                <button type="submit" class="btn btn-green btn-thin" [disabled]="editForm.invalid">Update</button>
               </div>
             </form>
           } @else {
-            <p class="whitespace-pre-wrap">{{ comment.text }}</p>
+            <p class="whitespace-pre-wrap [word-wrap:anywhere]">{{ comment.text }}</p>
           }
         </div>
       }
@@ -185,6 +190,9 @@
       </div>
     }
   </form>
+  @if (MAX_REVIEW_COMMENT_LENGTH / 2 < commentInput.value.textInput?.length) {
+    <span class="ml-2 text-sm">{{ MAX_REVIEW_COMMENT_LENGTH - commentInput.value.textInput?.length | plural: 'character' }} remaining</span>
+  }
 
   @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>

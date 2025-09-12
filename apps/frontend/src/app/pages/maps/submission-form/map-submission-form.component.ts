@@ -154,10 +154,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
         ]
       ],
       portingChangelog: [''],
-      creationDate: [
-        new Date(),
-        [Validators.required, Validators.max(Date.now())]
-      ],
+      creationDate: [null, [Validators.required, Validators.max(Date.now())]],
       submissionType: [null as MapSubmissionType, [Validators.required]],
       youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
       requiredGames: [[]]

@@ -19,6 +19,10 @@ and frontend, handling database and file storage, and providing much of Momentum
 Mod's core functionality, such as map uploads/downloads, run submission/viewing,
 and stats congregation/filtering.
 
+Additionally, the repository houses the _Momentum Man_ (internal) Discord bot
+used in the Momentum Mod Discord server, and in the future also an external
+Discord bot that other servers can use.
+
 # Architecture
 
 The vast majority of the codebase is written in
