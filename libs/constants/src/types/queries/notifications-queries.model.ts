@@ -1,7 +1,7 @@
 import { PagedQuery } from './pagination.model';
 
-export type NotificationsMarkAsReadQuery = {
-  notifIDs?: number[];
+export type NotificationsDeleteQuery = {
+  notificationIDs?: number[];
   all?: boolean;
 };
 

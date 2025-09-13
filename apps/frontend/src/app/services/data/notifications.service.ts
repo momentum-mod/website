@@ -5,7 +5,7 @@ import {
   PagedResponse,
   Notification,
   NotificationsGetQuery,
-  NotificationsMarkAsReadQuery
+  NotificationsDeleteQuery
 } from '@momentum/constants';
 
 @Injectable({ providedIn: 'root' })
@@ -20,7 +20,7 @@ export class NotificationsService {
     });
   }
 
-  markAsRead(query?: NotificationsMarkAsReadQuery): Observable<void> {
-    return this.http.delete('notifications/markAsRead', { query });
+  deleteNotifications(query?: NotificationsDeleteQuery): Observable<void> {
+    return this.http.delete('notifications', { query });
   }
 }

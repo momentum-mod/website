@@ -8,22 +8,22 @@ import { QueryDto } from './query.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   NotificationsGetQuery,
-  NotificationsMarkAsReadQuery
+  NotificationsDeleteQuery
 } from '@momentum/constants';
 
-export class NotificationsMarkAsReadQueryDto
+export class NotificationsDeleteQueryDto
   extends QueryDto
-  implements NotificationsMarkAsReadQuery
+  implements NotificationsDeleteQuery
 {
   @IntCsvQueryProperty({
-    description: 'List of notification IDs to mark as read',
+    description: 'List of notification IDs to delete',
     required: false
   })
-  notifIDs?: number[];
+  notificationIDs?: number[];
 
   @ApiProperty({
     description:
-      'If true, notifIDs is ignored and all notifications are marked as read instead'
+      'If true, notifIDs is ignored and all notifications are deleted instead'
   })
   @BooleanQueryProperty({ required: false })
   all?: boolean;
