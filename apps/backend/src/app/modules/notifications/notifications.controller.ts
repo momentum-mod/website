@@ -20,7 +20,7 @@ import {
   ApiOkPagedResponse,
   NotificationDto,
   NotificationsGetQueryDto,
-  NotificationsMarkAsReadQueryDto,
+  NotificationsDeleteQueryDto,
   PagedResponseDto
 } from '../../dto';
 
@@ -42,18 +42,18 @@ export class NotificationsController {
     return this.notifsService.getNotifications(userID, query);
   }
 
-  @Delete('/markAsRead')
-  @ApiOperation({ description: 'Marks the given notifications as read.' })
-  @ApiQuery({ type: NotificationsMarkAsReadQueryDto })
+  @Delete('/')
+  @ApiOperation({ description: 'Dismisses (deletes) the given notifications.' })
+  @ApiQuery({ type: NotificationsDeleteQueryDto })
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({
-    description: 'Notifications marked as read successfully'
+    description: 'Notifications deleted successfully'
   })
-  @ApiBadRequestResponse({ description: 'Invalid notifIDs' })
-  async markNotificationsAsRead(
+  @ApiBadRequestResponse({ description: 'Invalid notificationIDs' })
+  async deleteNotifications(
     @LoggedInUser('id') userID: number,
-    @Query() query: NotificationsMarkAsReadQueryDto
+    @Query() query: NotificationsDeleteQueryDto
   ): Promise<void> {
-    return this.notifsService.markAsRead(userID, query);
+    return this.notifsService.deleteNotifications(userID, query);
   }
 }

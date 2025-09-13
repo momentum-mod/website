@@ -100,7 +100,7 @@ describe('Notifications', () => {
       req.unauthorizedTest('notifications', 'get'));
   });
 
-  describe('notifications/markAsRead DELETE', () => {
+  describe('notifications/ DELETE', () => {
     it('should delete a list of notifications', async () => {
       const notifs = await prisma.notification.findMany({
         where: {
@@ -111,9 +111,9 @@ describe('Notifications', () => {
       const toDelete = [notifs[0].id, notifs[1].id];
 
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 204,
-        query: { notifIDs: toDelete.join(',') },
+        query: { notificationIDs: toDelete.join(',') },
         token: userToken
       });
 
@@ -148,9 +148,9 @@ describe('Notifications', () => {
       });
 
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 204,
-        query: { notifIDs: notif.id.toString() },
+        query: { notificationIDs: notif.id.toString() },
         token: userToken
       });
 
@@ -192,9 +192,9 @@ describe('Notifications', () => {
         }
       });
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 204,
-        query: { notifIDs: notif.id.toString() },
+        query: { notificationIDs: notif.id.toString() },
         token: userToken
       });
 
@@ -215,7 +215,7 @@ describe('Notifications', () => {
 
     it('should delete all non-testing request notifications', async () => {
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 204,
         query: { all: true },
         token: userToken
@@ -239,19 +239,19 @@ describe('Notifications', () => {
 
     it('should 400 if not given the correct query', async () => {
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 400,
-        query: { notifIDs: '2,119,bob,1137' },
+        query: { notificationIDs: '2,119,bob,1137' },
         token: userToken
       });
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 400,
-        query: { notifIDs: 'guh' },
+        query: { notificationIDs: 'guh' },
         token: userToken
       });
       await req.del({
-        url: 'notifications/markAsRead',
+        url: 'notifications',
         status: 400,
         query: { notTheRightQuery: '123,456' },
         token: userToken
@@ -259,6 +259,6 @@ describe('Notifications', () => {
     });
 
     it('should 401 when no access token is provided', () =>
-      req.unauthorizedTest('notifications/markAsRead', 'del'));
+      req.unauthorizedTest('notifications', 'del'));
   });
 });

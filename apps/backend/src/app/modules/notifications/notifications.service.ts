@@ -6,7 +6,7 @@ import {
 } from '../database/prisma.extension';
 import {
   NotificationDto,
-  NotificationsMarkAsReadQueryDto,
+  NotificationsDeleteQueryDto,
   PagedResponseDto,
   NotificationsGetQueryDto,
   AnnouncementNotificationDto,
@@ -29,9 +29,6 @@ export class NotificationsService {
     userID: number,
     query: NotificationsGetQueryDto
   ): Promise<PagedResponseDto<NotificationDto>> {
-    // Only a couple of these fields are on a notification at a time
-    // However, the include will only fetch those fields if they exist
-    // This is faster than explicitly checking
     const [data, count] = await this.db.notification.findManyAndCount({
       where: { notifiedUserID: userID },
       orderBy: { createdAt: 'desc' },
@@ -117,9 +114,9 @@ export class NotificationsService {
     };
   }
 
-  async markAsRead(
+  async deleteNotifications(
     userID: number,
-    query: NotificationsMarkAsReadQueryDto
+    query: NotificationsDeleteQueryDto
   ): Promise<void> {
     if (query.all) {
       await this.db.notification.deleteMany({
@@ -130,16 +127,18 @@ export class NotificationsService {
           type: { not: NotificationType.MAP_TESTING_INVITE }
         }
       });
-    } else {
-      if (!query.notifIDs)
-        throw new BadRequestException('notifIDs required if all is false');
+    } else if (query.notificationIDs) {
       await this.db.notification.deleteMany({
         where: {
-          id: { in: query.notifIDs },
+          id: { in: query.notificationIDs },
           notifiedUserID: userID,
           type: { not: NotificationType.MAP_TESTING_INVITE }
         }
       });
+    } else {
+      throw new BadRequestException(
+        'Either notificationIDs or all field must be present in request'
+      );
     }
   }
 

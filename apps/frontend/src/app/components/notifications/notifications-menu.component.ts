@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, output } from '@angular/core';
 import {
   Notification,
-  NotificationsMarkAsReadQuery,
+  NotificationsDeleteQuery,
   NotificationType
 } from '@momentum/constants';
 import { NotificationsService } from '../../services/data/notifications.service';
@@ -93,13 +93,13 @@ export class NotificationsMenuComponent implements OnInit {
   }
 
   updateNotifications(removeIndex?: number) {
-    const queryOptions: NotificationsMarkAsReadQuery =
+    const queryOptions: NotificationsDeleteQuery =
       removeIndex !== undefined
-        ? { notifIDs: [this.notifications[removeIndex].id] }
+        ? { notificationIDs: [this.notifications[removeIndex].id] }
         : { all: true };
 
     this.notificationsService
-      .markAsRead(queryOptions)
+      .deleteNotifications(queryOptions)
       .pipe(
         tap(() => (this.loading = true)),
         take(1)
