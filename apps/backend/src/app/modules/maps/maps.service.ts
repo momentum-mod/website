@@ -432,7 +432,10 @@ export class MapsService {
         ]
       });
 
-      if (query instanceof MapsGetAllSubmissionQueryDto) {
+      if (
+        query instanceof MapsGetAllSubmissionQueryDto ||
+        query instanceof MapsGetAllUserSubmissionQueryDto
+      ) {
         if (include) {
           include.submission = {
             include: {
