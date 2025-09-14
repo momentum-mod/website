@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
+import pino from 'pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -57,6 +58,9 @@ import { pick } from '@momentum/util-fn';
                   // TODO: This is a hacky impl fromhttps://github.com/getsentry/sentry-javascript/issues/15952
                   // Official integration for Pino is on the way, using til then.
                   write: async (log) => {
+                    // Write to default pino output too (STDOUT)
+                    pino.destination(1).write(log);
+
                     const cleanedLog = log
                       .replace(/\\n/g, ' ')
                       .replace(/\s+/g, ' ')
