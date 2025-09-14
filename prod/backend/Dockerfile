@@ -1,8 +1,9 @@
-FROM node:lts
+FROM node:lts-alpine
 
 WORKDIR /app
 
-RUN useradd --system --user-group --create-home backend
+RUN apk add curl
+RUN addgroup -S backend && adduser -S backend -G backend
 
 COPY ./dist/apps/backend .
 COPY ./libs/db/src/schema.prisma ./prisma/
