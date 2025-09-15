@@ -24,9 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MapStatusChangeNotificationComponent,
     MapTestingInviteNotificationComponent,
     MapReviewPostedNotificationComponent,
-    MapReviewCommentPostedNotificationComponent,
-    IconComponent,
-    TooltipDirective
+    MapReviewCommentPostedNotificationComponent
   ],
   templateUrl: 'notifications-menu.component.html',
   styles: `
