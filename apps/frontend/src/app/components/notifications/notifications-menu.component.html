@@ -4,16 +4,9 @@
   <div class="flex flex-col">
     <div class="flex flex-row items-center p-2">
       <p class="p-0 text-24">Notifications</p>
-      <div class="ml-auto flex flex-row items-center gap-2">
-        <button type="button" class="btn py-1" [disabled]="loading || notifications.length === 0" (click)="clearNotifications()">
-          Clear All
-        </button>
-        <m-icon
-          icon="tooltip-question-outline"
-          mTooltip="Not all notifications can be bulk-cleared. For example, you need to explicitly Accept or Reject a private map testing invitation."
-          tooltipPosition="right"
-        />
-      </div>
+      <button type="button" class="btn ml-auto py-1" [disabled]="loading || notifications.length === 0" (click)="clearNotifications()">
+        Clear All
+      </button>
     </div>
 
     <div class="overflow-auto">
