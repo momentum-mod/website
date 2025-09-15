@@ -40,11 +40,7 @@ export type MapsGetAllExpand = Array<
 >;
 
 export type MapsGetAllSubmissionExpand = Array<
-  | BaseMapsGetAllExpand
-  | 'inFavorites'
-  | 'personalBest'
-  | 'worldRecord'
-  | 'reviews'
+  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
 >;
 
 type MapsGetAllBaseQuery = {

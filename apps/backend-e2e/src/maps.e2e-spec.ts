@@ -2054,14 +2054,6 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the reviews expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}`,
-          validate: MapDto,
-          expand: 'reviews',
-          token: u1Token
-        }));
-
       it('should respond with expanded map data using the versions expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
