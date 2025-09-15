@@ -2263,7 +2263,7 @@ describe('Maps Part 2', () => {
           });
 
           const reviewDesctiption = 'Please add conc';
-          req.postAttach({
+          void req.postAttach({
             url: `maps/${pubTestMap.id}/reviews`,
             status: 201,
             data: {
