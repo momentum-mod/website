@@ -51,7 +51,7 @@ export class MapReviewListComponent implements OnChanges {
   public readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
   protected loading = false;
-  protected rows = 5;
+  protected rows = 10;
   protected totalRecords = 0;
   protected first = 0;
 
