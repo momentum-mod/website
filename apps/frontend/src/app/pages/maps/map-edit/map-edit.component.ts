@@ -257,7 +257,6 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
               'info',
               'credits',
               'leaderboards',
-              'reviews',
               'testInvites'
             ]
           })
