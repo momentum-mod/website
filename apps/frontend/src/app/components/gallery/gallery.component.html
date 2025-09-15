@@ -48,8 +48,8 @@
           <!-- Needed for hover effect -->
           <button
             type="button"
-            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded shadow-lg outline-none"
-            [ngClass]="{ 'border-2': i === selectedItemIndex }"
+            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded border-2 border-white border-opacity-0 shadow-lg transition-colors"
+            [ngClass]="{ 'border-opacity-80': i === selectedItemIndex }"
             (click)="selectItem(i)"
           >
             <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />
