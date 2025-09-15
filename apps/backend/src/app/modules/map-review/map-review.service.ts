@@ -112,12 +112,9 @@ export class MapReviewService {
 
     // Filter by official/unofficial if exists on query
     const filteredResponse = hasRoleFiltering
-      ? dbResponse.filter((x) => {
-          const hasOfficialRole = [
-            Role.ADMIN,
-            Role.MODERATOR,
-            Role.REVIEWER
-          ].includes(x.reviewer.roles);
+      ? dbResponse.filter(({ reviewer }) => {
+          const hasOfficialRole =
+            reviewer.roles & (Role.ADMIN | Role.MODERATOR | Role.REVIEWER);
           return query.official ? hasOfficialRole : !hasOfficialRole;
         })
       : dbResponse;
