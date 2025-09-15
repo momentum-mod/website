@@ -243,7 +243,7 @@ describe('Map Reviews', () => {
           token: u1Token
         }));
 
-      it('should 403 if not the reviewer', async () =>
+      it('should 403 if not the reviewer', () =>
         req.patch({
           url: `map-review/${review1.id}`,
           status: 403,
@@ -251,7 +251,7 @@ describe('Map Reviews', () => {
           token: u2Token
         }));
 
-      it('should allow official reviewer to resolve their review', async () =>
+      it('should allow official reviewer to resolve their review', () =>
         req.patch({
           url: `map-review/${review2.id}`,
           status: 200,
@@ -259,7 +259,7 @@ describe('Map Reviews', () => {
           token: u2Token
         }));
 
-      it('should not allow unofficial reviewer to resolve their review', async () =>
+      it('should allow unofficial reviewer to resolve their review', () =>
         req.patch({
           url: `map-review/${review1.id}`,
           status: 200,
@@ -267,7 +267,7 @@ describe('Map Reviews', () => {
           token: u1Token
         }));
 
-      it('should allow official reviewer to mark their review as approves', async () =>
+      it('should allow official reviewer to mark their review as approves', () =>
         req.patch({
           url: `map-review/${review2.id}`,
           status: 200,
@@ -275,7 +275,7 @@ describe('Map Reviews', () => {
           token: u2Token
         }));
 
-      it('should not allow unofficial reviewer mark their review as approves', async () =>
+      it('should not allow unofficial reviewer mark their review as approved', () =>
         req.patch({
           url: `map-review/${review1.id}`,
           status: 403,
