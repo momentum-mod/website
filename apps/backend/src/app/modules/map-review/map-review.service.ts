@@ -245,22 +245,21 @@ export class MapReviewService {
       file
     ]);
 
-    const newData: JsonObject = {
+    // Ignore suggestions that had neither tier, gameplay rating nor tag,
+    // since frontend/DTO may allow it but this is meaningless data.
+    const suggestions = body.suggestions?.filter(
+      ({ tier, gameplayRating, tags }) =>
+        tier != null || gameplayRating != null || tags != null
+    );
+
+    const newData = {
       mainText: body.mainText,
+      suggestions: suggestions as unknown as JsonArray,
       // If it needs resolving, set `resolved` to `false`. Otherwise it'll
       // be null, and it doesn't need resolving.
-      resolved: body.needsResolving ? false : null
-    };
-
-    if (body.suggestions) {
-      // Ignore that suggestions that had neither tier, gameplay rating nor tag,
-      // since may allow it but this is meaningless data.
-      newData.suggestions = body.suggestions.filter(
-        ({ tier, gameplayRating, tags }) =>
-          tier != null || gameplayRating != null || tags != null
-      ) as unknown as JsonArray; // TODO: #855
-    }
-    approves: body.approves ?? false;
+      resolved: body.needsResolving ? false : null,
+      approves: body.approves ?? false
+    } satisfies JsonObject;
 
     const [dbResponse] = await parallel(
       this.db.$transaction(async (tx) => {
