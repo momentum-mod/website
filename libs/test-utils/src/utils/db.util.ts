@@ -194,6 +194,7 @@ export class DbUtil {
               ]
             }
           },
+          reviewStats: { create: {} },
           submitter: this.getNewUserCreateData(),
           // Just creating the one leaderboard here, most maps will have more,
           // but isn't needed or worth the test perf hit

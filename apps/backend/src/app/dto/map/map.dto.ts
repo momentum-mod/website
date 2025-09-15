@@ -45,6 +45,7 @@ import { MapZonesDto } from './map-zones.dto';
 import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
 import { MapVersionDto } from './map-version.dto';
+import { MapReviewStatsDto } from './map-review-stats.dto';
 
 export class MapDto implements MMap {
   @IdProperty()
@@ -132,6 +133,9 @@ export class MapDto implements MMap {
 
   @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
   readonly testInvites?: MapTestInviteDto[];
+
+  @NestedProperty(MapReviewStatsDto)
+  readonly reviewStats?: MapReviewStatsDto;
 
   @CreatedAtProperty()
   readonly createdAt: DateString;
