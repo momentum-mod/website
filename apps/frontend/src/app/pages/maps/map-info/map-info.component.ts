@@ -141,6 +141,7 @@ export class MapInfoComponent implements OnInit {
               'inFavorites',
               'submission',
               'versions',
+              'reviewStats',
               // Map review system needs zones to work, so we have to fetch
               // zones. This is very annoying; we'd really rather avoid
               // having to fetch so much data. However, we don't know whether
