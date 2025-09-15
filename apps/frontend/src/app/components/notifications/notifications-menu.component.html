@@ -1,8 +1,8 @@
 @if (notifications.length === 0) {
   <p class="mx-auto"><i>No notifications</i></p>
 } @else {
-  <div class="flex flex-col">
-    <div class="flex flex-row items-center p-2">
+  <div class="flex min-w-full flex-col">
+    <div class="flex flex-row items-center py-2 pl-2">
       <p class="p-0 text-24">Notifications</p>
       <button type="button" class="btn ml-auto py-1" [disabled]="loading || notifications.length === 0" (click)="clearNotifications()">
         Clear All
