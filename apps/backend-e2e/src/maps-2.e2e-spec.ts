@@ -36,7 +36,8 @@ import {
   MAX_CREDITS_EXCEPT_TESTERS,
   NotificationType,
   Role,
-  TrackType
+  TrackType,
+  MapSubmissionType
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1934,26 +1935,32 @@ describe('Maps Part 2', () => {
             db.loginNewUser({ data: { roles: Role.REVIEWER } }),
             db.createUser()
           ]);
+      });
 
+      beforeEach(async () => {
         pubTestMap = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
-          submitter: { connect: { id: miscUser.id } }
+          submission: { create: { type: MapSubmissionType.ORIGINAL } },
+          submitter: { connect: { id: miscUser.id } },
+          reviewStats: { create: {} }
         });
 
         approvedMap = await db.createMap({
           status: MapStatus.APPROVED,
-          submitter: { connect: { id: miscUser.id } }
+          submitter: { connect: { id: miscUser.id } },
+          reviewStats: { create: {} }
         });
 
         privTestMap = await db.createMap({
           status: MapStatus.PRIVATE_TESTING,
-          submitter: { connect: { id: miscUser.id } }
+          submitter: { connect: { id: miscUser.id } },
+          reviewStats: { create: {} }
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
+      afterAll(() => db.cleanup('user'));
 
-      afterEach(() => db.cleanup('mapReview', 'notification'));
+      afterEach(() => db.cleanup('mMap', 'notification'));
 
       it('should successfully create a review', async () => {
         const imageBuffer = readFileSync(
@@ -2125,6 +2132,71 @@ describe('Maps Part 2', () => {
           validate: MapReviewDto,
           token: reviewerToken
         }));
+
+      it('should not allow a regular user to set approves', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 403,
+          data: { mainText: 'Please add gronc', approves: true },
+          token: normalToken
+        }));
+
+      it('should allow a reviewer user to set approves', async () =>
+        req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'Please add gronc', approves: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        }));
+
+      it('should update stats', async () => {
+        const before = await prisma.mapReviewStats.findUnique({
+          where: { mapID: pubTestMap.id }
+        });
+        expect(before).toMatchObject({
+          total: 0,
+          approvals: 0,
+          resolved: 0,
+          unresolved: 0
+        });
+
+        await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'Please add dogs', approves: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        const after1 = await prisma.mapReviewStats.findUnique({
+          where: { mapID: pubTestMap.id }
+        });
+        expect(after1).toMatchObject({
+          total: 1,
+          approvals: 1,
+          resolved: 0,
+          unresolved: 0
+        });
+
+        await req.postAttach({
+          url: `maps/${pubTestMap.id}/reviews`,
+          status: 201,
+          data: { mainText: 'remove the dogs idiot', needsResolving: true },
+          validate: MapReviewDto,
+          token: reviewerToken
+        });
+
+        const after2 = await prisma.mapReviewStats.findUnique({
+          where: { mapID: pubTestMap.id }
+        });
+        expect(after2).toMatchObject({
+          total: 2,
+          approvals: 1,
+          resolved: 0,
+          unresolved: 1
+        });
+      });
 
       it('should 400 if image is too large', async () =>
         req.postAttach({

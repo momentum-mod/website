@@ -221,11 +221,12 @@ model MMap {
   reviews         MapReview[]
   submission      MapSubmission?
   testInvites     MapTestInvite[]
+  reviewStats     MapReviewStats?
 
   notifsAbout Notification[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   // This table is quite small but queried very frequently, so makes sense to index quite a few things.
   // @unique on name provides an index.
@@ -377,6 +378,8 @@ model MapReview {
   resolver   User?    @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
   resolverID Int?
 
+  approves Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -402,6 +405,17 @@ model MapReviewComment {
   notifsAbout Notification[]
 
   @@index([reviewID, createdAt])
+}
+
+// I'd really like to use a view for this but Prisma support is too limited.
+model MapReviewStats {
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int  @id
+
+  total      Int @default(0)
+  approvals  Int @default(0)
+  resolved   Int @default(0)
+  unresolved Int @default(0)
 }
 
 /// This table stores what a tracks on a map a run can be submitted to, in what

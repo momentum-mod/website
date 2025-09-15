@@ -1068,7 +1068,8 @@ describe('Maps', () => {
                 include: {
                   dates: { orderBy: { date: 'asc' }, include: { user: true } }
                 }
-              }
+              },
+              reviewStats: true
             }
           });
         });
@@ -1128,7 +1129,8 @@ describe('Maps', () => {
                 type: MapCreditType.AUTHOR,
                 description: 'Walrus'
               }
-            ]
+            ],
+            reviewStats: {}
           });
 
           expect(
@@ -3013,8 +3015,8 @@ describe('Maps', () => {
         u2Token: string,
         adminToken: string,
         mod: User,
-        modToken: string,
-        createMapData: Partial<Prisma.MMapCreateInput>;
+        modToken: string;
+      let createMapData = undefined satisfies Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
         [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
@@ -3067,7 +3069,13 @@ describe('Maps', () => {
               submitter: { connect: { id: user.id } }
             }
           },
-          leaderboards: { createMany: { data: [] } }
+          leaderboards: { createMany: { data: [] } },
+          reviews: {
+            createMany: {
+              // Create approving review by default so can enter FA
+              data: [{ mainText: 'good', approves: true, reviewerID: u2.id }]
+            }
+          }
         };
       });
 
@@ -3470,6 +3478,142 @@ describe('Maps', () => {
           status: 204,
           body: { status: MapStatus.FINAL_APPROVAL },
           token: modToken
+        });
+      });
+
+      it('should allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has a resolved review', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PUBLIC_TESTING,
+          submission: {
+            create: {
+              dates: {
+                create: [
+                  {
+                    status: MapStatus.PUBLIC_TESTING,
+                    date: new Date(
+                      Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
+                    ),
+                    user: { connect: { id: user.id } }
+                  }
+                ]
+              },
+              type: MapSubmissionType.PORT,
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 10,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  type: LeaderboardType.RANKED
+                }
+              ]
+            }
+          }
+        });
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'help me',
+            resolved: true
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it('should allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has a neutral review', async () => {
+        const data = structuredClone(createMapData);
+
+        data.submission.create.dates.create.push({
+          status: MapStatus.PUBLIC_TESTING,
+          date: new Date(Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)),
+          user: { connect: { id: user.id } }
+        });
+
+        const map = await db.createMap({
+          ...data,
+          status: MapStatus.PUBLIC_TESTING
+        });
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'where am i',
+            resolved: null
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it('should not allow changing from PUBLIC_TESTING to FINAL_APPROVAL if it has unresolved reviews', async () => {
+        const data = structuredClone(createMapData);
+        data.submission.create.dates.create.push({
+          status: MapStatus.PUBLIC_TESTING,
+          date: new Date(Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)),
+          user: { connect: { id: user.id } }
+        });
+
+        const map = await db.createMap({
+          ...data,
+          status: MapStatus.PUBLIC_TESTING
+        });
+
+        await prisma.mapReview.create({
+          data: {
+            mapID: map.id,
+            reviewerID: mod.id,
+            mainText: 'theres a bomb in my car',
+            resolved: false
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
+        });
+      });
+
+      it("should not allow changing from PUBLIC_TESTING to FINAL_APPROVAL if map doesn't have at least one approving review", async () => {
+        const data = structuredClone(createMapData);
+        data.status = MapStatus.PUBLIC_TESTING;
+        data.reviews = { createMany: { data: [] } };
+        data.submission.create.dates.create.push({
+          status: MapStatus.PUBLIC_TESTING,
+          date: new Date(Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)),
+          user: { connect: { id: user.id } }
+        });
+
+        const map = await db.createMap(data);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token
         });
       });
 

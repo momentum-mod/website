@@ -1304,7 +1304,18 @@ describe('Admin', () => {
                     submitterID: u1.id
                   }
                 },
-                status: s1
+                status: s1,
+                reviews: {
+                  createMany: {
+                    data: [
+                      {
+                        mainText: 'h',
+                        approves: true,
+                        reviewerID: admin.id
+                      }
+                    ]
+                  }
+                }
               });
 
               await prisma.mMap.update({
@@ -2397,6 +2408,14 @@ describe('Admin', () => {
 
         expect(res.body.resolved).toBe(true);
       });
+
+      it('should not allow admin to update approved status', () =>
+        req.patch({
+          url: `admin/map-review/${review.id}`,
+          status: 400, // 400s since does even exist on dto
+          body: { approves: true },
+          token: adminToken
+        }));
 
       it('should not allow review author to access', () =>
         req.patch({

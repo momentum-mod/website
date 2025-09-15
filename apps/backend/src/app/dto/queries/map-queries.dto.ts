@@ -241,7 +241,8 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'personalBest',
     'worldRecord',
     'submission',
-    'testInvites'
+    'testInvites',
+    'reviewStats'
   ])
   readonly expand?: MapsGetExpand;
 }
