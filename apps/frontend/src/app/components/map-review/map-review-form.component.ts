@@ -69,6 +69,7 @@ export class MapReviewFormComponent {
         ]
       }),
       needsResolving: new FormControl<boolean>(false),
+      approves: new FormControl<boolean>(false),
       suggestions: new FormControl<MapReviewSuggestion[]>(null, {
         validators: [
           // FormGroup is constructed at component class ctor but map is undefined
@@ -98,6 +99,20 @@ export class MapReviewFormComponent {
         : { noChanges: true }
   );
 
+  constructor() {
+    this.approves.valueChanges.subscribe((value) => {
+      if (value && this.needsResolving.value === true) {
+        this.needsResolving.setValue(false);
+      }
+    });
+
+    this.needsResolving.valueChanges.subscribe((value) => {
+      if (value && this.approves.value === true) {
+        this.approves.setValue(false);
+      }
+    });
+  }
+
   get mainText() {
     return this.form.get('mainText') as FormControl<string>;
   }
@@ -108,6 +123,10 @@ export class MapReviewFormComponent {
 
   get needsResolving() {
     return this.form.get('needsResolving') as FormControl<boolean>;
+  }
+
+  get approves() {
+    return this.form.get('approves') as FormControl<boolean>;
   }
 
   get images() {
@@ -134,14 +153,14 @@ export class MapReviewFormComponent {
     const req = this.editing
       ? this.mapsService.updateMapReview(this.reviewID, {
           mainText: this.mainText.value,
-          suggestions,
-          needsResolving: this.needsResolving.value
+          suggestions
         })
       : this.mapsService.postMapReview(this.map.id, {
           data: {
             mainText: this.mainText.value,
             suggestions,
-            needsResolving: this.needsResolving.value
+            needsResolving: this.needsResolving.value,
+            approves: this.approves.value ?? false
           },
           images: this.images.value
         });

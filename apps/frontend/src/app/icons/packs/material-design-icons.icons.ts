@@ -85,6 +85,7 @@ export {
   mdiCalendar,
   mdiEmailAlert,
   mdiShieldStar,
+  mdiShieldCheck,
   mdiEye,
   mdiEyeClosed,
   mdiEyeOff,
@@ -92,5 +93,6 @@ export {
   mdiHeart,
   mdiHeartOutline,
   mdiHeartBroken,
-  mdiFullscreen
+  mdiFullscreen,
+  mdiCheckDecagram
 } from '@mdi/js';

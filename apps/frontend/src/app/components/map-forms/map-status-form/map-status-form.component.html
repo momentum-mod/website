@@ -17,7 +17,7 @@
         }
         @case (MapStatus.PUBLIC_TESTING) {
           The map is publicly available for testing in-game. All players can play it and leave reviews. It must be in this state for at
-          least one week.
+          least one week, and have an approving review to progress.
         }
         @case (MapStatus.FINAL_APPROVAL) {
           The map is waiting to be approved by a moderator, who will decide the final tier and available leaderboards, after which the map
@@ -68,12 +68,18 @@
         </p>
       }
 
-      @if (status === MapStatus.PUBLIC_TESTING && (this.isBlockedForUnresolvedReviews || this.isBlockedForSubmissionTimeGate)) {
-        <div class="my-4 text-red-500">
+      @if (
+        status === MapStatus.PUBLIC_TESTING &&
+        (this.isBlockedForUnresolvedReviews || this.isBlockedForSubmissionTimeGate || this.isBlockedForNoApprovingReview)
+      ) {
+        <div class="my-4 text-red-400">
           <p>This map cannot leave testing because:</p>
 
           @if (this.isBlockedForUnresolvedReviews) {
-            <p class="ml-4 mt-0 font-medium">it has unresolved reviews!</p>
+            <p class="ml-4 mt-0 font-medium">it has unresolved reviews.</p>
+          }
+          @if (this.isBlockedForNoApprovingReview) {
+            <p class="ml-4 mt-0 font-medium">it does not have any approving reviews from an official reviewer.</p>
           }
           @if (this.isBlockedForSubmissionTimeGate) {
             <p class="ml-4 mt-0 font-medium">
