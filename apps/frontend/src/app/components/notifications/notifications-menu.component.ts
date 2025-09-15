@@ -4,8 +4,6 @@ import {
   NotificationsMarkAsReadQuery,
   NotificationType
 } from '@momentum/constants';
-import { IconComponent } from '../../icons';
-import { TooltipDirective } from '../../directives/tooltip.directive';
 import { NotificationsService } from '../../services/data/notifications.service';
 import { merge, Subject, switchMap, take, tap } from 'rxjs';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
