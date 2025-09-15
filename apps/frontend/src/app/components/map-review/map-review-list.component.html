@@ -2,15 +2,22 @@
   @if (!isSubmitter) {
     <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
   }
-  <p-select
-    class="self-end"
-    [(ngModel)]="filter"
-    [options]="Filters"
-    optionLabel="label"
-    optionValue="type"
-    (onChange)="load.next()"
-    appendTo="body"
-  />
+  <div class="flex items-center gap-4">
+    <p class="ml-2 grow font-bold italic">
+      <span>{{ map.reviewStats.total }} Reviews</span> - <span class="text-green-300">{{ map.reviewStats.approvals }} Approving</span>,
+      <span class="text-blue-300">{{ map.reviewStats.resolved }} Resolved</span>,
+      <span class="text-red-300">{{ map.reviewStats.unresolved }} Unresolved</span>
+    </p>
+    <p-select
+      class="self-end"
+      [(ngModel)]="filter"
+      [options]="Filters"
+      optionLabel="label"
+      optionValue="type"
+      (onChange)="load.next()"
+      appendTo="body"
+    />
+  </div>
   <div [mSpinner]="loading" class="flex flex-col gap-4">
     @for (review of reviews; track $index) {
       <m-map-review [review]="review" [map]="map" (updatedOrDeleted)="load.next()" />

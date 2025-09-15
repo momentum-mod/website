@@ -219,9 +219,9 @@ model MMap {
   favorites       MapFavorite[]
   notifies        MapNotify[]
   reviews         MapReview[]
+  reviewStats     MapReviewStats?
   submission      MapSubmission?
   testInvites     MapTestInvite[]
-  reviewStats     MapReviewStats?
 
   notifsAbout Notification[]
 
