@@ -24,7 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
         has invited you to playtest
         <span class="font-medium">{{ notification().map.name }}</span>
       </p>
-      <div class="flex gap-2 pt-3">
+      <div class="flex gap-2">
         <button
           type="button"
           class="py-1 btn btn-green"
