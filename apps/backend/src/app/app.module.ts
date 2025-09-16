@@ -24,6 +24,7 @@ import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { pick } from '@momentum/util-fn';
+import { ValkeyModule } from './modules/valkey/valkey.module';
 import { ClusterModule } from './modules/cluster/cluster.module';
 
 @Module({
@@ -135,6 +136,7 @@ import { ClusterModule } from './modules/cluster/cluster.module';
     ClusterModule,
     ScheduleModule.forRoot(),
     DbModule,
+    ValkeyModule,
     AuthModule,
     ActivitiesModule,
     AdminModule,

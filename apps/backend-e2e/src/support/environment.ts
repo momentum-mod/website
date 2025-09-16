@@ -20,6 +20,7 @@ import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@momentum/db';
+import Valkey from 'iovalkey';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
@@ -28,6 +29,7 @@ export interface E2EUtils {
   app: NestFastifyApplication;
   server: Server;
   prisma: PrismaClient;
+  valkey: Valkey;
   req: RequestUtil;
   db: DbUtil;
   auth: AuthUtil;
@@ -81,11 +83,13 @@ export async function setupE2ETestEnvironment(
   // Uncomment to output Prisma's raw queries
   // const prisma = new PrismaClient({ log: [{ level: 'query', emit: 'stdout' }] });
   const prisma = new PrismaClient();
+  const valkey = new Valkey({ port: configService.getOrThrow('valkey.port') });
   const auth = new AuthUtil();
   return {
     app,
     server,
     prisma,
+    valkey,
     auth,
     db: new DbUtil(prisma, auth),
     req: new RequestUtil(app),

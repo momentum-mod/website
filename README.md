@@ -37,7 +37,8 @@ The backend runs on [NodeJS](https://nodejs.org/), with
 - [NestJS](https://nestjs.com/): handling architecture and routing,
 - [Fastify](https://www.fastify.io/): the underlying HTTP server,
 - [Prisma](https://www.prisma.io/): an ORM,
-- [Postgres](https://www.postgresql.org/): the underlying database
+- [Postgres](https://www.postgresql.org/): the main SQL database
+- [Valkey](https://valkey.io/): in-memory database
 
 This repo is a monorepo, using [Nx](https://nx.dev) for organization and
 tooling. Application code (such as frontend/backend) lives in respective

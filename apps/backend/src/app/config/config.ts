@@ -61,6 +61,9 @@ export const ConfigFactory = (): ConfigInterface => {
       accessKeyID: process.env['STORAGE_ACCESS_KEY_ID'] || '',
       secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] || ''
     },
+    valkey: {
+      port: +process.env['VALKEY_PORT'] || 6379
+    },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
       mapImageUploads: MAX_MAP_IMAGES,

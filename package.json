@@ -60,6 +60,7 @@
     "fast-vdf": "2.0.5",
     "fast-xml-parser": "4.5.1",
     "flag-icons": "7.3.2",
+    "iovalkey": "0.3.3",
     "lodash": "4.17.21",
     "nestjs-pino": "4.3.0",
     "ngx-cookie-service": "19.0.0",
