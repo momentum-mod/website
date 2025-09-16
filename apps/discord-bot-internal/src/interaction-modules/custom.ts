@@ -27,6 +27,46 @@ import {
   replyDescriptionEmbed
 } from '../utils';
 
+function buildCustomCommandResponse(command: CustomCommand) {
+  if (!command.title && !command.description) {
+    command.title = '<title here!>';
+  }
+
+  const embed = new EmbedBuilder()
+    .setTitle(command.title)
+    .setDescription(command.description)
+    .setColor(MomentumColor.Blue);
+
+  if (command.thumbnail_url) {
+    embed.setThumbnail(command.thumbnail_url);
+    if (embed.data.thumbnail) {
+      embed.data.thumbnail.height = 90;
+      embed.data.thumbnail.width = 160;
+    }
+  }
+
+  if (command.image_url) {
+    embed.setImage(command.image_url);
+  }
+
+  const components = [];
+  const row = new ActionRowBuilder<ButtonBuilder>();
+
+  if (command.button_url) {
+    const button = new ButtonBuilder()
+      .setLabel(command.button_label ?? 'Link')
+      .setStyle(ButtonStyle.Link)
+      .setURL(command.button_url);
+
+    if ((button.data as LinkButtonComponentData).url) {
+      row.addComponents(button);
+      components.push(row);
+    }
+  }
+
+  return { embed, components };
+}
+
 export class CustomModule implements InteractionModule {
   userFilter = isModeratorOrHigher;
   readonly ModalTitleMaxLength = 45;
@@ -656,41 +696,7 @@ export class SayModule implements InteractionModule {
     }
 
     const command = config.custom_commands[commandName];
-    if (!command.title && !command.description) {
-      command.title = '<title here!>';
-    }
-
-    const embed = new EmbedBuilder()
-      .setTitle(command.title)
-      .setDescription(command.description)
-      .setColor(MomentumColor.Blue);
-
-    if (command.thumbnail_url) {
-      embed.setThumbnail(command.thumbnail_url);
-      if (embed.data.thumbnail) {
-        embed.data.thumbnail.height = 90;
-        embed.data.thumbnail.width = 160;
-      }
-    }
-
-    if (command.image_url) {
-      embed.setImage(command.image_url);
-    }
-
-    const components = [];
-    const row = new ActionRowBuilder<ButtonBuilder>();
-
-    if (command.button_url) {
-      const button = new ButtonBuilder()
-        .setLabel(command.button_label ?? 'Link')
-        .setStyle(ButtonStyle.Link)
-        .setURL(command.button_url);
-
-      if ((button.data as LinkButtonComponentData).url) {
-        row.addComponents(button);
-        components.push(row);
-      }
-    }
+    const { embed, components } = buildCustomCommandResponse(command);
 
     const replyMessageId = interaction.options.getString('reply');
     if (replyMessageId) {
