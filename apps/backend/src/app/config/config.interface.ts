@@ -38,6 +38,9 @@ export interface ConfigInterface {
     accessKeyID: string;
     secretAccessKey: string;
   };
+  valkey: {
+    port: number;
+  };
   limits: {
     dailyReports: number;
     mapImageUploads: number;

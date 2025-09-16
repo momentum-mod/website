@@ -10,7 +10,7 @@ import {
   validateSync
 } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { IsOptionalWithEmptyString } from '../validators';
+import { IsNumberString, IsOptionalWithEmptyString } from '../validators';
 import { Environment } from './config.interface';
 import * as pino from 'pino';
 
@@ -86,6 +86,9 @@ export class ConfigValidation {
   @IsString()
   @Length(32, 32)
   readonly SESSION_SECRET?: string;
+
+  @IsNumberString()
+  readonly VALKEY_PORT: string;
 
   @IsString()
   @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
