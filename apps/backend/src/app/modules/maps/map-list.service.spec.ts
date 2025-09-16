@@ -12,16 +12,24 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { promisify } from 'node:util';
 import * as zlib from 'node:zlib';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ValkeyService } from '../valkey/valkey.service';
 
 describe('MapListService', () => {
   describe('onModuleInit', () => {
     let service: MapListService, db: PrismaMock, module: TestingModule;
+
     const fileStoreMock = {
       listFileKeys: jest.fn(() => Promise.resolve([])),
       storeFile: jest.fn(),
       deleteFiles: jest.fn(),
       deleteFile: jest.fn()
     };
+
+    const valkeyMock = {
+      set: jest.fn(),
+      incr: () => {}
+    };
+
     const configMock = {
       get: () => '* * * * *'
     };
@@ -33,7 +41,8 @@ describe('MapListService', () => {
           MapListService,
           PRISMA_MOCK_PROVIDER,
           { provide: FileStoreService, useValue: fileStoreMock },
-          { provide: ConfigService, useValue: configMock }
+          { provide: ConfigService, useValue: configMock },
+          { provide: ValkeyService, useValue: valkeyMock }
         ]
       })
         .useMocker(mockDeep)
@@ -44,6 +53,7 @@ describe('MapListService', () => {
     });
 
     afterEach(async () => {
+      jest.clearAllMocks();
       await module.close();
     });
 
@@ -58,10 +68,12 @@ describe('MapListService', () => {
 
         await service.onModuleInit();
 
-        expect(service['version']).toMatchObject({
-          [FlatMapList.APPROVED]: 1,
-          [FlatMapList.SUBMISSION]: 15012024
-        });
+        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
+        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 1);
+        expect(valkeyMock.set).toHaveBeenCalledWith(
+          'maplistver:submission',
+          15012024
+        );
 
         expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
       });
@@ -69,10 +81,9 @@ describe('MapListService', () => {
       it('should set version to 0 when no versions exist in storage', async () => {
         await service.onModuleInit();
 
-        expect(service['version']).toMatchObject({
-          [FlatMapList.APPROVED]: 0,
-          [FlatMapList.SUBMISSION]: 0
-        });
+        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
+        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 0);
+        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:submission', 0);
 
         expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
       });
@@ -87,10 +98,9 @@ describe('MapListService', () => {
 
         await service.onModuleInit();
 
-        expect(service['version']).toMatchObject({
-          [FlatMapList.APPROVED]: 5,
-          [FlatMapList.SUBMISSION]: 0
-        });
+        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
+        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 5);
+        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:submission', 0);
 
         expect(fileStoreMock.deleteFiles).toHaveBeenCalledWith([
           'maplist/approved/4.dat',

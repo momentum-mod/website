@@ -16,10 +16,14 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { DiscordModule } from '../discord/discord.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { ClusterModule } from '../cluster/cluster.module';
+import { ValkeyModule } from '../valkey/valkey.module';
 
 @Module({
   imports: [
     DbModule,
+    ValkeyModule,
+    ClusterModule,
     FileStoreModule,
     SteamModule,
     SessionModule,

@@ -173,7 +173,7 @@ export class MapsController {
   @Get('/maplistversion')
   @ApiOperation({ summary: 'Retrieve the latest map list version number' })
   @ApiOkResponse({ type: MapListVersionDto })
-  getMapListVersion(): MapListVersionDto {
+  getMapListVersion(): Promise<MapListVersionDto> {
     return this.mapListService.getMapList();
   }
 
