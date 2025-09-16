@@ -24,6 +24,7 @@ import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { pick } from '@momentum/util-fn';
+import { ClusterModule } from './modules/cluster/cluster.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { pick } from '@momentum/util-fn';
     // Pino is a JSON-based logger that's much more performant than the NestJS's
     // built-in logger.
     LoggerModule.forRootAsync({
+      inject: [ConfigService],
       useFactory: async (config: ConfigService): Promise<PinoParams> => ({
         pinoHttp: {
           level: config.getOrThrow('logLevel'),
@@ -128,9 +130,9 @@ import { pick } from '@momentum/util-fn';
                 }
               })
         }
-      }),
-      inject: [ConfigService]
+      })
     }),
+    ClusterModule,
     ScheduleModule.forRoot(),
     DbModule,
     AuthModule,

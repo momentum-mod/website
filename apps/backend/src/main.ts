@@ -16,10 +16,16 @@ import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { Logger } from 'nestjs-pino';
+import cluster from 'node:cluster';
 import { Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
+import {
+  ClusterMessage,
+  ClusterSetFirstWorkerMessage
+} from './app/modules/cluster/cluster.service';
 
+/* eslint no-console: 0 */
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
   // been explicitly transformed to numbers using @NumberifyBigInt() https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
@@ -130,7 +136,89 @@ async function bootstrap() {
   );
 }
 
-/* eslint no-console: 0 */
-bootstrap().catch((error) => console.error(error));
+// Single-process mode. Current process does everything.
+function startSingle(): void {
+  console.log('Starting in single-process mode');
+  bootstrap().catch((error) => console.error(error));
+}
 
-process.on('uncaughtException', (error) => console.error(error));
+// Clustered mode. Forks multiple processes that share the same port, and
+// primary process handles distributing incoming requests via round-robin.
+// See https://nodejs.org/api/cluster.html#how-it-works for more details.
+function startClustered(): void {
+  if (cluster.isPrimary) {
+    console.log(`Primary process ${process.pid} started`);
+
+    for (let i = 0; i < numProcesses; i++) {
+      cluster.fork();
+    }
+
+    // Determine first worker, which will be responsible for any tasks or
+    // scheduling that should only be done by one worker.
+    let firstWorkerID = Object.values(cluster.workers)[0].id;
+
+    // Wait for workers to come entirely online (i.e. ClusterService is up),
+    // then send them the ID of the first worker so they can determine whether
+    // they're first or not.
+    cluster.on('message', (worker, message: ClusterMessage) => {
+      if (message.cmd === 'service_online') {
+        worker.send({
+          cmd: 'set_first_worker',
+          id: firstWorkerID
+        } as ClusterSetFirstWorkerMessage);
+      }
+    });
+
+    console.log(
+      `First worker is ${cluster.workers[firstWorkerID].process.pid} (${firstWorkerID})`
+    );
+
+    cluster.on('exit', (worker, code, signal) => {
+      console.error(
+        `Worker ${worker.process.pid} died, code: ${code}, signal: ${signal}, restarting`
+      );
+
+      if (worker.id === firstWorkerID) {
+        // First worker died, assign another worker as first.
+        const newFirstWorker = Object.values(cluster.workers).find(
+          ({ id }) => id !== worker.id
+        );
+        if (newFirstWorker) {
+          firstWorkerID = newFirstWorker.id;
+          console.log(
+            `New first worker is ${newFirstWorker.process.pid} (${newFirstWorker.id})`
+          );
+
+          // Inform all workers of the new first worker.
+          for (const worker of Object.values(cluster.workers)) {
+            worker.send({
+              cmd: 'set_first_worker',
+              id: firstWorkerID
+            } as ClusterSetFirstWorkerMessage);
+          }
+        } else {
+          console.error('No workers left to assign as first!');
+        }
+      }
+
+      // Restart worker
+      cluster.fork();
+    });
+  } else {
+    bootstrap().catch((error) => console.error(error));
+    console.log(`Worker process ${process.pid} started`);
+  }
+}
+
+const numProcesses = Number(process.env.NEST_CLUSTER_NUM_PROCESSES ?? '0');
+if (Number.isNaN(numProcesses) || numProcesses <= 1) {
+  startSingle();
+} else {
+  startClustered();
+}
+
+process.on('uncaughtException', (err) => {
+  console.error(new Date().toUTCString() + ' uncaughtException:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
