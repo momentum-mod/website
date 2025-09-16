@@ -1,7 +1,6 @@
 // noinspection DuplicatedCode
 
 import { CompletedRunDto, RunSessionDto } from '../../backend/src/app/dto';
-
 import {
   DbUtil,
   NULL_ID,
@@ -28,11 +27,7 @@ import {
 } from './support/environment';
 import { arrayFrom } from '@momentum/util-fn';
 import * as ReplayFile from '@momentum/formats/replay';
-import { RunSessionService } from '../../backend/src/app/modules/session/run/run-session.service';
-import {
-  SessionID,
-  RunSession
-} from '../../backend/src/app/modules/session/run/run-session.interface';
+import Valkey from 'iovalkey';
 
 describe('Session', () => {
   let app,
@@ -40,13 +35,13 @@ describe('Session', () => {
     req: RequestUtil,
     db: DbUtil,
     map,
-    runSessions: Map<SessionID, RunSession>,
-    getNewSessionID: () => number;
+    valkey: Valkey;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
+    valkey = env.valkey;
     req = env.req;
     db = env.db;
 
@@ -57,19 +52,23 @@ describe('Session', () => {
       },
       [Gamemode.AHOP, Gamemode.BHOP]
     );
-
-    // Hack to access internal run session data since it's no longer in
-    // Postgres. In the future it'll be in Redis which we'll be able to access
-    // in similar way to we do Prisma/Postgres currently.
-    const runSessionService = app.get(RunSessionService);
-    runSessions = runSessionService['sessions'];
-    getNewSessionID = () => runSessionService['sessionCounter']++;
   });
 
   afterAll(async () => {
     await db.cleanup('mMap');
     await teardownE2ETestEnvironment(app, prisma);
   });
+
+  async function clearRunSessions() {
+    const [, elements] = await valkey.scan(
+      0,
+      'MATCH',
+      'runsess*',
+      'COUNT',
+      1000
+    );
+    await valkey.del(...elements);
+  }
 
   describe('session/run', () => {
     describe('POST', () => {
@@ -106,48 +105,50 @@ describe('Session', () => {
       });
 
       it('should delete any sessions on the same trackID', async () => {
-        runSessions.clear();
+        await clearRunSessions();
+
+        const createdAt = Date.now();
 
         // Test will start stage run on stage 2
 
         // Main track - should live
-        const mainID = getNewSessionID();
-        runSessions.set(mainID, {
-          id: mainID,
+        const mainID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${user.id}`, mainID);
+        await valkey.hset(`runsess:dat:${mainID}`, {
           userID: user.id,
           mapID: map.id,
+          createdAt,
           gamemode: Gamemode.AHOP,
           trackType: TrackType.MAIN,
-          trackNum: 1,
-          createdAt: new Date(),
-          timestamps: []
+          trackNum: 1
         });
+        await valkey.lpush(`runsess:ts:${mainID}`, `1,1,1,${createdAt}`);
 
         // Stage track, different trackNum, should live
-        const stage1ID = getNewSessionID();
-        runSessions.set(stage1ID, {
-          id: stage1ID,
+        const stage1ID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${user.id}`, stage1ID);
+        await valkey.hset(`runsess:dat:${stage1ID}`, {
           userID: user.id,
           mapID: map.id,
+          createdAt,
           gamemode: Gamemode.AHOP,
           trackType: TrackType.STAGE,
-          trackNum: 1,
-          createdAt: new Date(),
-          timestamps: []
+          trackNum: 1
         });
+        await valkey.lpush(`runsess:ts:${stage1ID}`, `1,1,1,${createdAt}`);
 
         // Stage track, same trackNum, should be deleted
-        const stage2ID = getNewSessionID();
-        runSessions.set(stage2ID, {
-          id: stage2ID,
+        const stage2ID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${user.id}`, stage2ID);
+        await valkey.hset(`runsess:dat:${stage2ID}`, {
           userID: user.id,
           mapID: map.id,
+          createdAt,
           gamemode: Gamemode.AHOP,
           trackType: TrackType.STAGE,
-          trackNum: 2,
-          createdAt: new Date(),
-          timestamps: []
+          trackNum: 2
         });
+        await valkey.lpush(`runsess:ts:${stage2ID}`, `1,1,1,${createdAt}`);
 
         const res = await req.post({
           url: 'session/run',
@@ -161,31 +162,39 @@ describe('Session', () => {
           }
         });
 
-        const sessions = runSessions.values().toArray();
-        expect(sessions).toHaveLength(3);
-        expect(sessions).toMatchObject([
-          expect.objectContaining({
-            id: mainID,
-            userID: user.id,
-            mapID: map.id,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }),
-          expect.objectContaining({
-            id: stage1ID,
-            userID: user.id,
-            mapID: map.id,
-            trackType: TrackType.STAGE,
-            trackNum: 1
-          }),
-          expect.objectContaining({
-            id: res.body.id,
-            userID: user.id,
-            mapID: map.id,
-            trackType: TrackType.STAGE,
-            trackNum: 2
-          })
-        ]);
+        const sessionIDs = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
+        expect(sessionIDs).toHaveLength(3);
+        expect(sessionIDs).toContain(res.body.id.toString());
+
+        const sessions = await Promise.all(
+          sessionIDs.map((id) => valkey.hgetall(`runsess:dat:${id}`))
+        );
+
+        expect(sessions).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              userID: user.id.toString(),
+              mapID: map.id.toString(),
+              gamemode: Gamemode.AHOP.toString(),
+              trackType: TrackType.MAIN.toString(),
+              trackNum: '1'
+            }),
+            expect.objectContaining({
+              userID: user.id.toString(),
+              mapID: map.id.toString(),
+              gamemode: Gamemode.AHOP.toString(),
+              trackType: TrackType.STAGE.toString(),
+              trackNum: '1'
+            }),
+            expect.objectContaining({
+              userID: user.id.toString(),
+              mapID: map.id.toString(),
+              gamemode: Gamemode.AHOP.toString(),
+              trackType: TrackType.STAGE.toString(),
+              trackNum: '2'
+            })
+          ])
+        );
       });
 
       it('should 400 if not given a proper body', () =>
@@ -300,53 +309,53 @@ describe('Session', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, u2Token, s1, s2;
+      let u1, u1Token, u2Token, s1ID, s2ID;
 
       beforeEach(async () => {
         [u1, u1Token] = await db.createAndLoginGameUser();
         u2Token = await db.loginNewGameUser();
 
-        runSessions.clear();
+        await clearRunSessions();
+        const createdAt = Date.now();
 
-        let id = getNewSessionID();
-        s1 = runSessions
-          .set(id, {
-            id,
-            userID: u1.id,
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1,
-            createdAt: new Date(),
-            timestamps: []
-          })
-          .get(id);
+        s1ID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${u1.id}`, s1ID);
+        await valkey.hset(`runsess:dat:${s1ID}`, {
+          userID: u1.id,
+          createdAt,
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1
+        });
+        await valkey.lpush(`runsess:ts:${s1ID}`, `1,1,1,${createdAt}`);
 
-        id = getNewSessionID();
-        s2 = runSessions
-          .set(id, {
-            id,
-            userID: u1.id,
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.STAGE,
-            trackNum: 1,
-            createdAt: new Date(),
-            timestamps: []
-          })
-          .get(id);
+        s2ID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${u1.id}`, s2ID);
+        await valkey.hset(`runsess:dat:${s2ID}`, {
+          userID: u1.id,
+          createdAt,
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.STAGE,
+          trackNum: 1
+        });
+        await valkey.lpush(`runsess:ts:${s2ID}`, `1,1,1,${createdAt}`);
       });
 
       afterEach(() => db.cleanup('user'));
 
       it('should delete the run session', async () => {
         await req.del({
-          url: `session/run/${s1.id}`,
+          url: `session/run/${s1ID}`,
           status: 204,
           token: u1Token
         });
 
-        expect(runSessions.values().toArray()).toMatchObject([s2]);
+        expect(await valkey.exists(`runsess:dat:${s1ID}`)).toBe(0);
+        expect(await valkey.exists(`runsess:ts:${s1ID}`)).toBe(0);
+        const sessionIDs = await valkey.lrange(`runsess:id:${u1.id}`, 0, -1);
+        expect(sessionIDs).toHaveLength(1);
+        expect(sessionIDs).not.toContain(s1ID.toString());
+        expect(sessionIDs).toContain(s2ID.toString());
       });
 
       it("should 400 if session doesn't exist", async () => {
@@ -382,7 +391,7 @@ describe('Session', () => {
 
       it('should 400 if trying to delete a session belonging to another user', async () => {
         await req.del({
-          url: `session/run/${s1.id}`,
+          url: `session/run/${s1ID}`,
           status: 400,
           token: u2Token
         });
@@ -392,14 +401,14 @@ describe('Session', () => {
         const nonGameToken = await db.loginNewUser();
 
         await req.del({
-          url: `session/run/${s1.id}`,
+          url: `session/run/${s1ID}`,
           status: 403,
           token: nonGameToken
         });
       });
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`session/run/${s1.id}`, 'del'));
+        req.unauthorizedTest(`session/run/${s1ID}`, 'del'));
     });
   });
 
@@ -410,18 +419,19 @@ describe('Session', () => {
       beforeAll(async () => {
         [user, token] = await db.createAndLoginGameUser();
 
-        runSessions.clear();
-        sessionID = getNewSessionID();
-        runSessions.set(sessionID, {
-          id: sessionID,
+        await clearRunSessions();
+
+        sessionID = await valkey.incr('runsess:counter');
+        await valkey.lpush(`runsess:id:${user.id}`, sessionID);
+        await valkey.hset(`runsess:dat:${sessionID}`, {
           userID: user.id,
-          mapID: map.id,
-          trackType: TrackType.MAIN,
+          createdAt: Date.now(),
           gamemode: Gamemode.AHOP,
+          trackType: TrackType.MAIN,
           trackNum: 1,
-          createdAt: new Date(),
-          timestamps: []
+          mapID: map.id
         });
+        await valkey.lpush(`runsess:ts:${sessionID}`, `1,1,47,${Date.now()}`);
       });
 
       afterAll(() => db.cleanup('user'));
@@ -434,13 +444,23 @@ describe('Session', () => {
           token
         });
 
-        expect(runSessions.size).toBe(1);
-        const timestamps = runSessions.get(sessionID).timestamps;
-        expect(timestamps[0]).toMatchObject({
-          majorNum: 1,
-          minorNum: 2,
-          time: 510
-        });
+        const runSessions = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
+        expect(runSessions.length).toBe(1);
+        expect(runSessions[0]).toBe(sessionID.toString());
+
+        const timestamps = await valkey.lrange(
+          `runsess:ts:${sessionID}`,
+          0,
+          -1
+        );
+        expect(timestamps.length).toBe(2);
+
+        expect(timestamps).toEqual(
+          expect.arrayContaining([
+            expect.stringMatching(/1,1,47,\d+/),
+            expect.stringMatching(/1,2,510,\d+/)
+          ])
+        );
       });
 
       it('should 403 if not the owner of the run', async () => {

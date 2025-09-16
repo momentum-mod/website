@@ -2,14 +2,7 @@
 import { Gamemode, RunSplits, Style, TrackType } from '@momentum/constants';
 import { InputJsonObject } from '@prisma/client/runtime/library';
 
-// Note that use a plain Map + fact we're using HTTP means run sessions can
-// only work on a single backend instance (without some fancy reverse proxy
-// routing or something), and sessions  are not persistent across restarts.
-// Upshot of this is that session IDs can just use a simple incrementing counter.
-export type SessionID = number;
-
 export interface RunSession extends Record<string, unknown> {
-  id: SessionID;
   userID: number;
   mapID: number;
   gamemode: Gamemode;
