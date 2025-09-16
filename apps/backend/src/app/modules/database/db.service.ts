@@ -1,4 +1,9 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit
+} from '@nestjs/common';
 import { PrismaClient } from '@momentum/db';
 
 @Injectable()
@@ -6,8 +11,16 @@ export class DbService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger('Prisma Service');
+
   async onModuleInit() {
-    await this.$connect();
+    try {
+      await this.$connect();
+      this.logger.log('Prisma connection established');
+    } catch (err) {
+      this.logger.error('Prisma connection failed', err);
+      throw err;
+    }
   }
 
   // Prisma supposedly has some some magic built-in support for this, don't
