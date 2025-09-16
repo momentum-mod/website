@@ -83,7 +83,10 @@ export async function setupE2ETestEnvironment(
   // Uncomment to output Prisma's raw queries
   // const prisma = new PrismaClient({ log: [{ level: 'query', emit: 'stdout' }] });
   const prisma = new PrismaClient();
-  const valkey = new Valkey({ port: configService.getOrThrow('valkey.port') });
+  const valkey = new Valkey({
+    port: configService.getOrThrow('valkey.port'),
+    host: configService.getOrThrow('valkey.host')
+  });
   const auth = new AuthUtil();
   return {
     app,
