@@ -24,6 +24,7 @@ services:
       STORAGE_SECRET_ACCESS_KEY: minio123
       STORAGE_ENDPOINT_URL: http://minio:9000
       VALKEY_PORT: 6379
+      VALKEY_HOST: valkey
       STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
       SESSION_SECRET: thisisashitsecretdontuseitinprod
       JWT_SECRET: thisisalsonotasecure
@@ -72,9 +73,9 @@ services:
     image: node:22.14.0-alpine
     depends_on:
       - postgres
+      - valkey
       - minio
       - createbuckets
-      - valkey
     environment:
       <<: *env
     working_dir: /app/
