@@ -16,8 +16,20 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { ConfigService } from '@nestjs/config';
+import { ClusterService } from '../cluster/cluster.service';
+import { ValkeyService } from '../valkey/valkey.service';
 
 export const MAPLIST_UPDATE_JOB_NAME = 'MapListUpdateJob';
+
+const versionKeys = {
+  [FlatMapList.APPROVED]: 'maplistver:approved',
+  [FlatMapList.SUBMISSION]: 'maplistver:submission'
+};
+
+const updateFlagKeys = {
+  [FlatMapList.APPROVED]: 'maplistupdate:approved',
+  [FlatMapList.SUBMISSION]: 'maplistupdate:submission'
+};
 
 @Injectable()
 export class MapListService implements OnModuleInit {
@@ -25,70 +37,88 @@ export class MapListService implements OnModuleInit {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly fileStoreService: FileStoreService,
     private readonly config: ConfigService,
-    private readonly schedulerRegistry: SchedulerRegistry
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly clusterService: ClusterService,
+    private readonly valkey: ValkeyService
   ) {}
-
-  // TODO: Move to Redis
-  private version: Record<FlatMapList, number> = {
-    [FlatMapList.APPROVED]: 0,
-    [FlatMapList.SUBMISSION]: 0
-  };
-  private updateScheduledFlag: Record<FlatMapList, boolean> = {
-    [FlatMapList.APPROVED]: false,
-    [FlatMapList.SUBMISSION]: false
-  };
 
   private readonly logger = new Logger('Map List Service');
 
   async onModuleInit(): Promise<void> {
-    for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
-      const keys = await this.fileStoreService.listFileKeys(mapListDir(type));
+    if (this.clusterService.areWeFirstWorker) {
+      for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
+        const keys = await this.fileStoreService.listFileKeys(mapListDir(type));
 
-      if (keys.length === 0) {
-        this.version[type] = 0;
-      } else if (keys.length === 1) {
-        this.version[type] = this.extractVersionFromFileKey(keys[0]);
-      } else {
-        // If > 1 we have some old versions sitting around for some reason,
-        // just delete.
-        const sortedKeys = keys
-          .map((k) => this.extractVersionFromFileKey(k))
-          .sort((a, b) => b - a); // Largest to smallest
-        this.version[type] = sortedKeys[0];
-        await this.fileStoreService.deleteFiles(
-          sortedKeys.slice(1).map((k) => mapListPath(type, k))
-        );
+        if (keys.length === 0) {
+          await this.valkey.set(versionKeys[type], 0);
+        } else if (keys.length === 1) {
+          await this.valkey.set(
+            versionKeys[type],
+            this.extractVersionFromFileKey(keys[0])
+          );
+        } else {
+          // If > 1 we have some old versions sitting around for some reason,
+          // just delete.
+          const sortedKeys = keys
+            .map((k) => this.extractVersionFromFileKey(k))
+            .sort((a, b) => b - a); // Largest to smallest
+          await Promise.all([
+            this.valkey.set(versionKeys[type], sortedKeys[0]),
+            this.fileStoreService.deleteFiles(
+              sortedKeys.slice(1).map((k) => mapListPath(type, k))
+            )
+          ]);
+        }
       }
     }
 
-    const updateCronJob = CronJob.from({
-      cronTime: this.config.get('mapListUpdateSchedule'),
-      onTick: this.checkScheduledUpdates.bind(this),
-      waitForCompletion: true,
-      start: true
-    });
-
-    this.schedulerRegistry.addCronJob(MAPLIST_UPDATE_JOB_NAME, updateCronJob);
+    // Need to schedule this cronjob on all workers so if the first worker
+    // goes down another can take over.
+    // Not a great approach, might want to rethink if we do more scheduling
+    // in the future.
+    this.schedulerRegistry.addCronJob(
+      MAPLIST_UPDATE_JOB_NAME,
+      CronJob.from({
+        cronTime: this.config.get('mapListUpdateSchedule'),
+        onTick: this.checkScheduledUpdates.bind(this),
+        waitForCompletion: true,
+        start: true
+      })
+    );
   }
 
-  getMapList(): MapListVersionDto {
+  async getMapList(): Promise<MapListVersionDto> {
     return DtoFactory(MapListVersionDto, {
-      approved: this.version[FlatMapList.APPROVED],
-      submissions: this.version[FlatMapList.SUBMISSION]
+      approved: Number(
+        await this.valkey.get(versionKeys[FlatMapList.APPROVED])
+      ),
+      submissions: Number(
+        await this.valkey.get(versionKeys[FlatMapList.SUBMISSION])
+      )
     });
   }
 
-  scheduleMapListUpdate(type: FlatMapList) {
-    this.updateScheduledFlag[type] = true;
+  async scheduleMapListUpdate(type: FlatMapList): Promise<void> {
+    await this.valkey.set(updateFlagKeys[type], '1');
   }
 
-  private async checkScheduledUpdates() {
-    for (const [type, flag] of Object.entries(this.updateScheduledFlag)) {
-      if (flag) {
-        await this.updateMapList(type as FlatMapList);
-        this.updateScheduledFlag[type] = false;
-      }
-    }
+  private async checkScheduledUpdates(): Promise<void> {
+    if (!this.clusterService.areWeFirstWorker) return;
+
+    await Promise.all(
+      [FlatMapList.APPROVED, FlatMapList.SUBMISSION].map(async (type) => {
+        const scheduled = await this.valkey.get(updateFlagKeys[type]);
+
+        if (scheduled === '1') {
+          return Promise.all([
+            this.updateMapList(type),
+            this.valkey.set(updateFlagKeys[type], '0')
+          ]);
+        } else {
+          return [];
+        }
+      })
+    );
   }
 
   private async updateMapList(type: FlatMapList): Promise<void> {
@@ -166,8 +196,9 @@ export class MapListService implements OnModuleInit {
 
     const outBuf = Buffer.concat([header, compressed]);
 
-    const oldVersion = this.version[type];
-    const newVersion = this.updateMapListVersion(type);
+    const newVersion = await this.valkey.incr(versionKeys[type]);
+    const oldVersion = newVersion - 1;
+
     const oldKey = mapListPath(type, oldVersion);
     const newKey = mapListPath(type, newVersion);
 
@@ -175,12 +206,10 @@ export class MapListService implements OnModuleInit {
       `Updating ${type} map list from v${oldVersion} to v${newVersion}, ${maps.length} maps, encoding took ${Date.now() - t1}ms`
     );
 
-    await this.fileStoreService.deleteFile(oldKey);
-    await this.fileStoreService.storeFile(outBuf, newKey);
-  }
-
-  private updateMapListVersion(type: FlatMapList): number {
-    return ++this.version[type];
+    await Promise.all([
+      this.fileStoreService.deleteFile(oldKey),
+      this.fileStoreService.storeFile(outBuf, newKey)
+    ]);
   }
 
   private extractVersionFromFileKey(key: string): number {
