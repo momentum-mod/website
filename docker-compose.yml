@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     container_name: postgres
-    image: postgres:15-alpine
+    image: postgres:15
     restart: unless-stopped
   minio:
     image: minio/minio:RELEASE.2025-03-12T18-04-18Z
