@@ -39,21 +39,20 @@ import {
   CompletedRunSession,
   ProcessedRun,
   RunSession,
-  SessionID
+  RunSessionTimestamp
 } from './run-session.interface';
 import { RunProcessor } from './run-processor.class';
+import { ValkeyService } from '../../valkey/valkey.service';
 
 @Injectable()
 export class RunSessionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly fileStoreService: FileStoreService,
+    private readonly valkey: ValkeyService,
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService
   ) {}
-
-  private sessions = new Map<SessionID, RunSession>();
-  private sessionCounter = 1;
 
   //#region Create Session
 
@@ -71,18 +70,18 @@ export class RunSessionService {
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
       throw new BadRequestException('Leaderboard does not exist');
 
-    // Delete any existing sessions for this user on the same track type - the
-    // only way you can have multiple sessions is doing main and stage tracks
-    // at the same time.
-    //
-    // This is potentially quite slow for large numbers of sessions; we could
-    // maintain a second map of userIDs pointing to array of session IDs as well
-    // but not worth the complexity right now, let's do something like that when
-    // moving to Redis in the future.
-    for (const [key, value] of this.sessions.entries()) {
+    // User sessions are stored in array under runsess:id:<userID>
+    // This should be bounded by the number of segments on the map with the
+    // largest number of segments - see below.
+    const sessionKey = idKey(userID);
+    const sessionsIDs = await this.valkey.lrange(sessionKey, 0, -1);
+    for (const sessionID of sessionsIDs) {
+      const session = await this.valkey.hgetall(dataKey(sessionID));
+
       if (
-        value.userID === userID &&
-        value.trackType === body.trackType &&
+        session &&
+        Number(session.userID) === userID &&
+        Number(session.trackType) === body.trackType &&
         // Don't delete session for other trackNums, since the run session
         // end for that trackNum is likely to arrive AFTER the start of the
         // session for the next trackNum since contains replay data. Since this
@@ -90,73 +89,94 @@ export class RunSessionService {
         // maliciously created by the map with the largest number of genuine
         // leaderboards which is limited to MAX_TRACK_SEGMENTS, so can't be
         // exploited in a significant way. Still, we probably want to add some
-        // pruning logic or something in the future to remove old sessions,
-        // can wait til we do Redis.
-        value.trackNum === body.trackNum
+        // pruning logic or something in the future to remove old sessions.
+        Number(session.trackNum) === body.trackNum
       ) {
-        this.sessions.delete(key);
+        await Promise.all([
+          this.valkey.lrem(idKey(userID), 0, sessionID),
+          this.valkey.del(dataKey(sessionID))
+        ]);
       }
     }
 
-    const id = this.sessionCounter++;
-    const createdAt = new Date();
-    const session: RunSession = {
-      id,
-      userID,
-      createdAt,
-      ...leaderboardData,
-      timestamps: [{ majorNum: 1, minorNum: 1, time: 0, createdAt }]
-    };
+    const id = await this.valkey.incr(counterKey);
+    const createdAt = Date.now();
+    const createdAtDate = new Date(createdAt);
+    const tsKey = timestampKey(id);
 
-    this.sessions.set(id, session);
+    // Each session has hash of main data under runsess:dat:<sessionID>,
+    // and array of timestamps under runsess:ts:<sessionID>, stored as strings
+    // in form <majorNum>,<minorNum>,<time>,<createdAt>
+    await Promise.all([
+      this.valkey.lpush(sessionKey, id),
+      this.valkey.hset(dataKey(id), {
+        userID,
+        createdAt,
+        ...leaderboardData
+      }),
+      this.valkey.lpush(tsKey, serializeTimestamp(1, 1, 0, createdAt))
+    ]);
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', id);
     }
 
-    return DtoFactory(RunSessionDto, session);
+    return DtoFactory(RunSessionDto, {
+      id,
+      userID,
+      createdAt: createdAtDate,
+      ...leaderboardData,
+      timestamps: [
+        { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtDate }
+      ]
+    });
   }
 
   //#endregion
 
   //#region Update Session
 
-  updateSession(
+  async updateSession(
     userID: number,
     sessionID: number,
     { majorNum, minorNum, time }: UpdateRunSessionDto
-  ): void {
-    const session = this.sessions.get(sessionID);
+  ): Promise<void> {
+    const storedUserID = await this.valkey.hget(dataKey(sessionID), 'userID');
 
-    if (!session) throw new BadRequestException();
-    if (session.userID !== userID) throw new BadRequestException();
+    if (!storedUserID || Number(storedUserID) !== userID) {
+      throw new BadRequestException();
+    }
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
 
-    session.timestamps.push({
-      majorNum,
-      minorNum,
-      time,
-      createdAt: new Date()
-    });
+    await this.valkey.lpush(
+      timestampKey(sessionID),
+      serializeTimestamp(majorNum, minorNum, time, Date.now())
+    );
   }
 
   //#endregion
 
   //#region Invalidate Session
 
-  invalidateSession(userID: number, sessionID: number): void {
-    const session = this.sessions.get(sessionID);
+  async invalidateSession(userID: number, sessionID: number): Promise<void> {
+    const storedUserID = await this.valkey.hget(dataKey(sessionID), 'userID');
 
-    if (!session || session.userID !== userID) throw new BadRequestException();
+    if (!storedUserID || Number(storedUserID) !== userID) {
+      throw new BadRequestException();
+    }
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
 
-    this.sessions.delete(sessionID);
+    await Promise.all([
+      this.valkey.lrem(idKey(userID), 0, sessionID),
+      this.valkey.del(dataKey(sessionID)),
+      this.valkey.del(timestampKey(sessionID))
+    ]);
   }
 
   //#endregion
@@ -168,13 +188,22 @@ export class RunSessionService {
     sessionID: number,
     replay?: Buffer
   ): Promise<CompletedRunDto> {
-    const session = this.sessions.get(sessionID) as CompletedRunSession;
+    const [storedUserID, storedSession, storedTimestamps] = await Promise.all([
+      this.valkey.hget(dataKey(sessionID), 'userID'),
+      this.valkey.hgetall(dataKey(sessionID)),
+      this.valkey.lrange(timestampKey(sessionID), 0, -1)
+    ]);
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
 
-    if (!session || session.userID !== userID) {
+    if (
+      !storedUserID ||
+      !storedSession ||
+      !storedTimestamps ||
+      Number(storedUserID) !== userID
+    ) {
       if (Sentry.isInitialized()) {
         Sentry.getCurrentScope().setLevel('log');
         Sentry.captureException('Invalid session ID on run end');
@@ -182,15 +211,26 @@ export class RunSessionService {
       throw new BadRequestException('Invalid session');
     }
 
-    session.timestamps.sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-    );
+    const session: RunSession = {
+      mapID: Number(storedSession.mapID),
+      userID,
+      gamemode: Number(storedSession.gamemode),
+      trackType: Number(storedSession.trackType),
+      trackNum: Number(storedSession.trackNum),
+      id: sessionID,
+      // Chance these are out of sync from the client, but also Valkey doesn't
+      // seem to preserve order anyway.
+      timestamps: storedTimestamps
+        .map(deserializeTimestamp)
+        .toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+      createdAt: new Date(storedSession.createdAt)
+    };
 
     // Check user has read permissions for this map. Someone *could* actually
     // start/update a session on this map through weird API calls, but that'd be
     // completely pointless since we block actual submission here.
     const map = await this.mapsService.getMapAndCheckReadAccess({
-      mapID: session.mapID,
+      mapID: Number(storedSession.mapID),
       userID,
       include: { currentVersion: true }
     });
@@ -200,7 +240,11 @@ export class RunSessionService {
     session.mmap = map;
     session.user = user;
 
-    this.sessions.delete(sessionID);
+    await Promise.all([
+      this.valkey.lrem(idKey(userID), 0, sessionID),
+      this.valkey.del(dataKey(sessionID)),
+      this.valkey.del(timestampKey(sessionID))
+    ]);
 
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
@@ -589,3 +633,40 @@ export class RunSessionService {
 
   //#endregion
 }
+
+//#region Valkey Keys
+
+function idKey(userID: number): string {
+  return `runsess:id:${userID}`;
+}
+
+function dataKey(sessionID: string | number): string {
+  return `runsess:dat:${sessionID}`;
+}
+
+function timestampKey(sessionID: string | number): string {
+  return `runsess:ts:${sessionID}`;
+}
+
+function serializeTimestamp(
+  majorNum: number,
+  minorNum: number,
+  time: number,
+  createdAt: number
+): string {
+  return `${majorNum},${minorNum},${time},${createdAt}`;
+}
+
+function deserializeTimestamp(str: string): RunSessionTimestamp {
+  const [majorNum, minorNum, time, createdAt] = str.split(',');
+  return {
+    majorNum: Number(majorNum),
+    minorNum: Number(minorNum),
+    time: Number(time),
+    createdAt: new Date(Number(createdAt))
+  };
+}
+
+const counterKey = 'runsess:counter';
+
+//#endregion
