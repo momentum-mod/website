@@ -18,6 +18,7 @@ export class ValkeyService
     super({
       lazyConnect: true,
       port: configService.getOrThrow('valkey.port'),
+      host: configService.getOrThrow('valkey.host'),
       disconnectTimeout: 5000
     });
 
