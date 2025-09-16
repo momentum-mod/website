@@ -769,6 +769,48 @@ export class SayModule implements InteractionModule {
   }
 }
 
+export class TellModule implements InteractionModule {
+  static commandName = 'tell';
+  userFilter = isTrusted;
+  commandBuilder = new SlashCommandBuilder()
+    .setName(TellModule.commandName)
+    .setDescription('Executes a custom command (only visible to you)')
+    .addStringOption((option) =>
+      option
+        .setName('option')
+        .setDescription('Name of the custom command')
+        .setRequired(true)
+        .setAutocomplete(true)
+    );
+
+  async executeCommand(interaction: ChatInputCommandInteraction) {
+    const commandName = interaction.options.getString('option');
+    if (!commandName || !config.custom_commands[commandName]) {
+      await replyDescriptionEmbed(
+        interaction,
+        `Command '${commandName}' doesn't exist!`,
+        MomentumColor.Red,
+        true
+      );
+      return;
+    }
+
+    const command = config.custom_commands[commandName];
+    const { embed, components } = buildCustomCommandResponse(command);
+
+    await interaction.reply({
+      embeds: [embed],
+      components,
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  async autocomplete(interaction: AutocompleteInteraction) {
+    const focused = interaction.options.getFocused(true);
+    await customCommandAutocomplete(interaction, focused.value);
+  }
+}
+
 async function customCommandAutocomplete(
   interaction: AutocompleteInteraction,
   value: string
