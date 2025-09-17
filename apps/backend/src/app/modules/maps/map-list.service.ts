@@ -16,8 +16,8 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { ConfigService } from '@nestjs/config';
-import { ClusterService } from '../cluster/cluster.service';
 import { ValkeyService } from '../valkey/valkey.service';
+import { isFirstWorker } from '../../../clustered';
 
 export const MAPLIST_UPDATE_JOB_NAME = 'MapListUpdateJob';
 
@@ -38,44 +38,21 @@ export class MapListService implements OnModuleInit {
     private readonly fileStoreService: FileStoreService,
     private readonly config: ConfigService,
     private readonly schedulerRegistry: SchedulerRegistry,
-    private readonly clusterService: ClusterService,
     private readonly valkey: ValkeyService
   ) {}
 
   private readonly logger = new Logger('Map List Service');
 
   async onModuleInit(): Promise<void> {
-    if (this.clusterService.areWeFirstWorker) {
-      for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
-        const keys = await this.fileStoreService.listFileKeys(mapListDir(type));
+    // First worker takes responsibility for determing current versions and
+    // scheduling updates.
+    if (!isFirstWorker()) return;
 
-        if (keys.length === 0) {
-          await this.valkey.set(versionKeys[type], 0);
-        } else if (keys.length === 1) {
-          await this.valkey.set(
-            versionKeys[type],
-            this.extractVersionFromFileKey(keys[0])
-          );
-        } else {
-          // If > 1 we have some old versions sitting around for some reason,
-          // just delete.
-          const sortedKeys = keys
-            .map((k) => this.extractVersionFromFileKey(k))
-            .sort((a, b) => b - a); // Largest to smallest
-          await Promise.all([
-            this.valkey.set(versionKeys[type], sortedKeys[0]),
-            this.fileStoreService.deleteFiles(
-              sortedKeys.slice(1).map((k) => mapListPath(type, k))
-            )
-          ]);
-        }
-      }
+    const versions = await this.valkey.mget(...Object.values(versionKeys));
+    if (versions.includes(null)) {
+      await this.updateVersionsFromFileStore();
     }
 
-    // Need to schedule this cronjob on all workers so if the first worker
-    // goes down another can take over.
-    // Not a great approach, might want to rethink if we do more scheduling
-    // in the future.
     this.schedulerRegistry.addCronJob(
       MAPLIST_UPDATE_JOB_NAME,
       CronJob.from({
@@ -103,8 +80,6 @@ export class MapListService implements OnModuleInit {
   }
 
   private async checkScheduledUpdates(): Promise<void> {
-    if (!this.clusterService.areWeFirstWorker) return;
-
     await Promise.all(
       [FlatMapList.APPROVED, FlatMapList.SUBMISSION].map(async (type) => {
         const scheduled = await this.valkey.get(updateFlagKeys[type]);
@@ -210,6 +185,33 @@ export class MapListService implements OnModuleInit {
       this.fileStoreService.deleteFile(oldKey),
       this.fileStoreService.storeFile(outBuf, newKey)
     ]);
+  }
+
+  private async updateVersionsFromFileStore(): Promise<void> {
+    for (const type of [FlatMapList.APPROVED, FlatMapList.SUBMISSION]) {
+      const keys = await this.fileStoreService.listFileKeys(mapListDir(type));
+
+      if (keys.length === 0) {
+        await this.valkey.set(versionKeys[type], 0);
+      } else if (keys.length === 1) {
+        await this.valkey.set(
+          versionKeys[type],
+          this.extractVersionFromFileKey(keys[0])
+        );
+      } else {
+        // If > 1 we have some old versions sitting around for some reason,
+        // just delete.
+        const sortedKeys = keys
+          .map((k) => this.extractVersionFromFileKey(k))
+          .sort((a, b) => b - a); // Largest to smallest
+        await Promise.all([
+          this.valkey.set(versionKeys[type], sortedKeys[0]),
+          this.fileStoreService.deleteFiles(
+            sortedKeys.slice(1).map((k) => mapListPath(type, k))
+          )
+        ]);
+      }
+    }
   }
 
   private extractVersionFromFileKey(key: string): number {
