@@ -20,10 +20,7 @@ import cluster from 'node:cluster';
 import { Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
-import {
-  ClusterMessage,
-  ClusterSetFirstWorkerMessage
-} from './app/modules/cluster/cluster.service';
+import { FIRST_WORKER_ENV_VAR } from './clustered';
 
 /* eslint no-console: 0 */
 async function bootstrap() {
@@ -139,6 +136,7 @@ async function bootstrap() {
 // Single-process mode. Current process does everything.
 function startSingle(): void {
   console.log('Starting in single-process mode');
+  process.env[FIRST_WORKER_ENV_VAR] = 'true';
   bootstrap().catch((error) => console.error(error));
 }
 
@@ -150,59 +148,18 @@ function startClustered(): void {
     console.log(`Primary process ${process.pid} started`);
 
     for (let i = 0; i < numProcesses; i++) {
-      cluster.fork();
+      cluster.fork({
+        [FIRST_WORKER_ENV_VAR]: i === 0 ? 'true' : 'false'
+      });
     }
 
-    // Determine first worker, which will be responsible for any tasks or
-    // scheduling that should only be done by one worker.
-    let firstWorkerID = Object.values(cluster.workers)[0].id;
-
-    // Wait for workers to come entirely online (i.e. ClusterService is up),
-    // then send them the ID of the first worker so they can determine whether
-    // they're first or not.
-    cluster.on('message', (worker, message: ClusterMessage) => {
-      if (message.cmd === 'service_online') {
-        worker.send({
-          cmd: 'set_first_worker',
-          id: firstWorkerID
-        } as ClusterSetFirstWorkerMessage);
-      }
-    });
-
-    console.log(
-      `First worker is ${cluster.workers[firstWorkerID].process.pid} (${firstWorkerID})`
-    );
-
     cluster.on('exit', (worker, code, signal) => {
+      // Worker processees should never be allowed to exit, if one does we
+      // all do and let Docker restart.
       console.error(
-        `Worker ${worker.process.pid} died, code: ${code}, signal: ${signal}, restarting`
+        `worker ${worker.process.pid} died (code: ${code}, signal: ${signal}), exiting...`
       );
-
-      if (worker.id === firstWorkerID) {
-        // First worker died, assign another worker as first.
-        const newFirstWorker = Object.values(cluster.workers).find(
-          ({ id }) => id !== worker.id
-        );
-        if (newFirstWorker) {
-          firstWorkerID = newFirstWorker.id;
-          console.log(
-            `New first worker is ${newFirstWorker.process.pid} (${newFirstWorker.id})`
-          );
-
-          // Inform all workers of the new first worker.
-          for (const worker of Object.values(cluster.workers)) {
-            worker.send({
-              cmd: 'set_first_worker',
-              id: firstWorkerID
-            } as ClusterSetFirstWorkerMessage);
-          }
-        } else {
-          console.error('No workers left to assign as first!');
-        }
-      }
-
-      // Restart worker
-      cluster.fork();
+      process.exit(1);
     });
   } else {
     bootstrap().catch((error) => console.error(error));

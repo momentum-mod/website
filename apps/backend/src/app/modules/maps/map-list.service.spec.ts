@@ -27,7 +27,8 @@ describe('MapListService', () => {
 
     const valkeyMock = {
       set: jest.fn(),
-      incr: () => {}
+      incr: () => {},
+      mget: () => Promise.resolve([null, null])
     };
 
     const configMock = {
