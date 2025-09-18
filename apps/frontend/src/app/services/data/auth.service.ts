@@ -28,7 +28,8 @@ export class AuthService {
 
   public isAuthenticated(): boolean {
     const accessToken = this.getAccessToken();
-    return Boolean(accessToken);
+    const refreshToken = this.getRefreshToken();
+    return Boolean(accessToken) || Boolean(refreshToken);
   }
 
   private moveCookieToLocalStorage(cookieName: string): void {
@@ -60,5 +61,28 @@ export class AuthService {
 
   public getAccessToken(): string | null {
     return localStorage.getItem('accessToken');
+  }
+
+  public isAccessTokenExpired(): boolean {
+    const accessToken = this.getAccessToken();
+    const jwtPayload = accessToken.split('.')[1];
+    const base64Payload = jwtPayload
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(jwtPayload.length + ((4 - (jwtPayload.length % 4)) % 4), '=');
+    try {
+      const payload = JSON.parse(atob(base64Payload));
+      if (payload.exp < Date.now() / 1000) {
+        return true;
+      }
+    } catch (e) {
+      console.error('Failed to decode JWT payload', e);
+      return true;
+    }
+    return false;
+  }
+
+  public getRefreshToken(): string | null {
+    return localStorage.getItem('refreshToken');
   }
 }
