@@ -50,6 +50,18 @@ export class AuthInterceptor implements HttpInterceptor {
     // but that should affect this code - those endpoints won't 401 without a
     // token.
     const accessToken = this.authService.getAccessToken();
+    const refreshToken = this.authService.getRefreshToken();
+
+    // If we have a refresh token, but access token is either missing or is
+    // expired (which is very likely) try getting a new access token first
+    if (
+      (!accessToken || this.authService.isAccessTokenExpired()) &&
+      refreshToken &&
+      !req.url.includes('auth/refresh')
+    ) {
+      return this.handleRefresh(req, next);
+    }
+
     if (accessToken) {
       req = this.addAccessTokenToHeader(req, accessToken);
     }

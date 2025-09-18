@@ -31,6 +31,8 @@ describe('AuthInterceptor', () => {
           provide: AuthService,
           useValue: {
             getAccessToken: jest.fn(),
+            getRefreshToken: jest.fn(),
+            isAccessTokenExpired: jest.fn().mockReturnValue(false),
             refreshAccessToken: jest.fn(),
             logout: jest.fn()
           }
@@ -99,6 +101,39 @@ describe('AuthInterceptor', () => {
 
     const refreshRequest = httpMock.expectOne('/test');
     expect(refreshRequest.request.headers.get('Authorization')).toBe(
+      'Bearer new-access-token'
+    );
+    expect(refreshSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should get new access token if current one is missing but refresh token exists', () => {
+    jest.spyOn(authService, 'getAccessToken').mockReturnValue(null);
+    jest.spyOn(authService, 'getRefreshToken').mockReturnValue('refresh-token');
+    const refreshSpy = jest
+      .spyOn(authService, 'refreshAccessToken')
+      .mockReturnValueOnce(of('new-access-token'));
+
+    httpClient.get('/test').subscribe();
+
+    const httpRequest = httpMock.expectOne('/test');
+    expect(httpRequest.request.headers.get('Authorization')).toBe(
+      'Bearer new-access-token'
+    );
+    expect(refreshSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should get new access token if current one is expired', () => {
+    jest.spyOn(authService, 'getAccessToken').mockReturnValue('expired-token');
+    jest.spyOn(authService, 'getRefreshToken').mockReturnValue('refresh-token');
+    jest.spyOn(authService, 'isAccessTokenExpired').mockReturnValue(true);
+    const refreshSpy = jest
+      .spyOn(authService, 'refreshAccessToken')
+      .mockReturnValueOnce(of('new-access-token'));
+
+    httpClient.get('/test').subscribe();
+
+    const httpRequest = httpMock.expectOne('/test');
+    expect(httpRequest.request.headers.get('Authorization')).toBe(
       'Bearer new-access-token'
     );
     expect(refreshSpy).toHaveBeenCalledTimes(1);
