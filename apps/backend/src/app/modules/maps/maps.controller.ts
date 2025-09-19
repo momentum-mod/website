@@ -93,6 +93,7 @@ import { LeaderboardService } from '../runs/leaderboard.service';
 import { MapListService } from './map-list.service';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
+import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -722,6 +723,25 @@ export class MapsController {
       data,
       files?.images
     );
+  }
+
+  //#region Reviews
+
+  @Get('/:mapID/reviewStats')
+  @ApiOperation({ summary: 'Returns the review stats for a specific map' })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiOkResponse({ description: 'The reviews of the requested map' })
+  @ApiNotFoundResponse({ description: 'Map was not found' })
+  getReviewStats(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<MapReviewStatsDto> {
+    return this.mapReviewService.getReviewStats(mapID, userID);
   }
 
   //endregion

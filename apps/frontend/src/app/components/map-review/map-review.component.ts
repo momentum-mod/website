@@ -174,7 +174,6 @@ export class MapReviewComponent {
 
     this.editForm.mainText.setValue(this._review.mainText);
     this.editForm.suggestions.setValue(this._review.suggestions);
-    this.editForm.needsResolving.setValue(this._review.resolved !== null);
     this.editForm.form.markAsPristine();
   }
 

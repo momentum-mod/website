@@ -191,6 +191,7 @@ export interface MMap {
   worldRecords: LeaderboardRun[];
   personalBests: LeaderboardRun[];
   testInvites?: MapTestInvite[];
+  reviewStats?: MapReviewStats;
 }
 
 export interface MapVersion {
@@ -275,8 +276,16 @@ export interface MapReview {
   resolved: boolean | null;
   resolverID: number;
   resolver?: User;
+  approves: boolean;
   createdAt: DateString;
   updatedAt: DateString;
+}
+
+export interface MapReviewStats {
+  total: number;
+  approvals: number;
+  resolved: number;
+  unresolved: number;
 }
 
 export interface MapReviewComment {

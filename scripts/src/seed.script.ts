@@ -593,10 +593,17 @@ prismaWrapper(async (prisma: PrismaClient) => {
               date: Random.pastDateInYears()
             }))
           : [],
-        ...(Random.chance()
-          ? { resolved: true, resolverID: Random.element(userIDs) }
-          : {})
+        ...Random.element([
+          { resolved: true, resolverID: Random.element(userIDs) },
+          { resolved: false },
+          { resolved: null },
+          { approves: true }
+        ])
       });
+
+      const reviews = await Promise.all(
+        arrayFrom(randRange(vars.reviewsPerMap), review)
+      );
 
       //#endregion
 
@@ -650,9 +657,17 @@ prismaWrapper(async (prisma: PrismaClient) => {
           },
           reviews: {
             createMany: {
-              data: await Promise.all(
-                arrayFrom(randRange(vars.reviewsPerMap), review)
-              )
+              data: reviews
+            }
+          },
+          reviewStats: {
+            create: {
+              total: reviews.length,
+              approvals: reviews.filter(({ approves }) => approves).length,
+              resolved: reviews.filter(({ resolved }) => resolved === true)
+                .length,
+              unresolved: reviews.filter(({ resolved }) => resolved === false)
+                .length
             }
           },
           versions: { createMany: { data: versions } },

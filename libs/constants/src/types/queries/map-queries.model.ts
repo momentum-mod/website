@@ -40,11 +40,7 @@ export type MapsGetAllExpand = Array<
 >;
 
 export type MapsGetAllSubmissionExpand = Array<
-  | BaseMapsGetAllExpand
-  | 'inFavorites'
-  | 'personalBest'
-  | 'worldRecord'
-  | 'reviews'
+  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
 >;
 
 type MapsGetAllBaseQuery = {
@@ -119,7 +115,10 @@ export type MapsGetAllUserSubmissionQuery = Omit<
 };
 
 export type MapsGetExpand = Array<
-  MapsGetAllSubmissionExpand[number] | 'submission' | 'testInvites'
+  | MapsGetAllSubmissionExpand[number]
+  | 'submission'
+  | 'testInvites'
+  | 'reviewStats'
 >;
 
 export type MapsGetQuery = { expand?: MapsGetExpand };
@@ -271,6 +270,7 @@ type PickMapReview = Pick<MapReview, 'mainText'> &
 
 export interface CreateMapReview extends PickMapReview {
   needsResolving?: boolean;
+  approves?: boolean;
 }
 
 export interface CreateMapReviewWithFiles {

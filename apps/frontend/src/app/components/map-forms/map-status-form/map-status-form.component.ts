@@ -102,6 +102,7 @@ export class MapStatusFormComponent implements OnChanges {
   protected firstEnteredPublicTesting: number;
   protected isBlockedForUnresolvedReviews: boolean;
   protected isBlockedForSubmissionTimeGate: boolean;
+  protected isBlockedForNoApprovingReview: boolean;
   protected hasBeenApprovedBefore: boolean;
 
   protected loading = false;
@@ -112,6 +113,7 @@ export class MapStatusFormComponent implements OnChanges {
     if (!changes['map'] || !this.map) return;
     this.isBlockedForUnresolvedReviews = false;
     this.isBlockedForSubmissionTimeGate = false;
+    this.isBlockedForNoApprovingReview = false;
 
     this.status = this.map.status;
 
@@ -157,13 +159,18 @@ export class MapStatusFormComponent implements OnChanges {
       !(this.mod || this.adm) &&
       Date.now() - this.firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION;
 
+    // Could use MapReviewStats here but we need to fetch the entirely of the
+    // map reviews to display the review suggestions graphs anyway.
     this.isBlockedForUnresolvedReviews = reviews.data.some(
       ({ resolved }) => resolved === false
     );
 
+    this.isBlockedForNoApprovingReview = false; //|| !reviews.data.some(({ approves }) => approves);
+
     if (
       this.isBlockedForSubmissionTimeGate ||
-      this.isBlockedForUnresolvedReviews
+      this.isBlockedForUnresolvedReviews ||
+      this.isBlockedForNoApprovingReview
     ) {
       this.possibleStatuses.splice(
         this.possibleStatuses.findIndex(

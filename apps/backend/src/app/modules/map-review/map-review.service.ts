@@ -49,6 +49,7 @@ import {
 } from '@prisma/client/runtime/library';
 import { MapDiscordNotifications } from '../maps/map-discord-notifications.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 
 @Injectable()
 export class MapReviewService {
@@ -111,12 +112,9 @@ export class MapReviewService {
 
     // Filter by official/unofficial if exists on query
     const filteredResponse = hasRoleFiltering
-      ? dbResponse.filter((x) => {
-          const hasOfficialRole = [
-            Role.ADMIN,
-            Role.MODERATOR,
-            Role.REVIEWER
-          ].includes(x.reviewer.roles);
+      ? dbResponse.filter(({ reviewer }) => {
+          const hasOfficialRole =
+            reviewer.roles & (Role.ADMIN | Role.MODERATOR | Role.REVIEWER);
           return query.official ? hasOfficialRole : !hasOfficialRole;
         })
       : dbResponse;
@@ -160,6 +158,19 @@ export class MapReviewService {
     });
 
     return DtoFactory(MapReviewDto, review);
+  }
+
+  async getReviewStats(
+    mapID: number,
+    userID: number
+  ): Promise<MapReviewStatsDto> {
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      select: { reviewStats: true }
+    });
+
+    return DtoFactory(MapReviewStatsDto, map.reviewStats);
   }
 
   async createReview(
@@ -219,11 +230,13 @@ export class MapReviewService {
       }
     }
 
-    if (body.needsResolving) {
+    if (body.needsResolving || body.approves) {
       const user = await this.db.user.findUnique({ where: { id: userID } });
       if (!Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE))
         throw new ForbiddenException(
-          'You cannot submit reviews that need resolving'
+          body.needsResolving
+            ? 'You cannot submit reviews that need resolving'
+            : 'You cannot submit an approving review'
         );
     }
 
@@ -232,21 +245,21 @@ export class MapReviewService {
       file
     ]);
 
-    const newData: JsonObject = {
+    // Ignore suggestions that had neither tier, gameplay rating nor tag,
+    // since frontend/DTO may allow it but this is meaningless data.
+    const suggestions = body.suggestions?.filter(
+      ({ tier, gameplayRating, tags }) =>
+        tier != null || gameplayRating != null || tags != null
+    );
+
+    const newData = {
       mainText: body.mainText,
+      suggestions: suggestions as unknown as JsonArray,
       // If it needs resolving, set `resolved` to `false`. Otherwise it'll
       // be null, and it doesn't need resolving.
-      resolved: body.needsResolving ? false : null
-    };
-
-    if (body.suggestions) {
-      // Ignore that suggestions that had neither tier, gameplay rating nor tag,
-      // since may allow it but this is meaningless data.
-      newData.suggestions = body.suggestions.filter(
-        ({ tier, gameplayRating, tags }) =>
-          tier != null || gameplayRating != null || tags != null
-      ) as unknown as JsonArray; // TODO: #855
-    }
+      resolved: body.needsResolving ? false : null,
+      approves: body.approves ?? false
+    } satisfies JsonObject;
 
     const [dbResponse] = await parallel(
       this.db.$transaction(async (tx) => {
@@ -256,6 +269,7 @@ export class MapReviewService {
             mmap: { connect: { id: mapID } },
             imageIDs: images.map(([id]) => id),
             mainText: body.mainText,
+            approves: body.approves ?? false,
             ...newData,
             editHistory: [{ ...newData, editorID: userID, date: new Date() }]
           },
@@ -295,6 +309,8 @@ export class MapReviewService {
     if (MapStatuses.IN_SUBMISSION.includes(map.status)) {
       void this.discordNotificationService.sendMapReviewToMapThread(dbResponse);
     }
+
+    await this.updateReviewStats(mapID);
 
     return DtoFactory(MapReviewDto, dbResponse);
   }
@@ -363,37 +379,44 @@ export class MapReviewService {
       throw new ForbiddenException();
     }
 
+    if (!isReviewer && body.approves) {
+      throw new ForbiddenException();
+    }
+
     if (review.resolved && body.needsResolving === false) {
       throw new BadRequestException();
     }
 
     const suggestions = body.suggestions as unknown as InputJsonObject; // TODO: #855
 
-    return DtoFactory(
-      MapReviewDto,
-      await this.db.mapReview.update({
-        where: { id: reviewID },
-        include: { resolver: true },
-        data: {
-          mainText: body.mainText,
-          suggestions,
-          resolved: body.resolved,
-          resolverID: body.resolved ? userID : null,
-          editHistory: [
-            ...(review.editHistory as JsonArray),
-            {
-              // We only want to log actual changes, so anything here being
-              // undefined is fine.
-              mainText: body.mainText,
-              suggestions,
-              resolved: body.resolved,
-              editorID: userID,
-              date: new Date()
-            }
-          ]
-        }
-      })
-    );
+    const updated = await this.db.mapReview.update({
+      where: { id: reviewID },
+      include: { resolver: true },
+      data: {
+        mainText: body.mainText,
+        suggestions,
+        resolved: body.resolved,
+        approves: body.approves ?? false,
+        resolverID: body.resolved ? userID : null,
+        editHistory: [
+          ...(review.editHistory as JsonArray),
+          {
+            // We only want to log actual changes, so anything here being
+            // undefined is fine.
+            mainText: body.mainText,
+            suggestions,
+            resolved: body.resolved,
+            approves: body.approves,
+            editorID: userID,
+            date: new Date()
+          }
+        ]
+      }
+    });
+
+    await this.updateReviewStats(review.mapID);
+
+    return DtoFactory(MapReviewDto, updated);
   }
 
   /**
@@ -425,26 +448,26 @@ export class MapReviewService {
 
     // Not creating admin activities here, since review resolution is very
     // 'normal' behaviour, and gets tracked in the edit history.
+    const updated = await this.db.mapReview.update({
+      where: { id: reviewID },
+      include: { resolver: true },
+      data: {
+        resolved: data.resolved,
+        resolverID: data.resolved ? userID : null,
+        editHistory: [
+          ...(review.editHistory as JsonArray),
+          {
+            resolved: data.resolved,
+            editorID: userID,
+            date: new Date()
+          }
+        ]
+      }
+    });
 
-    return DtoFactory(
-      MapReviewDto,
-      await this.db.mapReview.update({
-        where: { id: reviewID },
-        include: { resolver: true },
-        data: {
-          resolved: data.resolved,
-          resolverID: data.resolved ? userID : null,
-          editHistory: [
-            ...(review.editHistory as JsonArray),
-            {
-              resolved: data.resolved,
-              editorID: userID,
-              date: new Date()
-            }
-          ]
-        }
-      })
-    );
+    await this.updateReviewStats(updated.mapID);
+
+    return DtoFactory(MapReviewDto, updated);
   }
 
   async deleteReview(
@@ -494,6 +517,8 @@ export class MapReviewService {
         review.imageIDs.map((id) => mapReviewAssetPath(id))
       )
     );
+
+    await this.updateReviewStats(review.mapID);
   }
 
   /** Remove every stored file for every map review */
@@ -507,5 +532,23 @@ export class MapReviewService {
       );
 
     await this.fileStoreService.deleteFiles(imagePaths);
+  }
+
+  // TODO: Doing this is in JS is silly, but reviews are posted fairly
+  // infrequently, whilst this table is queried a lot. Tempted to use
+  // a view/materialized view but Prisma support is quite limited. Worth
+  // reconsidering in the future!
+  private async updateReviewStats(mapID: number): Promise<void> {
+    const reviews = await this.db.mapReview.findMany({ where: { mapID } });
+
+    await this.db.mapReviewStats.update({
+      where: { mapID },
+      data: {
+        total: reviews.length,
+        approvals: reviews.filter(({ approves }) => approves === true).length,
+        resolved: reviews.filter(({ resolved }) => resolved === true).length,
+        unresolved: reviews.filter(({ resolved }) => resolved === false).length
+      }
+    });
   }
 }

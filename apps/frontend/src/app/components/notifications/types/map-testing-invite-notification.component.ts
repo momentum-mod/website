@@ -24,7 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
         has invited you to playtest
         <span class="font-medium">{{ notification().map.name }}</span>
       </p>
-      <div class="flex gap-2 pt-3">
+      <div class="flex gap-2">
         <button
           type="button"
           class="py-1 btn btn-green"
@@ -72,12 +72,12 @@ export class MapTestingInviteNotificationComponent {
             severity: 'success',
             summary: 'Invitation Response Sent!',
             detail:
-              'You ' + (accepts ? 'Accepted' : 'Rejected') + ' the invitation'
+              'You ' + (accepts ? 'accepted' : 'rejected') + ' the invitation'
           }),
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
             severity: 'error',
-            summary: 'Invitation Response Failed to Send!',
+            summary: 'Invitation response failed to send!',
             detail: 'Failed with message: ' + httpError.error.message
           })
       });

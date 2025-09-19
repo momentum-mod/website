@@ -22,7 +22,7 @@ import {
 } from '@momentum/test-utils';
 import Zip from 'adm-zip';
 import { BabyZonesStub } from '@momentum/formats/zone';
-import { MapDto } from '../../backend/src/app/dto';
+import { MapDto, MapReviewDto } from '../../backend/src/app/dto';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -220,6 +220,18 @@ describe('Multi-stage E2E tests', () => {
     await prisma.mapSubmissionDate.updateMany({
       where: { submissionMapID: mapID, status: MapStatus.PUBLIC_TESTING },
       data: { date: new Date(Date.now() - MIN_PUBLIC_TESTING_DURATION) }
+    });
+
+    // Submit an approving review
+    await req.postAttach({
+      url: `maps/${mapID}/reviews`,
+      status: 201,
+      data: {
+        mainText: 'Please add conc',
+        approves: true
+      },
+      validate: MapReviewDto,
+      token: reviewerToken
     });
 
     await req.patch({
