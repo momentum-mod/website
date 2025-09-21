@@ -44,7 +44,8 @@ import {
   MAX_OPEN_MAP_SUBMISSIONS,
   runPath,
   MapTag,
-  TagQualifier
+  TagQualifier,
+  MAX_MAPPER_OPEN_MAP_SUBMISSIONS
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -952,8 +953,7 @@ export class MapsService {
 
   private async checkCreateDto(userID: number, dto: CreateMapDto) {
     const user = await this.db.user.findUnique({
-      where: { id: userID },
-      include: { submittedMaps: true }
+      where: { id: userID }
     });
 
     // 403 is user has the map submission ban
@@ -961,14 +961,16 @@ export class MapsService {
       throw new ForbiddenException('User is banned from map submission');
     }
 
-    const submissionMaps = user.submittedMaps.filter(({ status }) =>
-      MapStatuses.IN_SUBMISSION.includes(status)
-    );
+    const mapCount = await this.db.mMap.count({
+      where: { submitterID: userID, status: { in: MapStatuses.IN_SUBMISSION } }
+    });
 
     // Limit total maps a non-mod/admin can have in submission at once
     if (
-      submissionMaps.length >= MAX_OPEN_MAP_SUBMISSIONS &&
-      !Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+      (mapCount >= MAX_OPEN_MAP_SUBMISSIONS &&
+        !Bitflags.has(user.roles, CombinedRoles.MAPPER_AND_ABOVE)) ||
+      (mapCount >= MAX_MAPPER_OPEN_MAP_SUBMISSIONS &&
+        !Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN))
     ) {
       throw new ForbiddenException('Too many maps in submission');
     }
@@ -977,7 +979,7 @@ export class MapsService {
     // have any approved maps, and they have a map in submission.
     if (
       !Bitflags.has(user.roles, CombinedRoles.MAPPER_AND_ABOVE) &&
-      submissionMaps.length > 0
+      mapCount > 0
     ) {
       throw new ForbiddenException(
         'User is not an approved mapper and already has a map in review'

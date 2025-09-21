@@ -32,7 +32,8 @@ import {
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
-  imgXlPath
+  imgXlPath,
+  MAX_MAPPER_OPEN_MAP_SUBMISSIONS
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -62,6 +63,8 @@ import {
 import * as rxjs from 'rxjs';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { Routes } from 'discord.js';
+import { DbService } from '../../../apps/backend/src/app/modules/database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../../../apps/backend/src/app/modules/database/db.constants';
 
 describe('Maps', () => {
   let app,
@@ -1625,19 +1628,44 @@ describe('Maps', () => {
           });
         });
 
-        it('should 403 if the user has MAX_OPEN_MAP_SUBMISSIONS maps in submission', async () => {
-          await db.createMaps(MAX_OPEN_MAP_SUBMISSIONS, {
-            submitter: { connect: { id: user.id } },
-            status: MapStatus.PRIVATE_TESTING
+        it('should 403 if the user has MAX_OPEN_MAP_SUBMISSIONS maps in submission and is not mapper', async () => {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { roles: 0 }
           });
 
-          // Even mappers can't do this
+          await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          const dbService: DbService = app.get(EXTENDED_PRISMA_SERVICE);
+          jest
+            .spyOn(dbService.mMap, 'count')
+            .mockResolvedValueOnce(MAX_OPEN_MAP_SUBMISSIONS);
+
+          await req.postAttach({
+            url: 'maps',
+            status: 403,
+            data: createMapObject,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 403 if the user has MAX_MAPPER_OPEN_MAP_SUBMISSIONS maps in submission and is mapper', async () => {
           await prisma.user.update({
             where: { id: user.id },
             data: { roles: Role.MAPPER }
           });
 
           await uploadBspToPreSignedUrl(bspBuffer, token);
+
+          // I know we shouldn't really do this, but creating 100
+          // maps for testing it's count limit takes too much time
+          const dbService: DbService = app.get(EXTENDED_PRISMA_SERVICE);
+          jest
+            .spyOn(dbService.mMap, 'count')
+            .mockResolvedValueOnce(MAX_MAPPER_OPEN_MAP_SUBMISSIONS);
 
           await req.postAttach({
             url: 'maps',
