@@ -8,6 +8,7 @@ import {
 import { faker } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
 import path from 'node:path';
+import Valkey from 'iovalkey';
 
 export default async function globalSetup() {
   // Load .env file in project root. Nx does this automatically, but this helps
@@ -27,6 +28,9 @@ export default async function globalSetup() {
 
   // Clear out the S3 bucket
   await nukeS3();
+
+  // Clear Valkey storage
+  await nukeValkey();
 
   // Explicitly set test environment. When running this Nx it seems to be 'dev',
   // probably because it's loading .env later. So it probably doesn't matter in
@@ -75,4 +79,12 @@ async function nukeS3() {
         }
       })
     );
+}
+
+async function nukeValkey() {
+  const valkey = new Valkey({
+    port: +process.env.VALKEY_PORT,
+    host: process.env.VALKEY_HOST || 'localhost'
+  });
+  await valkey.flushall();
 }
