@@ -21,7 +21,7 @@ import {
   IdProperty,
   NestedProperty
 } from '../decorators';
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapDto } from '../map/map.dto';
 import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
@@ -37,9 +37,16 @@ export class NotificationDto<T = NotificationType>
 
   @EnumProperty(NotificationType, {
     description:
-      'Determines which variation of notification it is. Used for determining which accompanying data fields exist'
+      'Determines which notification variation it is. ' +
+      'Used for determining which accompanying data fields exist'
   })
   readonly type: T;
+
+  @ApiProperty({
+    description: 'Whether the user has seen (read) the notification'
+  })
+  @IsBoolean()
+  readonly isRead: boolean;
 
   @CreatedAtProperty()
   readonly createdAt: DateString;

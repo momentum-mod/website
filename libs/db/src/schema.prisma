@@ -35,6 +35,7 @@ model User {
   followers            Follow[]            @relation("follow_follower")
   mapNotifies          MapNotify[]
   notifications        Notification[]      @relation("notifs_to")
+  notifsAbout          Notification[]      @relation("notifs_about")
   leaderboardRuns      LeaderboardRun[]
   pastRuns             PastRun[]
   reportSubmitted      Report[]            @relation("report_submitter")
@@ -44,8 +45,6 @@ model User {
   reviewsResolved      MapReview[]         @relation("mapreview_resolver")
   reviewComments       MapReviewComment[]
   adminActivities      AdminActivity[]
-
-  notifsAbout Notification[] @relation("notifs_about")
 
   createdAt DateTime @default(now())
 }
@@ -142,6 +141,8 @@ model Notification {
 
   type Int /// notification-type.enum.ts
 
+  isRead Boolean @default(false)
+
   //  Object containing non-nested fields (non-relations) of Notification variants.
   //  AnnouncementNotification fields:
   //  json: {
@@ -218,15 +219,14 @@ model MMap {
   credits         MapCredit[]
   favorites       MapFavorite[]
   notifies        MapNotify[]
+  notifsAbout     Notification[]
   reviews         MapReview[]
   reviewStats     MapReviewStats?
   submission      MapSubmission?
   testInvites     MapTestInvite[]
 
-  notifsAbout Notification[]
-
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // This table is quite small but queried very frequently, so makes sense to index quite a few things.
   // @unique on name provides an index.
@@ -355,6 +355,8 @@ model MapSubmissionDate {
 
   submission      MapSubmission @relation(fields: [submissionMapID], references: [mapID], onDelete: Cascade)
   submissionMapID Int
+
+  @@index([submissionMapID])
 }
 
 // This model will be greatly expanded in the future to include screenshots,
@@ -380,10 +382,10 @@ model MapReview {
 
   approves Boolean @default(false)
 
+  notifsAbout Notification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  notifsAbout Notification[]
 
   @@index([mapID])
 }
@@ -399,10 +401,10 @@ model MapReviewComment {
   review   MapReview @relation(fields: [reviewID], references: [id], onDelete: Cascade)
   reviewID Int
 
+  notifsAbout Notification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  notifsAbout Notification[]
 
   @@index([reviewID, createdAt])
 }

@@ -5,9 +5,7 @@ import {
   ExtendedPrismaServiceTransaction
 } from '../database/prisma.extension';
 import {
-  NotificationDto,
   NotificationsDeleteQueryDto,
-  PagedResponseDto,
   NotificationsGetQueryDto,
   AnnouncementNotificationDto,
   DtoFactory,
@@ -15,9 +13,14 @@ import {
   MapStatusChangeNotificationDto,
   MapTestingInviteNotificationDto,
   MapReviewPostedNotificationDto,
-  MapReviewCommentPostedNotificationDto
+  MapReviewCommentPostedNotificationDto,
+  NotificationsMarkReadQueryDto
 } from '../../dto';
-import { MapStatus, NotificationType } from '@momentum/constants';
+import {
+  MapStatus,
+  NotificationType,
+  PagedNotificationResponse
+} from '@momentum/constants';
 import { Prisma } from '@momentum/db';
 
 @Injectable()
@@ -25,10 +28,11 @@ export class NotificationsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
   ) {}
+
   async getNotifications(
     userID: number,
     query: NotificationsGetQueryDto
-  ): Promise<PagedResponseDto<NotificationDto>> {
+  ): Promise<PagedNotificationResponse> {
     const [data, count] = await this.db.notification.findManyAndCount({
       where: { notifiedUserID: userID },
       orderBy: { createdAt: 'desc' },
@@ -42,26 +46,33 @@ export class NotificationsService {
       take: query.take
     });
 
+    const totalUnreadCount = await this.db.notification.count({
+      where: { notifiedUserID: userID, isRead: false }
+    });
+
     return {
       totalCount: count,
       returnCount: data.length,
+      totalUnreadCount,
       data: data.map((item) => {
+        const baseNotification = {
+          id: item.id,
+          type: item.type,
+          isRead: item.isRead,
+          createdAt: item.createdAt
+        };
         switch (item.type) {
           case NotificationType.ANNOUNCEMENT: {
             return DtoFactory(AnnouncementNotificationDto, {
-              id: item.id,
-              type: item.type,
-              message: (item.json as { message: string }).message,
-              createdAt: item.createdAt
+              ...baseNotification,
+              message: (item.json as { message: string }).message
             });
           }
           case NotificationType.WR_ACHIEVED: {
             return DtoFactory(WRAchievedNotificationDto, {
               // TODO more fields when adding this, see models.ts
-              id: item.id,
-              type: item.type,
-              map: item.map,
-              createdAt: item.createdAt
+              ...baseNotification,
+              map: item.map
             });
           }
           case NotificationType.MAP_STATUS_CHANGE: {
@@ -70,43 +81,35 @@ export class NotificationsService {
               newStatus: MapStatus;
             };
             return DtoFactory(MapStatusChangeNotificationDto, {
-              id: item.id,
-              type: item.type,
+              ...baseNotification,
               map: item.map,
               oldStatus: jsonField.oldStatus,
               newStatus: jsonField.newStatus,
-              changedBy: item.user,
-              createdAt: item.createdAt
+              changedBy: item.user
             });
           }
           case NotificationType.MAP_TESTING_INVITE: {
             return DtoFactory(MapTestingInviteNotificationDto, {
-              id: item.id,
-              type: item.type,
+              ...baseNotification,
               map: item.map,
-              invitedBy: item.user,
-              createdAt: item.createdAt
+              invitedBy: item.user
             });
           }
           case NotificationType.MAP_REVIEW_POSTED: {
             return DtoFactory(MapReviewPostedNotificationDto, {
-              id: item.id,
-              type: item.type,
+              ...baseNotification,
               map: item.map,
               review: item.review,
-              reviewer: item.user,
-              createdAt: item.createdAt
+              reviewer: item.user
             });
           }
           case NotificationType.MAP_REVIEW_COMMENT_POSTED: {
             return DtoFactory(MapReviewCommentPostedNotificationDto, {
-              id: item.id,
-              type: item.type,
+              ...baseNotification,
               map: item.map,
               review: item.review,
               reviewComment: item.reviewComment,
-              reviewCommenter: item.user,
-              createdAt: item.createdAt
+              reviewCommenter: item.user
             });
           }
         }
@@ -134,6 +137,30 @@ export class NotificationsService {
           notifiedUserID: userID,
           type: { not: NotificationType.MAP_TESTING_INVITE }
         }
+      });
+    } else {
+      throw new BadRequestException(
+        'Either notificationIDs or all field must be present in request'
+      );
+    }
+  }
+
+  async markNotificationsAsRead(
+    userID: number,
+    query: NotificationsMarkReadQueryDto
+  ): Promise<void> {
+    if (query.all) {
+      await this.db.notification.updateMany({
+        where: { notifiedUserID: userID },
+        data: { isRead: true }
+      });
+    } else if (query.notificationIDs) {
+      await this.db.notification.updateMany({
+        where: {
+          notifiedUserID: userID,
+          id: { in: query.notificationIDs }
+        },
+        data: { isRead: true }
       });
     } else {
       throw new BadRequestException(

@@ -4,6 +4,7 @@ import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.inte
 import { IsArray, IsInt } from 'class-validator';
 import { PagedResponse } from '@momentum/constants';
 import { DtoFactory } from './functions';
+import { NotificationDto } from './notification/notification.dto';
 
 export const ApiOkPagedResponse = <TModel extends Type>(
   model: TModel,
@@ -52,11 +53,29 @@ export class PagedResponseDto<T> implements PagedResponse<T> {
   @IsArray()
   readonly data: T[];
 
-  constructor(c: { new (): T }, [data, count]: [any[], number]) {
+  constructor(c: { new (): T }, [data, totalCount]: [any[], number]) {
     const dtos = data.map((x) => DtoFactory(c, x));
 
-    this.totalCount = count;
+    this.totalCount = totalCount;
     this.returnCount = dtos.length;
     this.data = dtos;
+  }
+}
+
+// Can't "implements" as it causes collision with DTO type.
+export class PagedNotificationResponseDto extends PagedResponseDto<NotificationDto> {
+  @ApiProperty({
+    type: Number,
+    description: 'The number of unread notifications'
+  })
+  @IsInt()
+  readonly totalUnreadCount: number;
+
+  constructor(
+    c: { new (): NotificationDto },
+    [data, totalCount, totalUnreadCount]: [any[], number, number]
+  ) {
+    super(c, [data, totalCount]);
+    this.totalUnreadCount = totalUnreadCount;
   }
 }

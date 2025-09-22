@@ -603,6 +603,7 @@ export interface CompletedRun {
 export type AbstractNotification<T = NotificationType> = {
   id: number;
   type: T;
+  isRead: boolean;
   createdAt: DateString;
 };
 
