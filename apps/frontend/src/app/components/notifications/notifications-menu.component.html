@@ -1,4 +1,4 @@
-@if (notifications.length === 0) {
+@if (totalExisting === 0) {
   <p class="mx-auto"><i>No notifications</i></p>
 } @else {
   <div class="flex min-w-full flex-col">
@@ -43,7 +43,7 @@
       (onPageChange)="pageChange.next($event)"
       [first]="first"
       [rows]="rows"
-      [totalRecords]="_unreadCount"
+      [totalRecords]="totalExisting"
       [showCurrentPageReport]="true"
       [alwaysShow]="false"
     />

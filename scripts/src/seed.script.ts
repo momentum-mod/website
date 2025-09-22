@@ -1243,13 +1243,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const notifiedUserID = user.id;
 
       await prisma.notification.createMany({
-        data: Array.from({ length: 35 }, () => ({
+        data: Array.from({ length: 35 }, (_, i) => ({
           notifiedUserID,
           type: NotificationType.ANNOUNCEMENT,
           json: {
             message: faker.lorem.paragraph()
           },
-          userID: spamUserID
+          userID: spamUserID,
+          createdAt: new Date(Date.now() - i) // Stops inconsistent sorting.
         }))
       });
 

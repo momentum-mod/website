@@ -14,8 +14,12 @@
   </div>
 
   @if (localUserService.user | async) {
-    <p-popover #notificationsOverlay>
-      <m-notifications-menu class="max-h-[80vh] w-[30rem]" (unreadNotificationsCount)="updateUnreadNotificationsCount($event)" />
+    <p-popover #notificationsOverlay (onShow)="markingAsReadEnabled = true" (onHide)="markingAsReadEnabled = false">
+      <m-notifications-menu
+        class="max-h-[80vh] w-[30rem]"
+        (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
+        [markingAsReadEnabled]="markingAsReadEnabled"
+      />
     </p-popover>
     <div class="item relative" (click)="notificationsOverlay.toggle($event)">
       @if (unreadNotificationsCount > 0) {

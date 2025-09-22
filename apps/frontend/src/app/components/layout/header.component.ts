@@ -34,6 +34,8 @@ export class HeaderComponent implements OnInit {
 
   protected profileDropdownMenu: MenuItem[] = [];
 
+  protected markingAsReadEnabled = false;
+
   ngOnInit() {
     this.localUserService.user.subscribe(() => {
       const userID = this.localUserService.user.value?.id;
