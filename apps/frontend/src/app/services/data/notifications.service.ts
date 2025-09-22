@@ -2,10 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import { HttpService } from './http.service';
 import { Observable } from 'rxjs';
 import {
-  PagedResponse,
-  Notification,
   NotificationsGetQuery,
-  NotificationsDeleteQuery
+  NotificationsDeleteQuery,
+  NotificationsMarkReadQuery,
+  PagedNotificationResponse
 } from '@momentum/constants';
 
 @Injectable({ providedIn: 'root' })
@@ -14,13 +14,17 @@ export class NotificationsService {
 
   getNotifications(
     query?: NotificationsGetQuery
-  ): Observable<PagedResponse<Notification>> {
-    return this.http.get<PagedResponse<Notification>>('notifications', {
-      query
-    });
+  ): Observable<PagedNotificationResponse> {
+    return this.http.get<PagedNotificationResponse>('notifications', { query });
   }
 
   deleteNotifications(query?: NotificationsDeleteQuery): Observable<void> {
     return this.http.delete('notifications', { query });
+  }
+
+  markNotificationsAsRead(
+    query?: NotificationsMarkReadQuery
+  ): Observable<void> {
+    return this.http.patch('notifications/markRead', { query });
   }
 }

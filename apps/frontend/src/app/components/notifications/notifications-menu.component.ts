@@ -1,4 +1,14 @@
-import { Component, DestroyRef, inject, OnInit, output } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import {
   Notification,
   NotificationsDeleteQuery,
@@ -6,13 +16,13 @@ import {
 } from '@momentum/constants';
 import { NotificationsService } from '../../services/data/notifications.service';
 import { merge, Subject, switchMap, take, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { AnnouncementNotificationComponent } from './types/announcement-notification.component';
 import { MapStatusChangeNotificationComponent } from './types/map-status-change-notification.component';
 import { MapTestingInviteNotificationComponent } from './types/map-testing-invite-notification.component';
 import { MapReviewPostedNotificationComponent } from './types/map-review-posted-notification.component';
 import { MapReviewCommentPostedNotificationComponent } from './types/map-review-comment-posted-notification.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'm-notifications-menu',
@@ -31,28 +41,36 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     }
   `
 })
-export class NotificationsMenuComponent implements OnInit {
+export class NotificationsMenuComponent implements OnChanges, OnInit {
   private readonly notificationsService = inject(NotificationsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly NotificationType = NotificationType;
 
   protected notifications: Notification[] = [];
-  unreadNotificationsCount = output<number>();
+
+  // If set to true, all shown notifications will be marked as read
+  // (even if the menu is in a hidden popover).
+  @Input() markingAsReadEnabled = false;
+  private _lastTotalUnreadCount = 0;
+  @Output() unreadNotificationsCount = new EventEmitter<number>();
 
   protected first = 0;
-  protected rows = 15;
-  protected _unreadCount = 0; // Only used by paginator.
+  protected rows = 10;
+  protected totalExisting = 0;
   protected readonly pageChange = new Subject<PaginatorState>();
   protected readonly refresh = new Subject<void>();
 
   protected loading = false;
 
-  ngOnInit() {
-    this.unreadNotificationsCount.subscribe((count: number) => {
-      this._unreadCount = count;
-    });
+  ngOnChanges(changes: SimpleChanges) {
+    // We still need to call this if set to false, to run output emitter
+    // for the first time. Refer to comment on function for more info.
+    if (changes['markingAsReadEnabled'])
+      this.markVisiblePageAsRead(this._lastTotalUnreadCount);
+  }
 
+  ngOnInit() {
     merge(
       this.refresh,
       this.pageChange.pipe(tap(({ first }) => (this.first = first)))
@@ -75,7 +93,10 @@ export class NotificationsMenuComponent implements OnInit {
               ? -1
               : Date.parse(b.createdAt) - Date.parse(a.createdAt);
           });
-          this.unreadNotificationsCount.emit(pagedResponse.totalCount);
+
+          this.totalExisting = pagedResponse.totalCount;
+          this.markVisiblePageAsRead(pagedResponse.totalUnreadCount);
+
           this.loading = false;
         },
         error: () => (this.loading = false)
@@ -107,6 +128,50 @@ export class NotificationsMenuComponent implements OnInit {
       .subscribe({
         next: () => this.refresh.next(),
         error: () => (this.loading = false)
+      });
+  }
+
+  /**
+   * This gets called in 3 different cases.
+   * Firstly when fetching notifications from backend has finished.
+   * If markingAsReadEnabled, we mark all visible notifications
+   * (current page in paginator) as read locally, saving a request to the backend,
+   * and preventing a loop should the backend return a different notifications order.
+   *
+   * The second case is where the parent component sets markingAsReadEnabled = true,
+   * where similar logic as above follows.
+   * The third case is when setting markingAsReadEnabled = false.
+   * Here, we just early return, but still need to emit a totalUnreadCount value
+   * to cover the case if it's the first time it is getting set (to guarantee an output value).
+   *
+   * As we don't fetch notifications in case 2 and 3, we don't have a totalUnreadCount
+   * response value, so we store the last gotten value when case 1 runs, and use that.
+   */
+  markVisiblePageAsRead(totalUnreadCount: number) {
+    const shownUnreadNotificationIDs = this.notifications
+      .filter((notification) => !notification.isRead)
+      .map((notification) => notification.id);
+
+    if (!this.markingAsReadEnabled || shownUnreadNotificationIDs.length === 0) {
+      this._lastTotalUnreadCount = totalUnreadCount;
+      this.unreadNotificationsCount.emit(totalUnreadCount);
+      return;
+    }
+
+    this.notificationsService
+      .markNotificationsAsRead({ notificationIDs: shownUnreadNotificationIDs })
+      .pipe(take(1))
+      .subscribe(() => {
+        // Don't refetch notifications (they will be the same other than isRead.)
+        // Just modify locally.
+        this.notifications.forEach((notification) => {
+          if (!notification.isRead) notification.isRead = true;
+        });
+        const newTotalUnreadCount =
+          totalUnreadCount - shownUnreadNotificationIDs.length;
+
+        this._lastTotalUnreadCount = newTotalUnreadCount;
+        this.unreadNotificationsCount.emit(newTotalUnreadCount);
       });
   }
 
