@@ -79,7 +79,6 @@ assertTypeCorrespondence<
     mapID: OmitMe;
     reviewID: OmitMe;
     reviewCommentID: OmitMe;
-    createdAt: OmitMe;
     // This stores most of the non-relation fields as a json object.
     // See schema.prisma for a breakdown.
     json: OmitMe;

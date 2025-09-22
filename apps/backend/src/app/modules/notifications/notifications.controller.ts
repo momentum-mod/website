@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Query
 } from '@nestjs/common';
 import {
@@ -21,7 +22,8 @@ import {
   NotificationDto,
   NotificationsGetQueryDto,
   NotificationsDeleteQueryDto,
-  PagedResponseDto
+  NotificationsMarkReadQueryDto,
+  PagedNotificationResponseDto
 } from '../../dto';
 
 @Controller('notifications')
@@ -38,7 +40,7 @@ export class NotificationsController {
   async getNotifications(
     @LoggedInUser('id') userID: number,
     @Query() query?: NotificationsGetQueryDto
-  ): Promise<PagedResponseDto<NotificationDto>> {
+  ): Promise<PagedNotificationResponseDto> {
     return this.notifsService.getNotifications(userID, query);
   }
 
@@ -55,5 +57,20 @@ export class NotificationsController {
     @Query() query: NotificationsDeleteQueryDto
   ): Promise<void> {
     return this.notifsService.deleteNotifications(userID, query);
+  }
+
+  @Patch('/markRead')
+  @ApiOperation({ description: 'Marks the given notifications as read.' })
+  @ApiQuery({ type: NotificationsMarkReadQueryDto })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'Notifications successfully marked as read'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid notificationIDs' })
+  async markNotificationsAsRead(
+    @LoggedInUser('id') userID: number,
+    @Query() query: NotificationsMarkReadQueryDto
+  ): Promise<void> {
+    return this.notifsService.markNotificationsAsRead(userID, query);
   }
 }
