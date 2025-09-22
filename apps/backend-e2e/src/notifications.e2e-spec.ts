@@ -1,7 +1,7 @@
 // noinspection DuplicatedCode
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
-import { MMap, PrismaClient, User } from '@momentum/db';
+import { MMap, PrismaClient, User, Notification } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -16,7 +16,12 @@ describe('Notifications', () => {
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil;
-  let user: User, userToken: string, map: MMap, user2: User;
+
+  let user: User,
+    userToken: string,
+    map: MMap,
+    user2: User,
+    notifications: Notification[];
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -39,7 +44,7 @@ describe('Notifications', () => {
     // In the future, announcements won't ever be in db
     // they will just get pushed directly to user
     // these are here for testing purposes
-    await prisma.notification.createMany({
+    notifications = await prisma.notification.createManyAndReturn({
       data: [
         {
           notifiedUserID: user.id,
@@ -63,7 +68,7 @@ describe('Notifications', () => {
           userID: user2.id
         },
         {
-          notifiedUserID: user2.id,
+          notifiedUserID: user2.id, // Different user!
           type: NotificationType.ANNOUNCEMENT,
           json: { message: 'this is just for u <3' }
         }
@@ -73,14 +78,35 @@ describe('Notifications', () => {
 
   afterEach(() => db.cleanup('notification', 'mMap', 'user'));
 
+  // The GET endpoint uses PagedNotificationResponse which is an extension
+  // of PagedResponse. Since this is only for a single endpoint, we just rely
+  // on validatePaged rather than extending test utils.
+  // But an extra check for unread count is added.
   describe('notifications/ GET', () => {
-    it('should get a list of notifications', async () =>
-      req.get({
+    it('should get a list of notifications', async () => {
+      const res = await req.get({
         url: 'notifications',
         status: 200,
         validatePaged: { type: NotificationDto, count: 4 },
         token: userToken
-      }));
+      });
+      expect(res.body.totalUnreadCount).toBe(4);
+    });
+
+    it('should get a list of notifications with correct totalUnreadCount', async () => {
+      await prisma.notification.updateMany({
+        where: { NOT: { id: notifications[0].id } },
+        data: { isRead: true }
+      });
+
+      const res = await req.get({
+        url: 'notifications',
+        status: 200,
+        validatePaged: { type: NotificationDto, count: 4 },
+        token: userToken
+      });
+      expect(res.body.totalUnreadCount).toBe(1);
+    });
 
     it('should respond with a paged list of notifications with the take parameter', () =>
       req.takeTest({
@@ -260,5 +286,69 @@ describe('Notifications', () => {
 
     it('should 401 when no access token is provided', () =>
       req.unauthorizedTest('notifications', 'del'));
+  });
+
+  describe('notifications/markRead PATCH', () => {
+    it('should mark a list of notifications as read', async () => {
+      await req.patch({
+        url: 'notifications/markRead',
+        status: 204,
+        query: { notificationIDs: [notifications[0].id, notifications[3].id] },
+        token: userToken
+      });
+
+      const readNotifications = await prisma.notification.findMany({
+        where: {
+          notifiedUserID: user.id,
+          id: { in: [notifications[0].id, notifications[3].id] }
+        }
+      });
+      expect(readNotifications.length).toBe(2);
+      expect(readNotifications[0].isRead).toBe(true);
+      expect(readNotifications[1].isRead).toBe(true);
+
+      expect(
+        (
+          await prisma.notification.findMany({
+            where: {
+              notifiedUserID: user.id,
+              isRead: false
+            }
+          })
+        ).length
+      ).toBe(2);
+    });
+
+    it('should mark all notifications as read when all field is true', async () => {
+      await req.patch({
+        url: 'notifications/markRead',
+        status: 204,
+        query: { all: true },
+        token: userToken
+      });
+
+      const alteredNotifications = await prisma.notification.findMany({
+        where: { notifiedUserID: user.id }
+      });
+      expect(alteredNotifications.length).toBe(4);
+      for (const notification of alteredNotifications) {
+        expect(notification.isRead).toBe(true);
+      }
+    });
+
+    it("should only mark the given user's notifications as read", async () => {
+      await req.patch({
+        url: 'notifications/markRead',
+        status: 204,
+        query: { all: true },
+        token: userToken
+      });
+
+      const user2Notifications = await prisma.notification.findMany({
+        where: { notifiedUserID: user2.id }
+      });
+      expect(user2Notifications.length).toBe(1);
+      expect(user2Notifications[0].isRead).toBe(false);
+    });
   });
 });
