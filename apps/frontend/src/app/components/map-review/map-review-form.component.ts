@@ -192,7 +192,7 @@ export class MapReviewFormComponent {
           else {
             this.messageService.add({
               severity: 'error',
-              summary: `Failed to ${this.editing ? 'post' : 'edit'} review`,
+              summary: `Failed to ${this.editing ? 'edit' : 'post'} review`,
               detail: httpError.error.message
             });
           }
