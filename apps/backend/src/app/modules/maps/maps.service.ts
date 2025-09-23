@@ -2107,7 +2107,7 @@ export class MapsService {
         include: args.include,
         select: args.select
           ? // Required by below code
-            { id: true, status: true, ...args.select }
+            { id: true, status: true, submitterID: true, ...args.select }
           : undefined
       }));
 
