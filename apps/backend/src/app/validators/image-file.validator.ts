@@ -73,10 +73,10 @@ export class ImageFileValidator extends FileValidator<
     }
 
     return (
-      metadata.width >= (minWidth ?? 0) &&
-      metadata.height >= (minHeight ?? 0) &&
-      metadata.width <= (maxWidth ?? 1e6) &&
-      metadata.height <= (maxHeight ?? 1e6)
+      metadata.width >= (minWidth ?? 1) &&
+      metadata.height >= (minHeight ?? 1) &&
+      metadata.width <= (maxWidth ?? 8192) &&
+      metadata.height <= (maxHeight ?? 8192)
     );
   }
 
