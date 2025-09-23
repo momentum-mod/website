@@ -192,8 +192,8 @@ export class MapReviewService {
       submissionOnly: true
     });
 
-    if (map.submitterID === userID) {
-      throw new ConflictException('You cannot review your own submission');
+    if (map.submitterID === userID && body.approves) {
+      throw new ConflictException('You cannot approve your own submission');
     }
 
     if (body.suggestions) {
@@ -225,7 +225,7 @@ export class MapReviewService {
         )
       ) {
         throw new ConflictException(
-          'You cannot submit multiple suggestions. Edit your existing review!'
+          'You already have a review containing suggestions, please edit that one!'
         );
       }
     }

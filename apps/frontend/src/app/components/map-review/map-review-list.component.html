@@ -1,7 +1,5 @@
 @if (localUserService.isLoggedIn) {
-  @if (!isSubmitter) {
-    <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
-  }
+  <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
   <div class="flex items-center gap-4">
     <p class="ml-2 grow font-bold italic">
       <span>{{ map.reviewStats.total }} Reviews</span> - <span class="text-green-300">{{ map.reviewStats.approvals }} Approving</span>,

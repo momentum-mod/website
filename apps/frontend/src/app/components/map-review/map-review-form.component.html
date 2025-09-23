@@ -39,12 +39,14 @@
         mTooltip="Mark this review as requiring resolving before the map can be approved. This option is only available to official reviewers."
       />
       <input type="checkbox" class="checkbox" [formControl]="needsResolving" />
-      <p class="ml-2">Approve</p>
-      <m-icon
-        icon="tooltip-question-outline"
-        mTooltip="Grants approval to the map, allowing it to progress to Final Approval. This option is only available to official reviewers. Only do this if you've reviewed the map thoroughly!"
-      />
-      <input type="checkbox" class="checkbox" [formControl]="approves" />
+      @if (!isSubmitter) {
+        <p class="ml-2">Approve</p>
+        <m-icon
+          icon="tooltip-question-outline"
+          mTooltip="Grants approval to the map, allowing it to progress to Final Approval. This option is only available to official reviewers. Only do this if you've reviewed the map thoroughly!"
+        />
+        <input type="checkbox" class="checkbox" [formControl]="approves" />
+      }
     }
     @if (editing) {
       <button type="button" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>

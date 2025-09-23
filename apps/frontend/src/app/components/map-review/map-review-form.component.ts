@@ -186,8 +186,7 @@ export class MapReviewFormComponent {
             this.messageService.add({
               severity: 'error',
               summary: 'Error: Duplicate suggestions',
-              detail:
-                'You already have a review containing suggestions, please edit that one!'
+              detail: httpError.error.message
             });
           else {
             this.messageService.add({
@@ -200,7 +199,11 @@ export class MapReviewFormComponent {
       });
   }
 
-  isReviewer() {
+  get isReviewer() {
     return this.localUserService.hasRole(CombinedRoles.REVIEWER_AND_ABOVE);
+  }
+
+  get isSubmitter() {
+    return this.localUserService.user.value?.id === this.map.submitterID;
   }
 }
