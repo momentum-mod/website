@@ -703,12 +703,7 @@ export class MapsController {
       new ParseFilesPipe(
         new ParseFilePipe({
           validators: [
-            new ImageFileValidator({
-              minHeight: 100,
-              minWidth: 100,
-              maxWidth: 4000,
-              maxHeight: 4000
-            }),
+            new ImageFileValidator({}),
             new MaxFileSizeValidator({ maxSize: MAX_MAP_IMAGE_SIZE })
           ]
         })
