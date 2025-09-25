@@ -86,7 +86,7 @@ export class AdminActivityComponent implements OnInit {
           const query = {
             take: this.rows,
             skip: this.first,
-            filter: type ?? undefined
+            filter: type != null ? [type] : undefined
           };
           if (user) {
             return this.adminActivityService.getAdminActivitiesForUser(
