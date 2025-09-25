@@ -692,7 +692,7 @@ export class MapsService {
           ).map((obj) => ({
             mapID: map.id,
             ...obj,
-            style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
+            style: obj.style,
             type: LeaderboardType.IN_SUBMISSION
           }))
         });
