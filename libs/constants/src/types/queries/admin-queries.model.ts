@@ -8,6 +8,6 @@ export type AdminGetReportsQuery = PagedQuery & {
   resolved?: boolean;
 };
 
-export type AdminActivitiesGetQuery = PagedQuery & {
-  filter?: AdminActivityType;
+export type AdminGetAdminActivitiesQuery = PagedQuery & {
+  filter?: AdminActivityType[];
 };
