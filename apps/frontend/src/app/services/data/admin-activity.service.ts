@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import {
   PagedResponse,
   AdminActivity,
-  AdminActivitiesGetQuery
+  AdminGetAdminActivitiesQuery
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -12,7 +12,7 @@ export class AdminActivityService {
   private http = inject(HttpService);
 
   getAdminActivities(
-    query?: AdminActivitiesGetQuery
+    query?: AdminGetAdminActivitiesQuery
   ): Observable<PagedResponse<AdminActivity>> {
     return this.http.get<PagedResponse<AdminActivity>>('admin/activities', {
       query
@@ -21,7 +21,7 @@ export class AdminActivityService {
 
   getAdminActivitiesForUser(
     adminID: number,
-    query?: AdminActivitiesGetQuery
+    query?: AdminGetAdminActivitiesQuery
   ): Observable<PagedResponse<AdminActivity>> {
     return this.http.get<PagedResponse<AdminActivity>>(
       'admin/activities/' + adminID,
