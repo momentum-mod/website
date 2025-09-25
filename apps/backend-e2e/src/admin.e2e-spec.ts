@@ -44,12 +44,20 @@ import {
   AuthUtil,
   createSha1Hash,
   DbUtil,
+  E2ETestMMap,
   FILES_PATH,
   FileStoreUtil,
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
-import { Prisma, PrismaClient, User } from '@momentum/db';
+import {
+  MapReview,
+  MMap,
+  Prisma,
+  PrismaClient,
+  Report,
+  User
+} from '@momentum/db';
 import Zip from 'adm-zip';
 import {
   BabyZonesStubString,
@@ -62,9 +70,10 @@ import {
 } from './support/environment';
 import { createHash, randomUUID } from 'node:crypto';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 describe('Admin', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
@@ -100,12 +109,15 @@ describe('Admin', () => {
 
   describe('admin/users', () => {
     describe('POST', () => {
-      let modToken, admin, adminToken, nonAdminToken;
+      let admin: User,
+        adminToken: string,
+        modToken: string,
+        nonAdminToken: string;
 
       beforeAll(async () => {
-        [modToken, [admin, adminToken], nonAdminToken] = await Promise.all([
-          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+        [[admin, adminToken], modToken, nonAdminToken] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
           db.loginNewUser()
         ]);
       });
@@ -151,44 +163,57 @@ describe('Admin', () => {
 
   describe('admin/users/merge', () => {
     describe('POST', () => {
-      let u1, u1Token, u2, mu1, mu2, admin, adminToken, modToken;
+      let admin: User,
+        adminToken: string,
+        modToken: string,
+        u1: User,
+        u1Token: string,
+        u2: User,
+        mergePlaceholder: User,
+        mergeUser: User;
 
       beforeEach(async () => {
-        [[u1, u1Token], u2, mu1, mu2, [admin, adminToken], modToken] =
-          await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser(),
-            db.createUser({
-              data: { roles: Role.PLACEHOLDER }
-            }),
-            db.createUser(),
-            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-            db.loginNewUser({
-              data: { roles: Role.MODERATOR }
-            })
-          ]);
+        [
+          [admin, adminToken],
+          modToken,
+          [u1, u1Token],
+          u2,
+          mergePlaceholder,
+          mergeUser
+        ] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createUser({ data: { roles: Role.PLACEHOLDER } }),
+          db.createUser()
+        ]);
 
         await prisma.follow.createMany({
           data: [
-            { followeeID: u1.id, followedID: mu1.id },
+            { followeeID: u1.id, followedID: mergePlaceholder.id },
             {
               followeeID: u2.id,
-              followedID: mu1.id,
+              followedID: mergePlaceholder.id,
               notifyOn: ActivityType.MAP_APPROVED,
               createdAt: new Date('12/24/2021')
             },
             {
               followeeID: u2.id,
-              followedID: mu2.id,
+              followedID: mergeUser.id,
               notifyOn: ActivityType.MAP_UPLOADED,
               createdAt: new Date('12/25/2021')
             },
-            { followeeID: mu2.id, followedID: mu1.id }
+            { followeeID: mergeUser.id, followedID: mergePlaceholder.id }
           ]
         });
 
         await prisma.activity.create({
-          data: { type: ActivityType.REPORT_FILED, userID: mu1.id, data: 1n }
+          data: {
+            type: ActivityType.REPORT_FILED,
+            userID: mergePlaceholder.id,
+            data: 1n
+          }
         });
       });
 
@@ -198,46 +223,48 @@ describe('Admin', () => {
         const res = await req.post({
           url: 'admin/users/merge',
           status: 201,
-          body: { placeholderID: mu1.id, userID: mu2.id },
+          body: { placeholderID: mergePlaceholder.id, userID: mergeUser.id },
           token: adminToken,
           validate: UserDto
         });
 
-        expect(res.body.id).toBe(mu2.id);
-        expect(res.body.alias).toBe(mu2.alias);
+        expect(res.body.id).toBe(mergeUser.id);
+        expect(res.body.alias).toBe(mergeUser.alias);
 
-        // U1 was following MU1, that should be transferred to MU2.
+        // u1 was following mergePlaceholder, that should be transferred to mergeUser.
         const u1Follow = await prisma.follow.findFirst({
-          where: { followeeID: u1.id, followedID: mu2.id }
+          where: { followeeID: u1.id, followedID: mergeUser.id }
         });
         expect(u1Follow.followeeID).toBeTruthy();
 
-        // U2 was following MU1 and MU2, the creation data should be earliest
+        // u2 was following mergePlaceholder and mergeUser, the creation data should be earliest
         // of the two and the notifyOn flags combined.
         const u2Follow = await prisma.follow.findFirst({
-          where: { followeeID: u2.id, followedID: mu2.id }
+          where: { followeeID: u2.id, followedID: mergeUser.id }
         });
         expect(new Date(u2Follow.createdAt)).toEqual(new Date('12/24/2021'));
         expect(u2Follow.notifyOn).toBe(
           ActivityType.MAP_APPROVED | ActivityType.MAP_UPLOADED
         );
 
-        // MU2 was following MU1, that should be deleted
-        const mu2Follows = await prisma.follow.findFirst({
-          where: { followeeID: mu2.id, followedID: mu1.id }
+        // mergeUser was following mergePlaceholder, that should be deleted
+        const mergeUserFollows = await prisma.follow.findFirst({
+          where: { followeeID: mergeUser.id, followedID: mergePlaceholder.id }
         });
-        expect(mu2Follows).toBeNull();
+        expect(mergeUserFollows).toBeNull();
 
-        // MU1's activities should have been transferred to MU2
+        // mergePlaceholder's activities should have been transferred to mergeUser
 
-        const mu2Activities = await prisma.activity.findFirst({
-          where: { userID: mu2.id }
+        const mergeUserActivities = await prisma.activity.findFirst({
+          where: { userID: mergeUser.id }
         });
-        expect(mu2Activities.type).toBe(ActivityType.REPORT_FILED);
+        expect(mergeUserActivities.type).toBe(ActivityType.REPORT_FILED);
 
         // Placeholder should have been deleted
-        const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
-        expect(mu1DB).toBeNull();
+        const mergePlaceholderDB = await prisma.user.findFirst({
+          where: { id: mergePlaceholder.id }
+        });
+        expect(mergePlaceholderDB).toBeNull();
 
         await expectAdminActivityWasCreated(
           admin.id,
@@ -249,7 +276,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 400,
-          body: { placeholderID: u1.id, userID: mu2.id },
+          body: { placeholderID: u1.id, userID: mergeUser.id },
           token: adminToken
         }));
 
@@ -257,7 +284,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 400,
-          body: { placeholderID: NULL_ID, userID: mu2.id },
+          body: { placeholderID: NULL_ID, userID: mergeUser.id },
           token: adminToken
         }));
 
@@ -265,7 +292,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 400,
-          body: { placeholderID: mu1.id, userID: NULL_ID },
+          body: { placeholderID: mergePlaceholder.id, userID: NULL_ID },
           token: adminToken
         }));
 
@@ -273,7 +300,10 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 400,
-          body: { placeholderID: mu1.id, userID: mu1.id },
+          body: {
+            placeholderID: mergePlaceholder.id,
+            userID: mergePlaceholder.id
+          },
           token: adminToken
         }));
 
@@ -281,7 +311,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 403,
-          body: { placeholderID: mu1.id, userID: mu2.id },
+          body: { placeholderID: mergePlaceholder.id, userID: mergeUser.id },
           token: modToken
         }));
 
@@ -289,7 +319,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/users/merge',
           status: 403,
-          body: { placeholderID: mu1.id, userID: mu2.id },
+          body: { placeholderID: mergePlaceholder.id, userID: mergeUser.id },
           token: u1Token
         }));
 
@@ -304,40 +334,33 @@ describe('Admin', () => {
         adminToken: string,
         adminGameToken: string,
         admin2: User,
+        mod: User,
+        modToken: string,
+        mod2: User,
         u1: User,
         u1Token: string,
         u2: User,
-        u3: User,
-        mod: User,
-        modToken: string,
-        mod2: User;
+        u3: User;
 
       beforeEach(async () => {
         [
           [admin, adminToken],
           admin2,
+          [mod, modToken],
+          mod2,
           [u1, u1Token],
           u2,
-          u3,
-          [mod, modToken],
-          mod2
+          u3
         ] = await Promise.all([
-          db.createAndLoginUser({
-            data: { roles: Role.ADMIN }
-          }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createUser({ data: { roles: Role.ADMIN } }),
-          db.createAndLoginUser({
-            data: { alias: 'ButterOverflowEnthusiast' }
-          }),
-          db.createUser({
-            data: { roles: Role.VERIFIED, alias: 'YodaConditionCoder' }
-          }),
-          db.createUser({
-            data: { roles: Role.VERIFIED, alias: 'kebab-case-extraordinaire' }
-          }),
           db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
-          db.createUser({ data: { roles: Role.MODERATOR } })
+          db.createUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser({ data: { alias: 'JoeFromAccounting' } }),
+          db.createUser({ data: { roles: Role.VERIFIED, alias: 'DanTheMan' } }),
+          db.createUser({ data: { roles: Role.VERIFIED, alias: 'jef' } })
         ]);
+
         adminGameToken = auth.gameLogin(admin);
       });
 
@@ -632,13 +655,17 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, admin, adminToken, modToken;
+      let admin: User,
+        adminToken: string,
+        modToken: string,
+        u1: User,
+        u1Token: string;
 
       beforeEach(async () => {
-        [[u1, u1Token], [admin, adminToken], modToken] = await Promise.all([
-          db.createAndLoginUser(),
+        [[admin, adminToken], modToken, [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-          db.loginNewUser({ data: { roles: Role.MODERATOR } })
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser()
         ]);
       });
 
@@ -841,9 +868,9 @@ describe('Admin', () => {
         reviewerToken: string,
         u1: User,
         u1Token: string,
-        map1,
-        caMap,
-        faMap;
+        map1: E2ETestMMap,
+        caMap: E2ETestMMap,
+        faMap: E2ETestMMap;
 
       beforeAll(async () => {
         [modToken, adminToken, reviewerToken, [u1, u1Token], [map1]] =
@@ -905,10 +932,7 @@ describe('Admin', () => {
         }));
 
       it('should respond with filtered map data using the search parameter', async () => {
-        map1 = await prisma.mMap.update({
-          where: { id: map1.id },
-          data: { name: 'aaaaa' }
-        });
+        const map = await db.createMap({ name: 'aaaaa' }, true);
 
         await req.searchTest({
           url: 'admin/maps',
@@ -918,6 +942,8 @@ describe('Admin', () => {
           searchPropertyName: 'name',
           validate: { type: MapDto, count: 1 }
         });
+
+        await prisma.mMap.delete({ where: { id: map.id } });
       });
 
       it('should respond with filtered map data using the submitter id parameter', async () => {
@@ -991,28 +1017,28 @@ describe('Admin', () => {
       const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
       const bspHash = createSha1Hash(bspBuffer);
 
-      let mod,
-        modToken,
-        admin,
-        adminToken,
-        reviewerToken,
-        u1,
-        u1Token,
-        u2,
-        u3,
+      let admin: User,
+        adminToken: string,
+        mod: User,
+        modToken: string,
+        reviewerToken: string,
+        u1: User,
+        u1Token: string,
+        u2: User,
+        u3: User,
         createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
         [
-          [mod, modToken],
           [admin, adminToken],
+          [mod, modToken],
           reviewerToken,
           [u1, u1Token],
           u2,
           u3
         ] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
           db.loginNewUser({ data: { roles: Role.REVIEWER } }),
           db.createAndLoginUser(),
           db.createUser(),
@@ -1556,7 +1582,7 @@ describe('Admin', () => {
       });
 
       describe('Map Approval', () => {
-        let map;
+        let map: E2ETestMMap;
         const finalLeaderboards = [
           {
             gamemode: Gamemode.RJ,
@@ -2042,7 +2068,7 @@ describe('Admin', () => {
         adminToken: string,
         user: User,
         token: string,
-        map;
+        map: E2ETestMMap;
 
       beforeAll(async () => {
         [modToken, [admin, adminToken], [user, token]] = await Promise.all([
@@ -2335,7 +2361,13 @@ describe('Admin', () => {
 
   describe('admin/map-review/{reviewID}', () => {
     describe('PATCH', () => {
-      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+      let u1: User,
+        u1Token: string,
+        adminToken: string,
+        modToken: string,
+        reviewerToken: string,
+        map: MMap,
+        review: MapReview;
 
       beforeAll(async () => {
         [[u1, u1Token], adminToken, modToken, reviewerToken] =
@@ -2446,7 +2478,13 @@ describe('Admin', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, adminToken, modToken, reviewerToken, map, review;
+      let u1: User,
+        u1Token: string,
+        adminToken: string,
+        modToken: string,
+        reviewerToken: string,
+        map: MMap,
+        review: MapReview;
       const assetPath = mapReviewAssetPath('1');
 
       beforeAll(async () => {
@@ -2553,7 +2591,11 @@ describe('Admin', () => {
 
   describe('admin/reports', () => {
     describe('GET', () => {
-      let adminToken, u1, u1Token, r1, _r2;
+      let adminToken: string,
+        u1: User,
+        u1Token: string,
+        r1: Report,
+        _r2: Report;
 
       beforeAll(async () => {
         [adminToken, [u1, u1Token]] = await Promise.all([
@@ -2675,7 +2717,12 @@ describe('Admin', () => {
 
   describe('admin/reports/{reportID}', () => {
     describe('PATCH', () => {
-      let admin, adminToken, u1, u1Token, r1, _r2;
+      let admin: User,
+        adminToken: string,
+        u1: User,
+        u1Token: string,
+        r1: Report,
+        _r2: Report;
 
       beforeEach(async () => {
         [[admin, adminToken], [u1, u1Token]] = await Promise.all([
@@ -2755,7 +2802,7 @@ describe('Admin', () => {
 
   describe('admin/activities', () => {
     describe('GET', () => {
-      let admin, adminToken, mod, u1, u1Token;
+      let admin: User, adminToken: string, mod: User, u1: User, u1Token: string;
       beforeAll(async () => {
         [[admin, adminToken], mod, [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
@@ -2851,7 +2898,7 @@ describe('Admin', () => {
 
   describe('admin/activities/{adminID}', () => {
     describe('GET', () => {
-      let admin, adminToken, u1, u1Token;
+      let admin: User, adminToken: string, u1: User, u1Token: string;
       beforeAll(async () => {
         [[admin, adminToken], [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
@@ -2915,12 +2962,12 @@ describe('Admin', () => {
 
   describe('admin/killswitch', () => {
     describe('GET', () => {
-      let adminToken, u1Token, modToken;
+      let adminToken: string, modToken: string, u1Token: string;
       beforeAll(async () => {
-        [adminToken, u1Token, modToken] = await Promise.all([
+        [adminToken, modToken, u1Token] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
-          db.loginNewUser(),
-          db.loginNewUser({ data: { roles: Role.MODERATOR } })
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.loginNewUser()
         ]);
       });
 
@@ -2961,12 +3008,12 @@ describe('Admin', () => {
     });
 
     describe('PATCH', () => {
-      let adminToken, u1Token, modToken;
+      let adminToken: string, modToken: string, u1Token: string;
       beforeAll(async () => {
-        [adminToken, u1Token, modToken] = await Promise.all([
+        [adminToken, modToken, u1Token] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
-          db.loginNewUser(),
-          db.loginNewUser({ data: { roles: Role.MODERATOR } })
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.loginNewUser()
         ]);
       });
 

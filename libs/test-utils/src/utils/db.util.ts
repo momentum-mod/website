@@ -147,16 +147,7 @@ export class DbUtil {
   async createMap(
     mmap: CreateMapMMapArgs = {},
     noLeaderboards: boolean = false
-  ): Promise<
-    MMap & {
-      info: MapInfo;
-      stats: MapStats;
-      leaderboards: Leaderboard[];
-      currentVersion: MapVersion;
-      versions: MapVersion[];
-      submission: MapSubmission;
-    }
-  > {
+  ): Promise<E2ETestMMap> {
     const createdMap = await this.prisma.mMap.create({
       data: {
         ...({
@@ -261,18 +252,10 @@ export class DbUtil {
     });
   }
 
-  createMaps(
+  async createMaps(
     count: number,
     map: CreateMapMMapArgs = {}
-  ): Promise<
-    Array<
-      MMap & {
-        info: MapInfo;
-        stats: MapStats;
-        leaderboards: Leaderboard[];
-      }
-    >
-  > {
+  ): Promise<Array<E2ETestMMap>> {
     return Promise.all(arrayFrom(count, () => this.createMap(map)));
   }
 
@@ -283,7 +266,7 @@ export class DbUtil {
   async createMapWithFullLeaderboards(
     mmap?: Omit<CreateMapMMapArgs, 'leaderboards' | 'zones'>,
     gamemodes = [Gamemode.AHOP]
-  ) {
+  ): Promise<E2ETestMMap> {
     const map = await this.createMap({
       ...mmap,
       versions: {
@@ -465,5 +448,14 @@ export class DbUtil {
 
 type CreateUserArgs = PartialDeep<Prisma.UserCreateArgs>;
 type CreateMapMMapArgs = Partial<Prisma.MMapCreateInput>;
+
+export type E2ETestMMap = MMap & {
+  info: MapInfo;
+  stats: MapStats;
+  leaderboards: Leaderboard[];
+  currentVersion: MapVersion;
+  versions: MapVersion[];
+  submission: MapSubmission;
+};
 
 //#endregion
