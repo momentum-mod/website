@@ -13,6 +13,7 @@ import { config } from '../config';
 import {
   isAdminBotChannel,
   isModeratorOrHigher,
+  replyDescriptionEmbed,
   timeSpanToPrettyPrint
 } from '../utils';
 
@@ -29,9 +30,55 @@ export class TrustedModule implements InteractionModule {
         .addUserOption((option) =>
           option.setName('member').setDescription('Member').setRequired(true)
         )
+    )
+    .addSubcommand((builder) =>
+      builder
+        .setName('grant')
+        .setDescription(
+          'Manually trusts a member, if applicable, removing the blacklist'
+        )
+        .addUserOption((option) =>
+          option.setName('member').setDescription('Member').setRequired(true)
+        )
+    )
+    .addSubcommand((builder) =>
+      builder
+        .setName('blacklist')
+        .setDescription(
+          'Manually blacklist a member, if applicable, removing the trust'
+        )
+        .addUserOption((option) =>
+          option.setName('member').setDescription('Member').setRequired(true)
+        )
     );
 
+  private subcommandMap: Record<
+    string,
+    (i: ChatInputCommandInteraction) => Promise<void>
+  > = {
+    status: this.checkStatus,
+    grant: this.trustMember,
+    blacklist: this.blacklistMember
+  };
+
   async executeCommand(interaction: ChatInputCommandInteraction) {
+    const subcommand = interaction.options.getSubcommand();
+    const runner = this.subcommandMap[subcommand];
+
+    if (!this.subcommandMap[subcommand]) {
+      await replyDescriptionEmbed(
+        interaction,
+        `Subcommand '${subcommand}' not found!`,
+        MomentumColor.Red,
+        true
+      );
+      return;
+    }
+
+    await runner.bind(this)(interaction);
+  }
+
+  async checkStatus(interaction: ChatInputCommandInteraction) {
     const member = interaction.options.getMember('member') as GuildMember;
     if (!member) return;
 
@@ -97,5 +144,33 @@ export class TrustedModule implements InteractionModule {
     );
 
     await interaction.editReply({ embeds: [embed] });
+  }
+
+  async trustMember(interaction: ChatInputCommandInteraction) {
+    const member = interaction.options.getMember('member') as GuildMember;
+    if (!member) return;
+
+    await member.roles.remove(config.media_blacklisted_role);
+    await member.roles.add(config.media_verified_role);
+
+    await replyDescriptionEmbed(
+      interaction,
+      `Trusted ${member}`,
+      MomentumColor.Blue
+    );
+  }
+
+  async blacklistMember(interaction: ChatInputCommandInteraction) {
+    const member = interaction.options.getMember('member') as GuildMember;
+    if (!member) return;
+
+    await member.roles.remove(config.media_verified_role);
+    await member.roles.add(config.media_blacklisted_role);
+
+    await replyDescriptionEmbed(
+      interaction,
+      `Blacklisted ${member}`,
+      MomentumColor.Blue
+    );
   }
 }
