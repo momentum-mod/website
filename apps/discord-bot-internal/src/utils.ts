@@ -34,21 +34,33 @@ export async function replyDescriptionEmbed(
   await interaction.reply(replyData);
 }
 
-export function isModeratorOrHigher(member: GuildMember) {
-  return member.roles.cache.hasAny(config.moderator_id, config.admin_id);
-}
+export const isModeratorOrHigher = {
+  check(member: GuildMember) {
+    return member.roles.cache.hasAny(config.moderator_id, config.admin_id);
+  },
+  message: 'You have to be moderator or higher to use this command.'
+};
 
-export function isAdmin(member: GuildMember) {
-  return member.roles.cache.has(config.admin_id);
-}
+export const isAdmin = {
+  check(member: GuildMember) {
+    return member.roles.cache.has(config.admin_id);
+  },
+  message: 'You have to be admin to use this command.'
+};
 
-export function isTrusted(member: GuildMember) {
-  return member.roles.cache.has(config.media_verified_role);
-}
+export const isTrusted = {
+  check(member: GuildMember) {
+    return member.roles.cache.has(config.media_verified_role);
+  },
+  message: 'You have to be trusted to use this command.'
+};
 
-export function isAdminBotChannel(channel: Channel) {
-  return channel.id === config.admin_bot_channel;
-}
+export const isAdminBotChannel = {
+  check(channel: Channel) {
+    return channel.id === config.admin_bot_channel;
+  },
+  message: 'This command is only avaliable in bot config channel.'
+};
 
 // Stolen from DSharpPlus
 export function sanitizeMarkdown(input: string) {

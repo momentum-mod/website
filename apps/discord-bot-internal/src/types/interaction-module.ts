@@ -23,6 +23,12 @@ export interface InteractionModule {
   contextMenuHandler?(
     interaction: ContextMenuCommandInteraction
   ): void | Promise<void>;
-  userFilter?(member: GuildMember): boolean;
-  channelFilter?(channel: Channel): boolean;
+  userFilter?: {
+    check(member: GuildMember): boolean;
+    message: string;
+  };
+  channelFilter?: {
+    check(channel: Channel): boolean;
+    message: string;
+  };
 }
