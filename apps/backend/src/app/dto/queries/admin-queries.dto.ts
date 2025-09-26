@@ -1,4 +1,5 @@
 ﻿import {
+  AdminGetAdminActivitiesQuery,
   AdminActivityType,
   AdminGetReportsExpand,
   AdminGetReportsQuery
@@ -24,7 +25,10 @@ export class AdminGetReportsQueryDto
   readonly resolved?: boolean;
 }
 
-export class AdminGetAdminActivitiesQueryDto extends PagedQueryDto {
+export class AdminGetAdminActivitiesQueryDto
+  extends PagedQueryDto
+  implements AdminGetAdminActivitiesQuery
+{
   @EnumFilterQueryProperty(
     [
       AdminActivityType.USER_UPDATE,

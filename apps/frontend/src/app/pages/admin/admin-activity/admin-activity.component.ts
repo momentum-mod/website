@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -14,11 +13,11 @@ import { UserSelectComponent } from '../../../components/user-select/user-select
 import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
-import { AdminActivityService } from '../../../services/data/admin-activity.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
-import { Select } from 'primeng/select';
+import { MultiSelect } from 'primeng/multiselect';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { AdminService } from '../../../services/data/admin.service';
 
 @Component({
   selector: 'm-admin-activity',
@@ -32,17 +31,16 @@ import { SpinnerDirective } from '../../../directives/spinner.directive';
     UserSelectComponent,
     CardComponent,
     ReactiveFormsModule,
-    Select,
+    MultiSelect,
     SpinnerDirective
   ]
 })
 export class AdminActivityComponent implements OnInit {
-  private readonly adminActivityService = inject(AdminActivityService);
+  private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
 
   // prettier-ignore
   protected readonly AdminActivitiesFilters = [
-    { value: undefined, text: 'All' },
     { value: AdminActivityType.USER_UPDATE, text: 'User update' },
     { value: AdminActivityType.USER_CREATE_PLACEHOLDER, text: 'Placeholder created' },
     { value: AdminActivityType.USER_MERGE, text: 'User merged' },
@@ -55,23 +53,22 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' }
   ];
 
-  protected activities: Array<{
+  protected compositeActivities: Array<{
     activity: AdminActivity;
     entry: AdminActivityEntryData;
   }> = [];
 
   protected readonly filters = new FormGroup({
-    type: new FormControl<AdminActivityType>(null),
-    user: new FormControl<User>(null)
+    types: new FormControl<AdminActivityType[]>([], { nonNullable: true }),
+    user: new FormControl<User | null>(null)
   });
 
   protected loading: boolean;
-  protected readonly pageChange = new Subject<PaginatorState>();
 
+  protected readonly pageChange = new Subject<PaginatorState>();
+  protected first = 0;
   protected readonly rows = 10;
   protected totalRecords = 0;
-  protected first = 0;
-  protected filter?: AdminActivityType;
 
   ngOnInit() {
     merge(
@@ -82,27 +79,29 @@ export class AdminActivityComponent implements OnInit {
       .pipe(
         tap(() => (this.loading = true)),
         switchMap(() => {
-          const { type, user } = this.filters.value;
+          const { types, user } = this.filters.value;
           const query = {
             take: this.rows,
             skip: this.first,
-            filter: type ?? undefined
+            filter: types.length > 0 ? types : undefined
           };
-          if (user) {
-            return this.adminActivityService.getAdminActivitiesForUser(
-              user.id,
-              query
-            );
-          } else {
-            return this.adminActivityService.getAdminActivities(query);
-          }
-        }),
-        mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 })
+
+          return (
+            this.adminService
+              // If no user selected, get all admins' activities.
+              .getAdminActivities(user?.id, query)
+              .pipe(
+                // This must be in an inner pipe, rather than the outer pipe to avoid
+                // outer observable terminating on 400 (stopping subsequent search attempts).
+                mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 })
+              )
+          );
+        })
       )
       .subscribe({
         next: (response) => {
           this.totalRecords = response.totalCount;
-          this.activities = response.data.map((activity) => ({
+          this.compositeActivities = response.data.map((activity) => ({
             activity,
             entry: AdminActivityEntryComponent.getActivityData(activity)
           }));
@@ -114,7 +113,7 @@ export class AdminActivityComponent implements OnInit {
             summary: 'Failed to load admin activity',
             detail: httpError.error.message
           });
-          this.activities = [];
+          this.compositeActivities = [];
           this.totalRecords = 0;
           this.loading = false;
         }
