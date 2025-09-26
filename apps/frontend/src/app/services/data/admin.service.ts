@@ -12,7 +12,9 @@ import {
   MapReview,
   AdminUpdateMapReview,
   UpdateMapAdmin,
-  Killswitches
+  Killswitches,
+  AdminGetAdminActivitiesQuery,
+  AdminActivity
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -87,6 +89,16 @@ export class AdminService {
 
   deleteMapReview(reviewID: number): Observable<void> {
     return this.http.delete(`admin/map-review/${reviewID}`);
+  }
+
+  getAdminActivities(
+    adminID?: number,
+    query?: AdminGetAdminActivitiesQuery
+  ): Observable<PagedResponse<AdminActivity>> {
+    return this.http.get<PagedResponse<AdminActivity>>(
+      'admin/activities' + (adminID ? `/${adminID}` : ''),
+      { query }
+    );
   }
 
   getKillswitches(): Observable<Killswitches> {

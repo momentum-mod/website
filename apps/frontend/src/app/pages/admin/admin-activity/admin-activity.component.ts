@@ -14,11 +14,11 @@ import { UserSelectComponent } from '../../../components/user-select/user-select
 import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
-import { AdminActivityService } from '../../../services/data/admin-activity.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
 import { Select } from 'primeng/select';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { AdminService } from '../../../services/data/admin.service';
 
 @Component({
   selector: 'm-admin-activity',
@@ -37,7 +37,7 @@ import { SpinnerDirective } from '../../../directives/spinner.directive';
   ]
 })
 export class AdminActivityComponent implements OnInit {
-  private readonly adminActivityService = inject(AdminActivityService);
+  private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
 
   // prettier-ignore
@@ -61,8 +61,8 @@ export class AdminActivityComponent implements OnInit {
   }> = [];
 
   protected readonly filters = new FormGroup({
-    type: new FormControl<AdminActivityType>(null),
-    user: new FormControl<User>(null)
+    type: new FormControl<AdminActivityType | null>(null),
+    user: new FormControl<User | null>(null)
   });
 
   protected loading: boolean;
@@ -88,16 +88,18 @@ export class AdminActivityComponent implements OnInit {
             skip: this.first,
             filter: type != null ? [type] : undefined
           };
-          if (user) {
-            return this.adminActivityService.getAdminActivitiesForUser(
-              user.id,
-              query
-            );
-          } else {
-            return this.adminActivityService.getAdminActivities(query);
-          }
-        }),
-        mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 })
+
+          return (
+            this.adminService
+              // If no user selected, get all admins' activities.
+              .getAdminActivities(user?.id, query)
+              .pipe(
+                // This must be in an inner pipe, rather than the outer pipe to avoid
+                // outer observable terminating on 400 (stopping subsequent search attempts).
+                mapHttpError(400, { data: [], totalCount: -1, returnCount: 0 })
+              )
+          );
+        })
       )
       .subscribe({
         next: (response) => {
