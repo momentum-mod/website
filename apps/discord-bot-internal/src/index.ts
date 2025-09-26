@@ -84,7 +84,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (
       interactionModule.userFilter &&
       (!interaction.member ||
-        !interactionModule.userFilter(interaction.member as GuildMember))
+        !interactionModule.userFilter.check(interaction.member as GuildMember))
     ) {
       if (interaction.member)
         logger.debug(
@@ -93,7 +93,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       await replyDescriptionEmbed(
         interaction,
-        'Permission denied',
+        interactionModule.userFilter.message,
         MomentumColor.Red,
         true
       );
@@ -103,7 +103,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (
       interactionModule.channelFilter &&
       (!interaction.channel ||
-        !interactionModule.channelFilter(interaction.channel))
+        !interactionModule.channelFilter.check(interaction.channel))
     ) {
       if (interaction.member)
         logger.debug(
@@ -112,7 +112,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
       await replyDescriptionEmbed(
         interaction,
-        'Permission denied',
+        interactionModule.channelFilter.message,
         MomentumColor.Red,
         true
       );
