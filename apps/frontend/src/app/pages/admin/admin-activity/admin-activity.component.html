@@ -1,22 +1,23 @@
 <m-card title="Admin Activity">
   <div header class="flex items-center gap-4" [formGroup]="filters">
-    <p-select
-      class="w-48"
-      placeholder="Activity Type"
+    <p-multiSelect
+      placeholder="Activity Types"
       [options]="AdminActivitiesFilters"
       optionLabel="text"
       optionValue="value"
-      formControlName="type"
+      formControlName="types"
+      [showHeader]="false"
+      scrollHeight="auto"
       appendTo="body"
     />
     <m-user-select formControlName="user" />
   </div>
   <div [mSpinner]="loading">
     <m-accordion [autoClose]="false" [startFirstOpen]="true">
-      @for (activity of activities; track activity) {
-        <m-accordion-item [hasContent]="!!activity.entry.diff">
-          <m-admin-activity-entry-header header [activity]="activity.activity" [activityData]="activity.entry" />
-          <m-admin-activity-entry [activityData]="activity.entry" />
+      @for (ca of compositeActivities; track ca.activity.id) {
+        <m-accordion-item [hasContent]="!!ca.entry.diff">
+          <m-admin-activity-entry-header header [activity]="ca.activity" [activityData]="ca.entry" />
+          <m-admin-activity-entry [activityData]="ca.entry" />
         </m-accordion-item>
       } @empty {
         @if (!loading) {

@@ -1,5 +1,4 @@
 import { Component, OnInit, inject } from '@angular/core';
-
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -16,7 +15,7 @@ import { AccordionComponent } from '../../../components/accordion/accordion.comp
 import { AccordionItemComponent } from '../../../components/accordion/accordion-item.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
-import { Select } from 'primeng/select';
+import { MultiSelect } from 'primeng/multiselect';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { AdminService } from '../../../services/data/admin.service';
 
@@ -32,7 +31,7 @@ import { AdminService } from '../../../services/data/admin.service';
     UserSelectComponent,
     CardComponent,
     ReactiveFormsModule,
-    Select,
+    MultiSelect,
     SpinnerDirective
   ]
 })
@@ -42,7 +41,6 @@ export class AdminActivityComponent implements OnInit {
 
   // prettier-ignore
   protected readonly AdminActivitiesFilters = [
-    { value: undefined, text: 'All' },
     { value: AdminActivityType.USER_UPDATE, text: 'User update' },
     { value: AdminActivityType.USER_CREATE_PLACEHOLDER, text: 'Placeholder created' },
     { value: AdminActivityType.USER_MERGE, text: 'User merged' },
@@ -55,23 +53,22 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' }
   ];
 
-  protected activities: Array<{
+  protected compositeActivities: Array<{
     activity: AdminActivity;
     entry: AdminActivityEntryData;
   }> = [];
 
   protected readonly filters = new FormGroup({
-    type: new FormControl<AdminActivityType | null>(null),
+    types: new FormControl<AdminActivityType[]>([], { nonNullable: true }),
     user: new FormControl<User | null>(null)
   });
 
   protected loading: boolean;
-  protected readonly pageChange = new Subject<PaginatorState>();
 
+  protected readonly pageChange = new Subject<PaginatorState>();
+  protected first = 0;
   protected readonly rows = 10;
   protected totalRecords = 0;
-  protected first = 0;
-  protected filter?: AdminActivityType;
 
   ngOnInit() {
     merge(
@@ -82,11 +79,11 @@ export class AdminActivityComponent implements OnInit {
       .pipe(
         tap(() => (this.loading = true)),
         switchMap(() => {
-          const { type, user } = this.filters.value;
+          const { types, user } = this.filters.value;
           const query = {
             take: this.rows,
             skip: this.first,
-            filter: type != null ? [type] : undefined
+            filter: types.length > 0 ? types : undefined
           };
 
           return (
@@ -104,7 +101,7 @@ export class AdminActivityComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.totalRecords = response.totalCount;
-          this.activities = response.data.map((activity) => ({
+          this.compositeActivities = response.data.map((activity) => ({
             activity,
             entry: AdminActivityEntryComponent.getActivityData(activity)
           }));
@@ -116,7 +113,7 @@ export class AdminActivityComponent implements OnInit {
             summary: 'Failed to load admin activity',
             detail: httpError.error.message
           });
-          this.activities = [];
+          this.compositeActivities = [];
           this.totalRecords = 0;
           this.loading = false;
         }
