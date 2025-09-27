@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
-import { AdminActivityType, Role } from '@momentum/constants';
+import { AdminActivityType, NotificationType, Role } from '@momentum/constants';
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
   AdminUpdateUserDto,
@@ -22,13 +22,16 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from './admin-activity.service';
 import { UsersService } from '../users/users.service';
+import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AdminService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async createPlaceholderUser(
@@ -328,6 +331,27 @@ export class AdminService {
       reportID,
       updatedReport,
       report
+    );
+  }
+
+  async createAdminAnnouncement(
+    userID: number,
+    announcement: AdminAnnouncementDto
+  ) {
+    const allUserIDs = await this.db.user
+      .findMany({ select: { id: true } })
+      .then((users) => users.map((obj) => obj.id));
+
+    await this.notificationsService.sendNotifications(
+      {
+        data: allUserIDs.map((notifiedUserID) => ({
+          type: NotificationType.ANNOUNCEMENT,
+          json: { message: announcement.message },
+          notifiedUserID,
+          userID
+        }))
+      },
+      this.db
     );
   }
 }

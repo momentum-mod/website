@@ -3096,4 +3096,62 @@ describe('Admin', () => {
       });
     });
   });
+
+  describe('admin/announcement', () => {
+    describe('POST', () => {
+      let adminToken: string, modToken: string, u1Token: string;
+      beforeAll(async () => {
+        [adminToken, modToken, u1Token] = await Promise.all([
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.loginNewUser()
+        ]);
+      });
+
+      afterEach(() => db.cleanup('notification'));
+      afterAll(() => db.cleanup('user'));
+
+      it('should post an announcement to all users', async () => {
+        const horseTime = "It's Horse Time!";
+        await req.post({
+          url: 'admin/announcement',
+          status: 201,
+          body: { message: horseTime },
+          token: adminToken
+        });
+
+        const [userCount, notificationsCount] = await Promise.all([
+          prisma.user.count(),
+          prisma.notification.count({
+            where: {
+              type: NotificationType.ANNOUNCEMENT,
+              json: {
+                path: ['message'],
+                equals: horseTime
+              }
+            }
+          })
+        ]);
+        expect(notificationsCount).toBe(userCount);
+      });
+
+      it('should 403 for moderators', async () => {
+        await req.post({
+          url: 'admin/announcement',
+          status: 403,
+          body: { message: "It's Horse Time!" },
+          token: modToken
+        });
+      });
+
+      it('should 403 for regular users', async () => {
+        await req.post({
+          url: 'admin/announcement',
+          status: 403,
+          body: { message: "It's Horse Time!" },
+          token: u1Token
+        });
+      });
+    });
+  });
 });
