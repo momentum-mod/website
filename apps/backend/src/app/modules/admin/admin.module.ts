@@ -7,6 +7,8 @@ import { AdminController } from './admin.controller';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
     forwardRef(() => MapsModule),
     forwardRef(() => UsersModule),
     forwardRef(() => MapReviewModule),
-    KillswitchModule
+    KillswitchModule,
+    NotificationsModule
   ],
   controllers: [AdminController],
-  providers: [AdminService, AdminActivityService],
+  providers: [AdminService, AdminActivityService, NotificationsService],
   exports: [AdminActivityService]
 })
 export class AdminModule {}

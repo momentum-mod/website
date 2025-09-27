@@ -11,3 +11,5 @@ export type AdminGetReportsQuery = PagedQuery & {
 export type AdminGetAdminActivitiesQuery = PagedQuery & {
   filter?: AdminActivityType[];
 };
+
+export type AdminAnnouncement = { message: string };

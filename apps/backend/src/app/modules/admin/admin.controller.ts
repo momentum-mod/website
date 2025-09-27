@@ -15,6 +15,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -51,6 +52,7 @@ import { ParseInt32SafePipe } from '../../pipes';
 import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewService } from '../map-review/map-review.service';
+import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -343,5 +345,17 @@ export class AdminController {
   @ApiBadRequestResponse({ description: 'Invalid switches type' })
   getKillSwitches(): Promise<Killswitches> {
     return this.killswitchService.getKillSwitches();
+  }
+
+  @Post('/announcement')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Make an announcement to all users' })
+  @ApiCreatedResponse({ description: 'Successfully send out an announcement' })
+  @ApiBody({ type: AdminAnnouncementDto, required: true })
+  createAdminAnnouncement(
+    @Body() body: AdminAnnouncementDto,
+    @LoggedInUser('id') userID: number
+  ): Promise<void> {
+    return this.adminService.createAdminAnnouncement(userID, body);
   }
 }
