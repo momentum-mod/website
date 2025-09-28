@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     container_name: postgres
-    image: postgres:15
+    image: postgres:18
     restart: unless-stopped
   valkey:
     image: valkey/valkey:8.1.3
