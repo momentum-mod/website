@@ -1,7 +1,10 @@
 import { PrismaClient } from '@momentum/db';
 
-export const prismaWrapper = (fn: (prisma: PrismaClient) => Promise<void>) => {
-  const prisma = new PrismaClient();
+export const prismaWrapper = (
+  fn: (prisma: PrismaClient) => Promise<void>,
+  options = {} /* Prisma.PrismaClientOptions, use { log: ['query'] } to print queries */
+) => {
+  const prisma = new PrismaClient(options);
 
   const env = process.env.NODE_ENV;
   if (!(env === 'dev' || env === 'test')) {
