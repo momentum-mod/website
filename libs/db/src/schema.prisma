@@ -510,7 +510,6 @@ model LeaderboardRun {
   flags Int[] @db.SmallInt
 
   rank   Int  @db.Integer // TODO: SoonTM we'll stop storing this and just use a window function over the `time` column.
-  rankXP Int? @default(0) // TODO: And this shit will live in redis
 
   createdAt DateTime @default(now())
 

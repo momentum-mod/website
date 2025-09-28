@@ -774,7 +774,7 @@ describe('Session', () => {
           expect(res.statusCode).toBe(200);
           expect(res.body).toBeValidDto(CompletedRunDto);
           expect(res.body.isNewPersonalBest).toBe(false);
-          expect(res.body.xp.rankXP).toBe(0);
+          // expect(res.body.xp.rankXP).toBe(0);
           expect(res.body.totalRuns).toBe(10);
 
           const ranksAfter = await prisma.leaderboardRun.findMany({
@@ -798,7 +798,7 @@ describe('Session', () => {
             time: expect.any(Number),
             newPersonalBest: { rank: 2 },
             xp: {
-              rankXP: expect.any(Number),
+              // rankXP: expect.any(Number),
               cosXP: {
                 oldXP: 0,
                 gainXP: expect.any(Number)

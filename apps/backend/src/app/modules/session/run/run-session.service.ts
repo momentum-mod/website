@@ -435,7 +435,7 @@ export class RunSessionService {
     }
 
     const xpGain: XpGain = {
-      rankXP: 0,
+      // rankXP: 0,
       cosXP: {
         gainLvl: gainedLevels,
         oldXP: Number(userStats.cosXP),
@@ -510,8 +510,6 @@ export class RunSessionService {
 
     const oldRank = existingRun?.rank;
     const rank = fasterRuns + 1;
-    const rankXP = this.xpSystems.getRankXpForRank(rank, totalRuns).rankXP;
-    xpGain.rankXP = rankXP;
 
     // If we only improved our rank the range to update is [newRank,
     // oldRank), otherwise it's everything below
@@ -581,7 +579,6 @@ export class RunSessionService {
           replayHash,
           splits: submittedRun.splits,
           rank,
-          rankXP,
           pastRunID: pastRun.id,
           createdAt: pastRun.createdAt
         }
@@ -600,7 +597,6 @@ export class RunSessionService {
           splits: submittedRun.splits,
           replayHash,
           rank,
-          rankXP,
           pastRunID: pastRun.id,
           createdAt: pastRun.createdAt
         }
