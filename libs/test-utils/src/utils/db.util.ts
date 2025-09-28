@@ -373,7 +373,6 @@ export class DbUtil {
         splits: (args?.splits as unknown as JsonValue) ?? { segments: [] },
         replayHash: randomHash(),
         rank: args?.rank,
-        rankXP: 0,
         createdAt: args?.createdAt ?? undefined,
         leaderboard: {
           connect: {

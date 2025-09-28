@@ -472,7 +472,7 @@ export interface LeaderboardRun {
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;
-  rankXP: number;
+  // rankXP: number;
   userID: number;
   user?: User;
   mapID: number;
@@ -578,7 +578,7 @@ export namespace RunSplits {
 }
 
 export interface XpGain {
-  rankXP: number;
+  // rankXP: number;
   cosXP: {
     gainLvl: number;
     oldXP: number;
