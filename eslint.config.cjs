@@ -95,7 +95,6 @@ module.exports = [
       'unicorn/expiring-todo-comments': 'error',
       'unicorn/explicit-length-check': 'error',
       'unicorn/new-for-builtins': 'error',
-      'unicorn/no-abusive-eslint-disable': 'error',
       'unicorn/no-array-push-push': 'error',
       'unicorn/no-for-loop': 'error',
       'unicorn/no-length-as-slice-end': 'error',
