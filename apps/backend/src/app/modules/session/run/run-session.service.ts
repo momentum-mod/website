@@ -511,39 +511,38 @@ export class RunSessionService {
     const oldRank = existingRun?.rank;
     const rank = fasterRuns + 1;
 
+    // Rank XP calculations are disabled for now, horrifically slow to do in
+    // Postgres, and we don't show it anywhere in UI anyway.
+    // const rankXP = this.xpSystems.getRankXpForRank(rank, totalRuns).rankXP;
+    // xpGain.rankXP = rankXP;
+
     // If we only improved our rank the range to update is [newRank,
     // oldRank), otherwise it's everything below
     const rankRangeWhere: IntNullableFilter = existingRun
       ? { gte: rank, lt: oldRank }
       : { gte: rank };
 
-    const ranks = await tx.leaderboardRun.findMany({
+    // For now, we're keeping a specific `rank` column on this table and
+    // updating each row. It's relatively slow for very large leaderboards, but
+    // tolerable (on my machine, adding a rank 1 run to a table with 50000 runs
+    // takes ~900ms to update everything).
+    //
+    // We could switch to using a window function in the future to skip the
+    // update, but then queries deep into a large leaderboard become quite slow
+    // (on my machine, fetching 10 rows offset by 40000 into a 50000 run table
+    // takes about 300ms). We could also considering adding time + createdAt to
+    // our index to allow Postgres to use an index-only scan (potentially *very*
+    // fast but haven't benched), but then we'd have to denormalize user data
+    // onto this table (gross), or fetch it from a Valkey cache. Valkey cache of
+    // users might well happen in the future, so worth considering more then.
+    //
+    // Also, this approach lets us stick with regular Prisma for now, it
+    // produces exactly the right query.
+
+    await tx.leaderboardRun.updateMany({
       where: { ...leaderboardWhere, rank: rankRangeWhere },
-      select: { rank: true, userID: true }
+      data: { rank: { increment: 1 } }
     });
-
-    // This is SLOOOOOW. Here's two different methods for doing the updates,
-    // they take about 7s and 9s respectively for 10k ranks, far too slow for
-    // us. Probably going to use raw queries in the future, may have to come
-    // up with some clever DB optimisations. https://discord.com/channels/235111289435717633/487354170546978816/1000450260830793839
-
-    // const t1 = Date.now();
-
-    await this.db.$transaction(
-      ranks.map((rank) =>
-        tx.leaderboardRun.updateMany({
-          where: { ...leaderboardWhere, userID: rank.userID },
-          data: {
-            rank: rank.rank + 1,
-            rankXP: this.xpSystems.getRankXpForRank(rank.rank + 1, totalRuns)
-              .rankXP
-          }
-        })
-      )
-    );
-
-    // const t2 = Date.now();
-    // console.log(`Ranks shift took ${t2 - t1}ms`);
 
     const pastRun = await this.db.pastRun.create({
       data: {
