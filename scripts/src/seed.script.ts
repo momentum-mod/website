@@ -65,7 +65,6 @@ const defaultVars = {
   maps: { min: 50, max: 50 },
   adminActivities: { min: 30, max: 50 },
   usersThatSubmitMaps: { min: 15, max: 20 },
-  randomImagesToDownload: { min: 20, max: 20 },
   credits: { min: 2, max: 20 },
   images: { min: 1, max: 5 },
   modesPerLeaderboard: { min: 1, max: 3 },
