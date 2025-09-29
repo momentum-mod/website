@@ -1,9 +1,7 @@
-import { Prisma, PrismaClient } from '@momentum/db';
+import { PrismaClient } from '@momentum/db';
 import { PRISMA_CLIENT_EXTENSIONS } from '@momentum/db';
 
-export const extendedNestJsPrismaClientFactory = (
-  client: PrismaClient<Prisma.PrismaClientOptions, 'query'>
-) => {
+export const extendedNestJsPrismaClientFactory = (client: PrismaClient) => {
   return client.$extends(PRISMA_CLIENT_EXTENSIONS);
 };
 
