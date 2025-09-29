@@ -46,6 +46,7 @@
     "@opentelemetry/sdk-metrics": "2.1.0",
     "@opentelemetry/sdk-node": "0.205.0",
     "@primeng/themes": "20.2.0",
+    "@prisma/adapter-pg": "6.16.2",
     "@prisma/client": "6.16.2",
     "@sentry/nestjs": "10.16.0",
     "@sentry/profiling-node": "10.16.0",
