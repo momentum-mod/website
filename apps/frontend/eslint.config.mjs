@@ -1,7 +1,7 @@
-const nx = require('@nx/eslint-plugin');
-const baseConfig = require('../../eslint.config.cjs');
+import nx from '@nx/eslint-plugin';
+import baseConfig from '../../eslint.config.mjs';
 
-module.exports = [
+export default [
   ...baseConfig,
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
@@ -35,11 +35,12 @@ module.exports = [
         { allowNullOrUndefined: true }
       ],
       '@angular-eslint/template/button-has-type': ['error'],
-      // Disable some accessibility rules. We should *really* work on dashboard
-      // accessibility more in the future though.
+      // Disable some accessibility rules.
+      // TODO: We really need to do a pass of this in the future, maybe when
+      // we do mobile.
       '@angular-eslint/template/interactive-supports-focus': ['off'],
-      '@angular-eslint/template/alt-text': ['off'],
       '@angular-eslint/template/click-events-have-key-events': ['off'],
+      '@angular-eslint/template/alt-text': ['off'],
       '@angular-eslint/template/label-has-associated-control': ['off']
     }
   }
