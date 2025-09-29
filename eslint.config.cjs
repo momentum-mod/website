@@ -87,7 +87,6 @@ module.exports = [
     languageOptions: { globals: globals.builtin },
     plugins: { unicorn },
     rules: {
-      'unicorn/better-regex': 'error',
       'unicorn/consistent-destructuring': 'error',
       'unicorn/consistent-empty-array-spread': 'error',
       'unicorn/consistent-existence-index-check': 'error',
