@@ -2292,15 +2292,15 @@ export class MapsService {
    * @throws BadRequestException
    */
   async checkMapCompression(bspFile: File) {
-    const header = await BspHeader.fromBlob(new Blob([bspFile.buffer])).catch(
-      (error) => {
-        throw new BadRequestException(
-          error instanceof BspReadError
-            ? error.message
-            : 'Unknown error reading BSP file'
-        );
-      }
-    );
+    const header = await BspHeader.fromBlob(
+      new Blob([bspFile.buffer.buffer as ArrayBuffer])
+    ).catch((error) => {
+      throw new BadRequestException(
+        error instanceof BspReadError
+          ? error.message
+          : 'Unknown error reading BSP file'
+      );
+    });
 
     if (!header.isCompressed())
       throw new BadRequestException('BSP is not compressed');
