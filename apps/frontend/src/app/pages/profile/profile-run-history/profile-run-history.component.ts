@@ -4,7 +4,7 @@ import { switchMap, tap } from 'rxjs/operators';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { PaginatorModule } from 'primeng/paginator';
 import { PaginatorState } from 'primeng/paginator/paginator.interface';
 
@@ -23,7 +23,7 @@ import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
   selector: 'm-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   imports: [
-    DropdownModule,
+    SelectModule,
     PaginatorModule,
     NgClass,
     NgStyle,

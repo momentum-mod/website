@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 
 import { ReportService } from '../../../services/data/report.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { Select } from 'primeng/select';
 @Component({
   selector: 'm-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
-  imports: [DropdownModule, ReactiveFormsModule, Select]
+  imports: [SelectModule, ReactiveFormsModule, Select]
 })
 export class CreateReportDialogComponent implements OnInit {
   protected readonly ref = inject(DynamicDialogRef);

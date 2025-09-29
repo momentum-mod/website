@@ -93,7 +93,7 @@
   </div>
   <div class="flex items-center gap-4 self-end">
     <p class="text-lg">Update status</p>
-    <p-select [formControl]="statusControl" [options]="possibleStatuses" [autoDisplayFirst]="true" appendTo="body" />
+    <p-select [formControl]="statusControl" [options]="possibleStatuses" appendTo="body" />
   </div>
   @if ((mod || adm) && status === MapStatus.FINAL_APPROVAL && !hasBeenApprovedBefore) {
     <!-- Form goes whack if this is in the above conditional -->

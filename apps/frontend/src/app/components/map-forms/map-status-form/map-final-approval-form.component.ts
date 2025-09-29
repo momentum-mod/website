@@ -17,7 +17,7 @@ import {
 import { ChartModule } from 'primeng/chart';
 import { leaderboardKey } from '@momentum/util-fn';
 import { ChartOptions } from 'chart.js';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { GroupedLeaderboards } from './map-status-form.component';
@@ -32,7 +32,7 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
   selector: 'm-map-final-approval-form',
   templateUrl: 'map-final-approval-form.component.html',
   imports: [
-    DropdownModule,
+    SelectModule,
     ChartModule,
     AccordionComponent,
     AccordionItemComponent,

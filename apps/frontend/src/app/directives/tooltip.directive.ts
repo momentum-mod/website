@@ -154,7 +154,7 @@ export class TooltipDirective extends PTooltip {
     return el.getBoundingClientRect().width;
   }
 
-  private getArrowElement() {
+  override getArrowElement() {
     return DomHandler.findSingle(this.container, '.p-tooltip-arrow');
   }
 

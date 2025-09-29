@@ -17,7 +17,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { findMainGamemodeIndex, groupMapLeaderboards } from '../../util';
 import { Select } from 'primeng/select';
 import { IconComponent } from '../../icons';
@@ -35,7 +35,7 @@ import { ChipsComponent } from '../chips/chips.component';
     }
   ],
   imports: [
-    DropdownModule,
+    SelectModule,
     Select,
     FormsModule,
     ChipsComponent,

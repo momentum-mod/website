@@ -1,6 +1,5 @@
 import Material from '@primeng/themes/material';
 import { definePreset } from '@primeng/themes';
-import { ComponentsDesignTokens, Preset } from '@primeng/themes/types';
 
 const selectStyles = {
   background: 'rgb(0 0 0 / 0.25)',
@@ -14,7 +13,7 @@ const selectStyles = {
   focusBorderColor: ''
 };
 
-const presetSettings: Preset<ComponentsDesignTokens> = {
+export const MomentumPreset = definePreset(Material, {
   semantic: {
     primary: {
       50: '{blue.50}',
@@ -103,6 +102,4 @@ const presetSettings: Preset<ComponentsDesignTokens> = {
       css: () => '.p-tooltip-text { word-break: unset; }'
     }
   }
-};
-
-export const MomentumPreset = definePreset(Material, presetSettings);
+});
