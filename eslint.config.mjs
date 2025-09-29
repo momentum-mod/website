@@ -1,9 +1,9 @@
-const nx = require('@nx/eslint-plugin');
-const unicorn = require('eslint-plugin-unicorn');
-const unusedImports = require('eslint-plugin-unused-imports');
-const globals = require('globals');
+import nx from '@nx/eslint-plugin';
+import unicorn from 'eslint-plugin-unicorn';
+import unusedImports from 'eslint-plugin-unused-imports';
+import globals from 'globals';
 
-module.exports = [
+export default [
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
