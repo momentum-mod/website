@@ -23,7 +23,7 @@ import * as Bitflags from '@momentum/bitflags';
 import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 
 import { Icon, IconComponent } from '../../../icons';
 import { TitleService } from '../../../services/title.service';
@@ -49,7 +49,7 @@ import { AvatarComponent } from '../../../components/avatar/avatar.component';
   templateUrl: './profile-edit.component.html',
   imports: [
     UserSearchComponent,
-    DropdownModule,
+    SelectModule,
     ReactiveFormsModule,
     NgClass,
     CardComponent,

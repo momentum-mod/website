@@ -29,16 +29,14 @@ import { MessageService } from 'primeng/api';
 import { ChartModule } from 'primeng/chart';
 import { arrayFrom, leaderboardKey } from '@momentum/util-fn';
 import { ChartData } from 'chart.js';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { IterableElement } from 'type-fest';
 import { MapFinalApprovalFormComponent } from './map-final-approval-form.component';
-
 import { MapsService } from '../../../services/data/maps.service';
 import { LeaderboardsService } from '../../../services/data/leaderboards.service';
 import { DatePipe, NgClass } from '@angular/common';
-import { Select } from 'primeng/select';
 
 export type GroupedLeaderboards = Map<
   Gamemode,
@@ -64,12 +62,11 @@ export type GroupedLeaderboards = Map<
   selector: 'm-map-status-form',
   templateUrl: 'map-status-form.component.html',
   imports: [
-    CalendarModule,
-    DropdownModule,
+    DatePickerModule,
+    SelectModule,
     ChartModule,
     MapFinalApprovalFormComponent,
     DatePipe,
-    Select,
     ReactiveFormsModule,
     NgClass
   ]

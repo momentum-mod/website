@@ -14,7 +14,7 @@ import {
 import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 
 import {
   GroupedMapLeaderboard,
@@ -55,7 +55,7 @@ export interface ActiveTrack {
   selector: 'm-map-leaderboard',
   templateUrl: 'map-leaderboard.component.html',
   imports: [
-    DropdownModule,
+    SelectModule,
     SpinnerComponent,
     SpinnerDirective,
     UserComponent,

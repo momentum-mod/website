@@ -20,7 +20,7 @@ import {
 import * as Enum from '@momentum/enum';
 import { NgClass } from '@angular/common';
 import { Select } from 'primeng/select';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ChipsComponent } from '../../chips/chips.component';
 
 @Component({
@@ -33,7 +33,7 @@ import { ChipsComponent } from '../../chips/chips.component';
       multi: true
     }
   ],
-  imports: [NgClass, Select, FormsModule, DropdownModule, ChipsComponent]
+  imports: [NgClass, Select, FormsModule, SelectModule, ChipsComponent]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   public readonly LeaderboardType = LeaderboardType;

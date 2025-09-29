@@ -24,8 +24,8 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Enum from '@momentum/enum';
@@ -41,8 +41,8 @@ import { ChipsComponent } from '../../chips/chips.component';
   selector: 'm-map-details-form',
   templateUrl: 'map-details-form.component.html',
   imports: [
-    CalendarModule,
-    DropdownModule,
+    DatePickerModule,
+    SelectModule,
     SubmissionTypeInfoComponent,
     IconComponent,
     FormsModule,
