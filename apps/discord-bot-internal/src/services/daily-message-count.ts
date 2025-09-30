@@ -57,14 +57,14 @@ function stringifyDateInParams(
   );
 }
 
-interface MessageCount {
+interface MessageCount extends Record<string, unknown> {
   UserId: Snowflake;
   ChannelId: Snowflake;
   Date: Date;
   MessageCount: number;
 }
 
-interface RawMessageCount {
+interface RawMessageCount extends Record<string, unknown> {
   UserId: bigint;
   ChannelId: bigint;
   Date: string;
