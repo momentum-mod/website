@@ -618,7 +618,7 @@ describe('User', () => {
         await req.post({
           url: 'user/follow',
           status: 201,
-          body: [u2.id, u3.id],
+          body: { targetUserIDs: [u2.id, u3.id] },
           token: u1Token
         });
 
@@ -629,11 +629,27 @@ describe('User', () => {
         expect(userFollows).toHaveLength(2);
       });
 
+      it('should 400 for invalid body', async () => {
+        await req.post({
+          url: 'user/follow',
+          status: 400,
+          body: '1,2,3,4,the,minecraft,movie' as any,
+          token: u1Token
+        });
+
+        await req.post({
+          url: 'user/follow',
+          status: 400,
+          body: 'TRUNCATE public."User"' as any,
+          token: u1Token
+        });
+      });
+
       it('should 404 if any of the target users do not exist', () =>
         req.post({
           url: 'user/follow',
           status: 404,
-          body: [u2.id, NULL_ID],
+          body: { targetUserIDs: [u2.id, NULL_ID] },
           token: u1Token
         }));
     });

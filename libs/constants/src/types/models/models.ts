@@ -107,6 +107,10 @@ export interface FollowStatus {
   target?: Follow;
 }
 
+export interface CreateFollows {
+  targetUserIDs: number[];
+}
+
 export interface MapSummary {
   status: MapStatus;
   statusCount: number;

@@ -1,11 +1,12 @@
 import {
+  CreateFollows,
   DateString,
   Flags,
   Follow,
   FollowStatus,
   UpdateFollowStatus
 } from '@momentum/constants';
-import { PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ActivityType } from '@momentum/constants';
 import {
   CreatedAtProperty,
@@ -14,6 +15,7 @@ import {
   NestedProperty
 } from '../decorators';
 import { UserDto } from './user.dto';
+import { ArrayMaxSize, ArrayMinSize, IsInt } from 'class-validator';
 
 export class FollowDto implements Follow {
   @EnumProperty(ActivityType, {
@@ -54,6 +56,14 @@ export class FollowStatusDto implements FollowStatus {
       'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
   })
   target?: FollowDto;
+}
+
+export class CreateFollowsDto implements CreateFollows {
+  @ApiProperty({ description: 'Array of userIDs to follow', type: 'array' })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(500)
+  @IsInt({ each: true })
+  targetUserIDs: number[];
 }
 
 export class UpdateFollowStatusDto
