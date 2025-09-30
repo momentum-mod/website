@@ -65,15 +65,14 @@ client.on(Events.InteractionCreate, async (interaction) => {
       : commandMap.get(commandName);
 
     if (!interactionModule) {
-      logger.warn('Unknown command: ' + commandName, { interaction });
+      logger.warn(`Unknown command: ${commandName} - ${{ interaction }}`);
       return;
     }
 
     if (interaction.isAutocomplete()) {
       if (!interactionModule.autocomplete) {
         logger.warn(
-          'Tried to autocomplete command with unknown name: ' + commandName,
-          { interaction }
+          `Tried to autocomplete command with unknown name: ${commandName} - ${{ interaction }}`
         );
       } else {
         await interactionModule.autocomplete(interaction);
@@ -122,9 +121,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (interaction.isContextMenuCommand()) {
       if (!interactionModule.contextMenuHandler) {
         logger.warn(
-          'Tried to use context menu without context menu handler: ' +
-            commandName,
-          { interaction }
+          `Tried to use context menu without context menu handler: ${commandName} - ${{ interaction }}`
         );
       } else {
         await interactionModule.contextMenuHandler(interaction);
