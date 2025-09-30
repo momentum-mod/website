@@ -180,8 +180,10 @@ export class LocalUserService {
     return this.http.post<Follow>(`user/follow/${user.id}`);
   }
 
-  public followUsers(userIds: Set<number>): Observable<Follow[]> {
-    return this.http.post<Follow[]>('user/follow', { body: [...userIds] });
+  public followUsers(userIDs: Set<number>): Observable<Follow[]> {
+    return this.http.post<Follow[]>('user/follow', {
+      body: { targetUserIDs: [...userIDs] }
+    });
   }
 
   public updateFollowStatus(user: User, notifyOn: number): Observable<void> {

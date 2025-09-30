@@ -40,7 +40,8 @@ import {
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
   FollowDto,
-  MapsGetAllUserSubmissionQueryDto
+  MapsGetAllUserSubmissionQueryDto,
+  CreateFollowsDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from '../users/users.service';
@@ -114,11 +115,7 @@ export class UserController {
 
   @Post('/follow')
   @ApiOperation({ summary: 'Follows the target users' })
-  @ApiBody({
-    type: [Number],
-    description: 'Array of user IDs to follow',
-    required: true
-  })
+  @ApiBody({ type: CreateFollowsDto, required: true })
   @ApiOkResponse({
     type: [FollowDto],
     description: 'The follow DTOs of the local user following the target users'
@@ -126,7 +123,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Target user does not exist' })
   followUsers(
     @LoggedInUser('id') localUserID: number,
-    @Body() targetUserIDs: number[]
+    @Body() { targetUserIDs }: CreateFollowsDto
   ): Promise<FollowDto[]> {
     return this.usersService.followUsers(localUserID, targetUserIDs);
   }
