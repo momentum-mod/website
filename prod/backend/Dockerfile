@@ -14,7 +14,6 @@ RUN chown -R backend:backend .
 USER backend
 RUN npm --omit=dev --ignore-scripts install
 RUN node_modules/.bin/prisma generate --schema ./prisma/schema.prisma
-RUN mv prisma/generated/libquery_engine* .
 
 RUN rm package.json package-lock.json
 COPY --chown=backend ./prod/backend/package.json .
