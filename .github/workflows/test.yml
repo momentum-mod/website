@@ -23,7 +23,6 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
-      # TODO: Can be removed once on non-Rust Prisma client!
       - name: Prisma Cache
         uses: actions/cache@v4
         with:
