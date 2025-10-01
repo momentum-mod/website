@@ -451,7 +451,7 @@
       padding: 0;
       width: fit-content;
       gap: 0.5rem;
-      @apply card card--fancy border border-white border-opacity-5;
+      @apply card card--fancy;
       /* Display flex from card breaks popover, so remove it. */
       display: revert;
     }
@@ -474,7 +474,7 @@
   /* Styling for sub components' shared styling. */
   m-notifications-menu {
     .notification-card {
-      @apply card rounded-md border border-white border-opacity-5 text-gray-50;
+      @apply card rounded-md text-gray-50;
       padding: 0.5rem;
       gap: 0.5rem;
     }
