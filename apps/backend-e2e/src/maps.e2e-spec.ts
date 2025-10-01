@@ -941,7 +941,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps',
           status: 200,
-          query: { sortType: MapSortType.REVERSE_ALPHABETICAL },
+          query: { sortType: MapSortType.ALPHABETICAL_REVERSE },
           validatePaged: { type: MapDto, count: 4 },
           token: u1Token
         });

@@ -2,6 +2,7 @@ import { MapSortType, Order } from '@momentum/constants';
 import { Prisma } from '@momentum/db';
 
 // Gets DB query orderBy obj with property and its order (asc / desc).
+// Keep this in sync with AllowedMapSortTypes.
 export const MapSortTypeOrder: ReadonlyMap<
   MapSortType,
   Prisma.MMapOrderByWithRelationInput
@@ -39,35 +40,9 @@ export const MapSortTypeOrder: ReadonlyMap<
     }
   ],
   // Sorting includes prefix so Ahop maps will usually take precedence.
-  // Need support for db query without prefix to change this.
+  // Would require support for db query without prefix to change this.
   [MapSortType.ALPHABETICAL, { name: Order.ASC }],
-  [MapSortType.REVERSE_ALPHABETICAL, { name: Order.DESC }],
-  /* TODO
-    [
-      MapSortType.TIER_LOWEST,
-      { todo: Order.ASC }
-    ],
-    [
-      MapSortType.TIER_HIGHEST,
-      { todo: Order.DESC }
-    ],
-    [
-      MapSortType.PLAYED_NEWEST,
-      { todo: Order.DESC }
-    ],
-    [
-      MapSortType.PLAYED_OLDEST,
-      { todo: Order.ASC }
-    ],
-    [
-      MapSortType.PB_NEWEST,
-      { todo: Order.DESC }
-    ],
-    [
-      MapSortType.PB_OLDEST,
-      { todo: Order.ASC }
-    ],
-    */
+  [MapSortType.ALPHABETICAL_REVERSE, { name: Order.DESC }],
   [
     MapSortType.FAVORITED_MOST,
     {

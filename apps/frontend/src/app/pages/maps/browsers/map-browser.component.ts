@@ -100,7 +100,7 @@ export class MapBrowserComponent implements OnInit {
     MapSortType.DATE_CREATED_NEWEST,
     MapSortType.DATE_CREATED_OLDEST,
     MapSortType.ALPHABETICAL,
-    MapSortType.REVERSE_ALPHABETICAL,
+    MapSortType.ALPHABETICAL_REVERSE,
     MapSortType.FAVORITED_MOST,
     MapSortType.FAVORITED_LEAST
   ];

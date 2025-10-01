@@ -71,7 +71,7 @@ export class AdminMapsBrowserComponent implements OnInit {
     MapSortType.DATE_CREATED_NEWEST,
     MapSortType.DATE_CREATED_OLDEST,
     MapSortType.ALPHABETICAL,
-    MapSortType.REVERSE_ALPHABETICAL,
+    MapSortType.ALPHABETICAL_REVERSE,
     MapSortType.SUBMISSION_CREATED_NEWEST,
     MapSortType.SUBMISSION_CREATED_OLDEST,
     MapSortType.SUBMISSION_UPDATED_NEWEST,

@@ -54,6 +54,22 @@ type MapsGetAllBaseQuery = {
   sortType?: MapSortType;
 };
 
+// Keep this in sync with backend MapSortTypeOrder
+export const AllowedMapSortTypes = [
+  MapSortType.DATE_RELEASED_NEWEST,
+  MapSortType.DATE_RELEASED_OLDEST,
+  MapSortType.DATE_CREATED_NEWEST,
+  MapSortType.DATE_CREATED_OLDEST,
+  MapSortType.ALPHABETICAL,
+  MapSortType.ALPHABETICAL_REVERSE,
+  MapSortType.FAVORITED_LEAST,
+  MapSortType.FAVORITED_MOST,
+  MapSortType.SUBMISSION_CREATED_NEWEST,
+  MapSortType.SUBMISSION_CREATED_OLDEST,
+  MapSortType.SUBMISSION_UPDATED_NEWEST,
+  MapSortType.SUBMISSION_UPDATED_OLDEST
+];
+
 export enum TagQualifier {
   INCLUDE = 1,
   EXCLUDE = 0
