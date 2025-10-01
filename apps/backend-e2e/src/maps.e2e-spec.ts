@@ -841,6 +841,30 @@ describe('Maps', () => {
         });
       });
 
+      it('should respond with unranked maps when using the leaderboardType filter', async () => {
+        await prisma.leaderboard.create({
+          data: {
+            mapID: mBeansOnToast.id,
+            gamemode: Gamemode.DEFRAG_VQ3,
+            type: LeaderboardType.UNRANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 1,
+            style: 0
+          }
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: {
+            gamemode: Gamemode.DEFRAG_VQ3,
+            leaderboardType: LeaderboardType.UNRANKED
+          },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+      });
+
       it('should respond with maps based on tagsWithQualifiers filter', async () => {
         const upsertLb = async (mapID: number) => {
           await prisma.leaderboard.upsert({

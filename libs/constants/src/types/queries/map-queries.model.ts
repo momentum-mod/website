@@ -5,6 +5,7 @@ import { Style } from '../../enums/style.enum';
 import { PagedQuery } from './pagination.model';
 import { MapSubmissionType } from '../../enums/map-submission-type.enum';
 import {
+  LeaderboardType,
   MapCredit,
   MapCreditType,
   MapInfo,
@@ -90,6 +91,7 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   linear?: boolean;
   favorite?: boolean;
   PB?: boolean;
+  leaderboardType?: LeaderboardType;
   // Array containing semicolon-separated 2-tuple strings,
   // where the first part in the tuple is a MapTag value,
   // and the second either a 1 (to include) or 0 (to exclude the tag).

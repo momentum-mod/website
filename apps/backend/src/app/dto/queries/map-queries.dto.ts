@@ -26,11 +26,13 @@ import {
   MapsGetAllUserSubmissionFilter,
   Style,
   TrackType,
-  AllowedMapSortTypes
+  AllowedMapSortTypes,
+  LeaderboardType
 } from '@momentum/constants';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
+  EnumProperty,
   EnumQueryProperty,
   ExpandQueryProperty,
   FilterQueryProperty,
@@ -128,6 +130,13 @@ export class MapsGetAllQueryDto
       'If a gamemode is provided, uses that. Otherwise uses any mode.'
   })
   readonly PB?: boolean;
+
+  @EnumProperty(LeaderboardType, {
+    description:
+      'If set, will filter by specific leaderboard type (e.g. Ranked only)',
+    required: false
+  })
+  readonly leaderboardType?: LeaderboardType;
 
   @FilterQueryProperty(AllowedTagsWithQualifiers, {
     example: "['12;1', '33;0', '52;1', '29;1]",
