@@ -6,7 +6,7 @@ export const MapSortTypeName: ReadonlyMap<MapSortType, string> = new Map([
   [MapSortType.DATE_CREATED_NEWEST, 'Date Created (Newest)'],
   [MapSortType.DATE_CREATED_OLDEST, 'Date Created (Oldest)'],
   [MapSortType.ALPHABETICAL, 'Alphabetical (A-Z)'],
-  [MapSortType.REVERSE_ALPHABETICAL, 'Alphabetical (Z-A)'],
+  [MapSortType.ALPHABETICAL_REVERSE, 'Alphabetical (Z-A)'],
   [MapSortType.TIER_LOWEST, 'Tier (1-10)'],
   [MapSortType.TIER_HIGHEST, 'Tier (10-1)'],
   [MapSortType.PLAYED_NEWEST, 'Last Played (Newest)'],

@@ -135,6 +135,7 @@ export class MapsService {
     // Handle base query options.
 
     let take: number | undefined = query.take;
+
     // Default ordering is most recently created submission,
     // as not all maps are approved.
     // Changing to info: { creationDate: 'desc' }
@@ -145,7 +146,6 @@ export class MapsService {
         : {
             createdAt: 'desc'
           };
-    // TODO validate userID if sortType is user-dependent
 
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };

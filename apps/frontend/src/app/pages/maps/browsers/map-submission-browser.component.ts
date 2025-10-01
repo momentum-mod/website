@@ -83,7 +83,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     MapSortType.DATE_CREATED_NEWEST,
     MapSortType.DATE_CREATED_OLDEST,
     MapSortType.ALPHABETICAL,
-    MapSortType.REVERSE_ALPHABETICAL
+    MapSortType.ALPHABETICAL_REVERSE
   ];
   protected readonly MapSortNameFn = (type: MapSortType): string =>
     MapSortTypeName.get(type);

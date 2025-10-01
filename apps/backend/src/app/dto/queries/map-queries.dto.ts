@@ -25,7 +25,8 @@ import {
   MapCreditType,
   MapsGetAllUserSubmissionFilter,
   Style,
-  TrackType
+  TrackType,
+  AllowedMapSortTypes
 } from '@momentum/constants';
 import {
   BooleanQueryProperty,
@@ -43,7 +44,7 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
-import { Max } from 'class-validator';
+import { IsIn, Max } from 'class-validator';
 
 //#region Get All
 
@@ -80,6 +81,7 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   @EnumQueryProperty(MapSortType, {
     description: 'Get maps in a given order with MapSortType'
   })
+  @IsIn(AllowedMapSortTypes)
   readonly sortType?: MapSortType;
 }
 
