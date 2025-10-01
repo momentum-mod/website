@@ -14,7 +14,8 @@ import {
   UpdateMapAdmin,
   Killswitches,
   AdminGetAdminActivitiesQuery,
-  AdminActivity
+  AdminActivity,
+  AdminAnnouncement
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -107,5 +108,9 @@ export class AdminService {
 
   updateKillswitches(killswitches: Killswitches): Observable<void> {
     return this.http.patch('admin/killswitch', { body: killswitches });
+  }
+
+  createAnnouncement(announcement: AdminAnnouncement): Observable<void> {
+    return this.http.post('admin/announcement', { body: announcement });
   }
 }

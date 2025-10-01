@@ -12,12 +12,18 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
   selector: 'm-confirm-dialog',
   template: `<div [innerHTML]="message"></div>
     <div class="grid grid-cols-2 gap-2">
-      <button type="button" class="btn" (click)="ref.close(false)">
-        Close
-      </button>
-      <button type="button" class="btn btn-blue" (click)="ref.close(true)">
-        Submit
-      </button>
+      <button
+        type="button"
+        class="btn"
+        (click)="ref.close(false)"
+        [innerHTML]="abortMessage"
+      ></button>
+      <button
+        type="button"
+        class="btn btn-blue"
+        (click)="ref.close(true)"
+        [innerHTML]="proceedMessage"
+      ></button>
     </div>`
 })
 export class ConfirmDialogComponent implements OnInit {
@@ -25,11 +31,15 @@ export class ConfirmDialogComponent implements OnInit {
   protected readonly config = inject<
     DynamicDialogConfig<{
       message: string;
+      abortMessage?: string;
+      proceedMessage?: string;
     }>
   >(DynamicDialogConfig);
   private sanitizer = inject(DomSanitizer);
 
-  @Input() message: SafeHtml;
+  @Input({ required: true }) message: SafeHtml;
+  @Input({ required: false }) abortMessage: SafeHtml;
+  @Input({ required: false }) proceedMessage: SafeHtml;
 
   ngOnInit() {
     const sanitizedMessage = this.sanitizer.sanitize(
@@ -37,6 +47,22 @@ export class ConfirmDialogComponent implements OnInit {
       this.config.data.message.replaceAll('\n', '<br/>')
     );
     this.message = this.sanitizer.bypassSecurityTrustHtml(sanitizedMessage);
+
+    const sanitizedAbortMessage = this.sanitizer.sanitize(
+      SecurityContext.HTML,
+      this.config.data.abortMessage ?? 'Close'
+    );
+    this.abortMessage = this.sanitizer.bypassSecurityTrustHtml(
+      sanitizedAbortMessage
+    );
+
+    const sanitizedProceedMessage = this.sanitizer.sanitize(
+      SecurityContext.HTML,
+      this.config.data.proceedMessage ?? 'Submit'
+    );
+    this.proceedMessage = this.sanitizer.bypassSecurityTrustHtml(
+      sanitizedProceedMessage
+    );
   }
 
   close(response: boolean) {
