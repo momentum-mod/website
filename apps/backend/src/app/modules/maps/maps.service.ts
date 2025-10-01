@@ -201,11 +201,6 @@ export class MapsService {
         leaderboardSome.linear = query.linear;
       }
 
-      // Starts with 1 key so check g.t.
-      if (Object.keys(leaderboardSome).length > 1) {
-        where.leaderboards = { some: leaderboardSome };
-      }
-
       if (query.favorite != null) {
         if (!userID)
           throw new ForbiddenException(
@@ -222,6 +217,15 @@ export class MapsService {
         if (query.gamemode) {
           where.leaderboardRuns[quantifier].gamemode = query.gamemode;
         }
+      }
+
+      if (query.leaderboardType != null) {
+        if (!query.gamemode) {
+          throw new BadRequestException(
+            'leaderboardType query can only be used together with a specific gamemode'
+          );
+        }
+        leaderboardSome.type = query.leaderboardType;
       }
 
       if (query.tagsWithQualifiers?.length > 0) {
@@ -244,6 +248,11 @@ export class MapsService {
         // There are no negation keywords for array queries.
         if (excludeTags.length > 0)
           leaderboardSome.NOT = { tags: { hasSome: excludeTags } };
+      }
+
+      // Starts with 1 key so check g.t.
+      if (Object.keys(leaderboardSome).length > 1) {
+        where.leaderboards = { some: leaderboardSome };
       }
     } else if (query instanceof MapsGetAllUserSubmissionQueryDto) {
       where.OR = [
