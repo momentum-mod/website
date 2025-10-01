@@ -270,6 +270,12 @@ export class MapsService {
       };
       if (query.filter) where.status.in = query.filter;
     } else if (query instanceof MapsGetAllSubmissionQueryDto) {
+      if (query.hasApprovingReview != null) {
+        where.reviewStats = {
+          approvals: query.hasApprovingReview === true ? { gte: 1 } : 0
+        };
+      }
+
       const user = await this.db.user.findUnique({
         where: { id: userID },
         select: { roles: true }

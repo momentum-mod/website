@@ -196,6 +196,9 @@ export class MapsGetAllSubmissionQueryDto
     MapStatus.FINAL_APPROVAL
   ])
   readonly filter?: MapsGetAllSubmissionFilter;
+
+  @BooleanQueryProperty()
+  readonly hasApprovingReview?: boolean;
 }
 
 export class MapsGetAllUserSubmissionQueryDto

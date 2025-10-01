@@ -4953,6 +4953,43 @@ describe('Maps', () => {
         );
       });
 
+      it('should filter by approving reviews when given hasApprovingReview filter', async () => {
+        await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { hasApprovingReview: true },
+          validatePaged: { type: MapDto, count: 0 },
+          token: u1Token
+        });
+
+        await prisma.mapReviewStats.update({
+          where: { mapID: pubMap1.id },
+          data: { approvals: 2, total: { increment: 2 } }
+        });
+
+        await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { hasApprovingReview: true },
+          validatePaged: { type: MapDto, count: 1 },
+          token: u1Token
+        });
+
+        await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          query: { hasApprovingReview: false },
+          validatePaged: { type: MapDto, count: 2 },
+          token: u1Token
+        });
+
+        // Cleanup
+        await prisma.mapReviewStats.update({
+          where: { mapID: pubMap1.id },
+          data: { approvals: 0, total: { decrement: 2 } }
+        });
+      });
+
       it('should limit -1 take to 100 for non-reviewers', async () => {
         // Magic number sorry, if additional maps are added above in setup
         // this'll break.
