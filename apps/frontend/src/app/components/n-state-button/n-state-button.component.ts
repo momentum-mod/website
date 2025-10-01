@@ -36,6 +36,9 @@ export type NStateButtonStates = Array<{
     @if (currentState.icon; as icon) {
       <m-icon [ngClass]="iconClass" [icon]="icon" />
     }`,
+  host: {
+    '[style.opacity]': '(disabled ? "0.5" : "1")'
+  },
   selector: 'm-n-state-button',
   providers: [
     {
@@ -62,6 +65,8 @@ export class NStateButtonComponent implements ControlValueAccessor {
 
   @HostListener('click')
   onClick() {
+    if (this.disabled) return;
+
     this.value = (this.value + 1) % this.states.length;
     this.currentState = this.states[this.value];
     this.onChange(this.value);
@@ -70,6 +75,8 @@ export class NStateButtonComponent implements ControlValueAccessor {
 
   protected value = 0;
   protected currentState: (typeof this.states)[number];
+
+  @HostBinding('attr.disabled')
   protected disabled = false;
 
   onChange: (value: number) => void = () => void 0;
