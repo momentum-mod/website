@@ -431,7 +431,7 @@
 
       & p {
         padding-left: 0.5rem;
-        align-content: center;
+        margin: auto;
       }
 
       & m-icon {
