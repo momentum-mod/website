@@ -75,7 +75,17 @@
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
-              { icon: 'star', color: null },
+              { icon: 'trophy-outline', color: 'pale' },
+              { icon: 'trophy', color: 'blue' },
+              { icon: 'trophy-broken', color: 'red' }
+            ]"
+            mTooltip="Any / Ranked / Unranked Leaderboard (You must select a gamemode to use this filter)"
+            formControlName="rankedUnranked"
+          />
+          <m-n-state-button
+            class="size-8 p-0"
+            [states]="[
+              { icon: 'star', color: 'pale' },
               { icon: 'star', color: 'blue' },
               { icon: 'star', color: 'red' }
             ]"
@@ -85,7 +95,7 @@
           <m-n-state-button
             class="size-8 p-0"
             [states]="[
-              { icon: 'flag-outline', color: null },
+              { icon: 'flag-outline', color: 'pale' },
               { icon: 'flag-outline', color: 'blue' },
               { icon: 'flag-outline', color: 'red' }
             ]"

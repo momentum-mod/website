@@ -19,6 +19,7 @@ export {
   mdiEarth,
   mdiTrophy,
   mdiTrophyOutline,
+  mdiTrophyBroken,
   mdiAccountMultiple,
   mdiAccountMultipleOutline,
   mdiGiftOutline,

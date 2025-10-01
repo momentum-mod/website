@@ -126,6 +126,10 @@ export class MapBrowserComponent implements OnInit {
       },
       { nonNullable: true }
     ),
+    rankedUnranked: new FormControl<0 | 1 | 2>(
+      { value: 0, disabled: true },
+      { nonNullable: true }
+    ),
     favorites: new FormControl<0 | 1 | 2>(0),
     pb: new FormControl<0 | 1 | 2>(0),
     tiers: new FormControl<[number, number]>({
@@ -154,6 +158,9 @@ export class MapBrowserComponent implements OnInit {
           emitEvent: false
         });
         this.updateTagsAndQualifiers(value);
+        this.rankedUnranked[value != null ? 'enable' : 'disable']({
+          emitEvent: false
+        });
       });
 
     // This will trigger gamemode observable as well, enabling/disabling filters.
@@ -189,6 +196,7 @@ export class MapBrowserComponent implements OnInit {
             name,
             gamemode,
             tagsAndQualifiers,
+            rankedUnranked,
             credit,
             creditType,
             sortType
@@ -211,6 +219,11 @@ export class MapBrowserComponent implements OnInit {
               options.tagsWithQualifiers = tagsAndQualifiers.map(
                 (tAndQ) => tAndQ[0].toString() + ';' + tAndQ[1].toString()
               );
+            }
+            if (rankedUnranked === 1) {
+              options.leaderboardType = LeaderboardType.RANKED;
+            } else if (rankedUnranked === 2) {
+              options.leaderboardType = LeaderboardType.UNRANKED;
             }
           }
           if (favorites === 1) {
@@ -274,6 +287,7 @@ export class MapBrowserComponent implements OnInit {
       name: '',
       gamemode: null,
       tagsAndQualifiers: [],
+      rankedUnranked: 0,
       favorites: 0,
       pb: 0,
       tiers: [1, 10],
@@ -295,6 +309,10 @@ export class MapBrowserComponent implements OnInit {
     return this.filters.get('tagsAndQualifiers') as FormControl<
       Array<TagAndQualifier>
     >;
+  }
+
+  get rankedUnranked() {
+    return this.filters.get('rankedUnranked') as FormControl<0 | 1 | 2>;
   }
 
   updateTagsAndQualifiers(gamemode: Gamemode | 0 | undefined | null) {
