@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
-import Valkey from 'iovalkey';
+import Valkey, { RedisOptions } from 'iovalkey';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -15,12 +15,18 @@ export class ValkeyService
   private readonly logger = new Logger('Valkey Service');
 
   constructor(readonly configService: ConfigService) {
-    super({
+    const options: RedisOptions = {
       lazyConnect: true,
-      port: configService.getOrThrow('valkey.port'),
-      host: configService.getOrThrow('valkey.host'),
       disconnectTimeout: 5000
-    });
+    };
+    const port = configService.getOrThrow('valkey.port');
+    if (port === 0) {
+      options.path = configService.getOrThrow('valkey.host');
+    } else {
+      options.port = port;
+      options.host = configService.getOrThrow('valkey.host');
+    }
+    super(options);
 
     this.on('error', (err) => {
       this.logger.fatal('Valkey client error: ', err);
