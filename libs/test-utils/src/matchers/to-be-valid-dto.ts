@@ -64,8 +64,8 @@ export function toBeValidPagedDto(
     };
 
   if (
-    returnCount &&
     typeof returnCount === 'number' &&
+    !Number.isNaN(returnCount) &&
     received.returnCount !== returnCount
   )
     return {
@@ -75,8 +75,8 @@ export function toBeValidPagedDto(
     };
 
   if (
-    totalCount &&
     typeof totalCount === 'number' &&
+    !Number.isNaN(totalCount) &&
     received.totalCount !== totalCount
   )
     return {
