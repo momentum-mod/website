@@ -114,6 +114,7 @@ export type MapsGetAllSubmissionFilter = Array<
 export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
   expand?: MapsGetAllSubmissionExpand;
   filter?: MapsGetAllSubmissionFilter;
+  hasApprovingReview?: boolean;
 };
 
 export type MapsGetAllUserSubmissionFilter = Array<
