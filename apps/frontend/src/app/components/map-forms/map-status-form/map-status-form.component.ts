@@ -22,7 +22,8 @@ import {
   PagedResponse,
   Role,
   TrackType,
-  MapTag
+  MapTag,
+  DisabledGamemodes
 } from '@momentum/constants';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -196,101 +197,104 @@ export class MapStatusFormComponent implements OnChanges {
       (color) => style.getPropertyValue(`--${color}-500`)
     );
 
-    const leaderboards = leaderboardStats.map(({ leaderboard, totalRuns }) => {
-      const matchTrack = ({ gamemode, trackType, trackNum }) =>
-        leaderboard.gamemode === gamemode &&
-        leaderboard.trackType === trackType &&
-        leaderboard.trackNum === trackNum;
+    const leaderboards = leaderboardStats
+      .filter((stats) => !DisabledGamemodes.has(stats.leaderboard.gamemode))
+      .map(({ leaderboard, totalRuns }) => {
+        const matchTrack = ({ gamemode, trackType, trackNum }) =>
+          leaderboard.gamemode === gamemode &&
+          leaderboard.trackType === trackType &&
+          leaderboard.trackNum === trackNum;
 
-      const subSugg = subSuggs.find((sugg) => matchTrack(sugg));
-      const reviews = reviewSuggs.filter((review) => matchTrack(review));
+        const subSugg = subSuggs.find((sugg) => matchTrack(sugg));
+        const reviews = reviewSuggs.filter((review) => matchTrack(review));
 
-      const r: IterableElement<GroupedLeaderboards>[1]['leaderboards'][0] = {
-        ...leaderboard,
-        totalRuns,
-        subSugg,
-        reviews,
-        graphs: {
-          tiers: {
-            labels: arr10,
-            datasets: [
-              {
-                data: arr10.map(
-                  (k) => reviews.filter(({ tier }) => tier === k).length
-                ),
-                backgroundColor: tierColors.map(
-                  (color) =>
-                    `color-mix(in hsl, rgb(${color}), 100% hsl(none 50 50))` // Lower saturation, lighten a bit. Going a bit mad today.
-                ),
-                categoryPercentage: 1,
-                barPercentage: 1
-              }
-            ]
-          },
-          ratings: {
-            labels: arr10,
-            datasets: [
-              {
-                data: arr10.map(
-                  (k) =>
-                    reviews.filter(({ gameplayRating }) => gameplayRating === k)
-                      .length
-                ),
-                backgroundColor: arr10.map(
-                  (i) =>
-                    `color-mix(in hsl, rgb(${
-                      ratingColors[i % 5]
-                    }), 100% hsl(none 50 50))`
-                ),
-                categoryPercentage: 1,
-                barPercentage: 1
-              }
-            ]
-          }
-        },
-        // These are the actual values that the form mutates
-        tier: null,
-        type: LeaderboardType.HIDDEN
-      };
-
-      if (reviews.length > 0) {
-        // Mean including submitter, i.e.
-        let sumTiers = reviews.reduce((acc, { tier }) => acc + tier, 0);
-        let totalTiers = reviews.filter(({ tier }) => tier > 0).length;
-        if (subSugg.tier > 0) {
-          sumTiers += subSugg.tier;
-          totalTiers++;
-        }
-        r.averageTier = +(sumTiers / totalTiers).toFixed(2);
-
-        const sumRatings = reviewSuggs.reduce(
-          (acc, { gameplayRating }) => acc + gameplayRating,
-          0
-        );
-        const totalRatings = reviewSuggs.filter(
-          ({ gameplayRating }) => gameplayRating != null
-        ).length;
-
-        r.averageRating = +(sumRatings / totalRatings).toFixed(2);
-
-        r.reviewTags = reviews
-          .flatMap(({ tags }) => tags)
-          .reduce((arr, tag) => {
-            if (!tag) return arr;
-            const tuple = arr.find(([t]) => t === tag);
-            if (tuple) {
-              tuple[1]++;
-            } else {
-              arr.push([tag, 1]);
+        const r: IterableElement<GroupedLeaderboards>[1]['leaderboards'][0] = {
+          ...leaderboard,
+          totalRuns,
+          subSugg,
+          reviews,
+          graphs: {
+            tiers: {
+              labels: arr10,
+              datasets: [
+                {
+                  data: arr10.map(
+                    (k) => reviews.filter(({ tier }) => tier === k).length
+                  ),
+                  backgroundColor: tierColors.map(
+                    (color) =>
+                      `color-mix(in hsl, rgb(${color}), 100% hsl(none 50 50))` // Lower saturation, lighten a bit. Going a bit mad today.
+                  ),
+                  categoryPercentage: 1,
+                  barPercentage: 1
+                }
+              ]
+            },
+            ratings: {
+              labels: arr10,
+              datasets: [
+                {
+                  data: arr10.map(
+                    (k) =>
+                      reviews.filter(
+                        ({ gameplayRating }) => gameplayRating === k
+                      ).length
+                  ),
+                  backgroundColor: arr10.map(
+                    (i) =>
+                      `color-mix(in hsl, rgb(${
+                        ratingColors[i % 5]
+                      }), 100% hsl(none 50 50))`
+                  ),
+                  categoryPercentage: 1,
+                  barPercentage: 1
+                }
+              ]
             }
-            return arr;
-          }, [])
-          // Sort by frequency
-          .sort((tupleA, tupleB) => tupleB[1] - tupleA[1]);
-      }
+          },
+          // These are the actual values that the form mutates
+          tier: null,
+          type: LeaderboardType.HIDDEN
+        };
 
-      return r;
-    });
+        if (reviews.length > 0) {
+          // Mean including submitter, i.e.
+          let sumTiers = reviews.reduce((acc, { tier }) => acc + tier, 0);
+          let totalTiers = reviews.filter(({ tier }) => tier > 0).length;
+          if (subSugg.tier > 0) {
+            sumTiers += subSugg.tier;
+            totalTiers++;
+          }
+          r.averageTier = +(sumTiers / totalTiers).toFixed(2);
+
+          const sumRatings = reviewSuggs.reduce(
+            (acc, { gameplayRating }) => acc + gameplayRating,
+            0
+          );
+          const totalRatings = reviewSuggs.filter(
+            ({ gameplayRating }) => gameplayRating != null
+          ).length;
+
+          r.averageRating = +(sumRatings / totalRatings).toFixed(2);
+
+          r.reviewTags = reviews
+            .flatMap(({ tags }) => tags)
+            .reduce((arr, tag) => {
+              if (!tag) return arr;
+              const tuple = arr.find(([t]) => t === tag);
+              if (tuple) {
+                tuple[1]++;
+              } else {
+                arr.push([tag, 1]);
+              }
+              return arr;
+            }, [])
+            // Sort by frequency
+            .sort((tupleA, tupleB) => tupleB[1] - tupleA[1]);
+        }
+
+        return r;
+      });
 
     this.groupedLeaderboards.clear();
     for (const lb of leaderboards) {
