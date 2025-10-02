@@ -946,8 +946,9 @@ export class MapsService {
     if (
       map.status === MapStatus.PUBLIC_TESTING ||
       map.status === MapStatus.FINAL_APPROVAL
-    )
-      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+    ) {
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+    }
 
     return DtoFactory(
       MapDto,
@@ -1385,8 +1386,9 @@ export class MapsService {
       }
     });
 
-    if (statusChanged)
-      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+    if (statusChanged) {
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+    }
   }
 
   /**
@@ -1547,12 +1549,12 @@ export class MapsService {
     // If submission -> approved or reverse, update both
     // If no submission (e.g. approved -> disabled), just update approved list
     if (numInSubmissionStatuses === 2) {
-      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
     } else if (numInSubmissionStatuses === 1) {
-      this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
-      this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
     } else {
-      this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
   }
 
@@ -2021,7 +2023,7 @@ export class MapsService {
       );
     }
 
-    this.mapListService.scheduleMapListUpdate(
+    void this.mapListService.scheduleMapListUpdate(
       MapStatuses.IN_SUBMISSION.includes(map.status)
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
