@@ -85,7 +85,8 @@ export class MapListItemComponent implements OnChanges {
     this.prefix = prefix;
     this.authors = [
       ...this.map.credits,
-      ...(MapStatuses.IN_SUBMISSION.includes(this.map.status)
+      ...(MapStatuses.IN_SUBMISSION.includes(this.map.status) ||
+      this.map.status === MapStatus.DISABLED
         ? (this.map.submission?.placeholders ?? [])
         : [])
     ]
