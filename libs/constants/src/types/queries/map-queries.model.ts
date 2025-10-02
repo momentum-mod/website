@@ -180,6 +180,7 @@ export interface UpdateMap
 
 export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
   status?: MapStatus;
+  submitterID?: number;
   finalLeaderboards?: MapSubmissionApproval[];
 }
 
