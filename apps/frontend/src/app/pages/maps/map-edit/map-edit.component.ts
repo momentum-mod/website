@@ -85,6 +85,7 @@ import { CardHeaderComponent } from '../../../components/card/card-header.compon
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { JsonPipe, NgClass } from '@angular/common';
 import { PreventEnterSubmitDirective } from '../../../directives/prevent-enter-submit.directive';
+import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 
 // This is the internal structure of the FormGroup, keys are dependent on
 // leaderboards so index signature-based object type is an approprate type here.
@@ -112,7 +113,8 @@ export type FinalApprovalFormGroup = Record<
     SpinnerDirective,
     NgClass,
     JsonPipe,
-    PreventEnterSubmitDirective
+    PreventEnterSubmitDirective,
+    UserSelectComponent
   ]
 })
 export class MapEditComponent implements OnInit, ConfirmDeactivate {
@@ -177,6 +179,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
       requiredGames: [[]]
     }),
+
+    submitter: new FormControl<User | null>(null),
 
     images: new FormControl<File[]>(null, {
       validators: [
@@ -394,6 +398,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       }
     }
 
+    if (this.submitter.dirty && this.submitter.value) {
+      (body as UpdateMapAdmin).submitterID = this.submitter.value.id;
+    }
+
     const hasImages = this.images.dirty && this.haveImagesActuallyChanged();
     const hasCredits =
       this.credits.dirty &&
@@ -413,7 +421,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     if (!isEmpty(body)) {
       try {
         // Use the non-admin endpoint for submitters, unless they're an admin
-        // approving their own map, or map is approved/disabled
+        // approving their own map, map is approved/disabled, or they're
+        // changing submitter.
         if (
           this.isSubmitter &&
           !(
@@ -421,7 +430,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             (body.status === MapStatus.APPROVED ||
               this.map.status === MapStatus.APPROVED ||
               this.map.status === MapStatus.DISABLED)
-          )
+          ) &&
+          !(body as UpdateMapAdmin).submitterID
         ) {
           await firstValueFrom(
             this.mapsService.updateMap(this.map.id, body as UpdateMap)
@@ -866,6 +876,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   get status() {
     return this.mainForm.get('statusChange.status') as FormControl<MapStatus>;
+  }
+
+  get submitter() {
+    return this.mainForm.get('submitter') as FormControl<User>;
   }
 
   get finalLeaderboards() {

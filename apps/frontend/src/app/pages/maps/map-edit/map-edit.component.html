@@ -87,7 +87,7 @@
   [formGroup]="mainForm"
   (ngSubmit)="submitMainForm()"
   [mSpinner]="loading"
-  class="card card--fancy my-8 flex-col gap-8 overflow-visible p-4"
+  class="card card--fancy mb-8 mt-14 flex-col gap-8 overflow-visible p-4"
   [ngClass]="isAdmin || isMod || isSubmitter || isReviewer ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
@@ -96,6 +96,14 @@
   <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Details</legend>
     <m-map-details-form [formGroup]="details" [isModOrAdmin]="isAdmin || isMod" />
+  </fieldset>
+
+  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+    <legend class="font-display text-4xl font-bold">Change Submitter</legend>
+    <p class="color-red-500 mb-4 mt-2 italic">
+      Updating this removes the ability for the current submitter to update the map. Use responsibly!
+    </p>
+    <m-user-select [formControl]="submitter" />
   </fieldset>
 
   <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
