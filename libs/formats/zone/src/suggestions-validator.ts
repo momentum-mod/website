@@ -91,7 +91,14 @@ export function validateSuggestions(
         // reviewer can just ignore/reject stupid suggestions.
         if (
           IncompatibleGamemodes.get(gm)!.has(gm2) &&
-          IncompatibleGamemodes.get(gm2)!.has(gm)
+          IncompatibleGamemodes.get(gm2)!.has(gm) &&
+          // If approving, don't care about incomp if either of the lbs are
+          // going to be hidden.
+          !(
+            type === SuggestionType.APPROVAL &&
+            ((sugg as MapSubmissionApproval).type === LeaderboardType.HIDDEN ||
+              (sugg2 as MapSubmissionApproval).type === LeaderboardType.HIDDEN)
+          )
         ) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
