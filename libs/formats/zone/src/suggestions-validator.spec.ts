@@ -463,6 +463,22 @@ describe('validateSuggestions', () => {
     expect(() =>
       validateSuggestions(
         [
+          ...validApprovals,
+          {
+            trackType: TT.MAIN,
+            trackNum: 1,
+            gamemode: Gamemode.BHOP,
+            type: LeaderboardType.HIDDEN
+          }
+        ],
+        zones,
+        SuggestionType.APPROVAL
+      )
+    ).not.toThrow();
+
+    expect(() =>
+      validateSuggestions(
+        [
           ...validSubmissionSuggestions,
           {
             trackType: TT.MAIN,
