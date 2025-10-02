@@ -1738,12 +1738,15 @@ export class MapsService {
       throw new ForbiddenException('Map has unresolved reviews');
     }
 
-    // Must have at least one approving review.
+    // Must have at least one approving review unless you're mod/admin
     const hasApprovingReview = await this.db.mapReview.exists({
       where: { mapID: map.id, approves: true }
     });
 
-    if (!hasApprovingReview) {
+    if (
+      !hasApprovingReview &&
+      !Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)
+    ) {
       throw new ForbiddenException('Map has no approving reviews');
     }
   }
