@@ -616,7 +616,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
             create: {
               description: faker.lorem.paragraphs().slice(0, 999),
               creationDate: Random.pastDateInYears(),
-              youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined
+              youtubeID: Math.random() < 0.01 ? 'kahsl8rggF4' : undefined,
+              approvedDate:
+                status === MapStatus.APPROVED ? Random.pastDateInYears() : null
             }
           },
           images: await Promise.all(
