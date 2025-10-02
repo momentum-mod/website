@@ -32,6 +32,7 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { setupPersistentForm } from '../../../util/form-utils.util';
 import { LocalUserService } from '../../../services/data/local-user.service';
+import { NStateButtonComponent } from '../../../components/n-state-button/n-state-button.component';
 
 // This component is very similar to the MapBrowserComponent, found it easier to
 // split them up. Try to keep any styling synced up.
@@ -45,7 +46,8 @@ import { LocalUserService } from '../../../services/data/local-user.service';
     TooltipDirective,
     ReactiveFormsModule,
     DropdownComponent,
-    FormsModule
+    FormsModule,
+    NStateButtonComponent
   ]
 })
 export class MapSubmissionBrowserComponent implements OnInit {
@@ -93,6 +95,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     status: new FormControl<MapsGetAllSubmissionFilter>([], {
       nonNullable: true
     }),
+    hasApprovingReviews: new FormControl<0 | 1 | 2>(0, { nonNullable: true }),
     credit: new FormControl<User | null>(null),
     creditType: new FormControl<number>(this.submitterCreditValue),
     sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
@@ -140,8 +143,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
         filter(() => this.filters.valid),
         tap(() => (this.loading = true)),
         switchMap((take) => {
-          const { name, status, credit, creditType, sortType } =
-            this.filters.getRawValue();
+          const {
+            name,
+            status,
+            hasApprovingReviews,
+            credit,
+            creditType,
+            sortType
+          } = this.filters.getRawValue();
 
           const options: MapsGetAllSubmissionQuery = {
             skip: this.skip,
@@ -156,6 +165,11 @@ export class MapSubmissionBrowserComponent implements OnInit {
           };
           if (name) options.search = name;
           if (status.length > 0) options.filter = status;
+          if (hasApprovingReviews === 1) {
+            options.hasApprovingReview = true;
+          } else if (hasApprovingReviews === 2) {
+            options.hasApprovingReview = false;
+          }
           if (credit) {
             if (creditType === this.submitterCreditValue) {
               options.submitterID = credit.id;
@@ -191,6 +205,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     this.filters.reset({
       name: '',
       status: [],
+      hasApprovingReviews: 0,
       credit: null,
       creditType: this.submitterCreditValue,
       sortType: this.MapSortOptions[0]

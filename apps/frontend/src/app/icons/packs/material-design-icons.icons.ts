@@ -27,6 +27,7 @@ export {
   mdiBellAlert,
   mdiBellOutline,
   mdiMagnify,
+  mdiCheckBold,
   mdiCheckCircleOutline,
   mdiPlus,
   mdiPlusThick,

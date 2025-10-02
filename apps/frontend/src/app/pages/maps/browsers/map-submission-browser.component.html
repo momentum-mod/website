@@ -33,6 +33,16 @@
           appendTo="body"
         />
       </div>
+      <m-n-state-button
+        class="size-8 p-0"
+        [states]="[
+          { icon: 'check-bold', color: 'pale' },
+          { icon: 'check-bold', color: 'green' },
+          { icon: 'check-bold', color: 'red' }
+        ]"
+        mTooltip="Has Approving Reviews"
+        formControlName="hasApprovingReviews"
+      />
       <m-dropdown [entries]="MapSortOptions" [nameFn]="MapSortNameFn" formControlName="sortType" />
     </div>
   </form>
