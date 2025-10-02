@@ -3617,6 +3617,27 @@ describe('Maps', () => {
         });
       });
 
+      it("should allow changing from PUBLIC_TESTING to FINAL_APPROVAL if map doesn't have at least one approving review if submitter is a mod", async () => {
+        const data = structuredClone(createMapData);
+        data.status = MapStatus.PUBLIC_TESTING;
+        data.reviews = { createMany: { data: [] } };
+        data.submitter = { connect: { id: mod.id } };
+        data.submission.create.dates.create.push({
+          status: MapStatus.PUBLIC_TESTING,
+          date: new Date(Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)),
+          user: { connect: { id: user.id } }
+        });
+
+        const map = await db.createMap(data);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.FINAL_APPROVAL },
+          token: modToken
+        });
+      });
+
       it('should generate new leaderboards if suggestions change', async () => {
         const map = await db.createMap({
           ...createMapData,
