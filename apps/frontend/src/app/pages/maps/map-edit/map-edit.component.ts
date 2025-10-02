@@ -397,7 +397,13 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     const hasImages = this.images.dirty && this.haveImagesActuallyChanged();
     const hasCredits =
       this.credits.dirty &&
-      !deepEquals(this.credits.value, new GroupedMapCredits(this.map.credits));
+      !deepEquals(
+        this.credits.value,
+        new GroupedMapCredits(
+          this.map.credits,
+          this.map?.submission?.placeholders
+        )
+      );
 
     if (isEmpty(body) && !hasImages && !hasCredits) {
       this.loading = false;
