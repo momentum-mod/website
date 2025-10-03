@@ -261,7 +261,7 @@ export class MapStatusFormComponent implements OnChanges {
           // Mean including submitter, i.e.
           let sumTiers = reviews.reduce((acc, { tier }) => acc + tier, 0);
           let totalTiers = reviews.filter(({ tier }) => tier > 0).length;
-          if (subSugg.tier > 0) {
+          if (subSugg?.tier > 0) {
             sumTiers += subSugg.tier;
             totalTiers++;
           }
