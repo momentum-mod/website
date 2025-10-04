@@ -244,7 +244,7 @@ export class MapBrowserComponent implements OnInit {
               options.creditType = creditType;
             }
           }
-          if (sortType) options.sortType = sortType;
+          options.sortType = sortType; // Always set.
 
           return this.mapsService.getMaps({ ...options });
         }),
