@@ -157,11 +157,12 @@
             </ng-template>
           }
           <div class="flex items-center gap-1" [mTooltip]="dateTooltip">
-            <p class="font-display text-24 drop-shadow-md">{{ map.createdAt | date }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.info?.creationDate || map.createdAt | date }}</p>
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>
           <ng-template #dateTooltip>
             <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
+            <p class="text-right"><b>Added in Momentum - </b>{{ map.createdAt | date }}</p>
             @if (map.info?.approvedDate) {
               <p class="text-right"><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
             }
