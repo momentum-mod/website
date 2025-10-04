@@ -74,7 +74,7 @@ export class AdminService {
     return this.http.post<User>('admin/users/merge', {
       body: {
         placeholderID: placeholder.id,
-        realID: realUser.id
+        userID: realUser.id
       }
     });
   }
