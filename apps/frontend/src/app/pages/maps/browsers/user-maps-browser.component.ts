@@ -152,7 +152,7 @@ export class UserMapsBrowserComponent implements OnInit {
             options.creditID = credit.id;
             options.creditType = creditType;
           }
-          if (sortType) options.sortType = sortType;
+          options.sortType = sortType; // Always set.
 
           return this.localUserService.getSubmittedMaps({ ...options });
         }),
