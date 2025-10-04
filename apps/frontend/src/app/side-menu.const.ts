@@ -103,5 +103,25 @@ export const SIDENAV_ITEMS: Array<{
         pack: 'si'
       }
     ]
+  },
+  {
+    title: 'Our Other Sites',
+    isPublic: true,
+    items: [
+      {
+        title: 'Docs Home',
+        link: 'https://docs.momentum-mod.org',
+        external: true,
+        icon: 'home',
+        isPublic: true
+      },
+      {
+        title: 'Main Site',
+        link: 'https://momentum-mod.org',
+        external: true,
+        icon: 'web',
+        isPublic: true
+      }
+    ]
   }
 ];
