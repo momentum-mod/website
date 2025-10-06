@@ -1437,7 +1437,8 @@ export class MapsService {
       }
     }
 
-    let oldStatus: MapStatus | undefined, newStatus: MapStatus | undefined;
+    let oldStatus: MapStatus | undefined;
+    let newStatus: MapStatus | undefined;
     await this.db.$transaction(async (tx) => {
       const update: Prisma.MMapUpdateInput = {};
 
@@ -1484,7 +1485,7 @@ export class MapsService {
 
         // Ensure that discord notification will be sent after update
         if (
-          statusHandler[2] === MapStatus.PUBLIC_TESTING &&
+          newStatus === MapStatus.PUBLIC_TESTING &&
           !map.submission.dates.some(
             (date) => date.status === MapStatus.PUBLIC_TESTING
           )
@@ -1505,7 +1506,7 @@ export class MapsService {
           void this.discordNotificationService.sendPublicTestingNotification(
             extendedMap
           );
-        } else if (statusHandler[2] === MapStatus.APPROVED) {
+        } else if (newStatus === MapStatus.APPROVED) {
           const extendedMap = await tx.mMap.findUnique({
             where: { id: map.id },
             include: {
@@ -1834,24 +1835,6 @@ export class MapsService {
         }
       });
 
-      // Create placeholder users for all the users the submitter requested
-      // Can't use createMany due to nesting (thanks Prisma!!)
-      for (const placeholder of map.submission.placeholders ?? []) {
-        await tx.user.create({
-          data: {
-            alias: placeholder.alias,
-            roles: Role.PLACEHOLDER,
-            mapCredits: {
-              create: {
-                mmap: { connect: { id: map.id } },
-                type: placeholder.type,
-                description: placeholder.description
-              }
-            }
-          }
-        });
-      }
-
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
       await tx.leaderboard.deleteMany({ where: { mapID: map.id } });
@@ -1887,6 +1870,24 @@ export class MapsService {
         );
 
       this.checkZones(zones);
+    }
+
+    // Create placeholder users accounts for each non-account placeholders.
+    // Can't use createMany due to nesting (thanks Prisma!!)
+    for (const placeholder of map.submission.placeholders ?? []) {
+      await tx.user.create({
+        data: {
+          alias: placeholder.alias,
+          roles: Role.PLACEHOLDER,
+          mapCredits: {
+            create: {
+              mmap: { connect: { id: map.id } },
+              type: placeholder.type,
+              description: placeholder.description
+            }
+          }
+        }
+      });
     }
 
     // Update map approve date
