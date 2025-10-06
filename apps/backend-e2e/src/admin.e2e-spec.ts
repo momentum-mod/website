@@ -1463,7 +1463,7 @@ describe('Admin', () => {
         expect(updatedMap.status).toBe(MapStatus.APPROVED);
       });
 
-      it('should create placeholder users after map status changed from FA to approved', async () => {
+      it('should create placeholder accounts and wipe placeholder json after map status changed from FA to approved', async () => {
         const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
 
         const map = await db.createMap({
@@ -1530,6 +1530,11 @@ describe('Admin', () => {
             }
           ]
         });
+
+        const submission = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id }
+        });
+        expect(submission.placeholders).toMatchObject([]);
       });
 
       it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to DISABLED', async () => {

@@ -1889,6 +1889,11 @@ export class MapsService {
         }
       });
     }
+    // Remove non-account placeholders that we just used to create proper accounts for.
+    await tx.mapSubmission.update({
+      where: { mapID: map.id },
+      data: { placeholders: [] }
+    });
 
     // Update map approve date
     await this.db.mapInfo.update({
