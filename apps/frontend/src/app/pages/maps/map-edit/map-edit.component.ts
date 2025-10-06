@@ -510,10 +510,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
         const updatePlaceholders = async () =>
           await firstValueFrom(
-            (this.isSubmitter ? this.mapsService : this.adminService).updateMap(
-              this.map.id,
-              { placeholders: this.credits.value.getSubmittablePlaceholders() }
-            )
+            (this.localUserService.isReviewerOrAbove
+              ? this.adminService
+              : this.mapsService
+            ).updateMap(this.map.id, {
+              placeholders: this.credits.value.getSubmittablePlaceholders()
+            })
           );
 
         // Backend won't allow us to be in state with no authors whatsoever,
