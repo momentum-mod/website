@@ -25,6 +25,26 @@
         }
       }
     },
+    "repl": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/backend",
+        "main": "apps/backend/src/repl.ts",
+        "sourceMap": true,
+        "tsConfig": "apps/backend/tsconfig.app.json",
+        "webpackConfig": "apps/backend/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "generatePackageJson": true
+        }
+      }
+    },
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
@@ -37,6 +57,9 @@
         },
         "production": {
           "buildTarget": "backend:build:production"
+        },
+        "repl": {
+          "buildTarget": "backend:repl:development"
         }
       }
     },

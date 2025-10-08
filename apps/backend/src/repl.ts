@@ -2,7 +2,7 @@
 import { AppModule } from './app/app.module';
 
 /**
- * Run this file via `npm run start:repl` launch the API in REPL
+ * Run this file via `nx run backend:serve:repl` launch the API in REPL
  * (Read-Eval-Print-Loop) mode, enabling you to interact with running providers
  * via the command line.
  *
