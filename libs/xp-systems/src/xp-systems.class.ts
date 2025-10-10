@@ -200,6 +200,7 @@ export class XpSystems {
       }
     }
 
+    rankGain.rankXP = Math.floor(rankGain.rankXP);
     return rankGain;
   }
 

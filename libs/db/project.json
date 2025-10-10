@@ -68,7 +68,7 @@
     "reset": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma db push --force-reset --accept-data-loss",
+        "command": "prisma migrate reset --force --skip-seed",
         "cwd": "libs/db/src"
       }
     },

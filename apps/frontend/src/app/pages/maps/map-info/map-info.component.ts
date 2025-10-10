@@ -178,7 +178,7 @@ export class MapInfoComponent implements OnInit {
         ? (this.map.submission?.placeholders ?? [])
         : []
     );
-    this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
+    this.inSubmission = true; // MapStatuses.IN_SUBMISSION.includes(map.status);
     // Show Review section first if in review, otherwise leaderboards (and the
     // tab view won't be visible anyway).
     this.currentSection = this.inSubmission

@@ -24,15 +24,18 @@ if (process.env['SENTRY_ENABLE_NODE_PROFILING'] === 'true') {
 const opts: Sentry.NodeOptions = {
   dsn,
   environment: process.env['SENTRY_ENV'],
-  tracesSampleRate: sampleRate,
-  profilesSampleRate: sampleRate,
+  tracesSampleRate: 1,
+  profilesSampleRate: 1,
   debug: false,
   normalizeDepth: 6,
   integrations,
-  _experiments: { enableLogs: true }
+  _experiments: { enableLogs: true },
+  spotlight: true
 };
 
 if (process.env['NODE_ENV'] === Environment.PRODUCTION && dsn) {
   pino().info('Initializing Sentry');
   Sentry.init(opts);
+} else {
+  Sentry.init({ spotlight: true });
 }

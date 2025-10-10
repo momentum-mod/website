@@ -17,9 +17,10 @@ ERD.svg
 /dist
 /tmp
 /out-tsc
+/apps/ranking/target/
 
 # IDEs and editors
-/.idea
+.idea
 .project
 .classpath
 .c9/
