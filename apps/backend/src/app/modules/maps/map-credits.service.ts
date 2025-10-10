@@ -75,10 +75,6 @@ export class MapCreditsService {
     body: CreateMapCreditDto[],
     loggedInUserID: number
   ): Promise<MapCreditDto[]> {
-    if (body.length === 0) {
-      throw new BadRequestException('Empty body');
-    }
-
     const maxCredits = this.config.getOrThrow('limits.maxCreditsExceptTesters');
     for (const type of [
       MapCreditType.AUTHOR,
@@ -109,8 +105,9 @@ export class MapCreditsService {
           map.submission.placeholders as unknown as MapSubmissionPlaceholder[]
         )?.some(({ type }) => type === MapCreditType.AUTHOR)
       )
-    )
+    ) {
       throw new BadRequestException('Credits do not contain an AUTHOR');
+    }
 
     const { roles } = await this.db.user.findUnique({
       where: { id: loggedInUserID },
