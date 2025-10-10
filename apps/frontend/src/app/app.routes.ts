@@ -5,6 +5,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { RedirectGuard } from './guards/redirect.guard';
+import { LimitedGuard } from './guards/limited.guard';
 
 export const APP_ROUTES: Route[] = [
   {
@@ -20,7 +21,7 @@ export const APP_ROUTES: Route[] = [
   {
     path: 'map-edit',
     loadChildren: () => import('./pages/maps/routes-mapper-facing'),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, LimitedGuard]
   },
   {
     path: 'community',

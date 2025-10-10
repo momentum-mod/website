@@ -11,6 +11,7 @@ export const SIDENAV_ITEMS: Array<{
     icon: Icon;
     pack?: IconPack;
     isPublic?: boolean;
+    hideOnLimited?: boolean;
   }>;
 }> = [
   {
@@ -30,7 +31,8 @@ export const SIDENAV_ITEMS: Array<{
       {
         title: 'Your Maps',
         link: '/maps/submissions',
-        icon: 'upload'
+        icon: 'upload',
+        hideOnLimited: true
       }
     ]
   },

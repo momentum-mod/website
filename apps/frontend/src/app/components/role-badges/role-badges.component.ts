@@ -39,7 +39,8 @@ export class RoleBadgesComponent implements OnChanges {
     Role.PORTER,
     Role.REVIEWER,
     Role.PLACEHOLDER,
-    Role.DELETED
+    Role.DELETED,
+    Role.LIMITED
   ];
 
   protected heldRoleStrings: string[] = [];
