@@ -31,12 +31,15 @@ export class SidenavComponent {
       map((user) => {
         const isLoggedIn = user != null;
         const isMod = this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN);
+        const isLimited = this.localUserService.isLimited;
         return SIDENAV_ITEMS.filter(
           ({ needsMod, isPublic }) => isPublic || !needsMod || isMod
         ).map((entry) => ({
           ...entry,
           items: entry.items.filter(
-            (item) => entry.isPublic || item.isPublic || isLoggedIn
+            (item) =>
+              (entry.isPublic || item.isPublic || isLoggedIn) &&
+              (!item.hideOnLimited || !isLimited)
           )
         }));
       })
