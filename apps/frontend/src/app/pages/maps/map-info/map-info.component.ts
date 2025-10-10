@@ -119,7 +119,7 @@ export class MapInfoComponent implements OnInit {
   isSubmitter: boolean;
   inSubmission: boolean;
 
-  currentSection?: MapInfoSection = null;
+  currentSection = MapInfoSection.LEADERBOARDS;
   sections = Enum.values(MapInfoSection);
 
   ngOnInit() {
@@ -177,8 +177,7 @@ export class MapInfoComponent implements OnInit {
       this.map.submission?.placeholders ?? []
     );
     this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
-    // Show Review section first if in review, otherwise leaderboards (and the
-    // tab view won't be visible anyway).
+    // Show Review section first if in review, otherwise leaderboards.
     this.currentSection = this.inSubmission
       ? MapInfoSection.SUBMISSION
       : MapInfoSection.LEADERBOARDS;
