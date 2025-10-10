@@ -78,7 +78,7 @@ import {
   VALIDATION_PIPE_CONFIG,
   CreateMapVersionDto
 } from '../../dto';
-import { BypassJwtAuth, LoggedInUser } from '../../decorators';
+import { BypassJwtAuth, BypassLimited, LoggedInUser } from '../../decorators';
 import { ParseInt32SafePipe, ParseFilesPipe } from '../../pipes';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { UserJwtAccessPayload } from '../auth/auth.interface';
@@ -172,6 +172,7 @@ export class MapsController {
   }
 
   @Get('/maplistversion')
+  @BypassLimited()
   @ApiOperation({ summary: 'Retrieve the latest map list version number' })
   @ApiOkResponse({ type: MapListVersionDto })
   getMapListVersion(): Promise<MapListVersionDto> {
@@ -183,6 +184,7 @@ export class MapsController {
   //#region Map Submission
 
   @Get('/submissions')
+  @BypassLimited()
   @ApiOperation({ summary: 'Retrieve a paginated list of maps in submission' })
   @ApiOkResponse({ type: PagedResponseDto<MapDto> })
   getSubmissions(
@@ -659,7 +661,9 @@ export class MapsController {
   //#endregion
 
   //#region Reviews
+
   @Get('/:mapID/reviews')
+  @BypassLimited()
   @ApiOperation({ summary: 'Returns the reviews for a specific map' })
   @ApiParam({
     name: 'mapID',
@@ -720,9 +724,8 @@ export class MapsController {
     );
   }
 
-  //#region Reviews
-
   @Get('/:mapID/reviewStats')
+  @BypassLimited()
   @ApiOperation({ summary: 'Returns the review stats for a specific map' })
   @ApiParam({
     name: 'mapID',

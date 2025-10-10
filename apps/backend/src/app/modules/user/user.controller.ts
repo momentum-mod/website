@@ -23,7 +23,7 @@ import {
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
-import { LoggedInUser } from '../../decorators';
+import { BypassLimited, LoggedInUser } from '../../decorators';
 import {
   ActivityDto,
   ApiOkPagedResponse,
@@ -60,6 +60,7 @@ export class UserController {
   //#region Main User Endpoints
 
   @Get()
+  @BypassLimited()
   @ApiOperation({ summary: 'Get local user, based on JWT' })
   @ApiOkResponse({ type: UserDto, description: 'The logged in user data' })
   getUser(
@@ -87,6 +88,7 @@ export class UserController {
   }
 
   @Delete()
+  @BypassLimited()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete the local users's data" })
   @ApiNoContentResponse({ description: 'The user was successfully deleted' })
@@ -99,6 +101,7 @@ export class UserController {
   //#region Profile
 
   @Get('/profile')
+  @BypassLimited()
   @ApiOperation({ summary: 'Get local user, based on JWT' })
   @ApiOkResponse({
     type: ProfileDto,
@@ -129,6 +132,7 @@ export class UserController {
   }
 
   @Get('/follow/:userID')
+  @BypassLimited()
   @ApiOperation({
     summary:
       'Returns the follow relationship between the local user and a target user'
@@ -221,6 +225,7 @@ export class UserController {
   //#region Map Notify
 
   @Get('/notifyMap/:mapID')
+  @BypassLimited()
   @ApiOperation({
     summary: 'Returns if the user has notifications for the given map'
   })
@@ -297,6 +302,7 @@ export class UserController {
   //#region Activities
 
   @Get('/activities')
+  @BypassLimited()
   @ApiOperation({ summary: "Returns all of the local user's activities" })
   @ApiOkPagedResponse(UserDto, {
     description: "Paginated list of the local user's activites"
@@ -315,6 +321,7 @@ export class UserController {
   }
 
   @Get('/activities/followed')
+  @BypassLimited()
   @ApiOperation({ summary: "Returns activities of the user's followers" })
   @ApiParam({
     name: 'userID',
@@ -343,6 +350,7 @@ export class UserController {
   //#region Map Favorites
 
   @Get('/maps/favorites/:mapID')
+  @BypassLimited()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary:
@@ -448,6 +456,7 @@ export class UserController {
   //#region Steam Friends
 
   @Get('/steamfriends')
+  @BypassLimited()
   @ApiOperation({
     summary: 'Get a list of the local user steam friends'
   })

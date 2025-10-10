@@ -25,7 +25,7 @@ import {
 import { MapReviewService } from './map-review.service';
 import { MapReviewCommentService } from './map-review-comment.service';
 import { ParseInt32SafePipe } from '../../pipes';
-import { LoggedInUser } from '../../decorators';
+import { BypassLimited, LoggedInUser } from '../../decorators';
 import {
   ApiOkPagedResponse,
   CreateMapReviewCommentDto,
@@ -55,6 +55,7 @@ export class MapReviewController {
   ) {}
 
   @Get('/:reviewID')
+  @BypassLimited()
   @UseGuards(KillswitchGuard)
   @Killswitch(KillswitchType.MAP_REVIEWS)
   @ApiOperation({ summary: 'Returns the requested review' })
@@ -128,6 +129,7 @@ export class MapReviewController {
   }
 
   @Get('/:reviewID/comments')
+  @BypassLimited()
   @ApiOperation({
     summary: 'Get list of review comments. Author user is always included.'
   })
