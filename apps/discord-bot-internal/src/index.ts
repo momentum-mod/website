@@ -1,3 +1,4 @@
+import './instrumentation';
 import { Client, Events, GuildMember, Routes } from 'discord.js';
 import { Agent } from 'undici';
 import { logger } from './logger';
@@ -27,12 +28,7 @@ for (const interactionModule of interactionModules) {
 }
 
 client.once(Events.ClientReady, async (readyClient) => {
-  logger.info(
-    {
-      user: readyClient.user
-    },
-    'Discord client is ready'
-  );
+  logger.info({ user: readyClient.user }, 'Discord client is ready');
 
   await client.rest.put(
     Routes.applicationGuildCommands(readyClient.user.id, config.guild_id),
