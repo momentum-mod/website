@@ -16,6 +16,7 @@ import { User } from '@momentum/db';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { createHash } from 'node:crypto';
+import { Role } from '@momentum/constants';
 
 describe('UserService', () => {
   let usersService: UsersService;
@@ -153,9 +154,33 @@ describe('UserService', () => {
       });
     });
 
-    it('should throw error when using a limited account if the setting is on', async () => {
+    it('should create a limited user when using a limited account if the setting is on', async () => {
       const nonExistingUser: User = undefined;
       db.user.findUnique.mockResolvedValueOnce(nonExistingUser as any);
+
+      const spy = jest.spyOn(db['user'], 'create');
+
+      const steamUserSummaryData: SteamUserSummaryData = {
+        avatar: 'avatar',
+        avatarfull: 'avatar full',
+        avatarhash: 'avatar hash',
+        avatarmedium: 'avatar medium',
+        communityvisibilitystate: 0,
+        lastlogoff: 1567,
+        loccountrycode: 'loc country code',
+        personaname: 'persona name',
+        personastate: 6534,
+        personastateflags: 343,
+        primaryclanid: 'primary clan id',
+        profilestate: 1,
+        profileurl: 'profile url',
+        realname: 'real name',
+        steamid: '123456789',
+        timecreated: 999887
+      };
+      jest
+        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
+        .mockResolvedValueOnce(steamUserSummaryData);
 
       jest
         .spyOn(usersService['config'], 'getOrThrow')
@@ -164,9 +189,18 @@ describe('UserService', () => {
         .spyOn(usersService['steamService'], 'isAccountLimited')
         .mockResolvedValueOnce(true);
 
-      await expect(
-        usersService.findOrCreateUser(BigInt(123456789))
-      ).rejects.toThrow(ForbiddenException);
+      await usersService.findOrCreateUser(BigInt(123456789));
+
+      expect(spy).toHaveBeenCalledWith({
+        data: {
+          alias: steamUserSummaryData.personaname,
+          avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
+          country: steamUserSummaryData.loccountrycode,
+          steamID: BigInt(123456789),
+          roles: Role.LIMITED
+        },
+        select: { id: true, steamID: true }
+      });
     });
 
     it('should throw an error when getSteamUserSummaryData throws and error', async () => {
