@@ -14,7 +14,7 @@ import {
   PastRunsGetAllQueryDto,
   PastRunsGetQueryDto
 } from '../../dto';
-import { LoggedInUser, BypassJwtAuth } from '../../decorators';
+import { LoggedInUser, BypassJwtAuth, BypassLimited } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { PastRunsService } from './past-runs.service';
 
@@ -26,6 +26,7 @@ export class RunsController {
   constructor(private readonly pastRunsService: PastRunsService) {}
 
   @Get()
+  @BypassLimited()
   @ApiOperation({
     summary:
       'Returns a paginated list of all submitted runs, include non-PBs.' +
@@ -42,6 +43,7 @@ export class RunsController {
   }
 
   @Get('/:runID')
+  @BypassLimited()
   @ApiOperation({ summary: 'Returns a single run' })
   @ApiParam({
     name: 'runID',
