@@ -124,25 +124,28 @@ export class UsersService {
         steamID: true,
         alias: true,
         avatar: true,
-        country: true
+        country: true,
+        roles: true
       }
     });
 
     if (user) {
+      if (Bitflags.has(user.roles, Role.LIMITED)) {
+        const isLimited = await this.steamService.isAccountLimited(steamID);
+        if (!isLimited) {
+          await this.db.user.update({
+            where: { steamID },
+            data: { roles: Bitflags.remove(user.roles, Role.LIMITED) }
+          });
+        }
+      }
+
       return user;
     } else if (
       this.killswitchService.checkKillswitch(KillswitchType.NEW_SIGNUPS)
     ) {
       throw new ConflictException('New signups are disabled temporarily');
     } else {
-      if (
-        this.config.getOrThrow('steam.preventLimited') &&
-        (await this.steamService.isAccountLimited(steamID))
-      )
-        throw new ForbiddenException(
-          'We do not authenticate limited Steam accounts. Buy something on Steam first!'
-        );
-
       const userData = await this.steamService
         .getSteamUserSummaryData(steamID)
         .catch((_) => {
@@ -161,12 +164,20 @@ export class UsersService {
           'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
         );
 
+      let roles = undefined;
+      if (
+        this.config.getOrThrow('steam.preventLimited') &&
+        (await this.steamService.isAccountLimited(steamID))
+      )
+        roles = Role.LIMITED;
+
       return await this.db.user.create({
         data: {
           steamID,
           alias: userData.personaname,
           avatar: userData.avatarhash.replace('_full.jpg', ''),
-          country: userData.loccountrycode
+          country: userData.loccountrycode,
+          roles
         },
         select: { id: true, steamID: true }
       });
