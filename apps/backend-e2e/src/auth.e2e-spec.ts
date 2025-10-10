@@ -250,11 +250,36 @@ describe('Auth', () => {
         });
       });
 
-      it('should throw a ForbiddenException if the user is a limited account and preventLimited is true', async () => {
+      it('should create an account with a limited role if the user is a limited account and preventLimited is true', async () => {
         steamIsLimitedSpy.mockResolvedValueOnce(true);
 
-        const res = await request();
-        expect(res.statusCode).toBe(403);
+        await request();
+
+        expect(await prisma.user.findFirst()).toMatchObject({
+          roles: Role.LIMITED
+        });
+
+        await db.cleanup('user');
+      });
+
+      it('should remove a limited role if the user is no longer a limited account', async () => {
+        await db.createUser({
+          data: {
+            steamID: steamID,
+            alias: steamData.personaname,
+            avatar: steamData.avatarhash,
+            country: steamData.loccountrycode,
+            roles: Role.LIMITED
+          }
+        });
+
+        await request();
+
+        expect(await prisma.user.findFirst()).toMatchObject({
+          roles: 0
+        });
+
+        await db.cleanup('user');
       });
 
       it('should create an account if the user is a limited account and preventLimited is false', async () => {
