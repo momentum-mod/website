@@ -15,7 +15,8 @@ import {
   MAX_REVIEW_COMMENT_LENGTH,
   MMap,
   TrackType,
-  mapTagEnglishName
+  mapTagEnglishName,
+  Role
 } from '@momentum/constants';
 import { UserComponent } from '../user/user.component';
 import {
@@ -336,6 +337,10 @@ export class MapReviewComponent {
 
   get isReviewer(): boolean {
     return this.localUserService.hasRole(CombinedRoles.REVIEWER_AND_ABOVE);
+  }
+
+  get isLimited(): boolean {
+    return this.localUserService.hasRole(Role.LIMITED);
   }
 
   get isModOrAdmin(): boolean {

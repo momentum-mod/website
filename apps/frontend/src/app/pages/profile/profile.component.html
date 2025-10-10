@@ -30,7 +30,7 @@
               }
             </h1>
             <div class="flex gap-1">
-              @if (!isLocal && localUserService.user | async) {
+              @if (!isLocal && (localUserService.user | async) && !localUserService.isLimited) {
                 <m-report-button
                   class="aspect-square p-2"
                   mTooltip="Report Profile"

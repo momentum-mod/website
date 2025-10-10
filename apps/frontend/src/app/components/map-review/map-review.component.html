@@ -169,31 +169,33 @@
     </div>
   }
 
-  <form [formGroup]="commentInput" (ngSubmit)="postComment()" class="mt-2 flex gap-2">
-    <textarea
-      rows="1"
-      (keydown.control.enter)="postComment()"
-      [formControl]="commentInput.controls.textInput"
-      placeholder="Leave a comment"
-      class="textinput grow resize-none overflow-hidden px-2 py-1"
-      dynamicTextareaHeight
-    ></textarea>
-    @if (commentInput.dirty) {
-      <div>
-        <button
-          type="button"
-          class="btn btn-red btn-thin"
-          [disabled]="commentInput.controls.textInput.value.length === 0"
-          (click)="commentInput.reset()"
-        >
-          Cancel
-        </button>
-      </div>
-      <div>
-        <button type="submit" class="btn btn-green btn-thin" [disabled]="loadingComments || commentInput.invalid">Post</button>
-      </div>
-    }
-  </form>
+  @if (!isLimited) {
+    <form [formGroup]="commentInput" (ngSubmit)="postComment()" class="mt-2 flex gap-2">
+      <textarea
+        rows="1"
+        (keydown.control.enter)="postComment()"
+        [formControl]="commentInput.controls.textInput"
+        placeholder="Leave a comment"
+        class="textinput grow resize-none overflow-hidden px-2 py-1"
+        dynamicTextareaHeight
+      ></textarea>
+      @if (commentInput.dirty) {
+        <div>
+          <button
+            type="button"
+            class="btn btn-red btn-thin"
+            [disabled]="commentInput.controls.textInput.value.length === 0"
+            (click)="commentInput.reset()"
+          >
+            Cancel
+          </button>
+        </div>
+        <div>
+          <button type="submit" class="btn btn-green btn-thin" [disabled]="loadingComments || commentInput.invalid">Post</button>
+        </div>
+      }
+    </form>
+  }
   @if (MAX_REVIEW_COMMENT_LENGTH / 2 < commentInput.value.textInput?.length) {
     <span class="ml-2 text-sm">{{ MAX_REVIEW_COMMENT_LENGTH - commentInput.value.textInput?.length | plural: 'character' }} remaining</span>
   }
