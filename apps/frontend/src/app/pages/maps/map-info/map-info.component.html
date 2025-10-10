@@ -55,7 +55,7 @@
             </p-popover>
           </a>
         }
-        @if (localUserService.isLoggedIn) {
+        @if (localUserService.isLoggedIn && !localUserService.isLimited) {
           <button
             class="btn btn-yellow"
             type="button"
