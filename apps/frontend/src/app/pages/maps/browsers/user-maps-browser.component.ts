@@ -37,6 +37,7 @@ import { DropdownComponent } from '../../../components/dropdown/dropdown.compone
 import { IconComponent } from '../../../icons';
 import { setupPersistentForm } from '../../../util/form-utils.util';
 import { fastValuesNumeric } from '@momentum/enum';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
 
 @Component({
   templateUrl: 'user-maps-browser.component.html',
@@ -50,7 +51,8 @@ import { fastValuesNumeric } from '@momentum/enum';
     ReactiveFormsModule,
     DropdownComponent,
     FormsModule,
-    IconComponent
+    IconComponent,
+    TooltipDirective
   ]
 })
 export class UserMapsBrowserComponent implements OnInit {
