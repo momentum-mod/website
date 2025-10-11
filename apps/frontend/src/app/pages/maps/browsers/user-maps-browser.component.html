@@ -26,7 +26,13 @@
         <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
         <div class="flex items-center gap-2">
           <m-user-select formControlName="credit" />
-          <m-dropdown [entries]="MapCreditOptions" [nameFn]="MapCreditNameFn" formControlName="creditType" />
+          <m-dropdown
+            [entries]="MapCreditOptions"
+            [nameFn]="MapCreditNameFn"
+            formControlName="creditType"
+            mTooltip="Searching for yourself requires inputting your profile in the user searchbox"
+            tooltipPosition="top"
+          />
         </div>
         <button (click)="resetFilters()" type="button" class="btn size-8 p-0">
           <m-icon icon="filter-remove" class="size-5" />
