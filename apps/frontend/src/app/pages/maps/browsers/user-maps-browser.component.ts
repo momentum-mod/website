@@ -12,7 +12,8 @@ import {
   MapSortTypeName,
   MMap,
   PagedResponse,
-  User
+  User,
+  limits
 } from '@momentum/constants';
 import {
   FormControl,
@@ -37,6 +38,7 @@ import { DropdownComponent } from '../../../components/dropdown/dropdown.compone
 import { IconComponent } from '../../../icons';
 import { setupPersistentForm } from '../../../util/form-utils.util';
 import { fastValuesNumeric } from '@momentum/enum';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   templateUrl: 'user-maps-browser.component.html',
@@ -50,7 +52,8 @@ import { fastValuesNumeric } from '@momentum/enum';
     ReactiveFormsModule,
     DropdownComponent,
     FormsModule,
-    IconComponent
+    IconComponent,
+    TooltipModule 
   ]
 })
 export class UserMapsBrowserComponent implements OnInit {
@@ -86,6 +89,9 @@ export class UserMapsBrowserComponent implements OnInit {
 
   protected hasSubmissionBan = false;
 
+  protected isMapLimitReached = false;
+  protected readonly mapSubmissionLimit = limits.MAP_SUBMISSION_LIMIT;
+
   protected readonly filters = new FormGroup({
     name: new FormControl<string>(''),
     status: new FormControl<MapsGetAllUserSubmissionFilter>([], {
@@ -111,6 +117,16 @@ export class UserMapsBrowserComponent implements OnInit {
       this.hasSubmissionBan = true;
       return;
     }
+
+    this.localUserService
+      .getLocalUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        if (user?.profile?.mapSubmissionsCount) {
+          this.isMapLimitReached =
+            user.profile.mapSubmissionsCount >= this.mapSubmissionLimit;
+        }
+      });
 
     setupPersistentForm(this.filters, 'USER_MAPS_FILTERS', this.destroyRef);
 
