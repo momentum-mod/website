@@ -14,6 +14,7 @@
         "compiler": "tsc",
         "outputPath": "dist/apps/discord-bot-internal",
         "main": "apps/discord-bot-internal/src/index.ts",
+        "sourceMap": true,
         "tsConfig": "apps/discord-bot-internal/tsconfig.json",
         "webpackConfig": "apps/discord-bot-internal/webpack.config.js"
       },
