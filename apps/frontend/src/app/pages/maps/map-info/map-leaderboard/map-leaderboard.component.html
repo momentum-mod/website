@@ -117,6 +117,31 @@
       </button>
     }
 
+    <div
+      class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
+    >
+      <p
+        class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 transition-all"
+      >
+        Style
+      </p>
+      <div class="flex max-w-[60rem] flex-wrap">
+        @for (style of activeMode.styles; track $index) {
+          <button
+            type="button"
+            class="text-shadow-strong border-collie h-full items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+            [ngClass]="{
+              '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
+                activeStyle === style
+            }"
+            (click)="selectStyle(style)"
+          >
+            {{ styleEnglishName(style) }}
+          </button>
+        }
+      </div>
+    </div>
+
     <p-select
       class="ml-auto self-center"
       [(ngModel)]="activeType"
