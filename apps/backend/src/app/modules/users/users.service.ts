@@ -73,7 +73,7 @@ export class UsersService {
 
     if (query.search) {
       where.alias = {
-        startsWith: query.search,
+        contains: query.search,
         mode: 'insensitive'
       };
     }
@@ -86,6 +86,15 @@ export class UsersService {
       skip: query.skip,
       take
     });
+
+    if (query.search) {
+      const search = query.search.toLowerCase();
+      dbResponse[0].sort((a, b) => {
+        const Alias = a.alias.toLowerCase().startsWith(search);
+        const Blias = b.alias.toLowerCase().startsWith(search);
+        return Alias === Blias ? 0 : Alias ? -1 : 1;
+      });
+    }
 
     return new PagedResponseDto(UserDto, dbResponse);
   }
