@@ -8,7 +8,7 @@ import { StreamsService } from '../services/streams';
 import { getService } from '../services';
 import { MomentumColor } from '../momentum-color';
 import {
-  isAdmin,
+  isModeratorOrHigher,
   isAdminBotChannel,
   replyDescriptionEmbed,
   sanitizeMarkdown
@@ -16,7 +16,7 @@ import {
 import { config } from '../config';
 
 export class LiveStreamModule implements InteractionModule {
-  userFilter = isAdmin;
+  userFilter = isModeratorOrHigher;
   channelFilter = isAdminBotChannel;
   commandBuilder = new SlashCommandBuilder()
     .setName('streamban')
