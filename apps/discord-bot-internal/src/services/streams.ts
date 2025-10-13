@@ -109,7 +109,7 @@ export class StreamsService extends Service {
     )} has gone live! <@&${config.livestream_mention_role_id}>`;
 
     const embed = new EmbedBuilder()
-      .setTitle(sanitizeMarkdown(stream.title))
+      .setTitle(sanitizeMarkdown(stream.title) || '(untitled)')
       .setColor([145, 70, 255])
       .setAuthor({
         name: stream.user_name,
