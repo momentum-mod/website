@@ -586,19 +586,21 @@ describe('Map Reviews', () => {
 
     describe('POST', () => {
       let user1: User,
-        user2: User,
         u1Token: string,
+        user2: User,
         u2Token: string,
+        admin: User,
         adminToken: string,
         map: MMap,
         reviewID: number;
 
       beforeAll(async () => {
-        [[user1, u1Token], [user2, u2Token], adminToken] = await Promise.all([
-          db.createAndLoginUser(),
-          db.createAndLoginUser(),
-          db.loginNewUser({ data: { roles: Role.ADMIN } })
-        ]);
+        [[user1, u1Token], [user2, u2Token], [admin, adminToken]] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.createAndLoginUser(),
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+          ]);
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
 
@@ -616,7 +618,9 @@ describe('Map Reviews', () => {
           data: [
             { reviewID, userID: user1.id, text: 'no it isnt!!' },
             { reviewID, userID: user1.id, text: 'we are the same person' },
-            { reviewID, userID: user1.id, text: 'oh' }
+            { reviewID, userID: user1.id, text: 'oh' },
+            { reviewID, userID: user2.id, text: 'you are a fool' },
+            { reviewID, userID: admin.id, text: 'be nice D:' }
           ]
         });
       });
@@ -740,6 +744,36 @@ describe('Map Reviews', () => {
         });
         expect(notifs.length).toBe(1);
         expect(notifs[0].notifiedUserID).toBe(map.submitterID);
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it('should send ONE notification to everyone who has already commented on the review', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text: 'what are you guys doing?'
+          },
+          token: await db.loginNewUser()
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(4);
+        expect(notifs.some((n) => n.notifiedUserID === user1.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === user2.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === admin.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === map.submitterID)).toBe(
+          true
+        );
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
