@@ -11,7 +11,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 @Component({
   selector: 'm-confirm-dialog',
   template: `<div [innerHTML]="message"></div>
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2 mt-4">
       <button
         type="button"
         class="btn"
