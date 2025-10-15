@@ -162,6 +162,9 @@ export class MapLeaderboardComponent implements OnChanges {
     this.leaderboards = groupMapLeaderboards(this.map.leaderboards).sort(
       (a, b) => a.gamemodeName.localeCompare(b.gamemodeName)
     );
+    this.leaderboards.forEach((lb) =>
+      lb.bonuses?.sort((a, b) => a.num - b.num)
+    );
     this.activeModeIndex = findMainGamemodeIndex(
       this.leaderboards,
       this.map.name
