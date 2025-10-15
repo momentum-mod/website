@@ -66,7 +66,7 @@ export class MapReviewCommentService {
 
     const comment = await this.db.mapReviewComment.create({
       data: { text: body.text, reviewID, userID },
-      include: { user: true, review: true }
+      include: { user: true, review: { include: { comments: true } } }
     });
     const review = comment.review;
 
@@ -105,6 +105,25 @@ export class MapReviewCommentService {
           createdAt: new Date()
         }
       });
+    }
+
+    const avoidSendToUserIDs = [userID, review.reviewerID, map.submitterID];
+    for (const reviewComment of review.comments) {
+      if (!avoidSendToUserIDs.includes(reviewComment.userID)) {
+        await this.notificationService.sendNotifications({
+          data: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            notifiedUserID: reviewComment.userID,
+            mapID: map.id,
+            reviewID,
+            reviewCommentID: comment.id,
+            userID, // New commenter
+            createdAt: new Date()
+          }
+        });
+
+        avoidSendToUserIDs.push(reviewComment.userID);
+      }
     }
 
     return DtoFactory(MapReviewCommentDto, comment);
