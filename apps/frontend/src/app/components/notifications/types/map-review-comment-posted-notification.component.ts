@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="notification-card-title">
       <m-icon icon="message-reply-text" class="notification-type-icon" />
-      <p>New Comment on Your Review</p>
+      <p>New Comment on a Review</p>
       <button type="button" class="dismiss-button" (click)="dismiss.emit()">
         <m-icon icon="close" />
       </button>
@@ -22,12 +22,13 @@ import { RouterLink } from '@angular/router';
         >
           {{ notification().reviewCommenter.alias }}</a
         >
-        commented on your review of
+        commented on a review of
         <a
           [routerLink]="'/maps/' + notification().map.name"
           class="font-bold link"
           >{{ notification().map.name }}</a
         >
+        that you're involved with:
       </p>
       <p class="italic text-gray-100">
         <!-- 300 characters takes up roughly 5 lines. -->
