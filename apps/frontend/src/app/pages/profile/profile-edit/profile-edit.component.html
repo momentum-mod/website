@@ -135,13 +135,15 @@
               </div>
             }
             @if (mergeUser) {
-              <div>
+              <div class="flex flex-col gap-2">
                 <a [routerLink]="'/profile/' + mergeUser?.id" class="flex items-center gap-2">
-                  <m-avatar class="h-6" [url]="mergeUser.avatarURL" />
-                  <p>{{ mergeUser.alias }}</p>
+                  <m-avatar class="h-10" [url]="mergeUser.avatarURL" />
+                  <p class="text-lg">{{ mergeUser.alias }}</p>
                 </a>
-                <button class="btn mr-2 mt-1" type="button" (click)="cancelMerge()">Cancel</button>
-                <button type="button" class="btn btn-orange" (click)="mergeUsers()">Merge To User</button>
+                <div class="flex flex-row gap-2">
+                  <button class="btn" type="button" (click)="cancelMerge()">Cancel</button>
+                  <button type="button" class="btn btn-orange" (click)="mergeUsers()">Merge To User</button>
+                </div>
               </div>
             }
           }
