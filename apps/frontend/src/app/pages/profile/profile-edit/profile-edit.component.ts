@@ -124,7 +124,6 @@ export class ProfileEditComponent implements OnInit {
         '',
         [
           Validators.required,
-          Validators.minLength(3),
           Validators.maxLength(32),
           Validators.pattern(NON_WHITESPACE_REGEXP)
         ]
