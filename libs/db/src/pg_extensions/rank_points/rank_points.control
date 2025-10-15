@@ -1,0 +1,4 @@
+comment = 'Rank points calculation function'
+default_version = '1.0'
+module_pathname = '$libdir/rank_points'
+relocatable = true

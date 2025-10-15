@@ -482,6 +482,8 @@ model LeaderboardRun {
   trackType Int @db.SmallInt
   trackNum  Int @db.SmallInt
   style     Int @db.SmallInt
+  
+  rankPoints    Int
 
   /// We don't store ticks in anticipation of future sub-tick system. If ticks
   /// are required, they can be calculated with `time * tickrate of gamemode`.
