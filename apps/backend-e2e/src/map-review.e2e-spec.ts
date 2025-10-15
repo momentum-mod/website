@@ -659,7 +659,7 @@ describe('Map Reviews', () => {
         await resetKillswitches(req, adminToken);
       });
 
-      it('should send a notification to the reviewer on created comment', async () => {
+      it('should send a notification to the reviewer and map submitter on created comment', async () => {
         await req.post({
           url: `map-review/${reviewID}/comments`,
           status: 201,
@@ -676,18 +676,19 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.length).toBe(1);
-        expect(notifs[0]).toMatchObject({
-          notifiedUserID: user1.id,
-          userID: user2.id
-        });
+        expect(
+          notifs.find((notif) => notif.notifiedUserID === user1.id)
+        ).toMatchObject({ userID: user2.id });
+        expect(
+          notifs.find((notif) => notif.notifiedUserID === map.submitterID)
+        ).toMatchObject({ userID: user2.id });
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
         });
       });
 
-      it('should NOT send a notification if the review commented on their own review', async () => {
+      it('should NOT send a notification to the reviewer if commented on their own review', async () => {
         await req.post({
           url: `map-review/${reviewID}/comments`,
           status: 201,
@@ -706,7 +707,39 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.length).toBe(0);
+        expect(notifs.some((notif) => notif.notifiedUserID === user1.id)).toBe(
+          false
+        );
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it("should only send one notification to the submitter if someone else commented on submitter's review", async () => {
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'I forgot zones! :(',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: map.submitterID } }
+          }
+        });
+        await req.post({
+          url: `map-review/${review.id}/comments`,
+          status: 201,
+          body: { text: 'well FIX IT!!!!' },
+          token: u1Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID: review.id
+          }
+        });
+        expect(notifs.length).toBe(1);
+        expect(notifs[0].notifiedUserID).toBe(map.submitterID);
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }

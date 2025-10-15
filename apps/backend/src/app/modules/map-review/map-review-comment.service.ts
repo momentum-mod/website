@@ -68,17 +68,36 @@ export class MapReviewCommentService {
       data: { text: body.text, reviewID, userID },
       include: { user: true, review: true }
     });
+    const review = comment.review;
 
     const map = await this.db.mMap.findUnique({
-      where: { id: comment.review.mapID }
+      where: { id: review.mapID }
     });
 
-    // Only send notifications if someone else commented on the review.
-    if (userID !== comment.review.reviewerID) {
+    // Notification to reviewer.
+    if (userID !== review.reviewerID) {
       await this.notificationService.sendNotifications({
         data: {
           type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
-          notifiedUserID: comment.review.reviewerID,
+          notifiedUserID: review.reviewerID,
+          mapID: map.id,
+          reviewID,
+          reviewCommentID: comment.id,
+          userID, // reviewCommenter,
+          createdAt: new Date()
+        }
+      });
+    }
+    // Notification to map submitter.
+    // Avoid double notif when someone else comments on submitter's review.
+    if (
+      userID !== map.submitterID &&
+      map.submitterID !== comment.review.reviewerID
+    ) {
+      await this.notificationService.sendNotifications({
+        data: {
+          type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+          notifiedUserID: map.submitterID,
           mapID: map.id,
           reviewID,
           reviewCommentID: comment.id,
