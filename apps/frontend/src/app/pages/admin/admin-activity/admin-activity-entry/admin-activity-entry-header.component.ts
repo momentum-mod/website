@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { AdminActivity } from '@momentum/constants';
 import { AdminActivityEntryData } from './admin-activity-entry.component';
 
@@ -16,17 +17,18 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
         <p>{{ activity.user.alias }}</p>
       </a>
       <p>{{ activityData.actionText }}</p>
-      <p
+      <a
+        [ngClass]="activityData.targetLink ? 'link' : ''"
         [ngStyle]="{ cursor: activityData.targetLink ? 'pointer' : 'auto' }"
         [routerLink]="activityData.targetLink ? activityData.targetLink : null"
       >
         <b>{{ activityData.targetName }}</b>
-      </p>
+      </a>
 
       <p class="ml-auto">{{ activity.createdAt | timeAgo }}</p>
     </div>
   `,
-  imports: [TimeAgoPipe, RouterLink, NgStyle, AvatarComponent]
+  imports: [TimeAgoPipe, RouterLink, NgStyle, AvatarComponent, NgClass]
 })
 export class AdminActivityEntryHeaderComponent {
   @Input({ required: true }) activity: AdminActivity;
