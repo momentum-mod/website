@@ -82,13 +82,6 @@ export const SIDENAV_ITEMS: Array<{
     isPublic: true,
     items: [
       {
-        title: 'Steam',
-        link: 'https://store.steampowered.com/app/669270/Momentum_Mod/',
-        external: true,
-        icon: 'steam',
-        pack: 'si'
-      },
-      {
         title: 'Discord',
         link: 'https://discord.gg/momentummod',
         external: true,
@@ -96,31 +89,39 @@ export const SIDENAV_ITEMS: Array<{
         pack: 'si'
       },
       {
+        title: 'Frontpage',
+        link: 'https://momentum-mod.org',
+        external: true,
+        icon: 'web',
+        isPublic: true
+      },
+      {
+        title: 'Docs',
+        link: 'https://docs.momentum-mod.org',
+        external: true,
+        icon: 'book-open-variant',
+        isPublic: true
+      },
+      {
+        title: 'Status',
+        link: 'https://status.momentum-mod.org',
+        external: true,
+        icon: 'wrench-clock',
+        isPublic: true
+      },
+      {
         title: 'Github',
         link: 'https://github.com/momentum-mod',
         external: true,
         icon: 'github',
         pack: 'si'
-      }
-    ]
-  },
-  {
-    title: 'Our Other Sites',
-    isPublic: true,
-    items: [
-      {
-        title: 'Docs Home',
-        link: 'https://docs.momentum-mod.org',
-        external: true,
-        icon: 'home',
-        isPublic: true
       },
       {
-        title: 'Main Site',
-        link: 'https://momentum-mod.org',
+        title: 'Steam',
+        link: 'https://store.steampowered.com/app/669270/Momentum_Mod/',
         external: true,
-        icon: 'web',
-        isPublic: true
+        icon: 'steam',
+        pack: 'si'
       }
     ]
   }
