@@ -69,13 +69,19 @@ export class UsersService {
       where.steamID = { in: query.steamIDs.map(BigInt) };
     } else if (query.userIDs) {
       where.id = { in: query.userIDs };
-    }
-
-    if (query.search) {
-      where.alias = {
-        contains: query.search,
-        mode: 'insensitive'
-      };
+    } else if (query.search) {
+      const dbResponse = await this.db.$transaction([
+        this.db.$queryRawTyped(
+          this.db.typedQueries.searchUsers(query.search, query.skip ?? 0, take)
+        ),
+        this.db.user.count({
+          where: {
+            ...where,
+            alias: { contains: query.search, mode: 'insensitive' }
+          }
+        })
+      ]);
+      return new PagedResponseDto(UserDto, dbResponse);
     }
 
     const include: Prisma.UserInclude = expandToIncludes(query.expand) ?? {};
@@ -86,15 +92,6 @@ export class UsersService {
       skip: query.skip,
       take
     });
-
-    if (query.search) {
-      const search = query.search.toLowerCase();
-      dbResponse[0].sort((a, b) => {
-        const Alias = a.alias.toLowerCase().startsWith(search);
-        const Blias = b.alias.toLowerCase().startsWith(search);
-        return Alias === Blias ? 0 : Alias ? -1 : 1;
-      });
-    }
 
     return new PagedResponseDto(UserDto, dbResponse);
   }
