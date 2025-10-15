@@ -1,6 +1,7 @@
 import { deepmerge } from '@fastify/deepmerge';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from './generated/client';
+import * as typedQueries from './generated/sql';
 
 const merge = deepmerge();
 export const PRISMA_CLIENT_EXTENSIONS = {
@@ -54,7 +55,8 @@ export const PRISMA_CLIENT_EXTENSIONS = {
         );
       }
     }
-  }
+  },
+  client: { typedQueries }
 };
 
 export const prismaExtensionFactory = (client: PrismaClient) => {

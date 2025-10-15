@@ -4,7 +4,6 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "postinstall": "nx run db:generate",
     "prepare": "husky"
   },
   "dependencies": {
