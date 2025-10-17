@@ -145,6 +145,7 @@ export class ProfileEditComponent implements OnInit {
       mapper: [false],
       porter: [false],
       reviewer: [false],
+      limited: [false],
       moderator: [false],
       admin: [false]
     });
@@ -285,6 +286,7 @@ export class ProfileEditComponent implements OnInit {
       mapper: this.hasRole(Role.MAPPER),
       porter: this.hasRole(Role.PORTER),
       reviewer: this.hasRole(Role.REVIEWER),
+      limited: this.hasRole(Role.LIMITED),
       moderator: this.hasRole(Role.MODERATOR),
       admin: this.hasRole(Role.ADMIN)
     };
