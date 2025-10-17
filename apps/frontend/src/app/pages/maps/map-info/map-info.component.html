@@ -14,17 +14,15 @@
       </button>
     </div>
     <div class="ml-2 flex gap-2">
-      @if (currentSection != null && inSubmission) {
-        @for (section of sections; track $index) {
-          <button
-            type="button"
-            class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50"
-            [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
-            (click)="currentSection = section"
-          >
-            {{ MapInfoSection[section] }}
-          </button>
-        }
+      @for (section of sections; track $index) {
+        <button
+          type="button"
+          class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50"
+          [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
+          (click)="currentSection = section"
+        >
+          {{ MapInfoSection[section] }}
+        </button>
       }
       <div class="ml-auto flex items-end gap-2">
         @if ((isSubmitter && inSubmission) || localUserService.isReviewerOrAbove) {
@@ -247,13 +245,8 @@
     </div>
     <div>
       <div class="stack card card--fancy border-opacity-[0.0675] p-4">
+        <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
         <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
-        <!-- Don't insert this at all if not in submission, we don't want to
-             try fetch extra data/images unless we're may actually display it.
-         -->
-        @if (this.map.status !== MapStatus.APPROVED) {
-          <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
-        }
       </div>
     </div>
   </div>
