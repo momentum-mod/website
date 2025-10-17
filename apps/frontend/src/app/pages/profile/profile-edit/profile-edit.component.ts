@@ -124,7 +124,6 @@ export class ProfileEditComponent implements OnInit {
         '',
         [
           Validators.required,
-          Validators.minLength(3),
           Validators.maxLength(32),
           Validators.pattern(NON_WHITESPACE_REGEXP)
         ]
@@ -384,7 +383,7 @@ export class ProfileEditComponent implements OnInit {
       .open(ConfirmDialogComponent, {
         header: 'Merge users?',
         data: {
-          message: `You are about to merge the placeholder user ${this.user.alias} with the user ${this.mergeUser.alias}.
+          message: `You are about to merge the placeholder user <b>${this.user.alias}</b> with the user <b>${this.mergeUser.alias}</b>.
         This will merge over all activities, credits, and user follows, and then delete the placeholder user!
         Are you sure you want to proceed?`
         }

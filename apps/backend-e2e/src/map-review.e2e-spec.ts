@@ -586,19 +586,21 @@ describe('Map Reviews', () => {
 
     describe('POST', () => {
       let user1: User,
-        user2: User,
         u1Token: string,
+        user2: User,
         u2Token: string,
+        admin: User,
         adminToken: string,
         map: MMap,
         reviewID: number;
 
       beforeAll(async () => {
-        [[user1, u1Token], [user2, u2Token], adminToken] = await Promise.all([
-          db.createAndLoginUser(),
-          db.createAndLoginUser(),
-          db.loginNewUser({ data: { roles: Role.ADMIN } })
-        ]);
+        [[user1, u1Token], [user2, u2Token], [admin, adminToken]] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.createAndLoginUser(),
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } })
+          ]);
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
 
@@ -616,7 +618,9 @@ describe('Map Reviews', () => {
           data: [
             { reviewID, userID: user1.id, text: 'no it isnt!!' },
             { reviewID, userID: user1.id, text: 'we are the same person' },
-            { reviewID, userID: user1.id, text: 'oh' }
+            { reviewID, userID: user1.id, text: 'oh' },
+            { reviewID, userID: user2.id, text: 'you are a fool' },
+            { reviewID, userID: admin.id, text: 'be nice D:' }
           ]
         });
       });
@@ -659,7 +663,7 @@ describe('Map Reviews', () => {
         await resetKillswitches(req, adminToken);
       });
 
-      it('should send a notification to the reviewer on created comment', async () => {
+      it('should send a notification to the reviewer and map submitter on created comment', async () => {
         await req.post({
           url: `map-review/${reviewID}/comments`,
           status: 201,
@@ -676,18 +680,19 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.length).toBe(1);
-        expect(notifs[0]).toMatchObject({
-          notifiedUserID: user1.id,
-          userID: user2.id
-        });
+        expect(
+          notifs.find((notif) => notif.notifiedUserID === user1.id)
+        ).toMatchObject({ userID: user2.id });
+        expect(
+          notifs.find((notif) => notif.notifiedUserID === map.submitterID)
+        ).toMatchObject({ userID: user2.id });
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
         });
       });
 
-      it('should NOT send a notification if the review commented on their own review', async () => {
+      it('should NOT send a notification to the reviewer if commented on their own review', async () => {
         await req.post({
           url: `map-review/${reviewID}/comments`,
           status: 201,
@@ -706,7 +711,69 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.length).toBe(0);
+        expect(notifs.some((notif) => notif.notifiedUserID === user1.id)).toBe(
+          false
+        );
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it("should only send one notification to the submitter if someone else commented on submitter's review", async () => {
+        const review = await prisma.mapReview.create({
+          data: {
+            mainText: 'I forgot zones! :(',
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: map.submitterID } }
+          }
+        });
+        await req.post({
+          url: `map-review/${review.id}/comments`,
+          status: 201,
+          body: { text: 'well FIX IT!!!!' },
+          token: u1Token
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID: review.id
+          }
+        });
+        expect(notifs.length).toBe(1);
+        expect(notifs[0].notifiedUserID).toBe(map.submitterID);
+
+        await prisma.notification.deleteMany({
+          where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
+        });
+      });
+
+      it('should send ONE notification to everyone who has already commented on the review', async () => {
+        await req.post({
+          url: `map-review/${reviewID}/comments`,
+          status: 201,
+          body: {
+            text: 'what are you guys doing?'
+          },
+          token: await db.loginNewUser()
+        });
+
+        const notifs = await prisma.notification.findMany({
+          where: {
+            type: NotificationType.MAP_REVIEW_COMMENT_POSTED,
+            mapID: map.id,
+            reviewID
+          }
+        });
+        expect(notifs.length).toBe(4);
+        expect(notifs.some((n) => n.notifiedUserID === user1.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === user2.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === admin.id)).toBe(true);
+        expect(notifs.some((n) => n.notifiedUserID === map.submitterID)).toBe(
+          true
+        );
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }

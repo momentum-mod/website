@@ -104,6 +104,7 @@ export class UpdateUserDto {
     description: 'The new alias to set'
   })
   @IsString()
+  // Must allow empty string, as it's used for resetting to steam alias.
   @MaxLength(MAX_USER_ALIAS_LENGTH)
   @IsOptional()
   alias?: string;
