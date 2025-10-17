@@ -13,3 +13,6 @@ apps/frontend/src/app/theme/shared_styling
 /migrations.json
 
 maptags-poeditor.json
+
+# Prisma generated client
+libs/db/src/generated
