@@ -66,16 +66,14 @@ export class AdminMapsBrowserComponent implements OnInit {
   };
 
   protected readonly MapSortOptions = [
-    MapSortType.DATE_RELEASED_NEWEST,
-    MapSortType.DATE_RELEASED_OLDEST,
-    MapSortType.DATE_CREATED_NEWEST,
-    MapSortType.DATE_CREATED_OLDEST,
-    MapSortType.ALPHABETICAL,
-    MapSortType.ALPHABETICAL_REVERSE,
     MapSortType.SUBMISSION_CREATED_NEWEST,
     MapSortType.SUBMISSION_CREATED_OLDEST,
     MapSortType.SUBMISSION_UPDATED_NEWEST,
-    MapSortType.SUBMISSION_UPDATED_OLDEST
+    MapSortType.SUBMISSION_UPDATED_OLDEST,
+    MapSortType.DATE_CREATED_NEWEST,
+    MapSortType.DATE_CREATED_OLDEST,
+    MapSortType.ALPHABETICAL,
+    MapSortType.ALPHABETICAL_REVERSE
   ];
   protected readonly MapSortNameFn = (type: MapSortType): string =>
     MapSortTypeName.get(type);
