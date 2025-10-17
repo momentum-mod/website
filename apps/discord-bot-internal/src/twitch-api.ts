@@ -7,7 +7,7 @@ export class TwitchAPI {
   private tokenExpireAt?: Date;
 
   private async checkToken() {
-    if (!this.token || !this.tokenExpireAt || new Date() <= this.tokenExpireAt)
+    if (!this.token || !this.tokenExpireAt || new Date() >= this.tokenExpireAt)
       await this.updateToken();
   }
 
