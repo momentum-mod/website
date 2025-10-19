@@ -11,7 +11,7 @@ export const SocialsData: Readonly<
 > = {
   Discord: {
     icon: 'discord',
-    regex: /^[\w-]{2,32}$/,
+    regex: /^[\w-.]{2,32}$/,
     example: 'username',
     url: 'discordapp.com/users'
   },
