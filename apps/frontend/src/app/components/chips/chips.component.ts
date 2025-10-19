@@ -52,6 +52,11 @@ export class ChipsComponent implements ControlValueAccessor {
     return this.chips.filter((chip) => !this.includesFn(this.selected, chip));
   }
 
+  /**
+   * Show chip name on hover instead of on the chip
+   */
+  @Input() hoverNames = false;
+
   @Input() typeName = 'Chip';
 
   /**
