@@ -67,7 +67,7 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
         ({ trackType, trackNum, gamemode }) =>
           trackType !== TrackType.BONUS ||
           GamemodeCategories.get(GamemodeCategory.DEFRAG).includes(gamemode) ||
-          !zones.tracks.bonuses[trackNum - 1]?.defragModifiers // ignore if undefined or 0
+          !zones.tracks.bonuses?.[trackNum - 1]?.defragModifiers // ignore if undefined or 0
       )
   );
 }
