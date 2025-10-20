@@ -1,5 +1,5 @@
-import { Directive, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Directive, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { NonNullableFormBuilder } from '@angular/forms';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -14,8 +14,11 @@ import { PagedResponse } from '@momentum/constants';
 
 @Directive()
 export abstract class AbstractSearchComponent<T> implements OnInit {
+  private readonly nnfb = inject(NonNullableFormBuilder);
+
   @Output() public readonly selected = new EventEmitter<T>();
-  public readonly search = new FormControl<string>('');
+
+  public readonly search = this.nnfb.control<string>('');
   protected readonly pageChange = new Subject<PaginatorState>();
 
   abstract readonly itemsName: string;

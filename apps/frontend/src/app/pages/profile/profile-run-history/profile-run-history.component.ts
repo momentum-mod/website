@@ -1,12 +1,15 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  NonNullableFormBuilder,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
-import { PaginatorModule } from 'primeng/paginator';
-import { PaginatorState } from 'primeng/paginator/paginator.interface';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 
 import { PastRunsService } from '../../../services/data/past-runs.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -40,7 +43,7 @@ import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
 export class ProfileRunHistoryComponent implements OnInit {
   private readonly pastRunsService = inject(PastRunsService);
   private readonly messageService = inject(MessageService);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   protected readonly OrderByDropdown = [
     { label: 'Sort by Date', type: RunsGetAllOrder.DATE },
@@ -66,11 +69,11 @@ export class ProfileRunHistoryComponent implements OnInit {
   protected readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
 
-  filterFG: FormGroup = this.fb.group({
-    isPersonalBest: [false],
-    map: [''],
-    orderBy: [RunsGetAllOrder.DATE],
-    order: [Order.DESC]
+  filterFG: FormGroup = this.nnfb.group({
+    isPersonalBest: this.nnfb.control<boolean>(false),
+    map: this.nnfb.control<string>(''),
+    orderBy: this.nnfb.control<RunsGetAllOrder>(RunsGetAllOrder.DATE),
+    order: this.nnfb.control<Order>(Order.DESC)
   });
 
   currentFilter: {

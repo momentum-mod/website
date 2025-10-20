@@ -41,19 +41,24 @@ export class UtilitiesComponent implements OnInit {
     MAX_ADMIN_ANNOUNCEMENT_LENGTH;
 
   protected readonly userForm = this.nnfb.group({
-    alias: this.nnfb.control('', [Validators.required])
+    alias: this.nnfb.control<string>('', { validators: Validators.required })
   });
   protected readonly killswitchForm = this.nnfb.group(
     Object.fromEntries(
-      this.KillswitchTypes.map((type) => [type, this.nnfb.control(false)])
+      this.KillswitchTypes.map((type) => [
+        type,
+        this.nnfb.control<boolean>(false)
+      ])
     )
   );
   protected readonly announcementForm = this.nnfb.group({
-    message: this.nnfb.control('', [
-      Validators.required,
-      Validators.minLength(20), // Reasonable length to require some context.
-      Validators.maxLength(MAX_ADMIN_ANNOUNCEMENT_LENGTH)
-    ])
+    message: this.nnfb.control<string>('', {
+      validators: [
+        Validators.required,
+        Validators.minLength(20), // Reasonable length to require some context.
+        Validators.maxLength(MAX_ADMIN_ANNOUNCEMENT_LENGTH)
+      ]
+    })
   });
 
   ngOnInit() {

@@ -1,5 +1,9 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -16,7 +20,7 @@ import { Select } from 'primeng/select';
 })
 export class CreateReportDialogComponent implements OnInit {
   protected readonly ref = inject(DynamicDialogRef);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly reportService = inject(ReportService);
   private readonly messageService = inject(MessageService);
 
@@ -33,11 +37,18 @@ export class CreateReportDialogComponent implements OnInit {
   @Input() reportType: ReportType;
   @Input() reportData: number;
 
-  protected readonly createReportForm = this.fb.group({
-    data: [0, Validators.required],
-    type: [ReportType.USER_PROFILE_REPORT, Validators.required],
-    category: [ReportCategory.INAPPROPRIATE_CONTENT, Validators.required],
-    message: ['', [Validators.required, Validators.maxLength(1000)]]
+  protected readonly createReportForm = this.nnfb.group({
+    data: this.nnfb.control<number>(0, { validators: Validators.required }),
+    type: this.nnfb.control<ReportType>(ReportType.USER_PROFILE_REPORT, {
+      validators: Validators.required
+    }),
+    category: this.nnfb.control<ReportCategory>(
+      ReportCategory.INAPPROPRIATE_CONTENT,
+      { validators: Validators.required }
+    ),
+    message: this.nnfb.control<string>('', {
+      validators: [Validators.required, Validators.maxLength(1000)]
+    })
   });
 
   ngOnInit() {

@@ -19,9 +19,9 @@ import {
 import * as Enum from '@momentum/enum';
 import {
   FormControl,
-  FormGroup,
   ReactiveFormsModule,
-  FormsModule
+  FormsModule,
+  NonNullableFormBuilder
 } from '@angular/forms';
 
 import { PaginatorModule } from 'primeng/paginator';
@@ -75,6 +75,7 @@ export class MapBrowserComponent implements OnInit {
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
@@ -116,29 +117,23 @@ export class MapBrowserComponent implements OnInit {
     tAndQ: TagAndQualifier
   ) => arr.some((elem) => elem[0] === tAndQ[0]); // Don't check qualifier.
 
-  protected readonly filters = new FormGroup({
-    name: new FormControl<string>(''),
-    gamemode: new FormControl<Gamemode>(null),
-    tagsAndQualifiers: new FormControl<Array<TagAndQualifier>>(
-      {
-        value: [],
-        disabled: true
-      },
-      { nonNullable: true }
-    ),
-    rankedUnranked: new FormControl<0 | 1 | 2>(
-      { value: 0, disabled: true },
-      { nonNullable: true }
-    ),
-    favorites: new FormControl<0 | 1 | 2>(0),
-    pb: new FormControl<0 | 1 | 2>(0),
-    tiers: new FormControl<[number, number]>({
+  protected readonly filters = this.nnfb.group({
+    name: this.nnfb.control<string>(''),
+    gamemode: new FormControl<Gamemode | null>(null),
+    tagsAndQualifiers: this.nnfb.control<Array<TagAndQualifier>>({
+      value: [],
+      disabled: true
+    }),
+    rankedUnranked: this.nnfb.control<0 | 1 | 2>({ value: 0, disabled: true }),
+    favorites: this.nnfb.control<0 | 1 | 2>(0),
+    pb: this.nnfb.control<0 | 1 | 2>(0),
+    tiers: this.nnfb.control<[number, number]>({
       value: [1, 10],
       disabled: true
     }),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<number>(MapCreditType.AUTHOR),
-    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
+    creditType: this.nnfb.control<number>(MapCreditType.AUTHOR),
+    sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: Array<MapWithSpecificLeaderboard> = [];
@@ -210,16 +205,17 @@ export class MapBrowserComponent implements OnInit {
           if (name) options.search = name;
           if (gamemode) {
             options.gamemode = gamemode;
-            if (tiers) {
-              const [low, high] = tiers;
-              if (low > 1 && low <= 10) options.difficultyLow = low;
-              if (high > 1 && high < 10) options.difficultyHigh = high;
-            }
+
+            const [low, high] = tiers;
+            if (low > 1 && low <= 10) options.difficultyLow = low;
+            if (high > 1 && high < 10) options.difficultyHigh = high;
+
             if (tagsAndQualifiers.length > 0) {
               options.tagsWithQualifiers = tagsAndQualifiers.map(
                 (tAndQ) => tAndQ[0].toString() + ';' + tAndQ[1].toString()
               );
             }
+
             if (rankedUnranked === 1) {
               options.leaderboardType = LeaderboardType.RANKED;
             } else if (rankedUnranked === 2) {
@@ -280,21 +276,6 @@ export class MapBrowserComponent implements OnInit {
           this.loading = false;
         }
       });
-  }
-
-  resetFilters() {
-    this.filters.reset({
-      name: '',
-      gamemode: null,
-      tagsAndQualifiers: [],
-      rankedUnranked: 0,
-      favorites: 0,
-      pb: 0,
-      tiers: [1, 10],
-      credit: null,
-      creditType: MapCreditType.AUTHOR,
-      sortType: this.MapSortOptions[0]
-    });
   }
 
   get gamemode() {

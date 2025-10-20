@@ -15,8 +15,8 @@ import {
 import * as Enum from '@momentum/enum';
 import {
   FormControl,
-  FormGroup,
   FormsModule,
+  NonNullableFormBuilder,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -49,6 +49,7 @@ export class AdminMapsBrowserComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   // Set value as if submitter was last entry in MapCredit enum.
   protected readonly submitterCreditValue =
@@ -86,12 +87,12 @@ export class AdminMapsBrowserComponent implements OnInit {
     })
   );
 
-  protected readonly filters = new FormGroup({
-    name: new FormControl<string>(''),
-    status: new FormControl<MapsGetAllAdminFilter>([], { nonNullable: true }),
+  protected readonly filters = this.nnfb.group({
+    name: this.nnfb.control<string>(''),
+    status: this.nnfb.control<MapsGetAllAdminFilter>([]),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<number>(MapCreditType.AUTHOR),
-    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
+    creditType: this.nnfb.control<number>(MapCreditType.AUTHOR),
+    sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -162,15 +163,5 @@ export class AdminMapsBrowserComponent implements OnInit {
           this.loading = false;
         }
       });
-  }
-
-  resetFilters() {
-    this.filters.reset({
-      name: '',
-      status: [],
-      credit: null,
-      creditType: MapCreditType.AUTHOR,
-      sortType: this.MapSortOptions[0]
-    });
   }
 }

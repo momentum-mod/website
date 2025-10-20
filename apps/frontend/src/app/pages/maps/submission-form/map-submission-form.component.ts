@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -98,7 +98,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   private readonly router = inject(Router);
   private readonly localUserService = inject(LocalUserService);
   private readonly messageService = inject(MessageService);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngHttp = inject(HttpClient);
 
@@ -120,60 +120,67 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   isModOrAdmin: boolean;
   hasMapInSubmission: boolean;
 
-  form = this.fb.group({
-    files: this.fb.group({
-      bsp: [
-        null,
-        [Validators.required, FileValidators.maxSize(MAX_BSP_SIZE)],
-        [FileValidators.isCompressedBsp()]
-      ],
-      zon: [null, [Validators.required], [FileValidators.isValidZones()]],
-      vmfs: [
-        [],
-        [FileValidators.maxSize(MAX_VMF_SIZE), FileValidators.extension('vmf')],
-        [FileValidators.isValidVdf()]
-      ]
+  form = this.nnfb.group({
+    files: this.nnfb.group({
+      bsp: new FormControl<File | null>(null, {
+        validators: [Validators.required, FileValidators.maxSize(MAX_BSP_SIZE)],
+        asyncValidators: FileValidators.isCompressedBsp()
+      }),
+      zon: new FormControl<File | null>(null, {
+        validators: Validators.required,
+        asyncValidators: FileValidators.isValidZones()
+      }),
+      vmfs: this.nnfb.control<File[]>([], {
+        validators: [
+          FileValidators.maxSize(MAX_VMF_SIZE),
+          FileValidators.extension('vmf')
+        ],
+        asyncValidators: FileValidators.isValidVdf()
+      })
     }),
-    details: this.fb.group({
-      name: [
-        '',
-        [
+    details: this.nnfb.group({
+      name: this.nnfb.control<string>('', {
+        validators: [
           Validators.required,
           Validators.pattern(MAP_NAME_REGEXP),
           Validators.minLength(MIN_MAP_NAME_LENGTH),
           Validators.maxLength(MAX_MAP_NAME_LENGTH)
         ],
-        [BackendValidators.uniqueMapName(this.mapsService)]
-      ],
-      description: [
-        '',
-        [
+        asyncValidators: BackendValidators.uniqueMapName(this.mapsService)
+      }),
+      description: this.nnfb.control<string>('', {
+        validators: [
           Validators.required,
           Validators.minLength(MIN_MAP_DESCRIPTION_LENGTH),
           Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)
         ]
-      ],
-      portingChangelog: [''],
-      creationDate: [null, [Validators.required, Validators.max(Date.now())]],
-      submissionType: [null as MapSubmissionType, [Validators.required]],
-      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
-      requiredGames: [[]]
+      }),
+      portingChangelog: this.nnfb.control<string>(''),
+      creationDate: new FormControl<Date | null>(null, {
+        validators: [Validators.required, Validators.max(Date.now())]
+      }),
+      submissionType: new FormControl<MapSubmissionType | null>(null, {
+        validators: Validators.required
+      }),
+      youtubeID: this.nnfb.control<string>('', {
+        validators: Validators.pattern(YOUTUBE_ID_REGEXP)
+      }),
+      requiredGames: this.nnfb.control<SteamGame[]>([])
     }),
-    images: [
-      null,
-      [
+    images: this.nnfb.control<File[]>([], {
+      validators: [
         Validators.required,
         FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
         FileValidators.extension(['png'])
       ],
-      [
-        FileValidators.imageDimensions([
-          { width: MAP_IMAGE_WIDTH, height: MAP_IMAGE_HEIGHT }
-        ])
-      ]
-    ],
-    credits: [null, [creditsValidator]],
-    suggestions: new FormControl(
+      asyncValidators: FileValidators.imageDimensions([
+        { width: MAP_IMAGE_WIDTH, height: MAP_IMAGE_HEIGHT }
+      ])
+    }),
+    credits: new FormControl<GroupedMapCredits | null>(null, {
+      validators: creditsValidator
+    }),
+    suggestions: this.nnfb.control<MapSubmissionSuggestion[]>(
       { value: [], disabled: true },
       {
         validators: [
@@ -181,12 +188,12 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
         ]
       }
     ),
-    privateTesting: this.fb.group(
+    privateTesting: this.nnfb.group(
       {
-        wantsPrivateTesting: [false],
-        testInvites: new FormControl<number[]>({ value: [], disabled: true })
+        wantsPrivateTesting: this.nnfb.control<boolean>(false),
+        testInvites: this.nnfb.control<number[]>({ value: [], disabled: true })
       },
-      { validators: [testInvitesValidator] }
+      { validators: testInvitesValidator }
     )
   });
 
@@ -341,7 +348,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
               name: this.name.value,
               submissionType: this.submissionType.value,
               wantsPrivateTesting: this.wantsPrivateTesting.value,
-              testInvites: this.testInvites.value ?? [],
+              testInvites: this.testInvites.value ?? [], // If disabled, use empty.
               zones: this.zones,
               portingChangelog:
                 this.submissionType.value === MapSubmissionType.PORT
@@ -462,7 +469,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   }
 
   get bsp() {
-    return this.form.get('files.bsp') as FormControl<File>;
+    return this.form.get('files.bsp') as FormControl<File | null>;
   }
 
   get vmfs() {
@@ -470,7 +477,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   }
 
   get zon() {
-    return this.form.get('files.zon') as FormControl<File>;
+    return this.form.get('files.zon') as FormControl<File | null>;
   }
 
   get youtubeID() {
@@ -494,7 +501,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   }
 
   get creationDate() {
-    return this.form.get('details.creationDate') as FormControl<Date>;
+    return this.form.get('details.creationDate') as FormControl<Date | null>;
   }
 
   get submissionType() {
@@ -508,7 +515,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   }
 
   get credits() {
-    return this.form.get('credits') as FormControl<GroupedMapCredits>;
+    return this.form.get('credits') as FormControl<GroupedMapCredits | null>;
   }
 
   get suggestions() {

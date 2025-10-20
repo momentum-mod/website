@@ -8,7 +8,11 @@ import {
   AdminActivityEntryData
 } from './admin-activity-entry/admin-activity-entry.component';
 import { AdminActivityEntryHeaderComponent } from './admin-activity-entry/admin-activity-entry-header.component';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { mapHttpError } from '../../../util/rxjs/map-http-error';
 import { AccordionComponent } from '../../../components/accordion/accordion.component';
@@ -38,6 +42,7 @@ import { AdminService } from '../../../services/data/admin.service';
 export class AdminActivityComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   // prettier-ignore
   protected readonly AdminActivitiesFilters = [
@@ -58,8 +63,8 @@ export class AdminActivityComponent implements OnInit {
     entry: AdminActivityEntryData;
   }> = [];
 
-  protected readonly filters = new FormGroup({
-    types: new FormControl<AdminActivityType[]>([], { nonNullable: true }),
+  protected readonly filters = this.nnfb.group({
+    types: this.nnfb.control<AdminActivityType[]>([]),
     user: new FormControl<User | null>(null)
   });
 

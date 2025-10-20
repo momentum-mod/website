@@ -26,6 +26,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import {
   FormControl,
   FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -81,6 +82,7 @@ export class MapReviewComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly adminService = inject(AdminService);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   protected readonly TrackType = TrackType;
   protected readonly GamemodeInfo = GamemodeInfo;
@@ -104,7 +106,7 @@ export class MapReviewComponent {
   }
 
   protected suggestions: GroupedMapReviewSuggestions;
-  protected images: GalleryImageItem[];
+  protected images: GalleryImageItem[] = [];
   protected activeImageDialogIndex = 0;
 
   // Extremely annoying that we need this, but review editing needs this, this
@@ -112,8 +114,8 @@ export class MapReviewComponent {
   @Input({ required: true }) map!: MMap;
   @Output() public readonly updatedOrDeleted = new EventEmitter<void>();
 
-  protected readonly commentInput = new FormGroup({
-    textInput: new FormControl<string>('', {
+  protected readonly commentInput = this.nnfb.group({
+    textInput: this.nnfb.control<string>('', {
       validators: [
         Validators.minLength(1),
         Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
@@ -259,8 +261,8 @@ export class MapReviewComponent {
 
     this.editModeComments.set(
       commentID,
-      new FormGroup({
-        textInput: new FormControl<string>(
+      this.nnfb.group({
+        textInput: this.nnfb.control<string>(
           this._review.comments.find(({ id }) => id === commentID).text,
           {
             validators: [
