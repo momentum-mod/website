@@ -1,5 +1,9 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -14,15 +18,19 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class UpdateReportDialogComponent implements OnInit {
   private readonly ref = inject(DynamicDialogRef);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly adminService = inject(AdminService);
   private readonly messageService = inject(MessageService);
 
   @Input() report: Report;
 
-  updateReportForm = this.fb.group({
-    resolved: [false, Validators.required],
-    resolutionMessage: ['', [Validators.required, Validators.maxLength(1000)]]
+  updateReportForm = this.nnfb.group({
+    resolved: this.nnfb.control<boolean>(false, {
+      validators: Validators.required
+    }),
+    resolutionMessage: this.nnfb.control<string>('', {
+      validators: [Validators.required, Validators.maxLength(1000)]
+    })
   });
 
   ngOnInit() {
@@ -41,13 +49,7 @@ export class UpdateReportDialogComponent implements OnInit {
 
   save() {
     this.adminService
-      .updateReport(
-        this.report.id,
-        this.updateReportForm.value as {
-          resolved: boolean;
-          resolutionMessage: string;
-        }
-      )
+      .updateReport(this.report.id, this.updateReportForm.getRawValue())
       .subscribe({
         next: () => {
           this.updateReportForm.reset();

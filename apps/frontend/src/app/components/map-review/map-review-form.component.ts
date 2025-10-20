@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import {
   FormControl,
   FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -47,6 +48,7 @@ export class MapReviewFormComponent {
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   private readonly localUserService = inject(LocalUserService);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   protected readonly TrackType = TrackType;
   protected readonly GamemodeInfo = GamemodeInfo;
@@ -60,17 +62,17 @@ export class MapReviewFormComponent {
   @Output() public readonly reviewPosted = new EventEmitter<void>();
   @Output() public readonly canceledEditing = new EventEmitter<void>();
 
-  public readonly form = new FormGroup(
+  public readonly form = this.nnfb.group(
     {
-      mainText: new FormControl<string>('', {
+      mainText: this.nnfb.control<string>('', {
         validators: [
           Validators.required,
           Validators.maxLength(MAX_REVIEW_LENGTH)
         ]
       }),
-      needsResolving: new FormControl<boolean>(false),
-      approves: new FormControl<boolean>(false),
-      suggestions: new FormControl<MapReviewSuggestion[]>(null, {
+      needsResolving: this.nnfb.control<boolean>(false),
+      approves: this.nnfb.control<boolean>(false),
+      suggestions: this.nnfb.control<MapReviewSuggestion[]>([], {
         validators: [
           // FormGroup is constructed at component class ctor but map is undefined
           // at that point, and can change over time, so use pass a closure to
@@ -82,21 +84,23 @@ export class MapReviewFormComponent {
           )
         ]
       }),
-      images: new FormControl<File[]>(null, {
+      images: this.nnfb.control<File[]>([], {
         validators: [
           FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
           FileValidators.extension(['png', 'jpg', 'jpeg'])
         ]
       })
     },
-    (group: FormGroup) =>
-      Object.entries(group?.controls)
-        .filter(([k]) => ['mainText', 'suggestions'].includes(k))
-        .some(([, { dirty, value }]) =>
-          dirty && Array.isArray(value) ? value.length > 0 : value != null
-        )
-        ? null
-        : { noChanges: true }
+    {
+      validators: (group: FormGroup) =>
+        Object.entries(group.controls)
+          .filter(([k]) => ['mainText', 'suggestions'].includes(k))
+          .some(([, { dirty, value }]) =>
+            dirty && Array.isArray(value) ? value.length > 0 : value != null
+          )
+          ? null
+          : { noChanges: true }
+    }
   );
 
   constructor() {
@@ -140,7 +144,7 @@ export class MapReviewFormComponent {
     this.loading = true;
 
     const suggestions =
-      this.suggestions.value?.length > 0 ? this.suggestions.value : undefined;
+      this.suggestions.value.length > 0 ? this.suggestions.value : undefined;
     // Ignore any empty suggestions
     if (suggestions) {
       suggestions.forEach(({ tier, gameplayRating, tags }, i) => {
@@ -160,7 +164,7 @@ export class MapReviewFormComponent {
             mainText: this.mainText.value,
             suggestions,
             needsResolving: this.needsResolving.value,
-            approves: this.approves.value ?? false
+            approves: this.approves.value
           },
           images: this.images.value
         });

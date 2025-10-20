@@ -14,8 +14,8 @@ import {
 import * as Enum from '@momentum/enum';
 import {
   FormControl,
-  FormGroup,
   FormsModule,
+  NonNullableFormBuilder,
   ReactiveFormsModule
 } from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
@@ -55,6 +55,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   // Default for users. More options get added if user is mod/admin.
   protected StatusDropdown = [
@@ -90,15 +91,13 @@ export class MapSubmissionBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (type: MapSortType): string =>
     MapSortTypeName.get(type);
 
-  protected readonly filters = new FormGroup({
-    name: new FormControl<string>(''),
-    status: new FormControl<MapsGetAllSubmissionFilter>([], {
-      nonNullable: true
-    }),
-    hasApprovingReviews: new FormControl<0 | 1 | 2>(0, { nonNullable: true }),
+  protected readonly filters = this.nnfb.group({
+    name: this.nnfb.control<string>(''),
+    status: this.nnfb.control<MapsGetAllSubmissionFilter>([]),
+    hasApprovingReviews: this.nnfb.control<0 | 1 | 2>(0),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<number>(this.submitterCreditValue),
-    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
+    creditType: this.nnfb.control<number>(this.submitterCreditValue),
+    sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -199,16 +198,5 @@ export class MapSubmissionBrowserComponent implements OnInit {
           this.loading = false;
         }
       });
-  }
-
-  resetFilters() {
-    this.filters.reset({
-      name: '',
-      status: [],
-      hasApprovingReviews: 0,
-      credit: null,
-      creditType: this.submitterCreditValue,
-      sortType: this.MapSortOptions[0]
-    });
   }
 }

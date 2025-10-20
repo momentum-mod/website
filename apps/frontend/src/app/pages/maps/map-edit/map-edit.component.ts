@@ -10,9 +10,9 @@ import {
 import { map, mergeAll, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -47,7 +47,6 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-
 import { FormUtils, GroupedMapCredits } from '../../../util';
 import {
   atLeastNRequired,
@@ -125,7 +124,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   private readonly adminService = inject(AdminService);
   private readonly dialogService = inject(DialogService);
   private readonly messageService = inject(MessageService);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly layoutService = inject(LayoutService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly titleService = inject(TitleService);
@@ -154,35 +153,41 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   protected isSubmittingVersionForm = false;
   protected isSubmittingTestInviteForm = false;
 
-  mainForm = this.fb.group({
-    details: this.fb.group({
-      name: [
-        '',
-        [
+  mainForm = this.nnfb.group({
+    details: this.nnfb.group({
+      name: this.nnfb.control<string>('', {
+        validators: [
           Validators.required,
           Validators.pattern(MAP_NAME_REGEXP),
           Validators.minLength(MIN_MAP_NAME_LENGTH),
           Validators.maxLength(MAX_MAP_NAME_LENGTH)
         ],
-        [BackendValidators.uniqueMapName(this.mapsService, () => this.map.name)]
-      ],
-      description: [
-        '',
-        [Validators.required, Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)]
-      ],
-      portingChangelog: [''],
-      creationDate: [
-        new Date(),
-        [Validators.required, Validators.max(Date.now())]
-      ],
-      submissionType: [null as MapSubmissionType, [Validators.required]],
-      youtubeID: ['', [Validators.pattern(YOUTUBE_ID_REGEXP)]],
-      requiredGames: [[]]
+        asyncValidators: [
+          BackendValidators.uniqueMapName(this.mapsService, () => this.map.name)
+        ]
+      }),
+      description: this.nnfb.control<string>('', {
+        validators: [
+          Validators.required,
+          Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)
+        ]
+      }),
+      portingChangelog: this.nnfb.control<string>(''),
+      creationDate: this.nnfb.control<Date>(new Date(), {
+        validators: [Validators.required, Validators.max(Date.now())]
+      }),
+      submissionType: new FormControl<MapSubmissionType | null>(null, {
+        validators: Validators.required
+      }),
+      youtubeID: this.nnfb.control<string>('', {
+        validators: Validators.pattern(YOUTUBE_ID_REGEXP)
+      }),
+      requiredGames: this.nnfb.control<SteamGame[]>([])
     }),
 
     submitter: new FormControl<User | null>(null),
 
-    images: new FormControl<File[]>(null, {
+    images: this.nnfb.control<File[]>([], {
       validators: [
         FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
         FileValidators.extension(['png'])
@@ -194,47 +199,52 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       ]
     }),
 
-    credits: new FormControl(null, [creditsValidator]),
-
-    suggestions: new FormControl<MapSubmissionSuggestion[]>([], {
-      validators: [
-        suggestionsValidator(
-          () => this.map?.currentVersion.zones,
-          SuggestionType.SUBMISSION
-        )
-      ]
+    credits: new FormControl<GroupedMapCredits | null>(null, {
+      validators: creditsValidator
     }),
 
-    statusChange: this.fb.group({
-      status: [-1 as MapStatus | -1],
-      finalLeaderboards: new FormControl<MapSubmissionApproval[]>([])
+    suggestions: this.nnfb.control<MapSubmissionSuggestion[]>([], {
+      validators: suggestionsValidator(
+        () => this.map?.currentVersion.zones,
+        SuggestionType.SUBMISSION
+      )
+    }),
+
+    statusChange: this.nnfb.group({
+      status: this.nnfb.control<MapStatus | -1>(-1),
+      finalLeaderboards: this.nnfb.control<MapSubmissionApproval[]>([])
     })
   });
 
-  versionForm = this.fb.group(
+  versionForm = this.nnfb.group(
     {
-      bsp: [
-        null,
-        [FileValidators.maxSize(MAX_BSP_SIZE)],
-        [FileValidators.isCompressedBsp()]
-      ],
-      zon: [null, [], [FileValidators.isValidZones()]],
-      vmfs: [
-        [],
-        [FileValidators.maxSize(MAX_VMF_SIZE), FileValidators.extension('vmf')],
-        [FileValidators.isValidVdf()]
-      ],
-      changelog: [
-        '',
-        [Validators.required, Validators.maxLength(MAX_CHANGELOG_LENGTH)]
-      ],
-      resetLbs: [false]
+      bsp: new FormControl<File | null>(null, {
+        validators: FileValidators.maxSize(MAX_BSP_SIZE),
+        asyncValidators: FileValidators.isCompressedBsp()
+      }),
+      zon: new FormControl<File | null>(null, {
+        asyncValidators: FileValidators.isValidZones()
+      }),
+      vmfs: this.nnfb.control<File[]>([], {
+        validators: [
+          FileValidators.maxSize(MAX_VMF_SIZE),
+          FileValidators.extension('vmf')
+        ],
+        asyncValidators: FileValidators.isValidVdf()
+      }),
+      changelog: this.nnfb.control<string>('', {
+        validators: [
+          Validators.required,
+          Validators.maxLength(MAX_CHANGELOG_LENGTH)
+        ]
+      }),
+      resetLbs: this.nnfb.control<boolean>(false)
     },
     { validators: atLeastNRequired(1, ['bsp', 'zon', 'vmfs']) }
   );
 
   // Getter for this control is a number[], setter User[] (sorry)
-  testInviteForm = new FormControl<number[] | User[]>([]);
+  testInviteForm = this.nnfb.control<number[] | User[]>([]);
 
   @ViewChild(MapImageSelectionComponent, { static: true })
   imageSelection: MapImageSelectionComponent;
@@ -831,7 +841,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   get submissionType() {
     return this.mainForm.get(
       'details.submissionType'
-    ) as FormControl<MapSubmissionType>;
+    ) as FormControl<MapSubmissionType | null>;
   }
 
   get images() {
@@ -843,7 +853,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   get credits() {
-    return this.mainForm.get('credits') as FormControl<GroupedMapCredits>;
+    return this.mainForm.get(
+      'credits'
+    ) as FormControl<GroupedMapCredits | null>;
   }
 
   get suggestions() {
@@ -853,7 +865,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   get bsp() {
-    return this.versionForm.get('bsp') as FormControl<File>;
+    return this.versionForm.get('bsp') as FormControl<File | null>;
   }
 
   get vmfs() {
@@ -861,7 +873,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   get zon() {
-    return this.versionForm.get('zon') as FormControl<File>;
+    return this.versionForm.get('zon') as FormControl<File | null>;
   }
 
   get changelog() {
@@ -881,7 +893,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   get submitter() {
-    return this.mainForm.get('submitter') as FormControl<User>;
+    return this.mainForm.get('submitter') as FormControl<User | null>;
   }
 
   get finalLeaderboards() {

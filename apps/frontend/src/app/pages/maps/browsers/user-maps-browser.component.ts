@@ -16,8 +16,8 @@ import {
 } from '@momentum/constants';
 import {
   FormControl,
-  FormGroup,
   FormsModule,
+  NonNullableFormBuilder,
   ReactiveFormsModule
 } from '@angular/forms';
 
@@ -59,6 +59,7 @@ export class UserMapsBrowserComponent implements OnInit {
   private readonly localUserService = inject(LocalUserService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly nnfb = inject(NonNullableFormBuilder);
 
   protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = [
@@ -88,14 +89,12 @@ export class UserMapsBrowserComponent implements OnInit {
 
   protected hasSubmissionBan = false;
 
-  protected readonly filters = new FormGroup({
-    name: new FormControl<string>(''),
-    status: new FormControl<MapsGetAllUserSubmissionFilter>([], {
-      nonNullable: true
-    }),
+  protected readonly filters = this.nnfb.group({
+    name: this.nnfb.control<string>(''),
+    status: this.nnfb.control<MapsGetAllUserSubmissionFilter>([]),
     credit: new FormControl<User | null>(null),
-    creditType: new FormControl<MapCreditType>(MapCreditType.AUTHOR),
-    sortType: new FormControl<MapSortType>(this.MapSortOptions[0])
+    creditType: this.nnfb.control<MapCreditType>(MapCreditType.AUTHOR),
+    sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
   protected maps: MMap[] = [];
@@ -175,15 +174,5 @@ export class UserMapsBrowserComponent implements OnInit {
           this.loading = false;
         }
       });
-  }
-
-  resetFilters() {
-    this.filters.reset({
-      name: '',
-      status: [],
-      credit: null,
-      creditType: MapCreditType.AUTHOR,
-      sortType: this.MapSortOptions[0]
-    });
   }
 }

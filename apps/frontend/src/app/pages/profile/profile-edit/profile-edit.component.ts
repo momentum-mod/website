@@ -1,7 +1,8 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import {
-  FormBuilder,
+  FormControl,
   FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -71,7 +72,7 @@ export class ProfileEditComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
   private readonly dialogService = inject(DialogService);
-  private readonly fb = inject(FormBuilder);
+  private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly titleService = inject(TitleService);
 
@@ -92,21 +93,21 @@ export class ProfileEditComponent implements OnInit {
   adminEditForm: FormGroup;
 
   get alias() {
-    return this.form.get('alias');
+    return this.form.get('alias') as FormControl<string>;
   }
   get bio() {
-    return this.form.get('bio');
+    return this.form.get('bio') as FormControl<string>;
   }
   get country() {
-    return this.form.get('country');
+    return this.form.get('country') as FormControl<string>;
   }
   get socials() {
-    return this.form.get('socials');
+    return this.form.get('socials') as FormGroup;
   }
 
-  protected user: User = null;
-  protected mergeUser: User = null;
-  protected mergeErr = null;
+  protected user: User | null = null;
+  protected mergeUser: User | null = null;
+  protected mergeErr = '';
   protected isLocal = false;
   protected isAdmin = false;
   protected isModOrAdmin = false;
@@ -119,33 +120,35 @@ export class ProfileEditComponent implements OnInit {
       socialsForm[name] = ['', [Validators.pattern(regex)]];
     }
 
-    this.form = this.fb.group({
-      alias: [
-        '',
-        [
+    this.form = this.nnfb.group({
+      alias: this.nnfb.control<string>('', {
+        validators: [
           Validators.required,
           Validators.maxLength(32),
           Validators.pattern(NON_WHITESPACE_REGEXP)
         ]
-      ],
-      bio: ['', [Validators.maxLength(MAX_BIO_LENGTH)]],
-      country: [''],
-      socials: this.fb.group(socialsForm),
-      resetAvatar: [false]
+      }),
+      bio: this.nnfb.control<string>('', {
+        validators: Validators.maxLength(MAX_BIO_LENGTH)
+      }),
+      country: this.nnfb.control<string>(''),
+      socials: this.nnfb.group(socialsForm),
+      resetAvatar: this.nnfb.control<boolean>(false)
     });
 
-    this.adminEditForm = this.fb.group({
-      banAlias: [false],
-      banBio: [false],
-      banAvatar: [false],
-      banLeaderboards: [false],
-      banMapSubmission: [false],
-      verified: [false],
-      mapper: [false],
-      porter: [false],
-      reviewer: [false],
-      moderator: [false],
-      admin: [false]
+    // prettier-ignore
+    this.adminEditForm = this.nnfb.group({
+      banAlias:         this.nnfb.control<boolean>(false),
+      banBio:           this.nnfb.control<boolean>(false),
+      banAvatar:        this.nnfb.control<boolean>(false),
+      banLeaderboards:  this.nnfb.control<boolean>(false),
+      banMapSubmission: this.nnfb.control<boolean>(false),
+      verified:         this.nnfb.control<boolean>(false),
+      mapper:           this.nnfb.control<boolean>(false),
+      porter:           this.nnfb.control<boolean>(false),
+      reviewer:         this.nnfb.control<boolean>(false),
+      moderator:        this.nnfb.control<boolean>(false),
+      admin:            this.nnfb.control<boolean>(false)
     });
   }
 
@@ -373,7 +376,7 @@ export class ProfileEditComponent implements OnInit {
       this.mergeErr = 'Cannot merge the same user onto themselves!';
       return;
     }
-    this.mergeErr = null;
+    this.mergeErr = '';
     this.mergeUser = user1;
   }
 
