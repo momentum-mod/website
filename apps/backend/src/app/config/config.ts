@@ -33,7 +33,8 @@ export const ConfigFactory = (): ConfigInterface => {
     url: {
       backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,
       frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200',
-      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest' // Includes /bucket
+      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest', // Includes /bucket
+      runCdn: process.env['RUN_CDN_URL'] || ''
     },
     appIDs: STEAM_APPIDS,
     jwt: {
@@ -60,6 +61,13 @@ export const ConfigFactory = (): ConfigInterface => {
       bucketName: process.env['STORAGE_BUCKET_NAME'] || '',
       accessKeyID: process.env['STORAGE_ACCESS_KEY_ID'] || '',
       secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] || ''
+    },
+    runStorage: {
+      endpointUrl: process.env['RUN_STORAGE_ENDPOINT_URL'] || '',
+      region: process.env['RUN_STORAGE_REGION'] || '',
+      bucketName: process.env['RUN_STORAGE_BUCKET_NAME'] || '',
+      accessKeyID: process.env['RUN_STORAGE_ACCESS_KEY_ID'] || '',
+      secretAccessKey: process.env['RUN_STORAGE_SECRET_ACCESS_KEY'] || ''
     },
     valkey: {
       port:

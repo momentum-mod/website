@@ -43,12 +43,13 @@ import {
 } from './run-session.interface';
 import { RunProcessor } from './run-processor.class';
 import { ValkeyService } from '../../valkey/valkey.service';
+import { RunFileStoreService } from '../../filestore/run-file-store.service';
 
 @Injectable()
 export class RunSessionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly fileStoreService: FileStoreService,
+    private readonly fileStoreService: RunFileStoreService,
     private readonly valkey: ValkeyService,
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService
