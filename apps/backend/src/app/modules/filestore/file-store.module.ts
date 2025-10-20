@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { FileStoreS3Service } from './file-store-s3.service';
 import { FileStoreService } from './file-store.service';
+import { LargeFileStoreService } from './large-file-store.service';
+import { RunFileStoreService } from './run-file-store.service';
 
 // This provides the S3 store whenever FileStoreService is needed.
 //
@@ -9,11 +10,11 @@ import { FileStoreService } from './file-store.service';
 // an env var.
 const FILE_STORE_SERVICE_PROVIDER = {
   provide: FileStoreService,
-  useClass: FileStoreS3Service
+  useClass: LargeFileStoreService
 };
 
 @Module({
-  providers: [FILE_STORE_SERVICE_PROVIDER],
-  exports: [FILE_STORE_SERVICE_PROVIDER]
+  providers: [FILE_STORE_SERVICE_PROVIDER, RunFileStoreService],
+  exports: [FileStoreService, RunFileStoreService]
 })
 export class FileStoreModule {}

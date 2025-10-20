@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { mockDeep } from 'jest-mock-extended';
 import { FileStoreS3Service } from './file-store-s3.service';
+import { LargeFileStoreService } from './large-file-store.service';
 import { arrayFrom } from '@momentum/util-fn';
 
 describe('FileStoreS3Service', () => {
@@ -10,7 +11,12 @@ describe('FileStoreS3Service', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FileStoreS3Service]
+      providers: [
+        {
+          provide: FileStoreS3Service,
+          useClass: LargeFileStoreService
+        }
+      ]
     })
       .useMocker((token) => {
         return token === ConfigService

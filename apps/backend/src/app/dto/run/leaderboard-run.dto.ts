@@ -29,7 +29,9 @@ import {
 import { Config } from '../../config';
 import { LeaderboardDto } from './leaderboard.dto';
 
-const CDN_URL = Config.url.cdn;
+const CDN_URL = Config.runStorage.bucketName
+  ? Config.url.runCdn
+  : Config.url.cdn;
 
 export class LeaderboardRunDto implements LeaderboardRun {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })

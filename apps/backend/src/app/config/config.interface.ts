@@ -14,6 +14,7 @@ export interface ConfigInterface {
     backend: string;
     frontend: string;
     cdn: string;
+    runCdn: string;
   };
   port: number;
   appIDs: number[];
@@ -32,6 +33,13 @@ export interface ConfigInterface {
   };
   sessionSecret: string;
   storage: {
+    region: string;
+    endpointUrl: string;
+    bucketName: string;
+    accessKeyID: string;
+    secretAccessKey: string;
+  };
+  runStorage: {
     region: string;
     endpointUrl: string;
     bucketName: string;

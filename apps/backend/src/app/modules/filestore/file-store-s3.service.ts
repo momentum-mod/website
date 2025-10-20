@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
   S3Client,
   PutObjectCommand,
@@ -9,29 +8,27 @@ import {
   ListObjectsV2Command
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { ConfigService } from '@nestjs/config';
 import { FileStoreFile } from './file-store.interface';
 import { FileStoreService } from './file-store.service';
 
-@Injectable()
 export class FileStoreS3Service extends FileStoreService {
   private readonly s3Client: S3Client;
   private readonly bucket: string;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(config: S3ClientConfig) {
     super();
 
     this.s3Client = new S3Client({
-      region: this.config.getOrThrow('storage.region'),
-      endpoint: this.config.getOrThrow('storage.endpointUrl'),
+      region: config.region,
+      endpoint: config.endpointUrl,
       credentials: {
-        accessKeyId: this.config.getOrThrow('storage.accessKeyID'),
-        secretAccessKey: this.config.getOrThrow('storage.secretAccessKey')
+        accessKeyId: config.accessKeyID,
+        secretAccessKey: config.secretAccessKey
       },
       forcePathStyle: true
     });
 
-    this.bucket = this.config.getOrThrow('storage.bucketName');
+    this.bucket = config.bucket;
   }
 
   async storeFile(
@@ -162,4 +159,12 @@ export class FileStoreS3Service extends FileStoreService {
       throw error;
     }
   }
+}
+
+export interface S3ClientConfig {
+  region: string;
+  endpointUrl: string;
+  accessKeyID: string;
+  secretAccessKey: string;
+  bucket: string;
 }
