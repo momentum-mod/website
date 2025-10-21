@@ -23,12 +23,6 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
-
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -37,9 +31,6 @@ jobs:
       - name: npm install
         if: steps.original_cache.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
-
-      - name: prisma generate
-        run: npx nx run db:generate
 
   lint:
     name: Linting and Formatting
@@ -57,12 +48,6 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
-
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v5
         with:
@@ -104,12 +89,6 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
-
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -140,12 +119,6 @@ jobs:
           path: node_modules
           key: modules-${{ github.run_id }}
 
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
-
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -174,12 +147,6 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
-
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v5
         with:
@@ -224,12 +191,6 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
-
-      - name: Prisma Cache
-        uses: actions/cache@v4
-        with:
-          path: libs/db/src/generated
-          key: prisma-${{ github.run_id }}
 
       - uses: actions/setup-node@v5
         with:
