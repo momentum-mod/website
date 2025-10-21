@@ -9,6 +9,7 @@ import { AuthController } from './auth.controller';
 import { JwtGuard } from './jwt/jwt.guard';
 import { JwtAuthService } from './jwt/jwt-auth.service';
 import { SteamOpenIDService } from './steam/steam-openid.service';
+import { LimitedGuard } from './limited.guard';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { SteamOpenIDService } from './steam/steam-openid.service';
       // This enables the JWT guard globally.
       provide: APP_GUARD,
       useClass: JwtGuard
+    },
+    {
+      provide: APP_GUARD,
+      useClass: LimitedGuard
     },
     JwtAuthService,
     SteamOpenIDService

@@ -8,5 +8,6 @@ export const RoleNames: ReadonlyMap<Role, string> = new Map([
   [Role.DELETED, 'Deleted'],
   [Role.PLACEHOLDER, 'Placeholder'],
   [Role.REVIEWER, 'Reviewer'],
-  [Role.VERIFIED, 'Verified']
+  [Role.VERIFIED, 'Verified'],
+  [Role.LIMITED, 'Limited']
 ]);
