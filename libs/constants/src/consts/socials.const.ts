@@ -23,7 +23,7 @@ export const SocialsData: Readonly<
   },
   YouTube: {
     icon: 'youtube',
-    regex: /^@[\w-]{3,30}$/,
+    regex: /^@[\w-.]{3,30}$/,
     example: '@username',
     url: 'youtube.com'
   },
