@@ -34,7 +34,7 @@ jobs:
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
           cache: 'npm'
