@@ -71,6 +71,10 @@ interface Config {
   /** Duration in minutes to mute for spam */
   spam_timeout_duration_minutes: number;
 
+  // Role module config
+  /** Roles that can be gived by mods through a bot */
+  giveable_roles: string[];
+
   // Custom module storage
   custom_commands: { [key: string]: CustomCommand };
 }
