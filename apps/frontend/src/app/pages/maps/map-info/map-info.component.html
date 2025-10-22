@@ -210,7 +210,7 @@
                       @if (!credit.placeholder) {
                         <a routerLink="/profile/{{ credit.userID }}" class="flex">
                           <m-avatar class="mr-4 h-8 w-8 shrink-0" [url]="credit.avatarURL" />
-                          <div class="flex flex-col">
+                          <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
                             <p class="text-shadow font-medium leading-none">{{ credit.alias }}</p>
                             <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
                               {{ credit.description }}
