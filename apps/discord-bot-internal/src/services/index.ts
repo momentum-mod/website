@@ -4,12 +4,14 @@ import { UserTrustService } from './trusted';
 import { SpyService } from './spy';
 import { StreamsService } from './streams';
 import { DailyMessageCountService } from './daily-message-count';
+import { MessageSpamMonitorService } from './message-spam-monitor';
 
 const services: Array<typeof Service> = [
   DailyMessageCountService,
   UserTrustService,
   SpyService,
-  StreamsService
+  StreamsService,
+  MessageSpamMonitorService
 ];
 
 const initializedServices = new Map<typeof Service, Service>();
