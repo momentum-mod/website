@@ -1147,7 +1147,7 @@ describe('Maps', () => {
             },
             info: {
               description: 'mampmampmampmampmampmampmampmamp',
-              creationDate: new Date('2022-07-07T18:33:33.000Z')
+              creationDate: new Date('2022-07-07T00:00:00.000Z')
             },
             submitterID: user.id,
             credits: [
