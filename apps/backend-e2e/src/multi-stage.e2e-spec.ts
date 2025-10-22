@@ -285,7 +285,7 @@ describe('Multi-stage E2E tests', () => {
       ],
       info: {
         description: 'falloutfalloutfalloutfalloutfalloutfalloutfallout',
-        creationDate: '2023-02-01T12:43:33.410Z'
+        creationDate: '2023-02-01T00:00:00.000Z' // Creation date doesn't save time
       },
       leaderboards: [
         {

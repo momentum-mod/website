@@ -102,6 +102,21 @@ export class MapDetailsFormComponent implements OnInit {
     this.name.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(this.onNameStatusChange.bind(this));
+
+    this.creationDate.valueChanges.subscribe((val: Date) => {
+      const utc = new Date(
+        Date.UTC(
+          val.getFullYear(),
+          val.getMonth(),
+          val.getDate(),
+          val.getHours(),
+          val.getMinutes(),
+          val.getSeconds(),
+          val.getMilliseconds()
+        )
+      );
+      this.creationDate.setValue(utc, { emitEvent: false });
+    });
   }
 
   onNameStatusChange(status: FormControlStatus) {

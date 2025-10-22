@@ -294,7 +294,7 @@ model MapFavorite {
 model MapInfo {
   description   String    @default("")
   youtubeID     String?
-  creationDate  DateTime
+  creationDate  DateTime  @db.Date
   approvedDate  DateTime?
   requiredGames Int[]     @default([]) /// steam-game.enum.ts
 
