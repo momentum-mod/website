@@ -68,6 +68,8 @@ interface Config {
   spam_channel_limit: number;
   /** Time window in ms for spam detection */
   spam_time_window_ms: number;
+  /** Duration in minutes to mute for spam */
+  spam_timeout_duration_minutes: number;
 
   // Custom module storage
   custom_commands: { [key: string]: CustomCommand };
