@@ -21,5 +21,6 @@
   "spam_channel_limit": 2,
   "spam_time_window_ms": 5000,
   "spam_timeout_duration_minutes": 10,
+  "giveable_roles": [],
   "custom_commands": {}
 }
