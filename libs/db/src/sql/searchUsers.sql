@@ -9,6 +9,7 @@ ORDER BY
   CASE
     WHEN u.alias ILIKE $1 || '%' THEN 0
     ELSE 1
-  END
+  END,
+  u.id ASC
 OFFSET $2
 LIMIT $3;

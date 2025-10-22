@@ -9,7 +9,7 @@ import * as $runtime from "@prisma/client/runtime/client"
  * @param skip Pagination skip
  * @param take Pagination take
  */
-export const searchUsers = $runtime.makeTypedQueryFactory("\nSELECT *\nFROM \"User\" u\nWHERE u.alias ILIKE '%' || $1 || '%'\nORDER BY\nCASE\nWHEN u.alias ILIKE $1 || '%' THEN 0\nELSE 1\nEND\nOFFSET $2\nLIMIT $3;") as (query: string, skip: number, take: number) => $runtime.TypedSql<searchUsers.Parameters, searchUsers.Result>
+export const searchUsers = $runtime.makeTypedQueryFactory("\nSELECT *\nFROM \"User\" u\nWHERE u.alias ILIKE '%' || $1 || '%'\nORDER BY\nCASE\nWHEN u.alias ILIKE $1 || '%' THEN 0\nELSE 1\nEND,\nu.id ASC\nOFFSET $2\nLIMIT $3;") as (query: string, skip: number, take: number) => $runtime.TypedSql<searchUsers.Parameters, searchUsers.Result>
 
 export namespace searchUsers {
   export type Parameters = [query: string, skip: number, take: number]
