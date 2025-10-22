@@ -6,6 +6,7 @@
   "streamer_channel": "",
   "twitch_user_bans": [],
   "admin_bot_channel": "",
+  "moderator_channel": "",
   "stream_update_interval": 1,
   "join_log_channel": "",
   "message_history_channel": "",
@@ -17,5 +18,8 @@
   "media_minimum_messages": 10,
   "twitch_momentum_mod_game_id": "2043449207",
   "twitch_momentum_mod_official_channels": [],
+  "spam_channel_limit": 2,
+  "spam_time_window_ms": 5000,
+  "spam_timeout_duration_minutes": 10,
   "custom_commands": {}
 }
