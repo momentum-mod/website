@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FileStoreS3Service } from './file-store-s3.service';
+import { FileStoreService } from './file-store.service';
 
 @Injectable()
-export class LargeFileStoreService extends FileStoreS3Service {
+export class LargeFileStoreService extends FileStoreService {
   constructor(config: ConfigService) {
     super({
       region: config.getOrThrow('storage.region'),

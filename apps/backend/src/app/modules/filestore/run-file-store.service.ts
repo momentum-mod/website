@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FileStoreS3Service } from './file-store-s3.service';
+import { FileStoreService } from './file-store.service';
 
 @Injectable()
-export class RunFileStoreService extends FileStoreS3Service {
+export class RunFileStoreService extends FileStoreService {
   constructor(config: ConfigService) {
     let configPrefix = 'runStorage';
     const bucket = config.get(configPrefix + '.bucketName');
