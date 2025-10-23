@@ -31,6 +31,8 @@ interface Config {
   streamer_channel: string;
   /** Bot config channel id */
   admin_bot_channel: string;
+  /** Bot config channel id */
+  moderator_channel: string;
   /** New members log channel id */
   join_log_channel: string;
   /** Message history channel id */
@@ -60,6 +62,14 @@ interface Config {
 
   /** Any channels that should always be shown in livestream channel if live */
   twitch_momentum_mod_official_channels: string[];
+
+  // Spam monitor config
+  /** Number of channels in time window to trigger spam */
+  spam_channel_limit: number;
+  /** Time window in ms for spam detection */
+  spam_time_window_ms: number;
+  /** Duration in minutes to mute for spam */
+  spam_timeout_duration_minutes: number;
 
   // Custom module storage
   custom_commands: { [key: string]: CustomCommand };
