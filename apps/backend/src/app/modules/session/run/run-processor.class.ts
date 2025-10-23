@@ -456,9 +456,9 @@ export class RunProcessor {
       gamemode: this.session.gamemode,
       trackType: this.session.trackType,
       trackNum: this.session.trackNum,
+      style: this.replayHeader.style,
       time: this.replayHeader.runTime,
-      splits: this.splits,
-      flags: []
+      splits: this.splits
     };
   }
 
