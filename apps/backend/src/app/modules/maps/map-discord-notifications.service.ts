@@ -129,11 +129,12 @@ export class MapDiscordNotifications {
       mapEmbed,
       categories.ranked
     );
-    await this.broadcastToCategories(
-      `:warning: A new **UNRANKED** map is available for public testing! :warning: Post feedback in ${thread.url}`,
-      mapEmbed,
-      categories.unranked
-    );
+    if (this.config.getOrThrow('discord.unrankedNotifications'))
+      await this.broadcastToCategories(
+        `:warning: A new **UNRANKED** map is available for public testing! :warning: Post feedback in ${thread.url}`,
+        mapEmbed,
+        categories.unranked
+      );
   }
 
   async sendApprovedNotification(extendedMap: MapWithInfoApproved) {
@@ -157,11 +158,12 @@ export class MapDiscordNotifications {
       mapEmbed,
       categories.ranked
     );
-    await this.broadcastToCategories(
-      ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
-      mapEmbed,
-      categories.unranked
-    );
+    if (this.config.getOrThrow('discord.unrankedNotifications'))
+      await this.broadcastToCategories(
+        ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
+        mapEmbed,
+        categories.unranked
+      );
   }
 
   async sendMapReviewToMapThread(review: ReviewWithInfo) {

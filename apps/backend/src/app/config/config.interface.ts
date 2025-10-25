@@ -68,6 +68,7 @@ export interface ConfigInterface {
     contentApprovalChannel: string;
     reviewChannel: string;
     statusChannels: Record<GamemodeCategory, string>;
+    unrankedNotifications: boolean;
   };
   mapListUpdateSchedule: string;
   logLevel: pino.LevelWithSilent;
