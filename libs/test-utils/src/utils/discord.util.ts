@@ -24,6 +24,8 @@ export async function mockDiscordService(app: NestFastifyApplication) {
           return reviewChannelId;
         case 'statusChannels':
           return parts[2];
+        case 'unrankedNotifications':
+          return true;
       }
     }
     return getOrThrow.bind(configService)(path);

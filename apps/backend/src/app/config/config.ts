@@ -102,7 +102,9 @@ export const ConfigFactory = (): ConfigInterface => {
             : (process.env[`DISCORD_STATUS_CHANNEL_${GamemodeCategory[cat]}`] ??
               '')
         ])
-      ) as Record<GamemodeCategory, string>
+      ) as Record<GamemodeCategory, string>,
+      unrankedNotifications:
+        process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true'
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
