@@ -664,10 +664,9 @@ export class CustomModule implements InteractionModule {
 }
 
 export class SayModule implements InteractionModule {
-  static commandName = 'say';
   userFilter = isTrusted;
   commandBuilder = new SlashCommandBuilder()
-    .setName(SayModule.commandName)
+    .setName('say')
     .setDescription('Executes a custom command')
     .addStringOption((option) =>
       option
@@ -770,10 +769,9 @@ export class SayModule implements InteractionModule {
 }
 
 export class TellModule implements InteractionModule {
-  static commandName = 'tell';
   userFilter = isTrusted;
   commandBuilder = new SlashCommandBuilder()
-    .setName(TellModule.commandName)
+    .setName('tell')
     .setDescription('Executes a custom command (only visible to you)')
     .addStringOption((option) =>
       option
@@ -816,7 +814,10 @@ async function customCommandAutocomplete(
   value: string
 ) {
   const commands = Object.keys(config.custom_commands);
-  const choices = findCommand(commands, value);
+  const choices = commands
+    .filter((key) => key.includes(value))
+    .slice(0, 25)
+    .sort();
 
   // Do we really need emojis in custom commands?
   // if (choices.length === 0) {
@@ -827,13 +828,6 @@ async function customCommandAutocomplete(
   await interaction.respond(
     choices.map((choice) => ({ name: choice, value: choice }))
   );
-}
-
-function findCommand(commands: Array<string>, query: string) {
-  return commands
-    .filter((key) => key.includes(query))
-    .slice(0, 25)
-    .sort();
 }
 
 const EditableCommandParams = {
