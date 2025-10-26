@@ -99,7 +99,7 @@
         <!-- prettier-ignore -->
         @if (authors.length > 1) {,
             @if (authors[1]?.id) {
-              <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[1].alias }}</a>
+              <a class="link text-gray-50" [routerLink]="'/profile/' + authors[1]?.id">{{ authors[1].alias }}</a>
             } @else {
               <span class="text-gray-200">{{ authors[1].alias }}</span>
             }
