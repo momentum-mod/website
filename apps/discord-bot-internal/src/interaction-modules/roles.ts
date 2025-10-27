@@ -1,4 +1,5 @@
 import {
+  ApplicationCommandOptionChoiceData,
   AutocompleteInteraction,
   ChatInputCommandInteraction,
   Colors,
@@ -258,12 +259,15 @@ export class RolesModule implements InteractionModule {
     if (!roles) return;
 
     await interaction.respond(
-      config.giveable_roles
-        .filter((id) => !memberRoles.includes(id))
-        .map((id) => ({
-          name: roles.get(id)?.name || 'ID: ' + id,
-          value: id
-        }))
+      focusedFilter(
+        interaction,
+        config.giveable_roles
+          .filter((id) => !memberRoles.includes(id))
+          .map((id) => ({
+            name: roles.get(id)?.name || 'ID: ' + id,
+            value: id
+          }))
+      )
     );
   }
 
@@ -282,12 +286,15 @@ export class RolesModule implements InteractionModule {
     if (!roles) return;
 
     await interaction.respond(
-      config.giveable_roles
-        .filter((id) => memberRoles.includes(id))
-        .map((id) => ({
-          name: roles.get(id)?.name || 'ID: ' + id,
-          value: id
-        }))
+      focusedFilter(
+        interaction,
+        config.giveable_roles
+          .filter((id) => memberRoles.includes(id))
+          .map((id) => ({
+            name: roles.get(id)?.name || 'ID: ' + id,
+            value: id
+          }))
+      )
     );
   }
 
@@ -296,11 +303,14 @@ export class RolesModule implements InteractionModule {
     if (!roles) return;
 
     await interaction.respond(
-      roles
-        .values()
-        .toArray()
-        .filter(({ id }) => !config.giveable_roles.includes(id))
-        .map((r) => ({ name: r.name, value: r.id }))
+      focusedFilter(
+        interaction,
+        roles
+          .values()
+          .toArray()
+          .filter(({ id }) => !config.giveable_roles.includes(id))
+          .map((r) => ({ name: r.name, value: r.id }))
+      )
     );
   }
 
@@ -309,10 +319,23 @@ export class RolesModule implements InteractionModule {
     if (!roles) return;
 
     await interaction.respond(
-      config.giveable_roles.map((id) => ({
-        name: roles.get(id)?.name || 'ID: ' + id,
-        value: id
-      }))
+      focusedFilter(
+        interaction,
+        config.giveable_roles.map((id) => ({
+          name: roles.get(id)?.name || 'ID: ' + id,
+          value: id
+        }))
+      )
     );
   }
+}
+
+function focusedFilter(
+  interaction: AutocompleteInteraction,
+  choices: ApplicationCommandOptionChoiceData<string | number>[]
+) {
+  const focused = interaction.options.getFocused(true);
+  return choices
+    .filter(({ name }) => name.includes(focused.value))
+    .slice(0, 25);
 }
