@@ -183,7 +183,7 @@ export class MapReviewFormComponent {
               this.map.name
             }`
           });
-          this.form.reset();
+          this.form.reset({ suggestions: [], images: [] });
         },
         error: (httpError: HttpErrorResponse) => {
           if (httpError.status === 409)
