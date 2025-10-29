@@ -1,4 +1,8 @@
-import { MapTag, GamemodeCategory, GamemodeToGamemodeCategory } from '../';
+import { MapTag } from '../enums/map-tag.enum';
+import {
+  GamemodeCategory,
+  GamemodeToGamemodeCategory
+} from '../enums/gamemode.enum';
 
 export const GlobalTags = [
   MapTag.Portals,

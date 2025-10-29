@@ -1,4 +1,4 @@
-import { MapCreditType } from '../';
+import { MapCreditType } from '../enums/map-credit-type.enum';
 
 export const MapCreditName: ReadonlyMap<MapCreditType, string> = new Map([
   [MapCreditType.AUTHOR, 'Author'],

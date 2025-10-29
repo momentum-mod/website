@@ -1,4 +1,4 @@
-import { Gamemode } from '../';
+import { Gamemode } from '../enums/gamemode.enum';
 
 /**
  * Set of gamemodes we won't generate leaderboards or allow suggestions for.
