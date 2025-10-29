@@ -1,4 +1,5 @@
-import { Gamemode, GamemodeCategories, GamemodeCategory } from '../';
+import { Gamemode, GamemodeCategory } from '../enums/gamemode.enum';
+import { GamemodeCategories } from './gamemodes.map';
 
 // Silly little system for passing whole categories into this structure, rather
 // than each individual gamemode, but structured so we could do single gamemodes

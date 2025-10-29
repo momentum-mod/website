@@ -1,4 +1,4 @@
-import { SteamGame } from '..';
+import { SteamGame } from '../enums/steam-game.enum';
 
 export const SteamGamesNames: ReadonlyMap<SteamGame, string> = new Map([
   [SteamGame.CSS, 'Counter-Strike: Source'],

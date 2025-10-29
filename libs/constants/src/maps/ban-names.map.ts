@@ -1,4 +1,4 @@
-import { Ban } from '../';
+import { Ban } from '../enums/ban.enum';
 
 export const BanNames: ReadonlyMap<Ban, string> = new Map([
   [Ban.LEADERBOARDS, 'Leaderboards'],

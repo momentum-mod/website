@@ -4,24 +4,24 @@ import { TrackType } from '../../enums/track-type.enum';
 import { Style } from '../../enums/style.enum';
 import { PagedQuery } from './pagination.model';
 import { MapSubmissionType } from '../../enums/map-submission-type.enum';
-import {
-  LeaderboardType,
+import * as Enum from '@momentum/enum';
+import { MapCreditType } from '../../enums/map-credit-type.enum';
+import { MapSortType } from '../../enums/map-sort-type.enum';
+import { LeaderboardType } from '../../enums/leaderboard-type.enum';
+import { MapTag } from '../../enums/map-tag.enum';
+import type {
   MapCredit,
-  MapCreditType,
   MapInfo,
   MapNotify,
   MapReview,
   MapReviewComment,
-  MapSortType,
   MapSubmissionApproval,
   MapSubmissionPlaceholder,
   MapSubmissionSuggestion,
-  MapTag,
   MapVersion,
   MapZones,
   MMap
-} from '../../';
-import * as Enum from '@momentum/enum';
+} from '../models/models';
 
 //#region Map
 

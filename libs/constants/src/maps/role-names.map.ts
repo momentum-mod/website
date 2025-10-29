@@ -1,4 +1,4 @@
-import { Role } from '../';
+import { Role } from '../enums/role.enum';
 
 export const RoleNames: ReadonlyMap<Role, string> = new Map([
   [Role.ADMIN, 'Admin'],

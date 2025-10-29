@@ -1,32 +1,3 @@
-import {
-  Ban,
-  Role,
-  ActivityType,
-  MapStatus,
-  MapCreditType,
-  Gamemode,
-  TrackType,
-  MapSubmissionType,
-  LeaderboardType,
-  MapTestInviteState,
-  Vector2D,
-  Vector,
-  Style,
-  AdminActivityType,
-  KillswitchType,
-  ReportType,
-  ReportCategory,
-  vec3,
-  uint8,
-  float,
-  uint16,
-  MapTag,
-  Flags,
-  DateString,
-  SteamGame,
-  NotificationType
-} from '../../';
-
 // Collection of models used throughout the codebase, as well as in Panorama.
 //
 // We don't use Prisma types anymore, since
@@ -36,6 +7,29 @@ import {
 // - Prisma types are absurdly complicated, and slow down the TypeScript
 //   language server.
 // - Fuck Prisma.
+
+import type { Ban } from '../../enums/ban.enum';
+import type { MapStatus } from '../../enums/map-status.enum';
+import type { NotificationType } from '../../enums/notification-type.enum';
+import type { DateString } from '../utils/datestring.type';
+import type { Role } from '../../enums/role.enum';
+import type { Flags } from '../utils/flags.type';
+import type { ActivityType } from '../../enums/activity-type.enum';
+import type { AdminActivityType } from '../../enums/admin-activity-type.enum';
+import type { ReportType } from '../../enums/report-type.enum';
+import type { KillswitchType } from '../../enums/killswitch.enum';
+import type { ReportCategory } from '../../enums/report-category.enum';
+import type { SteamGame } from '../../enums/steam-game.enum';
+import type { MapCreditType } from '../../enums/map-credit-type.enum';
+import type { Gamemode } from '../../enums/gamemode.enum';
+import type { TrackType } from '../../enums/track-type.enum';
+import type { MapTag } from '../../enums/map-tag.enum';
+import type { LeaderboardType } from '../../enums/leaderboard-type.enum';
+import type { MapTestInviteState } from '../../enums/map-test-invite-state.enum';
+import type { Vector, Vector2D } from '../utils/vector.type';
+import type { Style } from '../../enums/style.enum';
+import type { float, uint16, uint8, vec3 } from '../utils/numeric.type';
+import type { MapSubmissionType } from '../../enums/map-submission-type.enum';
 
 /* eslint @typescript-eslint/no-namespace: 0 */
 

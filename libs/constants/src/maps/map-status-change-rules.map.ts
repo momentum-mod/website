@@ -1,4 +1,5 @@
-import { MapStatus, Role } from '../';
+import { MapStatus } from '../enums/map-status.enum';
+import { Role } from '../enums/role.enum';
 
 /**
  * Stores what changes between map statuses are allowed by what users
