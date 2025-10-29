@@ -37,6 +37,7 @@ module.exports = {
         'tools',
         'lint',
         'formats',
+        'consts',
         'discord',
         'twitch',
         'prod',
