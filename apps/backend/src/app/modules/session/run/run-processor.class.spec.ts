@@ -7,7 +7,8 @@ import {
   BonusTrack,
   Segment,
   RunSplits,
-  MapZones
+  MapZones,
+  Ban
 } from '@momentum/constants';
 import * as ReplayFile from '@momentum/formats/replay';
 import { User } from '@momentum/db';
@@ -831,6 +832,17 @@ describe('RunProcessor', () => {
       jest.advanceTimersByTime(runTimeMS);
 
       expectFail(ErrorType.OUT_OF_SYNC);
+    });
+
+    it('should throw for if user has a leaderboards ban', () => {
+      processor = createProcessor({
+        session: { timestamps },
+        user: { bans: Ban.LEADERBOARDS }
+      });
+
+      jest.advanceTimersByTime(runTimeMS);
+
+      expectFail(ErrorType.BANNED);
     });
   });
 

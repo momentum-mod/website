@@ -6,7 +6,8 @@
   OUT_OF_SYNC = 4,
   UNSUPPORTED_MODE = 5,
   FUCKY_BEHAVIOUR = 6,
-  INTERNAL_ERROR = 7
+  INTERNAL_ERROR = 7,
+  BANNED = 8
 }
 
 // prettier-ignore
@@ -18,7 +19,9 @@ export const RunValidationErrorMessages: Record<RunValidationErrorType, string> 
   [RunValidationErrorType.OUT_OF_SYNC]: 'replay data out of sync with submission times',
   [RunValidationErrorType.UNSUPPORTED_MODE]: 'this mode is not currently supported',
   [RunValidationErrorType.FUCKY_BEHAVIOUR]: 'unusual behaviour in replay',
-  [RunValidationErrorType.INTERNAL_ERROR]: 'an internal server error occurred'
+  [RunValidationErrorType.INTERNAL_ERROR]: 'an internal server error occurred',
+  [RunValidationErrorType.BANNED]: 'user is banned from run submission',
+  
 }
 
 export class RunValidationError extends Error {

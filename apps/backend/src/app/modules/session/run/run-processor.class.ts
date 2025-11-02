@@ -2,6 +2,7 @@
 import { Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import {
+  Ban,
   MapZones,
   RunValidationError,
   RunValidationErrorType as ErrorType,
@@ -17,6 +18,7 @@ import {
   Splits
 } from './run-session.interface';
 import { findWithIndex } from '@momentum/util-fn';
+import * as Bitflags from '@momentum/bitflags';
 
 /**
  * Class for managing the parsing of a replay file and validating it against
@@ -279,6 +281,12 @@ export class RunProcessor {
   /** @throws {RunValidationError} */
   validateReplayHeader() {
     const { session, replayHeader: header, user } = this;
+
+    // This isn't really a replay thing but I want to do this in this class to
+    // use this.reject(). Game won't even create a session if banned anyway.
+    if (Bitflags.has(user.bans, Ban.LEADERBOARDS)) {
+      this.reject(ErrorType.BANNED, 'user is banned from leaderboards');
+    }
 
     if (header.trackType !== session.trackType) {
       this.reject(ErrorType.BAD_META, 'header.trackType != session.trackType');
