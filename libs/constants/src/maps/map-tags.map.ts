@@ -50,7 +50,8 @@ export const GamemodeTags = {
     MapTag.Climb,
     MapTag.Booster,
     MapTag.Fast_Paced,
-    MapTag.Forced_Bhop
+    MapTag.Forced_Bhop,
+    MapTag.Ladder
   ],
   [GamemodeCategory.CLIMB]: [
     MapTag.Ladder,
