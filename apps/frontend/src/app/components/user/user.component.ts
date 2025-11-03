@@ -1,8 +1,8 @@
-import { Component, HostListener, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { User } from '@momentum/constants';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { NgClass } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 
 /**
@@ -14,19 +14,20 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
  */
 @Component({
   selector: 'm-user',
-  imports: [AvatarComponent, NgClass, RoleBadgesComponent],
+  imports: [AvatarComponent, NgClass, RoleBadgesComponent, RouterLink],
   template: ` @if (user) {
     <m-avatar
       class="h-8 shadow"
       [ngClass]="avatarClass"
       [url]="user.avatarURL"
     />
-    <p
+    <a
+      [routerLink]="'/profile/' + user.id"
       class="text-lg text-shadow transition-colors [:hover>&]:text-blue-200"
       [ngClass]="aliasClass"
     >
       {{ user.alias }}
-    </p>
+    </a>
     @if (badges && user.roles > 0) {
       <m-role-badges [roles]="user.roles" [ngClass]="badgesClass" />
     }
@@ -43,15 +44,9 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
   ]
 })
 export class UserComponent {
-  private readonly router = inject(Router);
-
   @Input({ required: true }) user!: User;
   @Input() aliasClass?: string;
   @Input() avatarClass?: string;
   @Input() badges = false;
   @Input() badgesClass?: string;
-
-  @HostListener('click') click() {
-    this.router.navigate([`profile/${this.user.id}`]);
-  }
 }
