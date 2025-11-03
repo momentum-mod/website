@@ -39,6 +39,7 @@ import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
+import { HttpErrorResponse } from '@angular/common/http';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
@@ -145,10 +146,10 @@ export class MapLeaderboardComponent implements OnChanges {
           this.runs = response.data;
           this.loading = false;
         },
-        error: (error) => {
+        error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
             severity: 'error',
-            detail: error.message,
+            detail: httpError.error.message,
             summary: 'Error fetching runs'
           });
           this.loading = false;
