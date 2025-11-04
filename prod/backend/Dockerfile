@@ -12,7 +12,7 @@ COPY ./libs/db/src/migrations/ ./prisma/migrations/
 RUN chown -R backend:backend .
 
 USER backend
-RUN npm --omit=dev --ignore-scripts install
+RUN npm --omit=dev --ignore-scripts install prisma
 RUN node_modules/.bin/prisma generate --schema ./prisma/schema.prisma
 
 RUN rm package.json package-lock.json
