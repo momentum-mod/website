@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import {
   MapSubmissionType,
+  MAX_CHANGELOG_LENGTH,
   MAX_MAP_DESCRIPTION_LENGTH,
   MAX_MAP_NAME_LENGTH,
   MIN_MAP_DESCRIPTION_LENGTH,
@@ -61,6 +62,7 @@ export class MapDetailsFormComponent implements OnInit {
   protected readonly SteamGames = Enum.values(SteamGame);
   protected readonly MIN_MAP_DESCRIPTION_LENGTH = MIN_MAP_DESCRIPTION_LENGTH;
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
+  protected readonly MAX_CHANGELOG_LENGTH = MAX_CHANGELOG_LENGTH;
   protected readonly maxDate = new Date();
   protected mapSubmissionTypeOptions: Array<{
     type: MapSubmissionType;
