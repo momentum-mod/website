@@ -1,5 +1,5 @@
 <div class="flex gap-4 md:flex-wrap" [formGroup]="formGroup">
-  <div class="grid h-fit max-w-[35%] gap-4 [grid-template-columns:auto_1fr]">
+  <div class="grid h-fit max-w-[30%] gap-4 [grid-template-columns:auto_1fr]">
     <div class="flex flex-col">
       <label class="my-auto text-lg leading-4">
         Map Name
@@ -118,11 +118,12 @@
               </div>
             </ng-template>
           </label>
-          <span class="ml-2 text-sm italic text-gray-200">Minimum {{ MIN_MAP_DESCRIPTION_LENGTH }} characters required</span>
         </div>
-        <span class="mr-2 mt-auto text-sm"
-          >{{ MAX_MAP_DESCRIPTION_LENGTH - description.value?.length | plural: 'character' }} remaining</span
-        >
+        @if (MAX_MAP_DESCRIPTION_LENGTH / 2 < description.value.length) {
+          <span class="mr-2 mt-auto text-sm"
+            >{{ MAX_MAP_DESCRIPTION_LENGTH - description.value.length | plural: 'character' }} remaining</span
+          >
+        }
       </div>
       <textarea
         id="description"
@@ -130,34 +131,34 @@
         rows="2"
         [formControl]="description"
         [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
+        [placeholder]="'Minimum ' + MIN_MAP_DESCRIPTION_LENGTH + ' characters required'"
       ></textarea>
     </div>
-
-    @if (submissionType.value === MapSubmissionType.PORT) {
-      <div class="flex flex-1 flex-col">
-        <div class="mb-2 flex">
-          <div class="my-auto flex flex-grow items-center">
-            <label for="portingChangelog" class="text-lg">
-              Porting Changelog
-
-              <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="changelogInfo" />
-
-              <ng-template #changelogInfo>
-                <div class="prose p-3">
-                  <p>Any major changes made when porting from the original game to Momentum.</p>
-                  <p>Changes that required a recompile, especially altering map geometry, must be listed here.</p>
-                </div>
-              </ng-template>
-            </label>
-          </div>
-        </div>
-        <textarea
-          id="portingChangelog"
-          class="textinput textinput-validated flex-grow"
-          rows="2"
-          [formControl]="portingChangelog"
-        ></textarea>
-      </div>
-    }
   </div>
+  @if (submissionType.value === MapSubmissionType.PORT) {
+    <div class="flex flex-1 flex-col">
+      <div class="mb-2 flex">
+        <div class="my-auto flex flex-grow items-center">
+          <label for="portingChangelog" class="text-lg">
+            Porting Changelog
+
+            <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="changelogInfo" />
+
+            <ng-template #changelogInfo>
+              <div class="prose p-3">
+                <p>Any major changes made when porting from the original game to Momentum.</p>
+                <p>Changes that required a recompile, especially altering map geometry, must be listed here.</p>
+              </div>
+            </ng-template>
+          </label>
+        </div>
+        @if (MAX_CHANGELOG_LENGTH / 2 < portingChangelog.value.length) {
+          <span class="mr-2 mt-auto text-sm"
+            >{{ MAX_CHANGELOG_LENGTH - portingChangelog.value.length | plural: 'character' }} remaining</span
+          >
+        }
+      </div>
+      <textarea id="portingChangelog" class="textinput textinput-validated flex-grow" rows="2" [formControl]="portingChangelog"></textarea>
+    </div>
+  }
 </div>
