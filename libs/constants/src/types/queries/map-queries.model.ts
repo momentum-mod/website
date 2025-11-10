@@ -171,15 +171,10 @@ export interface UpdateMap
       | 'submissionType'
     >
   > {
-  status?: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
+  status?: MapStatus;
   info?: UpdateMapInfo;
-  zones?: MapZones;
   portingChangelog?: string;
   resetLeaderboards?: boolean;
-}
-
-export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
-  status?: MapStatus;
   submitterID?: number;
   finalLeaderboards?: MapSubmissionApproval[];
 }

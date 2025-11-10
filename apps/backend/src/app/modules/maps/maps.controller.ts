@@ -168,7 +168,7 @@ export class MapsController {
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body() body: UpdateMapDto
   ): Promise<void> {
-    return this.mapsService.updateAsSubmitter(mapID, userID, body);
+    return this.mapsService.update(mapID, userID, body, true);
   }
 
   @Get('/maplistversion')

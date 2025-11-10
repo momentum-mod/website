@@ -44,7 +44,7 @@ import {
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
-  UpdateMapAdminDto,
+  UpdateMapDto,
   UpdateReportDto,
   UserDto
 } from '../../dto';
@@ -180,15 +180,15 @@ export class AdminController {
     description: 'ID of the map to update',
     required: true
   })
-  @ApiBody({ type: UpdateMapAdminDto, required: true })
+  @ApiBody({ type: UpdateMapDto, required: true })
   @ApiNoContentResponse({ description: 'The map was updated successfully' })
   @ApiBadRequestResponse({ description: 'Invalid map update data' })
   updateMap(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
-    @Body() body: UpdateMapAdminDto
+    @Body() body: UpdateMapDto
   ) {
-    return this.mapsService.updateAsAdmin(mapID, userID, body);
+    return this.mapsService.update(mapID, userID, body);
   }
 
   @Delete('/maps/:mapID')

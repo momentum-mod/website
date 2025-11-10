@@ -7,10 +7,9 @@ import {
   MAX_MAP_NAME_LENGTH,
   MIN_MAP_NAME_LENGTH,
   MMap,
-  UpdateMap,
-  UpdateMapAdmin
+  UpdateMap
 } from '@momentum/constants';
-import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
@@ -240,7 +239,7 @@ export class UpdateMapDto
 
   @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatus.CONTENT_APPROVAL | MapStatus.FINAL_APPROVAL;
+  readonly status: MapStatus;
 
   @EnumProperty(MapSubmissionType, {
     description:
@@ -248,27 +247,12 @@ export class UpdateMapDto
     required: false
   })
   readonly submissionType: MapSubmissionType;
-}
-
-export class UpdateMapAdminDto
-  extends OmitType(UpdateMapDto, ['status', 'suggestions'] as const)
-  implements UpdateMapAdmin
-{
-  @EnumProperty(MapStatus)
-  @IsOptional()
-  readonly status: MapStatus;
 
   @IdProperty({
     required: false,
     description: 'UserID to update the submitter to'
   })
   readonly submitterID: number;
-
-  @NestedProperty(MapZonesDto, {
-    required: false,
-    description: 'Zones for the map'
-  })
-  readonly zones: MapZonesDto;
 
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)
