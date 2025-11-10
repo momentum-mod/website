@@ -38,6 +38,7 @@ import { MapFinalApprovalFormComponent } from './map-final-approval-form.compone
 import { MapsService } from '../../../services/data/maps.service';
 import { LeaderboardsService } from '../../../services/data/leaderboards.service';
 import { DatePipe, NgClass } from '@angular/common';
+import { LocalUserService } from '../../../services/data/local-user.service';
 
 export type GroupedLeaderboards = Map<
   Gamemode,
@@ -76,15 +77,13 @@ export class MapStatusFormComponent implements OnChanges {
   private readonly mapsService = inject(MapsService);
   private readonly leaderboardsService = inject(LeaderboardsService);
   private readonly messageService = inject(MessageService);
+  private readonly localUserService = inject(LocalUserService);
 
   protected readonly MapStatus = MapStatus;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MIN_PUBLIC_TESTING_DURATION = MIN_PUBLIC_TESTING_DURATION;
   @Input({ required: true }) map: MMap;
   @Input({ required: true }) sub: boolean;
-  @Input({ required: true }) adm: boolean;
-  @Input({ required: true }) mod: boolean;
-  @Input({ required: true }) rev: boolean;
 
   @Input({ required: true }) formGroup: FormGroup<{
     status: FormControl<MapStatus>;
@@ -341,5 +340,17 @@ export class MapStatusFormComponent implements OnChanges {
     return this.formGroup.get('finalLeaderboards') as FormControl<
       MapSubmissionApproval[]
     >;
+  }
+
+  get rev() {
+    return this.localUserService.hasRole(Role.REVIEWER);
+  }
+
+  get adm() {
+    return this.localUserService.isAdmin;
+  }
+
+  get mod() {
+    return this.localUserService.isMod;
   }
 }

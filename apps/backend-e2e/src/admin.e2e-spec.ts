@@ -71,6 +71,7 @@ import {
 import { createHash, randomUUID } from 'node:crypto';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { Config } from 'apps/backend/src/app/config';
 
 describe('Admin', () => {
   let app: NestFastifyApplication,
@@ -80,6 +81,19 @@ describe('Admin', () => {
     fileStore: FileStoreUtil,
     auth: AuthUtil,
     checkScheduledMapListUpdates: () => Promise<void>;
+
+  async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
+    const preSignedUrlRes = await req.get({
+      url: 'maps/getMapUploadUrl',
+      query: {
+        fileSize: bspBuffer.length
+      },
+      status: 200,
+      token
+    });
+
+    await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, bspBuffer);
+  }
 
   async function expectAdminActivityWasCreated(
     userID: number,
@@ -1008,6 +1022,167 @@ describe('Admin', () => {
   });
 
   describe('admin/maps/{mapID}', () => {
+    describe('POST', () => {
+      const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+      const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+      let u1: User,
+        u1Token: string,
+        admin: User,
+        adminToken: string,
+        modToken: string,
+        map;
+
+      beforeAll(async () => {
+        [[u1, u1Token], [admin, adminToken], modToken] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } })
+        ]);
+      });
+
+      afterAll(async () => {
+        await db.cleanup('user');
+        await fileStore.deleteDirectory('submissions');
+        await fileStore.deleteDirectory('upload_tmp');
+      });
+
+      beforeEach(async () => {
+        map = await db.createMap(
+          {
+            name: 'surf_map',
+            submitter: { connect: { id: u1.id } },
+            status: MapStatus.PRIVATE_TESTING,
+            versions: {
+              create: {
+                zones: ZonesStubString,
+                versionNum: 1,
+                bspHash: createSha1Hash(bspBuffer),
+                submitter: { connect: { id: u1.id } }
+              }
+            },
+            submission: {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.SURF,
+                    tier: 10,
+                    type: LeaderboardType.RANKED
+                  }
+                ],
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.PRIVATE_TESTING,
+                      date: new Date(),
+                      user: { connect: { id: u1.id } }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          true
+        );
+      });
+
+      afterEach(() =>
+        Promise.all([
+          db.cleanup('mMap'),
+          fileStore.deleteDirectory('maplist'),
+          fileStore.deleteDirectory('upload_tmp')
+        ])
+      );
+
+      it('should allow admin to add a new map version', async () => {
+        const changelog = 'Added walls, floors etc...';
+        await uploadBspToPreSignedUrl(bspBuffer, adminToken);
+
+        const res = await req.postAttach({
+          url: `admin/maps/${map.id}`,
+          status: 201,
+          data: { changelog, hasBSP: true },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          validate: MapDto,
+          token: adminToken
+        });
+
+        expect(res.body).toMatchObject({
+          currentVersion: {
+            versionNum: 2,
+            submitterID: admin.id,
+            changelog
+          },
+          versions: expect.arrayContaining([
+            expect.objectContaining({ versionNum: 1 }),
+            expect.objectContaining({
+              versionNum: 2,
+              changelog,
+              submitterID: admin.id
+            })
+          ])
+        });
+
+        const mapDB = await prisma.mMap.findUnique({
+          where: { id: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(mapDB.currentVersion.versionNum).toBe(2);
+        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
+      });
+
+      it("should 400 if a VMF file is greater than the config's max vmf file size", async () => {
+        await uploadBspToPreSignedUrl(bspBuffer, adminToken);
+
+        await req.postAttach({
+          url: `admin/maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'kill me' },
+          files: [
+            {
+              file: Buffer.alloc(Config.limits.vmfSize + 1),
+              field: 'vmfs',
+              fileName: 'surf_map.vmf'
+            }
+          ],
+          token: adminToken
+        });
+      });
+
+      it('should return 404 if map not found', () =>
+        req.postAttach({
+          url: `admin/maps/${NULL_ID}`,
+          status: 404,
+          data: { changelog: 'sausage' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: adminToken
+        }));
+
+      it('should return 403 for a non-admin/mod access token is given', () =>
+        req.postAttach({
+          url: `admin/maps/${map.id}`,
+          status: 403,
+          data: { changelog: 'tomato' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        }));
+
+      it('should accept if a mod access token is given', () =>
+        req.postAttach({
+          url: `admin/maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'mamping' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: modToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/maps/1', 'post'));
+    });
+
     describe('PATCH', () => {
       const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
       const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
@@ -1082,7 +1257,7 @@ describe('Admin', () => {
                   trackType: TrackType.MAIN,
                   trackNum: 1,
                   tier: 1,
-                  type: LeaderboardType.IN_SUBMISSION
+                  type: LeaderboardType.RANKED
                 }
               ]
             }
@@ -1151,7 +1326,7 @@ describe('Admin', () => {
                   trackType: TrackType.MAIN,
                   gamemode: Gamemode.RJ,
                   tier: 1,
-                  type: LeaderboardType.IN_SUBMISSION
+                  type: LeaderboardType.RANKED
                 }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
@@ -1242,7 +1417,7 @@ describe('Admin', () => {
           });
         });
 
-        it('should not allow an admin to update suggestions during submission', async () => {
+        it('should allow an admin to update suggestions during submission', async () => {
           const map = await db.createMap({
             ...createMapData,
             status: MapStatus.PUBLIC_TESTING
@@ -1250,7 +1425,7 @@ describe('Admin', () => {
 
           await req.patch({
             url: `admin/maps/${map.id}`,
-            status: 400,
+            status: 204,
             body: {
               name: 'surf_asbestos',
               suggestions: [
@@ -1636,7 +1811,37 @@ describe('Admin', () => {
               }
             },
             leaderboards: { createMany: { data: [] } },
-            status: MapStatus.FINAL_APPROVAL
+            status: MapStatus.FINAL_APPROVAL,
+            submission: {
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                dates: {
+                  create: [
+                    {
+                      status: MapStatus.PRIVATE_TESTING,
+                      date: new Date(),
+                      user: { connect: { id: u1.id } }
+                    }
+                  ]
+                },
+                suggestions: [
+                  {
+                    gamemode: Gamemode.RJ,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    gamemode: Gamemode.DEFRAG_CPM,
+                    trackType: TrackType.BONUS,
+                    trackNum: 1,
+                    tier: 1,
+                    type: LeaderboardType.RANKED
+                  }
+                ]
+              }
+            }
           });
 
           const vmfZip = new Zip();

@@ -91,8 +91,7 @@ export class MapsService {
     return this.http.post('maps', {
       body: formData,
       reportProgress: true,
-      observe: 'events',
-      responseType: 'text'
+      observe: 'events'
     });
   }
 
@@ -108,8 +107,7 @@ export class MapsService {
     return this.http.post(`maps/${mapID}`, {
       body: formData,
       reportProgress: true,
-      observe: 'events',
-      responseType: 'text'
+      observe: 'events'
     });
   }
 

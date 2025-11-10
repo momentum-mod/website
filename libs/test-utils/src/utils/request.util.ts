@@ -150,6 +150,8 @@ export class RequestUtil {
     const response = await this.app.inject(injectOptions);
 
     if (options.status) {
+      if (response.statusCode === 400 && response.statusCode !== options.status)
+        console.log(response.body);
       expect(response.statusCode).toBe(options.status);
     }
 

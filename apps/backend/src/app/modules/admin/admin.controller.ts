@@ -5,16 +5,21 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
-  UseGuards
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -37,6 +42,7 @@ import {
   AdminUpdateMapReviewDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
+  CreateMapVersionDto,
   CreateUserDto,
   MapDto,
   MapReviewDto,
@@ -48,11 +54,14 @@ import {
   UpdateReportDto,
   UserDto
 } from '../../dto';
-import { ParseInt32SafePipe } from '../../pipes';
+import { ParseFilesPipe, ParseInt32SafePipe } from '../../pipes';
 import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
+import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
+import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
+import { Config } from '../../config';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -189,6 +198,42 @@ export class AdminController {
     @Body() body: UpdateMapDto
   ) {
     return this.mapsService.update(mapID, userID, body);
+  }
+
+  @Post('/maps/:mapID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary:
+      'Submits an updated map version.' +
+      " This may generate new leaderboards, which uses the submission's suggestions, " +
+      'if those are being changed by the user, be sure to send the /:id PATCH first!'
+  })
+  @ApiBody({
+    type: CreateMapVersionDto,
+    required: true
+  })
+  @ApiOkResponse({ type: MapDto, description: 'Map with new version attached' })
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'vmfs', maxCount: 40 }]),
+    FormDataJsonInterceptor('data')
+  )
+  submitMapVersion(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @Body('data') data: CreateMapVersionDto,
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new MaxFileSizeValidator({ maxSize: Config.limits.vmfSize })
+          ]
+        })
+      )
+    )
+    files: { vmfs: File[] },
+    @LoggedInUser('id') userID: number
+  ): Promise<MapDto> {
+    return this.mapsService.submitMapVersion(mapID, data, userID, files.vmfs);
   }
 
   @Delete('/maps/:mapID')

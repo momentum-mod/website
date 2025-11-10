@@ -778,7 +778,14 @@ export class MapsService {
       throw new NotFoundException('Map does not exist');
     }
 
-    if (map.submitterID !== userID)
+    const user = await this.db.user.findUnique({
+      where: { id: userID }
+    });
+
+    if (
+      !Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN) &&
+      map.submitterID !== userID
+    )
       throw new ForbiddenException('User is not the map submitter');
 
     // This should never happen but stops someone flooding S3 storage with
@@ -787,19 +794,17 @@ export class MapsService {
       throw new ForbiddenException('Reached map version limit');
     }
 
-    const { bans: userBans } = await this.db.user.findUnique({
-      where: { id: userID },
-      select: { bans: true }
-    });
-
     // If the user is banned from map submission, this map was *probably*
     // already rejected. But do this check just in case a mod bans them first
     // and hasn't yet rejected the map.
-    if (Bitflags.has(userBans, Ban.MAP_SUBMISSION)) {
+    if (Bitflags.has(user.bans, Ban.MAP_SUBMISSION)) {
       throw new ForbiddenException('User is banned from map submission');
     }
 
-    if (!MapStatuses.IN_SUBMISSION.includes(map.status)) {
+    if (
+      !MapStatuses.IN_SUBMISSION.includes(map.status) &&
+      !Bitflags.has(user.roles, Role.ADMIN)
+    ) {
       throw new ForbiddenException('Map does not allow editing');
     }
 
@@ -1327,6 +1332,11 @@ export class MapsService {
       }
     }
 
+    const suggs =
+      dto.suggestions ??
+      (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
+    const zones = JSON.parse(map.currentVersion.zones);
+
     // Force the submitter to keep their suggestions in sync with their zones.
     // If this requests has new suggestions, use those, otherwise use the
     // existing ones.
@@ -1335,10 +1345,6 @@ export class MapsService {
     // with the current suggestions, in this case, the submitter will be forced
     // to update suggestions next time they do a general update, including if
     // they want to change the map status. Frontend explains this to the user.
-    const suggs =
-      dto.suggestions ??
-      (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
-    const zones = JSON.parse(map.currentVersion.zones);
 
     this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
 

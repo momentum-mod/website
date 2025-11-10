@@ -39,7 +39,6 @@ import {
   MIN_MAP_NAME_LENGTH,
   MMap,
   UpdateMap,
-  UpdateMapAdmin,
   User,
   YOUTUBE_ID_REGEXP,
   Role,
@@ -140,9 +139,6 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   protected loading = false;
 
   isSubmitter: boolean;
-  isReviewer: boolean;
-  isAdmin: boolean;
-  isMod: boolean;
   inSubmission: boolean;
 
   private readonly reload = new Subject<void>();
@@ -278,16 +274,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(async (map: MMap) => {
-        this.isAdmin = this.localUserService.isAdmin;
-        this.isMod = this.localUserService.isMod;
-        this.isReviewer = this.localUserService.hasRole(Role.REVIEWER);
         this.isSubmitter =
           map.submitterID === this.localUserService.user.value?.id;
         this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
 
         if (
-          !this.isAdmin &&
-          !this.isMod &&
+          !this.isModOrAdmin &&
           !(this.inSubmission && (this.isSubmitter || this.isReviewer))
         )
           await this.router.navigate(['/maps/' + map.name]);
@@ -369,7 +361,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     this.loading = true;
 
-    const body: UpdateMap | UpdateMapAdmin = {};
+    const body: UpdateMap = {};
 
     if (this.name.dirty) body.name = this.name.value;
     if (this.submissionType.dirty)
@@ -403,13 +395,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       body.status = this.status.value;
 
       if (this.finalLeaderboards.dirty) {
-        (body as UpdateMapAdmin).finalLeaderboards =
-          this.finalLeaderboards.value;
+        body.finalLeaderboards = this.finalLeaderboards.value;
       }
     }
 
     if (this.submitter.dirty && this.submitter.value) {
-      (body as UpdateMapAdmin).submitterID = this.submitter.value.id;
+      body.submitterID = this.submitter.value.id;
     }
 
     const hasImages = this.images.dirty && this.haveImagesActuallyChanged();
@@ -436,20 +427,15 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         if (
           this.isSubmitter &&
           !(
-            (this.isAdmin || this.isMod) &&
+            this.isModOrAdmin &&
             (body.status === MapStatus.APPROVED ||
               this.map.status === MapStatus.APPROVED ||
               this.map.status === MapStatus.DISABLED)
-          ) &&
-          !(body as UpdateMapAdmin).submitterID
+          )
         ) {
-          await firstValueFrom(
-            this.mapsService.updateMap(this.map.id, body as UpdateMap)
-          );
+          await firstValueFrom(this.mapsService.updateMap(this.map.id, body));
         } else {
-          await firstValueFrom(
-            this.adminService.updateMap(this.map.id, body as UpdateMapAdmin)
-          );
+          await firstValueFrom(this.adminService.updateMap(this.map.id, body));
         }
       } catch (httpError) {
         this.messageService.add({
@@ -609,7 +595,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     try {
       await lastValueFrom(
-        this.mapsService
+        (this.isSubmitter ? this.mapsService : this.adminService)
           .submitMapVersion(this.map.id, {
             vmfs: this.vmfs.value,
             data: {
@@ -900,5 +886,17 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     return this.mainForm.get('statusChange.finalLeaderboards') as FormControl<
       MapSubmissionApproval[]
     >;
+  }
+
+  get isReviewer() {
+    return this.localUserService.hasRole(Role.REVIEWER);
+  }
+
+  get isAdmin() {
+    return this.localUserService.isAdmin;
+  }
+
+  get isModOrAdmin() {
+    return this.localUserService.isMod || this.localUserService.isAdmin;
   }
 }

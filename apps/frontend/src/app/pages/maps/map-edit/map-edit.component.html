@@ -10,7 +10,7 @@
   (ngSubmit)="submitVersionForm()"
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col overflow-visible p-4"
-  [ngClass]="isSubmitter ? '!flex' : '!hidden'"
+  [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
   <div class="card-title -mt-10 mb-2 text-5xl">Submit New Version</div>
@@ -88,17 +88,17 @@
   (ngSubmit)="submitMainForm()"
   [mSpinner]="loading"
   class="card card--fancy mb-8 mt-14 flex-col gap-8 overflow-visible p-4"
-  [ngClass]="isAdmin || isMod || isSubmitter || isReviewer ? '!flex' : '!hidden'"
+  [ngClass]="isModOrAdmin || isSubmitter || isReviewer ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
   <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Details</legend>
-    <m-map-details-form [formGroup]="details" [isModOrAdmin]="isAdmin || isMod" />
+    <m-map-details-form [formGroup]="details" [isModOrAdmin]="isModOrAdmin" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Change Submitter</legend>
     <p class="color-red-500 mb-4 mt-2 italic">
       Updating this removes the ability for the current submitter to update the map. Use responsibly!
@@ -106,7 +106,7 @@
     <m-user-select [formControl]="submitter" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Images</legend>
     <m-map-image-selection [formControlPassthrough]="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
     @if (images.errors?.['required'] && images.dirty) {
@@ -131,12 +131,12 @@
     }
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isAdmin || isMod || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Credits</legend>
     <m-map-credits-selection class="grid h-full min-h-[18rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isSubmitter ? '!block' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!block' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Leaderboards</legend>
     <m-map-leaderboards-selection [formControl]="suggestions" />
     @if (suggestions.dirty && suggestions.errors) {
@@ -152,7 +152,7 @@
 
   <fieldset class="card-inset flex flex-col gap-2">
     <legend class="font-display text-4xl font-bold">Status Update</legend>
-    <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" [adm]="isAdmin" [mod]="isMod" [rev]="isReviewer" />
+    <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" />
   </fieldset>
 
   <div class="-mt-4 flex gap-4">

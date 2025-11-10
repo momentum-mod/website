@@ -11,20 +11,38 @@ import {
   PagedResponse,
   MapReview,
   AdminUpdateMapReview,
-  UpdateMapAdmin,
+  UpdateMap,
   Killswitches,
   AdminGetAdminActivitiesQuery,
   AdminActivity,
-  AdminAnnouncement
+  AdminAnnouncement,
+  CreateMapVersionWithFiles
 } from '@momentum/constants';
 import { HttpService } from './http.service';
+import { HttpEvent } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpService);
 
-  updateMap(mapID: number, body: UpdateMapAdmin): Observable<MMap> {
+  updateMap(mapID: number, body: UpdateMap): Observable<MMap> {
     return this.http.patch(`admin/maps/${mapID}`, { body });
+  }
+
+  submitMapVersion(
+    mapID: number,
+    { data, vmfs }: CreateMapVersionWithFiles
+  ): Observable<HttpEvent<string>> {
+    const formData = new FormData();
+
+    formData.append('data', JSON.stringify(data));
+    for (const vmf of vmfs ?? []) formData.append('vmfs', vmf, vmf.name);
+
+    return this.http.post(`admin/maps/${mapID}`, {
+      body: formData,
+      reportProgress: true,
+      observe: 'events'
+    });
   }
 
   getMaps(query: MapsGetAllAdminQuery): Observable<PagedResponse<MMap>> {

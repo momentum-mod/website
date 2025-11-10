@@ -94,6 +94,7 @@ import { MapListService } from './map-list.service';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
+import { Config } from '../../config';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -223,11 +224,18 @@ export class MapsController {
   )
   async submitMap(
     @Body('data') data: CreateMapDto,
-    @UploadedFiles() files: { vmfs: File[] },
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new MaxFileSizeValidator({ maxSize: Config.limits.vmfSize })
+          ]
+        })
+      )
+    )
+    files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
-    this.mapSubmissionFileValidation(files.vmfs);
-
     return this.mapsService.submitMap(data, userID, files.vmfs);
   }
 
@@ -256,29 +264,19 @@ export class MapsController {
   submitMapVersion(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @Body('data') data: CreateMapVersionDto,
-    @UploadedFiles() files: { vmfs: File[] },
+    @UploadedFiles(
+      new ParseFilesPipe(
+        new ParseFilePipe({
+          validators: [
+            new MaxFileSizeValidator({ maxSize: Config.limits.vmfSize })
+          ]
+        })
+      )
+    )
+    files: { vmfs: File[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
-    this.mapSubmissionFileValidation(files.vmfs);
-
     return this.mapsService.submitMapVersion(mapID, data, userID, files.vmfs);
-  }
-
-  private mapSubmissionFileValidation(vmfFiles: File[]) {
-    // Don't see a way to apply FileSizeValidationPipe to files individually,
-    // just doing it manually. We could grab the validations from
-    // https://github.com/dmitriy-nz/nestjs-form-data/tree/master/src/decorators/validation
-    // if we wanted, but given the likelihood of us moving off class-validator,
-    // it doesn't seem worth the effort.
-    //   spooky note from the future : We could figure out a way to do the above
-    //   this using new ParseFilesPipe.
-
-    const maxVmfSize = this.config.getOrThrow('limits.vmfSize');
-    for (const vmfFile of vmfFiles ?? []) {
-      if (vmfFile.size > maxVmfSize) {
-        throw new BadRequestException(`VMF file too large (> ${maxVmfSize})`);
-      }
-    }
   }
 
   @Delete('/:mapID')
