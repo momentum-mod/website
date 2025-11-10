@@ -726,7 +726,8 @@ export class MapsService {
               map.currentVersion.bspDownloadId,
               bspFile,
               map.currentVersion.vmfDownloadId,
-              zippedVmf
+              zippedVmf,
+              dto.name
             );
           })()
         );
@@ -940,7 +941,8 @@ export class MapsService {
       newVersion.bspDownloadId,
       bspFile,
       newVersion.vmfDownloadId,
-      zippedVmf
+      zippedVmf,
+      map.name
     );
 
     if (
@@ -1234,7 +1236,8 @@ export class MapsService {
     bspId: string,
     bspFile?: File,
     vmfId?: string,
-    vmfZip?: Buffer
+    vmfZip?: Buffer,
+    mapName?: string
   ) {
     const storeFns: Promise<FileStoreFile | boolean>[] = [];
 
@@ -1242,7 +1245,10 @@ export class MapsService {
       if (bspFile.path) {
         storeFns.push(
           this.fileStoreService
-            .copyFile(bspFile.path, bspPath(bspId))
+            .copyFile(bspFile.path, bspPath(bspId), {
+              'Content-Type': 'model/vnd.valve.source.compiled-map',
+              'Content-Disposition': `attachment${mapName ? `; filename="${mapName}.bsp"` : ''}`
+            })
             .then(() => this.fileStoreService.deleteFile(bspFile.path))
         );
       } else {

@@ -60,13 +60,18 @@ export class FileStoreService {
    * @returns true - if successful, `false` if the source file was missing.
    * @throws S3ServiceException
    */
-  async copyFile(fromKey: string, toKey: string): Promise<boolean> {
+  async copyFile(
+    fromKey: string,
+    toKey: string,
+    metadata: Record<string, string> = {}
+  ): Promise<boolean> {
     try {
       await this.s3Client.send(
         new CopyObjectCommand({
           Bucket: this.bucket,
           CopySource: `${this.bucket}/${fromKey}`,
-          Key: toKey
+          Key: toKey,
+          Metadata: metadata
         })
       );
       return true;
