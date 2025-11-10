@@ -7,6 +7,7 @@ import {
   PagedResponseDto
 } from '../../dto';
 import { ActivitiesService } from './activities.service';
+import { BypassLimited } from '../../decorators';
 
 @Controller('activities')
 @ApiTags('Activities')
@@ -15,6 +16,7 @@ export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Get()
+  @BypassLimited()
   @ApiOperation({ summary: 'Returns a list of activities' })
   @ApiOkPagedResponse(ActivityDto, {
     description: 'Paginated list of activities'

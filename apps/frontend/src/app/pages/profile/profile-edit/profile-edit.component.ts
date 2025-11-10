@@ -147,6 +147,7 @@ export class ProfileEditComponent implements OnInit {
       mapper:           this.nnfb.control<boolean>(false),
       porter:           this.nnfb.control<boolean>(false),
       reviewer:         this.nnfb.control<boolean>(false),
+      limited: [false],
       moderator:        this.nnfb.control<boolean>(false),
       admin:            this.nnfb.control<boolean>(false)
     });
@@ -287,6 +288,7 @@ export class ProfileEditComponent implements OnInit {
       mapper: this.hasRole(Role.MAPPER),
       porter: this.hasRole(Role.PORTER),
       reviewer: this.hasRole(Role.REVIEWER),
+      limited: this.hasRole(Role.LIMITED),
       moderator: this.hasRole(Role.MODERATOR),
       admin: this.hasRole(Role.ADMIN)
     };

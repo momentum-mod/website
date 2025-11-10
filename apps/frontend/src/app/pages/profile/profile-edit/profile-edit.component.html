@@ -114,6 +114,10 @@
               </li>
               @if (isAdmin) {
                 <li>
+                  <input type="checkbox" class="checkbox mr-1" (change)="toggleRole(Role.LIMITED)" formControlName="limited" />
+                  Limited
+                </li>
+                <li>
                   <input type="checkbox" class="checkbox mr-1" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator" />
                   Moderator
                 </li>
