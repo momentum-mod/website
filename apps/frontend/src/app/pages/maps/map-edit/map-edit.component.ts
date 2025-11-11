@@ -689,8 +689,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       summary: 'Testing invites updated!'
     });
 
-    this.versionForm.markAsUntouched();
-    this.versionForm.markAsPristine();
+    this.testInviteForm.markAsUntouched();
+    this.testInviteForm.markAsPristine();
     this.isSubmittingTestInviteForm = false;
   }
 
