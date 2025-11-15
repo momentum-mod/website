@@ -487,6 +487,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         const realHasAuthors = real.some(
           ({ type }) => type === MapCreditType.AUTHOR
         );
+        const placeholdersHasAuthors = placeholders.some(
+          ({ type }) => type === MapCreditType.AUTHOR
+        );
         const realChanged = !deepEquals(
           this.map.credits.map(({ userID, type, description }) => ({
             userID,
@@ -522,13 +525,15 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         // first, then placeholders. Sorry for the spaghetti!
         if (realChanged) {
           if (!realHasAuthors) {
-            if (!placeholdersChanged)
+            if (!placeholdersHasAuthors)
               // Validators should make this impossible.
               throw new Error(
                 'Trying to update to state that would contain no authors!'
               );
 
-            await updatePlaceholders();
+            if (placeholdersChanged) {
+              await updatePlaceholders();
+            }
             await updateReal();
           } else {
             await updateReal();
