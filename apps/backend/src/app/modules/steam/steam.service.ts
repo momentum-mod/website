@@ -208,6 +208,11 @@ export class SteamService {
 
             // We're in a block like <isLimitedAccount>0</isLimitedAccount>
             return found[0] === '1';
+          }),
+          catchError((_) => {
+            throw new ServiceUnavailableException(
+              'Failed to get limited status from Steam'
+            );
           })
         )
     );
