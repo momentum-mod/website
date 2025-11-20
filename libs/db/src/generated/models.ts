@@ -9,7 +9,6 @@
  */
 export type * from './models/User'
 export type * from './models/Profile'
-export type * from './models/UserAuth'
 export type * from './models/UserStats'
 export type * from './models/DeletedUser'
 export type * from './models/Report'

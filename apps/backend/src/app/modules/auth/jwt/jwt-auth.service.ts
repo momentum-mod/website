@@ -54,32 +54,12 @@ export class JwtAuthService {
 
   //#region Tokens
 
-  async revokeRefreshToken(accessToken: string): Promise<void> {
-    const { id } = this.verifyJwt(accessToken);
-
-    await this.getUser(id);
-
-    await this.db.userAuth.upsert({
-      where: { userID: id },
-      update: { refreshToken: '' },
-      create: { userID: id, refreshToken: '' }
-    });
-  }
-
   async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
     const { id } = this.verifyJwt(refreshToken);
 
     const user = await this.getUser(id);
 
-    const tokenDto = await this.generateWebTokenPair(id, user.steamID);
-
-    await this.db.userAuth.upsert({
-      where: { userID: id },
-      update: { refreshToken: tokenDto.refreshToken },
-      create: { userID: id, refreshToken: tokenDto.refreshToken }
-    });
-
-    return tokenDto;
+    return await this.generateWebTokenPair(id, user.steamID);
   }
 
   private async generateWebTokenPair(
@@ -109,12 +89,6 @@ export class JwtAuthService {
   private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {
     const options = { expiresIn: this.config.getOrThrow('jwt.refreshExpTime') };
     const refreshToken = await this.jwtService.signAsync(payload, options);
-
-    await this.db.userAuth.upsert({
-      where: { userID: payload.id },
-      update: { refreshToken },
-      create: { userID: payload.id, refreshToken }
-    });
 
     return refreshToken;
   }

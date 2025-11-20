@@ -18,7 +18,6 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post('revoke', { type: 'auth' }).subscribe();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
