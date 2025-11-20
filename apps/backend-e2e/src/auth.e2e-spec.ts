@@ -732,10 +732,6 @@ describe('Auth', () => {
 
       const originalRefreshToken = testJwtService.sign({ id: user.id });
 
-      await prisma.userAuth.create({
-        data: { refreshToken: originalRefreshToken, userID: user.id }
-      });
-
       const res = await req.post({
         url: 'auth/refresh',
         skipApiPrefix: true,
@@ -757,10 +753,6 @@ describe('Auth', () => {
       ).toMatchObject({
         id: user.id
       });
-
-      const newUserAuth = await prisma.userAuth.findFirst();
-      expect(newUserAuth.refreshToken).toBe(res.body.refreshToken);
-      expect(newUserAuth.refreshToken).not.toBe(originalRefreshToken);
     });
   });
 

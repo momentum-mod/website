@@ -8,7 +8,7 @@ import {
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Follow, Prisma, UserAuth } from '@momentum/db';
+import { Follow, Prisma } from '@momentum/db';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,
@@ -295,7 +295,6 @@ export class UsersService {
         where: { id: userID },
         data: updateInputToClean
       }),
-      this.db.userAuth.deleteMany({ where: { userID } }),
       this.db.deletedUser.create({
         data: { steamIDHash: this.getSteamIDHash(user.steamID) }
       })
@@ -310,14 +309,6 @@ export class UsersService {
         user
       );
     }
-  }
-
-  //#endregion
-
-  //#region Auth
-
-  getAuth(userID: number): Promise<UserAuth> {
-    return this.db.userAuth.findUnique({ where: { userID } });
   }
 
   //#endregion

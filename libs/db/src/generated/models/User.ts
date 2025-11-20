@@ -251,7 +251,6 @@ export type UserWhereInput = {
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   country?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  userAuth?: Prisma.XOR<Prisma.UserAuthNullableScalarRelationFilter, Prisma.UserAuthWhereInput> | null
   profile?: Prisma.XOR<Prisma.ProfileNullableScalarRelationFilter, Prisma.ProfileWhereInput> | null
   userStats?: Prisma.XOR<Prisma.UserStatsNullableScalarRelationFilter, Prisma.UserStatsWhereInput> | null
   submittedMaps?: Prisma.MMapListRelationFilter
@@ -285,7 +284,6 @@ export type UserOrderByWithRelationInput = {
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   country?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  userAuth?: Prisma.UserAuthOrderByWithRelationInput
   profile?: Prisma.ProfileOrderByWithRelationInput
   userStats?: Prisma.UserStatsOrderByWithRelationInput
   submittedMaps?: Prisma.MMapOrderByRelationAggregateInput
@@ -322,7 +320,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   country?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  userAuth?: Prisma.XOR<Prisma.UserAuthNullableScalarRelationFilter, Prisma.UserAuthWhereInput> | null
   profile?: Prisma.XOR<Prisma.ProfileNullableScalarRelationFilter, Prisma.ProfileWhereInput> | null
   userStats?: Prisma.XOR<Prisma.UserStatsNullableScalarRelationFilter, Prisma.UserStatsWhereInput> | null
   submittedMaps?: Prisma.MMapListRelationFilter
@@ -385,7 +382,6 @@ export type UserCreateInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -419,7 +415,6 @@ export type UserUncheckedCreateInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -452,7 +447,6 @@ export type UserUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -486,7 +480,6 @@ export type UserUncheckedUpdateInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -640,20 +633,6 @@ export type UserUpdateOneRequiredWithoutProfileNestedInput = {
   upsert?: Prisma.UserUpsertWithoutProfileInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProfileInput, Prisma.UserUpdateWithoutProfileInput>, Prisma.UserUncheckedUpdateWithoutProfileInput>
-}
-
-export type UserCreateNestedOneWithoutUserAuthInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutUserAuthInput, Prisma.UserUncheckedCreateWithoutUserAuthInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserAuthInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutUserAuthNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutUserAuthInput, Prisma.UserUncheckedCreateWithoutUserAuthInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserAuthInput
-  upsert?: Prisma.UserUpsertWithoutUserAuthInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserAuthInput, Prisma.UserUpdateWithoutUserAuthInput>, Prisma.UserUncheckedUpdateWithoutUserAuthInput>
 }
 
 export type UserCreateNestedOneWithoutUserStatsInput = {
@@ -972,7 +951,6 @@ export type UserCreateWithoutProfileInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
   submittedMapDates?: Prisma.MapSubmissionDateCreateNestedManyWithoutUserInput
@@ -1005,7 +983,6 @@ export type UserUncheckedCreateWithoutProfileInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedCreateNestedManyWithoutUserInput
@@ -1053,7 +1030,6 @@ export type UserUpdateWithoutProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUpdateManyWithoutUserNestedInput
@@ -1086,153 +1062,6 @@ export type UserUncheckedUpdateWithoutProfileInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
-  userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
-  submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
-  submittedMapDates?: Prisma.MapSubmissionDateUncheckedUpdateManyWithoutUserNestedInput
-  submittedMapVersions?: Prisma.MapVersionUncheckedUpdateManyWithoutSubmitterNestedInput
-  mapCredits?: Prisma.MapCreditUncheckedUpdateManyWithoutUserNestedInput
-  mapFavorites?: Prisma.MapFavoriteUncheckedUpdateManyWithoutUserNestedInput
-  activities?: Prisma.ActivityUncheckedUpdateManyWithoutUserNestedInput
-  follows?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowedNestedInput
-  mapNotifies?: Prisma.MapNotifyUncheckedUpdateManyWithoutUserNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutNotifiedUserNestedInput
-  notifsAbout?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
-  leaderboardRuns?: Prisma.LeaderboardRunUncheckedUpdateManyWithoutUserNestedInput
-  pastRuns?: Prisma.PastRunUncheckedUpdateManyWithoutUserNestedInput
-  reportSubmitted?: Prisma.ReportUncheckedUpdateManyWithoutSubmitterNestedInput
-  reportResolved?: Prisma.ReportUncheckedUpdateManyWithoutResolverNestedInput
-  testInvites?: Prisma.MapTestInviteUncheckedUpdateManyWithoutUserNestedInput
-  reviewsSubmitted?: Prisma.MapReviewUncheckedUpdateManyWithoutReviewerNestedInput
-  reviewsResolved?: Prisma.MapReviewUncheckedUpdateManyWithoutResolverNestedInput
-  reviewComments?: Prisma.MapReviewCommentUncheckedUpdateManyWithoutUserNestedInput
-  adminActivities?: Prisma.AdminActivityUncheckedUpdateManyWithoutUserNestedInput
-}
-
-export type UserCreateWithoutUserAuthInput = {
-  roles?: number
-  bans?: number
-  steamID?: bigint | number | null
-  alias: string
-  avatar?: string | null
-  country?: string | null
-  createdAt?: Date | string
-  profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
-  userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
-  submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
-  submittedMapDates?: Prisma.MapSubmissionDateCreateNestedManyWithoutUserInput
-  submittedMapVersions?: Prisma.MapVersionCreateNestedManyWithoutSubmitterInput
-  mapCredits?: Prisma.MapCreditCreateNestedManyWithoutUserInput
-  mapFavorites?: Prisma.MapFavoriteCreateNestedManyWithoutUserInput
-  activities?: Prisma.ActivityCreateNestedManyWithoutUserInput
-  follows?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowedInput
-  mapNotifies?: Prisma.MapNotifyCreateNestedManyWithoutUserInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutNotifiedUserInput
-  notifsAbout?: Prisma.NotificationCreateNestedManyWithoutUserInput
-  leaderboardRuns?: Prisma.LeaderboardRunCreateNestedManyWithoutUserInput
-  pastRuns?: Prisma.PastRunCreateNestedManyWithoutUserInput
-  reportSubmitted?: Prisma.ReportCreateNestedManyWithoutSubmitterInput
-  reportResolved?: Prisma.ReportCreateNestedManyWithoutResolverInput
-  testInvites?: Prisma.MapTestInviteCreateNestedManyWithoutUserInput
-  reviewsSubmitted?: Prisma.MapReviewCreateNestedManyWithoutReviewerInput
-  reviewsResolved?: Prisma.MapReviewCreateNestedManyWithoutResolverInput
-  reviewComments?: Prisma.MapReviewCommentCreateNestedManyWithoutUserInput
-  adminActivities?: Prisma.AdminActivityCreateNestedManyWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutUserAuthInput = {
-  id?: number
-  roles?: number
-  bans?: number
-  steamID?: bigint | number | null
-  alias: string
-  avatar?: string | null
-  country?: string | null
-  createdAt?: Date | string
-  profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
-  userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
-  submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
-  submittedMapDates?: Prisma.MapSubmissionDateUncheckedCreateNestedManyWithoutUserInput
-  submittedMapVersions?: Prisma.MapVersionUncheckedCreateNestedManyWithoutSubmitterInput
-  mapCredits?: Prisma.MapCreditUncheckedCreateNestedManyWithoutUserInput
-  mapFavorites?: Prisma.MapFavoriteUncheckedCreateNestedManyWithoutUserInput
-  activities?: Prisma.ActivityUncheckedCreateNestedManyWithoutUserInput
-  follows?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowedInput
-  mapNotifies?: Prisma.MapNotifyUncheckedCreateNestedManyWithoutUserInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutNotifiedUserInput
-  notifsAbout?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
-  leaderboardRuns?: Prisma.LeaderboardRunUncheckedCreateNestedManyWithoutUserInput
-  pastRuns?: Prisma.PastRunUncheckedCreateNestedManyWithoutUserInput
-  reportSubmitted?: Prisma.ReportUncheckedCreateNestedManyWithoutSubmitterInput
-  reportResolved?: Prisma.ReportUncheckedCreateNestedManyWithoutResolverInput
-  testInvites?: Prisma.MapTestInviteUncheckedCreateNestedManyWithoutUserInput
-  reviewsSubmitted?: Prisma.MapReviewUncheckedCreateNestedManyWithoutReviewerInput
-  reviewsResolved?: Prisma.MapReviewUncheckedCreateNestedManyWithoutResolverInput
-  reviewComments?: Prisma.MapReviewCommentUncheckedCreateNestedManyWithoutUserInput
-  adminActivities?: Prisma.AdminActivityUncheckedCreateNestedManyWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutUserAuthInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutUserAuthInput, Prisma.UserUncheckedCreateWithoutUserAuthInput>
-}
-
-export type UserUpsertWithoutUserAuthInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutUserAuthInput, Prisma.UserUncheckedUpdateWithoutUserAuthInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutUserAuthInput, Prisma.UserUncheckedCreateWithoutUserAuthInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutUserAuthInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutUserAuthInput, Prisma.UserUncheckedUpdateWithoutUserAuthInput>
-}
-
-export type UserUpdateWithoutUserAuthInput = {
-  roles?: Prisma.IntFieldUpdateOperationsInput | number
-  bans?: Prisma.IntFieldUpdateOperationsInput | number
-  steamID?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  alias?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
-  userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
-  submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
-  submittedMapDates?: Prisma.MapSubmissionDateUpdateManyWithoutUserNestedInput
-  submittedMapVersions?: Prisma.MapVersionUpdateManyWithoutSubmitterNestedInput
-  mapCredits?: Prisma.MapCreditUpdateManyWithoutUserNestedInput
-  mapFavorites?: Prisma.MapFavoriteUpdateManyWithoutUserNestedInput
-  activities?: Prisma.ActivityUpdateManyWithoutUserNestedInput
-  follows?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowedNestedInput
-  mapNotifies?: Prisma.MapNotifyUpdateManyWithoutUserNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutNotifiedUserNestedInput
-  notifsAbout?: Prisma.NotificationUpdateManyWithoutUserNestedInput
-  leaderboardRuns?: Prisma.LeaderboardRunUpdateManyWithoutUserNestedInput
-  pastRuns?: Prisma.PastRunUpdateManyWithoutUserNestedInput
-  reportSubmitted?: Prisma.ReportUpdateManyWithoutSubmitterNestedInput
-  reportResolved?: Prisma.ReportUpdateManyWithoutResolverNestedInput
-  testInvites?: Prisma.MapTestInviteUpdateManyWithoutUserNestedInput
-  reviewsSubmitted?: Prisma.MapReviewUpdateManyWithoutReviewerNestedInput
-  reviewsResolved?: Prisma.MapReviewUpdateManyWithoutResolverNestedInput
-  reviewComments?: Prisma.MapReviewCommentUpdateManyWithoutUserNestedInput
-  adminActivities?: Prisma.AdminActivityUpdateManyWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutUserAuthInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  roles?: Prisma.IntFieldUpdateOperationsInput | number
-  bans?: Prisma.IntFieldUpdateOperationsInput | number
-  steamID?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-  alias?: Prisma.StringFieldUpdateOperationsInput | string
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedUpdateManyWithoutUserNestedInput
@@ -1264,7 +1093,6 @@ export type UserCreateWithoutUserStatsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
   submittedMapDates?: Prisma.MapSubmissionDateCreateNestedManyWithoutUserInput
@@ -1297,7 +1125,6 @@ export type UserUncheckedCreateWithoutUserStatsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedCreateNestedManyWithoutUserInput
@@ -1345,7 +1172,6 @@ export type UserUpdateWithoutUserStatsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUpdateManyWithoutUserNestedInput
@@ -1378,7 +1204,6 @@ export type UserUncheckedUpdateWithoutUserStatsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedUpdateManyWithoutUserNestedInput
@@ -1410,7 +1235,6 @@ export type UserCreateWithoutReportSubmittedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -1443,7 +1267,6 @@ export type UserUncheckedCreateWithoutReportSubmittedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -1480,7 +1303,6 @@ export type UserCreateWithoutReportResolvedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -1513,7 +1335,6 @@ export type UserUncheckedCreateWithoutReportResolvedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -1561,7 +1382,6 @@ export type UserUpdateWithoutReportSubmittedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -1594,7 +1414,6 @@ export type UserUncheckedUpdateWithoutReportSubmittedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -1637,7 +1456,6 @@ export type UserUpdateWithoutReportResolvedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -1670,7 +1488,6 @@ export type UserUncheckedUpdateWithoutReportResolvedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -1702,7 +1519,6 @@ export type UserCreateWithoutActivitiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -1735,7 +1551,6 @@ export type UserUncheckedCreateWithoutActivitiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -1783,7 +1598,6 @@ export type UserUpdateWithoutActivitiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -1816,7 +1630,6 @@ export type UserUncheckedUpdateWithoutActivitiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -1848,7 +1661,6 @@ export type UserCreateWithoutFollowersInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -1881,7 +1693,6 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -1918,7 +1729,6 @@ export type UserCreateWithoutFollowsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -1951,7 +1761,6 @@ export type UserUncheckedCreateWithoutFollowsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -1999,7 +1808,6 @@ export type UserUpdateWithoutFollowersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2032,7 +1840,6 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2075,7 +1882,6 @@ export type UserUpdateWithoutFollowsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2108,7 +1914,6 @@ export type UserUncheckedUpdateWithoutFollowsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2140,7 +1945,6 @@ export type UserCreateWithoutNotificationsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -2173,7 +1977,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2210,7 +2013,6 @@ export type UserCreateWithoutNotifsAboutInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -2243,7 +2045,6 @@ export type UserUncheckedCreateWithoutNotifsAboutInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2291,7 +2092,6 @@ export type UserUpdateWithoutNotificationsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2324,7 +2124,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2367,7 +2166,6 @@ export type UserUpdateWithoutNotifsAboutInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2400,7 +2198,6 @@ export type UserUncheckedUpdateWithoutNotifsAboutInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2432,7 +2229,6 @@ export type UserCreateWithoutMapNotifiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -2465,7 +2261,6 @@ export type UserUncheckedCreateWithoutMapNotifiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2513,7 +2308,6 @@ export type UserUpdateWithoutMapNotifiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2546,7 +2340,6 @@ export type UserUncheckedUpdateWithoutMapNotifiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2578,7 +2371,6 @@ export type UserCreateWithoutSubmittedMapsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMapDates?: Prisma.MapSubmissionDateCreateNestedManyWithoutUserInput
@@ -2611,7 +2403,6 @@ export type UserUncheckedCreateWithoutSubmittedMapsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedCreateNestedManyWithoutUserInput
@@ -2659,7 +2450,6 @@ export type UserUpdateWithoutSubmittedMapsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUpdateManyWithoutUserNestedInput
@@ -2692,7 +2482,6 @@ export type UserUncheckedUpdateWithoutSubmittedMapsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMapDates?: Prisma.MapSubmissionDateUncheckedUpdateManyWithoutUserNestedInput
@@ -2724,7 +2513,6 @@ export type UserCreateWithoutSubmittedMapVersionsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -2757,7 +2545,6 @@ export type UserUncheckedCreateWithoutSubmittedMapVersionsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2805,7 +2592,6 @@ export type UserUpdateWithoutSubmittedMapVersionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2838,7 +2624,6 @@ export type UserUncheckedUpdateWithoutSubmittedMapVersionsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2870,7 +2655,6 @@ export type UserCreateWithoutMapCreditsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -2903,7 +2687,6 @@ export type UserUncheckedCreateWithoutMapCreditsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2951,7 +2734,6 @@ export type UserUpdateWithoutMapCreditsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -2984,7 +2766,6 @@ export type UserUncheckedUpdateWithoutMapCreditsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3016,7 +2797,6 @@ export type UserCreateWithoutMapFavoritesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3049,7 +2829,6 @@ export type UserUncheckedCreateWithoutMapFavoritesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3097,7 +2876,6 @@ export type UserUpdateWithoutMapFavoritesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3130,7 +2908,6 @@ export type UserUncheckedUpdateWithoutMapFavoritesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3162,7 +2939,6 @@ export type UserCreateWithoutTestInvitesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3195,7 +2971,6 @@ export type UserUncheckedCreateWithoutTestInvitesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3243,7 +3018,6 @@ export type UserUpdateWithoutTestInvitesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3276,7 +3050,6 @@ export type UserUncheckedUpdateWithoutTestInvitesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3308,7 +3081,6 @@ export type UserCreateWithoutSubmittedMapDatesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3341,7 +3113,6 @@ export type UserUncheckedCreateWithoutSubmittedMapDatesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3389,7 +3160,6 @@ export type UserUpdateWithoutSubmittedMapDatesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3422,7 +3192,6 @@ export type UserUncheckedUpdateWithoutSubmittedMapDatesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3454,7 +3223,6 @@ export type UserCreateWithoutReviewsSubmittedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3487,7 +3255,6 @@ export type UserUncheckedCreateWithoutReviewsSubmittedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3524,7 +3291,6 @@ export type UserCreateWithoutReviewsResolvedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3557,7 +3323,6 @@ export type UserUncheckedCreateWithoutReviewsResolvedInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3605,7 +3370,6 @@ export type UserUpdateWithoutReviewsSubmittedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3638,7 +3402,6 @@ export type UserUncheckedUpdateWithoutReviewsSubmittedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3681,7 +3444,6 @@ export type UserUpdateWithoutReviewsResolvedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3714,7 +3476,6 @@ export type UserUncheckedUpdateWithoutReviewsResolvedInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3746,7 +3507,6 @@ export type UserCreateWithoutReviewCommentsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3779,7 +3539,6 @@ export type UserUncheckedCreateWithoutReviewCommentsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3827,7 +3586,6 @@ export type UserUpdateWithoutReviewCommentsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -3860,7 +3618,6 @@ export type UserUncheckedUpdateWithoutReviewCommentsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3892,7 +3649,6 @@ export type UserCreateWithoutLeaderboardRunsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -3925,7 +3681,6 @@ export type UserUncheckedCreateWithoutLeaderboardRunsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3973,7 +3728,6 @@ export type UserUpdateWithoutLeaderboardRunsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -4006,7 +3760,6 @@ export type UserUncheckedUpdateWithoutLeaderboardRunsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -4038,7 +3791,6 @@ export type UserCreateWithoutPastRunsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -4071,7 +3823,6 @@ export type UserUncheckedCreateWithoutPastRunsInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -4119,7 +3870,6 @@ export type UserUpdateWithoutPastRunsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -4152,7 +3902,6 @@ export type UserUncheckedUpdateWithoutPastRunsInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -4184,7 +3933,6 @@ export type UserCreateWithoutAdminActivitiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapCreateNestedManyWithoutSubmitterInput
@@ -4217,7 +3965,6 @@ export type UserUncheckedCreateWithoutAdminActivitiesInput = {
   avatar?: string | null
   country?: string | null
   createdAt?: Date | string
-  userAuth?: Prisma.UserAuthUncheckedCreateNestedOneWithoutUserInput
   profile?: Prisma.ProfileUncheckedCreateNestedOneWithoutUserInput
   userStats?: Prisma.UserStatsUncheckedCreateNestedOneWithoutUserInput
   submittedMaps?: Prisma.MMapUncheckedCreateNestedManyWithoutSubmitterInput
@@ -4265,7 +4012,6 @@ export type UserUpdateWithoutAdminActivitiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUpdateManyWithoutSubmitterNestedInput
@@ -4298,7 +4044,6 @@ export type UserUncheckedUpdateWithoutAdminActivitiesInput = {
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userAuth?: Prisma.UserAuthUncheckedUpdateOneWithoutUserNestedInput
   profile?: Prisma.ProfileUncheckedUpdateOneWithoutUserNestedInput
   userStats?: Prisma.UserStatsUncheckedUpdateOneWithoutUserNestedInput
   submittedMaps?: Prisma.MMapUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -4533,7 +4278,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   avatar?: boolean
   country?: boolean
   createdAt?: boolean
-  userAuth?: boolean | Prisma.User$userAuthArgs<ExtArgs>
   profile?: boolean | Prisma.User$profileArgs<ExtArgs>
   userStats?: boolean | Prisma.User$userStatsArgs<ExtArgs>
   submittedMaps?: boolean | Prisma.User$submittedMapsArgs<ExtArgs>
@@ -4594,7 +4338,6 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "roles" | "bans" | "steamID" | "alias" | "avatar" | "country" | "createdAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  userAuth?: boolean | Prisma.User$userAuthArgs<ExtArgs>
   profile?: boolean | Prisma.User$profileArgs<ExtArgs>
   userStats?: boolean | Prisma.User$userStatsArgs<ExtArgs>
   submittedMaps?: boolean | Prisma.User$submittedMapsArgs<ExtArgs>
@@ -4625,7 +4368,6 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    userAuth: Prisma.$UserAuthPayload<ExtArgs> | null
     profile: Prisma.$ProfilePayload<ExtArgs> | null
     userStats: Prisma.$UserStatsPayload<ExtArgs> | null
     submittedMaps: Prisma.$MMapPayload<ExtArgs>[]
@@ -5061,7 +4803,6 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  userAuth<T extends Prisma.User$userAuthArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userAuthArgs<ExtArgs>>): Prisma.Prisma__UserAuthClient<runtime.Types.Result.GetResult<Prisma.$UserAuthPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   profile<T extends Prisma.User$profileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$profileArgs<ExtArgs>>): Prisma.Prisma__ProfileClient<runtime.Types.Result.GetResult<Prisma.$ProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   userStats<T extends Prisma.User$userStatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userStatsArgs<ExtArgs>>): Prisma.Prisma__UserStatsClient<runtime.Types.Result.GetResult<Prisma.$UserStatsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   submittedMaps<T extends Prisma.User$submittedMapsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$submittedMapsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MMapPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5506,25 +5247,6 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Users to delete.
    */
   limit?: number
-}
-
-/**
- * User.userAuth
- */
-export type User$userAuthArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the UserAuth
-   */
-  select?: Prisma.UserAuthSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the UserAuth
-   */
-  omit?: Prisma.UserAuthOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserAuthInclude<ExtArgs> | null
-  where?: Prisma.UserAuthWhereInput
 }
 
 /**

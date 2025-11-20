@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   HttpStatus,
   Post,
   RawBodyRequest,
@@ -19,7 +18,6 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiForbiddenResponse,
-  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiServiceUnavailableResponse,
@@ -155,17 +153,6 @@ export class AuthController {
   })
   refreshToken(@Body() body: RefreshTokenDto) {
     return this.authService.refreshRefreshToken(body.refreshToken);
-  }
-
-  @Post('/revoke')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Revokes the given token' })
-  @ApiBody({ type: RefreshTokenDto })
-  @ApiNoContentResponse()
-  async revokeToken(@Req() req) {
-    // If passed JwtGuard, `authorization` must be in headers.
-    const accessToken = req.headers.authorization.replace('Bearer ', '');
-    await this.authService.revokeRefreshToken(accessToken);
   }
 
   //#endregion

@@ -692,7 +692,6 @@ describe('Admin', () => {
             alias: 'User to be deleted',
             avatar: 'yeeeee',
             country: 'NA',
-            userAuth: { create: { refreshToken: 'yeeeee' } },
             profile: {
               create: { bio: 'yeeeee', socials: { RandomSocial: 'bemyguest' } }
             },
@@ -762,7 +761,6 @@ describe('Admin', () => {
         const userBeforeDeletion = await prisma.user.findUnique({
           where: { id: user.id },
           include: {
-            userAuth: true,
             profile: true,
             userStats: true,
             submittedMaps: true,
@@ -791,7 +789,6 @@ describe('Admin', () => {
         const deletedUser = await prisma.user.findUnique({
           where: { id: user.id },
           include: {
-            userAuth: true,
             profile: true,
             userStats: true,
             submittedMaps: true,
@@ -822,7 +819,6 @@ describe('Admin', () => {
           alias: 'Deleted User',
           avatar: null,
           country: null,
-          userAuth: null,
           profile: { bio: '', socials: {} },
           userStats: userBeforeDeletion.userStats,
           submittedMaps: userBeforeDeletion.submittedMaps,

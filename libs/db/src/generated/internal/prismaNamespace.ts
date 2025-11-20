@@ -391,7 +391,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Profile: 'Profile',
-  UserAuth: 'UserAuth',
   UserStats: 'UserStats',
   DeletedUser: 'DeletedUser',
   Report: 'Report',
@@ -431,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "profile" | "userAuth" | "userStats" | "deletedUser" | "report" | "activity" | "follow" | "notification" | "mapNotify" | "mMap" | "mapVersion" | "mapCredit" | "mapFavorite" | "mapInfo" | "mapStats" | "mapTestInvite" | "mapSubmission" | "mapSubmissionDate" | "mapReview" | "mapReviewComment" | "mapReviewStats" | "leaderboard" | "leaderboardRun" | "pastRun" | "adminActivity" | "config"
+    modelProps: "user" | "profile" | "userStats" | "deletedUser" | "report" | "activity" | "follow" | "notification" | "mapNotify" | "mMap" | "mapVersion" | "mapCredit" | "mapFavorite" | "mapInfo" | "mapStats" | "mapTestInvite" | "mapSubmission" | "mapSubmissionDate" | "mapReview" | "mapReviewComment" | "mapReviewStats" | "leaderboard" | "leaderboardRun" | "pastRun" | "adminActivity" | "config"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -580,80 +579,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProfileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProfileCountAggregateOutputType> | number
-        }
-      }
-    }
-    UserAuth: {
-      payload: Prisma.$UserAuthPayload<ExtArgs>
-      fields: Prisma.UserAuthFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.UserAuthFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.UserAuthFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        findFirst: {
-          args: Prisma.UserAuthFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.UserAuthFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        findMany: {
-          args: Prisma.UserAuthFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>[]
-        }
-        create: {
-          args: Prisma.UserAuthCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        createMany: {
-          args: Prisma.UserAuthCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.UserAuthCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>[]
-        }
-        delete: {
-          args: Prisma.UserAuthDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        update: {
-          args: Prisma.UserAuthUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        deleteMany: {
-          args: Prisma.UserAuthDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.UserAuthUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.UserAuthUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>[]
-        }
-        upsert: {
-          args: Prisma.UserAuthUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserAuthPayload>
-        }
-        aggregate: {
-          args: Prisma.UserAuthAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateUserAuth>
-        }
-        groupBy: {
-          args: Prisma.UserAuthGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UserAuthGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.UserAuthCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.UserAuthCountAggregateOutputType> | number
         }
       }
     }
@@ -2499,14 +2424,6 @@ export const ProfileScalarFieldEnum = {
 export type ProfileScalarFieldEnum = (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum]
 
 
-export const UserAuthScalarFieldEnum = {
-  refreshToken: 'refreshToken',
-  userID: 'userID'
-} as const
-
-export type UserAuthScalarFieldEnum = (typeof UserAuthScalarFieldEnum)[keyof typeof UserAuthScalarFieldEnum]
-
-
 export const UserStatsScalarFieldEnum = {
   totalJumps: 'totalJumps',
   totalStrafes: 'totalStrafes',
@@ -3049,7 +2966,6 @@ export interface PrismaClientOptions {
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   profile?: Prisma.ProfileOmit
-  userAuth?: Prisma.UserAuthOmit
   userStats?: Prisma.UserStatsOmit
   deletedUser?: Prisma.DeletedUserOmit
   report?: Prisma.ReportOmit
