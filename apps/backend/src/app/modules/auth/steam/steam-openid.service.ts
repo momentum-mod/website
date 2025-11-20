@@ -49,43 +49,40 @@ export class SteamOpenIDService {
   }
 
   async authenticate(request: FastifyRequest): Promise<bigint> {
-    return new Promise((resolve) =>
-      this.relyingParty.verifyAssertion(
-        request,
-        (
-          error: openid.OpenIdError,
-          result: { authenticated: boolean; claimedIdentifier?: string }
-        ) => {
-          if (error || !result || !result.authenticated)
-            throw new UnauthorizedException(
-              'Failed to authenticate user with Steam'
-            );
-
-          const query = request.query;
-          if (
-            query['openid.op_endpoint'] !==
-              'https://steamcommunity.com/openid/login' ||
-            query['openid.ns'] !== 'http://specs.openid.net/auth/2.0' ||
-            ![
-              result.claimedIdentifier,
-              query['openid.claimed_id'],
-              query['openid.identity']
-            ].every((x) =>
-              /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(x)
-            )
-          )
-            throw new UnauthorizedException('Claimed identity is invalid');
-
-          const steamID = BigInt(
-            result.claimedIdentifier.replace(
-              'https://steamcommunity.com/openid/id/',
-              ''
-            )
-          );
-
-          return resolve(steamID);
-        }
+    const { error, result } = await new Promise<{
+      error: openid.OpenIdError;
+      result: { authenticated: boolean; claimedIdentifier?: string };
+    }>((resolve) =>
+      this.relyingParty.verifyAssertion(request, (error, result) =>
+        resolve({ error, result })
       )
     );
+
+    if (error || !result || !result.authenticated)
+      throw new UnauthorizedException('Failed to authenticate user with Steam');
+
+    const query = request.query;
+    if (
+      query['openid.op_endpoint'] !==
+        'https://steamcommunity.com/openid/login' ||
+      query['openid.ns'] !== 'http://specs.openid.net/auth/2.0' ||
+      ![
+        result.claimedIdentifier,
+        query['openid.claimed_id'],
+        query['openid.identity']
+      ].every((x) =>
+        /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(x)
+      )
+    )
+      throw new UnauthorizedException('Claimed identity is invalid');
+
+    const steamID = BigInt(
+      result.claimedIdentifier.replace(
+        'https://steamcommunity.com/openid/id/',
+        ''
+      )
+    );
+
+    return steamID;
   }
 }
