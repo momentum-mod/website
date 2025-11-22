@@ -1,4 +1,4 @@
-import { Events, Message } from 'discord.js';
+import { Events, Message, MessageType } from 'discord.js';
 import { Service } from '../types/service';
 import { getService } from './index';
 import { DailyMessageCountService } from './daily-message-count';
@@ -10,7 +10,12 @@ export class UserTrustService extends Service {
   }
 
   async messageCreate(message: Message) {
-    if (message.author.bot || message.channel.isDMBased()) return;
+    if (
+      message.author.bot ||
+      message.channel.isDMBased() ||
+      message.type === MessageType.AutoModerationAction
+    )
+      return;
 
     this.logMessageCount(message);
     await this.checkVerifiedRole(message);
