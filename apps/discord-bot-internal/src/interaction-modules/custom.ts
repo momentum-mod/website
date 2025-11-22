@@ -222,7 +222,7 @@ export class CustomModule implements InteractionModule {
     const descriptionInputId = 'id-description';
 
     let modalTitle = `Add custom command '${commandName}'`;
-    modalTitle = this.clipString(modalTitle, this.ModalTitleMaxLength);
+    modalTitle = clipString(modalTitle, this.ModalTitleMaxLength);
 
     const modal = new ModalBuilder()
       .setTitle(modalTitle)
@@ -418,7 +418,7 @@ export class CustomModule implements InteractionModule {
       const modalId = this.createModalId('customedit');
 
       let modalTitle = `Edit custom command '${commandName}'`;
-      modalTitle = this.clipString(modalTitle, this.ModalTitleMaxLength);
+      modalTitle = clipString(modalTitle, this.ModalTitleMaxLength);
 
       const modal = new ModalBuilder()
         .setTitle(modalTitle)
@@ -546,7 +546,7 @@ export class CustomModule implements InteractionModule {
       .addFields(
         ...commandParameters.map(([key, value]) => {
           let valueString = value === null ? '<null>' : value.toString();
-          valueString = this.clipString(valueString, this.EmbedFieldMaxLength);
+          valueString = clipString(valueString, this.EmbedFieldMaxLength);
           return {
             name: key,
             value: valueString
@@ -654,13 +654,6 @@ export class CustomModule implements InteractionModule {
 
     return `id-modal-${name}-${id}`;
   }
-
-  private clipString(value: string, maxLength: number, trim: string = '...') {
-    if (value.length > maxLength) {
-      return value.slice(0, maxLength - trim.length) + trim;
-    }
-    return value;
-  }
 }
 
 export class SayModule implements InteractionModule {
@@ -746,8 +739,14 @@ export class SayModule implements InteractionModule {
     }
 
     if (focused.name === 'reply') {
-      const lastMessages = await interaction.channel?.messages.fetch();
-      if (!lastMessages) return;
+      const lastMessages = await interaction.channel?.messages
+        .fetch()
+        .catch(() => null);
+
+      if (!lastMessages) {
+        await interaction.respond([]);
+        return;
+      }
 
       const messages = [...lastMessages.values()]
         .filter(
@@ -760,7 +759,10 @@ export class SayModule implements InteractionModule {
 
       await interaction.respond(
         messages.map((msg) => ({
-          name: `${msg.author.displayName}: ${msg.content.replaceAll('\n', ' ')}`,
+          name: clipString(
+            `${msg.author.displayName}: ${msg.content.replaceAll('\n', ' ')}`,
+            100
+          ),
           value: msg.id
         }))
       );
@@ -828,6 +830,13 @@ async function customCommandAutocomplete(
   await interaction.respond(
     choices.map((choice) => ({ name: choice, value: choice }))
   );
+}
+
+function clipString(value: string, maxLength: number, trim: string = '...') {
+  if (value.length > maxLength) {
+    return value.slice(0, maxLength - trim.length) + trim;
+  }
+  return value;
 }
 
 const EditableCommandParams = {
