@@ -94,17 +94,9 @@ describe('JwtAuthService', () => {
     };
 
     it('should generate a web JWT DTO', async () => {
-      db.userAuth.upsert.mockResolvedValueOnce(undefined);
-
       const jwt = await service.loginWeb({
         id: user.id,
         steamID: user.steamID
-      });
-
-      expect(db.userAuth.upsert).toHaveBeenCalledWith({
-        where: { userID: user.id },
-        update: { refreshToken: jwt.refreshToken },
-        create: { userID: user.id, refreshToken: jwt.refreshToken }
       });
 
       testWebTokenDto(user, jwt);
@@ -143,52 +135,6 @@ describe('JwtAuthService', () => {
     });
   });
 
-  describe('revokeRefreshToken', () => {
-    const user = {
-      alias: 'Barry Egan',
-      avatar: 'pudding.png',
-      country: 'US',
-      id: 1,
-      roles: 0,
-      bans: 0,
-      steamID: 1n,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    it('should revoke a valid refresh token', async () => {
-      const token = testJwtService.sign({ id: user.id });
-
-      db.user.findUnique.mockResolvedValueOnce(user as any);
-      db.userAuth.upsert.mockResolvedValueOnce(undefined);
-
-      await service.revokeRefreshToken(token);
-
-      expect(db.userAuth.upsert).toHaveBeenCalledWith({
-        where: { userID: user.id },
-        update: { refreshToken: '' },
-        create: { userID: user.id, refreshToken: '' }
-      });
-    });
-
-    it('should throw an UnauthorizedException for an invalid token', async () => {
-      const token = testJwtService.sign({ id: user.id }) + 'a';
-
-      await expect(service.revokeRefreshToken(token)).rejects.toThrow(
-        UnauthorizedException
-      );
-    });
-
-    it('should throw an UnauthorizedException is the user does not exist in DB', async () => {
-      const token = testJwtService.sign({ id: user.id });
-
-      db.user.findUnique.mockResolvedValueOnce(undefined);
-      await expect(service.revokeRefreshToken(token)).rejects.toThrow(
-        UnauthorizedException
-      );
-    });
-  });
-
   describe('refreshRefreshToken', () => {
     const user = {
       alias: 'Freddie Quell',
@@ -204,15 +150,8 @@ describe('JwtAuthService', () => {
       const token = testJwtService.sign({ id: user.id });
 
       db.user.findUnique.mockResolvedValueOnce(user as any);
-      db.userAuth.upsert.mockResolvedValueOnce(undefined);
 
       const jwt = await service.refreshRefreshToken(token);
-
-      expect(db.userAuth.upsert).toHaveBeenCalledWith({
-        where: { userID: user.id },
-        update: { refreshToken: jwt.refreshToken },
-        create: { userID: user.id, refreshToken: jwt.refreshToken }
-      });
 
       testWebTokenDto(user, jwt);
     });

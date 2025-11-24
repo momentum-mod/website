@@ -24,7 +24,6 @@ model User {
   avatar  String?
   country String? @db.Char(2)
 
-  userAuth             UserAuth?
   profile              Profile?
   userStats            UserStats?
   submittedMaps        MMap[]
@@ -54,13 +53,6 @@ model User {
 model Profile {
   bio     String @default("")
   socials Json? /// Socials model
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @id
-}
-
-model UserAuth {
-  refreshToken String?
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @id

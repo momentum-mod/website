@@ -21,7 +21,6 @@ export const Decimal = runtime.Decimal
 export const ModelName = {
   User: 'User',
   Profile: 'Profile',
-  UserAuth: 'UserAuth',
   UserStats: 'UserStats',
   DeletedUser: 'DeletedUser',
   Report: 'Report',
@@ -84,14 +83,6 @@ export const ProfileScalarFieldEnum = {
 } as const
 
 export type ProfileScalarFieldEnum = (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum]
-
-
-export const UserAuthScalarFieldEnum = {
-  refreshToken: 'refreshToken',
-  userID: 'userID'
-} as const
-
-export type UserAuthScalarFieldEnum = (typeof UserAuthScalarFieldEnum)[keyof typeof UserAuthScalarFieldEnum]
 
 
 export const UserStatsScalarFieldEnum = {

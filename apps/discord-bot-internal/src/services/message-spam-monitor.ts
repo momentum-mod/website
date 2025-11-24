@@ -1,9 +1,13 @@
-import { Events, Message, TextChannel } from 'discord.js';
+import { Events, Message, MessageType, TextChannel } from 'discord.js';
 import { Service } from '../types/service';
 import { config } from '../config';
 import { logger } from '../logger';
 
-type UserMessages = Array<{ id: string; channelId: string; timestamp: number }>;
+type UserMessages = Array<{
+  id: string | null;
+  channelId: string;
+  timestamp: number;
+}>;
 
 export class MessageSpamMonitorService extends Service {
   private userMessages: Map<string, UserMessages> = new Map();
@@ -40,9 +44,19 @@ export class MessageSpamMonitorService extends Service {
       this.userMessages.set(userId, messages);
     }
 
+    let messageId: string | null = message.id;
+    let channelId = message.channel.id;
+
+    if (message.type === MessageType.AutoModerationAction) {
+      messageId = null;
+      channelId =
+        message.embeds[0].fields.find((f) => f.name === 'channel_id')?.value ??
+        message.channel.id;
+    }
+
     messages.push({
-      id: message.id,
-      channelId: message.channel.id,
+      id: messageId,
+      channelId,
       timestamp: now
     });
 
@@ -69,7 +83,24 @@ export class MessageSpamMonitorService extends Service {
     const uniqueChannels = new Set(recent.map((m) => m.channelId));
 
     if (uniqueChannels.size >= config.spam_channel_limit) {
+      // Timeout the offending user
+      try {
+        if (message.guild) {
+          const member = await message.guild.members.fetch(userId);
+          if (member) {
+            const timeoutMs = config.spam_timeout_duration_minutes;
+            await member.timeout(
+              timeoutMs * 60 * 1000,
+              'Spam across multiple channels'
+            );
+          }
+        }
+      } catch (err) {
+        logger.error(err, 'Failed to timeout user');
+      }
+
       for (const m of recent) {
+        if (m.id === null) continue;
         try {
           const channel = await this.client.channels.fetch(m.channelId);
           if (channel && channel.isTextBased()) {
@@ -81,19 +112,6 @@ export class MessageSpamMonitorService extends Service {
             `Failed to delete spam message ${m.id} in channel ${m.channelId}`
           );
         }
-      }
-
-      // Timeout the offending user
-      try {
-        if (message.guild) {
-          const member = await message.guild.members.fetch(userId);
-          if (member) {
-            const timeoutMs = config.spam_timeout_duration_minutes;
-            await member.timeout(timeoutMs, 'Spam across multiple channels');
-          }
-        }
-      } catch (err) {
-        logger.error(err, 'Failed to timeout user');
       }
 
       // Ping mods in mod channel

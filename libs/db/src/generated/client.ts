@@ -49,11 +49,6 @@ export type User = Prisma.UserModel
  */
 export type Profile = Prisma.ProfileModel
 /**
- * Model UserAuth
- * 
- */
-export type UserAuth = Prisma.UserAuthModel
-/**
  * Model UserStats
  * 
  */
