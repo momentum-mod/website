@@ -1,6 +1,6 @@
 <form class="mb-4 flex" [formGroup]="filters">
   <div class="flex basis-4/10 flex-col">
-    <div class="flex flex-wrap items-end gap-x-4 gap-y-1">
+    <div class="-mt-4 flex flex-wrap items-end gap-x-4 gap-y-1">
       <ng-template #gm let-mode="mode" let-name="name" let-size="size">
         <button type="button" (click)="gamemode.setValue(mode)">
           <p
@@ -16,7 +16,24 @@
       </ng-template>
       <ng-container *ngTemplateOutlet="gm; context: { mode: null, name: 'All modes' }" />
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SURF, name: 'Surf' }" />
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP, name: 'Bhop' }" />
+      <div class="grid grid-cols-2 grid-rows-1 gap-x-2">
+        <p
+          class="pointer-events-none col-span-2 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
+        >
+          Bhop
+        </p>
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP, name: 'CSS' }" />
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP_HL1, name: 'HL1' }" />
+      </div>
+      <div class="grid grid-cols-2 grid-rows-1 gap-x-2">
+        <p
+          class="pointer-events-none col-span-2 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
+        >
+          Climb
+        </p>
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_KZT, name: 'KZT' }" />
+        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_16, name: '1.6' }" />
+      </div>
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.RJ, name: 'Rocket Jump' }" />
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SJ, name: 'Sticky Jump' }" />
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.AHOP, name: 'Ahop' }" />
@@ -30,15 +47,6 @@
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_CPM, name: 'CPM' }" />
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
         <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
-      </div>
-      <!-- TODO more climb modes when they get added. -->
-      <div class="grid grid-cols-1 grid-rows-1 gap-x-2">
-        <p
-          class="pointer-events-none col-span-1 font-display text-24 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)]"
-        >
-          Climb
-        </p>
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_16, name: '1.6' }" />
       </div>
     </div>
   </div>
