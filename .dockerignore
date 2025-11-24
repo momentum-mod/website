@@ -7,3 +7,9 @@ dist
 .DS_Store
 coverage
 tmp
+data
+.angular
+.nx
+.next
+build
+dist

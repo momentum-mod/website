@@ -1,3 +1,25 @@
+x-app: &app-default
+  build:
+    context: .
+    dockerfile: dev/dev.Dockerfile
+  environment:
+    HOST: 0.0.0.0
+  volumes:
+    - .:/app
+    - /app/node_modules # This is a anonymous volume, so node_modules is not persisted in the host machine (avoids issues with compatibility).
+  ports:
+    - "3000:3000"
+    - "4200:4200"
+  depends_on:
+    postgres:
+      condition: service_started
+    valkey:
+      condition: service_started
+    minio:
+      condition: service_started
+    createbuckets:
+      condition: service_completed_successfully
+
 services:
   postgres:
     container_name: postgres
@@ -15,23 +37,18 @@ services:
     depends_on:
       minio:
         condition: service_healthy
-  app:
-    container_name: momentum_app
-    build:
-      context: .
-      dockerfile: dev/dev.Dockerfile
-    volumes:
-      - .:/app
-      - /app/node_modules # This is a anonymous volume, so node_modules is not persisted in the host machine (avoids issues with compatibility).
-    ports:
-      - "3000:3000"
-      - "4200:4200"
-    depends_on:
-      postgres:
-        condition: service_started
-      valkey:
-        condition: service_started
-      minio:
-        condition: service_started
-      createbuckets:
-        condition: service_completed_successfully
+  app-full:
+    <<: *app-default
+    profiles: [full]
+    environment:
+      MODE: full
+  app-backend:
+    <<: *app-default
+    profiles: [backend]
+    environment:
+      MODE: backend
+  app-frontend:
+    <<: *app-default
+    profiles: [frontend]
+    environment:
+      MODE: frontend
