@@ -65,7 +65,8 @@ export class RunSessionService {
       mapID: body.mapID,
       gamemode: body.gamemode,
       trackNum: body.trackNum,
-      trackType: body.trackType
+      trackType: body.trackType,
+      style: body.style
     };
 
     if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
@@ -306,7 +307,7 @@ export class RunSessionService {
         gamemode: submittedRun.gamemode,
         trackType: submittedRun.trackType,
         trackNum: submittedRun.trackNum,
-        style: 0,
+        style: submittedRun.style,
         userID: submittedRun.userID
       },
       include: { leaderboard: true }
@@ -387,7 +388,7 @@ export class RunSessionService {
       gamemode: submittedRun.gamemode,
       trackType: submittedRun.trackType,
       trackNum: submittedRun.trackNum,
-      style: 0
+      style: submittedRun.style
     };
 
     const leaderboard =
@@ -552,8 +553,7 @@ export class RunSessionService {
         gamemode: submittedRun.gamemode,
         trackType: submittedRun.trackType,
         trackNum: submittedRun.trackNum,
-        style: 0,
-        flags: submittedRun.flags,
+        style: submittedRun.style,
         time: submittedRun.time
       }
     });
@@ -574,7 +574,6 @@ export class RunSessionService {
           }
         },
         data: {
-          flags: submittedRun.flags,
           time: submittedRun.time,
           replayHash,
           splits: submittedRun.splits,
@@ -591,8 +590,7 @@ export class RunSessionService {
           gamemode: submittedRun.gamemode,
           trackType: submittedRun.trackType,
           trackNum: submittedRun.trackNum,
-          style: 0,
-          flags: submittedRun.flags,
+          style: submittedRun.style,
           time: submittedRun.time,
           splits: submittedRun.splits,
           replayHash,
