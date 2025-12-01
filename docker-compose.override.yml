@@ -45,7 +45,7 @@ services:
       - ${MINIO_SERVER_PORT}:${MINIO_SERVER_PORT}
       - ${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}
     expose:
-      - ${MINIO_SERVER_PORT}:${MINIO_SERVER_PORT}
+      - ${MINIO_SERVER_PORT}
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:${MINIO_SERVER_PORT}/minio/health/live']
       interval: 5s
