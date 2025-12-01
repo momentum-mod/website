@@ -110,5 +110,8 @@
   },
   "useInferencePlugins": false,
   "defaultBase": "main",
-  "neverConnectToCloud": true
+  "neverConnectToCloud": true,
+  "tui": {
+    "enabled": false
+  }
 }
