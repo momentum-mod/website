@@ -13,9 +13,12 @@ import {
 } from '@momentum/db';
 import {
   ActivityType,
+  COMPATIBLE_STYLES,
+  GamemodeStyles,
   runPath,
   RunValidationError,
   RunValidationErrorType,
+  Style,
   TrackType,
   XpGain
 } from '@momentum/constants';
@@ -253,7 +256,20 @@ export class RunSessionService {
       user
     );
 
-    return this.saveSubmittedRun(processedRun, replay);
+    const compatibleStyles = COMPATIBLE_STYLES[processedRun.style].filter(
+      (style) => GamemodeStyles.get(processedRun.gamemode)?.has(style)
+    );
+
+    // Submit runs for all compatible styles
+    const allStyles = [processedRun.style, ...compatibleStyles];
+    const results = await Promise.all(
+      allStyles.map((style) =>
+        this.saveSubmittedRun(processedRun, replay, style)
+      )
+    );
+
+    // Return the result for the primary style
+    return results[0];
   }
 
   private static processSubmittedRun(
@@ -285,20 +301,10 @@ export class RunSessionService {
     }
   }
 
-  // TODO: I'm not adding full styles support yet as we need to figure out data
-  // structure for describing what style also goes on style=0 LB, also with
-  // this approach to inserts we're doing until we move not storing `rank`
-  // being so spaghetti and slow, so I don't wanna do it for multiple leaderboards.
-  // So for now, we always use style=0.
-  // But styles implementation should be quite straightforward once below code/db
-  // is cleaned up:
-  // - Find all compatible styles with the flags pulled from replay header
-  //   - (also check for mutually incompatible style flags in there)
-  // - Insert runs into leaderboards for all compatible styles
-  // - No clue how rank XP assignment works for styles
   private async saveSubmittedRun(
     submittedRun: ProcessedRun,
-    replayBuffer: Buffer
+    replayBuffer: Buffer,
+    style: Style
   ): Promise<CompletedRunDto> {
     const existingRun = await this.db.leaderboardRun.findFirst({
       where: {
@@ -306,7 +312,7 @@ export class RunSessionService {
         gamemode: submittedRun.gamemode,
         trackType: submittedRun.trackType,
         trackNum: submittedRun.trackNum,
-        style: submittedRun.style,
+        style: style,
         userID: submittedRun.userID
       },
       include: { leaderboard: true }
@@ -323,6 +329,7 @@ export class RunSessionService {
           this.updateLeaderboards(
             tx,
             submittedRun,
+            style,
             isPB,
             existingRun,
             replayHash
@@ -370,6 +377,7 @@ export class RunSessionService {
   private async updateLeaderboards(
     tx: ExtendedPrismaServiceTransaction,
     submittedRun: ProcessedRun,
+    style: Style,
     isPB: boolean,
     existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
     replayHash?: string
@@ -387,7 +395,7 @@ export class RunSessionService {
       gamemode: submittedRun.gamemode,
       trackType: submittedRun.trackType,
       trackNum: submittedRun.trackNum,
-      style: submittedRun.style
+      style: style
     };
 
     const leaderboard =
@@ -552,7 +560,7 @@ export class RunSessionService {
         gamemode: submittedRun.gamemode,
         trackType: submittedRun.trackType,
         trackNum: submittedRun.trackNum,
-        style: submittedRun.style,
+        style: style,
         time: submittedRun.time
       }
     });
@@ -569,7 +577,7 @@ export class RunSessionService {
             gamemode: existingRun.gamemode,
             trackType: existingRun.trackType,
             trackNum: existingRun.trackNum,
-            style: existingRun.style
+            style: style
           }
         },
         data: {
@@ -589,7 +597,7 @@ export class RunSessionService {
           gamemode: submittedRun.gamemode,
           trackType: submittedRun.trackType,
           trackNum: submittedRun.trackNum,
-          style: submittedRun.style,
+          style: style,
           time: submittedRun.time,
           splits: submittedRun.splits,
           replayHash,
