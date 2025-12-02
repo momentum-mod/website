@@ -28,3 +28,16 @@ const STYLE_NAMES: Record<Style, string> = {
 export function styleEnglishName(style: Style): string {
   return STYLE_NAMES[style] ?? 'Unknown';
 }
+
+export const COMPATIBLE_STYLES: Record<Style, Style[]> = {
+  [Style.NORMAL]: [],
+  [Style.BHOP_HALF_SIDEWAYS]: [Style.NORMAL],
+  [Style.SURF_HALF_SIDEWAYS]: [Style.NORMAL],
+  [Style.SIDEWAYS]: [Style.NORMAL],
+  [Style.W_ONLY]: [Style.NORMAL],
+  [Style.AD_ONLY]: [Style.NORMAL],
+  [Style.S_ONLY]: [Style.NORMAL],
+  [Style.BACKWARDS]: [Style.NORMAL],
+  [Style.PRO]: [Style.TELEPORT],
+  [Style.TELEPORT]: []
+};
