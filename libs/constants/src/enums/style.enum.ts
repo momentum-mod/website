@@ -35,3 +35,14 @@ export function styleEnglishName(style: Style, gamemode: Gamemode): string {
 
   return STYLE_NAMES[style] ?? 'Unknown';
 }
+
+export const COMPATIBLE_STYLES: Record<Style, Style[]> = {
+  [Style.NORMAL]: [Style.TELEPORT],
+  [Style.HALF_SIDEWAYS]: [Style.NORMAL],
+  [Style.SIDEWAYS]: [Style.NORMAL],
+  [Style.W_ONLY]: [Style.NORMAL],
+  [Style.AD_ONLY]: [Style.NORMAL],
+  [Style.S_ONLY]: [Style.NORMAL],
+  [Style.BACKWARDS]: [Style.NORMAL],
+  [Style.TELEPORT]: []
+};

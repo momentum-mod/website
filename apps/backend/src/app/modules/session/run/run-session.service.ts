@@ -13,9 +13,12 @@ import {
 } from '@momentum/db';
 import {
   ActivityType,
+  COMPATIBLE_STYLES,
+  GamemodeStyles,
   runPath,
   RunValidationError,
   RunValidationErrorType,
+  Style,
   TrackType,
   XpGain
 } from '@momentum/constants';
@@ -253,7 +256,20 @@ export class RunSessionService {
       user
     );
 
-    return this.saveSubmittedRun(processedRun, replay);
+    const compatibleStyles = COMPATIBLE_STYLES[processedRun.style].filter(
+      (style) => GamemodeStyles[processedRun.gamemode].includes(style)
+    );
+
+    // Submit runs for all compatible styles
+    const allStyles = [processedRun.style, ...compatibleStyles];
+    const results = await Promise.all(
+      allStyles.map((style) =>
+        this.saveSubmittedRun(processedRun, replay, style)
+      )
+    );
+
+    // Return the result for the primary style
+    return results[0];
   }
 
   private static processSubmittedRun(
@@ -298,7 +314,8 @@ export class RunSessionService {
   // - No clue how rank XP assignment works for styles
   private async saveSubmittedRun(
     submittedRun: ProcessedRun,
-    replayBuffer: Buffer
+    replayBuffer: Buffer,
+    style: Style
   ): Promise<CompletedRunDto> {
     const existingRun = await this.db.leaderboardRun.findFirst({
       where: {
@@ -306,7 +323,7 @@ export class RunSessionService {
         gamemode: submittedRun.gamemode,
         trackType: submittedRun.trackType,
         trackNum: submittedRun.trackNum,
-        style: submittedRun.style,
+        style: style,
         userID: submittedRun.userID
       },
       include: { leaderboard: true }
