@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.github
+.vscode
+.idea
+.DS_Store
+coverage
+tmp
+data
+.angular
+.nx
+.next
+build
+dist
