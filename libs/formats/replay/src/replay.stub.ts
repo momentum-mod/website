@@ -1,5 +1,5 @@
 import { REPLAY_MAGIC, ReplayHeader } from './index';
-import { Gamemode, TrackType, RunSplits } from '@momentum/constants';
+import { Gamemode, TrackType, RunSplits, Style } from '@momentum/constants';
 
 export const BaseTime = 1000000000000;
 
@@ -16,6 +16,7 @@ export const ReplayHeaderStub: ReplayHeader = {
   playerName: 'Abstract Barry',
   trackType: TrackType.MAIN,
   trackNum: 1,
+  style: Style.NORMAL,
   runTime: 40
 };
 

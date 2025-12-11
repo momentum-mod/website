@@ -7,7 +7,9 @@ import {
   LeaderboardType,
   MapSubmissionSuggestion,
   MapZones,
-  TrackType
+  TrackType,
+  GamemodeStyles,
+  Style
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
@@ -15,6 +17,7 @@ import { isLinearMainTrack } from '@momentum/formats/zone';
 
 export interface LeaderboardProps
   extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
+  style?: Style;
   linear?: boolean;
 }
 
@@ -53,12 +56,20 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
               !IncompatibleGamemodes.get(gamemode).has(newGamemode)
           )
           .filter((newGamemode) => !DisabledGamemodes.has(newGamemode))
-          .map((newGamemode) => ({
-            trackType,
-            trackNum,
-            linear,
-            gamemode: newGamemode
-          }))
+          // Add a style for each compatible gamemode
+          .flatMap((newGamemode) => {
+            // Get all valid styles for this gamemode
+            const validStyles =
+              GamemodeStyles.get(newGamemode) || new Set([Style.NORMAL]);
+
+            return Array.from(validStyles).map((style) => ({
+              trackType,
+              trackNum,
+              linear,
+              gamemode: newGamemode,
+              style
+            }));
+          })
       )
       // Filter out any duplicates
       .filter((x, i, array) => !array.some((y, j) => isEqual(x, y) && i < j))
@@ -96,7 +107,8 @@ export function getStageLeaderboards<T extends LeaderboardProps>(
                 // Whether is ranked depends on main Track, doesn't have a tier.
                 type: (lb as T & { type?: LeaderboardType }).type,
                 trackType: TrackType.STAGE,
-                trackNum: i + 1
+                trackNum: i + 1,
+                style: lb.style
               }) as unknown as T
           )
         );
@@ -109,7 +121,8 @@ export function isEqual<T extends LeaderboardProps, U extends LeaderboardProps>(
   return (
     x.gamemode === y.gamemode &&
     x.trackType === y.trackType &&
-    x.trackNum === y.trackNum
+    x.trackNum === y.trackNum &&
+    x.style === y.style
   );
 }
 
