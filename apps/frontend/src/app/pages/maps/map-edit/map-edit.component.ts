@@ -310,7 +310,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.youtubeID.setValue(this.map.info.youtubeID);
     this.requiredGames.setValue(this.map.info.requiredGames);
     this.portingChangelog.setValue(
-      this.map.versions.find((v) => v.versionNum === 1)?.changelog
+      this.map.versions.find((v) => v.versionNum === 1)?.changelog ?? ''
     );
 
     this.images.reset();
