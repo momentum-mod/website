@@ -39,7 +39,7 @@
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma generate --no-hints",
+        "command": "node with-pg-lite.js \"prisma db push --skip-generate && prisma generate --no-hints --sql\"",
         "cwd": "libs/db/src"
       }
     },

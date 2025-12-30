@@ -103,6 +103,7 @@
     "@nx/web": "21.6.1",
     "@nx/webpack": "21.6.1",
     "@nx/workspace": "21.6.1",
+    "@prisma/dev": "0.19.1",
     "@schematics/angular": "20.3.3",
     "@sentry/webpack-plugin": "4.4.0",
     "@tailwindcss/typography": "0.5.16",
