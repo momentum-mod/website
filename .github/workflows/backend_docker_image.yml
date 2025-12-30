@@ -33,6 +33,12 @@ jobs:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
+      - name: Prisma Cache
+        uses: actions/cache@v4
+        with:
+          path: libs/db/src/generated
+          key: prisma-${{ github.run_id }}
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -42,6 +48,9 @@ jobs:
       - name: npm install
         if: steps.node_cache.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
+
+      - name: Prisma Generate
+        run: npx nx run db:generate
 
       - name: Build
         run: npx nx run backend:build:production

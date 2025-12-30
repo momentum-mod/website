@@ -5,6 +5,8 @@
 node_modules/
 
 # Prisma
+# Generated client is still platform dependent, so we shouldn't include it
+libs/db/src/generated/
 ERD.svg
 
 # Postgres, Grafana, MinIO, etc.
