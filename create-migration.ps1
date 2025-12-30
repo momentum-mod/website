@@ -1,7 +1,9 @@
 # Same as create-migration.sh but for powershell
 
 Get-Content .env | ForEach-Object {
-  $name, $value = $_.split('=')
+  $vals = $_.split('=')
+  $name = $vals[0]
+  $value = $vals[1..($vals.Count-1)] -join '='
   if ([string]::IsNullOrWhiteSpace($name) -or $name.Contains('#')) {
     return
   }
