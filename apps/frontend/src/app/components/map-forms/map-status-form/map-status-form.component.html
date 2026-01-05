@@ -12,9 +12,10 @@
         }
         @case (MapStatus.CONTENT_APPROVAL) {
           The map is waiting to be checked by an official reviewer, and will be made public once they confirm it is of reasonable quality
-          and abides by the rules. If they find any issues before then, they'll leave a review, which you'll have to address before the map
-          can move to public testing.
+          and abides by the rules. If they find any significant issues before then, they'll leave a review, which you'll have to address
+          before the map can move to public testing.
         }
+        <!-- TODO we will move the approval requirement to final approval instead -->
         @case (MapStatus.PUBLIC_TESTING) {
           The map is publicly available for testing in-game. All players can play it and leave reviews. It must be in this state for at
           least one week, and have an approving review to progress.
@@ -24,10 +25,10 @@
           will be officially released!
         }
         @case (MapStatus.APPROVED) {
-          The map has been released and is available permanently to everyone ingame.
+          The map has been released and is available to everyone in-game.
         }
         @case (MapStatus.DISABLED) {
-          The map is has been disabled and is only visible to mods and admins. Only admins can re-enable.
+          The map has been disabled and is only visible to mods and admins. Only admins can re-enable it.
         }
       }
     </p>
@@ -37,8 +38,8 @@
       @if (isPossibleStatus(MapStatus.PRIVATE_TESTING)) {
         <i class="font-medium">Private Testing</i>
         <p class="mb-4 ml-2">
-          Returning the map to private testing will make it so only you and people you invite can access the map, and indicates to official
-          reviewers that you're not ready for them to move it to public testing yet.
+          Returning the map to private testing will let only you and people you invite access the map, and indicates to official reviewers
+          that you're not ready for them to move it to public testing yet.
         </p>
         <p>If you really want to do this, you'll have to re-invite anyone that hasn't responded to their test invite. Sorry <b>:)</b></p>
       }
@@ -52,15 +53,14 @@
       @if (isPossibleStatus(MapStatus.PUBLIC_TESTING)) {
         <i class="font-medium">Public Testing</i>
         <p class="mb-4 ml-2">
-          Moving back to public approval signifies you have some final changes you want to make to the map before it gets approved.
+          Moving back to public testing signifies you have some final changes you want to make to the map before it gets approved.
         </p>
       }
       @if (isPossibleStatus(MapStatus.FINAL_APPROVAL)) {
         <i class="font-medium">Final approval</i>
         <p class="ml-2">
-          This signifies that you're happy with the final state of the map and ready for it to be added officially. A moderator (TODO: this
-          is probably the "mapping council" or whatever in the future) will look at your suggestions and reviews others left, to pick the
-          tier and what gamemodes the map has ranked/unranked leaderboards in.
+          This signifies that you're happy with the final state of the map and ready for it to be added officially. The respective gamemode
+          councils will look at your suggestions and reviews others left, pick the tier and if the leaderboards should be ranked/unranked.
         </p>
         <p class="mb-4 ml-2">
           <b>Don't select this until you are ready!</b> Since we want to keep leaderboards reliable, you are not able to alter the map after
@@ -78,6 +78,7 @@
           @if (this.isBlockedForUnresolvedReviews) {
             <p class="ml-4 mt-0 font-medium">it has unresolved reviews.</p>
           }
+          <!-- TODO: move down to final approval, and change elsewhere also -->
           @if (this.isBlockedForNoApprovingReview) {
             <p class="ml-4 mt-0 font-medium">it does not have any approving reviews from an official reviewer.</p>
           }
@@ -106,15 +107,15 @@
         </p>
         <p>
           Most maps are submitted with a single intended gamemode in mind, and will usually become <b>ranked</b> in that mode, should the
-          resulting gameplay be of high enough quality. If the map was requested to be ranked by the submitter, it may be worth keeping it
-          in submission for a bit longer and leaving some suggestions in a review.
+          resulting gameplay be of high enough quality. If the gamemode councils and player reviews are split on if the leaderboards should
+          be ranked/unranked, set them to unranked (and they can potentially be upgraded to ranked in the future).
         </p>
         <p>
           For non-intended modes; if you and/or others tried a mode and it played reasonably well, you can give it an unranked leaderboard.
           Remember that unranked leaderboards don't provide rank points, but they do appear in the map selector for that mode. Don't add a
           leaderboard if it's only for gimmicks in that mode (e.g. don't rank a surf map in SJ just because someone airpogoed the entire
-          thing). In the future we'll have "hidden/secret" leaderboards for if people genuinely want to compete in a weird off-mode, and a
-          hidden leaderboard can always be switched to unranked in the future.
+          thing). Keep in mind that we still have "hidden/secret" leaderboards for if people genuinely want to compete in a weird off-mode,
+          and that a hidden leaderboard can always be upgraded to unranked in the future.
         </p>
         @if (this.isBlockedForUnresolvedReviews) {
           <p class="font-medium text-red-500">Warning: map has unresolved reviews!</p>
