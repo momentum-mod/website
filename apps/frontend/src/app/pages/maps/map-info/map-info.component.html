@@ -205,26 +205,28 @@
                   <p class="font-sm mb-1 font-bold uppercase text-gray-200">
                     {{ MapCreditNames.get(type) }}
                   </p>
-                  <div class="grid grid-cols-2 gap-1">
+                  <div class="grid grid-cols-2 place-items-start gap-1">
                     @for (credit of credits.get(type); track $index) {
                       @if (!credit.placeholder) {
                         <a routerLink="/profile/{{ credit.userID }}" class="flex">
-                          <m-avatar class="mr-4 h-8 w-8 shrink-0" [url]="credit.avatarURL" />
+                          <m-avatar class="mr-4 size-8 shrink-0" [url]="credit.avatarURL" />
                           <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
-                            <p class="text-shadow font-medium leading-none">{{ credit.alias }}</p>
+                            <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
                             <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
                               {{ credit.description }}
                             </p>
                           </div>
                         </a>
                       } @else {
-                        <div class="flex items-center">
-                          <div class="mr-4 inline-grid h-8 w-8 shrink-0 place-content-center" mTooltip="Placeholder user">
+                        <div class="flex">
+                          <div class="mr-4 inline-grid size-8 shrink-0 place-content-center" mTooltip="Placeholder user">
                             <p class="text-shadow-strong pointer-events-none font-display text-32 font-bold">?</p>
                           </div>
-                          <div class="flex flex-col justify-center">
-                            <p class="text-shadow font-medium leading-none">{{ credit.alias }}</p>
-                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic">{{ credit.description }}</p>
+                          <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
+                            <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
+                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
+                              {{ credit.description }}
+                            </p>
                           </div>
                         </div>
                       }
