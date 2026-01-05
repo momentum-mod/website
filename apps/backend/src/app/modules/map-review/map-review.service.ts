@@ -279,19 +279,21 @@ export class MapReviewService {
           }
         });
 
-        await this.notifService.sendNotifications(
-          {
-            data: {
-              type: NotificationType.MAP_REVIEW_POSTED,
-              notifiedUserID: map.submitter.id,
-              userID,
-              mapID,
-              reviewID: newReview.id,
-              createdAt: new Date()
-            }
-          },
-          tx
-        );
+        if (userID !== map.submitterID) {
+          await this.notifService.sendNotifications(
+            {
+              data: {
+                type: NotificationType.MAP_REVIEW_POSTED,
+                notifiedUserID: map.submitterID,
+                userID,
+                mapID,
+                reviewID: newReview.id,
+                createdAt: new Date()
+              }
+            },
+            tx
+          );
+        }
 
         return newReview;
       }),
