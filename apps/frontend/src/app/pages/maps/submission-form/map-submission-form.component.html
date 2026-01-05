@@ -45,7 +45,7 @@
           </p>
           <p class="mb-6 mt-3 block w-auto flex-grow text-balance px-3 text-center text-sm">
             This is the main map file for your map. It should have all custom assets packed into it, and must be
-            <a class="link" href="https://docs.momentum-mod.org/guide/map_submission/map_submission/#compression">compressed</a>.
+            <a class="link" href="https://docs.momentum-mod.org/guide/map_submission/map_porting/#step-4-compress-the-map">compressed</a>.
           </p>
           <div>
             @if (bsp.errors?.['required'] && bsp.dirty) {
@@ -64,7 +64,7 @@
             @if (bsp.errors?.['bspFileNotCompressed']) {
               <p class="mb-1 text-right text-lg text-red-400">
                 <b>Error: </b>BSP file is not compressed.
-                <a href="https://docs.momentum-mod.org/guide/map_submission/map_submission/#compression">Docs</a>
+                <a href="https://docs.momentum-mod.org/guide/map_submission/map_porting/#step-4-compress-the-map">Docs</a>
               </p>
             }
             @if (bsp.errors?.['bspFileReadError']) {
