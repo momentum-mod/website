@@ -96,17 +96,17 @@ describe('validateZoneFile', () => {
 
       input.tracks.bonuses = [bonus];
 
-      segment.checkpoints = arrayFrom(MAX_REGIONS).map(
-        () => ({
-          ...checkpoint
-        })
-      ) as Zone[];
+      segment.checkpoints = arrayFrom(MAX_REGIONS).map(() => ({
+        ...checkpoint
+      }));
       input.tracks.main.zones.segments = [segment];
 
-      expect(() => validateZoneFile(input)).toThrow('Too many regions in total');
+      expect(() => validateZoneFile(input)).toThrow(
+        'Too many regions in total'
+      );
     });
 
-    it('should throw if too many cancel zones', () => {
+    it('should throw if too many cancel zone regions', () => {
       const segment = input.tracks.main.zones.segments[0];
       const checkpoint = segment.checkpoints[0];
 
@@ -127,7 +127,9 @@ describe('validateZoneFile', () => {
         () => checkpoint
       );
 
-      expect(() => validateZoneFile(input)).toThrow('Too many regions in total');
+      expect(() => validateZoneFile(input)).toThrow(
+        'Too many regions in total'
+      );
     });
 
     it('should throw if the main track has stagesEndAtStageStarts false and a non-final segment has only 1 checkpoint', () => {

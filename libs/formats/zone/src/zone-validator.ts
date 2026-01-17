@@ -53,7 +53,6 @@ export function validateZoneFile(input: MapZones): void {
   if (formatVersion !== CURRENT_ZONE_FORMAT_VERSION)
     throw new ZoneValidationError('Bad format version');
 
-
   const mainSegmentCount = tracks.main.zones.segments.length;
   const stageTrackCount = mainSegmentCount > 1 ? mainSegmentCount : 0;
 
@@ -62,7 +61,7 @@ export function validateZoneFile(input: MapZones): void {
     throw new ZoneValidationError('The Main track has no segments');
   }
 
-  if(countRegions(input) > MAX_REGIONS){
+  if (countRegions(input) > MAX_REGIONS) {
     throw new ZoneValidationError('Too many regions in total ');
   }
 
@@ -360,28 +359,34 @@ export function validateZoneFile(input: MapZones): void {
   }
 }
 
-function countRegions(input: MapZones) { //counting the regions within the validate zone function was causing overcounts
+function countRegions(input: MapZones) {
   let count = 0;
-  input.tracks.main.zones.segments.forEach(segment => {
-    segment.checkpoints?.forEach(checkpoint => {
-      count += checkpoint.regions.length;
+
+  input.tracks.main?.zones.segments.forEach((segment) => {
+    segment.checkpoints?.forEach((checkpoint) => {
+      count += checkpoint.regions?.length ?? 0;
     });
-    segment.cancel?.forEach(c => {
-      count += c.regions.length;
+    segment.cancel?.forEach((cancel) => {
+      count += cancel.regions?.length ?? 0;
     });
+  });
+  count += input.tracks.main?.zones.end.regions?.length ?? 0;
+
+  input.tracks.bonuses?.forEach((bonus) => {
+    bonus.zones?.segments.forEach((segment) => {
+      segment.checkpoints?.forEach((checkpoint) => {
+        count += checkpoint.regions?.length ?? 0;
+      });
+      segment.cancel?.forEach((cancel) => {
+        count += cancel.regions?.length ?? 0;
+      });
+    });
+    count += bonus.zones?.end.regions?.length ?? 0;
   });
 
-  input.tracks.bonuses?.forEach(bonus => {
-    bonus.zones?.segments.forEach(segment => {
-      segment.checkpoints?.forEach(checkpoint => {
-        count += checkpoint.regions.length;
-      });
-      segment.cancel?.forEach(c => {
-        count += c.regions.length;
-      });
-    });
-  });
+  count += input.globalRegions?.allowBhop?.length ?? 0;
+  count += input.globalRegions?.cancel?.length ?? 0;
+  count += input.globalRegions?.overbounce?.length ?? 0;
 
   return count;
 }
-
