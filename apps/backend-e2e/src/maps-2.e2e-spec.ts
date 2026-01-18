@@ -1924,7 +1924,6 @@ describe('Maps Part 2', () => {
         normalToken: string,
         reviewerToken: string,
         miscUser: User,
-        approvedMap: MMap,
         pubTestMap: MMap,
         privTestMap: MMap;
 
@@ -1941,12 +1940,6 @@ describe('Maps Part 2', () => {
         pubTestMap = await db.createMap({
           status: MapStatus.PUBLIC_TESTING,
           submission: { create: { type: MapSubmissionType.ORIGINAL } },
-          submitter: { connect: { id: miscUser.id } },
-          reviewStats: { create: {} }
-        });
-
-        approvedMap = await db.createMap({
-          status: MapStatus.APPROVED,
           submitter: { connect: { id: miscUser.id } },
           reviewStats: { create: {} }
         });
@@ -2218,14 +2211,6 @@ describe('Maps Part 2', () => {
           url: `maps/${NULL_ID}/reviews`,
           status: 404,
           data: { mainText: 'let me iiiiiin' },
-          token: normalToken
-        }));
-
-      it('should return 403 for a map that has been approved', () =>
-        req.postAttach({
-          url: `maps/${approvedMap.id}/reviews`,
-          status: 403,
-          data: { mainText: 'LET ME INNN' },
           token: normalToken
         }));
 

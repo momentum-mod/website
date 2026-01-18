@@ -147,8 +147,7 @@ export class MapReviewCommentService {
 
     await this.mapsService.getMapAndCheckReadAccess({
       userID,
-      map: comment.review.mmap,
-      submissionOnly: true
+      map: comment.review.mmap
     });
 
     return DtoFactory(
@@ -183,8 +182,7 @@ export class MapReviewCommentService {
 
     await this.mapsService.getMapAndCheckReadAccess({
       userID,
-      map: comment.review.mmap,
-      submissionOnly: true
+      map: comment.review.mmap
     });
 
     await this.db.mapReviewComment.delete({ where: { id: commentID } });
@@ -207,8 +205,7 @@ export class MapReviewCommentService {
 
     await this.mapsService.getMapAndCheckReadAccess({
       map: review.mmap,
-      userID,
-      submissionOnly: true
+      userID
     });
   }
 }

@@ -153,8 +153,7 @@ export class MapReviewService {
 
     await this.mapsService.getMapAndCheckReadAccess({
       mapID: review.mapID,
-      userID,
-      submissionOnly: true
+      userID
     });
 
     return DtoFactory(MapReviewDto, review);
@@ -188,8 +187,7 @@ export class MapReviewService {
         submitter: true,
         status: true,
         currentVersion: { select: { zones: true } }
-      },
-      submissionOnly: true
+      }
     });
 
     if (map.submitterID === userID && body.approves) {
@@ -343,7 +341,6 @@ export class MapReviewService {
     const map = await this.mapsService.getMapAndCheckReadAccess({
       mapID: review.mapID,
       userID,
-      submissionOnly: true,
       include: { currentVersion: { select: { zones: true } } }
     });
 
@@ -444,8 +441,7 @@ export class MapReviewService {
     // PRIVATE_TESTING
     await this.mapsService.getMapAndCheckReadAccess({
       mapID: review.mapID,
-      userID,
-      submissionOnly: true
+      userID
     });
 
     // Not creating admin activities here, since review resolution is very
@@ -486,8 +482,7 @@ export class MapReviewService {
 
     await this.mapsService.getMapAndCheckReadAccess({
       mapID: review.mapID,
-      userID,
-      submissionOnly: true
+      userID
     });
 
     if (asAdmin) {

@@ -312,29 +312,6 @@ describe('Map Reviews', () => {
         });
       });
 
-      it('should return 403 if map not in submission', async () => {
-        const approvedMap = await db.createMap({
-          status: MapStatus.APPROVED,
-          submitter: { connect: { id: u2.id } }
-        });
-
-        const rev = await prisma.mapReview.create({
-          data: {
-            mainText: 'what is this!!!!',
-            mmap: { connect: { id: approvedMap.id } },
-            reviewer: { connect: { id: u2.id } },
-            resolved: false
-          }
-        });
-
-        await req.patch({
-          url: `map-review/${rev.id}`,
-          status: 403,
-          body: { mainText: 'how' },
-          token: u2Token
-        });
-      });
-
       it('should return 404 for missing review', () =>
         req.patch({
           url: `map-review/${NULL_ID}`,
@@ -507,27 +484,6 @@ describe('Map Reviews', () => {
         });
         const notifs = await prisma.notification.findMany();
         expect(notifs).toHaveLength(0);
-      });
-
-      it("should 403 if map isn't in submission", async () => {
-        const approvedMap = await db.createMap({
-          status: MapStatus.APPROVED
-        });
-
-        const rev = await prisma.mapReview.create({
-          data: {
-            mainText: 'where am i',
-            mmap: { connect: { id: approvedMap.id } },
-            reviewer: { connect: { id: user.id } },
-            resolved: true
-          }
-        });
-
-        await req.del({
-          url: `map-review/${rev.id}`,
-          status: 403,
-          token: token
-        });
       });
 
       it('should return 404 for trying to delete a nonexistent review for a map', () =>

@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import { CombinedRoles, MapStatus, Role } from '@momentum/constants';
+import { MapStatus, Role } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
@@ -13,7 +13,6 @@ import {
   PrismaMock
 } from '../../../../test/prisma-mock.const';
 import { MapsService } from './maps.service';
-import * as Bitflags from '@momentum/bitflags';
 
 describe('MapsService', () => {
   let service: MapsService, db: PrismaMock;
@@ -47,34 +46,6 @@ describe('MapsService', () => {
 
       await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(InternalServerErrorException);
     });
-
-    it('should only allow mod and admins to access APPROVED maps when submissionOnly is true', async () => {
-      for (const role of Enum.values(Role)) {
-        db.user.findUnique.mockResolvedValueOnce({ id: 1, roles: role } as any);
-        db.mMap.findUnique.mockResolvedValueOnce({
-          id: 1,
-          status: MapStatus.APPROVED
-        } as any);
-
-        if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, role)) {
-          expect(
-            await service.getMapAndCheckReadAccess({
-              mapID: 1,
-              userID: 1,
-              submissionOnly: true
-            })
-          ).toBeTruthy();
-        } else {
-          await expect(
-            service.getMapAndCheckReadAccess({
-              mapID: 1,
-              userID: 1,
-              submissionOnly: true
-            })
-          ).rejects.toThrow(ForbiddenException);
-        }
-      }
-    })
 
      it('should only non-logged in requests to access APPROVED and PUBLIC_TESTING maps', async () => {
        for (const status of Enum.values(MapStatus)) {
