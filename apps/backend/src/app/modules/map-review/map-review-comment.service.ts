@@ -20,6 +20,7 @@ import * as Bitflags from '@momentum/bitflags';
 import {
   AdminActivityType,
   CombinedRoles,
+  MapStatus,
   NotificationType
 } from '@momentum/constants';
 import { AdminActivityService } from '../admin/admin-activity.service';
@@ -90,9 +91,12 @@ export class MapReviewCommentService {
     }
     // Notification to map submitter.
     // Avoid double notif when someone else comments on submitter's review.
+    // Also, after approval the submitter is no longer responsible for the map,
+    // so don't sent them notifications on new reviews.
     if (
       userID !== map.submitterID &&
-      map.submitterID !== comment.review.reviewerID
+      map.submitterID !== comment.review.reviewerID &&
+      map.status !== MapStatus.APPROVED
     ) {
       await this.notificationService.sendNotifications({
         data: {

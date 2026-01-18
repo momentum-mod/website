@@ -12,6 +12,7 @@ import {
   CombinedRoles,
   mapReviewAssetPath,
   MapReviewSuggestion,
+  MapStatus,
   MapStatuses,
   NotificationType,
   Role
@@ -60,7 +61,7 @@ export class MapReviewService {
     private readonly fileStoreService: FileStoreService,
     private readonly adminActivityService: AdminActivityService,
     private readonly discordNotificationService: MapDiscordNotifications,
-    private readonly notifService: NotificationsService
+    private readonly notificationService: NotificationsService
   ) {}
 
   async getAllReviews(
@@ -277,8 +278,10 @@ export class MapReviewService {
           }
         });
 
-        if (userID !== map.submitterID) {
-          await this.notifService.sendNotifications(
+        // After approval the submitter is no longer responsible for the map,
+        // so don't sent them notifications on new reviews.
+        if (userID !== map.submitterID && map.status !== MapStatus.APPROVED) {
+          await this.notificationService.sendNotifications(
             {
               data: {
                 type: NotificationType.MAP_REVIEW_POSTED,
