@@ -1924,12 +1924,6 @@ export class MapsService {
         .catch((error) => {
           error.message = `Failed to delete map version file for ${map.name}: ${error.message}`;
           throw new InternalServerErrorException(error);
-        }),
-      this.mapReviewService
-        .deleteAllReviewAssetsForMap(map.id)
-        .catch((error) => {
-          error.message = `Failed to delete map review files for ${map.name}: ${error.message}`;
-          throw new InternalServerErrorException(error);
         })
     );
   }

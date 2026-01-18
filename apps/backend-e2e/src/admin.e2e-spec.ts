@@ -1862,36 +1862,6 @@ describe('Admin', () => {
           ).toHaveLength(0);
         });
 
-        it('should delete any map review assets after map status changed from FA to approved', async () => {
-          const assetPath = mapReviewAssetPath('1');
-
-          await prisma.mapReview.create({
-            data: {
-              mainText:
-                'This map doesn’t scrape the bottom of the barrel. ' +
-                'This map isn’t the bottom of the barrel. ' +
-                'This map isn’t below the bottom of the barrel. ' +
-                'This map doesn’t deserve to be mentioned in the same sentence with barrels.',
-              resolved: true,
-              imageIDs: ['1'],
-              mmap: { connect: { id: map.id } },
-              reviewer: { connect: { id: mod.id } }
-            }
-          });
-
-          await fileStore.add(assetPath, Buffer.alloc(1024));
-          expect(await fileStore.exists(assetPath)).toBe(true);
-
-          await req.patch({
-            url: `admin/maps/${map.id}`,
-            status: 204,
-            body: { status: MapStatus.APPROVED, finalLeaderboards },
-            token: adminToken
-          });
-
-          expect(await fileStore.exists(assetPath)).toBe(false);
-        });
-
         it('should 400 if map has unresolved reviews', async () => {
           await prisma.mapReview.create({
             data: {
