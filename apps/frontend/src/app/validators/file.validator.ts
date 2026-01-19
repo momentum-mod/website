@@ -210,7 +210,7 @@ export class FileValidators {
   private static getExtension(filename: string): string | undefined {
     if (!filename.includes('.')) return undefined;
 
-    return filename.split('.').slice(1).join('.');
+    return filename.slice(filename.lastIndexOf('.') + 1);
   }
 
   private static fileValidatorHandler(
