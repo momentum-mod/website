@@ -2,7 +2,7 @@
 import { join } from 'node:path';
 import { readHeader, readRunSplits, ReplayReadError } from './replay-reader';
 import { REPLAY_MAGIC, ReplayHeader } from './index';
-import { Gamemode, TrackType } from '@momentum/constants';
+import { Gamemode, Style, TrackType } from '@momentum/constants';
 
 describe('Replay Reader', () => {
   let buffer: Buffer;
@@ -29,6 +29,7 @@ describe('Replay Reader', () => {
         tickInterval: Math.fround(0.01),
         trackType: TrackType.MAIN,
         trackNum: 1,
+        style: Style.BHOP_HALF_SIDEWAYS,
         runTime: 33.62499924842268
       };
 

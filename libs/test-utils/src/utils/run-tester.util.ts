@@ -20,6 +20,7 @@ export interface RunTesterProps {
   gamemode: Gamemode;
   trackType: TrackType;
   trackNum: number;
+  style: number;
 }
 
 /**
@@ -213,6 +214,7 @@ export class RunTester {
       playerName: this.props.playerName,
       trackType: this.props.trackType,
       trackNum: this.props.trackNum,
+      style: this.props.style,
       runTime: timeTotal / 1000
     };
 
