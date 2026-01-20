@@ -2,7 +2,8 @@ import {
   Gamemode,
   IncompatibleGamemodes,
   DisabledGamemodes,
-  TrackType
+  TrackType,
+  Style
 } from '@momentum/constants';
 import { ZonesStub } from '@momentum/formats/zone';
 import * as LeaderboardHandler from './leaderboard-handler.util';
@@ -15,13 +16,15 @@ describe('LeaderboardHandler', () => {
       const main = {
         gamemode: Gamemode.BHOP,
         trackType: TrackType.MAIN,
-        trackNum: 1
+        trackNum: 1,
+        style: Style.NORMAL
       };
 
       const bonus = {
         gamemode: Gamemode.AHOP,
         trackType: TrackType.BONUS,
-        trackNum: 1
+        trackNum: 1,
+        style: Style.NORMAL
       };
 
       const incompat = structuredClone(IncompatibleGamemodes);
@@ -68,19 +71,22 @@ describe('LeaderboardHandler', () => {
       const main = {
         gamemode: Gamemode.DEFRAG_CPM,
         trackType: TrackType.MAIN,
-        trackNum: 1
+        trackNum: 1,
+        style: Style.NORMAL
       };
 
       const bonus1 = {
         gamemode: Gamemode.DEFRAG_CPM,
         trackType: TrackType.BONUS,
-        trackNum: 1
+        trackNum: 1,
+        style: Style.NORMAL
       };
 
       const bonus2 = {
         gamemode: Gamemode.DEFRAG_CPM,
         trackType: TrackType.BONUS,
-        trackNum: 2
+        trackNum: 2,
+        style: Style.NORMAL
       };
 
       zones.tracks.bonuses.push({

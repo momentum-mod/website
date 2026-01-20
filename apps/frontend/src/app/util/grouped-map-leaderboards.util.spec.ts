@@ -1,4 +1,9 @@
-import { Gamemode, GamemodeInfo, LeaderboardType } from '@momentum/constants';
+import {
+  Gamemode,
+  GamemodeInfo,
+  LeaderboardType,
+  Style
+} from '@momentum/constants';
 import {
   findMainGamemodeIndex,
   getSpecificGroupedLeaderboard,
@@ -16,7 +21,8 @@ describe('grouped-map-leaderboards', () => {
         type: LeaderboardType.HIDDEN,
         tags: [],
         linear: true,
-        stages: 5
+        stages: 5,
+        styles: [Style.NORMAL]
       },
       {
         gamemode: Gamemode.DEFRAG_CPM,
@@ -26,7 +32,8 @@ describe('grouped-map-leaderboards', () => {
         type: LeaderboardType.UNRANKED,
         tags: [],
         linear: true,
-        stages: 5
+        stages: 5,
+        styles: [Style.NORMAL]
       },
       {
         gamemode: Gamemode.SJ,
@@ -36,7 +43,8 @@ describe('grouped-map-leaderboards', () => {
         type: LeaderboardType.RANKED,
         tags: [],
         linear: true,
-        stages: 5
+        stages: 5,
+        styles: [Style.NORMAL]
       },
       {
         gamemode: Gamemode.SURF,
@@ -46,7 +54,13 @@ describe('grouped-map-leaderboards', () => {
         type: LeaderboardType.HIDDEN,
         tags: [],
         linear: true,
-        stages: 5
+        stages: 5,
+        styles: [
+          Style.NORMAL,
+          Style.SURF_HALF_SIDEWAYS,
+          Style.SIDEWAYS,
+          Style.BACKWARDS
+        ]
       },
       {
         gamemode: Gamemode.RJ,
@@ -56,7 +70,8 @@ describe('grouped-map-leaderboards', () => {
         type: LeaderboardType.RANKED,
         tags: [],
         linear: true,
-        stages: 5
+        stages: 5,
+        styles: [Style.NORMAL]
       }
     ];
   }
