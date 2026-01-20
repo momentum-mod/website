@@ -36,7 +36,14 @@ export interface ReplayHeader {
   playerName: string;     // 32    135
   trackType: TrackType;   // 1     167
   trackNum: uint8;        // 1     168
-  style: uint8;           // 1     169
-  runTime: double;        // 8     170
-                          // 17    178     Other replay data, unused by us
+  runTime: double;        // 8     169
+  // frameCount: int32;      // 4     177
+  // keyFrameCount: int32;   // 4     181
+  // baselineCount: int32;   // 4     185
+  // classCount: uint8;      // 1     189
+  // tempEntClassCount: uint8;// 1    190
+  // sampleCount: uint8;     // 1     191
+  // propBits: uint8;        // 1     192
+  // tempEntClassBits: uint8;// 1     193
+  style: uint8;           // 1     194
 }

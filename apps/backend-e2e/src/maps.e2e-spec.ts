@@ -34,7 +34,9 @@ import {
   imgLargePath,
   imgXlPath,
   MAX_MAPPER_OPEN_MAP_SUBMISSIONS,
-  MAX_CREDITS_EXCEPT_TESTERS
+  MAX_CREDITS_EXCEPT_TESTERS,
+  Style,
+  GamemodeStyles
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -353,7 +355,7 @@ describe('Maps', () => {
               gamemode,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.RANKED
             }
           }
@@ -369,14 +371,14 @@ describe('Maps', () => {
                   gamemode,
                   trackType: TrackType.MAIN,
                   trackNum: 1,
-                  style: 0,
+                  style: Style.NORMAL,
                   type: LeaderboardType.HIDDEN
                 },
                 {
                   gamemode: Gamemode.RJ,
                   trackType: TrackType.MAIN,
                   trackNum: 1,
-                  style: 0,
+                  style: Style.NORMAL,
                   type: LeaderboardType.RANKED
                 }
               ]
@@ -757,7 +759,7 @@ describe('Maps', () => {
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
@@ -769,7 +771,7 @@ describe('Maps', () => {
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
@@ -807,7 +809,7 @@ describe('Maps', () => {
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
@@ -819,7 +821,7 @@ describe('Maps', () => {
             type: LeaderboardType.RANKED,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
           }
         });
@@ -867,7 +869,7 @@ describe('Maps', () => {
             type: LeaderboardType.UNRANKED,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0
+            style: Style.NORMAL
           }
         });
 
@@ -892,7 +894,7 @@ describe('Maps', () => {
                 gamemode: Gamemode.AHOP,
                 trackType: TrackType.MAIN,
                 trackNum: 1,
-                style: 0
+                style: Style.NORMAL
               }
             },
             update: {
@@ -904,7 +906,7 @@ describe('Maps', () => {
               type: LeaderboardType.RANKED,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               tags: [] // Has to exist or query will fail.
             }
           });
@@ -1199,7 +1201,7 @@ describe('Maps', () => {
           const expected = ZonesStubLeaderboards.map((x) => ({
             ...x,
             mapID: createdMap.id,
-            style: 0,
+            style: x.style,
             tier: null,
             type: LeaderboardType.IN_SUBMISSION,
             tags: []
@@ -2404,7 +2406,7 @@ describe('Maps', () => {
         await prisma.leaderboard.createMany({
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
-            style: 0,
+            style: lb.style,
             type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
@@ -2416,7 +2418,8 @@ describe('Maps', () => {
           rank: 1,
           gamemode: Gamemode.RJ,
           trackType: TrackType.MAIN,
-          trackNum: 1
+          trackNum: 1,
+          style: Style.NORMAL
         });
 
         await db.createLbRun({
@@ -2425,18 +2428,23 @@ describe('Maps', () => {
           rank: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.BONUS,
-          trackNum: 1
+          trackNum: 1,
+          style: Style.NORMAL
         });
 
         expect(
           await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.RJ }
+            where: { mapID: map.id, gamemode: Gamemode.RJ, style: Style.NORMAL }
           })
         ).toHaveLength(1);
 
         expect(
           await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.CONC,
+              style: Style.NORMAL
+            }
           })
         ).toHaveLength(1);
 
@@ -2478,12 +2486,40 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const expected = ZoneStubCompatGamemodes.flatMap((gamemode) => [
-          { gamemode, trackType: TrackType.MAIN, trackNum: 1, linear: false },
-          { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null },
-          { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null },
-          { gamemode, trackType: TrackType.STAGE, trackNum: 3, linear: null }
-        ]);
+        const expected = ZoneStubCompatGamemodes.flatMap((gamemode) => {
+          const validStyles =
+            GamemodeStyles.get(gamemode) ?? new Set([Style.NORMAL]);
+          return Array.from(validStyles).flatMap((style) => [
+            {
+              gamemode,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style,
+              linear: false
+            },
+            {
+              gamemode,
+              trackType: TrackType.STAGE,
+              trackNum: 1,
+              style,
+              linear: null
+            },
+            {
+              gamemode,
+              trackType: TrackType.STAGE,
+              trackNum: 2,
+              style,
+              linear: null
+            },
+            {
+              gamemode,
+              trackType: TrackType.STAGE,
+              trackNum: 3,
+              style,
+              linear: null
+            }
+          ]);
+        }).sort();
 
         const leaderboards = await prisma.leaderboard.findMany({
           where: { mapID: map.id },
@@ -2491,7 +2527,8 @@ describe('Maps', () => {
             gamemode: true,
             trackType: true,
             trackNum: true,
-            linear: true
+            linear: true,
+            style: true
           }
         });
 
@@ -2500,13 +2537,17 @@ describe('Maps', () => {
 
         expect(
           await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.RJ }
+            where: { mapID: map.id, gamemode: Gamemode.RJ, style: Style.NORMAL }
           })
         ).toHaveLength(1);
 
         expect(
           await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.CONC,
+              style: Style.NORMAL
+            }
           })
         ).toHaveLength(0);
       });
@@ -2970,7 +3011,7 @@ describe('Maps', () => {
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
@@ -3017,7 +3058,7 @@ describe('Maps', () => {
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
@@ -3111,7 +3152,7 @@ describe('Maps', () => {
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            style: 0,
+            style: Style.NORMAL,
             type: LeaderboardType.IN_SUBMISSION,
             runs: {
               create: {
@@ -3803,7 +3844,7 @@ describe('Maps', () => {
         await prisma.leaderboard.createMany({
           data: ZonesStubLeaderboards.map((lb) => ({
             mapID: map.id,
-            style: 0,
+            style: Style.NORMAL,
             type: LeaderboardType.IN_SUBMISSION,
             ...lb
           }))
@@ -3824,7 +3865,11 @@ describe('Maps', () => {
 
         expect(
           await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.BHOP, style: 0 }
+            where: {
+              mapID: map.id,
+              gamemode: Gamemode.BHOP,
+              style: Style.NORMAL
+            }
           })
         ).toHaveLength(1);
 
@@ -3868,7 +3913,7 @@ describe('Maps', () => {
             where: {
               mapID: map.id,
               gamemode: Gamemode.BHOP,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.IN_SUBMISSION
             }
           })
@@ -3879,7 +3924,7 @@ describe('Maps', () => {
             where: {
               mapID: map.id,
               gamemode: Gamemode.CONC,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.IN_SUBMISSION
             }
           })
