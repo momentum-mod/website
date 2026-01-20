@@ -24,3 +24,19 @@ export const GamemodeStyles: ReadonlyMap<
     [G.DEFRAG_VTG, [S.NORMAL]]
   ].map(([k, v]) => [k as Gamemode, new Set((v as [Style | Style[]]).flat())])
 );
+
+export const GamemodeDefaultUIStyle: ReadonlyMap<Gamemode, Style> = new Map([
+  [G.SURF, S.NORMAL],
+  [G.BHOP, S.NORMAL],
+  [G.BHOP_HL1, S.NORMAL],
+  [G.CLIMB_MOM, S.TELEPORT],
+  [G.CLIMB_KZT, S.TELEPORT],
+  [G.CLIMB_16, S.PRO],
+  [G.RJ, S.NORMAL],
+  [G.SJ, S.NORMAL],
+  [G.AHOP, S.NORMAL],
+  [G.CONC, S.NORMAL],
+  [G.DEFRAG_CPM, S.NORMAL],
+  [G.DEFRAG_VQ3, S.NORMAL],
+  [G.DEFRAG_VTG, S.NORMAL]
+]);
