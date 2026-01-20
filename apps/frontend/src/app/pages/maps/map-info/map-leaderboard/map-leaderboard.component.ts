@@ -1,5 +1,6 @@
 import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
+  GamemodeDefaultUIStyle,
   GamemodeInfo,
   LeaderboardRun,
   LeaderboardType,
@@ -123,6 +124,9 @@ export class MapLeaderboardComponent implements OnChanges {
   selectMode(modeIndex: number) {
     this.activeModeIndex = modeIndex;
     this.activeMode = this.leaderboards[modeIndex];
+    this.activeStyle =
+      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
+
     this.updateTags();
     this.load.next();
   }
@@ -188,7 +192,8 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeType = LeaderboardFilterType.TOP10;
     this.activeTrack.type = TrackType.MAIN;
     this.activeTrack.num = 1;
-    this.activeStyle = Style.NORMAL;
+    this.activeStyle =
+      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
     this.activeTags = this.activeMode.tags;
 
     this.load.next();
