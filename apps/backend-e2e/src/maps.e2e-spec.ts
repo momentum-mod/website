@@ -2696,7 +2696,54 @@ describe('Maps', () => {
         });
 
         expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
-        expect(newVersion.vmfDownloadId).toEqual(newVersion.vmfDownloadId);
+        expect(oldVersion.vmfDownloadId).toEqual(newVersion.vmfDownloadId);
+      });
+
+      it('should allow updating zones when in testing and was approved', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            status: MapStatus.PUBLIC_TESTING,
+            info: { update: { approvedDate: new Date() } }
+          }
+        });
+
+        const zones = structuredClone(ZonesStub);
+        zones.tracks.main.zones.segments[0].name = 'Bob';
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: {
+            changelog: 'This is one is going to the moon',
+            zones
+          },
+          validate: MapDto,
+          token: u1Token
+        });
+      });
+
+      it('should not allow updating zones that create leaderboards when in testing and was approved', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: {
+            status: MapStatus.PUBLIC_TESTING,
+            info: { update: { approvedDate: new Date() } }
+          }
+        });
+
+        const zones = structuredClone(ZonesStub);
+        zones.tracks.bonuses.push(zones.tracks.bonuses[0]);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: {
+            changelog: 'New bonus aha',
+            zones
+          },
+          token: u1Token
+        });
       });
 
       it('should 400 if VMF file is invalid', async () => {
@@ -3214,7 +3261,14 @@ describe('Maps', () => {
       it('should always 403 if map is APPROVED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatus.APPROVED
+          status: MapStatus.APPROVED,
+          info: {
+            create: {
+              creationDate: new Date(),
+              description: 'Maps have a minimum description length now!!',
+              approvedDate: new Date()
+            }
+          }
         });
 
         await req.patch({
@@ -3788,6 +3842,30 @@ describe('Maps', () => {
             where: { mapID: map.id, gamemode: Gamemode.CONC }
           })
         ).toHaveLength(1);
+      });
+
+      it('should not allow updating live leaderabords even when in testing', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatus.PUBLIC_TESTING
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: {
+            leaderboards: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                gamemode: Gamemode.RJ,
+                tier: 1,
+                type: LeaderboardType.RANKED
+              }
+            ]
+          },
+          token
+        });
       });
 
       it('should update the map list version for submissions', async () => {
