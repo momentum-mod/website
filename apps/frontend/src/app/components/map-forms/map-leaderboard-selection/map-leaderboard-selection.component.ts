@@ -8,6 +8,7 @@ import {
   DisabledGamemodes,
   Gamemode,
   GamemodeInfo,
+  Leaderboard,
   LeaderboardType,
   MapSubmissionSuggestion,
   MapTag,
@@ -72,6 +73,8 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       })) ?? [];
   }
 
+  @Input() wasApproved = false;
+  @Input() mapLeaderboards?: Leaderboard[];
   @Input() defaultMode?: Gamemode;
 
   addEmptyItem() {
@@ -147,6 +150,22 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       item.trackNum = 1;
     }
     this.onChange(this.value);
+  }
+
+  getTrackGamemodes(trackType: TrackType, trackNum: number) {
+    const existingLbs = this.mapLeaderboards
+      .filter(
+        (lb) =>
+          lb.trackType === trackType &&
+          lb.trackNum === trackNum &&
+          !DisabledGamemodes.has(lb.gamemode)
+      )
+      .map(({ gamemode }) => ({
+        gamemode,
+        label: GamemodeInfo.get(gamemode).name
+      }));
+    if (existingLbs.length === 0) return this.Gamemodes;
+    return existingLbs;
   }
 
   onChange: (value: MapSubmissionSuggestion[]) => void = () => void 0;

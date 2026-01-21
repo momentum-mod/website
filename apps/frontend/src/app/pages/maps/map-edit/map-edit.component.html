@@ -136,16 +136,17 @@
     <m-map-credits-selection class="grid h-full min-h-[18rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!block' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || (isSubmitter && !wasApproved) ? '!block' : '!hidden'">
+    @let formControl = wasApproved ? leaderboards : suggestions;
     <legend class="font-display text-4xl font-bold">Leaderboards</legend>
-    <m-map-leaderboards-selection [formControl]="suggestions" />
-    @if (suggestions.dirty && suggestions.errors) {
-      <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ suggestions.errors['error'] }}</p>
-    } @else if (suggestions.pristine && suggestions.errors) {
+    <m-map-leaderboards-selection [wasApproved]="wasApproved" [mapLeaderboards]="map.leaderboards" [formControl]="formControl" />
+    @if (formControl.dirty && formControl.errors) {
+      <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ formControl.errors['error'] }}</p>
+    } @else if (formControl.pristine && formControl.errors) {
       <p class="mb-1 ml-auto text-right text-lg text-red-400">
         <span class="font-medium"
           >Your latest zones don't match with your suggestions, you'll need to update them before you can update the map. </span
-        ><b>Error: </b> >{{ suggestions.errors['error'] }}
+        ><b>Error: </b> >{{ formControl.errors['error'] }}
       </p>
     }
   </fieldset>

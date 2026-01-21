@@ -42,7 +42,8 @@ import {
   User,
   YOUTUBE_ID_REGEXP,
   Role,
-  SteamGame
+  SteamGame,
+  TrackType
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -138,6 +139,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   protected loading = false;
 
+  wasApproved: boolean;
   isSubmitter: boolean;
   inSubmission: boolean;
 
@@ -205,6 +207,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         SuggestionType.SUBMISSION
       )
     }),
+
+    leaderboards: this.nnfb.control<MapSubmissionSuggestion[]>([]),
 
     statusChange: this.nnfb.group({
       status: this.nnfb.control<MapStatus | -1>(-1),
@@ -277,6 +281,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         this.isSubmitter =
           map.submitterID === this.localUserService.user.value?.id;
         this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
+        this.wasApproved = Boolean(map.info.approvedDate);
 
         if (
           !this.isModOrAdmin &&
@@ -333,6 +338,42 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     this.lbSelection.zones = this.map?.currentVersion?.zones;
     this.suggestions.setValue(this.map.submission.suggestions);
+    if (this.wasApproved) {
+      // Setup validatiors for approved maps
+      this.suggestions.setValidators(null);
+      this.suggestions.updateValueAndValidity();
+
+      this.leaderboards.setValue(
+        this.map.leaderboards
+          .filter(
+            (lb) =>
+              lb.type !== LeaderboardType.HIDDEN &&
+              lb.trackType !== TrackType.STAGE
+          )
+          .map((lb) => ({
+            ...lb,
+            type: lb.type as LeaderboardType.RANKED | LeaderboardType.UNRANKED,
+            style: undefined,
+            linear: undefined
+          }))
+      );
+
+      this.leaderboards.setValidators([
+        suggestionsValidator(
+          () => this.map?.currentVersion.zones,
+          SuggestionType.APPROVAL
+        )
+      ]);
+      this.leaderboards.updateValueAndValidity();
+
+      this.zon.addAsyncValidators(
+        FileValidators.hasZonesChange(
+          () => this.map.currentVersion.zones,
+          this.inSubmission && this.isAdmin
+        )
+      );
+      this.zon.updateValueAndValidity();
+    }
 
     if (
       this.map.status === MapStatus.FINAL_APPROVAL &&
@@ -391,6 +432,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       body.info.requiredGames = this.requiredGames.value;
     }
     if (this.suggestions.dirty) body.suggestions = this.suggestions.value;
+    if (this.leaderboards.dirty) body.leaderboards = this.leaderboards.value;
     if (this.status.dirty) {
       body.status = this.status.value;
 
@@ -430,7 +472,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             this.isModOrAdmin &&
             (body.status === MapStatus.APPROVED ||
               this.map.status === MapStatus.APPROVED ||
-              this.map.status === MapStatus.DISABLED)
+              this.map.status === MapStatus.DISABLED ||
+              body.leaderboards)
           )
         ) {
           await firstValueFrom(this.mapsService.updateMap(this.map.id, body));
@@ -851,6 +894,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   get suggestions() {
     return this.mainForm.get('suggestions') as FormControl<
+      MapSubmissionSuggestion[]
+    >;
+  }
+
+  get leaderboards() {
+    return this.mainForm.get('leaderboards') as FormControl<
       MapSubmissionSuggestion[]
     >;
   }

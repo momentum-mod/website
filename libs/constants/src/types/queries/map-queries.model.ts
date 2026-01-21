@@ -177,6 +177,7 @@ export interface UpdateMap
   resetLeaderboards?: boolean;
   submitterID?: number;
   finalLeaderboards?: MapSubmissionApproval[];
+  leaderboards?: MapSubmissionSuggestion[];
 }
 
 //#endregion

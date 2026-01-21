@@ -7,10 +7,13 @@
   Add Leaderboard
 </button>
 <table
-  class="grid w-full border-collapse grid-cols-[minmax(10rem,1fr)_minmax(8rem,1fr)_8rem_auto_minmax(1rem,auto)_minmax(8rem,4fr)_minmax(8rem,4fr)_auto] gap-1"
+  class="grid w-full border-collapse gap-1"
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled
   }"
+  [style.grid-template-columns]="
+    `minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`
+  "
 >
   <thead class="mt-3 contents bg-gray-950 p-3">
     <tr class="contents">
@@ -20,8 +23,10 @@
       <th class="text-center">Tier</th>
       <!-- Header text makes the column wider than the checkbox which looks crap, use an evil absolute to get it looking acceptable-->
       <th class="relative"><span class="absolute left-0">Ranked</span></th>
-      <th class="text-center">Comments</th>
-      <th class="text-left">Tags</th>
+      @if (!wasApproved) {
+        <th class="text-center">Comments</th>
+      }
+      <th class="text-center">Tags</th>
       <th></th>
     </tr>
   </thead>
@@ -32,7 +37,7 @@
           <p-select
             class="w-full"
             [(ngModel)]="item.gamemode"
-            [options]="Gamemodes"
+            [options]="wasApproved ? getTrackGamemodes(item.trackType, item.trackNum) : Gamemodes"
             optionLabel="label"
             optionValue="gamemode"
             (blur)="onTouched()"
@@ -83,16 +88,18 @@
             (blur)="onTouched()"
           />
         </td>
-        <td>
-          <input
-            type="text"
-            class="textinput w-full"
-            [(ngModel)]="item.comment"
-            [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
-            (blur)="onTouched()"
-            (change)="onChange(value)"
-          />
-        </td>
+        @if (!wasApproved) {
+          <td>
+            <input
+              type="text"
+              class="textinput w-full"
+              [(ngModel)]="item.comment"
+              [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
+              (blur)="onTouched()"
+              (change)="onChange(value)"
+            />
+          </td>
+        }
         <td>
           <m-chips
             typeName="Tags"

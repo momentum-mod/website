@@ -1,6 +1,12 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { MapZones } from '@momentum/constants';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
-import { validateZoneFile, ZoneValidationError } from '@momentum/formats/zone';
+import {
+  validateZoneDiff,
+  validateZoneFile,
+  ZoneDiffValidationError,
+  ZoneValidationError
+} from '@momentum/formats/zone';
 import { vdf, ParseError as VdfParseError } from 'fast-vdf';
 
 /**
@@ -143,6 +149,40 @@ export class FileValidators {
               return {
                 zoneFileValidationError: [
                   { file, message: (error as ZoneValidationError).message }
+                ]
+              };
+            case SyntaxError:
+              return { zonFileNotJsonError: [{ file }] };
+            default:
+              return { fileReadError: [{ file }] };
+          }
+        }
+      }
+    );
+  }
+
+  static hasZonesChange(
+    zonesGet: () => MapZones,
+    allowCreation = false
+  ): AsyncFileValidatorFn {
+    return FileValidators.asyncFileValidatorHandler(
+      async (file: File): Promise<FileValidationErrors | null> => {
+        const oldZones = zonesGet();
+        if (!file) return null;
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          validateZoneDiff(parsed, oldZones, allowCreation);
+          return null;
+        } catch (error) {
+          switch (error?.constructor) {
+            case ZoneDiffValidationError:
+              return {
+                approvedZoneFileValidationError: [
+                  {
+                    file,
+                    message: error.message
+                  }
                 ]
               };
             case SyntaxError:

@@ -20,7 +20,7 @@
         }
       }
     </div>
-    @if (map.status === MapStatus.APPROVED && hasHiddenLeaderboards()) {
+    @if (map.info.approvedDate && hasHiddenLeaderboards()) {
       <button class="mb-auto ml-auto" type="button" [mTooltip]="hiddenLbInfo" (click)="showHiddenLeaderboards = !showHiddenLeaderboards">
         <m-icon class="h-6 w-6 drop-shadow-lg" [icon]="showHiddenLeaderboards ? 'eye' : 'eye-closed'" />
       </button>

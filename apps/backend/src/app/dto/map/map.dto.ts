@@ -257,5 +257,13 @@ export class UpdateMapDto
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)
   @IsOptional()
-  finalLeaderboards?: MapSubmissionApprovalDto[];
+  readonly finalLeaderboards?: MapSubmissionApprovalDto[];
+
+  @NestedProperty(MapSubmissionSuggestionDto, {
+    required: false,
+    isArray: true
+  })
+  @ArrayMinSize(1)
+  @IsOptional()
+  readonly leaderboards?: MapSubmissionSuggestionDto[];
 }

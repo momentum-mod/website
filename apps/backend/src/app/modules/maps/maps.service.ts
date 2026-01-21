@@ -49,6 +49,7 @@ import {
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
+  deepEquals,
   expandToIncludes,
   intersection,
   isEmpty,
@@ -64,7 +65,9 @@ import {
   SuggestionType,
   SuggestionValidationError,
   validateSuggestions,
+  validateZoneDiff,
   validateZoneFile,
+  ZoneDiffValidationError,
   ZoneValidationError
 } from '@momentum/formats/zone';
 import { BspHeader, BspReadError } from '@momentum/formats/bsp';
@@ -770,7 +773,14 @@ export class MapsService {
             dates: { orderBy: { date: 'asc' }, include: { user: true } }
           }
         },
-        info: true
+        info: true,
+        leaderboards: {
+          omit: { style: true, linear: true },
+          where: {
+            type: { not: LeaderboardType.HIDDEN },
+            trackType: { not: TrackType.STAGE }
+          }
+        }
       }
     });
 
@@ -856,6 +866,14 @@ export class MapsService {
     let zones: MapZones;
     if (dto.zones) {
       this.checkZones(dto.zones);
+      if (map.info.approvedDate) {
+        this.checkIfZonesChanged(
+          dto.zones,
+          JSON.parse(map.currentVersion.zones),
+          MapStatuses.IN_SUBMISSION.includes(map.status) &&
+            Bitflags.has(user.roles, Role.ADMIN)
+        );
+      }
       zones = dto.zones;
       zonesStr = JSON.stringify(zones);
     } else {
@@ -926,7 +944,7 @@ export class MapsService {
         // If the submitter is fixing the maps in a significant enough way to
         // still require a leaderboard reset, they should just get an admin to
         // do it.
-        if (map.info.approvedDate) {
+        if (map.info.approvedDate && !Bitflags.has(user.roles, Role.ADMIN)) {
           throw new ForbiddenException(
             'Cannot reset leaderboards on a previously approved map.' +
               ' Talk about it with an admin!'
@@ -1314,6 +1332,10 @@ export class MapsService {
         throw new ForbiddenException(
           'Submitters can only edit map during submission'
         );
+      } else if (dto.leaderboards) {
+        throw new ForbiddenException(
+          'Submitters are not allowed to update map leaderboards'
+        );
       }
     } else if (!Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
       if (Bitflags.has(user.roles, Role.REVIEWER)) {
@@ -1332,21 +1354,44 @@ export class MapsService {
       }
     }
 
-    const suggs =
-      dto.suggestions ??
-      (map.submission.suggestions as unknown as MapSubmissionSuggestion[]);
     const zones = JSON.parse(map.currentVersion.zones);
 
-    // Force the submitter to keep their suggestions in sync with their zones.
-    // If this requests has new suggestions, use those, otherwise use the
-    // existing ones.
-    //
-    // A map version could've updated the zones to something that doesn't work
-    // with the current suggestions, in this case, the submitter will be forced
-    // to update suggestions next time they do a general update, including if
-    // they want to change the map status. Frontend explains this to the user.
+    if (dto.leaderboards) {
+      if (!map.info.approvedDate) {
+        throw new BadRequestException(
+          "Can't update leaderboards of a map that wasn't approved"
+        );
+      } else {
+        this.checkSuggestionsAndZones(
+          dto.leaderboards,
+          zones,
+          SuggestionType.APPROVAL
+        );
+      }
+    }
 
-    this.checkSuggestionsAndZones(suggs, zones, SuggestionType.SUBMISSION);
+    if (dto.suggestions) {
+      if (map.info.approvedDate) {
+        throw new BadRequestException(
+          "Can't update suggestions of a map that was approved"
+        );
+      }
+
+      // Force the submitter to keep their suggestions in sync with their zones.
+      // If this requests has new suggestions, use those, otherwise use the
+      // existing ones.
+      //
+      // A map version could've updated the zones to something that doesn't work
+      // with the current suggestions, in this case, the submitter will be forced
+      // to update suggestions next time they do a general update, including if
+      // they want to change the map status. Frontend explains this to the user.
+
+      this.checkSuggestionsAndZones(
+        dto.suggestions,
+        zones,
+        SuggestionType.SUBMISSION
+      );
+    }
 
     let oldStatus: MapStatus | undefined;
     let newStatus: MapStatus | undefined;
@@ -1372,23 +1417,27 @@ export class MapsService {
 
       const generalChanges = this.getGeneralMapDataUpdate(dto, map);
 
+      // Do general updates first since some status update refer to current map data for changes
+      let updatedMap = await tx.mMap.update({
+        where: { id: mapID },
+        data: deepmerge({ all: true })(
+          update,
+          generalChanges
+        ) as Prisma.MMapUpdateInput
+      });
+
       const statusHandler = await this.mapStatusUpdateHandler(
         tx,
-        map,
+        { ...map, ...updatedMap },
         dto,
         user,
         isSubmitter
       );
 
-      let updatedMap: MMap;
       if (statusHandler) {
         updatedMap = await tx.mMap.update({
           where: { id: mapID },
-          data: deepmerge({ all: true })(
-            update,
-            generalChanges,
-            statusHandler[0]
-          ) as Prisma.MMapUpdateInput
+          data: statusHandler[0]
         });
 
         oldStatus = statusHandler[1];
@@ -1423,14 +1472,6 @@ export class MapsService {
             await this.getMapInfoForNotification(map.id)
           );
         }
-      } else {
-        updatedMap = await tx.mMap.update({
-          where: { id: mapID },
-          data: deepmerge({ all: true })(
-            update,
-            generalChanges
-          ) as Prisma.MMapUpdateInput
-        });
       }
 
       if (dto.suggestions) {
@@ -1443,6 +1484,17 @@ export class MapsService {
           map.id,
           dto.suggestions,
           zones
+        );
+      }
+
+      if (dto.leaderboards) {
+        await this.updateMapLeaderboards(
+          tx,
+          map.id,
+          dto.leaderboards,
+          zones,
+          MapStatuses.IN_SUBMISSION.includes(map.status) &&
+            Bitflags.has(user.roles, Role.ADMIN)
         );
       }
 
@@ -1851,6 +1903,92 @@ export class MapsService {
     });
   }
 
+  private async updateMapLeaderboards(
+    tx: ExtendedPrismaServiceTransaction,
+    mapID: number,
+    suggestions: MapSubmissionSuggestion[],
+    zones: MapZones,
+    allowCreation = false
+  ) {
+    const existingLeaderboards = await this.db.leaderboard.findMany({
+      where: { mapID },
+      select: {
+        gamemode: true,
+        trackNum: true,
+        trackType: true,
+        type: true,
+        tier: true,
+        tags: true
+      }
+    });
+
+    // Not using getMaximalLeaderboards here since it's not needed for leaderboards getting updates
+    const desiredLeaderboards = [
+      ...LeaderboardHandler.setLeaderboardLinearity(suggestions, zones),
+      ...LeaderboardHandler.getStageLeaderboards(suggestions, zones)
+    ];
+
+    const toCreate = desiredLeaderboards.filter(
+      (x) => !existingLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+    );
+
+    if (toCreate.length > 0 && !allowCreation)
+      throw new BadRequestException(
+        'Creating new leaderboards on approved maps is not allowed'
+      );
+
+    await tx.leaderboard.createMany({
+      data: LeaderboardHandler.getCompatibleLeaderboards(toCreate, zones).map(
+        (obj) => ({
+          ...obj,
+          mapID,
+          type:
+            toCreate.find((lb) => LeaderboardHandler.isEqual(lb, obj))?.type ??
+            LeaderboardType.HIDDEN,
+          style: 0 // TODO: Styles
+        })
+      )
+    });
+
+    const toUpdate = existingLeaderboards.reduce((acc, lb) => {
+      const suggestion = desiredLeaderboards.find((sugg) =>
+        LeaderboardHandler.isEqual(lb, sugg)
+      );
+      const desiredType = suggestion?.type ?? LeaderboardType.HIDDEN;
+      const desiredTier = suggestion?.tier ?? null;
+      const desiredTags = suggestion?.tags ?? [];
+
+      if (
+        lb.type !== desiredType ||
+        lb.tier !== desiredTier ||
+        !deepEquals(lb.tags, desiredTags)
+      )
+        acc.push({
+          ...lb,
+          type: desiredType,
+          tier: desiredTier,
+          tags: desiredTags
+        });
+      return acc;
+    }, []);
+
+    for (const {
+      gamemode,
+      trackType,
+      trackNum,
+      type,
+      tier,
+      tags
+    } of toUpdate) {
+      // updateMany rather than update ensures this
+      // handles styles in the future
+      await tx.leaderboard.updateMany({
+        where: { mapID, gamemode, trackType, trackNum },
+        data: { type, tier, tags }
+      });
+    }
+  }
+
   //#endregion
 
   //#region Deletions
@@ -2210,6 +2348,26 @@ export class MapsService {
         throw new BadRequestException(`Invalid zone files: ${error.message}`);
       } else if (error instanceof SuggestionValidationError) {
         throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Checks that zones don't require leaderboard changes
+   * @throws BadRequestException
+   */
+  checkIfZonesChanged(
+    newZones: MapZones,
+    oldZones: MapZones,
+    allowCreation = false
+  ) {
+    try {
+      validateZoneDiff(newZones, oldZones, allowCreation);
+    } catch (error) {
+      if (error instanceof ZoneDiffValidationError) {
+        throw new BadRequestException(error.message);
       } else {
         throw error;
       }
