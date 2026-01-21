@@ -110,5 +110,6 @@ export enum MapTag {
   Funkyboost = 86,
   Mixed = 87,
   Pogo = 88,
-  Gauntlet = 89
+  Gauntlet = 89,
+  Flight = 90
 }

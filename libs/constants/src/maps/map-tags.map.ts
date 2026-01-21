@@ -129,7 +129,8 @@ export const GamemodeTags = {
     MapTag.Lightning_Gun,
     MapTag.Staged__Linear,
     MapTag.Funkyboost,
-    MapTag.Gauntlet
+    MapTag.Gauntlet,
+    MapTag.Flight
   ]
 } satisfies Record<GamemodeCategory, number[]>;
 
