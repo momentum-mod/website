@@ -13,7 +13,7 @@ import {
 } from '@momentum/db';
 import {
   ActivityType,
-  COMPATIBLE_STYLES,
+  CompatibleStyles,
   GamemodeStyles,
   runPath,
   RunValidationError,
@@ -256,7 +256,7 @@ export class RunSessionService {
       user
     );
 
-    const compatibleStyles = COMPATIBLE_STYLES[processedRun.style].filter(
+    const compatibleStyles = CompatibleStyles.get(processedRun.style).filter(
       (style) => GamemodeStyles.get(processedRun.gamemode)?.has(style)
     );
 

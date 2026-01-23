@@ -1,4 +1,5 @@
 import { MapSortType } from '../enums/map-sort-type.enum';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 export const MapSortTypeName: ReadonlyMap<MapSortType, string> = new Map([
   [MapSortType.DATE_RELEASED_NEWEST, 'Date Released (Newest)'],
@@ -21,4 +22,4 @@ export const MapSortTypeName: ReadonlyMap<MapSortType, string> = new Map([
   [MapSortType.SUBMISSION_CREATED_OLDEST, 'Submission Created (Old)'],
   [MapSortType.SUBMISSION_UPDATED_NEWEST, 'Submission Updated (New)'],
   [MapSortType.SUBMISSION_UPDATED_OLDEST, 'Submission Updated (Old)']
-]);
+]) satisfies CompleteMap<MapSortType>;

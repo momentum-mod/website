@@ -1,3 +1,5 @@
+import { CompleteMap } from '../types/utils/compete-map.type';
+
 /**
  * All the modes available in Momentum.
  */
@@ -32,7 +34,7 @@ export enum GamemodeCategory {
 }
 
 // prettier-ignore
-export const GamemodeCategoryToGamemode = new Map<GamemodeCategory, Gamemode[]>([
+export const GamemodeCategoryToGamemode: ReadonlyMap<GamemodeCategory, Gamemode[]> = new Map([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
   [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
   [GamemodeCategory.CLIMB,    [Gamemode.CLIMB_MOM, Gamemode.CLIMB_KZT, Gamemode.CLIMB_16]],
@@ -41,10 +43,10 @@ export const GamemodeCategoryToGamemode = new Map<GamemodeCategory, Gamemode[]>(
   [GamemodeCategory.AHOP,     [Gamemode.AHOP]],
   [GamemodeCategory.CONC,     [Gamemode.CONC]],
   [GamemodeCategory.DEFRAG,   [Gamemode.DEFRAG_CPM, Gamemode.DEFRAG_VQ3, Gamemode.DEFRAG_VTG]]
-]);
+]) satisfies CompleteMap<GamemodeCategory>;
 
 // prettier-ignore
-export const GamemodeToGamemodeCategory = new Map<Gamemode, GamemodeCategory>([
+export const GamemodeToGamemodeCategory = new Map([
   [Gamemode.SURF,           GamemodeCategory.SURF],
   [Gamemode.BHOP,           GamemodeCategory.BHOP],
   [Gamemode.BHOP_HL1,       GamemodeCategory.BHOP],
@@ -58,4 +60,4 @@ export const GamemodeToGamemodeCategory = new Map<Gamemode, GamemodeCategory>([
   [Gamemode.DEFRAG_CPM,     GamemodeCategory.DEFRAG],
   [Gamemode.DEFRAG_VQ3,     GamemodeCategory.DEFRAG],
   [Gamemode.DEFRAG_VTG,     GamemodeCategory.DEFRAG]
-]);
+]) satisfies CompleteMap<Gamemode>;
