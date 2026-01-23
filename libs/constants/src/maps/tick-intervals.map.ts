@@ -1,5 +1,6 @@
 import { Gamemode } from '../enums/gamemode.enum';
 import { float } from '../types/utils/numeric.type';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 /**
  * The tick intervals (inverse of tickrate) each gamemode uses. In Source
@@ -29,4 +30,4 @@ export const TickIntervals: ReadonlyMap<Gamemode, float> = new Map([
   [Gamemode.RJ,             Math.fround(0.015)],
   [Gamemode.SJ,             Math.fround(0.015)],
   [Gamemode.SURF,           Math.fround(0.015)]
-]);
+]) satisfies CompleteMap<Gamemode>;

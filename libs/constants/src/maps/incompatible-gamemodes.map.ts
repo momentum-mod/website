@@ -1,5 +1,6 @@
 import { Gamemode, GamemodeCategory } from '../enums/gamemode.enum';
 import { GamemodeCategories } from './gamemodes.map';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 // Silly little system for passing whole categories into this structure, rather
 // than each individual gamemode, but structured so we could do single gamemodes
@@ -24,23 +25,18 @@ const Cats = (...gcs: GamemodeCategory[]) =>
  * with autohop.
  */
 // prettier-ignore
-export const IncompatibleGamemodes: ReadonlyMap<Gamemode, ReadonlySet<Gamemode>> = new Map(
-  [
-    [G.SURF,        [Cats(GC.BHOP), G.CLIMB_MOM, G.CLIMB_KZT]],
-    [G.BHOP,        [Cats(GC.SURF), G.CLIMB_MOM, G.CLIMB_KZT]],
-    [G.BHOP_HL1,    [Cats(GC.SURF), G.CLIMB_MOM, G.CLIMB_KZT]],
-    [G.CLIMB_MOM,   [Cats(GC.SURF, GC.BHOP)]],
-    [G.CLIMB_KZT,   [Cats(GC.SURF, GC.BHOP)]],
-    [G.CLIMB_16,    [Cats(GC.SURF, GC.BHOP)]],
-    [G.RJ,          []],
-    [G.SJ,          []],
-    [G.AHOP,        []],
-    [G.CONC,        []],
-    [G.DEFRAG_CPM,  []],
-    [G.DEFRAG_VQ3,  []],
-    [G.DEFRAG_VTG,  []]
-  ].map(([k, v]) => [
-    k as Gamemode,
-    new Set((v as [Gamemode | Gamemode[]]).flat())
-  ])
-);
+export const IncompatibleGamemodes: ReadonlyMap<Gamemode, ReadonlySet<Gamemode>> = new Map([
+  [G.SURF,        new Set([...Cats(GC.BHOP), G.CLIMB_MOM, G.CLIMB_KZT])],
+  [G.BHOP,        new Set([...Cats(GC.SURF), G.CLIMB_MOM, G.CLIMB_KZT])],
+  [G.BHOP_HL1,    new Set([...Cats(GC.SURF), G.CLIMB_MOM, G.CLIMB_KZT])],
+  [G.CLIMB_MOM,   new Set(Cats(GC.SURF, GC.BHOP))],
+  [G.CLIMB_KZT,   new Set(Cats(GC.SURF, GC.BHOP))],
+  [G.CLIMB_16,    new Set(Cats(GC.SURF, GC.BHOP))],
+  [G.RJ,          new Set<Gamemode>()],
+  [G.SJ,          new Set<Gamemode>()],
+  [G.AHOP,        new Set<Gamemode>()],
+  [G.CONC,        new Set<Gamemode>()],
+  [G.DEFRAG_CPM,  new Set<Gamemode>()],
+  [G.DEFRAG_VQ3,  new Set<Gamemode>()],
+  [G.DEFRAG_VTG,  new Set<Gamemode>()],
+]) satisfies CompleteMap<Gamemode>;

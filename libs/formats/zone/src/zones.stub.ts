@@ -2,7 +2,6 @@ import {
   GamemodeStyles,
   Gamemode as GM,
   MapZones,
-  Style,
   TrackType
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
@@ -189,22 +188,20 @@ export const ZoneStubCompatGamemodes =
 // prettier-ignore
 export const ZonesStubLeaderboards = [
   ...ZoneStubCompatGamemodes
-    .flatMap((gamemode) => {
-      const validStyles = GamemodeStyles.get(gamemode) ?? new Set([Style.NORMAL]);
-      return Array.from(validStyles).flatMap(style => [
+    .flatMap((gamemode) => 
+      GamemodeStyles.get(gamemode)!.values().toArray().flatMap(style => [
         { gamemode, trackType: TrackType.MAIN,  trackNum: 1, style, linear: false },
         { gamemode, trackType: TrackType.STAGE, trackNum: 1, style, linear: null  },
         { gamemode, trackType: TrackType.STAGE, trackNum: 2, style, linear: null  }
-      ]);
-    }),
+      ])
+    ),
   ...Enum.values(GM)
     .filter((gamemode => gamemode !== GM.CLIMB_MOM ))
-    .flatMap((gamemode) => {
-      const validStyles = GamemodeStyles.get(gamemode) ?? new Set([Style.NORMAL]);
-      return Array.from(validStyles).map(style => (
+    .flatMap((gamemode) => 
+      GamemodeStyles.get(gamemode)!.values().toArray().map(style => (
         { gamemode, trackType: TrackType.BONUS, trackNum: 1, style, linear: null }
-      ));
-    })
+      ))
+    )
 ].sort();
 
 /**
