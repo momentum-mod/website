@@ -152,7 +152,7 @@ export class SpyService extends Service {
       if (message.content.length > 1024) {
         embed.addFields({
           name: 'Message Overflow',
-          value: message.content.slice(1024)
+          value: message.content.slice(1024, 2048)
         });
       }
     }
