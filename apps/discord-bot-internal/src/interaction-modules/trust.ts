@@ -3,7 +3,10 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   GuildMember,
-  Colors
+  Colors,
+  ApplicationCommandType,
+  ContextMenuCommandBuilder,
+  ContextMenuCommandInteraction
 } from 'discord.js';
 import { InteractionModule } from '../types/interaction-module';
 import { DailyMessageCountService } from '../services/daily-message-count';
@@ -51,6 +54,10 @@ export class TrustedModule implements InteractionModule {
           option.setName('member').setDescription('Member').setRequired(true)
         )
     );
+
+  contextMenuBuilder = new ContextMenuCommandBuilder()
+    .setName('Make user trusted')
+    .setType(ApplicationCommandType.User);
 
   private subcommandMap: Record<
     string,
@@ -172,5 +179,41 @@ export class TrustedModule implements InteractionModule {
       `Blacklisted ${member}`,
       MomentumColor.Blue
     );
+  }
+
+  async contextMenuHandler(interaction: ContextMenuCommandInteraction) {
+    if (!interaction.isUserContextMenuCommand()) return;
+    const member = interaction.targetMember as GuildMember;
+    if (!member) return;
+
+    await member.roles.remove(config.media_blacklisted_role);
+    await member.roles.add(config.media_verified_role);
+
+    await replyDescriptionEmbed(
+      interaction,
+      `Trusted ${member}`,
+      MomentumColor.Blue,
+      true
+    );
+
+    const botChannel = await interaction.client.channels.fetch(
+      config.admin_bot_channel
+    );
+
+    if (!botChannel || !botChannel.isTextBased() || !botChannel.isSendable())
+      return;
+
+    await botChannel.send({
+      embeds: [
+        {
+          description: `Trusted ${member}`,
+          color: MomentumColor.Blue,
+          author: {
+            name: interaction.user.displayName,
+            icon_url: interaction.user.avatarURL() || undefined
+          }
+        }
+      ]
+    });
   }
 }

@@ -97,6 +97,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (
       interactionModule.channelFilter &&
+      !interaction.isContextMenuCommand() &&
       (!interaction.channel ||
         !interactionModule.channelFilter.check(interaction.channel))
     ) {
