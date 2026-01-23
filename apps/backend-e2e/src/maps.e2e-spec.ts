@@ -2486,40 +2486,41 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const expected = ZoneStubCompatGamemodes.flatMap((gamemode) => {
-          const validStyles =
-            GamemodeStyles.get(gamemode) ?? new Set([Style.NORMAL]);
-          return Array.from(validStyles).flatMap((style) => [
-            {
-              gamemode,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style,
-              linear: false
-            },
-            {
-              gamemode,
-              trackType: TrackType.STAGE,
-              trackNum: 1,
-              style,
-              linear: null
-            },
-            {
-              gamemode,
-              trackType: TrackType.STAGE,
-              trackNum: 2,
-              style,
-              linear: null
-            },
-            {
-              gamemode,
-              trackType: TrackType.STAGE,
-              trackNum: 3,
-              style,
-              linear: null
-            }
-          ]);
-        }).sort();
+        const expected = ZoneStubCompatGamemodes.flatMap((gamemode) =>
+          GamemodeStyles.get(gamemode)
+            .values()
+            .toArray()
+            .flatMap((style) => [
+              {
+                gamemode,
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                style,
+                linear: false
+              },
+              {
+                gamemode,
+                trackType: TrackType.STAGE,
+                trackNum: 1,
+                style,
+                linear: null
+              },
+              {
+                gamemode,
+                trackType: TrackType.STAGE,
+                trackNum: 2,
+                style,
+                linear: null
+              },
+              {
+                gamemode,
+                trackType: TrackType.STAGE,
+                trackNum: 3,
+                style,
+                linear: null
+              }
+            ])
+        ).sort();
 
         const leaderboards = await prisma.leaderboard.findMany({
           where: { mapID: map.id },

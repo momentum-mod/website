@@ -1,10 +1,8 @@
 import { Gamemode, GamemodeCategory } from '../enums/gamemode.enum';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 // prettier-ignore
-export const GamemodeCategories: ReadonlyMap<
-  GamemodeCategory,
-  Array<Gamemode>
-> = new Map([
+export const GamemodeCategories: ReadonlyMap<GamemodeCategory, Gamemode[]> = new Map([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
   [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
   [GamemodeCategory.RJ,       [Gamemode.RJ]],
@@ -13,7 +11,7 @@ export const GamemodeCategories: ReadonlyMap<
   [GamemodeCategory.CONC,     [Gamemode.CONC]],
   [GamemodeCategory.DEFRAG,   [Gamemode.DEFRAG_CPM, Gamemode.DEFRAG_VQ3, Gamemode.DEFRAG_VTG]],
   [GamemodeCategory.CLIMB,    [Gamemode.CLIMB_KZT, Gamemode.CLIMB_MOM, Gamemode.CLIMB_16]]
-]);
+]) satisfies CompleteMap<GamemodeCategory>;
 
 // See mom_system_gamemode.h for CPP version of similar properties
 export interface GamemodeInfoProperties {
@@ -156,4 +154,4 @@ export const GamemodeInfo: ReadonlyMap<Gamemode, GamemodeInfoProperties> =
         icon: 'defrag'
       }
     ]
-  ]);
+  ]) satisfies CompleteMap<Gamemode>;

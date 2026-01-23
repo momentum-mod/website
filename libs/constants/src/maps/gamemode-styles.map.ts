@@ -1,29 +1,26 @@
 import { Gamemode } from '../enums/gamemode.enum';
 import { Style } from '../enums/style.enum';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 const S = Style;
 const G = Gamemode;
 
-export const GamemodeStyles: ReadonlyMap<
-  Gamemode,
-  ReadonlySet<Style>
-> = new Map(
-  [
-    [G.SURF, [S.NORMAL, S.SURF_HALF_SIDEWAYS, S.SIDEWAYS, S.BACKWARDS]],
-    [G.BHOP, [S.NORMAL, S.BHOP_HALF_SIDEWAYS, S.SIDEWAYS, S.W_ONLY, S.AD_ONLY]],
-    [G.BHOP_HL1, [S.NORMAL]],
-    [G.CLIMB_MOM, [S.PRO, S.TELEPORT]],
-    [G.CLIMB_KZT, [S.PRO, S.TELEPORT]],
-    [G.CLIMB_16, [S.PRO, S.TELEPORT]],
-    [G.RJ, [S.NORMAL]],
-    [G.SJ, [S.NORMAL]],
-    [G.AHOP, [S.NORMAL]],
-    [G.CONC, [S.NORMAL]],
-    [G.DEFRAG_CPM, [S.NORMAL]],
-    [G.DEFRAG_VQ3, [S.NORMAL]],
-    [G.DEFRAG_VTG, [S.NORMAL]]
-  ].map(([k, v]) => [k as Gamemode, new Set((v as [Style | Style[]]).flat())])
-);
+// prettier-ignore
+export const GamemodeStyles: ReadonlyMap<Gamemode, ReadonlySet<Style>> = new Map([
+  [G.SURF,        new Set([S.NORMAL, S.SURF_HALF_SIDEWAYS, S.SIDEWAYS, S.BACKWARDS])],
+  [G.BHOP,        new Set([S.NORMAL, S.BHOP_HALF_SIDEWAYS, S.SIDEWAYS, S.W_ONLY, S.AD_ONLY])],
+  [G.BHOP_HL1,    new Set([S.NORMAL])],
+  [G.CLIMB_MOM,   new Set([S.PRO, S.TELEPORT])],
+  [G.CLIMB_KZT,   new Set([S.PRO, S.TELEPORT])],
+  [G.CLIMB_16,    new Set([S.PRO, S.TELEPORT])],
+  [G.RJ,          new Set([S.NORMAL])],
+  [G.SJ,          new Set([S.NORMAL])],
+  [G.AHOP,        new Set([S.NORMAL])],
+  [G.CONC,        new Set([S.NORMAL])],
+  [G.DEFRAG_CPM,  new Set([S.NORMAL])],
+  [G.DEFRAG_VQ3,  new Set([S.NORMAL])],
+  [G.DEFRAG_VTG,  new Set([S.NORMAL])]
+]) satisfies CompleteMap<Gamemode>;
 
 export const GamemodeDefaultUIStyle: ReadonlyMap<Gamemode, Style> = new Map([
   [G.SURF, S.NORMAL],
@@ -39,4 +36,4 @@ export const GamemodeDefaultUIStyle: ReadonlyMap<Gamemode, Style> = new Map([
   [G.DEFRAG_CPM, S.NORMAL],
   [G.DEFRAG_VQ3, S.NORMAL],
   [G.DEFRAG_VTG, S.NORMAL]
-]);
+]) satisfies CompleteMap<Gamemode>;

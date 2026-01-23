@@ -57,19 +57,18 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
           )
           .filter((newGamemode) => !DisabledGamemodes.has(newGamemode))
           // Add a style for each compatible gamemode
-          .flatMap((newGamemode) => {
-            // Get all valid styles for this gamemode
-            const validStyles =
-              GamemodeStyles.get(newGamemode) || new Set([Style.NORMAL]);
-
-            return Array.from(validStyles).map((style) => ({
-              trackType,
-              trackNum,
-              linear,
-              gamemode: newGamemode,
-              style
-            }));
-          })
+          .flatMap((newGamemode) =>
+            GamemodeStyles.get(newGamemode)
+              .values()
+              .map((style) => ({
+                trackType,
+                trackNum,
+                linear,
+                gamemode: newGamemode,
+                style
+              }))
+              .toArray()
+          )
       )
       // Filter out any duplicates
       .filter((x, i, array) => !array.some((y, j) => isEqual(x, y) && i < j))

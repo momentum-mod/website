@@ -51,6 +51,7 @@ export * from './types/utils/numberify-big-int.type';
 export * from './types/utils/datestring.type';
 export * from './types/utils/vector.type';
 export * from './types/utils/numeric.type';
+export * from './types/utils/compete-map.type';
 export * from './regexp/youtube-id.regexp';
 export * from './regexp/map-name.regexp';
 export * from './regexp/iso-8601.regexp';
