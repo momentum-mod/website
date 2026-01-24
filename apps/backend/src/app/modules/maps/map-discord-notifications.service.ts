@@ -156,13 +156,15 @@ export class MapDiscordNotifications {
     await this.broadcastToCategories(
       ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      categories.ranked
+      categories.ranked,
+      true
     );
     if (this.config.getOrThrow('discord.unrankedNotifications'))
       await this.broadcastToCategories(
         ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
         mapEmbed,
-        categories.unranked
+        categories.unranked,
+        true
       );
   }
 
@@ -290,7 +292,8 @@ export class MapDiscordNotifications {
   private async broadcastToCategories(
     text: string,
     embed: APIEmbed,
-    categories: Array<GamemodeCategory>
+    categories: Array<GamemodeCategory>,
+    crosspost = false
   ): Promise<void> {
     await Promise.all(
       categories.map(async (category) => {
@@ -308,7 +311,8 @@ export class MapDiscordNotifications {
             "Channel specified doesn't exist or is not sendable."
           );
 
-        return channel.send({ content: text, embeds: [embed] });
+        const message = await channel.send({ content: text, embeds: [embed] });
+        if (message.crosspostable && crosspost) await message.crosspost();
       })
     ).catch((error) =>
       this.logger.error('Failed to send discord notification', error)
