@@ -970,10 +970,12 @@ export class MapsService {
     );
 
     if (
-      map.status === MapStatus.PUBLIC_TESTING ||
-      map.status === MapStatus.FINAL_APPROVAL
+      MapStatuses.IN_SUBMISSION.includes(map.status) &&
+      !MapStatuses.PRIVATE.includes(map.status)
     ) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
+    } else if (map.status === MapStatus.APPROVED) {
+      void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
 
     return DtoFactory(
