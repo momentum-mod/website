@@ -58,4 +58,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/apps/frontend --project-name=${{ inputs.project_name }} --commit-dirty=true
+          command: pages deploy dist/apps/frontend --project-name=${{ inputs.project_name }} --commit-dirty=true --branch=${{ contains( inputs.project_name, 'staging' ) && 'main' || '' }}
