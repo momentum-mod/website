@@ -32,7 +32,7 @@ export class AdminService {
   submitMapVersion(
     mapID: number,
     { data, vmfs }: CreateMapVersionWithFiles
-  ): Observable<HttpEvent<string>> {
+  ): Observable<HttpEvent<MMap>> {
     const formData = new FormData();
 
     formData.append('data', JSON.stringify(data));

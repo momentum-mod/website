@@ -656,7 +656,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             }
           })
           .pipe(
-            tap((event: HttpEvent<string>) => {
+            tap((event: HttpEvent<MMap>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
