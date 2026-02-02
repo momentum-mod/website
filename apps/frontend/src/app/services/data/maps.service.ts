@@ -82,7 +82,7 @@ export class MapsService {
     });
   }
 
-  submitMap({ data, vmfs }: CreateMapWithFiles): Observable<HttpEvent<string>> {
+  submitMap({ data, vmfs }: CreateMapWithFiles): Observable<HttpEvent<MMap>> {
     const formData = new FormData();
 
     formData.append('data', JSON.stringify(data));
@@ -98,7 +98,7 @@ export class MapsService {
   submitMapVersion(
     mapID: number,
     { data, vmfs }: CreateMapVersionWithFiles
-  ): Observable<HttpEvent<string>> {
+  ): Observable<HttpEvent<MMap>> {
     const formData = new FormData();
 
     formData.append('data', JSON.stringify(data));

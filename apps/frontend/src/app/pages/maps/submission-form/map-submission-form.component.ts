@@ -368,7 +368,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
             vmfs: this.vmfs.value
           })
           .pipe(
-            tap((event: HttpEvent<string>) => {
+            tap((event: HttpEvent<MMap>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
@@ -379,7 +379,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
                     80 + Math.round((event['loaded'] / event['total']) * 10);
                   break;
                 case HttpEventType.Response: {
-                  const dto: MMap = JSON.parse(event.body);
+                  const dto: MMap = event.body;
                   mapID = dto.id;
                   mapName = dto.name;
                   this.uploadStatusDescription = 'Uploading images...';
@@ -394,7 +394,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       this.messageService.add({
         severity: 'error',
         summary: 'Map upload failed!',
-        detail: JSON.parse(error.error).message,
+        detail: error.error.message,
         sticky: true
       });
 
