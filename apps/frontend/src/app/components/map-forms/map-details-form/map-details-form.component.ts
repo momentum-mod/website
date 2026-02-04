@@ -25,7 +25,6 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -37,17 +36,18 @@ import { IconComponent } from '../../../icons';
 import { Select } from 'primeng/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ChipsComponent } from '../../chips/chips.component';
+import { DatePickerUTC } from '../../../directives/date-picker-utc.directive';
 
 @Component({
   selector: 'm-map-details-form',
   templateUrl: 'map-details-form.component.html',
   imports: [
-    DatePickerModule,
     SelectModule,
     SubmissionTypeInfoComponent,
     IconComponent,
     FormsModule,
     DatePicker,
+    DatePickerUTC,
     ReactiveFormsModule,
     TooltipDirective,
     Select,
@@ -104,21 +104,6 @@ export class MapDetailsFormComponent implements OnInit {
     this.name.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(this.onNameStatusChange.bind(this));
-
-    this.creationDate.valueChanges.subscribe((val: Date) => {
-      const utc = new Date(
-        Date.UTC(
-          val.getFullYear(),
-          val.getMonth(),
-          val.getDate(),
-          val.getHours(),
-          val.getMinutes(),
-          val.getSeconds(),
-          val.getMilliseconds()
-        )
-      );
-      this.creationDate.setValue(utc, { emitEvent: false });
-    });
   }
 
   onNameStatusChange(status: FormControlStatus) {
