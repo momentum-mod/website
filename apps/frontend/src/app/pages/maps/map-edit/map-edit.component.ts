@@ -461,36 +461,6 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       return;
     }
 
-    if (!isEmpty(body)) {
-      try {
-        // Use the non-admin endpoint for submitters, unless they're an admin
-        // approving their own map, map is approved/disabled, or they're
-        // changing submitter.
-        if (
-          this.isSubmitter &&
-          !(
-            this.isModOrAdmin &&
-            (body.status === MapStatus.APPROVED ||
-              this.map.status === MapStatus.APPROVED ||
-              this.map.status === MapStatus.DISABLED ||
-              body.leaderboards)
-          )
-        ) {
-          await firstValueFrom(this.mapsService.updateMap(this.map.id, body));
-        } else {
-          await firstValueFrom(this.adminService.updateMap(this.map.id, body));
-        }
-      } catch (httpError) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Failed to update map!',
-          detail: JSON.stringify(httpError.error.message)
-        });
-        this.loading = false;
-        return;
-      }
-    }
-
     if (hasImages) {
       // See docs for /maps/:id/images PUT for explanation
       let fileIndex = 0;
@@ -591,6 +561,36 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           severity: 'error',
           summary: 'Failed to update credits!',
           detail: error.error.message
+        });
+        this.loading = false;
+        return;
+      }
+    }
+
+    if (!isEmpty(body)) {
+      try {
+        // Use the non-admin endpoint for submitters, unless they're an admin
+        // approving their own map, map is approved/disabled, or they're
+        // changing submitter.
+        if (
+          this.isSubmitter &&
+          !(
+            this.isModOrAdmin &&
+            (body.status === MapStatus.APPROVED ||
+              this.map.status === MapStatus.APPROVED ||
+              this.map.status === MapStatus.DISABLED ||
+              body.leaderboards)
+          )
+        ) {
+          await firstValueFrom(this.mapsService.updateMap(this.map.id, body));
+        } else {
+          await firstValueFrom(this.adminService.updateMap(this.map.id, body));
+        }
+      } catch (httpError) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to update map!',
+          detail: JSON.stringify(httpError.error.message)
         });
         this.loading = false;
         return;
