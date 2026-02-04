@@ -552,7 +552,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
         const updatePlaceholders = async () =>
           await firstValueFrom(
-            (this.localUserService.isReviewerOrAbove
+            (this.localUserService.isModOrAdmin
               ? this.adminService
               : this.mapsService
             ).updateMap(this.map.id, {
