@@ -231,6 +231,10 @@ export class RunSessionService {
           storedTimestamps,
           userID
         });
+        Sentry.getCurrentScope().addAttachment({
+          filename: 'logs.txt',
+          data: this.failureLogsService.getLogs()
+        });
         Sentry.captureException('Invalid session ID on run end');
       }
       throw new BadRequestException('Invalid session');
