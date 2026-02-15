@@ -124,7 +124,12 @@ export class RunSessionService {
       Sentry.setTag('session_id', id);
     }
 
-    this.failureLogsService.addLog(id, userID, 'RunSession', 'Session created');
+    this.failureLogsService.addLog(
+      id,
+      userID,
+      'RunSession',
+      `Session created: Map: ${body.mapID} Mode ${body.gamemode} TT: ${body.trackType} TN: ${body.trackNum}`
+    );
 
     return DtoFactory(RunSessionDto, {
       id,
@@ -216,6 +221,13 @@ export class RunSessionService {
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
+
+    this.failureLogsService.addLog(
+      sessionID,
+      userID,
+      'RunSession',
+      'Completing session'
+    );
 
     if (
       !storedUserID ||
