@@ -44,6 +44,7 @@ import {
 import { RunProcessor } from './run-processor.class';
 import { ValkeyService } from '../../valkey/valkey.service';
 import { RunFileStoreService } from '../../filestore/run-file-store.service';
+import { RunFailureLoggerSerivce } from './run-failure-logger.service';
 
 @Injectable()
 export class RunSessionService {
@@ -52,7 +53,8 @@ export class RunSessionService {
     private readonly fileStoreService: RunFileStoreService,
     private readonly valkey: ValkeyService,
     private readonly xpSystems: XpSystemsService,
-    private readonly mapsService: MapsService
+    private readonly mapsService: MapsService,
+    private readonly failureLogsService: RunFailureLoggerSerivce
   ) {}
 
   //#region Create Session
@@ -122,6 +124,8 @@ export class RunSessionService {
       Sentry.setTag('session_id', id);
     }
 
+    this.failureLogsService.addLog(id, userID, 'RunSession', 'Session created');
+
     return DtoFactory(RunSessionDto, {
       id,
       userID,
@@ -152,6 +156,13 @@ export class RunSessionService {
       Sentry.setTag('session_id', sessionID);
     }
 
+    this.failureLogsService.addLog(
+      sessionID,
+      userID,
+      'RunSession',
+      `Timestamp added: Major: ${majorNum} Minor: ${minorNum}`
+    );
+
     await this.valkey.lpush(
       timestampKey(sessionID),
       serializeTimestamp(majorNum, minorNum, time, Date.now())
@@ -172,6 +183,13 @@ export class RunSessionService {
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
+
+    this.failureLogsService.addLog(
+      sessionID,
+      userID,
+      'RunSession',
+      'Session deleted'
+    );
 
     await Promise.all([
       this.valkey.lrem(idKey(userID), 0, sessionID),
@@ -207,6 +225,12 @@ export class RunSessionService {
     ) {
       if (Sentry.isInitialized()) {
         Sentry.getCurrentScope().setLevel('log');
+        Sentry.setContext('Key Info', {
+          storedUserID,
+          storedSession,
+          storedTimestamps,
+          userID
+        });
         Sentry.captureException('Invalid session ID on run end');
       }
       throw new BadRequestException('Invalid session');
@@ -250,7 +274,8 @@ export class RunSessionService {
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
       session as CompletedRunSession,
-      user
+      user,
+      this.failureLogsService
     );
 
     return this.saveSubmittedRun(processedRun, replay);
@@ -259,12 +284,18 @@ export class RunSessionService {
   private static processSubmittedRun(
     replay: Buffer,
     session: CompletedRunSession,
-    user: User
+    user: User,
+    failureLogsService: RunFailureLoggerSerivce
   ): ProcessedRun {
     try {
       // Make a new run processor instance. This wraps the gritty part of replay
       // parsing then perform a bunch of validations
-      const processor = RunProcessor.parse(replay, session, user);
+      const processor = RunProcessor.parse(
+        replay,
+        session,
+        user,
+        failureLogsService
+      );
 
       // Check the session timestamps are in order
       processor.validateSessionTimestamps();

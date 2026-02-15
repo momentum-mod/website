@@ -7,6 +7,7 @@ import { SessionController } from './session.controller';
 import { RunSessionService } from './run/run-session.service';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 import { ValkeyModule } from '../valkey/valkey.module';
+import { RunFailureLoggerSerivce } from './run/run-failure-logger.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { ValkeyModule } from '../valkey/valkey.module';
     KillswitchModule
   ],
   controllers: [SessionController],
-  providers: [RunSessionService]
+  providers: [RunSessionService, RunFailureLoggerSerivce]
 })
 export class SessionModule {}

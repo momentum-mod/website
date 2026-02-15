@@ -19,6 +19,7 @@ import {
 } from './run-session.interface';
 import { findWithIndex } from '@momentum/util-fn';
 import * as Bitflags from '@momentum/bitflags';
+import { RunFailureLoggerSerivce } from './run-failure-logger.service';
 
 /**
  * Class for managing the parsing of a replay file and validating it against
@@ -51,7 +52,8 @@ export class RunProcessor {
   private constructor(
     buffer: Buffer,
     session: CompletedRunSession,
-    user: User
+    user: User,
+    private failureLogger: RunFailureLoggerSerivce
   ) {
     this.buffer = buffer;
     this.session = session;
@@ -66,8 +68,13 @@ export class RunProcessor {
   }
 
   /** @throws {RunValidationError} */
-  static parse(buffer: Buffer, session: CompletedRunSession, user: User) {
-    return new RunProcessor(buffer, session, user);
+  static parse(
+    buffer: Buffer,
+    session: CompletedRunSession,
+    user: User,
+    failureLogger: RunFailureLoggerSerivce
+  ) {
+    return new RunProcessor(buffer, session, user, failureLogger);
   }
 
   /** @throws {RunValidationError} */
@@ -494,6 +501,11 @@ export class RunProcessor {
       Sentry.setContext('Run Info', info);
       Sentry.setUser(this.user);
       Sentry.getCurrentScope().setLevel('log');
+      Sentry.getCurrentScope().addAttachment({
+        filename: 'logs.txt',
+        data: this.failureLogger.getLogs()
+      });
+
       Sentry.captureException('Rejected run submission');
     }
 
