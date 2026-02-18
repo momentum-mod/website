@@ -1780,7 +1780,7 @@ describe('Admin', () => {
         );
 
         expect(createdLeaderboards).not.toHaveLength(0);
-        expect(rankedLb).not.toBeNull();
+        expect(rankedLb).not.toBeFalsy();
         expect(rankedLb.gamemode).toBe(Gamemode.RJ);
       });
 

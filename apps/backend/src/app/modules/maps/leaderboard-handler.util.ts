@@ -125,6 +125,17 @@ export function isEqual<T extends LeaderboardProps, U extends LeaderboardProps>(
   );
 }
 
+export function isSameTrackAndMode<
+  T extends LeaderboardProps,
+  U extends LeaderboardProps
+>(x: T, y: U) {
+  return (
+    x.gamemode === y.gamemode &&
+    x.trackType === y.trackType &&
+    x.trackNum === y.trackNum
+  );
+}
+
 /**
  * Set linear (true/false/undef) for each suggestion based on zones
  */
