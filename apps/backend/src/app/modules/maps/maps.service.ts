@@ -50,6 +50,7 @@ import {
 import * as Bitflags from '@momentum/bitflags';
 import {
   deepEquals,
+  difference,
   expandToIncludes,
   intersection,
   isEmpty,
@@ -1395,8 +1396,8 @@ export class MapsService {
       );
     }
 
-    let oldStatus: MapStatus | undefined;
-    let newStatus: MapStatus | undefined;
+    let oldStatus: MapStatus | undefined = map.status;
+    let newStatus: MapStatus | undefined = map.status;
     await this.db.$transaction(async (tx) => {
       const update: Prisma.MMapUpdateInput = {};
 
@@ -1510,22 +1511,21 @@ export class MapsService {
         );
     });
 
-    if (newStatus === undefined || oldStatus === undefined) return;
-
-    const numInSubmissionStatuses = intersection(
-      [newStatus, oldStatus],
-      MapStatuses.IN_SUBMISSION
-    ).length;
-
-    // If going from submission -> submission just update submission list,
-    // If submission -> approved or reverse, update both
-    // If no submission (e.g. approved -> disabled), just update approved list
-    if (numInSubmissionStatuses === 2) {
+    if (
+      intersection(
+        [newStatus, oldStatus],
+        difference(MapStatuses.IN_SUBMISSION, MapStatuses.PRIVATE)
+      ).length > 0
+    ) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
-    } else if (numInSubmissionStatuses === 1) {
-      void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
-      void this.mapListService.scheduleMapListUpdate(FlatMapList.SUBMISSION);
-    } else {
+    }
+
+    if (
+      difference(
+        [newStatus, oldStatus],
+        difference(MapStatuses.IN_SUBMISSION, MapStatuses.PRIVATE)
+      ).length > 0
+    ) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
   }
