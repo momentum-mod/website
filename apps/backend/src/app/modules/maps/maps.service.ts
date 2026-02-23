@@ -190,13 +190,13 @@ export class MapsService {
 
       if (query.difficultyHigh && query.difficultyLow) {
         leaderboardSome.tier = {
-          lt: query.difficultyHigh,
-          gt: query.difficultyLow
+          lte: query.difficultyHigh,
+          gte: query.difficultyLow
         };
       } else if (query.difficultyLow) {
-        leaderboardSome.tier = { gt: query.difficultyLow };
+        leaderboardSome.tier = { gte: query.difficultyLow };
       } else if (query.difficultyHigh) {
-        leaderboardSome.tier = { lt: query.difficultyHigh };
+        leaderboardSome.tier = { lte: query.difficultyHigh };
       }
 
       if (query.linear != null) {
