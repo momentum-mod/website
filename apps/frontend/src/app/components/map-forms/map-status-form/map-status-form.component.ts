@@ -23,7 +23,8 @@ import {
   Role,
   TrackType,
   MapTag,
-  DisabledGamemodes
+  DisabledGamemodes,
+  GamemodeDefaultUIStyle
 } from '@momentum/constants';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -297,6 +298,10 @@ export class MapStatusFormComponent implements OnChanges {
 
     this.groupedLeaderboards.clear();
     for (const lb of leaderboards) {
+      if (lb.style !== GamemodeDefaultUIStyle.get(lb.gamemode)) {
+        continue;
+      }
+
       let group = this.groupedLeaderboards.get(lb.gamemode);
       if (!group) {
         group = { leaderboards: [], totalRuns: 0 };
