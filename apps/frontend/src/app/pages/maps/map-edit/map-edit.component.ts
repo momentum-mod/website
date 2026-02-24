@@ -43,7 +43,8 @@ import {
   YOUTUBE_ID_REGEXP,
   Role,
   SteamGame,
-  TrackType
+  TrackType,
+  GamemodeDefaultUIStyle
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -348,7 +349,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           .filter(
             (lb) =>
               lb.type !== LeaderboardType.HIDDEN &&
-              lb.trackType !== TrackType.STAGE
+              lb.trackType !== TrackType.STAGE &&
+              lb.style === GamemodeDefaultUIStyle.get(lb.gamemode)
           )
           .map((lb) => ({
             ...lb,

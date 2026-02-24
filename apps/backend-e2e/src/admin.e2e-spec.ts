@@ -36,7 +36,8 @@ import {
   imgMediumPath,
   imgSmallPath,
   imgXlPath,
-  vmfsPath
+  vmfsPath,
+  Style
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Enum from '@momentum/enum';
@@ -2341,7 +2342,7 @@ describe('Admin', () => {
                 trackType: TrackType.MAIN,
                 trackNum: 1,
                 linear: false,
-                style: 0,
+                style: Style.NORMAL,
                 tier: 5,
                 type: LeaderboardType.UNRANKED,
                 tags: [MapTag.Sync]
@@ -2354,7 +2355,7 @@ describe('Admin', () => {
                 linear: null,
                 tier: null,
                 type: LeaderboardType.UNRANKED,
-                style: 0,
+                style: Style.NORMAL,
                 tags: []
               },
               {
@@ -2365,7 +2366,7 @@ describe('Admin', () => {
                 linear: null,
                 tier: null,
                 type: LeaderboardType.UNRANKED,
-                style: 0,
+                style: Style.NORMAL,
                 tags: []
               },
               {
@@ -2376,7 +2377,7 @@ describe('Admin', () => {
                 linear: null,
                 tier: 5,
                 type: LeaderboardType.RANKED,
-                style: 0,
+                style: Style.NORMAL,
                 tags: [MapTag.Strafe]
               },
               {
@@ -2387,7 +2388,7 @@ describe('Admin', () => {
                 linear: null,
                 tier: null,
                 type: LeaderboardType.HIDDEN,
-                style: 0,
+                style: Style.NORMAL,
                 tags: []
               }
             ])
