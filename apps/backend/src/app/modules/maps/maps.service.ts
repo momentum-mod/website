@@ -45,7 +45,8 @@ import {
   runPath,
   MapTag,
   TagQualifier,
-  MAX_MAPPER_OPEN_MAP_SUBMISSIONS
+  MAX_MAPPER_OPEN_MAP_SUBMISSIONS,
+  GamemodeStyles
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -1803,19 +1804,30 @@ export class MapsService {
       await tx.leaderboard.deleteMany({ where: { mapID: map.id } });
 
       // Okay, got a clean slate, make new leaderboards from finalLeaderboards
+      const expandedLeaderboards = [
+        // Main and bonuses
+        ...LeaderboardHandler.setLeaderboardLinearity(
+          dto.finalLeaderboards,
+          zones
+        ),
+        // Stages
+        ...LeaderboardHandler.getStageLeaderboards(dto.finalLeaderboards, zones)
+      ].flatMap((lb) =>
+        GamemodeStyles.get(lb.gamemode)
+          .values()
+          .map((style) => ({
+            ...lb,
+            style
+          }))
+          .toArray()
+      );
+
       await tx.leaderboard.createMany({
-        data: [
-          // Main and bonuses
-          ...LeaderboardHandler.setLeaderboardLinearity(
-            dto.finalLeaderboards,
-            zones
-          ),
-          // Stages
-          ...LeaderboardHandler.getStageLeaderboards(
-            dto.finalLeaderboards,
-            zones
-          )
-        ].map((lb) => ({ ...lb, mapID: map.id, style: 0 }))
+        data: expandedLeaderboards.map((lb) => ({
+          ...lb,
+          mapID: map.id,
+          style: lb.style
+        }))
       });
     }
 
