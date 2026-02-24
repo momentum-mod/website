@@ -652,6 +652,22 @@ describe('Maps', () => {
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
         });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: { difficultyLow: 3, difficultyHigh: 5 },
+          token: u1Token,
+          validatePaged: { type: MapDto, count: 3 }
+        });
+
+        await req.get({
+          url: 'maps',
+          status: 200,
+          query: { difficultyLow: 3, difficultyHigh: 3 },
+          token: u1Token,
+          validatePaged: { type: MapDto, count: 2 }
+        });
       });
 
       it('should respond with filtered maps when using the linear filter', async () => {
