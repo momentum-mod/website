@@ -29,7 +29,8 @@
           "scripts/src/make-me-admin.script.ts",
           "scripts/src/generate-zones.script.ts",
           "scripts/src/maptags-poeditor.script.ts",
-          "scripts/src/scratchpad.script.ts"
+          "scripts/src/scratchpad.script.ts",
+          "scripts/src/benchmarks/leaderboardrun-rank.bench.ts"
         ]
       }
     },
@@ -66,6 +67,13 @@
       "dependsOn": ["build"],
       "options": {
         "command": "node dist/scripts/scratchpad.script.cjs"
+      }
+    },
+    "bench-run-ranks": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/benchmarks/leaderboardrun-rank.bench.cjs"
       }
     }
   }
