@@ -291,9 +291,6 @@ export class MapLeaderboardGetQueryDto
   @EnumQueryProperty(Style, { required: false })
   style = Style.NONE;
 
-  @SingleExpandQueryProperty('splits')
-  readonly expand?: MapRunsGetExpand;
-
   @FilterQueryProperty(['friends', 'around'], {
     example: 'around',
     description:
@@ -309,11 +306,6 @@ export class MapLeaderboardGetQueryDto
     description: 'List of user Steam IDs to limit results to'
   })
   readonly steamIDs?: string[];
-
-  @BooleanQueryProperty({
-    description: 'Whether to order by date or not (false for reverse)'
-  })
-  readonly orderByDate?: boolean;
 }
 
 export class MapLeaderboardGetRunQueryDto
