@@ -668,6 +668,8 @@ export class MapsService {
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
 
+    this.checkCredits([...(dto.placeholders ?? []), ...(dto.credits ?? [])]);
+
     const bspFile = await this.tryGetBspFromTempUploads(userID);
 
     if (!bspFile) throw new BadRequestException('Missing BSP file');
@@ -1434,6 +1436,12 @@ export class MapsService {
           );
         update.submitter = { connect: { id: dto.submitterID } };
       }
+
+      const allCredits = await tx.mapCredit.findMany({
+        where: { mapID: map.id }
+      });
+
+      this.checkCredits([...(dto.placeholders ?? []), ...allCredits]);
 
       const generalChanges = this.getGeneralMapDataUpdate(dto, map);
 
