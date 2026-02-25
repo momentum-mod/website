@@ -4041,6 +4041,40 @@ describe('Maps', () => {
         });
       });
 
+      for (const type of [
+        MapCreditType.CONTRIBUTOR,
+        MapCreditType.SPECIAL_THANKS
+      ]) {
+        it(`should 400 if there are more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits or placeholders`, async () => {
+          const map = await db.createMap({
+            ...createMapData,
+            submitter: { connect: { id: user.id } },
+            status: MapStatus.PRIVATE_TESTING,
+            credits: {
+              create: [
+                {
+                  userID: u2.id,
+                  description: 'Walrus 2',
+                  type
+                }
+              ]
+            }
+          });
+
+          await req.patch({
+            url: `maps/${map.id}`,
+            status: 400,
+            body: {
+              placeholders: arrayFrom(MAX_CREDITS_EXCEPT_TESTERS, () => ({
+                alias: randomString(),
+                type
+              }))
+            },
+            token
+          });
+        });
+      }
+
       it('should 400 if suggestions and zones dont match up', async () => {
         const map = await db.createMap({
           ...createMapData,
