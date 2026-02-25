@@ -75,19 +75,6 @@ export class MapCreditsService {
     body: CreateMapCreditDto[],
     loggedInUserID: number
   ): Promise<MapCreditDto[]> {
-    const maxCredits = this.config.getOrThrow('limits.maxCreditsExceptTesters');
-    for (const type of [
-      MapCreditType.AUTHOR,
-      MapCreditType.CONTRIBUTOR,
-      MapCreditType.SPECIAL_THANKS
-    ]) {
-      if (body.filter((credit) => credit.type === type).length > maxCredits) {
-        throw new BadRequestException(
-          `Cannot have more than ${maxCredits} per type.`
-        );
-      }
-    }
-
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { credits: true, submission: { select: { placeholders: true } } }
@@ -97,16 +84,21 @@ export class MapCreditsService {
       throw new NotFoundException('Map not found');
     }
 
-    if (
-      !body.some((credit) => credit.type === MapCreditType.AUTHOR) &&
-      !(
-        MapStatuses.IN_SUBMISSION.includes(map.status) &&
-        (
-          map.submission.placeholders as unknown as MapSubmissionPlaceholder[]
-        )?.some(({ type }) => type === MapCreditType.AUTHOR)
-      )
-    ) {
-      throw new BadRequestException('Credits do not contain an AUTHOR');
+    if (MapStatuses.IN_SUBMISSION.includes(map.status)) {
+      const placeholders =
+        (map.submission
+          .placeholders as unknown as MapSubmissionPlaceholder[]) ?? [];
+
+      this.mapsService.checkCredits([...body, ...placeholders]);
+
+      if (
+        !(
+          body.some((credit) => credit.type === MapCreditType.AUTHOR) ||
+          placeholders.some(({ type }) => type === MapCreditType.AUTHOR)
+        )
+      ) {
+        throw new BadRequestException('Credits do not contain an AUTHOR');
+      }
     }
 
     const { roles } = await this.db.user.findUnique({
