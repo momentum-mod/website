@@ -1303,15 +1303,7 @@ describe('Maps Part 2', () => {
           token
         }));
 
-      it('should order the list by date when given the query param orderByDate', () =>
-        req.sortByDateTest({
-          url: `maps/${map.id}/leaderboard`,
-          query: { gamemode: Gamemode.AHOP, orderByDate: true },
-          validate: LeaderboardRunDto,
-          token
-        }));
-
-      it('should be ordered by rank by default', () =>
+      it('should be ordered by rank', () =>
         req.sortTest({
           url: `maps/${map.id}/leaderboard`,
           validate: LeaderboardRunDto,
@@ -1365,17 +1357,6 @@ describe('Maps Part 2', () => {
         expect(res.body.data[0].userID).toBe(u1.id);
         expect(res.body.data[1].userID).toBe(u3.id);
       });
-
-      it('should respond with expanded map data using the splits expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}/leaderboard`,
-          query: { gamemode: Gamemode.AHOP },
-          expand: 'splits',
-          validate: LeaderboardRunDto,
-          paged: true,
-          some: true,
-          token
-        }));
 
       // Test that permissions checks are getting called
       // Yes, u1 has runs on the map, but we don't actually test for that
@@ -1443,22 +1424,6 @@ describe('Maps Part 2', () => {
         // Last tested was 11, then incremented once more, should be sitting on
         // 12.
         expect(rankIndex).toBe(12);
-      });
-
-      it('should return a list of ranks around your rank filter by userID if given', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/leaderboard`,
-          query: {
-            gamemode: Gamemode.AHOP,
-            filter: 'around',
-            userIDs: u7.id
-          },
-          status: 200,
-          token: u7Token,
-          validatePaged: { type: LeaderboardRunDto, count: 1 }
-        });
-
-        expect(res.body.data[0].userID).toBe(u7.id);
       });
 
       it('should 401 when no access token is provided', () =>

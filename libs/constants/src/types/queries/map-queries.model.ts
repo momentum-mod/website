@@ -235,11 +235,9 @@ export type MapLeaderboardGetQuery = PagedQuery & {
   trackType?: TrackType; // Default 0
   trackNum?: number; // Default 1
   style?: Style; // Default 0
-  expand?: MapRunsGetExpand;
   filter?: MapRunsGetFilter;
   userIDs?: number[];
   steamIDs?: string[];
-  orderByDate?: boolean;
 };
 
 export type MapLeaderboardGetRunQuery = PagedQuery & {
