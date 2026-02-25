@@ -996,6 +996,23 @@ export class MapsService {
     );
   }
 
+  checkCredits(credits: { type: MapCreditType }[]) {
+    const maxCredits = this.config.getOrThrow('limits.maxCreditsExceptTesters');
+    for (const type of [
+      MapCreditType.AUTHOR,
+      MapCreditType.CONTRIBUTOR,
+      MapCreditType.SPECIAL_THANKS
+    ]) {
+      if (
+        credits.filter((credit) => credit.type === type).length > maxCredits
+      ) {
+        throw new BadRequestException(
+          `Cannot have more than ${maxCredits} per type.`
+        );
+      }
+    }
+  }
+
   private async checkCreateDto(userID: number, dto: CreateMapDto) {
     const user = await this.db.user.findUnique({
       where: { id: userID }
