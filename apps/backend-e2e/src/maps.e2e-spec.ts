@@ -33,7 +33,8 @@ import {
   imgMediumPath,
   imgLargePath,
   imgXlPath,
-  MAX_MAPPER_OPEN_MAP_SUBMISSIONS
+  MAX_MAPPER_OPEN_MAP_SUBMISSIONS,
+  MAX_CREDITS_EXCEPT_TESTERS
 } from '@momentum/constants';
 import {
   createSha1Hash,
@@ -42,6 +43,7 @@ import {
   FileStoreUtil,
   mockDiscordService,
   NULL_ID,
+  randomString,
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
@@ -1437,6 +1439,38 @@ describe('Maps', () => {
             token
           });
         });
+
+        for (const type of [
+          MapCreditType.AUTHOR,
+          MapCreditType.CONTRIBUTOR,
+          MapCreditType.SPECIAL_THANKS
+        ]) {
+          it(`should reject a submission with more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits or placeholders`, async () => {
+            const create = structuredClone(createMapObject);
+            create.placeholders = arrayFrom(MAX_CREDITS_EXCEPT_TESTERS, () => ({
+              alias: randomString(),
+              type
+            }));
+
+            create.credits = [
+              ...create.credits,
+              {
+                userID: u2.id,
+                type: type,
+                description: 'Walrus 2'
+              }
+            ];
+
+            await uploadBspToPreSignedUrl(bspBuffer, token);
+
+            await req.postAttach({
+              url: 'maps',
+              status: 400,
+              data: create,
+              token
+            });
+          });
+        }
 
         it('should reject a submission with no placeholders or credits', async () => {
           const create = structuredClone(createMapObject);
