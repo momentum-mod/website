@@ -22,6 +22,7 @@ import {
   futureDateOffset,
   mockDiscordService,
   NULL_ID,
+  randomString,
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
@@ -671,6 +672,28 @@ describe('Maps Part 2', () => {
             url: `maps/${map.id}/credits`,
             status: 400,
             // Too long to create > 20 users, this check hits earlier than user existence. allow it
+            body: userIDs.map((userID) => ({ userID, type })),
+            token: u1Token
+          });
+        });
+
+        it(`should 400 if there are more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits or placeholders`, async () => {
+          await prisma.mapSubmission.update({
+            where: { mapID: map.id },
+            data: {
+              placeholders: arrayFrom(MAX_CREDITS_EXCEPT_TESTERS - 4, () => ({
+                alias: randomString(),
+                type
+              }))
+            }
+          });
+
+          const userIDs = await db
+            .createUsers(5)
+            .then((users) => users.map(({ id }) => id));
+          await req.put({
+            url: `maps/${map.id}/credits`,
+            status: 400,
             body: userIDs.map((userID) => ({ userID, type })),
             token: u1Token
           });
