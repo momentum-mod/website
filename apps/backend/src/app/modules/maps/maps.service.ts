@@ -1959,13 +1959,17 @@ export class MapsService {
       }
     });
 
-    const desiredLeaderboards = LeaderboardHandler.getMaximalLeaderboards(
-      suggestions,
-      zones
-    );
+    // Not using getMaximalLeaderboards here since it's not needed for leaderboards getting updates
+    const desiredLeaderboards = [
+      ...LeaderboardHandler.setLeaderboardLinearity(suggestions, zones),
+      ...LeaderboardHandler.getStageLeaderboards(suggestions, zones)
+    ];
 
     const toCreate = desiredLeaderboards.filter(
-      (x) => !existingLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+      (x) =>
+        !existingLeaderboards.some((y) =>
+          LeaderboardHandler.isSameTrackAndMode(x, y)
+        )
     );
 
     if (toCreate.length > 0 && !allowCreation)
@@ -1974,15 +1978,17 @@ export class MapsService {
       );
 
     await tx.leaderboard.createMany({
-      data: toCreate.map((obj) => ({
-        ...obj,
-        mapID,
-        type:
-          suggestions.find((sug) =>
-            LeaderboardHandler.isSameTrackAndMode(obj, sug)
-          )?.type ?? LeaderboardType.HIDDEN,
-        style: obj.style
-      }))
+      data: LeaderboardHandler.getCompatibleLeaderboards(toCreate, zones).map(
+        (obj) => ({
+          ...obj,
+          mapID,
+          type:
+            toCreate.find((lb) =>
+              LeaderboardHandler.isSameTrackAndMode(lb, obj)
+            )?.type ?? LeaderboardType.HIDDEN,
+          style: obj.style
+        })
+      )
     });
 
     const toUpdate = existingLeaderboards.reduce((acc, lb) => {
