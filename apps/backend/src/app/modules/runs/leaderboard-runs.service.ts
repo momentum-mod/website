@@ -65,8 +65,12 @@ export class LeaderboardRunsService {
       ? undefined
       : { splits: true };
 
-    const orderBy: Prisma.LeaderboardRunOrderByWithAggregationInput =
-      query.orderByDate === true ? { createdAt: 'desc' } : { rank: 'asc' };
+    const orderBy:
+      | Prisma.LeaderboardRunOrderByWithRelationInput
+      | Prisma.LeaderboardRunOrderByWithRelationInput[] =
+      query.orderByDate === true
+        ? { createdAt: 'desc' }
+        : [{ rank: 'asc' }, { createdAt: 'asc' }];
 
     let skip = query.skip;
     let take = query.take;
@@ -123,6 +127,20 @@ export class LeaderboardRunsService {
       skip,
       take
     });
+
+    const dbResponseRaw = await this.db.$queryRawTyped(
+      this.db.typedQueries.getRankedLeaderboard(
+        mapID,
+        query.gamemode,
+        query.trackType,
+        query.trackNum,
+        query.style,
+        query.skip,
+        query.take
+      )
+    );
+
+    console.log(dbResponseRaw);
 
     // Important note: If there's no items in the response, it's possible the
     // leaderboard just doesn't exist. However we'd need to do a separate query
