@@ -8,7 +8,7 @@ import {
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Follow, Prisma } from '@momentum/db';
+import { Follow, Prisma, TypedSql } from '@momentum/db';
 import { ConfigService } from '@nestjs/config';
 import {
   ActivityType,
@@ -72,7 +72,7 @@ export class UsersService {
     } else if (query.search) {
       const dbResponse = await this.db.$transaction([
         this.db.$queryRawTyped(
-          this.db.typedQueries.searchUsers(query.search, query.skip ?? 0, take)
+          TypedSql.searchUsers(query.search, query.skip ?? 0, take)
         ),
         this.db.user.count({
           where: {
