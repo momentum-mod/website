@@ -2297,7 +2297,6 @@ describe('Admin', () => {
           await db.createLbRun({
             map,
             user: u1,
-            rank: 1,
             gamemode: Gamemode.RJ,
             trackType: TrackType.MAIN,
             trackNum: 1
@@ -2306,7 +2305,6 @@ describe('Admin', () => {
           await db.createLbRun({
             map,
             user: u1,
-            rank: 1,
             gamemode: Gamemode.CONC,
             trackType: TrackType.MAIN,
             trackNum: 1
@@ -2663,8 +2661,7 @@ describe('Admin', () => {
         const run = await db.createLbRun({
           map: map,
           user,
-          time: 1,
-          rank: 1
+          time: 1
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
@@ -2757,8 +2754,7 @@ describe('Admin', () => {
         const run = await db.createLbRun({
           map: map,
           user,
-          time: 1,
-          rank: 1
+          time: 1
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 

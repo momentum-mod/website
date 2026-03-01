@@ -517,7 +517,7 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5 });
 
         const res = await req.get({
           url: 'maps',
@@ -536,8 +536,8 @@ describe('Maps', () => {
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5 });
+        await db.createLbRun({ map: mEarth, user: u1, time: 10 });
 
         const res = await req.get({
           url: 'maps',
@@ -554,8 +554,8 @@ describe('Maps', () => {
       });
 
       it('should respond properly with both personalBest and worldRecord expansions', async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
+        await db.createLbRun({ map: mEarth, user: u2, time: 5 });
+        await db.createLbRun({ map: mEarth, user: u1, time: 10 });
 
         const res = await req.get({
           url: 'maps',
@@ -760,7 +760,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -772,7 +772,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -810,7 +810,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -822,7 +822,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -2102,8 +2102,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map: map,
           user: u2,
-          time: 5,
-          rank: 1
+          time: 5
         });
 
         const res = await req.get({
@@ -2122,8 +2121,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          time: 10,
-          rank: 2
+          time: 10
         });
 
         const res = await req.get({
@@ -2415,7 +2413,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user: u1,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.RJ,
           trackType: TrackType.MAIN,
           trackNum: 1,
@@ -2425,7 +2423,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user: u1,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.BONUS,
           trackNum: 1,
@@ -3018,8 +3016,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3065,8 +3062,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3159,8 +3155,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3854,7 +3849,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.MAIN
         });
@@ -4290,8 +4285,7 @@ describe('Maps', () => {
         const run = await db.createLbRun({
           map: map,
           user,
-          time: 1,
-          rank: 1
+          time: 1
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
@@ -4799,8 +4793,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map: pubMap1,
           user: u2,
-          time: 5,
-          rank: 1
+          time: 5
         });
 
         const res = await req.get({
@@ -4821,8 +4814,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map: pubMap1,
           user: u1,
-          time: 10,
-          rank: 2
+          time: 10
         });
 
         const res = await req.get({
