@@ -43,11 +43,6 @@ import { FileStoreService } from '../filestore/file-store.service';
 import { SuggestionType, validateSuggestions } from '@momentum/formats/zone';
 import { MapsService } from '../maps/maps.service';
 import { AdminActivityService } from '../admin/admin-activity.service';
-import {
-  InputJsonObject,
-  JsonArray,
-  JsonObject
-} from '@prisma/client/runtime/library';
 import { MapDiscordNotifications } from '../maps/map-discord-notifications.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
@@ -253,12 +248,12 @@ export class MapReviewService {
 
     const newData = {
       mainText: body.mainText,
-      suggestions: suggestions as unknown as JsonArray,
+      suggestions: suggestions as unknown as Prisma.JsonArray,
       // If it needs resolving, set `resolved` to `false`. Otherwise it'll
       // be null, and it doesn't need resolving.
       resolved: body.needsResolving ? false : null,
       approves: body.approves ?? false
-    } satisfies JsonObject;
+    } satisfies Prisma.JsonObject;
 
     const [dbResponse] = await parallel(
       this.db.$transaction(async (tx) => {
@@ -388,7 +383,7 @@ export class MapReviewService {
       throw new BadRequestException();
     }
 
-    const suggestions = body.suggestions as unknown as InputJsonObject; // TODO: #855
+    const suggestions = body.suggestions as unknown as Prisma.InputJsonObject; // TODO: #855
 
     const updated = await this.db.mapReview.update({
       where: { id: reviewID },
@@ -400,7 +395,7 @@ export class MapReviewService {
         approves: body.approves ?? false,
         resolverID: body.resolved ? userID : null,
         editHistory: [
-          ...(review.editHistory as JsonArray),
+          ...(review.editHistory as Prisma.JsonArray),
           {
             // We only want to log actual changes, so anything here being
             // undefined is fine.
@@ -455,7 +450,7 @@ export class MapReviewService {
         resolved: data.resolved,
         resolverID: data.resolved ? userID : null,
         editHistory: [
-          ...(review.editHistory as JsonArray),
+          ...(review.editHistory as Prisma.JsonArray),
           {
             resolved: data.resolved,
             editorID: userID,

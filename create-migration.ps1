@@ -12,4 +12,4 @@ Get-Content .env | ForEach-Object {
 
 $migration = $args[0]
 
-npx prisma migrate dev --name "$migration" --skip-seed --schema ./libs/db/src/schema.prisma
+npx prisma migrate dev --name "$migration" --config ./libs/db/src/prisma.config.ts

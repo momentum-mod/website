@@ -5,4 +5,4 @@
 # (https://github.com/nrwl/nx/issues/8269)
 
 export "$(grep -v '^#' .env | xargs)"
-npx prisma migrate dev --name "$1" --skip-seed --schema ./libs/db/src/schema.prisma
+npx prisma migrate dev --name "$1" --config ./libs/db/src/prisma.config.ts

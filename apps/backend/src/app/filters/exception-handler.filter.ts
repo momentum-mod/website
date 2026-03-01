@@ -8,9 +8,9 @@ import {
   ServiceUnavailableException
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
 import * as Sentry from '@sentry/nestjs';
+import { Prisma } from '@momentum/db';
 import { Environment } from '../config';
 
 @Catch()
@@ -41,7 +41,7 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         status = HttpStatus.INTERNAL_SERVER_ERROR;
         responseBody = {
           message:
-            exception instanceof PrismaClientKnownRequestError
+            exception instanceof Prisma.PrismaClientKnownRequestError
               ? 'Database Error'
               : 'Internal Server Error'
         };

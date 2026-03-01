@@ -1,6 +1,5 @@
-﻿import { MapVersion, MMap, User } from '@momentum/db';
+﻿import { MapVersion, MMap, Prisma, User } from '@momentum/db';
 import { Gamemode, RunSplits, Style, TrackType } from '@momentum/constants';
-import { InputJsonObject } from '@prisma/client/runtime/library';
 
 export interface RunSession extends Record<string, unknown> {
   userID: number;
@@ -27,7 +26,7 @@ export interface RunSessionTimestamp extends Record<string, unknown> {
   createdAt: Date;
 }
 
-export type Splits = RunSplits.Splits & InputJsonObject;
+export type Splits = RunSplits.Splits & Prisma.InputJsonObject;
 
 export interface ProcessedRun {
   userID: number;
