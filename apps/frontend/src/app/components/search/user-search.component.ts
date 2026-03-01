@@ -5,7 +5,9 @@ import {
   OnInit,
   TemplateRef,
   ViewChild,
-  inject
+  inject,
+  Output,
+  EventEmitter
 } from '@angular/core';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
@@ -51,6 +53,7 @@ export class UserSearchComponent
   protected readonly Role = Role;
   public itemsName = 'users';
   protected searchBySteam = false;
+  protected selectedIdx = 0;
 
   /**
    * Show a button for opening the user profile in a separate tab. Used when a
@@ -66,10 +69,13 @@ export class UserSearchComponent
    */
   @Input() appendTemplate?: TemplateRef<any>;
 
+  @Output() addPlaceholder?: EventEmitter<void> = new EventEmitter();
+
   @ViewChild('searchMain') mainEl: ElementRef;
   @ViewChild('searchOverlay') overlay: Popover;
 
   searchRequest(searchString: string) {
+    this.selectedIdx = 0;
     if (this.searchBySteam) {
       if (
         Number.isNaN(+searchString) ||
@@ -79,16 +85,39 @@ export class UserSearchComponent
         return of(null);
       }
       return this.usersService.getUsers({ steamID: searchString });
-    } else
+    } else {
       return this.usersService.getUsers({
         search: searchString,
         take: this.rows,
         skip: this.first
       });
+    }
   }
 
   hasRole(role: Role, user: User) {
     return this.localUserService.hasRole(role, user);
+  }
+
+  onKeydown(event: KeyboardEvent) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.selectedIdx = (this.selectedIdx + 1) % this.found.length;
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.selectedIdx =
+        (this.selectedIdx - 1 + this.found.length) % this.found.length;
+    } else if (event.key === 'Enter') {
+      if (
+        this.search.value.length > 0 &&
+        this.found.length === 0 &&
+        this.appendTemplate &&
+        this.addPlaceholder
+      ) {
+        this.addPlaceholder.emit();
+      } else {
+        this.onSelected(this.found[this.selectedIdx]);
+      }
+    }
   }
 
   override ngOnInit() {

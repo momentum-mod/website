@@ -50,6 +50,7 @@
       [showProfileButton]="true"
       [appendTemplate]="createPlaceholder"
       (selected)="addUser(type.key, $event, searchInput)"
+      (addPlaceholder)="addPlaceholder(type.key, searchInput)"
       class="mt-4"
     />
     <ng-template #createPlaceholder>

@@ -1,9 +1,10 @@
 <div #searchMain class="relative flex w-full items-center gap-2">
   <input
     class="textinput min-w-[15rem] flex-grow"
-    [mSpinner]="search.status === 'PENDING'"
+    [mSpinner]="search.pending"
     [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
     [formControl]="search"
+    (keydown)="onKeydown($event)"
     type="text"
   />
   <m-icon
@@ -16,17 +17,22 @@
   />
 </div>
 <ng-template #results>
-  <div class="flex min-h-12 flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }">
-    @if (search.status === 'INVALID' && search.value?.length > 0 && found.length === 0) {
+  <div class="flex min-h-12 flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }" (keydown)="onKeydown($event)">
+    @if (search.invalid && search.value.length > 0 && found.length === 0) {
       <div class="flex flex-row flex-wrap justify-center gap-4">
         <p class="my-auto text-center text-lg text-gray-200">
           {{ getFirstError() }}
         </p>
         <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
       </div>
-    } @else if (search.value?.length > 0) {
-      @for (user of found; track user; let isLast = $last) {
-        <div class="rounded bg-white bg-opacity-0 p-2 transition-colors hover:bg-opacity-5" (click)="onSelected(user)">
+    } @else if (search.value.length > 0) {
+      @for (user of found; track $index; let isLast = $last) {
+        <div
+          class="rounded bg-white bg-opacity-0 p-2 transition-colors"
+          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx }"
+          (mouseenter)="selectedIdx = $index"
+          (click)="onSelected(user)"
+        >
           <div class="flex items-center">
             <img class="h-10 w-10 rounded" [src]="user.avatarURL" />
             <div class="ml-4 mt-2 w-full">
@@ -49,7 +55,7 @@
                   (click)="$event.stopPropagation()"
                   class="text-sm italic leading-4"
                   target="_blank"
-                  href="http://steamcommunity.com/profiles/{{ user.steamID }}"
+                  href="https://steamcommunity.com/profiles/{{ user.steamID }}"
                 >
                   {{ user.steamID }}
                 </a>
