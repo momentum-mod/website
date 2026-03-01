@@ -331,7 +331,6 @@ export class DbUtil {
   //#region Runs
 
   async createLbRun(args: {
-    rank: number; // TODO: Will be removed eventually
     map?: MMap;
     user?: User;
     time?: number;
@@ -355,7 +354,6 @@ export class DbUtil {
         flags: args?.flags ?? [0],
         splits: (args?.splits as unknown as JsonValue) ?? { segments: [] },
         replayHash: randomHash(),
-        rank: args?.rank,
         createdAt: args?.createdAt ?? undefined,
         leaderboard: {
           connect: {
@@ -420,7 +418,6 @@ export class DbUtil {
                 user: { connect: { id: user.id } },
                 time: args?.time ?? 1,
                 flags: args?.flags ?? [0],
-                rank: args?.lbRank,
                 splits: {},
                 leaderboard: {
                   connect: {
