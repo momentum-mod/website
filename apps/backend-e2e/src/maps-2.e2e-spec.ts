@@ -1231,7 +1231,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 10,
           createdAt: futureDateOffset(3)
         });
@@ -1239,7 +1238,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u2,
-          rank: 2,
           time: 20,
           createdAt: futureDateOffset(2)
         });
@@ -1247,7 +1245,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u3,
-          rank: 3,
           time: 30,
           flags: [1],
           createdAt: futureDateOffset(1)
@@ -1256,7 +1253,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 1,
           trackType: TrackType.STAGE,
           trackNum: 1,
@@ -1395,7 +1391,7 @@ describe('Maps Part 2', () => {
         map = await db.createMap();
         runs = await Promise.all(
           arrayFrom(20, (i) =>
-            db.createLbRun({ map: map, rank: i + 1, time: (i + 1) * 100 })
+            db.createLbRun({ map: map, time: (i + 1) * 100 })
           )
         );
         u7 = runs[6].user;
@@ -1453,15 +1449,13 @@ describe('Maps Part 2', () => {
           await db.createLbRun({
             map: map,
             user: user,
-            rank: i + 2,
             time: (i + 2) * 1000
           });
 
         await db.createLbRun({
           user: user,
           map: map,
-          time: 1,
-          rank: 1
+          time: 1
         });
       });
 
@@ -1521,14 +1515,12 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 1
         });
 
         await db.createLbRun({
           map: map,
           user: u2,
-          rank: 2,
           time: 2
         });
 
@@ -1537,7 +1529,6 @@ describe('Maps Part 2', () => {
           user: u2,
           trackType: TrackType.STAGE,
           trackNum: 1,
-          rank: 1,
           time: 2
         });
       });
@@ -1659,7 +1650,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map,
           user,
-          rank: 1,
           trackType: TrackType.MAIN,
           trackNum: 1,
           style: 0,

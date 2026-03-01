@@ -502,8 +502,6 @@ model LeaderboardRun {
   // But most runs submitted will not to have any flags, so it's probably okay.
   flags Int[] @db.SmallInt
 
-  rank Int @db.Integer // TODO: SoonTM we'll stop storing this and just use a window function over the `time` column.
-
   createdAt DateTime @default(now())
 
   pastRun   PastRun? @relation(fields: [pastRunID], references: [id])

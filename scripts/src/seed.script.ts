@@ -784,7 +784,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const possibleUserIDs = Random.shuffle(userIDs);
         const usedUserIDs = [];
 
-        let rank = 1;
         let time = Random.float(5, 30);
 
         await Promise.all(
@@ -815,7 +814,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
                         mmap: { connect: { id: mapID } },
                         user: { connect: { id: userID } },
                         time,
-                        rank: rank++,
                         // Just any SHA1 hash is fine so long as unique, so game
                         // can use for unique compator on these
                         replayHash: createHash('sha1')
