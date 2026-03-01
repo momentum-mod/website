@@ -785,11 +785,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const usedUserIDs = [];
 
         let rank = 1;
-        let time = Random.int(0, 1000);
+        let time = Random.float(5, 30);
 
         await Promise.all(
           arrayFrom(numPastRuns, (i) => {
-            time += Random.int(100);
+            time += Random.float(0, 5);
 
             const createLbRun = i < numRuns;
             let userID: number;
