@@ -150,9 +150,10 @@ export class MapsService {
           };
 
     const where: Prisma.MMapWhereInput = {};
-    if (query.search) where.name = { contains: query.search };
+    if (query.search)
+      where.name = { contains: query.search, mode: 'insensitive' };
     if (query.searchStartsWith)
-      where.name = { startsWith: query.searchStartsWith };
+      where.name = { startsWith: query.searchStartsWith, mode: 'insensitive' };
     if (
       query.submitterID &&
       !(query instanceof MapsGetAllUserSubmissionQueryDto)
