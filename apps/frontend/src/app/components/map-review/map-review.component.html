@@ -150,15 +150,14 @@
                     >{{ MAX_REVIEW_COMMENT_LENGTH - editForm.value.textInput?.length | plural: 'character' }} remaining</span
                   >
                 }
+                <button type="button" class="btn btn-red btn-thin ml-auto" (click)="editModeComments.delete(comment.id)">Cancel</button>
                 <button
-                  type="button"
-                  class="btn btn-red btn-thin ml-auto"
-                  [disabled]="editForm.controls.textInput.value.length === 0"
-                  (click)="editModeComments.delete(comment.id)"
+                  type="submit"
+                  class="btn btn-green btn-thin"
+                  [disabled]="loadingComments || editForm.invalid || editForm.controls.textInput.value.length === 0"
                 >
-                  Cancel
+                  Update
                 </button>
-                <button type="submit" class="btn btn-green btn-thin" [disabled]="editForm.invalid">Update</button>
               </div>
             </form>
           } @else {
@@ -181,17 +180,16 @@
       ></textarea>
       @if (commentInput.dirty) {
         <div>
-          <button
-            type="button"
-            class="btn btn-red btn-thin"
-            [disabled]="commentInput.controls.textInput.value.length === 0"
-            (click)="commentInput.reset()"
-          >
-            Cancel
-          </button>
+          <button type="button" class="btn btn-red btn-thin" (click)="commentInput.reset()">Cancel</button>
         </div>
         <div>
-          <button type="submit" class="btn btn-green btn-thin" [disabled]="loadingComments || commentInput.invalid">Post</button>
+          <button
+            type="submit"
+            class="btn btn-green btn-thin"
+            [disabled]="loadingComments || commentInput.invalid || commentInput.controls.textInput.value.length === 0"
+          >
+            Post
+          </button>
         </div>
       }
     </form>
