@@ -197,7 +197,7 @@ export class DbUtil {
                     gamemode: Gamemode.AHOP,
                     trackType: TrackType.MAIN,
                     trackNum: 1,
-                    style: 0,
+                    style: Style.NORMAL,
                     tier: 1,
                     linear: true,
                     type: LeaderboardType.RANKED
@@ -286,7 +286,7 @@ export class DbUtil {
               gamemode,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               tier: 1,
               linear: true,
               type: LeaderboardType.RANKED
@@ -295,21 +295,21 @@ export class DbUtil {
               gamemode,
               trackType: TrackType.STAGE,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.RANKED
             },
             {
               gamemode,
               trackType: TrackType.STAGE,
               trackNum: 2,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.RANKED
             },
             {
               gamemode,
               trackType: TrackType.BONUS,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               tier: 5,
               type: LeaderboardType.RANKED
             }
@@ -364,7 +364,7 @@ export class DbUtil {
               gamemode: args?.gamemode ?? Gamemode.AHOP,
               trackType: args?.trackType ?? TrackType.MAIN,
               trackNum: args?.trackNum ?? 1,
-              style: args?.style ?? 0
+              style: args?.style ?? Style.NORMAL
             }
           }
         },
@@ -375,7 +375,7 @@ export class DbUtil {
             gamemode: args?.gamemode ?? Gamemode.AHOP,
             trackType: args?.trackType ?? TrackType.MAIN,
             trackNum: args?.trackNum ?? 1,
-            style: args?.style ?? 0,
+            style: args?.style ?? Style.NORMAL,
             time: args?.time ?? 1
           }
         }
@@ -410,7 +410,7 @@ export class DbUtil {
         gamemode: args?.gamemode ?? Gamemode.AHOP,
         trackNum: args?.trackNum ?? 1,
         trackType: args?.trackType ?? TrackType.MAIN,
-        style: args?.style ?? 0,
+        style: args?.style ?? Style.NORMAL,
         time: args?.time ?? 1,
         flags: args?.flags ?? [0],
         leaderboardRun: args?.createLbRun
@@ -429,7 +429,7 @@ export class DbUtil {
                       gamemode: args?.gamemode ?? Gamemode.AHOP,
                       trackNum: args?.trackNum ?? 1,
                       trackType: args?.trackType ?? TrackType.MAIN,
-                      style: args?.style ?? 0
+                      style: args?.style ?? Style.NORMAL
                     }
                   }
                 }

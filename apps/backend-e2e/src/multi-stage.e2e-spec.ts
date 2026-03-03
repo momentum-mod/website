@@ -11,6 +11,7 @@ import {
   MapSubmissionType,
   MIN_PUBLIC_TESTING_DURATION,
   Role,
+  Style,
   TrackType
 } from '@momentum/constants';
 import {
@@ -293,7 +294,47 @@ describe('Multi-stage E2E tests', () => {
           trackType: TrackType.MAIN,
           trackNum: 1,
           linear: true,
-          style: 0,
+          style: Style.NORMAL,
+          tier: 10,
+          type: LeaderboardType.UNRANKED,
+          tags: []
+        },
+        {
+          gamemode: Gamemode.BHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          linear: true,
+          style: Style.BHOP_HALF_SIDEWAYS,
+          tier: 10,
+          type: LeaderboardType.UNRANKED,
+          tags: []
+        },
+        {
+          gamemode: Gamemode.BHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          linear: true,
+          style: Style.SIDEWAYS,
+          tier: 10,
+          type: LeaderboardType.UNRANKED,
+          tags: []
+        },
+        {
+          gamemode: Gamemode.BHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          linear: true,
+          style: Style.W_ONLY,
+          tier: 10,
+          type: LeaderboardType.UNRANKED,
+          tags: []
+        },
+        {
+          gamemode: Gamemode.BHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          linear: true,
+          style: Style.AD_ONLY,
           tier: 10,
           type: LeaderboardType.UNRANKED,
           tags: []

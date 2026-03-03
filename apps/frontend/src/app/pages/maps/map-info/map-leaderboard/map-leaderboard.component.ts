@@ -1,5 +1,6 @@
 import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
+  GamemodeDefaultUIStyle,
   GamemodeInfo,
   LeaderboardRun,
   LeaderboardType,
@@ -9,6 +10,8 @@ import {
   mapTagEnglishName,
   MMap,
   PagedResponse,
+  Style,
+  styleEnglishName,
   TrackType
 } from '@momentum/constants';
 import { mapHttpError } from '../../../../util/rxjs/map-http-error';
@@ -89,12 +92,14 @@ export class MapLeaderboardComponent implements OnChanges {
     { label: 'Friend', type: LeaderboardFilterType.FRIENDS }
   ];
   protected readonly mapTagEnglishName = mapTagEnglishName;
+  protected readonly styleEnglishName = styleEnglishName;
 
   @Input() map: MMap;
   protected leaderboards: GroupedMapLeaderboards;
   protected activeMode: GroupedMapLeaderboard;
   protected activeModeIndex: number;
   protected activeTrack: ActiveTrack = { type: TrackType.MAIN, num: 0 };
+  protected activeStyle: Style = Style.NORMAL;
   // This is going to get *heavily* refactored in the future when we add
   // support for scrolling, jump-tos, and filtering. For now it's just in sync
   // with the game version. We'll do fancier stuff at 0.11.0.
@@ -119,6 +124,9 @@ export class MapLeaderboardComponent implements OnChanges {
   selectMode(modeIndex: number) {
     this.activeModeIndex = modeIndex;
     this.activeMode = this.leaderboards[modeIndex];
+    this.activeStyle =
+      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
+
     this.updateTags();
     this.load.next();
   }
@@ -130,11 +138,21 @@ export class MapLeaderboardComponent implements OnChanges {
     this.load.next();
   }
 
+  selectStyle(style: Style) {
+    this.activeStyle = style;
+    this.load.next();
+  }
+
   constructor() {
     this.load
       .pipe(
         map(() =>
-          JSON.stringify([this.activeMode, this.activeTrack, this.activeType])
+          JSON.stringify([
+            this.activeMode,
+            this.activeTrack,
+            this.activeType,
+            this.activeStyle
+          ])
         ),
         distinctUntilChanged(),
         tap(() => (this.loading = true)),
@@ -174,6 +192,8 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeType = LeaderboardFilterType.TOP10;
     this.activeTrack.type = TrackType.MAIN;
     this.activeTrack.num = 1;
+    this.activeStyle =
+      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
     this.activeTags = this.activeMode.tags;
 
     this.load.next();
@@ -185,7 +205,8 @@ export class MapLeaderboardComponent implements OnChanges {
       gamemode,
       take: 10,
       trackType: this.activeTrack.type,
-      trackNum: this.activeTrack.num
+      trackNum: this.activeTrack.num,
+      style: this.activeStyle
     };
 
     if (this.activeType === LeaderboardFilterType.FRIENDS)

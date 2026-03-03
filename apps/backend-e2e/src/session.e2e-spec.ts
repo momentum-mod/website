@@ -17,6 +17,7 @@ import {
   MapStatus,
   Role,
   RunValidationErrorType,
+  Style,
   TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@momentum/db';
@@ -518,6 +519,7 @@ describe('Session', () => {
           gamemode: Gamemode.AHOP,
           trackType: TrackType.MAIN,
           trackNum: 1,
+          style: Style.NORMAL,
           mapID: map.id,
           mapName: map.name,
           mapHash: map.currentVersion.bspHash,
@@ -545,7 +547,7 @@ describe('Session', () => {
                           gamemode: Gamemode.AHOP,
                           trackType: TrackType.MAIN,
                           trackNum: 1,
-                          style: 0
+                          style: Style.NORMAL
                         }
                       }
                     },
@@ -556,7 +558,7 @@ describe('Session', () => {
                         gamemode: Gamemode.AHOP,
                         trackType: TrackType.MAIN,
                         trackNum: 1,
-                        style: 0,
+                        style: Style.NORMAL,
                         time: i
                       }
                     },
@@ -645,7 +647,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 
@@ -659,7 +661,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 
@@ -684,7 +686,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               rank: 4
             },
             data: { userID: user.id }
@@ -696,7 +698,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 
@@ -715,7 +717,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 
@@ -751,7 +753,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0,
+              style: Style.NORMAL,
               rank: 1
             },
             data: { userID: user.id }
@@ -763,7 +765,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 
@@ -783,7 +785,7 @@ describe('Session', () => {
               gamemode: Gamemode.AHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
-              style: 0
+              style: Style.NORMAL
             }
           });
 

@@ -1,4 +1,5 @@
 import { MapStatus } from '../enums/map-status.enum';
+import { CompleteMap } from '../types/utils/compete-map.type';
 
 export const MapStatusName: ReadonlyMap<MapStatus, string> = new Map([
   [MapStatus.APPROVED, 'Approved'],
@@ -7,4 +8,4 @@ export const MapStatusName: ReadonlyMap<MapStatus, string> = new Map([
   [MapStatus.PUBLIC_TESTING, 'Public Testing'],
   [MapStatus.FINAL_APPROVAL, 'Final Approval'],
   [MapStatus.DISABLED, 'Disabled']
-]);
+]) satisfies CompleteMap<MapStatus>;

@@ -9,7 +9,7 @@ import {
 import { magic } from '@momentum/util-fn';
 
 export const REPLAY_MAGIC: int32 = magic('MMTV');
-export const REPLAY_HEADER_SIZE: int32 = 194;
+export const REPLAY_HEADER_SIZE: int32 = 195;
 export const REPLAY_SPLITS_OFFSET: int32 = REPLAY_HEADER_SIZE + 4;
 
 export * as Reader from './replay-reader';
@@ -37,5 +37,13 @@ export interface ReplayHeader {
   trackType: TrackType;   // 1     167
   trackNum: uint8;        // 1     168
   runTime: double;        // 8     169
-                          // 17    177     Other replay data, unused by us
+  // frameCount: int32;      // 4     177
+  // keyFrameCount: int32;   // 4     181
+  // baselineCount: int32;   // 4     185
+  // classCount: uint8;      // 1     189
+  // tempEntClassCount: uint8;// 1    190
+  // sampleCount: uint8;     // 1     191
+  // propBits: uint8;        // 1     192
+  // tempEntClassBits: uint8;// 1     193
+  style: uint8;           // 1     194
 }

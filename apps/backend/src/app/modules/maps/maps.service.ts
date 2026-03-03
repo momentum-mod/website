@@ -45,7 +45,8 @@ import {
   runPath,
   MapTag,
   TagQualifier,
-  MAX_MAPPER_OPEN_MAP_SUBMISSIONS
+  MAX_MAPPER_OPEN_MAP_SUBMISSIONS,
+  GamemodeStyles
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -711,7 +712,7 @@ export class MapsService {
           ).map((obj) => ({
             mapID: map.id,
             ...obj,
-            style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
+            style: obj.style,
             type: LeaderboardType.IN_SUBMISSION
           }))
         });
@@ -1158,7 +1159,7 @@ export class MapsService {
     const existingLeaderboards: LeaderboardHandler.LeaderboardProps[] =
       await this.db.leaderboard.findMany({
         where: { mapID },
-        select: { gamemode: true, trackNum: true, trackType: true }
+        select: { gamemode: true, trackNum: true, trackType: true, style: true }
       });
 
     const desiredLeaderboards = LeaderboardHandler.getMaximalLeaderboards(
@@ -1181,7 +1182,7 @@ export class MapsService {
         data: toCreate.map((obj) => ({
           mapID,
           ...obj,
-          style: 0, // TODO: Styles
+          style: obj.style,
           type: LeaderboardType.IN_SUBMISSION
         }))
       });
@@ -1804,19 +1805,30 @@ export class MapsService {
       await tx.leaderboard.deleteMany({ where: { mapID: map.id } });
 
       // Okay, got a clean slate, make new leaderboards from finalLeaderboards
+      const expandedLeaderboards = [
+        // Main and bonuses
+        ...LeaderboardHandler.setLeaderboardLinearity(
+          dto.finalLeaderboards,
+          zones
+        ),
+        // Stages
+        ...LeaderboardHandler.getStageLeaderboards(dto.finalLeaderboards, zones)
+      ].flatMap((lb) =>
+        GamemodeStyles.get(lb.gamemode)
+          .values()
+          .map((style) => ({
+            ...lb,
+            style
+          }))
+          .toArray()
+      );
+
       await tx.leaderboard.createMany({
-        data: [
-          // Main and bonuses
-          ...LeaderboardHandler.setLeaderboardLinearity(
-            dto.finalLeaderboards,
-            zones
-          ),
-          // Stages
-          ...LeaderboardHandler.getStageLeaderboards(
-            dto.finalLeaderboards,
-            zones
-          )
-        ].map((lb) => ({ ...lb, mapID: map.id, style: 0 }))
+        data: expandedLeaderboards.map((lb) => ({
+          ...lb,
+          mapID: map.id,
+          style: lb.style
+        }))
       });
     }
 
@@ -1919,6 +1931,7 @@ export class MapsService {
         gamemode: true,
         trackNum: true,
         trackType: true,
+        style: true,
         type: true,
         tier: true,
         tags: true
@@ -1932,7 +1945,10 @@ export class MapsService {
     ];
 
     const toCreate = desiredLeaderboards.filter(
-      (x) => !existingLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+      (x) =>
+        !existingLeaderboards.some((y) =>
+          LeaderboardHandler.isSameTrackAndMode(x, y)
+        )
     );
 
     if (toCreate.length > 0 && !allowCreation)
@@ -1946,16 +1962,17 @@ export class MapsService {
           ...obj,
           mapID,
           type:
-            toCreate.find((lb) => LeaderboardHandler.isEqual(lb, obj))?.type ??
-            LeaderboardType.HIDDEN,
-          style: 0 // TODO: Styles
+            toCreate.find((lb) =>
+              LeaderboardHandler.isSameTrackAndMode(lb, obj)
+            )?.type ?? LeaderboardType.HIDDEN,
+          style: obj.style
         })
       )
     });
 
     const toUpdate = existingLeaderboards.reduce((acc, lb) => {
-      const suggestion = desiredLeaderboards.find((sugg) =>
-        LeaderboardHandler.isEqual(lb, sugg)
+      const suggestion = suggestions.find((sugg) =>
+        LeaderboardHandler.isSameTrackAndMode(lb, sugg)
       );
       const desiredType = suggestion?.type ?? LeaderboardType.HIDDEN;
       const desiredTier = suggestion?.tier ?? null;
@@ -1983,8 +2000,7 @@ export class MapsService {
       tier,
       tags
     } of toUpdate) {
-      // updateMany rather than update ensures this
-      // handles styles in the future
+      // updateMany to update all styles
       await tx.leaderboard.updateMany({
         where: { mapID, gamemode, trackType, trackNum },
         data: { type, tier, tags }
