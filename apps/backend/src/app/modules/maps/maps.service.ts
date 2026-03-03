@@ -9,7 +9,6 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import {
-  LeaderboardRun,
   MapCredit,
   MapInfo,
   MapSubmission,
@@ -102,6 +101,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
+import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
 
 @Injectable()
 export class MapsService {
@@ -118,7 +118,8 @@ export class MapsService {
     private readonly adminActivityService: AdminActivityService,
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
-    private readonly notificationService: NotificationsService
+    private readonly notificationService: NotificationsService,
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
   ) {}
 
   //#region Gets
@@ -478,7 +479,6 @@ export class MapsService {
       ) {
         incPB = query.expand?.includes('personalBest');
         incWR = query.expand?.includes('worldRecord');
-        this.handleMapGetIncludes(include, incPB, incWR, userID);
       }
     }
 
@@ -490,9 +490,10 @@ export class MapsService {
       take
     });
 
-    if (incPB || incWR) {
-      for (const map of dbResponse[0] as MMap[])
-        this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
+    if (userID && (incPB || incWR)) {
+      for (const map of dbResponse[0]) {
+        await this.attachPbAndWrsToMapResponse(map, incPB, incWR, userID);
+      }
     }
 
     return new PagedResponseDto(MapDto, dbResponse);
@@ -538,76 +539,49 @@ export class MapsService {
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
 
-    this.handleMapGetIncludes(include, incPB, incWR, userID);
-
     const map = await this.getMapAndCheckReadAccess({
       mapID,
       userID,
       include
     });
 
-    if (incPB || incWR) {
-      this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
+    if (userID && (incPB || incWR)) {
+      await this.attachPbAndWrsToMapResponse(map, incPB, incWR, userID);
     }
 
     return DtoFactory(MapDto, map);
   }
 
-  // Weird name I know, but we're doing include stuff, which are subsets of selects
-  private handleMapGetIncludes(
-    select: Prisma.MMapSelect,
+  private async attachPbAndWrsToMapResponse(
+    map: MMap & any,
     PB: boolean,
     WR: boolean,
-    userID?: number
-  ): void {
-    if (!(PB || WR)) return;
-
-    select.leaderboardRuns = { include: { user: true } };
-    if (PB && WR) {
-      select.leaderboardRuns.where = {
-        AND: [
-          { trackType: TrackType.MAIN },
-          { OR: [{ userID: userID }, { rank: 1 }] }
-        ]
-      };
-    } else if (PB) {
-      select.leaderboardRuns.where = {
-        trackType: TrackType.MAIN, // Probs fastest to omit trackNum here (can't be != 1)
-        style: 0,
-        userID: userID
-      };
-    } else {
-      select.leaderboardRuns.where = {
-        trackType: TrackType.MAIN,
-        style: 0,
-        rank: 1
-      };
-    }
-  }
-
-  private handleMapGetPrismaResponse(
-    mapObj: MMap & {
-      worldRecords?: LeaderboardRun[];
-      personalBests?: LeaderboardRun[];
-      leaderboardRuns?: LeaderboardRun[];
-    },
-    userID: number,
-    PB: boolean,
-    WR: boolean
-  ): void {
-    if (PB && WR) {
-      // Annoying to have to do this but we don't know what's what
-      mapObj.worldRecords = mapObj.leaderboardRuns.filter((r) => r.rank === 1);
-      mapObj.personalBests = mapObj.leaderboardRuns.filter(
-        (r) => r.userID === userID
-      );
-    } else if (PB) {
-      mapObj.personalBests = mapObj.leaderboardRuns;
-    } else {
-      mapObj.worldRecords = mapObj.leaderboardRuns;
+    userID: number
+  ): Promise<void> {
+    if (PB) {
+      map.personalBests =
+        await this.leaderboardRunsDbService.getRankedRunsAllGamemodes({
+          mapID: map.id,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: 0, // TODO: Style.NORMAL / GamemodeDefaultStyle... nightmare to do
+          userIDs: [userID],
+          skip: 0,
+          take: 1
+        });
     }
 
-    delete mapObj.leaderboardRuns;
+    if (WR) {
+      map.worldRecords =
+        await this.leaderboardRunsDbService.getRankedRunsAllGamemodes({
+          mapID: map.id,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: 0, // TODO: Style.NORMAL / GamemodeDefaultStyle... nightmare to do
+          skip: 0,
+          take: 1
+        });
+    }
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {

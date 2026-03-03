@@ -2,12 +2,18 @@
   AdminGetAdminActivitiesQuery,
   AdminActivityType,
   AdminGetReportsExpand,
-  AdminGetReportsQuery
+  AdminGetReportsQuery,
+  Gamemode,
+  TrackType,
+  Style
 } from '@momentum/constants';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
-  ExpandQueryProperty
+  EnumQueryProperty,
+  ExpandQueryProperty,
+  IdProperty,
+  IntQueryProperty
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 

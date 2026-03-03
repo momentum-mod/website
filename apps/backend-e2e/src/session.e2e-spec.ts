@@ -19,7 +19,7 @@ import {
   RunValidationErrorType,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, TypedSql } from '@momentum/db';
 import { ZonesStubString } from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
@@ -507,6 +507,7 @@ describe('Session', () => {
   describe('session/run/:sessionID/end', () => {
     describe('POST', () => {
       let user, token, defaultTesterProperties;
+      const otherUsers = [];
 
       beforeEach(async () => {
         // Run submission affects so much with ranks and stuff that's it's
@@ -534,8 +535,10 @@ describe('Session', () => {
                   steamID: randomSteamID()
                 }
               })
-              .then((user) =>
-                prisma.leaderboardRun.create({
+              .then((user) => {
+                otherUsers.push(user);
+
+                return prisma.leaderboardRun.create({
                   data: {
                     mmap: { connect: { id: map.id } },
                     leaderboard: {
@@ -564,12 +567,11 @@ describe('Session', () => {
                     replayHash: randomHash(),
                     time: i + 0.005,
                     splits: {},
-                    user: { connect: { id: user.id } },
-                    rank: i + 1
+                    user: { connect: { id: user.id } }
                   },
                   include: { mmap: true, user: true }
-                })
-              )
+                });
+              })
           )
         );
       });
@@ -625,6 +627,19 @@ describe('Session', () => {
         return tester.endRun(endRunProps);
       };
 
+      const getRuns = () =>
+        prisma.$queryRawTyped(
+          TypedSql.getLeaderboardRuns(
+            map.id,
+            Gamemode.AHOP,
+            TrackType.MAIN,
+            1,
+            0,
+            0,
+            null
+          )
+        );
+
       // Splitting these out in multiple tests. It's slower, but there's so
       // much stuff we want to test here that I want to keep it organised well.
       describe('should process a valid run and ', () => {
@@ -638,31 +653,16 @@ describe('Session', () => {
           expect(res.body.totalRuns).toBe(11);
         });
 
+        // Note that now we're using a window function the rank column isn't
+        // materialized. These tests is effectively just checking the window
+        // function behaves correctly.
         it('should be inserted in leaderboards, shifting other ranks', async () => {
-          const ranksBefore = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
-
+          const ranksBefore = await getRuns();
           expect(ranksBefore).toHaveLength(10);
 
           await submitRun();
 
-          const ranksAfter = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
-
+          const ranksAfter = await getRuns();
           expect(ranksAfter).toHaveLength(11);
           expect(ranksAfter.find((rank) => rank.userID === user.id).rank).toBe(
             2
@@ -677,7 +677,7 @@ describe('Session', () => {
         });
 
         it('if has a PB, only shift ranks between the PB and old run', async () => {
-          // Update whatever rank + run is rank 4 to belong to user1
+          // Update rank 4 run to belong to user1
           await prisma.leaderboardRun.updateMany({
             where: {
               mapID: map.id,
@@ -685,21 +685,12 @@ describe('Session', () => {
               trackType: TrackType.MAIN,
               trackNum: 1,
               style: 0,
-              rank: 4
+              userID: otherUsers[3].id
             },
             data: { userID: user.id }
           });
 
-          const ranksBefore = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
-
+          const ranksBefore = await getRuns();
           expect(ranksBefore).toHaveLength(10);
 
           const res = await submitRun();
@@ -709,22 +700,14 @@ describe('Session', () => {
           expect(res.body.isNewPersonalBest).toBe(true);
           expect(res.body.totalRuns).toBe(10);
 
-          const ranksAfter = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
+          const ranksAfter = await getRuns();
 
           // It should have *updated* our existing rank, so this should still
           // be 10
           expect(ranksAfter).toHaveLength(10);
 
           // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
-          // now becoming 2. prettier-ignore
+          // now becoming 2.
           // prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
                   ranksAfter.find((rank) => rank.rank === 3).userID
@@ -752,20 +735,12 @@ describe('Session', () => {
               trackType: TrackType.MAIN,
               trackNum: 1,
               style: 0,
-              rank: 1
+              userID: otherUsers[0].id
             },
             data: { userID: user.id }
           });
 
-          const ranksBefore = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
+          const ranksBefore = await getRuns();
 
           expect(ranksBefore).toHaveLength(10);
 
@@ -777,16 +752,7 @@ describe('Session', () => {
           // expect(res.body.xp.rankXP).toBe(0);
           expect(res.body.totalRuns).toBe(10);
 
-          const ranksAfter = await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType: TrackType.MAIN,
-              trackNum: 1,
-              style: 0
-            }
-          });
-
+          const ranksAfter = await getRuns();
           expect(ranksBefore).toEqual(ranksAfter);
         });
 

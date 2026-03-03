@@ -536,6 +536,22 @@ describe('Maps', () => {
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
         await db.createLbRun({ map: mEarth, user: u2, time: 5 });
         await db.createLbRun({ map: mEarth, user: u1, time: 10 });
+        await prisma.leaderboard.create({
+          data: {
+            mapID: mEarth.id,
+            gamemode: Gamemode.RJ,
+            type: LeaderboardType.RANKED,
+            trackType: TrackType.MAIN,
+            trackNum: 1,
+            style: 0
+          }
+        });
+        await db.createLbRun({
+          map: mEarth,
+          user: u1,
+          time: 1,
+          gamemode: Gamemode.RJ
+        });
 
         const res = await req.get({
           url: 'maps',
@@ -547,7 +563,10 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === mEarth.id);
         expect(map).toMatchObject({
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
+          personalBests: [
+            { rank: 2, gamemode: Gamemode.AHOP, user: { id: u1.id } },
+            { rank: 1, gamemode: Gamemode.RJ, user: { id: u1.id } }
+          ]
         });
       });
 

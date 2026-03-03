@@ -1,6 +1,8 @@
 import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
+  Gamemode,
   GamemodeInfo,
+  Leaderboard,
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
@@ -9,6 +11,7 @@ import {
   mapTagEnglishName,
   MMap,
   PagedResponse,
+  Style,
   TrackType
 } from '@momentum/constants';
 import { mapHttpError } from '../../../../util/rxjs/map-http-error';
@@ -40,6 +43,8 @@ import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LocalUserService } from '../../../../services/data/local-user.service';
+import { AdminService } from '../../../../services/data/admin.service';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
@@ -77,6 +82,8 @@ export class MapLeaderboardComponent implements OnChanges {
   private readonly leaderboardService = inject(LeaderboardsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly adminService = inject(AdminService);
+  private readonly localUserService = inject(LocalUserService);
 
   protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
@@ -136,7 +143,6 @@ export class MapLeaderboardComponent implements OnChanges {
         map(() =>
           JSON.stringify([this.activeMode, this.activeTrack, this.activeType])
         ),
-        distinctUntilChanged(),
         tap(() => (this.loading = true)),
         switchMap(() => this.fetchRuns()),
         takeUntilDestroyed(this.destroyRef)
@@ -202,5 +208,31 @@ export class MapLeaderboardComponent implements OnChanges {
     return this.leaderboards.some(
       ({ type }) => type === LeaderboardType.HIDDEN
     );
+  }
+
+  get isAdmin() {
+    return this.localUserService.isAdmin;
+  }
+
+  deleteRun(run: LeaderboardRun) {
+    // TODO: confirmmation popup with reason input#
+    const reason = 'todo';
+    this.adminService.deleteRun(run, reason).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Run deleted',
+          summary: 'Success'
+        });
+        this.load.next();
+      },
+      error: (httpError: HttpErrorResponse) => {
+        this.messageService.add({
+          severity: 'error',
+          detail: httpError.error.message,
+          summary: 'Error deleting run'
+        });
+      }
+    });
   }
 }

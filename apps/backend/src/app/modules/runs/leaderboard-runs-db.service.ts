@@ -15,7 +15,7 @@ export interface LeaderboardQuery {
   style: Style;
   transaction?: ExtendedPrismaServiceTransaction;
   skip?: number;
-  take?: number;
+  take?: number | null;
 }
 
 /**
@@ -44,8 +44,8 @@ export class LeaderboardRunsDbService {
       ? LeaderboardRun[]
       : Omit<LeaderboardRun, 'splits'>[]
   > {
-    const skip = args.skip ?? 0;
-    const take = args.take ?? 10;
+    const skip = args.skip === undefined ? 0 : args.skip;
+    const take = args.take === undefined ? 10 : args.take;
 
     let sql;
     if (args.steamIDs) {
@@ -104,8 +104,8 @@ export class LeaderboardRunsDbService {
       userIDs?: number[];
     }
   ): Promise<Partial<LeaderboardRun>[]> {
-    const skip = args.skip ?? 0;
-    const take = args.take ?? 10;
+    const skip = args.skip === undefined ? 0 : args.skip;
+    const take = args.take === undefined ? 10 : args.take;
 
     let sql;
     if (args.userIDs) {
