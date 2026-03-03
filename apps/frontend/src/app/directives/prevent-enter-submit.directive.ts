@@ -7,6 +7,6 @@ import { Directive, HostListener } from '@angular/core';
 export class PreventEnterSubmitDirective {
   @HostListener('keydown.enter', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
-    event.stopPropagation();
+    event.preventDefault();
   }
 }
