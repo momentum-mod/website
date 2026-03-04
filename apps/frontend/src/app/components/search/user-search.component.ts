@@ -22,7 +22,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule, NgClass } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { SpinnerComponent } from '../spinner/spinner.component';
-import { Popover } from 'primeng/popover';
+import { PopoverComponent } from '../popover/popover.component';
 
 @Component({
   selector: 'm-user-search',
@@ -37,8 +37,8 @@ import { Popover } from 'primeng/popover';
     NgClass,
     TooltipDirective,
     SpinnerComponent,
-    Popover,
-    CommonModule
+    CommonModule,
+    PopoverComponent
   ]
 })
 export class UserSearchComponent
@@ -67,7 +67,7 @@ export class UserSearchComponent
   @Input() appendTemplate?: TemplateRef<any>;
 
   @ViewChild('searchMain') mainEl: ElementRef;
-  @ViewChild('searchOverlay') overlay: Popover;
+  @ViewChild('searchOverlay') overlay: PopoverComponent;
 
   searchRequest(searchString: string) {
     if (this.searchBySteam) {
@@ -94,9 +94,7 @@ export class UserSearchComponent
   override ngOnInit() {
     if (this.useOverlay) {
       this.search.valueChanges.subscribe((value) =>
-        value?.length > 0
-          ? this.overlay.show(null, this.mainEl.nativeElement)
-          : this.overlay.hide()
+        value?.length > 0 ? this.overlay.show() : this.overlay.hide()
       );
     }
 

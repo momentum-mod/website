@@ -7,9 +7,9 @@ import { LocalUserService } from '../../services/data/local-user.service';
 import { MenuModule } from 'primeng/menu';
 import { IconComponent } from '../../icons';
 import { AsyncPipe } from '@angular/common';
-import { Popover } from 'primeng/popover';
 import { RouterLink } from '@angular/router';
 import { NotificationsMenuComponent } from '../notifications/notifications-menu.component';
+import { PopoverComponent } from '../popover/popover.component';
 
 @Component({
   selector: 'm-header',
@@ -21,9 +21,9 @@ import { NotificationsMenuComponent } from '../notifications/notifications-menu.
     MenuModule,
     IconComponent,
     AsyncPipe,
-    Popover,
     RouterLink,
-    NotificationsMenuComponent
+    NotificationsMenuComponent,
+    PopoverComponent
   ]
 })
 export class HeaderComponent implements OnInit {

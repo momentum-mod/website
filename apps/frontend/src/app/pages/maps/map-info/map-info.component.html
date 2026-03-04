@@ -33,9 +33,16 @@
           Play
         </button>
         @if (map.currentVersion.downloadURL; as bsp) {
-          <a (click)="downloadOverlay.show($event)" class="btn btn-purple" mTooltip="Download map file">
-            <m-icon class="pb-0.5" icon="download" />
-            <p-popover #downloadOverlay appendTo="body">
+          <div>
+            <a
+              (click)="downloadOverlay.show()"
+              [style.anchor-name]="'--download-anchor'"
+              class="btn btn-purple"
+              mTooltip="Download map file"
+            >
+              <m-icon class="pb-0.5" icon="download" />
+            </a>
+            <m-popover #downloadOverlay anchorName="--download-anchor">
               <div class="max-w-lg">
                 <p class="mb-1 text-sm italic text-gray-200">
                   For convenience we recommend downloading and launching maps through the in-game map browser!
@@ -50,8 +57,8 @@
                   <p><a class="link" [href]="vmf">Download VMF</a></p>
                 }
               </div>
-            </p-popover>
-          </a>
+            </m-popover>
+          </div>
         }
         @if (localUserService.isLoggedIn && !localUserService.isLimited) {
           <button
@@ -173,8 +180,8 @@
             class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
           >
             <p>In Submission -</p>
-            <i>{{ MapStatusName.get(map.status) }}</i
-            ><m-icon
+            <i>{{ MapStatusName.get(map.status) }}</i>
+            <m-icon
               class="my-auto text-lg"
               mTooltip="This map is currently in submission, and hasn't been approved yet. All runs submitted during review are wiped upon approval!"
               icon="help-circle"
