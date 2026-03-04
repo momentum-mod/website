@@ -145,10 +145,19 @@
       </span>
     </p>
   }
+
+  @if (!loading && activeType === filterTypes.WR_PROGRESSION) {
+    <div class="mt-4 w-full rounded border border-white/5 bg-white/10 p-3 text-center shadow">
+      WR Progression
+      <m-record-progression-chart [runs]="runs"></m-record-progression-chart>
+    </div>
+  }
+
   @if (!loading && runs.length === 0) {
     <h4 class="text-center">No runs found</h4>
   }
-  @if (!loading && runs.length > 0) {
+
+  @if (!loading && runs.length > 0 && activeType !== filterTypes.WR_PROGRESSION) {
     <div class="mt-4 w-full">
       <div class="flex px-4">
         <p class="basis-1/10 text-left">Rank</p>
