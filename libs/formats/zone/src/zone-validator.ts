@@ -28,12 +28,6 @@ export const MAX_REGIONS = 250;
 // Includes the segment start zone
 export const MAX_SEGMENT_CHECKPOINTS = 100;
 
-// From C++:
-// One segment start for max Main segments plus Main end zone plus start and end for each stage track.
-// The limit could be increased from here (barring region entity overload) but this is the bare minimum to allow for MAX_TRACK_SEGMENTS.
-export const MAX_ZONES_ALL_TRACKS =
-  MAX_TRACK_SEGMENTS + 1 + MAX_STAGE_TRACKS * 2;
-
 export class ZoneValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -59,14 +53,16 @@ export function validateZoneFile(input: MapZones): void {
   if (formatVersion !== CURRENT_ZONE_FORMAT_VERSION)
     throw new ZoneValidationError('Bad format version');
 
-  let totalZones = 0;
-
   const mainSegmentCount = tracks.main.zones.segments.length;
   const stageTrackCount = mainSegmentCount > 1 ? mainSegmentCount : 0;
 
   // Main track
   if (mainSegmentCount === 0) {
     throw new ZoneValidationError('The Main track has no segments');
+  }
+
+  if (countRegions(input) > MAX_REGIONS) {
+    throw new ZoneValidationError('Too many regions in total ');
   }
 
   validateTrack(tracks.main, 'Main');
@@ -150,9 +146,6 @@ export function validateZoneFile(input: MapZones): void {
     validateTrack(bonusTrack, `bonus ${bonusIndex}`);
   }
 
-  if (totalZones > MAX_ZONES_ALL_TRACKS)
-    throw new ZoneValidationError('Too many zones in total');
-
   function validateTrack(track: Track, debugName: string) {
     const { zones } = track;
 
@@ -228,8 +221,6 @@ export function validateZoneFile(input: MapZones): void {
     requiresTele: boolean
   ) {
     if (!zone) throw new ZoneValidationError('Missing zones');
-
-    totalZones++;
 
     if (!Array.isArray(zone.regions) || zone.regions.length === 0)
       throw new ZoneValidationError(
@@ -366,4 +357,36 @@ export function validateZoneFile(input: MapZones): void {
       }
     }
   }
+}
+
+function countRegions(input: MapZones) {
+  let count = 0;
+
+  input.tracks.main?.zones.segments.forEach((segment) => {
+    segment.checkpoints?.forEach((checkpoint) => {
+      count += checkpoint.regions?.length ?? 0;
+    });
+    segment.cancel?.forEach((cancel) => {
+      count += cancel.regions?.length ?? 0;
+    });
+  });
+  count += input.tracks.main?.zones.end.regions?.length ?? 0;
+
+  input.tracks.bonuses?.forEach((bonus) => {
+    bonus.zones?.segments.forEach((segment) => {
+      segment.checkpoints?.forEach((checkpoint) => {
+        count += checkpoint.regions?.length ?? 0;
+      });
+      segment.cancel?.forEach((cancel) => {
+        count += cancel.regions?.length ?? 0;
+      });
+    });
+    count += bonus.zones?.end.regions?.length ?? 0;
+  });
+
+  count += input.globalRegions?.allowBhop?.length ?? 0;
+  count += input.globalRegions?.cancel?.length ?? 0;
+  count += input.globalRegions?.overbounce?.length ?? 0;
+
+  return count;
 }
