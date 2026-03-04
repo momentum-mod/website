@@ -1,30 +1,12 @@
-<div class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
+<div [style.anchor-name]="'--chip-anchor'" class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
   <button
-    (click)="op.toggle($event)"
+    (click)="op.toggle()"
     [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
     [disabled]="available.length === 0"
     type="button"
     class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
   >
     <m-icon icon="plus-thick" class="size-6" />
-    <!-- This overlay can overlap the visible tags, but can't figure out a
-         way to align to the parent container... -->
-    <p-popover #op [classList]="'p-0'">
-      <div class="flex max-w-xl flex-wrap gap-2">
-        @for (chip of available; track $index) {
-          <button
-            (click)="add(chip)"
-            class="flex gap-2 rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
-            type="button"
-          >
-            @if (getChipImage(chip); as chipImage) {
-              <img class="aspect-square h-6" [src]="chipImage" />
-            }
-            <span class="text-white">{{ getChipName(chip) }}</span>
-          </button>
-        }
-      </div>
-    </p-popover>
   </button>
   <button
     type="button"
@@ -59,3 +41,19 @@
     </div>
   }
 </div>
+<m-popover #op [classList]="'p-0'" anchorName="--chip-anchor">
+  <div class="flex max-w-xl flex-wrap gap-2">
+    @for (chip of available; track $index) {
+      <button
+        (click)="add(chip)"
+        class="flex gap-2 rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
+        type="button"
+      >
+        @if (getChipImage(chip); as chipImage) {
+          <img class="aspect-square h-6" [src]="chipImage" />
+        }
+        <span class="text-white">{{ getChipName(chip) }}</span>
+      </button>
+    }
+  </div>
+</m-popover>

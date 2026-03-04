@@ -37,7 +37,7 @@ export class PopoverComponent {
 
   @ViewChild('popover') popover: ElementRef<HTMLElement>;
 
-  active = false;
+  private active = false;
 
   onToggle(event: ToggleEvent) {
     if (event.newState === 'open') {
