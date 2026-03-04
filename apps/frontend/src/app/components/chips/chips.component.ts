@@ -1,9 +1,9 @@
 import { Component, Input, TemplateRef, forwardRef } from '@angular/core';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Popover } from 'primeng/popover';
 import { IconComponent } from '../../icons';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { PopoverComponent } from '../popover/popover.component';
 
 /**
  * For objects, includeFn and nameFn must be provided.
@@ -19,8 +19,8 @@ export type Chip = unknown;
     CommonModule,
     IconComponent,
     TooltipDirective,
-    Popover,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    PopoverComponent
   ],
   providers: [
     {

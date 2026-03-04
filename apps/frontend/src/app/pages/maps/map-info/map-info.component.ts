@@ -41,11 +41,11 @@ import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { SpinnerComponent } from '../../../components/spinner/spinner.component';
 import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
-import { Popover } from 'primeng/popover';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ThousandsSuffixPipe } from '../../../pipes/thousands-suffix.pipe';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import { PopoverComponent } from '../../../components/popover/popover.component';
 
 /**
  * Using an m-tabs for this page doesn't work with the layout, we use this to
@@ -70,13 +70,13 @@ enum MapInfoSection {
     NgClass,
     IconComponent,
     RouterLink,
-    Popover,
     SpinnerDirective,
     DatePipe,
     PluralPipe,
     ThousandsSuffixPipe,
     AvatarComponent,
-    CommonModule
+    CommonModule,
+    PopoverComponent
   ]
 })
 export class MapInfoComponent implements OnInit {

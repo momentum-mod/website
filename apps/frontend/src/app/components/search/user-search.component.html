@@ -1,20 +1,29 @@
-<div #searchMain class="relative flex w-full items-center gap-2">
-  <input
-    class="textinput min-w-[15rem] flex-grow"
-    [mSpinner]="search.pending"
-    [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
-    [formControl]="search"
-    (keydown)="onKeydown($event)"
-    type="text"
-  />
-  <m-icon
-    class="absolute right-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
-    [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
-    mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
-    icon="steam"
-    pack="si"
-    (click)="searchBySteam = !searchBySteam"
-  />
+<div [style.anchor-scope]="'--popover-anchor'">
+  <div #searchMain [style.anchor-name]="'--popover-anchor'" class="relative flex w-full items-center gap-2">
+    <input
+      class="textinput min-w-[15rem] flex-grow"
+      [mSpinner]="search.pending"
+      [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
+      [formControl]="search"
+      (keydown)="onKeydown($event)"
+      type="text"
+    />
+    <m-icon
+      class="absolute right-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
+      [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
+      mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
+      icon="steam"
+      pack="si"
+      (click)="searchBySteam = !searchBySteam"
+    />
+  </div>
+  @if (useOverlay) {
+    <m-popover #searchOverlay anchorName="--popover-anchor">
+      <ng-container *ngTemplateOutlet="results" />
+    </m-popover>
+  } @else {
+    <ng-container *ngTemplateOutlet="results" />
+  }
 </div>
 <ng-template #results>
   <div class="flex min-h-12 flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }" (keydown)="onKeydown($event)">
@@ -81,10 +90,3 @@
     }
   </div>
 </ng-template>
-@if (useOverlay) {
-  <p-popover #searchOverlay>
-    <ng-container *ngTemplateOutlet="results" />
-  </p-popover>
-} @else {
-  <ng-container *ngTemplateOutlet="results" />
-}
