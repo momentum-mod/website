@@ -3,22 +3,29 @@
   background-color: #18181b;
   border: 1px solid rgb(255 255 255 / 0.05);
   border-radius: 4px;
-  box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.2),
-  0 24px 38px 3px rgba(0, 0, 0, 0.14),
-  0 9px 46px 8px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0 9px 46px 8px rgba(0, 0, 0, 0.12);
   margin: 0.5rem 0;
   padding: 0.75rem;
   inset: auto;
 
   /* positioning */
-  position-try-fallbacks: bottom span-left, top span-right, top span-left;
+  position-try-fallbacks:
+    bottom span-left,
+    top span-right,
+    top span-left;
   position-try-order: most-width;
   position-visibility: anchors-visible;
   position-area: bottom span-right;
   position: fixed;
 
   /* animations */
-  transition: opacity 0.2s, transform 0.2s, display 0.2s allow-discrete;
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    display 0.2s allow-discrete;
   opacity: 0;
   /*transform: translateY(3rem);*/
 
@@ -36,4 +43,3 @@
 }
 
 /*TODO: animation, popover caret*/
-
