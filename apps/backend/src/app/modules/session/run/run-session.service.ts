@@ -93,6 +93,12 @@ export class RunSessionService {
         // pruning logic or something in the future to remove old sessions.
         Number(session.trackNum) === body.trackNum
       ) {
+        // If the stored session has a counter greater than or equal to the incoming one,
+        // it means this request arrived out of order and is stale.
+        if (Number(session.requestCounter) >= body.requestCounter) {
+          throw new BadRequestException('Request is out of order or duplicate');
+        }
+
         await Promise.all([
           this.valkey.lrem(idKey(userID), 0, sessionID),
           this.valkey.del(dataKey(sessionID))
@@ -113,6 +119,7 @@ export class RunSessionService {
       this.valkey.hset(dataKey(id), {
         userID,
         createdAt,
+        requestCounter: body.requestCounter,
         ...leaderboardData
       }),
       this.valkey.lpush(tsKey, serializeTimestamp(1, 1, 0, createdAt))

@@ -74,7 +74,8 @@ export class RunTester {
         mapID: this.props.mapID,
         gamemode: this.props.gamemode,
         trackType: this.props.trackType,
-        trackNum: this.props.trackNum
+        trackNum: this.props.trackNum,
+        requestCounter: 1
       },
       status: 200,
       token: this.props.token ?? ''

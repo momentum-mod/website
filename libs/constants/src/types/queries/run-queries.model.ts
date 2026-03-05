@@ -37,6 +37,7 @@ export interface CreateRunSession {
   gamemode: Gamemode;
   trackType: TrackType;
   trackNum: number;
+  requestCounter: number;
 }
 
 export interface UpdateRunSession {
