@@ -58,7 +58,18 @@ export class CreateRunSessionDto
     'trackType',
     'trackNum'
   ] as const)
-  implements CreateRunSession {}
+  implements CreateRunSession
+{
+  @ApiProperty({
+    description:
+      'The counter for create session requests (used to detect out-of-order requests)',
+    type: Number,
+    required: true
+  })
+  @IsInt()
+  @Min(0)
+  readonly requestCounter: number;
+}
 
 export class UpdateRunSessionDto implements UpdateRunSession {
   @IsInt()

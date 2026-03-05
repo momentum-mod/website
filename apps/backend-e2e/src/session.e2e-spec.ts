@@ -95,7 +95,8 @@ describe('Session', () => {
               mapID: map.id,
               gamemode: Gamemode.AHOP,
               trackType,
-              trackNum
+              trackNum,
+              requestCounter: 1
             }
           });
 
@@ -158,7 +159,8 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.STAGE,
-            trackNum: 2
+            trackNum: 2,
+            requestCounter: 1
           }
         });
 
@@ -220,7 +222,8 @@ describe('Session', () => {
               mapID: map.id,
               gamemode: Gamemode.AHOP,
               trackType,
-              trackNum
+              trackNum,
+              requestCounter: 1
             },
             token
           });
@@ -235,7 +238,8 @@ describe('Session', () => {
             mapID: NULL_ID,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            gamemode: Gamemode.AHOP
+            gamemode: Gamemode.AHOP,
+            requestCounter: 1
           },
           token
         }));
@@ -248,7 +252,8 @@ describe('Session', () => {
             mapID: NULL_ID,
             trackType: TrackType.MAIN,
             trackNum: 1,
-            gamemode: Gamemode.BHOP
+            gamemode: Gamemode.BHOP,
+            requestCounter: 1
           },
           token
         }));
@@ -261,7 +266,8 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 1
+            trackNum: 1,
+            requestCounter: 1
           }
         }));
 
@@ -275,7 +281,8 @@ describe('Session', () => {
             mapID: map.id,
             gamemode: Gamemode.AHOP,
             trackType: TrackType.MAIN,
-            trackNum: 1
+            trackNum: 1,
+            requestCounter: 1
           },
           token: nonGameToken
         });
