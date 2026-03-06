@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import pino from 'pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
@@ -33,6 +34,37 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
       cache: true,
       isGlobal: true,
       validate
+    }),
+    // Per-endpoint rate limiting.
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers:
+          config.getOrThrow('env') !== Environment.PRODUCTION
+            ? []
+            : [
+                // If request limit is exceeded within the ttl, deny by throwing exception.
+                // These throttlers are provided globally, but apply to each endpoint individually.
+                // If any endpoint needs to exceed the limit, consider redesigning it or
+                // override it with @SkipThrottle or @Throttle on the endpoint or whole controller.
+                // IMPORTANT: Throttlers MUST be named if multiple are used at
+                // the same time, otherwise collisions will occurr resulting in using
+                // the smallest limit with the highest ttl.
+                // Note that with names you must specify them in the endpoint/controller
+                // overrides, as they are omitted by default.
+                { name: 'short', ttl: seconds(1), limit: 20 },
+                { name: 'long', ttl: seconds(60), limit: 200 }
+              ]
+        // This only limits per-instance; we could store in Valkey instead in the future if needed.
+        // Though if we're deploying multiple servers it'd have to be per-cluster -- latency
+        // of so many Valkey queries over the internet would never be worth it.
+        // If we ever care about rate-limiting that much, we should limit
+        // expensive endpoints based on whether or not the header contains a valid JWT.
+        // Nest's ThrottleModule doesn't support that out of the box,
+        // but we could do a custom guard that overrides handleRequest,
+        // to increasing/decreasing the limit option based on whether a valid JWT was attached,
+        // then call the base method. (see https://github.com/nestjs/throttler/blob/master/src/throttler.guard.ts)
+      })
     }),
     SentryModule.forRoot(),
     // Pino is a JSON-based logger that's much more performant than the NestJS's
@@ -154,6 +186,10 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
     {
       provide: APP_FILTER,
       useClass: ExceptionHandlerFilter
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
     }
   ]
 })
