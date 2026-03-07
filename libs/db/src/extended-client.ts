@@ -55,8 +55,7 @@ export const PRISMA_CLIENT_EXTENSIONS = {
         );
       }
     }
-  },
-  client: { typedQueries }
+  }
 };
 
 export const prismaExtensionFactory = (client: PrismaClient) => {

@@ -37,6 +37,7 @@ import { KillswitchService } from '../killswitch/killswitch.service';
 import { UsersService } from '../users/users.service';
 import {
   AdminActivityDto,
+  AdminDeleteRunDto,
   AdminGetAdminActivitiesQueryDto,
   AdminGetReportsQueryDto,
   AdminUpdateMapReviewDto,
@@ -250,6 +251,25 @@ export class AdminController {
     @LoggedInUser('id') userID: number
   ) {
     return this.mapsService.delete(mapID, userID, true);
+  }
+
+  @Post('/delete-run')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteLeaderboardRun(
+    @Body() body: AdminDeleteRunDto,
+    @LoggedInUser('id') adminID: number
+  ): Promise<void> {
+    await this.adminService.deleteLeaderboardRun(body, adminID);
+  }
+
+  @Post('/delete-runs/:userID')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUserRuns(
+    @Param('userID', ParseInt32SafePipe) userID: number,
+    @Body() { reason }: { reason: string },
+    @LoggedInUser('id') adminID: number
+  ): Promise<void> {
+    await this.adminService.purgeUserRuns(userID, reason, adminID);
   }
 
   @Get('/reports')

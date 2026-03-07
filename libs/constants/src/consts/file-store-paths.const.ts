@@ -28,6 +28,10 @@ export function runPath(key: string | number | bigint): string {
   return `runs/${key}`;
 }
 
+export function deletedRunPath(key: string | number | bigint): string {
+  return `deletedruns/${key}`;
+}
+
 export function mapListPath(
   type: FlatMapList,
   version: string | number

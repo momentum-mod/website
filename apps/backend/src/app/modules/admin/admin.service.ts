@@ -6,11 +6,18 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { Prisma } from '@momentum/db';
+import { LeaderboardRun, Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
-import { AdminActivityType, NotificationType, Role } from '@momentum/constants';
+import {
+  AdminActivityType,
+  NotificationType,
+  Role,
+  runPath,
+  deletedRunPath
+} from '@momentum/constants';
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
+  AdminDeleteRunDto,
   AdminUpdateUserDto,
   DtoFactory,
   PagedResponseDto,
@@ -24,6 +31,7 @@ import { AdminActivityService } from './admin-activity.service';
 import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { FileStoreService } from '../filestore/file-store.service';
 
 @Injectable()
 export class AdminService {
@@ -31,7 +39,8 @@ export class AdminService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
-    private readonly notificationsService: NotificationsService
+    private readonly notificationsService: NotificationsService,
+    private readonly fileStore: FileStoreService
   ) {}
 
   async createPlaceholderUser(
@@ -279,6 +288,86 @@ export class AdminService {
       updatedUser,
       user
     );
+  }
+
+  async deleteLeaderboardRun(
+    body: AdminDeleteRunDto,
+    adminID: number
+  ): Promise<void> {
+    const where = {
+      where: {
+        userID_gamemode_style_mapID_trackType_trackNum: {
+          userID: body.userID,
+          gamemode: body.gamemode,
+          style: body.style,
+          mapID: body.mapID,
+          trackType: body.trackType,
+          trackNum: body.trackNum
+        }
+      }
+    };
+
+    const run = await this.db.leaderboardRun.findUnique(where);
+
+    if (!run) {
+      throw new NotFoundException('Run not found');
+    }
+
+    await this.db.leaderboardRun.delete(where);
+
+    await Promise.all([
+      this.deleteRunFiles(run),
+      this.adminActivityService.create(
+        adminID,
+        AdminActivityType.RUN_DELETED,
+        run.userID,
+        { run: null },
+        run,
+        body.reason
+      )
+    ]);
+  }
+
+  async purgeUserRuns(
+    userID: number,
+    reason: string,
+    adminID: number
+  ): Promise<void> {
+    const runs = await this.db.leaderboardRun.findMany({
+      where: { userID }
+    });
+
+    if (runs.length === 0) {
+      throw new NotFoundException('No runs found for user');
+    }
+
+    await this.db.leaderboardRun.deleteMany({
+      where: { userID }
+    });
+
+    await Promise.all(
+      runs.flatMap((run) => [
+        this.deleteRunFiles(run),
+        this.adminActivityService.create(
+          adminID,
+          AdminActivityType.RUNS_PURGED,
+          userID,
+          { run: null },
+          run,
+          reason
+        )
+      ])
+    );
+  }
+
+  private async deleteRunFiles(run: LeaderboardRun): Promise<void> {
+    const sourcePath = runPath(run.replayHash);
+    const destPath = deletedRunPath(
+      `/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
+    );
+
+    await this.fileStore.copyFile(sourcePath, destPath);
+    await this.fileStore.deleteFile(sourcePath);
   }
 
   async getReports(

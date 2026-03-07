@@ -166,6 +166,15 @@
           </div>
           <p class="text-shadow pointer-events-none basis-1/10 text-lg">{{ run.time | timing }}</p>
           <p class="text-shadow pointer-events-none basis-3/20 text-right">{{ run.createdAt | timeAgo }}</p>
+          @if (isAdmin) {
+            <button
+              type="button"
+              class="ml-auto rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100"
+              (click)="deleteRun(run)"
+            >
+              <m-icon class="h-4 w-4" icon="delete" />
+            </button>
+          }
         </div>
       }
     </div>
