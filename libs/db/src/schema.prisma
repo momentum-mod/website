@@ -458,9 +458,9 @@ model Leaderboard {
 ///     Also is a UNIQUE constraint.
 ///   - (mapID, gamemode, trackType, trackNum, style, time (asc), createdAt (asc)): Indexes in leaderboard order.
 ///     The idea is we get every distinct leaderboard stacked on top of each other, then ordered by time within the chunk,
-///     where ties are simply handled by whatever was submitted first. Note that we store any actual "rank" values - incrementing
-///     ranks for all slower runs on a leaderboard is an incredibly slow operation. (TODO: This hasn't been implemented yet).
-///     Instead, we index this way to allow us to very efficiently compute ranks per query using window functions.
+///     where ties are simply handled by whatever was submitted first. Storing actual "rank" values on disk makes
+///     insertions a prohibitively slow operation; this index allows Postgres to compute rank on the fly using
+///     a window function over an index-only scan. See leaderboard-runs.bench.ts for benchmarks and more discussion.
 model LeaderboardRun {
   leaderboard Leaderboard @relation(fields: [mapID, gamemode, trackType, trackNum, style], references: [mapID, gamemode, trackType, trackNum, style], onDelete: Cascade)
 
