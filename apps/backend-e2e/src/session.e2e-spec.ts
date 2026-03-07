@@ -526,54 +526,50 @@ describe('Session', () => {
           playerName: 'Abstract Barry'
         });
 
-        await Promise.all(
-          arrayFrom(10, (i) =>
-            prisma.user
-              .create({
-                data: {
-                  alias: `RunSessions Test User ${i + 1}`,
-                  steamID: randomSteamID()
-                }
-              })
-              .then((user) => {
-                otherUsers.push(user);
+        for (let i = 0; i < 10; i++) {
+          const user = await prisma.user.create({
+            data: {
+              alias: `RunSessions Test User ${i + 1}`,
+              steamID: randomSteamID()
+            }
+          });
 
-                return prisma.leaderboardRun.create({
-                  data: {
-                    mmap: { connect: { id: map.id } },
-                    leaderboard: {
-                      connect: {
-                        mapID_gamemode_trackType_trackNum_style: {
-                          mapID: map.id,
-                          gamemode: Gamemode.AHOP,
-                          trackType: TrackType.MAIN,
-                          trackNum: 1,
-                          style: 0
-                        }
-                      }
-                    },
-                    pastRun: {
-                      create: {
-                        user: { connect: { id: user.id } },
-                        mmap: { connect: { id: map.id } },
-                        gamemode: Gamemode.AHOP,
-                        trackType: TrackType.MAIN,
-                        trackNum: 1,
-                        style: 0,
-                        time: i
-                      }
-                    },
-                    flags: [0],
-                    replayHash: randomHash(),
-                    time: i + 0.005,
-                    splits: {},
-                    user: { connect: { id: user.id } }
-                  },
-                  include: { mmap: true, user: true }
-                });
-              })
-          )
-        );
+          otherUsers.push(user);
+
+          await prisma.leaderboardRun.create({
+            data: {
+              mmap: { connect: { id: map.id } },
+              leaderboard: {
+                connect: {
+                  mapID_gamemode_trackType_trackNum_style: {
+                    mapID: map.id,
+                    gamemode: Gamemode.AHOP,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    style: 0
+                  }
+                }
+              },
+              pastRun: {
+                create: {
+                  user: { connect: { id: user.id } },
+                  mmap: { connect: { id: map.id } },
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  style: 0,
+                  time: i
+                }
+              },
+              flags: [0],
+              replayHash: randomHash(),
+              time: i + 0.005,
+              splits: {},
+              user: { connect: { id: user.id } }
+            },
+            include: { mmap: true, user: true }
+          });
+        }
       });
 
       afterEach(async () => {

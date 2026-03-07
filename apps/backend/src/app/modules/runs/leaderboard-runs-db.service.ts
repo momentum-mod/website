@@ -99,6 +99,11 @@ export class LeaderboardRunsDbService {
     return rows.map(LeaderboardRunsDbService.mapRowToLeaderboardRun);
   }
 
+  /**
+   * In this query, skip and take are *per gamemode*, not overall.
+   * So skip=0, take=1 would give you the world record for every gamemode.
+   * @param args
+   */
   async getRankedRunsAllGamemodes(
     args: Omit<LeaderboardQuery, 'gamemode'> & {
       userIDs?: number[];

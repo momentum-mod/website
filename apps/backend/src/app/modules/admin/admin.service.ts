@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { Prisma } from '@momentum/db';
+import { LeaderboardRun, Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
   AdminActivityType,
@@ -315,22 +315,17 @@ export class AdminService {
 
     await this.db.leaderboardRun.delete(where);
 
-    const sourcePath = runPath(run.replayHash);
-    const destPath = deletedRunPath(
-      `/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
-    );
-
-    await this.fileStore.copyFile(sourcePath, destPath);
-    await this.fileStore.deleteFile(sourcePath);
-
-    await this.adminActivityService.create(
-      adminID,
-      AdminActivityType.RUN_DELETED,
-      run.userID,
-      { run: null },
-      run,
-      body.reason
-    );
+    await Promise.all([
+      this.deleteRunFiles(run),
+      this.adminActivityService.create(
+        adminID,
+        AdminActivityType.RUN_DELETED,
+        run.userID,
+        { run: null },
+        run,
+        body.reason
+      )
+    ]);
   }
 
   async purgeUserRuns(
@@ -351,25 +346,28 @@ export class AdminService {
     });
 
     await Promise.all(
-      runs.map(async (run) => {
-        const sourcePath = runPath(run.replayHash);
-        const destPath = deletedRunPath(
-          `/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
-        );
-
-        await this.fileStore.copyFile(sourcePath, destPath);
-        await this.fileStore.deleteFile(sourcePath);
-
-        await this.adminActivityService.create(
+      runs.flatMap((run) => [
+        this.deleteRunFiles(run),
+        this.adminActivityService.create(
           adminID,
           AdminActivityType.RUNS_PURGED,
           userID,
           { run: null },
           run,
           reason
-        );
-      })
+        )
+      ])
     );
+  }
+
+  private async deleteRunFiles(run: LeaderboardRun): Promise<void> {
+    const sourcePath = runPath(run.replayHash);
+    const destPath = deletedRunPath(
+      `/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
+    );
+
+    await this.fileStore.copyFile(sourcePath, destPath);
+    await this.fileStore.deleteFile(sourcePath);
   }
 
   async getReports(

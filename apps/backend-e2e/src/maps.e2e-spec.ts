@@ -562,12 +562,20 @@ describe('Maps', () => {
         });
 
         const map = res.body.data.find((map) => map.id === mEarth.id);
-        expect(map).toMatchObject({
-          personalBests: [
-            { rank: 2, gamemode: Gamemode.AHOP, user: { id: u1.id } },
-            { rank: 1, gamemode: Gamemode.RJ, user: { id: u1.id } }
-          ]
-        });
+        expect(map.personalBests).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              rank: 1,
+              gamemode: Gamemode.RJ,
+              user: expect.objectContaining({ id: u1.id })
+            }),
+            expect.objectContaining({
+              rank: 2,
+              gamemode: Gamemode.AHOP,
+              user: expect.objectContaining({ id: u1.id })
+            })
+          ])
+        );
       });
 
       it('should respond properly with both personalBest and worldRecord expansions', async () => {

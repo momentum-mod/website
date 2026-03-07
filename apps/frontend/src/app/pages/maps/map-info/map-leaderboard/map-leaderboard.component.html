@@ -169,10 +169,10 @@
           @if (isAdmin) {
             <button
               type="button"
-              class="ml-auto rounded bg-red-500 px-2 py-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100"
+              class="ml-auto rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100"
               (click)="deleteRun(run)"
             >
-              Delete
+              <m-icon class="h-4 w-4" icon="delete" />
             </button>
           }
         </div>

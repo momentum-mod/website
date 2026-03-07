@@ -5,7 +5,7 @@ import {
   InternalServerErrorException
 } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
-import { Leaderboard, LeaderboardRun, User } from '@momentum/db';
+import { LeaderboardRun, User } from '@momentum/db';
 import {
   ActivityType,
   runPath,
@@ -297,16 +297,15 @@ export class RunSessionService {
     submittedRun: ProcessedRun,
     replayBuffer: Buffer
   ): Promise<CompletedRunDto> {
-    const existingRun = await this.db.leaderboardRun.findFirst({
-      where: {
-        mapID: submittedRun.mapID,
-        gamemode: submittedRun.gamemode,
-        trackType: submittedRun.trackType,
-        trackNum: submittedRun.trackNum,
-        style: 0,
-        userID: submittedRun.userID
-      },
-      include: { leaderboard: true }
+    const [existingRun] = await this.leaderboardRunsDbService.getRankedRuns({
+      mapID: submittedRun.mapID,
+      gamemode: submittedRun.gamemode,
+      trackType: submittedRun.trackType,
+      trackNum: submittedRun.trackNum,
+      style: 0,
+      userIDs: [submittedRun.userID],
+      take: 1,
+      includeSplits: true
     });
 
     const isPB = !(existingRun && existingRun.time < submittedRun.time);
@@ -368,7 +367,7 @@ export class RunSessionService {
     tx: ExtendedPrismaServiceTransaction,
     submittedRun: ProcessedRun,
     isPB: boolean,
-    existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
+    existingRun?: LeaderboardRun,
     replayHash?: string
   ): Promise<{
     newPB?: LeaderboardRun;
@@ -386,11 +385,9 @@ export class RunSessionService {
       style: 0
     };
 
-    const leaderboard =
-      existingRun?.leaderboard ??
-      (await tx.leaderboard.findUnique({
-        where: { mapID_gamemode_trackType_trackNum_style: leaderboardWhere }
-      }));
+    const leaderboard = await tx.leaderboard.findUnique({
+      where: { mapID_gamemode_trackType_trackNum_style: leaderboardWhere }
+    });
 
     // Doing XP and stats first, as we do this regardless of if you PBed or not
     const cosXPGain = this.xpSystems.getCosmeticXpForCompletion(

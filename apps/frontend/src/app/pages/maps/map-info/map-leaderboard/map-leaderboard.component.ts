@@ -1,8 +1,6 @@
 import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
-  Gamemode,
   GamemodeInfo,
-  Leaderboard,
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
@@ -11,7 +9,6 @@ import {
   mapTagEnglishName,
   MMap,
   PagedResponse,
-  Style,
   TrackType
 } from '@momentum/constants';
 import { mapHttpError } from '../../../../util/rxjs/map-http-error';
@@ -25,7 +22,7 @@ import {
   findMainGamemodeIndex,
   groupMapLeaderboards
 } from '../../../../util';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HiddenLeaderboardsInfoComponent } from '../../../../components/tooltips/hidden-leaderboards-info.component';
 import { UnrankedLeaderboardsInfoComponent } from '../../../../components/tooltips/unranked-leaderboards-info.component';

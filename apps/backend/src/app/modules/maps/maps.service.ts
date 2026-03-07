@@ -567,7 +567,7 @@ export class MapsService {
           style: 0, // TODO: Style.NORMAL / GamemodeDefaultStyle... nightmare to do
           userIDs: [userID],
           skip: 0,
-          take: 1
+          take: null // ?? shouldn't think work
         });
     }
 
