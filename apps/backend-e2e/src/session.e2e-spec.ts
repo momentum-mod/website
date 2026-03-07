@@ -506,8 +506,7 @@ describe('Session', () => {
   // use this method on the live API may get you banned!
   describe('session/run/:sessionID/end', () => {
     describe('POST', () => {
-      let user, token, defaultTesterProperties;
-      const otherUsers = [];
+      let user, token, defaultTesterProperties, otherUsers;
 
       beforeEach(async () => {
         // Run submission affects so much with ranks and stuff that's it's
@@ -526,6 +525,7 @@ describe('Session', () => {
           playerName: 'Abstract Barry'
         });
 
+        otherUsers = [];
         for (let i = 0; i < 10; i++) {
           const user = await prisma.user.create({
             data: {
