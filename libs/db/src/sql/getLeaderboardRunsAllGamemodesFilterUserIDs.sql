@@ -23,7 +23,14 @@ WITH ranked AS (SELECT "userID",
                 WHERE ("mapID",
                        "trackType",
                        "trackNum",
-                       "style") = ($1, $2, $3, $4))
+                       "style") = ($1, $2, $3, $4)
+                  AND ("time", "createdAt") >= (SELECT "time", "createdAt"
+                                                FROM "LeaderboardRun"
+                                                WHERE ("mapID", "trackType",
+                                                       "trackNum", "style") =
+                                                      ($1, $2, $3, $4)
+                                                ORDER BY "time", "createdAt"
+                                                OFFSET $6 LIMIT 1))
 SELECT "ranked".*,
        u."id"        AS "user_id",
        u."steamID"   AS "user_steamID",
@@ -37,7 +44,7 @@ FROM ranked
        INNER JOIN "User" AS "u"
                   ON "ranked"."userID" = "u"."id"
 WHERE "ranked"."userID" = ANY ($5)
+  AND ($7::INT IS NULL OR "ranked"."rank" <= $7)
 ORDER BY "ranked"."gamemode",
          "ranked"."time",
-         "ranked"."createdAt"
-OFFSET $6 LIMIT $7;
+         "ranked"."createdAt";

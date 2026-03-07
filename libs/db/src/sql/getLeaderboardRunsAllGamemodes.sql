@@ -16,16 +16,18 @@ SELECT r."userID",
        r."flags",
        r."pastRunID",
        r."createdAt",
-       u."id"                                                   AS "user_id",
-       u."steamID"                                              AS "user_steamID",
-       u."alias"                                                AS "user_alias",
-       u."avatar"                                               AS "user_avatar",
-       u."country"                                              AS "user_country",
-       u."roles"                                                AS "user_roles",
-       u."bans"                                                 AS "user_bans",
-       u."createdAt"                                            AS "user_createdAt",
-       CAST(ROW_NUMBER() OVER (PARTITION BY "gamemode") AS INT) AS "rank"
-FROM (SELECT *
+       u."id"        AS "user_id",
+       u."steamID"   AS "user_steamID",
+       u."alias"     AS "user_alias",
+       u."avatar"    AS "user_avatar",
+       u."country"   AS "user_country",
+       u."roles"     AS "user_roles",
+       u."bans"      AS "user_bans",
+       u."createdAt" AS "user_createdAt",
+       r."rank"
+FROM (SELECT *,
+             CAST(ROW_NUMBER()
+                  OVER (PARTITION BY "gamemode" ORDER BY "time", "createdAt") AS INT) AS "rank"
       FROM "LeaderboardRun"
       WHERE ("mapID", "trackType", "trackNum", "style") =
             ($1, $2, $3, $4)
@@ -37,12 +39,8 @@ FROM (SELECT *
                                             ($1, $2, $3, $4)
                                       ORDER BY "time",
                                                "createdAt"
-                                      OFFSET $5 LIMIT 1)
-      ORDER BY "gamemode",
-               "time",
-               "createdAt"
-      LIMIT $6) r
-       INNER JOIN "User" AS "u" ON "userID" = "u"."id";
-
-
+                                      OFFSET $5 LIMIT 1)) r
+       INNER JOIN "User" AS "u" ON "userID" = "u"."id"
+WHERE r."rank" <= $6
+ORDER BY r."gamemode", r."time", r."createdAt";
 
