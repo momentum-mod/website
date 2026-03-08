@@ -27,7 +27,7 @@ import {
   TrackTypeName,
   mapTagEnglishName
 } from '@momentum/constants';
-import { APIEmbed, ChannelType } from 'discord.js';
+import { APIEmbed, ChannelType, MessageFlags } from 'discord.js';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 
@@ -312,7 +312,12 @@ export class MapDiscordNotifications {
           );
 
         const message = await channel.send({ content: text, embeds: [embed] });
-        if (message.crosspostable && crosspost) await message.crosspost();
+        if (
+          channel.type === ChannelType.GuildAnnouncement &&
+          !message.flags.has(MessageFlags.Crossposted) &&
+          crosspost
+        )
+          await message.crosspost();
       })
     ).catch((error) =>
       this.logger.error('Failed to send discord notification', error)
