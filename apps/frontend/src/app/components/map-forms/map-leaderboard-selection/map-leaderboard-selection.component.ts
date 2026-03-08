@@ -7,6 +7,7 @@ import {
 import {
   DisabledGamemodes,
   Gamemode,
+  GamemodeDefaultUIStyle,
   GamemodeInfo,
   Leaderboard,
   LeaderboardType,
@@ -158,7 +159,8 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
         (lb) =>
           lb.trackType === trackType &&
           lb.trackNum === trackNum &&
-          !DisabledGamemodes.has(lb.gamemode)
+          !DisabledGamemodes.has(lb.gamemode) &&
+          lb.style === GamemodeDefaultUIStyle.get(lb.gamemode)
       )
       .map(({ gamemode }) => ({
         gamemode,

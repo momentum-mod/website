@@ -1,5 +1,6 @@
 import {
   Gamemode,
+  GamemodeDefaultUIStyle,
   GamemodeInfo,
   Leaderboard,
   LeaderboardType,
@@ -66,7 +67,7 @@ export function groupMapLeaderboards(
       entry.styles.push(lb.style);
     }
 
-    if (entry.styles.length === 1) {
+    if (lb.style === GamemodeDefaultUIStyle.get(lb.gamemode)) {
       if (lb.trackType === TrackType.MAIN) {
         entry.tier = lb.tier;
         entry.type = lb.type;
