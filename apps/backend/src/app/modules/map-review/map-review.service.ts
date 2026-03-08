@@ -299,13 +299,12 @@ export class MapReviewService {
         return newReview;
       }),
       ...images.map(([id, file]) =>
-        this.fileStoreService.storeFile(
-          file.buffer,
-          mapReviewAssetPath(id),
-          (file.mimetype ?? file.filename.endsWith('png'))
-            ? 'image/png'
-            : 'image/jpeg'
-        )
+        this.fileStoreService.storeFile(file.buffer, mapReviewAssetPath(id), {
+          ContentType:
+            (file.mimetype ?? file.filename.endsWith('png'))
+              ? 'image/png'
+              : 'image/jpeg'
+        })
       )
     );
 
