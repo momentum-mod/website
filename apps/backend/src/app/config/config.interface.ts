@@ -71,5 +71,6 @@ export interface ConfigInterface {
     unrankedNotifications: boolean;
   };
   mapListUpdateSchedule: string;
+  sitemapMaxAge: string;
   logLevel: pino.LevelWithSilent;
 }

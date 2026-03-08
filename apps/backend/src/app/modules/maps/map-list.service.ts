@@ -87,7 +87,8 @@ export class MapListService implements OnModuleInit {
         if (scheduled === '1') {
           return Promise.all([
             this.updateMapList(type),
-            this.valkey.set(updateFlagKeys[type], '0')
+            this.valkey.set(updateFlagKeys[type], '0'),
+            type === FlatMapList.APPROVED ? this.updateSitemap() : null
           ]);
         } else {
           return [];
@@ -185,6 +186,33 @@ export class MapListService implements OnModuleInit {
       this.fileStoreService.deleteFile(oldKey),
       this.fileStoreService.storeFile(outBuf, newKey)
     ]);
+  }
+
+  private async updateSitemap(): Promise<void> {
+    const maps = await this.db.mMap.findMany({
+      where: { status: MapStatus.APPROVED },
+      select: {
+        name: true
+      }
+    });
+
+    const frontendUrl = this.config.getOrThrow('url.frontend');
+
+    const mapLocations = maps
+      .map(({ name }) => `<url><loc>${frontendUrl}/maps/${name}</loc></url>`)
+      .join('');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${mapLocations}</urlset>`;
+
+    await this.fileStoreService.storeFile(
+      Buffer.from(sitemap),
+      'dashboard-sitemap.xml',
+      {
+        ContentType: 'application/xml',
+        CacheControl:
+          'public, max-age=' + this.config.getOrThrow('sitemapMaxAge')
+      }
+    );
   }
 
   private async updateVersionsFromFileStore(): Promise<void> {
