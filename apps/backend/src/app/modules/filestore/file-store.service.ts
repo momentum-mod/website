@@ -5,7 +5,9 @@ import {
   GetObjectCommand,
   CopyObjectCommand,
   DeleteObjectsCommand,
-  ListObjectsV2Command
+  ListObjectsV2Command,
+  CopyObjectCommandInput,
+  PutObjectCommandInput
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { FileStoreFile } from './file-store.interface';
@@ -37,14 +39,14 @@ export class FileStoreService {
   async storeFile(
     fileBuffer: Buffer,
     fileKey: string,
-    contentType?: string
+    options: Partial<PutObjectCommandInput> = {}
   ): Promise<FileStoreFile> {
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: fileKey,
         Body: fileBuffer,
-        ContentType: contentType
+        ...options
       })
     );
 
@@ -63,7 +65,7 @@ export class FileStoreService {
   async copyFile(
     fromKey: string,
     toKey: string,
-    metadata: Record<string, string> = {}
+    options: Partial<CopyObjectCommandInput> = {}
   ): Promise<boolean> {
     try {
       await this.s3Client.send(
@@ -71,7 +73,7 @@ export class FileStoreService {
           Bucket: this.bucket,
           CopySource: `${this.bucket}/${fromKey}`,
           Key: toKey,
-          Metadata: metadata
+          ...options
         })
       );
       return true;
