@@ -32,6 +32,7 @@
               "with": "apps/frontend/src/app/env/environment.prod.ts"
             }
           ],
+          "plugins": ["apps/frontend/sitemap-redirect-generator.ts"],
           "budgets": [
             {
               "type": "initial",
