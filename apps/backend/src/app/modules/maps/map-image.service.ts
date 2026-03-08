@@ -177,7 +177,9 @@ export class MapImageService {
   ): Promise<FileStoreFile> {
     const jpeg = await this.jpegEncodeImageFile(buffer, width, height);
     try {
-      return this.fileStoreService.storeFile(jpeg, fileName, 'image/jpeg');
+      return this.fileStoreService.storeFile(jpeg, fileName, {
+        ContentType: 'image/jpeg'
+      });
     } catch {
       // This looks bad, but sharp is very non-specific about its errors
       throw new InternalServerErrorException('Failed to store image file');

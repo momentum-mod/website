@@ -1293,8 +1293,9 @@ export class MapsService {
         storeFns.push(
           this.fileStoreService
             .copyFile(bspFile.path, bspPath(bspId), {
-              'Content-Type': 'model/vnd.valve.source.compiled-map',
-              'Content-Disposition': `attachment${mapName ? `; filename="${mapName}.bsp"` : ''}`
+              MetadataDirective: 'REPLACE',
+              ContentType: 'model/vnd.valve.source.compiled-map',
+              ContentDisposition: `attachment${mapName ? `; filename="${mapName}.bsp"` : ''}`
             })
             .then(() => this.fileStoreService.deleteFile(bspFile.path))
         );
