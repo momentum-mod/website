@@ -108,6 +108,7 @@ export const ConfigFactory = (): ConfigInterface => {
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
+    sitemapMaxAge: process.env['SITEMAP_MAX_AGE'] ?? '600',
     logLevel: (process.env['LOG_LEVEL'] ??
       (isTest ? 'warn' : 'info')) as pino.LevelWithSilent
   };
