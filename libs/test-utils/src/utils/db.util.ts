@@ -346,6 +346,29 @@ export class DbUtil {
     const user = args?.user ?? (await this.createUser());
     const map = args?.map ?? (await this.createMap());
 
+    const lbData = {
+      mapID: map.id,
+      gamemode: args?.gamemode ?? Gamemode.AHOP,
+      trackType: args?.trackType ?? TrackType.MAIN,
+      trackNum: args?.trackNum ?? 1,
+      style: args?.style ?? Style.NORMAL
+    };
+
+    const lbExists = await this.prisma.leaderboard.findUnique({
+      where: { mapID_gamemode_trackType_trackNum_style: lbData }
+    });
+
+    if (!lbExists) {
+      await this.prisma.leaderboard.create({
+        data: {
+          ...lbData,
+          tier: 1,
+          linear: true,
+          type: LeaderboardType.RANKED
+        }
+      });
+    }
+
     return this.prisma.leaderboardRun.create({
       data: {
         user: { connect: { id: user.id } },
@@ -357,13 +380,7 @@ export class DbUtil {
         createdAt: args?.createdAt ?? undefined,
         leaderboard: {
           connect: {
-            mapID_gamemode_trackType_trackNum_style: {
-              mapID: map.id,
-              gamemode: args?.gamemode ?? Gamemode.AHOP,
-              trackType: args?.trackType ?? TrackType.MAIN,
-              trackNum: args?.trackNum ?? 1,
-              style: args?.style ?? Style.NORMAL
-            }
+            mapID_gamemode_trackType_trackNum_style: lbData
           }
         },
         pastRun: {
