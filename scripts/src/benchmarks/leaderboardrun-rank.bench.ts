@@ -3,6 +3,7 @@
 import { PrismaClient } from '@momentum/db';
 import { prismaWrapper } from '../prisma-wrapper.util';
 import { nuke } from '../reset.util';
+import { Style } from '@momentum/constants';
 
 /*
  Script for benchmarking selecting leaderboard runs, comparing various
