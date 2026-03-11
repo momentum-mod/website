@@ -1,4 +1,4 @@
-import { FlatMapList } from '@momentum/constants';
+import { FlatMapList, Style } from '@momentum/constants';
 import { MapListService } from './map-list.service';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -119,7 +119,7 @@ describe('MapListService', () => {
         status: 0,
         images: [ 'f2fecc26-34a0-448b-a3c7-007f43b9ec7e', 'a797e52e-3efc-4174-9f66-36e2c57ff55c', 'dee8bbd5-cec2-4341-9ddf-bdadd8337cdd' ],
         info: { description: 'A map that makes me think I am becoming a better person', youtubeID: null, creationDate: '2024-09-27T10:18:42.318Z', mapID: 1 },
-        leaderboards: [ { mapID: 12345, gamemode: 8, trackType: 0, trackNum: 1, style: 0, tier: 3, linear: false, type: 1, tags: [] } ],
+        leaderboards: [ { mapID: 12345, gamemode: 8, trackType: 0, trackNum: 1, style: Style.NORMAL, tier: 3, linear: false, type: 1, tags: [] } ],
         credits: [ { type: 1, description: 'who am i', user: { id: 674, alias: 'John God', avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb', steamID: '43576820710' } } ],
         createdAt: '2024-09-27T22:31:12.846Z',
         currentVersion: { id: 'fc89afc9-7ad2-4590-853c-a9ff4f41ddd5', versionNum: 3, bspHash: 'ddd39cbfc070e98e1e68131bab0f40df1d06645f', zoneHash: '608437d3bb461dd6e4abfff881f6b16827629d0b', bspDownloadId: '93cfaad6-1219-4e64-a520-985923fa2631', vmfDownloadId: null, submitterID: null, createdAt: '2024-09-27T18:12:52.465Z' }
