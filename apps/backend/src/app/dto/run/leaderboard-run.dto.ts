@@ -9,6 +9,7 @@ import {
 } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEnum,
   IsHash,
   IsInt,
   IsNumber,
@@ -132,4 +133,41 @@ export class LeaderboardRunDto implements LeaderboardRun {
 
   @CreatedAtProperty()
   readonly createdAt: DateString;
+}
+
+export class AdminDeleteRunDto {
+  @IdProperty()
+  readonly mapID: number;
+
+  @IdProperty()
+  readonly userID: number;
+
+  @ApiProperty()
+  @IsEnum(Gamemode)
+  gamemode: Gamemode;
+
+  @ApiProperty()
+  @IsEnum(TrackType)
+  trackType = TrackType.MAIN;
+
+  @ApiProperty()
+  @IsInt()
+  @Min(1)
+  trackNum = 1;
+
+  @ApiProperty()
+  @IsEnum(Style)
+  style = Style.NORMAL;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  readonly reason?: string;
+}
+
+export class AdminDeleteAllRunsDto {
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  readonly reason?: string;
 }

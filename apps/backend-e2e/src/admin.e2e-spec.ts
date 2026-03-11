@@ -2882,7 +2882,6 @@ describe('Admin', () => {
         u1: User,
         adminToken: string,
         modToken: string,
-        u1Token: string,
         map: E2ETestMMap,
         run: LeaderboardRun;
 
@@ -2900,12 +2899,11 @@ describe('Admin', () => {
         );
 
       beforeAll(async () => {
-        [[admin, adminToken], [mod, modToken], [u1, u1Token]] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
-            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
-            db.createAndLoginUser()
-          ]);
+        [[admin, adminToken], [mod, modToken], u1] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+          db.createUser()
+        ]);
 
         map = await db.createMap({ status: MapStatus.APPROVED });
       });
@@ -2988,7 +2986,7 @@ describe('Admin', () => {
         });
       });
 
-      it('should allow not a mod to delete a leaderboard run and archive the replay', () =>
+      it('should not allow a mod to delete a leaderboard run and archive the replay', () =>
         req.post({
           url: 'admin/delete-run',
           body: {
@@ -3022,7 +3020,7 @@ describe('Admin', () => {
         req.post({
           url: 'admin/delete-run',
           body: {
-            mapID: NULL_ID,
+            mapID: run.mapID,
             gamemode: run.gamemode,
             trackType: run.trackType,
             trackNum: run.trackNum,
@@ -3040,7 +3038,7 @@ describe('Admin', () => {
 
   describe('admin/delete-runs/:userID', () => {
     describe('POST', () => {
-      let admin, adminToken, modToken, run1, run2, user, userToken;
+      let admin, adminToken, modToken, run1, run2, user;
 
       beforeAll(async () => {
         [admin, adminToken] = await db.createAndLoginUser({
@@ -3113,7 +3111,7 @@ describe('Admin', () => {
       it('should return 403 for a moderator', () =>
         req.post({
           url: `admin/delete-runs/${user.id}`,
-          body: { userID: user.id },
+          body: { reason: 'im an evil mod' },
           status: 403,
           token: modToken
         }));
@@ -3121,7 +3119,7 @@ describe('Admin', () => {
       it('should return 404 if the user does not exist', () =>
         req.post({
           url: `admin/delete-runs/${user.id}`,
-          body: { userID: NULL_ID },
+          body: { reason: 'who is this' },
           status: 404,
           token: adminToken
         }));
