@@ -5,6 +5,7 @@ export * from './jsonifiable.dto';
 export * from './auth/jwt-response.dto';
 export * from './auth/refresh-token.dto';
 export * from './map/map.dto';
+export * from './map/featured-maps.dto';
 export * from './map/map-zones.dto';
 export * from './map/map-info.dto';
 export * from './map/map-image.dto';

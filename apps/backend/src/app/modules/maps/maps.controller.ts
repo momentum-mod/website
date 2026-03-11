@@ -76,7 +76,8 @@ import {
   UpdateMapTestInviteDto,
   MapPreSignedUrlDto,
   VALIDATION_PIPE_CONFIG,
-  CreateMapVersionDto
+  CreateMapVersionDto,
+  FeaturedMapsForGamemodeDto
 } from '../../dto';
 import { BypassJwtAuth, BypassLimited, LoggedInUser } from '../../decorators';
 import { ParseInt32SafePipe, ParseFilesPipe } from '../../pipes';
@@ -91,6 +92,7 @@ import { MapReviewService } from '../map-review/map-review.service';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
 import { LeaderboardService } from '../runs/leaderboard.service';
 import { MapListService } from './map-list.service';
+import { MapFeaturedService } from './map-featured.service';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
@@ -110,7 +112,8 @@ export class MapsController {
     private readonly mapTestInviteService: MapTestInviteService,
     private readonly runsService: LeaderboardRunsService,
     private readonly leaderboardService: LeaderboardService,
-    private readonly mapListService: MapListService
+    private readonly mapListService: MapListService,
+    private readonly mapFeaturedService: MapFeaturedService
   ) {}
 
   //#region Maps
@@ -740,5 +743,24 @@ export class MapsController {
     return this.mapReviewService.getReviewStats(mapID, userID);
   }
 
-  //endregion
+  //#endregion
+
+  //#region Featured Maps
+
+  @Get('/featured')
+  @BypassJwtAuth()
+  @ApiOperation({
+    summary: 'Retrieve featured maps for each gamemode, refreshed every hour'
+  })
+  @ApiOkResponse({
+    type: FeaturedMapsForGamemodeDto,
+    isArray: true,
+    description:
+      'List of featured maps grouped by gamemode. Each entry contains up to 3 maps selected from different tier (difficulty) ranges.'
+  })
+  getFeaturedMaps(): Promise<FeaturedMapsForGamemodeDto[]> {
+    return this.mapFeaturedService.getFeaturedMaps();
+  }
+
+  //#endregion
 }
