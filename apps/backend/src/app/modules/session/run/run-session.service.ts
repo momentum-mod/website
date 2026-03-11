@@ -5,12 +5,7 @@ import {
   InternalServerErrorException
 } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
-import {
-  IntNullableFilter,
-  Leaderboard,
-  LeaderboardRun,
-  User
-} from '@momentum/db';
+import { LeaderboardRun, User } from '@momentum/db';
 import {
   ActivityType,
   CompatibleStyles,
@@ -47,6 +42,7 @@ import {
 import { RunProcessor } from './run-processor.class';
 import { ValkeyService } from '../../valkey/valkey.service';
 import { RunFileStoreService } from '../../filestore/run-file-store.service';
+import { LeaderboardRunsDbService } from '../../runs/leaderboard-runs-db.service';
 
 @Injectable()
 export class RunSessionService {
@@ -55,7 +51,8 @@ export class RunSessionService {
     private readonly fileStoreService: RunFileStoreService,
     private readonly valkey: ValkeyService,
     private readonly xpSystems: XpSystemsService,
-    private readonly mapsService: MapsService
+    private readonly mapsService: MapsService,
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
   ) {}
 
   //#region Create Session
@@ -305,16 +302,15 @@ export class RunSessionService {
     replayBuffer: Buffer,
     style: Style
   ): Promise<CompletedRunDto> {
-    const existingRun = await this.db.leaderboardRun.findFirst({
-      where: {
-        mapID: submittedRun.mapID,
-        gamemode: submittedRun.gamemode,
-        trackType: submittedRun.trackType,
-        trackNum: submittedRun.trackNum,
-        style: style,
-        userID: submittedRun.userID
-      },
-      include: { leaderboard: true }
+    const [existingRun] = await this.leaderboardRunsDbService.getRankedRuns({
+      mapID: submittedRun.mapID,
+      gamemode: submittedRun.gamemode,
+      trackType: submittedRun.trackType,
+      trackNum: submittedRun.trackNum,
+      style: style,
+      userIDs: [submittedRun.userID],
+      take: 1,
+      includeSplits: true
     });
 
     const isPB = !(existingRun && existingRun.time < submittedRun.time);
@@ -379,7 +375,7 @@ export class RunSessionService {
     submittedRun: ProcessedRun,
     style: Style,
     isPB: boolean,
-    existingRun?: LeaderboardRun & { leaderboard: Leaderboard },
+    existingRun?: LeaderboardRun,
     replayHash?: string
   ): Promise<{
     newPB?: LeaderboardRun;
@@ -389,7 +385,6 @@ export class RunSessionService {
     totalRuns: number;
     xpGain: XpGainDto;
   }> {
-    // Base Where input we'll be using variants of
     const leaderboardWhere = {
       mapID: submittedRun.mapID,
       gamemode: submittedRun.gamemode,
@@ -398,11 +393,9 @@ export class RunSessionService {
       style: style
     };
 
-    const leaderboard =
-      existingRun?.leaderboard ??
-      (await tx.leaderboard.findUnique({
-        where: { mapID_gamemode_trackType_trackNum_style: leaderboardWhere }
-      }));
+    const leaderboard = await tx.leaderboard.findUnique({
+      where: { mapID_gamemode_trackType_trackNum_style: leaderboardWhere }
+    });
 
     // Doing XP and stats first, as we do this regardless of if you PBed or not
     const cosXPGain = this.xpSystems.getCosmeticXpForCompletion(
@@ -477,13 +470,18 @@ export class RunSessionService {
       });
     }
 
-    // We're a PB, so time to do a million fucking DB writes
-    const existingWorldRecord = await tx.leaderboardRun.findFirst({
-      where: {
-        ...leaderboardWhere,
-        rank: 1
-      }
-    });
+    const [existingWorldRecord] =
+      await this.leaderboardRunsDbService.getRankedRuns({
+        transaction: tx,
+        mapID: submittedRun.mapID,
+        gamemode: submittedRun.gamemode,
+        trackType: submittedRun.trackType,
+        trackNum: submittedRun.trackNum,
+        style: style,
+        skip: 0,
+        take: 1,
+        includeSplits: true
+      });
 
     const isWR =
       !existingWorldRecord || existingWorldRecord?.time > submittedRun.time;
@@ -510,49 +508,6 @@ export class RunSessionService {
       totalRuns++;
     }
 
-    const fasterRuns = await tx.leaderboardRun.count({
-      where: {
-        ...leaderboardWhere,
-        time: { lte: submittedRun.time }
-      }
-    });
-
-    const oldRank = existingRun?.rank;
-    const rank = fasterRuns + 1;
-
-    // Rank XP calculations are disabled for now, horrifically slow to do in
-    // Postgres, and we don't show it anywhere in UI anyway.
-    // const rankXP = this.xpSystems.getRankXpForRank(rank, totalRuns).rankXP;
-    // xpGain.rankXP = rankXP;
-
-    // If we only improved our rank the range to update is [newRank,
-    // oldRank), otherwise it's everything below
-    const rankRangeWhere: IntNullableFilter = existingRun
-      ? { gte: rank, lt: oldRank }
-      : { gte: rank };
-
-    // For now, we're keeping a specific `rank` column on this table and
-    // updating each row. It's relatively slow for very large leaderboards, but
-    // tolerable (on my machine, adding a rank 1 run to a table with 50000 runs
-    // takes ~900ms to update everything).
-    //
-    // We could switch to using a window function in the future to skip the
-    // update, but then queries deep into a large leaderboard become quite slow
-    // (on my machine, fetching 10 rows offset by 40000 into a 50000 run table
-    // takes about 300ms). We could also considering adding time + createdAt to
-    // our index to allow Postgres to use an index-only scan (potentially *very*
-    // fast but haven't benched), but then we'd have to denormalize user data
-    // onto this table (gross), or fetch it from a Valkey cache. Valkey cache of
-    // users might well happen in the future, so worth considering more then.
-    //
-    // Also, this approach lets us stick with regular Prisma for now, it
-    // produces exactly the right query.
-
-    await tx.leaderboardRun.updateMany({
-      where: { ...leaderboardWhere, rank: rankRangeWhere },
-      data: { rank: { increment: 1 } }
-    });
-
     const pastRun = await this.db.pastRun.create({
       data: {
         userID: submittedRun.userID,
@@ -567,7 +522,7 @@ export class RunSessionService {
 
     // We could use a Prisma upsert here but we already know if the existing
     // rank exists or not
-    let newPB: LeaderboardRun;
+    let newPB: LeaderboardRun & { rank?: number };
     if (existingRun) {
       newPB = await tx.leaderboardRun.update({
         where: {
@@ -584,7 +539,6 @@ export class RunSessionService {
           time: submittedRun.time,
           replayHash,
           splits: submittedRun.splits,
-          rank,
           pastRunID: pastRun.id,
           createdAt: pastRun.createdAt
         }
@@ -601,12 +555,20 @@ export class RunSessionService {
           time: submittedRun.time,
           splits: submittedRun.splits,
           replayHash,
-          rank,
           pastRunID: pastRun.id,
           createdAt: pastRun.createdAt
         }
       });
     }
+
+    newPB.rank = await this.leaderboardRunsDbService.getUserRank({
+      mapID: submittedRun.mapID,
+      gamemode: submittedRun.gamemode,
+      trackType: submittedRun.trackType,
+      trackNum: submittedRun.trackNum,
+      style: Style.NORMAL,
+      userID: submittedRun.userID
+    });
 
     return {
       xpGain,
