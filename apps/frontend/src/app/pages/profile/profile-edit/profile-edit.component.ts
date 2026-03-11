@@ -25,7 +25,6 @@ import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
-
 import { Icon, IconComponent } from '../../../icons';
 import { TitleService } from '../../../services/title.service';
 import { UserSearchComponent } from '../../../components/search/user-search.component';
