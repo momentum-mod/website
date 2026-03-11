@@ -43,7 +43,8 @@ import {
   steamAvatarUrl,
   MapTags,
   NotificationType,
-  MapTestInviteState
+  MapTestInviteState,
+  Style
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Random from '@momentum/random';
@@ -508,7 +509,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType,
             trackNum,
             gamemode: m,
-            style: 0,
+            style: Style.NORMAL,
             linear:
               trackType === TrackType.MAIN
                 ? Zone.isLinearMainTrack(zones)

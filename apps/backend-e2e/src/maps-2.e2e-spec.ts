@@ -38,7 +38,8 @@ import {
   NotificationType,
   Role,
   TrackType,
-  MapSubmissionType
+  MapSubmissionType,
+  Style
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1256,7 +1257,7 @@ describe('Maps Part 2', () => {
           time: 1,
           trackType: TrackType.STAGE,
           trackNum: 1,
-          style: 0,
+          style: Style.NORMAL,
           createdAt: futureDateOffset(1)
         });
       });
@@ -1652,7 +1653,7 @@ describe('Maps Part 2', () => {
           user,
           trackType: TrackType.MAIN,
           trackNum: 1,
-          style: 0,
+          style: Style.NORMAL,
           gamemode: Gamemode.AHOP
         });
       });

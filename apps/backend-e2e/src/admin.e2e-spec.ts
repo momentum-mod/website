@@ -52,11 +52,13 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import {
+  LeaderboardRun,
   MapReview,
   MMap,
   Prisma,
   PrismaClient,
   Report,
+  TypedSql,
   User
 } from '@momentum/db';
 import Zip from 'adm-zip';
@@ -2198,7 +2200,7 @@ describe('Admin', () => {
           await prisma.leaderboard.createMany({
             data: ZonesStubLeaderboards.map((lb) => ({
               mapID: map.id,
-              style: 0,
+              style: Style.NORMAL,
               type: LeaderboardType.IN_SUBMISSION,
               ...lb
             }))
@@ -2870,6 +2872,262 @@ describe('Admin', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/maps/1', 'del'));
+    });
+  });
+
+  describe('admin/delete-run', () => {
+    describe('POST', () => {
+      let admin: User,
+        mod: User,
+        u1: User,
+        adminToken: string,
+        modToken: string,
+        u1Token: string,
+        map: E2ETestMMap,
+        run: LeaderboardRun;
+
+      const getRuns = () =>
+        prisma.$queryRawTyped(
+          TypedSql.getLeaderboardRuns(
+            map.id,
+            Gamemode.AHOP,
+            TrackType.MAIN,
+            1,
+            0,
+            0,
+            null
+          )
+        );
+
+      beforeAll(async () => {
+        [[admin, adminToken], [mod, modToken], [u1, u1Token]] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+            db.createAndLoginUser()
+          ]);
+
+        map = await db.createMap({ status: MapStatus.APPROVED });
+      });
+
+      afterAll(() => db.cleanup('user', 'mMap', 'leaderboardRun'));
+
+      beforeEach(async () => {
+        run = await db.createLbRun({
+          map,
+          user: u1,
+          time: 1
+        });
+
+        await db.createLbRun({
+          map,
+          user: admin,
+          time: 2
+        });
+
+        await fileStore.add(runPath(run.replayHash), Buffer.alloc(256));
+      });
+
+      afterEach(() =>
+        Promise.all([
+          db.cleanup('pastRun', 'leaderboardRun'),
+          fileStore.deleteDirectory('deletedruns'),
+          fileStore.deleteDirectory('runs')
+        ])
+      );
+
+      it('should allow an admin to delete a leaderboard run', async () => {
+        const runsBefore = await getRuns();
+        expect(runsBefore).toHaveLength(2);
+        expect(runsBefore).toMatchObject([
+          { userID: u1.id, rank: 1 },
+          { userID: admin.id, rank: 2 }
+        ]);
+
+        const oldPath = `runs/${run.replayHash}`;
+        const newPath = `deletedruns/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`;
+        expect(await fileStore.exists(oldPath)).toBe(true);
+        expect(await fileStore.exists(newPath)).toBe(false);
+
+        await req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: run.mapID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID,
+            reason: 'hello'
+          },
+          status: 204,
+          token: adminToken
+        });
+
+        const runsAfter = await getRuns();
+        expect(runsAfter).toHaveLength(1);
+        expect(runsAfter[0]).toMatchObject({ userID: admin.id, rank: 1 });
+
+        expect(await fileStore.exists(oldPath)).toBe(false);
+        expect(await fileStore.exists(newPath)).toBe(true);
+
+        const adminActivity = await prisma.adminActivity.findFirst();
+        expect(adminActivity).toMatchObject({
+          type: AdminActivityType.RUN_DELETED,
+          userID: admin.id,
+          target: BigInt(u1.id),
+          oldData: {
+            mapID: run.mapID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID
+          },
+          comment: 'hello'
+        });
+      });
+
+      it('should allow not a mod to delete a leaderboard run and archive the replay', () =>
+        req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: run.mapID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID
+          },
+          status: 403,
+          token: modToken
+        }));
+
+      it('should return 404 if the map does not exist', () =>
+        req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: NULL_ID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID
+          },
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should return 404 if the run does not exist', () =>
+        req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: NULL_ID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: mod.id
+          },
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/delete-run', 'post'));
+    });
+  });
+
+  describe('admin/delete-runs/:userID', () => {
+    describe('POST', () => {
+      let admin, adminToken, modToken, run1, run2, user, userToken;
+
+      beforeAll(async () => {
+        [admin, adminToken] = await db.createAndLoginUser({
+          data: { roles: Role.ADMIN }
+        });
+        modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
+        user = await db.createUser();
+
+        run1 = await db.createLbRun({
+          user,
+          gamemode: Gamemode.RJ,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: Style.NORMAL,
+          time: 1000
+        });
+
+        run2 = await db.createLbRun({
+          user,
+          gamemode: Gamemode.RJ,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: Style.NORMAL,
+          time: 900
+        });
+      });
+
+      afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
+
+      it("should allow an admin to purge a user's leaderboard runs", async () => {
+        const oldPath1 = `runs/${run1.replayHash}`;
+        const oldPath2 = `runs/${run2.replayHash}`;
+        const newPath1 = `deletedruns/${run1.userID}-${run1.mapID}-${run1.gamemode}-${run1.trackType}-${run1.trackNum}-${run1.style}`;
+        const newPath2 = `deletedruns/${run2.userID}-${run2.mapID}-${run2.gamemode}-${run2.trackType}-${run2.trackNum}-${run2.style}`;
+
+        await fileStore.add(oldPath1, Buffer.alloc(256));
+        await fileStore.add(oldPath2, Buffer.alloc(256));
+
+        expect(await fileStore.exists(oldPath1)).toBe(true);
+        expect(await fileStore.exists(oldPath2)).toBe(true);
+        expect(await fileStore.exists(newPath1)).toBe(false);
+        expect(await fileStore.exists(newPath2)).toBe(false);
+
+        await req.post({
+          url: `admin/delete-runs/${user.id}`,
+          body: { reason: 'going too fast' },
+          status: 204,
+          token: adminToken
+        });
+
+        const runsAfter = await prisma.leaderboardRun.findMany({
+          where: { userID: user.id }
+        });
+        expect(runsAfter).toHaveLength(0);
+
+        expect(await fileStore.exists(oldPath1)).toBe(false);
+        expect(await fileStore.exists(oldPath2)).toBe(false);
+        expect(await fileStore.exists(newPath1)).toBe(true);
+        expect(await fileStore.exists(newPath2)).toBe(true);
+
+        const adminActivity = await prisma.adminActivity.findFirst();
+        expect(adminActivity).toMatchObject({
+          type: AdminActivityType.RUNS_PURGED,
+          userID: admin.id,
+          target: BigInt(user.id),
+          comment: 'going too fast'
+        });
+      });
+
+      it('should return 403 for a moderator', () =>
+        req.post({
+          url: `admin/delete-runs/${user.id}`,
+          body: { userID: user.id },
+          status: 403,
+          token: modToken
+        }));
+
+      it('should return 404 if the user does not exist', () =>
+        req.post({
+          url: `admin/delete-runs/${user.id}`,
+          body: { userID: NULL_ID },
+          status: 404,
+          token: adminToken
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest(`admin/delete-runs/${user.id}`, 'post'));
     });
   });
 
