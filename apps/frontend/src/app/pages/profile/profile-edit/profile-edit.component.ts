@@ -43,6 +43,10 @@ import { PluralPipe } from '../../../pipes/plural.pipe';
 import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';
+import {
+  ConfirmWithReasonDialogComponent,
+  ConfirmWithReasonDialogResult
+} from '../../../components/dialogs/confirm-with-reason-dialog.component';
 
 @Component({
   selector: 'm-profile-edit',
@@ -458,5 +462,39 @@ export class ProfileEditComponent implements OnInit {
           detail: httpError.error.message
         })
     });
+  }
+
+  deleteRuns() {
+    this.dialogService
+      .open(ConfirmWithReasonDialogComponent, {
+        header: 'Permanently delete all runs?',
+        data: {
+          message:
+            "This will permanently delete all of this user's runs. This action is irreversible.<br><br>" +
+            'Also note, this action involves renaming all run files, which is considerably slow for users with lots of runs.<br><br>' +
+            'Are you sure you want to proceed?',
+          proceedMessage: 'Confirm',
+          abortMessage: 'Cancel'
+        }
+      })
+      .onClose.subscribe(
+        ({ confirmed, reason }: ConfirmWithReasonDialogResult) => {
+          if (!confirmed) return;
+          this.adminService.deleteAllRuns(this.user.id, reason).subscribe({
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                detail: 'Successfully purged user runs!'
+              });
+            },
+            error: (httpError: HttpErrorResponse) =>
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Failed to purge user runs!',
+                detail: httpError.error.message
+              })
+          });
+        }
+      );
   }
 }

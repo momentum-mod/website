@@ -112,6 +112,12 @@ export class AdminService {
     });
   }
 
+  deleteAllRuns(userID: number, reason: string): Observable<void> {
+    return this.http.post(`admin/delete-runs/${userID}`, {
+      body: { reason }
+    });
+  }
+
   updateMapReview(
     reviewID: number,
     resolved: boolean | null
