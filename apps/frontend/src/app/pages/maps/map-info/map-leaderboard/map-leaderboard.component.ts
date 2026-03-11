@@ -18,18 +18,17 @@ import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
-
+import { DialogService } from 'primeng/dynamicdialog';
 import {
   GroupedMapLeaderboard,
   GroupedMapLeaderboards,
   findMainGamemodeIndex,
   groupMapLeaderboards
 } from '../../../../util';
-import { distinctUntilChanged, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HiddenLeaderboardsInfoComponent } from '../../../../components/tooltips/hidden-leaderboards-info.component';
 import { UnrankedLeaderboardsInfoComponent } from '../../../../components/tooltips/unranked-leaderboards-info.component';
-
 import { SpinnerComponent } from '../../../../components/spinner/spinner.component';
 import { SpinnerDirective } from '../../../../directives/spinner.directive';
 import { UserComponent } from '../../../../components/user/user.component';
@@ -43,6 +42,12 @@ import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
+import { LocalUserService } from '../../../../services/data/local-user.service';
+import { AdminService } from '../../../../services/data/admin.service';
+import {
+  ConfirmWithReasonDialogComponent,
+  ConfirmWithReasonDialogResult
+} from '../../../../components/dialogs/confirm-with-reason-dialog.component';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
@@ -80,6 +85,9 @@ export class MapLeaderboardComponent implements OnChanges {
   private readonly leaderboardService = inject(LeaderboardsService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly adminService = inject(AdminService);
+  private readonly localUserService = inject(LocalUserService);
+  private readonly dialogService = inject(DialogService);
 
   protected readonly MapStatus = MapStatus;
   protected readonly LeaderboardType = LeaderboardType;
@@ -154,7 +162,6 @@ export class MapLeaderboardComponent implements OnChanges {
             this.activeStyle
           ])
         ),
-        distinctUntilChanged(),
         tap(() => (this.loading = true)),
         switchMap(() => this.fetchRuns()),
         takeUntilDestroyed(this.destroyRef)
@@ -223,5 +230,44 @@ export class MapLeaderboardComponent implements OnChanges {
     return this.leaderboards.some(
       ({ type }) => type === LeaderboardType.HIDDEN
     );
+  }
+
+  get isAdmin() {
+    return this.localUserService.isAdmin;
+  }
+
+  deleteRun(run: LeaderboardRun) {
+    this.dialogService
+      .open(ConfirmWithReasonDialogComponent, {
+        header: 'Delete run',
+        data: {
+          message: `Are you sure you want to permanently delete this run by ${run.user.alias}?`,
+          proceedMessage: 'Delete run',
+          abortMessage: 'Cancel'
+        }
+      })
+      .onClose.subscribe(
+        ({ confirmed, reason }: ConfirmWithReasonDialogResult) => {
+          if (!confirmed) return;
+
+          this.adminService.deleteRun(run, reason).subscribe({
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                detail: 'Run deleted',
+                summary: 'Success'
+              });
+              this.load.next();
+            },
+            error: (httpError: HttpErrorResponse) => {
+              this.messageService.add({
+                severity: 'error',
+                detail: httpError.error.message,
+                summary: 'Error deleting run'
+              });
+            }
+          });
+        }
+      );
   }
 }
