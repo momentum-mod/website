@@ -136,6 +136,25 @@ export class AdminActivityEntryComponent implements OnInit {
           targetName: 'ID ' + activity.target
         };
 
+      case AdminActivityType.RUN_DELETED: {
+        // todo: UI for this is stupid, make it so if only one of old/newData is
+        // provided, we just show that.
+        const data = activity.oldData;
+        return {
+          actionText: `deleted run on ${data.map.name} (mapID ${data.mapID} trackType ${data.trackType}, trackNum ${data.trackNum}), style ${data.style} for user`,
+          targetName: data.user.alias,
+          targetLink: '/profile/' + data.user.id
+        };
+      }
+
+      case AdminActivityType.RUNS_PURGED: {
+        return {
+          actionText: 'purged all runs from user',
+          targetName: 'ID ' + activity.target,
+          targetLink: '/profile/' + activity.target
+        };
+      }
+
       default:
         return {
           actionText: 'did unknown activity',

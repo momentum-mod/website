@@ -55,7 +55,9 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.REPORT_UPDATE, text: 'Report update' },
     { value: AdminActivityType.REPORT_RESOLVE, text: 'Report resolve' },
     { value: AdminActivityType.REVIEW_DELETED, text: 'Review deleted' },
-    { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' }
+    { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' },
+    { value: AdminActivityType.RUN_DELETED, text: 'Run deleted' },
+    { value: AdminActivityType.RUNS_PURGED, text: 'Purged runs' },
   ];
 
   protected compositeActivities: Array<{
