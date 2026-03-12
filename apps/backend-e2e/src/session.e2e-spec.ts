@@ -26,7 +26,6 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
-import { arrayFrom } from '@momentum/util-fn';
 import * as ReplayFile from '@momentum/formats/replay';
 import Valkey from 'iovalkey';
 
