@@ -44,6 +44,7 @@ export * from './types/queries/user-queries.model';
 export * from './types/queries/admin-queries.model';
 export * from './types/queries/report-queries.model';
 export * from './types/queries/activity-queries.model';
+export * from './types/queries/ranking-queries.model';
 export * from './types/queries/query.interface';
 export * from './types/queries/order.model';
 export * from './types/utils/flags.type';

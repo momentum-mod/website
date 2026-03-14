@@ -467,6 +467,13 @@ export interface LeaderboardStats {
   totalRuns: number;
 }
 
+export interface RankEntry {
+  rank: number;
+  userID: number;
+  rankXP: number;
+  user: User;
+}
+
 export interface LeaderboardRun {
   gamemode: Gamemode;
   trackType: TrackType;

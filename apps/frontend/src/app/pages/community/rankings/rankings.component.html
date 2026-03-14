@@ -1,0 +1,57 @@
+<div>
+  <div class="flex items-start justify-between">
+    <m-gamemode-select [allowNull]="false" [value]="selectedGamemode" (valueChange)="onGamemodeChange($event)" />
+
+    @if (localUserService.user | async; as user) {
+      <button
+        type="button"
+        class="relative flex items-center gap-2 self-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] px-3 py-2 outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)]"
+        [ngClass]="{
+          '!from-[rgb(70_70_70/0.4)] !to-[rgb(70_70_70/0.3)] ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [outline-color:rgb(255_255_255/0.85)]':
+            isAroundMode
+        }"
+        (click)="onAroundClick()"
+      >
+        <m-icon icon="account" class="size-6" />
+        <p class="text-shadow-strong font-display text-28 leading-none">Around</p>
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="my-4">
+      <m-spinner />
+    </div>
+  }
+
+  @if (!loading && ranks.length === 0) {
+    <h4 class="mt-4 text-center">No rankings found</h4>
+  }
+
+  @if (!loading && ranks.length > 0) {
+    <div class="mt-4 w-full">
+      <div class="flex px-4">
+        <p class="basis-1/10 text-left">Rank</p>
+        <p class="grow basis-auto">User</p>
+        <p class="basis-1/10 text-right">Points</p>
+      </div>
+      @for (entry of ranks; track entry.rank) {
+        <div
+          class="mt-[0.375rem] flex items-center rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-4 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15]"
+          [ngClass]="{
+            'outline outline-1 [outline-color:rgb(255_255_255/0.4)]': (localUserService.user | async)?.id === entry.userID
+          }"
+        >
+          <p class="text-shadow pointer-events-none basis-1/10 text-left font-display text-2xl">{{ entry.rank }}</p>
+          <div class="flex grow basis-auto gap-2">
+            <m-user class="contents" [user]="entry.user" avatarClass="h-7" />
+          </div>
+          <p class="text-shadow pointer-events-none basis-1/10 text-right font-display text-xl">
+            {{ entry.rankXP | numberWithCommas }}
+          </p>
+        </div>
+      }
+    </div>
+    <p-paginator class="mt-4" [rows]="take" [totalRecords]="totalCount" [first]="skip" (onPageChange)="onPageChange($event)" />
+  }
+</div>

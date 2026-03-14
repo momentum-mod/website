@@ -1,4 +1,10 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  UnauthorizedException
+} from '@nestjs/common';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { ValkeyService } from '../valkey/valkey.service';
@@ -12,6 +18,7 @@ import {
 import * as Enum from '@momentum/enum';
 import pLimit, { LimitFunction } from 'p-limit';
 import { XpSystemsService } from '../xp-systems/xp-systems.service';
+import { UserCacheService } from '../users/user-cache.service';
 import * as Keys from './keys';
 
 @Injectable()
@@ -19,23 +26,75 @@ export class RankingService implements OnModuleInit {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly valkey: ValkeyService,
-    private readonly xpSystems: XpSystemsService
+    private readonly xpSystems: XpSystemsService,
+    private readonly userCache: UserCacheService
   ) {}
 
   async onModuleInit() {
+    await this.valkey.flushdb();
     console.time('leaderboard-init');
     // TODO: much pool size configurable, expose to configservice, limit
     // We're about to pull an enormous amount from Postgres, on my machine
     // 2.5s for 1.5m runs, will be far greater in future. So run as concurrently
     // as we can without exhausting the connection pool; half the pool size
     // should do.
-    const limit = pLimit(10);
-    await Promise.all(
+    const limit = pLimit(5);
+    void Promise.all(
       Enum.values(Gamemode).map((gamemode) =>
         this.initGamemodeLeaderboards(gamemode, limit)
       )
-    );
-    console.timeEnd('leaderboard-init');
+    ).then(() => console.timeEnd('leaderboard-init'));
+  }
+
+  async getRanks(
+    gamemode: Gamemode,
+    skip: number,
+    take: number,
+    filter?: string,
+    loggedInUserID?: number
+  ): Promise<
+    [{ rank: number; userID: number; rankXP: number; user: object }[], number]
+  > {
+    const key = Keys.GamemodeLeaderboardPoints(gamemode);
+
+    if (filter === 'around') {
+      if (!loggedInUserID) throw new UnauthorizedException();
+
+      // ZREVRANK returns 0-indexed position (0 = highest points), or null if
+      // the user has no ranking entry for this gamemode.
+      const userRank = await this.valkey.zrevrank(
+        key,
+        loggedInUserID.toString()
+      );
+      if (userRank === null)
+        throw new NotFoundException('User has no ranking for this gamemode');
+
+      // Center the window on the user's position, mirroring the leaderboard
+      // 'around' logic: back up half of take from the user's 0-indexed rank.
+      skip = Math.max(userRank - Math.floor(take / 2), 0);
+    }
+
+    const [totalCount, entries] = await Promise.all([
+      this.valkey.zcard(key),
+      this.valkey.zrevrange(key, skip, skip + take - 1, 'WITHSCORES')
+    ]);
+
+    const userIDs: number[] = [];
+    for (let i = 0; i < entries.length; i += 2) {
+      userIDs.push(Number(entries[i]));
+    }
+
+    const users = await this.userCache.getUser(userIDs);
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    const data = userIDs.map((userID, index) => ({
+      rank: skip + index + 1,
+      userID,
+      rankXP: Number(entries[index * 2 + 1]),
+      user: userMap.get(userID)
+    }));
+
+    return [data, totalCount];
   }
 
   private async initGamemodeLeaderboards(
@@ -80,8 +139,7 @@ export class RankingService implements OnModuleInit {
           const pipeline = this.valkey.pipeline();
           pipeline.zadd(
             Keys.TrackLeaderboardPoints(lb),
-            // @ts-ignore
-            ...runs.map((run) => [
+            ...runs.flatMap((run) => [
               this.xpSystems.getRankXpForRank(run.rank, runs.length).rankXP,
               run.userID.toString()
             ])
@@ -97,7 +155,6 @@ export class RankingService implements OnModuleInit {
     pipeline.zunionstore(
       Keys.GamemodeLeaderboardPoints(gamemode),
       leaderboards.length,
-      // @ts-ignore
       ...leaderboards.map(Keys.TrackLeaderboardPoints)
     );
     await pipeline.exec();
@@ -119,10 +176,7 @@ export class RankingService implements OnModuleInit {
     for (let i = 0; i < 10; i++) {
       const userID = gamemodelb[i * 2];
       const points = gamemodelb[i * 2 + 1];
-      const user = await this.db.user.findUnique({
-        where: { id: Number(userID) },
-        select: { alias: true }
-      });
+      const user = await this.userCache.getUser(Number(userID));
       str += `${i + 1}. ${user.alias} (${points} points)\n`;
     }
 

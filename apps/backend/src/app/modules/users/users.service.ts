@@ -60,6 +60,7 @@ export class UsersService {
 
   //#region Main User Functions
 
+  // TODO: use user cache for these! also, stick profile in cache as well.
   async getAll(query: UsersGetAllQueryDto): Promise<PagedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 

@@ -42,11 +42,12 @@ import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { ChipsComponent } from '../../../components/chips/chips.component';
 import { IconComponent } from '../../../icons/icon.component';
+import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
 
 type TagAndQualifier = [MapTag, TagQualifier];
 
@@ -62,12 +63,11 @@ type TagAndQualifier = [MapTag, TagQualifier];
     SliderComponent,
     ReactiveFormsModule,
     NgClass,
-    NgStyle,
     AsyncPipe,
     TooltipDirective,
-    CommonModule,
     FormsModule,
-    IconComponent
+    IconComponent,
+    GamemodeSelectComponent
   ]
 })
 export class MapBrowserComponent implements OnInit {
@@ -77,7 +77,6 @@ export class MapBrowserComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly nnfb = inject(NonNullableFormBuilder);
 
-  protected readonly Gamemode = Gamemode;
   protected readonly LeaderboardType = LeaderboardType;
 
   // Set value as if submitter was last entry in MapCredit enum.
