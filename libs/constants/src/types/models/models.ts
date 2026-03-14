@@ -454,6 +454,14 @@ export interface Leaderboard {
   linear: boolean;
 }
 
+export interface LeaderboardID {
+  mapID: number;
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+}
+
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;

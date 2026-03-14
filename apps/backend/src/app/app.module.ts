@@ -26,6 +26,7 @@ import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
+import { RankingModule } from './modules/ranking/ranking.module';
 
 @Module({
   imports: [
@@ -180,7 +181,8 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
     SessionModule,
     XpSystemsModule,
     KillswitchModule,
-    HealthcheckModule
+    HealthcheckModule,
+    RankingModule
   ],
   providers: [
     {

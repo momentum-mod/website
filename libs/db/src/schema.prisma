@@ -515,7 +515,10 @@ model LeaderboardRun {
   // Unique index starting with userID then profile, for queries like a user's
   // run history.
   @@id([userID, gamemode, style, mapID, trackType, trackNum])
-  @@index([mapID, gamemode, trackType, trackNum, style, time(sort: Asc), createdAt(sort: Asc)])
+
+  // This index exists, but has a custom migration to add INCLUDE (userID) so we
+  // get an index-only scan when fetching ranks for rank calculations.
+  // @@index([mapID, gamemode, trackType, trackNum, style, time(sort: Asc), createdAt(sort: Asc)])
 }
 
 /// Very similar to `LeaderboardRun`, but also includes non-PB runs, and
