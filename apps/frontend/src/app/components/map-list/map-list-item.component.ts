@@ -60,6 +60,7 @@ export class MapListItemComponent implements OnChanges {
   @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
   @Input() isSubmission = false;
   @Input() isAdminPage = false;
+  @Input() showApprovedDate = false;
 
   @Output() favoriteUpdate = new EventEmitter();
 

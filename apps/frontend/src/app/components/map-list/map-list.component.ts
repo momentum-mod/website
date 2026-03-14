@@ -16,4 +16,5 @@ export class MapListComponent {
   @Input({ required: true }) loadMore: Subject<void>;
   @Input() isSubmissionPage = false;
   @Input() isAdminPage = false;
+  @Input() showApprovedDate = false;
 }
