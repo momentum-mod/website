@@ -104,6 +104,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
+import { UserCacheService } from '../users/user-cache.service';
 
 @Injectable()
 export class MapsService {
@@ -121,7 +122,8 @@ export class MapsService {
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
-    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
+    private readonly userCacheService: UserCacheService
   ) {}
 
   //#region Gets
@@ -2219,7 +2221,7 @@ export class MapsService {
     }
 
     // For any other state, we need to know roles
-    const user = await this.db.user.findUnique({ where: { id: args.userID } });
+    const user = await this.userCacheService.getUser(args.userID);
 
     switch (map.status) {
       // APPROVED, always allow unless:

@@ -4,8 +4,10 @@ import { FileStoreModule } from '../filestore/file-store.module';
 import { SteamModule } from '../steam/steam.module';
 import { RunsModule } from '../runs/runs.module';
 import { AdminModule } from '../admin/admin.module';
+import { ValkeyModule } from '../valkey/valkey.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { UserCacheService } from './user-cache.service';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 
 @Module({
@@ -15,10 +17,11 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
     RunsModule,
     FileStoreModule,
     KillswitchModule,
+    ValkeyModule,
     forwardRef(() => AdminModule)
   ],
   controllers: [UsersController],
-  providers: [UsersService],
-  exports: [UsersService]
+  providers: [UsersService, UserCacheService],
+  exports: [UsersService, UserCacheService]
 })
 export class UsersModule {}

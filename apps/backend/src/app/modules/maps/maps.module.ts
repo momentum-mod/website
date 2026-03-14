@@ -17,6 +17,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { DiscordModule } from '../discord/discord.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ValkeyModule } from '../valkey/valkey.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ValkeyModule } from '../valkey/valkey.module';
     forwardRef(() => RunsModule),
     forwardRef(() => AdminModule),
     forwardRef(() => MapReviewModule),
+    forwardRef(() => UsersModule),
     KillswitchModule,
     DiscordModule,
     NotificationsModule

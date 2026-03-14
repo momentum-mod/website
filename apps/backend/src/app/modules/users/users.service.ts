@@ -45,6 +45,7 @@ import { AdminActivityService } from '../admin/admin-activity.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { createHash } from 'node:crypto';
+import { UserCacheService } from './user-cache.service';
 
 @Injectable()
 export class UsersService {
@@ -53,7 +54,8 @@ export class UsersService {
     private readonly killswitchService: KillswitchService,
     private readonly steamService: SteamService,
     private readonly config: ConfigService,
-    private readonly adminActivityService: AdminActivityService
+    private readonly adminActivityService: AdminActivityService,
+    private readonly userCache: UserCacheService
   ) {}
 
   //#region Main User Functions
@@ -272,11 +274,15 @@ export class UsersService {
       }
     }
 
-    return await this.db.user.update({
+    const result = await this.db.user.update({
       where: { id: userID },
       data: updateInput,
       include: { profile: true }
     });
+
+    await this.userCache.invalidate(userID);
+
+    return result;
   }
 
   async delete(userID: number, adminID?: number) {
@@ -310,6 +316,8 @@ export class UsersService {
         data: { steamIDHash: this.getSteamIDHash(user.steamID) }
       })
     ]);
+
+    await this.userCache.invalidate(userID);
 
     if (adminID) {
       await this.adminActivityService.create(
@@ -431,7 +439,7 @@ export class UsersService {
     localUserID: number,
     targetUserID: number
   ): Promise<FollowStatusDto> {
-    if (!(await this.db.user.exists({ where: { id: targetUserID } })))
+    if (!(await this.userCache.getUser(targetUserID)))
       throw new NotFoundException('Target user not found');
 
     const localToTarget = await this.getFollower(localUserID, targetUserID);
@@ -447,7 +455,7 @@ export class UsersService {
     localUserID: number,
     targetUserID: number
   ): Promise<FollowDto> {
-    if (!(await this.db.user.exists({ where: { id: targetUserID } })))
+    if (!(await this.userCache.getUser(targetUserID)))
       throw new NotFoundException('Target user not found');
 
     if (localUserID === targetUserID)
@@ -467,9 +475,7 @@ export class UsersService {
   }
 
   async followUsers(userID: number, usersIDs: number[]): Promise<FollowDto[]> {
-    const users = await this.db.user.findMany({
-      where: { id: { in: usersIDs } }
-    });
+    const users = await this.userCache.getUser(usersIDs);
 
     if (users.length !== usersIDs.length)
       throw new NotFoundException('One or more users not found');
@@ -508,11 +514,7 @@ export class UsersService {
   ) {
     if (!updateDto) return;
 
-    if (
-      !(await this.db.user.exists({
-        where: { id: targetUserID }
-      }))
-    )
+    if (!(await this.userCache.getUser(targetUserID)))
       throw new NotFoundException('Target user not found');
 
     await this.db.follow.update({
@@ -527,11 +529,7 @@ export class UsersService {
   }
 
   async unfollowUser(localUserID: number, targetUserID: number) {
-    if (
-      !(await this.db.user.exists({
-        where: { id: targetUserID }
-      }))
-    )
+    if (!(await this.userCache.getUser(targetUserID)))
       throw new NotFoundException('Target user not found');
 
     // Prisma errors on trying to delete an entry that does not exist
@@ -692,9 +690,7 @@ export class UsersService {
     }
 
     const localUser = localUserID
-      ? await this.db.user.findUnique({
-          where: { id: localUserID }
-        })
+      ? await this.userCache.getUser(localUserID)
       : null;
 
     if (
