@@ -3,15 +3,23 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { ValkeyService } from '../valkey/valkey.service';
 import { TypedSql } from '@momentum/db';
-import { Gamemode, LeaderboardID, LeaderboardType } from '@momentum/constants';
+import {
+  Gamemode,
+  GamemodeInfo,
+  LeaderboardID,
+  LeaderboardType
+} from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import pLimit, { LimitFunction } from 'p-limit';
+import { XpSystemsService } from '../xp-systems/xp-systems.service';
+import * as Keys from './keys';
 
 @Injectable()
 export class RankingService implements OnModuleInit {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly valkey: ValkeyService
+    private readonly valkey: ValkeyService,
+    private readonly xpSystems: XpSystemsService
   ) {}
 
   async onModuleInit() {
@@ -34,6 +42,8 @@ export class RankingService implements OnModuleInit {
     gamemode: Gamemode,
     limit: LimitFunction
   ): Promise<void> {
+    const time = Date.now();
+
     // Prisma should generate a reasonable query for this, no need for TypedSql.
     const leaderboards: LeaderboardID[] = await this.db.leaderboard.findMany({
       where: { gamemode, type: LeaderboardType.RANKED },
@@ -46,23 +56,76 @@ export class RankingService implements OnModuleInit {
       }
     });
 
+    if (leaderboards.length === 0) {
+      return;
+    }
+
     let total = 0;
 
     await Promise.all(
-      leaderboards.map(({ mapID, gamemode, trackType, trackNum, style }) =>
+      leaderboards.map((lb) =>
         limit(async () => {
           // Experimented with using a stored procedure here, but no noticeable
           // difference.
           const runs = await this.db.$queryRawTyped(
-            TypedSql.getRankedRuns(mapID, gamemode, trackType, trackNum, style)
+            TypedSql.getRankedRuns(
+              lb.mapID,
+              lb.gamemode,
+              lb.trackType,
+              lb.trackNum,
+              lb.style
+            )
           );
+
+          const pipeline = this.valkey.pipeline();
+          pipeline.zadd(
+            Keys.TrackLeaderboardPoints(lb),
+            // @ts-ignore
+            ...runs.map((run) => [
+              this.xpSystems.getRankXpForRank(run.rank, runs.length).rankXP,
+              run.userID.toString()
+            ])
+          );
+          await pipeline.exec();
+
           total += runs.length;
         })
       )
     );
 
-    console.log(
-      `Gamemode ${gamemode}: ${total} ranked runs across ${leaderboards.length} leaderboards`
+    const pipeline = this.valkey.pipeline();
+    pipeline.zunionstore(
+      Keys.GamemodeLeaderboardPoints(gamemode),
+      leaderboards.length,
+      // @ts-ignore
+      ...leaderboards.map(Keys.TrackLeaderboardPoints)
     );
+    await pipeline.exec();
+
+    const gamemodelb = await this.valkey.zrevrange(
+      Keys.GamemodeLeaderboardPoints(gamemode),
+      0,
+      -1,
+      'WITHSCORES'
+    );
+
+    if (gamemodelb.length === 0) {
+      return;
+    }
+
+    let str = '\n';
+    str += `Gamemode ${GamemodeInfo.get(gamemode).name}: ${total} ranked runs across ${leaderboards.length} leaderboards (took ${Date.now() - time}ms)\n`;
+
+    for (let i = 0; i < 10; i++) {
+      const userID = gamemodelb[i * 2];
+      const points = gamemodelb[i * 2 + 1];
+      const user = await this.db.user.findUnique({
+        where: { id: Number(userID) },
+        select: { alias: true }
+      });
+      str += `${i + 1}. ${user.alias} (${points} points)\n`;
+    }
+
+    console.log(str);
   }
 }
