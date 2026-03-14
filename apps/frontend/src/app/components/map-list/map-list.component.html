@@ -8,7 +8,7 @@
   class="mb-4 grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 >
   @for (map of maps; track $index) {
-    <m-map-list-item [map]="map" [isSubmission]="isSubmissionPage" [isAdminPage]="isAdminPage" />
+    <m-map-list-item [map]="map" [isSubmission]="isSubmissionPage" [isAdminPage]="isAdminPage" [showApprovedDate]="showApprovedDate" />
   } @empty {
     <p class="col-span-full mx-auto my-12 h-32 text-center font-display text-48 font-bold">No maps found</p>
   }

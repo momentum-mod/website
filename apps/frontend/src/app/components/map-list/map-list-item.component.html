@@ -129,8 +129,11 @@
           }
         </p>
       }
-      <!-- TODO: This should be the new date thingy for approved maps -->
-      <p class="mt-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
+      @if (showApprovedDate && map.info?.approvedDate) {
+        <p class="mt-auto text-right text-gray-100">Released {{ map.info?.approvedDate | timeAgo }}</p>
+      } @else {
+        <p class="mt-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
+      }
     </div>
   </div>
 </a>
