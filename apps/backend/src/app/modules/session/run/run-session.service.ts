@@ -191,7 +191,7 @@ export class RunSessionService {
     userID: number,
     sessionID: number,
     replay?: Buffer
-  ): Promise<CompletedRunDto> {
+  ): Promise<CompletedRunDto[]> {
     const [storedUserID, storedSession, storedTimestamps] = await Promise.all([
       this.valkey.hget(dataKey(sessionID), 'userID'),
       this.valkey.hgetall(dataKey(sessionID)),
@@ -268,8 +268,7 @@ export class RunSessionService {
       )
     );
 
-    // Return the result for the primary style
-    return results[0];
+    return results;
   }
 
   private static processSubmittedRun(
