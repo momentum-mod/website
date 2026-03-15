@@ -363,6 +363,7 @@ export class RunSessionService {
 
     return DtoFactory(CompletedRunDto, {
       time: submittedRun.time,
+      style,
       isNewPersonalBest: isPB,
       isNewWorldRecord: isWR,
       xp: xpGain,
