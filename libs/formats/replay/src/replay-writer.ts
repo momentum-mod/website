@@ -24,6 +24,7 @@ export function writeHeader(header: ReplayHeader, buffer: Buffer): void {
     buffer.writeUInt8(header.trackType, 167);
     buffer.writeUInt8(header.trackNum, 168);
     buffer.writeDoubleLE(header.runTime, 169);
+    buffer.writeUInt8(header.style, 194);
   } catch (error) {
     throw new ReplayWriteError(error.code, error.message);
   }

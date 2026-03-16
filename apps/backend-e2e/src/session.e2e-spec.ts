@@ -14,6 +14,7 @@ import {
 import {
   ActivityType,
   Gamemode,
+  LeaderboardType,
   MapStatus,
   Role,
   RunValidationErrorType,
@@ -632,12 +633,13 @@ describe('Session', () => {
       describe('should process a valid run and ', () => {
         it('should respond with a CompletedRunDto', async () => {
           const res = await submitRun();
+          const completedRun = res.body[0];
 
           expect(res.statusCode).toBe(200);
-          expect(res.body).toBeValidDto(CompletedRunDto);
-          expect(res.body.isNewPersonalBest).toBe(true);
-          expect(res.body.isNewWorldRecord).toBe(false);
-          expect(res.body.totalRuns).toBe(11);
+          expect(completedRun).toBeValidDto(CompletedRunDto);
+          expect(completedRun.isNewPersonalBest).toBe(true);
+          expect(completedRun.isNewWorldRecord).toBe(false);
+          expect(completedRun.totalRuns).toBe(11);
         });
 
         it('should be inserted in leaderboards, shifting other ranks', async () => {
@@ -705,11 +707,12 @@ describe('Session', () => {
           expect(ranksBefore).toHaveLength(10);
 
           const res = await submitRun();
+          const completedRun = res.body[0];
 
           expect(res.statusCode).toBe(200);
-          expect(res.body).toBeValidDto(CompletedRunDto);
-          expect(res.body.isNewPersonalBest).toBe(true);
-          expect(res.body.totalRuns).toBe(10);
+          expect(completedRun).toBeValidDto(CompletedRunDto);
+          expect(completedRun.isNewPersonalBest).toBe(true);
+          expect(completedRun.totalRuns).toBe(10);
 
           const ranksAfter = await prisma.leaderboardRun.findMany({
             where: {
@@ -772,12 +775,13 @@ describe('Session', () => {
           expect(ranksBefore).toHaveLength(10);
 
           const res = await submitRun();
+          const completedRun = res.body[0];
 
           expect(res.statusCode).toBe(200);
-          expect(res.body).toBeValidDto(CompletedRunDto);
-          expect(res.body.isNewPersonalBest).toBe(false);
-          // expect(res.body.xp.rankXP).toBe(0);
-          expect(res.body.totalRuns).toBe(10);
+          expect(completedRun).toBeValidDto(CompletedRunDto);
+          expect(completedRun.isNewPersonalBest).toBe(false);
+          // expect(completedRun.xp.rankXP).toBe(0);
+          expect(completedRun.totalRuns).toBe(10);
 
           const ranksAfter = await prisma.leaderboardRun.findMany({
             where: {
@@ -795,8 +799,10 @@ describe('Session', () => {
         it('should assign cosmetic and rank XP for the run', async () => {
           const res = await submitRun();
 
+          const completedRun = res.body[0];
+
           expect(res.statusCode).toBe(200);
-          expect(res.body).toMatchObject({
+          expect(completedRun).toMatchObject({
             time: expect.any(Number),
             newPersonalBest: { rank: 2 },
             xp: {
@@ -907,6 +913,183 @@ describe('Session', () => {
 
       it('should reject if should 401 when no access token is provided', () =>
         req.unauthorizedTest('session/run/1/end', 'post'));
+
+      describe('compatible styles', () => {
+        let compatMap;
+
+        beforeEach(async () => {
+          compatMap = await db.createMap({
+            status: MapStatus.APPROVED,
+            leaderboards: {
+              createMany: {
+                data: [
+                  {
+                    gamemode: Gamemode.BHOP,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    style: Style.NORMAL,
+                    tier: 1,
+                    linear: true,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    gamemode: Gamemode.BHOP,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    style: Style.W_ONLY,
+                    tier: 1,
+                    linear: true,
+                    type: LeaderboardType.RANKED
+                  }
+                ]
+              }
+            }
+          });
+        });
+
+        it('should return a CompletedRunDto for each compatible style', async () => {
+          const res = await RunTester.run({
+            req,
+            props: {
+              token,
+              gamemode: Gamemode.BHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style: Style.W_ONLY,
+              mapID: compatMap.id,
+              mapName: compatMap.name,
+              mapHash: compatMap.currentVersion.bspHash,
+              steamID: user.steamID,
+              playerName: 'Abstract Barry'
+            },
+            segments: [1, 1]
+          });
+
+          expect(res.statusCode).toBe(200);
+          expect(res.body).toHaveLength(2);
+          expect(res.body).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                style: Style.W_ONLY,
+                isNewPersonalBest: true
+              }),
+              expect.objectContaining({
+                style: Style.NORMAL,
+                isNewPersonalBest: true
+              })
+            ])
+          );
+        });
+
+        it('should create leaderboard entries for both the submitted and compatible styles', async () => {
+          await RunTester.run({
+            req,
+            props: {
+              token,
+              gamemode: Gamemode.BHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style: Style.W_ONLY,
+              mapID: compatMap.id,
+              mapName: compatMap.name,
+              mapHash: compatMap.currentVersion.bspHash,
+              steamID: user.steamID,
+              playerName: 'Abstract Barry'
+            },
+            segments: [1, 1]
+          });
+
+          const [wOnlyRun, normalRun] = await Promise.all([
+            prisma.leaderboardRun.findFirst({
+              where: {
+                mapID: compatMap.id,
+                gamemode: Gamemode.BHOP,
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                style: Style.W_ONLY,
+                userID: user.id
+              }
+            }),
+            prisma.leaderboardRun.findFirst({
+              where: {
+                mapID: compatMap.id,
+                gamemode: Gamemode.BHOP,
+                trackType: TrackType.MAIN,
+                trackNum: 1,
+                style: Style.NORMAL,
+                userID: user.id
+              }
+            })
+          ]);
+
+          expect(wOnlyRun).not.toBeNull();
+          expect(normalRun).not.toBeNull();
+          expect(wOnlyRun.rank).toBe(1);
+          expect(normalRun.rank).toBe(1);
+        });
+
+        it('a PRO run should also submit a TELEPORT style run', async () => {
+          const kztMap = await db.createMap({
+            status: MapStatus.APPROVED,
+            leaderboards: {
+              createMany: {
+                data: [
+                  {
+                    gamemode: Gamemode.CLIMB_KZT,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    style: Style.TELEPORT,
+                    tier: 1,
+                    linear: true,
+                    type: LeaderboardType.RANKED
+                  },
+                  {
+                    gamemode: Gamemode.CLIMB_KZT,
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    style: Style.PRO,
+                    tier: 1,
+                    linear: true,
+                    type: LeaderboardType.RANKED
+                  }
+                ]
+              }
+            }
+          });
+
+          const res = await RunTester.run({
+            req,
+            props: {
+              token,
+              gamemode: Gamemode.CLIMB_KZT,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              style: Style.PRO,
+              mapID: kztMap.id,
+              mapName: kztMap.name,
+              mapHash: kztMap.currentVersion.bspHash,
+              steamID: user.steamID,
+              playerName: 'Abstract Barry'
+            },
+            segments: [1, 1]
+          });
+
+          expect(res.statusCode).toBe(200);
+          expect(res.body).toHaveLength(2);
+          expect(res.body).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                style: Style.PRO,
+                isNewPersonalBest: true
+              }),
+              expect.objectContaining({
+                style: Style.TELEPORT,
+                isNewPersonalBest: true
+              })
+            ])
+          );
+        });
+      });
     });
   });
 });
