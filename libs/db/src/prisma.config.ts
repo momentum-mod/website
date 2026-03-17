@@ -8,7 +8,10 @@ export default {
     path: './migrations'
   },
   datasource: {
-    url: env('DATABASE_URL')
+    url:
+      env('DATABASE_URL') +
+      '&connection_limit=' +
+      (process.env.DATABASE_CONNECTION_LIMIT || 10)
   },
   typedSql: {
     path: './sql'

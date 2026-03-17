@@ -28,15 +28,12 @@ export class RankingController {
     @Query() query: RankingGetQueryDto,
     @LoggedInUser('id') loggedInUserID?: number
   ): Promise<PagedResponseDto<RankEntryDto>> {
-    return new PagedResponseDto(
-      RankEntryDto,
-      await this.rankingService.getRanks(
-        gamemode,
-        query.skip ?? 0,
-        query.take ?? 20,
-        query.filter?.[0],
-        loggedInUserID
-      )
+    return await this.rankingService.getRanks(
+      gamemode,
+      query.skip ?? 0,
+      query.take ?? 20,
+      query.filter?.[0],
+      loggedInUserID
     );
   }
 }

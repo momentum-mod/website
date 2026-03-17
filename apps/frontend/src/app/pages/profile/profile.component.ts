@@ -45,6 +45,7 @@ import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { SpinnerComponent } from '../../components/spinner/spinner.component';
 import { DialogModule } from 'primeng/dialog';
+import { ProfileRunsComponent } from './profile-runs/profile-runs.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -68,7 +69,8 @@ import { DialogModule } from 'primeng/dialog';
     AvatarComponent,
     SpinnerComponent,
     LevelIndicatorComponent,
-    DialogModule
+    DialogModule,
+    ProfileRunsComponent
   ]
 })
 export class ProfileComponent implements OnInit {

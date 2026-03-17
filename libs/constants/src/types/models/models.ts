@@ -485,7 +485,8 @@ export interface LeaderboardRun {
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;
-  // rankXP: number;
+  totalRuns;
+  points?: number;
   userID: number;
   user?: User;
   mapID: number;

@@ -1,6 +1,16 @@
 ﻿import { ActivitiesGetQuery } from './activity-queries.model';
 import { PagedQuery } from './pagination.model';
-import { Role, Ban, Flags, User, Socials, Follow } from '../../';
+import {
+  Role,
+  Ban,
+  Flags,
+  User,
+  Socials,
+  Follow,
+  Gamemode,
+  MapStatus,
+  LeaderboardType
+} from '../../';
 
 export type CreateUser = Pick<User, 'alias'>;
 
@@ -45,6 +55,15 @@ export type UsersGetCreditsExpand = Array<'map' | 'info'>;
 
 export type UsersGetCreditsQuery = PagedQuery & {
   expand?: UsersGetCreditsExpand;
+};
+
+export type UsersGetRunsQuery = PagedQuery & {
+  gamemode?: Gamemode;
+  trackType?: number;
+  trackNum?: number;
+  style?: number;
+  mapStatus?: MapStatus;
+  leaderboardType?: LeaderboardType;
 };
 
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };

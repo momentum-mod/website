@@ -3,6 +3,7 @@ import {
   IsIn,
   IsInt,
   IsOptional,
+  IsPositive,
   IsString,
   IsUrl,
   Length,
@@ -66,6 +67,10 @@ export class ConfigValidation {
 
   @IsUrl({ require_tld: false, protocols: ['postgresql'] })
   readonly DATABASE_URL?: string;
+
+  @IsInt()
+  @IsPositive()
+  readonly DATABASE_POOL_SIZE?: number;
 
   @IsString()
   readonly STORAGE_REGION?: string;

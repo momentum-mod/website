@@ -13,15 +13,10 @@ export class UserCacheService {
     private readonly valkey: ValkeyService
   ) {}
 
-  async getUser(id: number): Promise<User | null>;
-  async getUser(ids: number[]): Promise<User[]>;
-  async getUser(idOrIds: number | number[]): Promise<User | null | User[]> {
-    return Array.isArray(idOrIds)
-      ? this.getUsers(idOrIds)
-      : this.getSingleUser(idOrIds);
-  }
-
-  private async getSingleUser(id: number): Promise<User | null> {
+  /**
+   * Fetches a user by ID, utilizing Valkey caching for improved performance.
+   */
+  async getUser(id: number): Promise<User | null> {
     const cached = await this.valkey.get(this.cacheKey(id));
     if (cached !== null) return this.deserialize(cached);
 
@@ -38,20 +33,28 @@ export class UserCacheService {
     return user;
   }
 
-  private async getUsers(ids: number[]): Promise<User[]> {
+  /**
+   * Fetches multiple users by their IDs, utilizing Valkey caching for improved
+   * performance.
+   *
+   * Returned array will have same order as input IDs, with nulls for any users
+   * that don't exist.
+   */
+  async getUsers(ids: number[]): Promise<Array<User | null>> {
     if (ids.length === 0) return [];
 
     const keys = ids.map((id) => this.cacheKey(id));
     const cached = await this.valkey.mget(...keys);
 
-    const users: User[] = [];
+    const users: User[] = new Array(ids.length).fill(null);
+
     const missingIDs: number[] = [];
 
-    for (let i = 0; i < ids.length; i++) {
-      if (cached[i] !== null) {
-        users.push(this.deserialize(cached[i]));
+    for (const [index, id] of ids.entries()) {
+      if (cached[index] !== null) {
+        users[index] = this.deserialize(cached[index]);
       } else {
-        missingIDs.push(ids[i]);
+        missingIDs.push(id);
       }
     }
 
@@ -68,8 +71,13 @@ export class UserCacheService {
           'EX',
           CACHE_TTL_SECONDS
         );
-        users.push(user);
+
+        const index = ids.indexOf(user.id);
+        if (index !== -1) {
+          users[index] = user;
+        }
       }
+
       await pipeline.exec();
     }
 
@@ -81,13 +89,11 @@ export class UserCacheService {
   }
 
   private cacheKey(userID: number): string {
-    return `user-${userID}`;
+    return `user:${userID}`;
   }
 
   private serialize(user: User): string {
-    return JSON.stringify(user, (_, v) =>
-      typeof v === 'bigint' ? v.toString() : v
-    );
+    return JSON.stringify(user);
   }
 
   private deserialize(json: string): User {

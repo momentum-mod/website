@@ -1,6 +1,7 @@
 import { deepmerge } from '@fastify/deepmerge';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from './generated/client';
+import PrismaConfig from './prisma.config';
 
 const merge = deepmerge();
 export const PRISMA_CLIENT_EXTENSIONS = {
@@ -69,7 +70,7 @@ export type ExtendedTransactionClient = Omit<
 
 export const getExtendedPrismaClient = () => {
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env['DATABASE_URL'] })
+    adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url })
   });
 
   return prismaExtensionFactory(prisma);

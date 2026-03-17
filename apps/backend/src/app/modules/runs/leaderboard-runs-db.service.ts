@@ -187,6 +187,27 @@ export class LeaderboardRunsDbService {
       ? await args.transaction.$queryRawTyped(sql)
       : await this.db.$queryRawTyped(sql);
 
-    return runs?.[0]?.rank ?? undefined;
+    return runs?.[0].rank ?? undefined;
+  }
+
+  async getUsersRanks(
+    args: LeaderboardQuery & { userIDs: number[] }
+  ): Promise<number[]> {
+    if (args.userIDs.length === 0) return [];
+
+    const sql = TypedSql.getLeaderboardRunRankMultipleUsers(
+      args.mapID,
+      args.gamemode,
+      args.trackType,
+      args.trackNum,
+      args.style,
+      args.userIDs
+    );
+
+    const runs: any[] = args.transaction
+      ? await args.transaction.$queryRawTyped(sql)
+      : await this.db.$queryRawTyped(sql);
+
+    return runs.map(({ rank }) => rank);
   }
 }

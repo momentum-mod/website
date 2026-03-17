@@ -476,7 +476,7 @@ export class UsersService {
   }
 
   async followUsers(userID: number, usersIDs: number[]): Promise<FollowDto[]> {
-    const users = await this.userCache.getUser(usersIDs);
+    const users = await this.userCache.getUsers(usersIDs);
 
     if (users.length !== usersIDs.length)
       throw new NotFoundException('One or more users not found');

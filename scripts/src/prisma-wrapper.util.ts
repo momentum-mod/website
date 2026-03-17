@@ -1,12 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, PrismaConfig } from '@momentum/db';
 
 export const prismaWrapper = (
   fn: (prisma: PrismaClient) => Promise<void>,
   options = {} /* Prisma.PrismaClientOptions, use { log: ['query'] } to print queries */
 ) => {
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url }),
     ...options
   });
 

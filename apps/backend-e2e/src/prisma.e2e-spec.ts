@@ -1,4 +1,4 @@
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, PrismaConfig } from '@momentum/db';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ExtendedPrismaClient, getExtendedPrismaClient } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
@@ -12,7 +12,7 @@ describe('Prisma Client Extensions', () => {
 
   beforeAll(async () => {
     prisma = new PrismaClient({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+      adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url })
     });
     db = new DbUtil(prisma);
     await db.nuke();

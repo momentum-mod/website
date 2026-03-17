@@ -14,13 +14,16 @@ import {
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
-  LeaderboardRunDto
+  LeaderboardRunDto,
+  UsersGetRunsQueryDto
 } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { RankingService } from '../ranking/ranking.service';
+import { XpSystemsService } from '../xp-systems/xp-systems.service';
 
 @Injectable()
 export class LeaderboardRunsService {
@@ -30,7 +33,9 @@ export class LeaderboardRunsService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly fileStoreService: FileStoreService,
-    private readonly steamService: SteamService
+    private readonly steamService: SteamService,
+    private readonly rankingService: RankingService,
+    private readonly xpSystems: XpSystemsService
   ) {}
 
   async getRuns(
@@ -195,6 +200,91 @@ export class LeaderboardRunsService {
     }
 
     throw new NotFoundException('Run not found');
+  }
+
+  async getUsersRuns(
+    userID: number,
+    query: UsersGetRunsQueryDto
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
+    const where: any = { userID };
+
+    if (query.gamemode != null) {
+      where.gamemode = query.gamemode;
+    }
+
+    if (query.trackType != null) {
+      where.trackType = query.trackType;
+    }
+
+    if (query.trackNum != null) {
+      where.trackNum = query.trackNum;
+    }
+
+    if (query.style != null) {
+      where.style = query.style;
+    }
+
+    if (query.leaderboardType != null) {
+      where.leaderboard = { type: query.leaderboardType };
+    }
+
+    if (query.mapStatus != null) {
+      where.mmap = { status: query.mapStatus };
+    }
+
+    // TODO: try add createdat to index?
+    const leaderboards = await this.db.leaderboardRun.findManyAndCount({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: query.skip,
+      take: query.take,
+      include: {
+        mmap: true,
+        leaderboard: true
+      },
+      omit: {
+        splits: true
+      }
+    });
+
+    for (const run of leaderboards[0]) {
+      const rank = await this.leaderboardRunsDbService.getUserRank({
+        mapID: run.mapID,
+        gamemode: run.gamemode,
+        trackType: run.trackType,
+        trackNum: run.trackNum,
+        style: run.style,
+        userID
+      });
+
+      // TODO: No, use zcard in redis. Also rio might've been storing directly
+      // even, don't rememember.
+      // Prisma generates decent query for this with index-only scan
+      const totalRuns = await this.db.leaderboardRun.count({
+        where: {
+          mapID: run.mapID,
+          gamemode: run.gamemode,
+          trackType: run.trackType,
+          trackNum: run.trackNum,
+          style: run.style
+        }
+      });
+
+      const points = this.xpSystems.getRankXpForRank(rank, totalRuns);
+
+      Object.assign(run as any, { rank, totalRuns, points });
+    }
+
+    const points = await this.rankingService.getUserPointsForRuns(
+      userID,
+      leaderboards[0]
+    );
+
+    for (let i = 0; i < leaderboards[0].length; i++) {
+      (leaderboards[0][i] as any).points = points[i];
+    }
+
+    return new PagedResponseDto(LeaderboardRunDto, leaderboards);
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {

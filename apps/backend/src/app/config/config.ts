@@ -69,6 +69,9 @@ export const ConfigFactory = (): ConfigInterface => {
       accessKeyID: process.env['RUN_STORAGE_ACCESS_KEY_ID'] || '',
       secretAccessKey: process.env['RUN_STORAGE_SECRET_ACCESS_KEY'] || ''
     },
+    db: {
+      poolSize: +(process.env['DB_POOL_SIZE'] || 10)
+    },
     valkey: {
       port:
         process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'],

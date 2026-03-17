@@ -1,6 +1,7 @@
 import {
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   OnModuleInit,
   UnauthorizedException
@@ -9,52 +10,130 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { ValkeyService } from '../valkey/valkey.service';
 import { TypedSql } from '@momentum/db';
-import {
-  Gamemode,
-  GamemodeInfo,
-  LeaderboardID,
-  LeaderboardType
-} from '@momentum/constants';
+import { Gamemode, LeaderboardID, LeaderboardType } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import pLimit, { LimitFunction } from 'p-limit';
 import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { UserCacheService } from '../users/user-cache.service';
 import * as Keys from './keys';
+import { ConfigService } from '@nestjs/config';
+import { PagedResponseDto, RankEntryDto } from '../../dto';
 
 @Injectable()
 export class RankingService implements OnModuleInit {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly valkey: ValkeyService,
+    private readonly configService: ConfigService,
     private readonly xpSystems: XpSystemsService,
     private readonly userCache: UserCacheService
   ) {}
 
+  private readonly logger = new Logger('Ranking Service');
+
   async onModuleInit() {
-    await this.valkey.flushdb();
-    console.time('leaderboard-init');
-    // TODO: much pool size configurable, expose to configservice, limit
+    const startTime = Date.now();
+
+    await this.clearLeaderboards();
+
     // We're about to pull an enormous amount from Postgres, on my machine
     // 2.5s for 1.5m runs, will be far greater in future. So run as concurrently
     // as we can without exhausting the connection pool; half the pool size
     // should do.
-    const limit = pLimit(5);
+    const limit = pLimit(
+      this.configService.getOrThrow<number>('db.poolSize') / 2
+    );
+
     void Promise.all(
       Enum.values(Gamemode).map((gamemode) =>
         this.initGamemodeLeaderboards(gamemode, limit)
       )
-    ).then(() => console.timeEnd('leaderboard-init'));
+    ).then(() => {
+      const duration = (Date.now() - startTime) / 1000;
+      this.logger.log(`Leaderboards initialized in ${duration.toFixed(2)}s`);
+    });
   }
 
+  private async clearLeaderboards(): Promise<void> {
+    const trackKeys = await this.valkey.keys(
+      Keys.TrackLeaderboardPointsPrefix + '*'
+    );
+
+    if (trackKeys.length > 0) {
+      await this.valkey.del(...trackKeys);
+    }
+
+    const gamemodeKeys = await this.valkey.keys(
+      Keys.GamemodeLeaderboardPointsPrefix
+    );
+
+    if (gamemodeKeys.length > 0) {
+      await this.valkey.del(...gamemodeKeys);
+    }
+  }
+
+  private async initGamemodeLeaderboards(
+    gamemode: Gamemode,
+    limit: LimitFunction
+  ): Promise<void> {
+    // Prisma should generate a reasonable query for this, no need for TypedSql.
+    const leaderboards: LeaderboardID[] = await this.db.leaderboard.findMany({
+      where: { gamemode, type: LeaderboardType.RANKED },
+      select: {
+        mapID: true,
+        gamemode: true,
+        trackType: true,
+        trackNum: true,
+        style: true
+      }
+    });
+
+    if (leaderboards.length === 0) {
+      return;
+    }
+
+    await Promise.all(
+      leaderboards.map((lb) =>
+        limit(async () => {
+          // Tried procedure here, no noticeable difference.
+          const runs = await this.db.$queryRawTyped(
+            TypedSql.getRankedRuns(
+              lb.mapID,
+              lb.gamemode,
+              lb.trackType,
+              lb.trackNum,
+              lb.style
+            )
+          );
+
+          if (runs.length === 0) return;
+
+          await this.valkey.zadd(
+            Keys.TrackLeaderboardPoints(lb),
+            ...runs.flatMap((run) => [
+              this.xpSystems.getRankXpForRank(run.rank, runs.length).rankXP,
+              run.userID.toString()
+            ])
+          );
+        })
+      )
+    );
+
+    await this.valkey.zunionstore(
+      Keys.GamemodeLeaderboardPoints(gamemode),
+      leaderboards.length,
+      ...leaderboards.map((id) => Keys.TrackLeaderboardPoints(id))
+    );
+  }
+
+  // TODO: e2e tests, bleh
   async getRanks(
     gamemode: Gamemode,
     skip: number,
     take: number,
     filter?: string,
     loggedInUserID?: number
-  ): Promise<
-    [{ rank: number; userID: number; rankXP: number; user: object }[], number]
-  > {
+  ): Promise<PagedResponseDto<RankEntryDto>> {
     const key = Keys.GamemodeLeaderboardPoints(gamemode);
 
     if (filter === 'around') {
@@ -84,102 +163,77 @@ export class RankingService implements OnModuleInit {
       userIDs.push(Number(entries[i]));
     }
 
-    const users = await this.userCache.getUser(userIDs);
-    const userMap = new Map(users.map((u) => [u.id, u]));
+    const users = await this.userCache.getUsers(userIDs);
 
-    const data = userIDs.map((userID, index) => ({
+    const data = users.map((user, index) => ({
       rank: skip + index + 1,
-      userID,
+      userID: user.id,
       rankXP: Number(entries[index * 2 + 1]),
-      user: userMap.get(userID)
+      user
     }));
 
-    return [data, totalCount];
+    return new PagedResponseDto(RankEntryDto, [data, totalCount]);
   }
 
-  private async initGamemodeLeaderboards(
-    gamemode: Gamemode,
-    limit: LimitFunction
-  ): Promise<void> {
-    const time = Date.now();
-
-    // Prisma should generate a reasonable query for this, no need for TypedSql.
-    const leaderboards: LeaderboardID[] = await this.db.leaderboard.findMany({
-      where: { gamemode, type: LeaderboardType.RANKED },
-      select: {
-        mapID: true,
-        gamemode: true,
-        trackType: true,
-        trackNum: true,
-        style: true
-      }
-    });
-
-    if (leaderboards.length === 0) {
-      return;
-    }
-
-    let total = 0;
-
-    await Promise.all(
-      leaderboards.map((lb) =>
-        limit(async () => {
-          // Experimented with using a stored procedure here, but no noticeable
-          // difference.
-          const runs = await this.db.$queryRawTyped(
-            TypedSql.getRankedRuns(
-              lb.mapID,
-              lb.gamemode,
-              lb.trackType,
-              lb.trackNum,
-              lb.style
-            )
-          );
-
-          const pipeline = this.valkey.pipeline();
-          pipeline.zadd(
-            Keys.TrackLeaderboardPoints(lb),
-            ...runs.flatMap((run) => [
-              this.xpSystems.getRankXpForRank(run.rank, runs.length).rankXP,
-              run.userID.toString()
-            ])
-          );
-          await pipeline.exec();
-
-          total += runs.length;
-        })
-      )
+  /**
+   * Get total points for a user on specific rank leaderboard.
+   *
+   * Returns 0 if missing, or leaderboard doesn't exist (e.g. non-ranked
+   * gamemode, or invalid track).
+   */
+  async getUserPointsForRun(
+    userID: number,
+    leaderboard: LeaderboardID
+  ): Promise<number> {
+    // This could also be done by passing in rank (we probably already know it),
+    // using zcard then calculating XP from rank, but both ops are O(1) anyway.
+    const score = this.valkey.zscore(
+      Keys.TrackLeaderboardPoints(leaderboard),
+      userID
     );
 
+    return Number(score);
+  }
+
+  /**
+   * Get total points for a user on multiple rank leaderboards.
+   *
+   * Returns 0s if missing, or leaderboard doesn't exist (e.g. non-ranked
+   * gamemode, or invalid track).
+   *
+   * Order of returned points matches order of input leaderboardIDs.
+   */
+  async getUserPointsForRuns(
+    userID: number,
+    leaderboards: LeaderboardID[]
+  ): Promise<number[]> {
     const pipeline = this.valkey.pipeline();
-    pipeline.zunionstore(
-      Keys.GamemodeLeaderboardPoints(gamemode),
-      leaderboards.length,
-      ...leaderboards.map(Keys.TrackLeaderboardPoints)
-    );
-    await pipeline.exec();
 
-    const gamemodelb = await this.valkey.zrevrange(
-      Keys.GamemodeLeaderboardPoints(gamemode),
-      0,
-      -1,
-      'WITHSCORES'
-    );
-
-    if (gamemodelb.length === 0) {
-      return;
+    for (const lb of leaderboards) {
+      pipeline.zscore(Keys.TrackLeaderboardPoints(lb), userID);
     }
 
-    let str = '\n';
-    str += `Gamemode ${GamemodeInfo.get(gamemode).name}: ${total} ranked runs across ${leaderboards.length} leaderboards (took ${Date.now() - time}ms)\n`;
+    const scores = await pipeline.exec();
+    return scores.map(([, score]) => Number(score));
+  }
 
-    for (let i = 0; i < 10; i++) {
-      const userID = gamemodelb[i * 2];
-      const points = gamemodelb[i * 2 + 1];
-      const user = await this.userCache.getUser(Number(userID));
-      str += `${i + 1}. ${user.alias} (${points} points)\n`;
-    }
+  /**
+   * Get total points for multiple users on specific rank leaderboard.
+   *
+   * Returns 0s if missing, or leaderboard doesn't exist (e.g. non-ranked
+   * gamemode, or invalid track).
+   *
+   * Order of returned points matches order of input userIDs.
+   */
+  async getUsersPointsForRun(
+    userIDs: number[],
+    leaderboard: LeaderboardID
+  ): Promise<number[]> {
+    const scores = await this.valkey.zmscore(
+      Keys.TrackLeaderboardPoints(leaderboard),
+      ...userIDs
+    );
 
-    console.log(str);
+    return scores.map(Number);
   }
 }

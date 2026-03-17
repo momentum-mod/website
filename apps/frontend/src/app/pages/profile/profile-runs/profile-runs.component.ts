@@ -1,50 +1,57 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
-import { Gamemode, PagedResponse, RankEntry } from '@momentum/constants';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
+import {
+  Gamemode,
+  LeaderboardRun,
+  LeaderboardType,
+  PagedResponse,
+  Style,
+  TrackType
+} from '@momentum/constants';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AsyncPipe, NgClass } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { RankingService } from '../../../services/data/ranking.service';
-import { LocalUserService } from '../../../services/data/local-user.service';
+import { RouterLink } from '@angular/router';
+import { UsersService } from '../../../services/data/users.service';
 import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
 import { SpinnerComponent } from '../../../components/spinner/spinner.component';
-import { UserComponent } from '../../../components/user/user.component';
-import { IconComponent } from '../../../icons/icon.component';
 import { NumberWithCommasPipe } from '../../../pipes/number-with-commas.pipe';
 
+// rankXP is planned but currently commented out on LeaderboardRun in constants.
+// Extend the type locally until it's formally added to the shared model.
+type UserRun = LeaderboardRun & { rankXP?: number };
+
 @Component({
-  selector: 'm-rankings',
-  templateUrl: './rankings.component.html',
+  selector: 'm-profile-runs',
+  templateUrl: './profile-runs.component.html',
   imports: [
     GamemodeSelectComponent,
     SpinnerComponent,
-    UserComponent,
     PaginatorModule,
     NumberWithCommasPipe,
-    IconComponent,
+    RouterLink,
     NgClass,
-    AsyncPipe
+    NgStyle
   ]
 })
-export class RankingsComponent implements OnInit {
-  private readonly rankingService = inject(RankingService);
+export class ProfileRunsComponent implements OnInit {
+  @Input({ required: true }) userID: number;
+
+  private readonly usersService = inject(UsersService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly localUserService = inject(LocalUserService);
 
   protected selectedGamemode: Gamemode = Gamemode.SURF;
-  protected ranks: RankEntry[] = [];
+  protected runs: UserRun[] = [];
   protected totalCount = 0;
   protected loading = false;
   protected hasLoaded = false;
+  protected showUnranked = false;
   protected skip = 0;
   protected readonly take = 10;
-
-  protected isAroundMode = false;
-  private filter: 'around' | undefined;
 
   private readonly load$ = new Subject<void>();
 
@@ -53,17 +60,22 @@ export class RankingsComponent implements OnInit {
       .pipe(
         tap(() => (this.loading = true)),
         switchMap(() =>
-          this.rankingService
-            .getRanks(this.selectedGamemode, {
+          this.usersService
+            .getUserRuns(this.userID, {
+              gamemode: this.selectedGamemode,
               skip: this.skip,
               take: this.take,
-              filter: this.filter
+              leaderboardType: this.showUnranked
+                ? undefined
+                : LeaderboardType.RANKED,
+              trackType: TrackType.MAIN,
+              style: Style.NORMAL
             })
             .pipe(
               catchError((err: HttpErrorResponse) => {
                 this.messageService.add({
                   severity: 'error',
-                  summary: 'Error fetching rankings!',
+                  summary: 'Error fetching runs!',
                   detail: err.error?.message ?? err.message
                 });
                 this.loading = false;
@@ -73,17 +85,11 @@ export class RankingsComponent implements OnInit {
         ),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((res: PagedResponse<RankEntry>) => {
-        this.ranks = res.data;
+      .subscribe((res: PagedResponse<UserRun>) => {
+        this.runs = res.data;
         this.totalCount = res.totalCount;
         this.loading = false;
         this.hasLoaded = true;
-        // After an 'around' fetch the backend chose a different skip; read it
-        // back from the first result so the paginator reflects the real offset.
-        if (this.filter === 'around' && res.data.length > 0) {
-          this.skip = res.data[0].rank - 1;
-        }
-        this.filter = undefined;
       });
 
     this.load$.next();
@@ -92,21 +98,30 @@ export class RankingsComponent implements OnInit {
   protected onGamemodeChange(gamemode: Gamemode): void {
     this.selectedGamemode = gamemode;
     this.skip = 0;
-    this.isAroundMode = false;
-    this.filter = undefined;
+    this.load$.next();
+  }
+
+  protected onToggleUnranked(): void {
+    this.showUnranked = !this.showUnranked;
+    this.skip = 0;
     this.load$.next();
   }
 
   protected onPageChange(event: PaginatorState): void {
     this.skip = event.first;
-    this.isAroundMode = false;
     this.load$.next();
   }
 
-  protected onAroundClick(): void {
-    this.isAroundMode = true;
-    this.filter = 'around';
-    this.skip = 0;
-    this.load$.next();
+  protected getTier(run: UserRun): number | null {
+    return (
+      run.leaderboard?.tier ??
+      run.map?.leaderboards?.find(
+        (lb) =>
+          lb.gamemode === run.gamemode &&
+          lb.trackType === run.trackType &&
+          lb.trackNum === run.trackNum
+      )?.tier ??
+      null
+    );
   }
 }

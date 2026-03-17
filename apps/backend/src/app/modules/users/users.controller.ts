@@ -21,11 +21,14 @@ import {
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
   UsersGetQueryDto,
-  UsersGetCreditsQueryDto
+  UsersGetCreditsQueryDto,
+  UsersGetRunsQueryDto,
+  LeaderboardRunDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -33,7 +36,10 @@ import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 @ApiBearerAuth()
 @ApiExtraModels(PagedResponseDto)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly leaderboardRunsService: LeaderboardRunsService
+  ) {}
 
   //#region Main User Endpoints
 
@@ -88,8 +94,28 @@ export class UsersController {
 
   //#endregion
 
-  //#region Activities
+  //#region Runs
 
+  @Get('/:userID/runs')
+  @ApiParam({
+    name: 'userID',
+    type: Number,
+    description: 'Target User ID',
+    required: true
+  })
+  @ApiOkPagedResponse(UserDto, {
+    description: "Paginated list of the user's runs"
+  })
+  getRuns(
+    @Param('userID', ParseInt32SafePipe) userID: number,
+    @Query() query?: UsersGetRunsQueryDto
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
+    return this.leaderboardRunsService.getUsersRuns(userID, query);
+  }
+
+  //#endregion
+
+  //#region Activities
   @Get('/:userID/activities')
   @ApiOperation({ summary: "Returns all of a single user's activities" })
   @ApiParam({

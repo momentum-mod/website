@@ -19,7 +19,7 @@ import {
 import fastifyCookie from '@fastify/cookie';
 import multipart from '@fastify/multipart';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, PrismaConfig } from '@momentum/db';
 import Valkey from 'iovalkey';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 import { AppModule } from '../../../backend/src/app/app.module';
@@ -83,7 +83,7 @@ export async function setupE2ETestEnvironment(
   const server = app.getHttpServer();
 
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url }),
     log: [
       {
         level: 'error', // change to 'query' to debug queries!

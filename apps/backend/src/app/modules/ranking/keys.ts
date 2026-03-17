@@ -10,10 +10,12 @@ export function TrackLeaderboard({
   return `${mapID}-${gamemode}-${trackType}-${trackNum}-${style}`;
 }
 
+export const TrackLeaderboardPointsPrefix = 'track_points:';
 export function TrackLeaderboardPoints(leaderboardID: LeaderboardID): string {
-  return `track_points:${TrackLeaderboard(leaderboardID)}`;
+  return `${TrackLeaderboardPointsPrefix}:${TrackLeaderboard(leaderboardID)}`;
 }
 
+export const GamemodeLeaderboardPointsPrefix = 'gamemode_points:';
 export function GamemodeLeaderboardPoints(gamemode: Gamemode): string {
-  return `gamemode_points:${gamemode}`;
+  return `${GamemodeLeaderboardPointsPrefix}:${gamemode}`;
 }

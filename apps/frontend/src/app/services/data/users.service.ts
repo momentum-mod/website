@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  LeaderboardRun,
   PagedResponse,
   UsersGetQuery,
   UsersGetAllQuery,
   Follow,
   UsersGetCreditsQuery,
   MapCredit,
-  User
+  User,
+  UsersGetRunsQuery
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 
@@ -38,5 +40,15 @@ export class UsersService {
     return this.http.get<PagedResponse<MapCredit>>(`users/${userID}/credits`, {
       query
     });
+  }
+
+  getUserRuns(
+    userID: number,
+    query?: UsersGetRunsQuery
+  ): Observable<PagedResponse<LeaderboardRun>> {
+    return this.http.get<PagedResponse<LeaderboardRun>>(
+      `users/${userID}/runs`,
+      { query }
+    );
   }
 }

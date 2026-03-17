@@ -4,7 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, PrismaConfig } from '@momentum/db';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
@@ -16,7 +16,13 @@ export class DbService
 
   constructor() {
     super({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+      adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url })
+      // log: [
+      //   {
+      //     level: 'query', // change to 'query' to debug queries!
+      //     emit: 'stdout'
+      //   }
+      // ]
     });
   }
 

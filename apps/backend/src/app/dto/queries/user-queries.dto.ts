@@ -1,6 +1,9 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
+  Gamemode,
+  LeaderboardType,
+  UsersGetRunsQuery,
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
   UsersGetActivitiesQuery,
@@ -9,7 +12,10 @@ import {
   UsersGetCreditsExpand,
   UsersGetCreditsQuery,
   UsersGetExpand,
-  UsersGetQuery
+  UsersGetQuery,
+  MapStatus,
+  Style,
+  TrackType
 } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import {
@@ -68,6 +74,31 @@ export class UsersGetAllQueryDto
   })
   @IsOptional()
   readonly userIDs?: number[];
+}
+
+export class UsersGetRunsQueryDto
+  extends PagedQueryDto
+  implements UsersGetRunsQuery
+{
+  @EnumQueryProperty(MapStatus)
+  readonly mapStatus?: MapStatus;
+
+  @EnumQueryProperty(TrackType)
+  readonly trackType?: TrackType;
+
+  @IntQueryProperty({
+    description: 'The trackNum the run took place on'
+  })
+  readonly trackNum?: number;
+
+  @EnumQueryProperty(Style)
+  readonly style?: Style;
+
+  @EnumQueryProperty(Gamemode)
+  readonly gamemode?: Gamemode;
+
+  @EnumQueryProperty(LeaderboardType)
+  readonly leaderboardType?: LeaderboardType;
 }
 
 export class UsersGetActivitiesQueryDto

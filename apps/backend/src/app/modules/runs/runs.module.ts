@@ -8,13 +8,17 @@ import { PastRunsService } from './past-runs.service';
 import { LeaderboardService } from './leaderboard.service';
 import { RunsController } from './runs.controller';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { RankingModule } from '../ranking/ranking.module';
+import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 
 @Module({
   imports: [
     DbModule,
     forwardRef(() => MapsModule),
     FileStoreModule,
-    SteamModule
+    SteamModule,
+    RankingModule,
+    XpSystemsModule
   ],
   providers: [
     LeaderboardRunsService,

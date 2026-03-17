@@ -100,12 +100,23 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsInt()
   readonly rank: number;
 
-  // @ApiProperty({
-  //   type: Number,
-  //   description: 'Rank XP for the run'
-  // })
-  // @IsInt()
-  // readonly rankXP: number;
+  @ApiProperty({
+    type: Number,
+    description:
+      'Number of players on the corresponding leaderboard. ' +
+      "Only included on endpoints that aren't returning PagedResponseDto"
+  })
+  @IsInt()
+  readonly totalRuns: number;
+
+  @ApiProperty({
+    type: Number,
+    description:
+      'Rank points for the run. Only available for RANKED leaderboards.'
+  })
+  @IsInt()
+  @IsOptional()
+  readonly points?: number;
 
   @IdProperty()
   readonly userID: number;

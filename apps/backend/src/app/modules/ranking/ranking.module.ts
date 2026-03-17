@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { DbModule } from '../database/db.module';
 import { ValkeyModule } from '../valkey/valkey.module';
 import { RankingService } from './ranking.service';
@@ -7,8 +7,14 @@ import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [DbModule, ValkeyModule, XpSystemsModule, UsersModule],
+  imports: [
+    DbModule,
+    ValkeyModule,
+    XpSystemsModule,
+    forwardRef(() => UsersModule)
+  ],
   controllers: [RankingController],
-  providers: [RankingService]
+  providers: [RankingService],
+  exports: [RankingService]
 })
 export class RankingModule {}

@@ -1,5 +1,5 @@
 // Jest isn't resolving TS paths here, yuck!
-import { PrismaClient } from '../../../../libs/db/src/generated/client';
+import { PrismaClient, PrismaConfig } from '../../../../libs/db/src/index';
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,
@@ -41,7 +41,7 @@ export default async function globalSetup() {
 
 async function nukeDB() {
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+    adapter: new PrismaPg({ connectionString: PrismaConfig.datasource.url })
   });
 
   const tablenames = await prisma.$queryRaw<

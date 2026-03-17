@@ -14,6 +14,9 @@ export class GamemodeSelectComponent {
   /** Whether to show the "All modes" null option. */
   @Input() allowNull = true;
 
+  /** Render modes in a vertical list instead of a horizontal wrap. */
+  @Input() vertical = false;
+
   protected readonly Gamemode = Gamemode;
 
   protected select(mode: Gamemode | null): void {
