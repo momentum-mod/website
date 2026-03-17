@@ -1175,8 +1175,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const devUsers = await Promise.all(
     personalSteamIDs.split(',').map(async (steamID, i) => {
       console.log(`Making user ${steamID} an admin`);
-      return prisma.user.create({
-        data: {
+      return prisma.user.upsert({
+        where: {
+          steamID: BigInt(steamID)
+        },
+        update: {
+          roles: Role.ADMIN
+        },
+        create: {
           steamID: BigInt(steamID),
           roles: Role.ADMIN,
           alias: `Admin User ${i + 1}`,
