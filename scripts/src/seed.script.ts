@@ -196,7 +196,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   const s3EndpointUrl = process.env['STORAGE_ENDPOINT_URL'];
   const s3BucketName = process.env['STORAGE_BUCKET_NAME'];
-  const cdnUrl = process.env['CDN_URL'] ?? `${s3EndpointUrl}/${s3BucketName}`;
+  const cdnUrl = process.env['CDN_URL'] || `${s3EndpointUrl}/${s3BucketName}`;
   const s3Url = (str: string) => `${cdnUrl}/${str}`;
 
   const s3 = new S3Client({
