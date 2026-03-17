@@ -28,7 +28,7 @@ export class RankingController {
     @Query() query: RankingGetQueryDto,
     @LoggedInUser('id') loggedInUserID?: number
   ): Promise<PagedResponseDto<RankEntryDto>> {
-    return await this.rankingService.getRanks(
+    return await this.rankingService.getGamemodeRanks(
       gamemode,
       query.skip ?? 0,
       query.take ?? 20,

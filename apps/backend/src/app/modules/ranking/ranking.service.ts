@@ -127,7 +127,7 @@ export class RankingService implements OnModuleInit {
   }
 
   // TODO: e2e tests, bleh
-  async getRanks(
+  async getGamemodeRanks(
     gamemode: Gamemode,
     skip: number,
     take: number,
