@@ -126,7 +126,7 @@ export class SessionController {
     @LoggedInUser('id') userID: number,
     @Req() req: RawBodyRequest<FastifyRequest>,
     @Param('sessionID', ParseIntSafePipe) sessionID: number
-  ): Promise<CompletedRunDto> {
+  ): Promise<CompletedRunDto[]> {
     const replayBuffer = req.rawBody;
     if (!replayBuffer || !Buffer.isBuffer(replayBuffer))
       throw new BadRequestException('File is not a valid replay');

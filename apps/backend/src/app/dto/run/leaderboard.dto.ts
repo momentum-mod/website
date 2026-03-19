@@ -28,7 +28,7 @@ export class LeaderboardDto implements Leaderboard {
   @Min(1)
   readonly trackNum: number;
 
-  @EnumProperty(Style, { description: 'The trackNum the run took place on' })
+  @EnumProperty(Style, { description: 'The style of the run' })
   readonly style: number;
 
   @Exclude()

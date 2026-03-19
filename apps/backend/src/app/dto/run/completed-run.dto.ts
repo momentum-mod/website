@@ -1,7 +1,7 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt, IsNumber } from 'class-validator';
-import { CompletedRun, XpGain } from '@momentum/constants';
-import { NestedProperty } from '../decorators';
+import { CompletedRun, Style, XpGain } from '@momentum/constants';
+import { EnumProperty, NestedProperty } from '../decorators';
 import { LeaderboardRunDto } from './leaderboard-run.dto';
 
 class CosXpGain {
@@ -40,6 +40,9 @@ export class CompletedRunDto implements CompletedRun {
   })
   @IsNumber()
   readonly time: number;
+
+  @EnumProperty(Style, { description: 'The style of the run' })
+  readonly style: number;
 
   @ApiProperty({
     description: 'Whether the run is the new world record for this track',
