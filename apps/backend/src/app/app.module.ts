@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
 import pino from 'pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerGuard, ThrottlerModule, seconds } from '@nestjs/throttler';
+import { ThrottlerModule, seconds } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
@@ -186,10 +186,6 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
     {
       provide: APP_FILTER,
       useClass: ExceptionHandlerFilter
-    },
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard
     }
   ]
 })
