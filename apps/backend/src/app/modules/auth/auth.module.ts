@@ -10,6 +10,7 @@ import { JwtGuard } from './jwt/jwt.guard';
 import { JwtAuthService } from './jwt/jwt-auth.service';
 import { SteamOpenIDService } from './steam/steam-openid.service';
 import { LimitedGuard } from './limited.guard';
+import { UserIPThrottlerGuard } from './user-ip-throttler.guard';
 
 @Module({
   imports: [
@@ -34,6 +35,12 @@ import { LimitedGuard } from './limited.guard';
     {
       provide: APP_GUARD,
       useClass: LimitedGuard
+    },
+    {
+      // Provide throttler guard here instread of the app module
+      // so that it runs after the request user is set
+      provide: APP_GUARD,
+      useClass: UserIPThrottlerGuard
     },
     JwtAuthService,
     SteamOpenIDService

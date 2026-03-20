@@ -17,7 +17,7 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { Logger } from 'nestjs-pino';
 import cluster from 'node:cluster';
-import { Environment } from './app/config';
+import { Config, Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
 import { FIRST_WORKER_ENV_VAR } from './clustered';
@@ -30,9 +30,13 @@ async function bootstrap() {
     return this.toString();
   };
 
+  const env: Environment = Config.env;
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      trustProxy: env === Environment.PRODUCTION
+    }),
     {
       bufferLogs: true, // Buffer logs until Pino is attached
       rawBody: true // So we can use RawBodyRequest
@@ -43,7 +47,6 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   const configService = app.get(ConfigService);
-  const env: Environment = configService.getOrThrow('env');
 
   // Steam game auth and replay submission from game send raw octet-streams.
   // Steam auth we could limit to 2kb, but replays can be massive. Limiting
