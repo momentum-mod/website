@@ -1,11 +1,11 @@
-import { REPLAY_MAGIC, ReplayHeader } from './index';
+import { REPLAY_MAGIC, REPLAY_VERSION, ReplayHeader } from './index';
 import { Gamemode, TrackType, RunSplits, Style } from '@momentum/constants';
 
 export const BaseTime = 1000000000000;
 
 export const ReplayHeaderStub: ReplayHeader = {
   magic: REPLAY_MAGIC,
-  formatVersion: -1,
+  formatVersion: REPLAY_VERSION,
   timestamp: BaseTime + 40000,
   mapName: 'bhop_map',
   mapHash: 'A'.repeat(40),

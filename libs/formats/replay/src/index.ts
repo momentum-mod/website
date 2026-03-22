@@ -9,6 +9,7 @@ import {
 import { magic } from '@momentum/util-fn';
 
 export const REPLAY_MAGIC: int32 = magic('MMTV');
+export const REPLAY_VERSION: int32 = 2;
 export const REPLAY_HEADER_SIZE: int32 = 195;
 export const REPLAY_SPLITS_OFFSET: int32 = REPLAY_HEADER_SIZE + 4;
 
