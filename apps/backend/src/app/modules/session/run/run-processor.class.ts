@@ -300,6 +300,10 @@ export class RunProcessor {
       this.reject(ErrorType.BAD_META, 'header.magic != REPLAY_MAGIC');
     }
 
+    if (header.formatVersion !== ReplayFile.REPLAY_VERSION) {
+      this.reject(ErrorType.BAD_META, 'header.version is outdated');
+    }
+
     if (
       header.mapHash.toUpperCase() !==
       session.mmap.currentVersion.bspHash.toUpperCase()

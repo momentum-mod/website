@@ -779,6 +779,17 @@ describe('RunProcessor', () => {
       expectFail(ErrorType.BAD_META);
     });
 
+    it('should throw for bad version', () => {
+      processor = createProcessor({
+        session: { timestamps },
+        header: { formatVersion: -354 }
+      });
+
+      jest.advanceTimersByTime(runTimeMS);
+
+      expectFail(ErrorType.BAD_META);
+    });
+
     it('should throw for mismatching map hash', () => {
       processor = createProcessor({
         session: { timestamps },

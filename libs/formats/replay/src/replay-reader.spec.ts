@@ -1,7 +1,7 @@
 ﻿import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readHeader, readRunSplits, ReplayReadError } from './replay-reader';
-import { REPLAY_MAGIC, ReplayHeader } from './index';
+import { REPLAY_MAGIC, REPLAY_VERSION, ReplayHeader } from './index';
 import { Gamemode, Style, TrackType } from '@momentum/constants';
 
 describe('Replay Reader', () => {
@@ -18,7 +18,7 @@ describe('Replay Reader', () => {
     it('should correctly parse the replay header', () => {
       const expectedHeader: Partial<ReplayHeader> = {
         magic: REPLAY_MAGIC,
-        formatVersion: -104,
+        formatVersion: REPLAY_VERSION,
         timestamp: 1743356618301,
         mapName: 'bhop_eazy',
         mapHash: '07320480E9245C2363D806BC4D1661F8034709B5',

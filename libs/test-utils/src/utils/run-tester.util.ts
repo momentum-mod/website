@@ -203,7 +203,7 @@ export class RunTester {
 
     const header: ReplayFile.ReplayHeader = {
       magic: ReplayFile.REPLAY_MAGIC,
-      formatVersion: -1,
+      formatVersion: ReplayFile.REPLAY_VERSION,
       timestamp: Date.now(),
       mapName: this.props.mapName,
       mapHash: this.props.mapHash,
