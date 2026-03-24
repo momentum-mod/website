@@ -1,7 +1,6 @@
 import {
   DisabledGamemodes,
   Gamemode,
-  IncompatibleGamemodes,
   LeaderboardType,
   MapReviewSuggestion,
   MapSubmissionApproval,
@@ -16,16 +15,6 @@ import { SuggestionType, validateSuggestions } from './';
 describe('validateSuggestions', () => {
   // Has a bonus
   const zones = ZonesStub;
-
-  jest.spyOn(IncompatibleGamemodes, 'get').mockImplementation((key) =>
-    // Ahop and Bhop mutually imcompatible, Ahop also incompatible with Surf,
-    // nothing else is incompatible
-    {
-      if (key === Gamemode.AHOP) return new Set([Gamemode.BHOP, Gamemode.SURF]);
-      else if (key === Gamemode.BHOP) return new Set([Gamemode.AHOP]);
-      else return new Set();
-    }
-  );
 
   jest
     .spyOn(DisabledGamemodes, 'has')
@@ -367,131 +356,6 @@ describe('validateSuggestions', () => {
         SuggestionType.REVIEW
       )
     ).toThrow('Suggestions should not include stage tracks');
-  });
-
-  it('should throw if given incompatible gamemode suggestions', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            // validSuggestions has ahop, we mocked IncompatibleGamemodes.get to be incomp with bhop
-            gamemode: Gamemode.BHOP,
-            tier: 1,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Incompatible gamemodes Ahop and Bhop on main track');
-
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.BHOP,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Incompatible gamemodes Ahop and Bhop on main track');
-
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.BHOP,
-            tier: 1,
-            gameplayRating: 4
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Incompatible gamemodes Ahop and Bhop on main track');
-  });
-
-  it('should not if given compatible gamemode suggestions', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.SURF,
-            tier: 1,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).not.toThrow();
-
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.SURF,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).not.toThrow();
-
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.BHOP,
-            type: LeaderboardType.HIDDEN
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).not.toThrow();
-
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.SURF,
-            tier: 1,
-            gameplayRating: 7
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).not.toThrow();
   });
 
   it('should not allow suggestions for disabled gamemodes', () => {

@@ -8,7 +8,6 @@ import {
   DisabledGamemodes,
   Gamemode,
   GamemodeInfo,
-  IncompatibleGamemodes,
   MapReviewSuggestion,
   MapTag,
   mapTagEnglishName,
@@ -67,12 +66,6 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   set map(map: MMap) {
     this._map = map;
     this.availableGamemodes = Enum.values(Gamemode)
-      .filter(
-        (gamemode: Gamemode) =>
-          !this._map.submission.suggestions.some((sugg) =>
-            IncompatibleGamemodes.get(sugg.gamemode).has(gamemode)
-          )
-      )
       .filter((gamemode: Gamemode) => !DisabledGamemodes.has(gamemode))
       .map((gamemode: Gamemode) => ({
         gamemode,

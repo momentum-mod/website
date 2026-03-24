@@ -3872,7 +3872,7 @@ describe('Maps', () => {
               style: Style.NORMAL
             }
           })
-        ).toHaveLength(1);
+        ).toHaveLength(4);
 
         // Conc LBs shouldn't change
 

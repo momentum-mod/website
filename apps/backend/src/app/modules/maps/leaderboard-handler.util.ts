@@ -2,7 +2,6 @@ import {
   Gamemode,
   GamemodeCategories,
   GamemodeCategory,
-  IncompatibleGamemodes,
   DisabledGamemodes,
   LeaderboardType,
   MapSubmissionSuggestion,
@@ -49,12 +48,8 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
 ): LeaderboardProps[] {
   return (
     leaderboards
-      .flatMap(({ trackType, trackNum, linear, gamemode }) =>
+      .flatMap(({ trackType, trackNum, linear }) =>
         Enum.values(Gamemode) // Note: this will include `suggestion`
-          .filter(
-            (newGamemode) =>
-              !IncompatibleGamemodes.get(gamemode).has(newGamemode)
-          )
           .filter((newGamemode) => !DisabledGamemodes.has(newGamemode))
           // Add a style for each compatible gamemode
           .flatMap((newGamemode) =>

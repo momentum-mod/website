@@ -26,7 +26,6 @@ export * from './maps/gamemode-styles.map';
 export * from './maps/map-credit-name.map';
 export * from './maps/tick-intervals.map';
 export * from './maps/map-status-name.map';
-export * from './maps/incompatible-gamemodes.map';
 export * from './maps/map-status-change-rules.map';
 export * from './maps/role-names.map';
 export * from './maps/ban-names.map';

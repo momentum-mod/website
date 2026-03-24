@@ -1,7 +1,6 @@
 import {
   Gamemode,
   GamemodeInfo,
-  IncompatibleGamemodes,
   LeaderboardType,
   MapReviewSuggestion,
   MapSubmissionApproval,
@@ -67,43 +66,16 @@ export function validateSuggestions(
 
     for (const sugg2 of suggestions) {
       const { trackType: tt2, trackNum: tn2, gamemode: gm2 } = sugg2;
-      if (tt === tt2 && tn === tn2) {
-        if (gm === gm2) {
-          // Don't allow anything with same TT, TN and GM.
+      if (tt === tt2 && tn === tn2 && gm === gm2) {
+        // Don't allow anything with same TT, TN and GM.
 
-          // This is an Object, we're doing a rare
-          // object reference == object reference check.
-          if (sugg === sugg2) {
-            continue;
-          } else {
-            throw new SuggestionValidationError(
-              `Duplicate suggestion for ${leaderboardName(tt, tn, gm)}`
-            );
-          }
-        }
-
-        // Throw for any tracks that are *mutually incompatible* e.g. surf and
-        // bhop. This *won't* throw for something only incomp. one way - without
-        // a "primary mode" or similar would can't distinguish between say, a
-        // surf map playable in defrag (which is compat) vs a defrag map
-        // playable in surf (incomp since may as well play in bhop instead).
-        // So this check is quite weak, but not the end of the world as a
-        // reviewer can just ignore/reject stupid suggestions.
-        if (
-          IncompatibleGamemodes.get(gm)!.has(gm2) &&
-          IncompatibleGamemodes.get(gm2)!.has(gm) &&
-          // If approving, don't care about incomp if either of the lbs are
-          // going to be hidden.
-          !(
-            type === SuggestionType.APPROVAL &&
-            ((sugg as MapSubmissionApproval).type === LeaderboardType.HIDDEN ||
-              (sugg2 as MapSubmissionApproval).type === LeaderboardType.HIDDEN)
-          )
-        ) {
+        // This is an Object, we're doing a rare
+        // object reference == object reference check.
+        if (sugg === sugg2) {
+          continue;
+        } else {
           throw new SuggestionValidationError(
-            'Incompatible gamemodes ' +
-              `${GamemodeInfo.get(gm)!.name} and ${GamemodeInfo.get(gm2)!.name} on ` +
-              leaderboardName(tt, tn)
+            `Duplicate suggestion for ${leaderboardName(tt, tn, gm)}`
           );
         }
       }

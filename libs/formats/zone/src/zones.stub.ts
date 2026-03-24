@@ -1,4 +1,5 @@
 import {
+  DisabledGamemodes,
   GamemodeStyles,
   Gamemode as GM,
   MapZones,
@@ -180,10 +181,9 @@ export const ZonesStubString = JSON.stringify(ZonesStub);
  * This'll break every time we add more submodes, but is very useful
  * for tests where we want to be precise about leaderboard generation.
  */
-// prettier-ignore
-export const ZoneStubCompatGamemodes =
-  [ GM.SURF, GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3, GM.DEFRAG_VTG, 
-    GM.AHOP, GM.CLIMB_16 ];
+export const ZoneStubCompatGamemodes = Enum.values(GM).filter(
+  (gm) => !DisabledGamemodes.has(gm)
+);
 
 // prettier-ignore
 export const ZonesStubLeaderboards = [
@@ -195,8 +195,7 @@ export const ZonesStubLeaderboards = [
         { gamemode, trackType: TrackType.STAGE, trackNum: 2, style, linear: null  }
       ])
     ),
-  ...Enum.values(GM)
-    .filter((gamemode => gamemode !== GM.CLIMB_MOM ))
+  ...ZoneStubCompatGamemodes
     .flatMap((gamemode) => 
       GamemodeStyles.get(gamemode)!.values().toArray().map(style => (
         { gamemode, trackType: TrackType.BONUS, trackNum: 1, style, linear: null }
