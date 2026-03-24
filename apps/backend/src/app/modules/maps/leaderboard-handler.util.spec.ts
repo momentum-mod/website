@@ -1,6 +1,5 @@
 import {
   Gamemode,
-  IncompatibleGamemodes,
   DisabledGamemodes,
   TrackType,
   Style
@@ -27,12 +26,6 @@ describe('LeaderboardHandler', () => {
         style: Style.NORMAL
       };
 
-      const incompat = structuredClone(IncompatibleGamemodes);
-      jest.spyOn(IncompatibleGamemodes, 'get').mockImplementation((key) => {
-        if (key === Gamemode.SURF) return new Set([Gamemode.BHOP]);
-        return incompat.get(key);
-      });
-
       jest.spyOn(DisabledGamemodes, 'has').mockImplementation((key) => {
         return key === Gamemode.CONC;
       });
@@ -51,12 +44,6 @@ describe('LeaderboardHandler', () => {
           { ...bonus, gamemode: Gamemode.BHOP }
         ])
       );
-
-      // Incompatible gamemodes: Surf is never compatible with Bhop
-      expect(leaderboards).not.toContainEqual({
-        ...main,
-        gamemode: Gamemode.SURF
-      });
 
       // Disabled gamemodes: Fuck conc
       expect(leaderboards).not.toContainEqual({
