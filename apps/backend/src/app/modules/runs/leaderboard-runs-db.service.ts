@@ -195,6 +195,8 @@ export class LeaderboardRunsDbService {
   ): Promise<number[]> {
     if (args.userIDs.length === 0) return [];
 
+    return [];
+    //@ts-ignore
     const sql = TypedSql.getLeaderboardRunRankMultipleUsers(
       args.mapID,
       args.gamemode,
