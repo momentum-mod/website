@@ -29,13 +29,6 @@
         "cwd": "libs/db/src"
       }
     },
-    "push": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "prisma db push --accept-data-loss",
-        "cwd": "libs/db/src"
-      }
-    },
     "generate": {
       "executor": "nx:run-commands",
       "options": {
@@ -68,7 +61,7 @@
     "reset": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma db push --force-reset --accept-data-loss",
+        "command": "prisma migrate reset --force && docker exec valkey valkey-cli flushall",
         "cwd": "libs/db/src"
       }
     },
