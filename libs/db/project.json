@@ -46,7 +46,7 @@
     "create-migration": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma migrate dev --skip-seed --name",
+        "command": "prisma migrate dev --name",
         "cwd": "libs/db/src",
         "parallel": false
       }
