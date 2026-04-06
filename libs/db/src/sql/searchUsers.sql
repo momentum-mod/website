@@ -1,15 +1,18 @@
 -- @param {String} $1:query Search query
 -- @param {Int} $2:skip Pagination skip
 -- @param {Int} $3:take Pagination take
-
-SELECT *
-FROM "User" u
-WHERE u.alias ILIKE '%' || $1 || '%'
+SELECT
+    *
+FROM
+    "User" u
+WHERE
+    u.alias ILIKE '%' || $1 || '%'
 ORDER BY
-  CASE
-    WHEN u.alias ILIKE $1 || '%' THEN 0
-    ELSE 1
-  END,
-  u.id ASC
-OFFSET $2
+    CASE WHEN u.alias ILIKE $1 || '%' THEN
+        0
+    ELSE
+        1
+    END,
+    u.id OFFSET $2
 LIMIT $3;
+
