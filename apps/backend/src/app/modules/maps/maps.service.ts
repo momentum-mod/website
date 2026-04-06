@@ -407,9 +407,6 @@ export class MapsService {
       );
     }
 
-    let incPB = false,
-      incWR = false;
-
     // Select (and include)
     // For admins we don't need dynamic expands, just give em everything.
     let include: Prisma.MMapInclude;
@@ -429,7 +426,6 @@ export class MapsService {
       };
     } else {
       include = expandToIncludes(query.expand, {
-        without: ['personalBest', 'worldRecord'],
         mappings: [
           // Changelog and zones are quite large structures so not worth ever
           // including on the paginated query - make clients query for a specific
@@ -474,14 +470,6 @@ export class MapsService {
           };
         }
       }
-
-      if (
-        query instanceof MapsGetAllQueryDto ||
-        query instanceof MapsGetAllSubmissionQueryDto
-      ) {
-        incPB = query.expand?.includes('personalBest');
-        incWR = query.expand?.includes('worldRecord');
-      }
     }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
@@ -491,12 +479,6 @@ export class MapsService {
       skip: query.skip,
       take
     });
-
-    if (userID && (incPB || incWR)) {
-      for (const map of dbResponse[0]) {
-        await this.attachPbAndWrsToMapResponse(map, incPB, incWR, userID);
-      }
-    }
 
     return new PagedResponseDto(MapDto, dbResponse);
   }

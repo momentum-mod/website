@@ -101,9 +101,7 @@ export class MapsGetAllQueryDto
     'stats',
     'submitter',
     'credits',
-    'inFavorites',
-    'personalBest',
-    'worldRecord'
+    'inFavorites'
   ])
   readonly expand?: MapsGetAllExpand;
 
@@ -183,8 +181,6 @@ export class MapsGetAllSubmissionQueryDto
     'submitter',
     'credits',
     'inFavorites',
-    'personalBest',
-    'worldRecord',
     'reviews'
   ])
   readonly expand?: MapsGetAllSubmissionExpand;
@@ -216,8 +212,6 @@ export class MapsGetAllUserSubmissionQueryDto
     'submitter',
     'credits',
     'inFavorites',
-    'personalBest',
-    'worldRecord',
     'reviews'
   ])
   readonly expand?: MapsGetAllSubmissionExpand;
@@ -252,8 +246,6 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'stats',
     'tracks',
     'inFavorites',
-    'personalBest',
-    'worldRecord',
     'submission',
     'testInvites',
     'reviewStats'

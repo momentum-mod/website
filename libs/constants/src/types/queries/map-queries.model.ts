@@ -36,12 +36,10 @@ type BaseMapsGetAllExpand =
   | 'versionsWithZones'
   | 'credits';
 
-export type MapsGetAllExpand = Array<
-  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
->;
+export type MapsGetAllExpand = Array<BaseMapsGetAllExpand | 'inFavorites'>;
 
 export type MapsGetAllSubmissionExpand = Array<
-  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
+  BaseMapsGetAllExpand | 'inFavorites'
 >;
 
 type MapsGetAllBaseQuery = {
