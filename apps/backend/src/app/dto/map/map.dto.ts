@@ -124,11 +124,11 @@ export class MapDto implements MMap {
   @NestedProperty(LeaderboardDto, { isArray: true })
   readonly leaderboards: LeaderboardDto[];
 
-  @NestedProperty(LeaderboardRunDto, { lazy: true, isArray: true })
-  readonly worldRecords: LeaderboardRunDto[];
+  @NestedProperty(LeaderboardRunDto, { lazy: true })
+  readonly worldRecord: LeaderboardRunDto;
 
-  @NestedProperty(LeaderboardRunDto, { lazy: true, isArray: true })
-  readonly personalBests: LeaderboardRunDto[];
+  @NestedProperty(LeaderboardRunDto, { lazy: true })
+  readonly personalBest: LeaderboardRunDto;
 
   @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
   readonly testInvites?: MapTestInviteDto[];

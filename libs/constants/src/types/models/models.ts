@@ -186,8 +186,8 @@ export interface MMap {
   credits: MapCredit[];
   favorites: MapFavorite[];
   leaderboards: Leaderboard[];
-  worldRecords: LeaderboardRun[];
-  personalBests: LeaderboardRun[];
+  worldRecord: LeaderboardRun;
+  personalBest: LeaderboardRun;
   testInvites?: MapTestInvite[];
   reviewStats?: MapReviewStats;
 }

@@ -137,7 +137,7 @@ export class MapsGetAllQueryDto
   readonly leaderboardType?: LeaderboardType;
 
   @FilterQueryProperty(AllowedTagsWithQualifiers, {
-    example: "['12;1', '33;0', '52;1', '29;1]",
+    example: '12;1,33;0,52;1,29;1',
     description:
       'Array containing semicolon-separated 2-tuple strings, ' +
       'where the first part in the tuple is a MapTag value, ' +
@@ -251,6 +251,20 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'reviewStats'
   ])
   readonly expand?: MapsGetExpand;
+
+  @IntCsvQueryProperty({
+    example: '0,0,1,0',
+    description:
+      'CSV gamemode, trackType, trackNum and style to fetch the world record for'
+  })
+  worldRecord?: [Gamemode, TrackType, number, Style];
+
+  @IntCsvQueryProperty({
+    example: '0,0,1,0',
+    description:
+      'CSV gamemode, trackType, trackNum and style to fetch the user PB for'
+  })
+  personalBest?: [Gamemode, TrackType, number, Style];
 }
 
 //#endregion

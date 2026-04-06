@@ -138,7 +138,11 @@ export type MapsGetExpand = Array<
   | 'reviewStats'
 >;
 
-export type MapsGetQuery = { expand?: MapsGetExpand };
+export type MapsGetQuery = {
+  expand?: MapsGetExpand;
+  personalBest?: [Gamemode, TrackType, number, Style];
+  worldRecord?: [Gamemode, TrackType, number, Style];
+};
 
 export interface CreateMapWithFiles {
   vmfs: File[];

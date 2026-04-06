@@ -27,7 +27,6 @@ import {
   FlatMapList,
   LeaderboardType,
   MapCreditType,
-  MapsGetExpand,
   MapStatus,
   MapStatusChangeRules,
   MapSubmissionApproval,
@@ -89,6 +88,7 @@ import {
   MapsGetAllQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapsGetAllUserSubmissionQueryDto,
+  MapsGetQueryDto,
   MapSummaryDto,
   PagedResponseDto,
   UpdateMapDto
@@ -486,10 +486,9 @@ export class MapsService {
   async get(
     mapID: number | string,
     userID?: number,
-    expand?: MapsGetExpand
+    query?: MapsGetQueryDto
   ): Promise<MapDto> {
-    const include: Prisma.MMapInclude = expandToIncludes(expand, {
-      without: ['personalBest', 'worldRecord'],
+    const include: Prisma.MMapInclude = expandToIncludes(query.expand, {
       mappings: [
         { expand: 'currentVersion', value: { omit: { zones: true } } },
         { expand: 'currentVersionWithZones', model: 'currentVersion' },
@@ -520,52 +519,44 @@ export class MapsService {
       ]
     });
 
-    const incPB = expand?.includes('personalBest');
-    const incWR = expand?.includes('worldRecord');
-
-    const map = await this.getMapAndCheckReadAccess({
+    const map: any = await this.getMapAndCheckReadAccess({
       mapID,
       userID,
       include
     });
 
-    if (userID && (incPB || incWR)) {
-      await this.attachPbAndWrsToMapResponse(map, incPB, incWR, userID);
+    if (query.personalBest) {
+      if (!userID) {
+        throw new ForbiddenException(
+          'personalBest query is invalid without a login'
+        );
+      }
+
+      map.personalBest = await this.leaderboardRunsDbService.getRankedRun({
+        mapID: map.id,
+        userID: userID,
+        gamemode: query.personalBest[0],
+        trackType: query.personalBest[1],
+        trackNum: query.personalBest[2],
+        style: query.personalBest[3]
+      });
+    }
+
+    if (query.worldRecord) {
+      map.worldRecord = (
+        await this.leaderboardRunsDbService.getRankedRuns({
+          mapID: map.id,
+          gamemode: query.worldRecord[0],
+          trackType: query.worldRecord[1],
+          trackNum: query.worldRecord[2],
+          style: query.worldRecord[3],
+          skip: 0,
+          take: 1
+        })
+      )[0];
     }
 
     return DtoFactory(MapDto, map);
-  }
-
-  private async attachPbAndWrsToMapResponse(
-    map: MMap & any,
-    PB: boolean,
-    WR: boolean,
-    userID: number
-  ): Promise<void> {
-    if (PB) {
-      map.personalBests =
-        await this.leaderboardRunsDbService.getRankedRunsAllGamemodes({
-          mapID: map.id,
-          trackType: TrackType.MAIN,
-          trackNum: 1,
-          style: 0, // TODO: Style.NORMAL / GamemodeDefaultStyle... nightmare to do
-          userIDs: [userID],
-          skip: 0,
-          take: null // ?? shouldn't think work
-        });
-    }
-
-    if (WR) {
-      map.worldRecords =
-        await this.leaderboardRunsDbService.getRankedRunsAllGamemodes({
-          mapID: map.id,
-          trackType: TrackType.MAIN,
-          trackNum: 1,
-          style: 0, // TODO: Style.NORMAL / GamemodeDefaultStyle... nightmare to do
-          skip: 0,
-          take: 1
-        });
-    }
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
