@@ -14,8 +14,6 @@ export interface LeaderboardQuery {
   trackNum: number;
   style: Style;
   transaction?: ExtendedPrismaServiceTransaction;
-  skip?: number;
-  take?: number | null;
 }
 
 /**
@@ -33,6 +31,8 @@ export class LeaderboardRunsDbService {
 
   async getRankedRuns<IncludeSplits extends boolean>(
     args: LeaderboardQuery & {
+      skip?: number;
+      take?: number | null;
       // Warning: only one of these at a time is supported. Could do more SQL
       // file variations but unneeded for now.
       steamIDs?: bigint[];
@@ -100,45 +100,29 @@ export class LeaderboardRunsDbService {
   }
 
   /**
-   * In this query, skip and take are *per gamemode*, not overall.
-   * So skip=0, take=1 would give you the world record for every gamemode.
-   * @param args
+   * Get a single ranked run for a user on a specific leaderboard.
    */
-  async getRankedRunsAllGamemodes(
-    args: Omit<LeaderboardQuery, 'gamemode'> & {
-      userIDs?: number[];
-    }
-  ): Promise<Partial<LeaderboardRun>[]> {
-    const skip = args.skip === undefined ? 0 : args.skip;
-    const take = args.take === undefined ? 10 : args.take;
-
-    let sql;
-    if (args.userIDs) {
-      sql = TypedSql.getLeaderboardRunsAllGamemodesFilterUserIDs(
-        args.mapID,
-        args.trackType,
-        args.trackNum,
-        args.style,
-        args.userIDs,
-        skip,
-        take
-      );
-    } else {
-      sql = TypedSql.getLeaderboardRunsAllGamemodes(
-        args.mapID,
-        args.trackType,
-        args.trackNum,
-        args.style,
-        skip,
-        take
-      );
-    }
+  async getRankedRun(
+    args: LeaderboardQuery & { userID: number }
+  ): Promise<LeaderboardRun | undefined> {
+    const sql = TypedSql.getLeaderboardRun(
+      args.mapID,
+      args.gamemode,
+      args.trackType,
+      args.trackNum,
+      args.style,
+      args.userID
+    );
 
     const rows: any[] = args.transaction
       ? await args.transaction.$queryRawTyped(sql)
       : await this.db.$queryRawTyped(sql);
 
-    return rows.map(LeaderboardRunsDbService.mapRowToLeaderboardRun);
+    if (rows.length === 0) {
+      return undefined;
+    }
+
+    return LeaderboardRunsDbService.mapRowToLeaderboardRun(rows[0]);
   }
 
   private static mapRowToLeaderboardRun(row: any): any {
