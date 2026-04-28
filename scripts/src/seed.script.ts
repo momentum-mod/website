@@ -43,7 +43,8 @@ import {
   steamAvatarUrl,
   MapTags,
   NotificationType,
-  MapTestInviteState
+  MapTestInviteState,
+  Style
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Random from '@momentum/random';
@@ -508,7 +509,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType,
             trackNum,
             gamemode: m,
-            style: 0,
+            style: Style.NORMAL,
             linear:
               trackType === TrackType.MAIN
                 ? Zone.isLinearMainTrack(zones)
@@ -784,12 +785,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const possibleUserIDs = Random.shuffle(userIDs);
         const usedUserIDs = [];
 
-        let rank = 1;
-        let time = Random.int(0, 1000);
+        let time = Random.float(5, 30);
 
         await Promise.all(
           arrayFrom(numPastRuns, (i) => {
-            time += Random.int(100);
+            time += Random.float(0, 5);
 
             const createLbRun = i < numRuns;
             let userID: number;
@@ -815,7 +815,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
                         mmap: { connect: { id: mapID } },
                         user: { connect: { id: userID } },
                         time,
-                        rank: rank++,
                         // Just any SHA1 hash is fine so long as unique, so game
                         // can use for unique compator on these
                         replayHash: createHash('sha1')

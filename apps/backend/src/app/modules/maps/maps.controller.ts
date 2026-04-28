@@ -147,7 +147,7 @@ export class MapsController {
     if (typeof id === 'number' && id > 2 ** 31 - 1) {
       throw new BadRequestException('Map ID must be a number less than 2^31');
     }
-    return this.mapsService.get(id, userID, query.expand);
+    return this.mapsService.get(id, userID, query);
   }
 
   @Patch('/:mapID')

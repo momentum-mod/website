@@ -38,7 +38,8 @@ import {
   NotificationType,
   Role,
   TrackType,
-  MapSubmissionType
+  MapSubmissionType,
+  Style
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1231,7 +1232,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 10,
           createdAt: futureDateOffset(3)
         });
@@ -1239,7 +1239,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u2,
-          rank: 2,
           time: 20,
           createdAt: futureDateOffset(2)
         });
@@ -1247,7 +1246,6 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u3,
-          rank: 3,
           time: 30,
           flags: [1],
           createdAt: futureDateOffset(1)
@@ -1256,11 +1254,10 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 1,
           trackType: TrackType.STAGE,
           trackNum: 1,
-          style: 0,
+          style: Style.NORMAL,
           createdAt: futureDateOffset(1)
         });
       });
@@ -1303,15 +1300,7 @@ describe('Maps Part 2', () => {
           token
         }));
 
-      it('should order the list by date when given the query param orderByDate', () =>
-        req.sortByDateTest({
-          url: `maps/${map.id}/leaderboard`,
-          query: { gamemode: Gamemode.AHOP, orderByDate: true },
-          validate: LeaderboardRunDto,
-          token
-        }));
-
-      it('should be ordered by rank by default', () =>
+      it('should be ordered by rank', () =>
         req.sortTest({
           url: `maps/${map.id}/leaderboard`,
           validate: LeaderboardRunDto,
@@ -1366,17 +1355,6 @@ describe('Maps Part 2', () => {
         expect(res.body.data[1].userID).toBe(u3.id);
       });
 
-      it('should respond with expanded map data using the splits expand parameter', () =>
-        req.expandTest({
-          url: `maps/${map.id}/leaderboard`,
-          query: { gamemode: Gamemode.AHOP },
-          expand: 'splits',
-          validate: LeaderboardRunDto,
-          paged: true,
-          some: true,
-          token
-        }));
-
       // Test that permissions checks are getting called
       // Yes, u1 has runs on the map, but we don't actually test for that
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -1414,7 +1392,7 @@ describe('Maps Part 2', () => {
         map = await db.createMap();
         runs = await Promise.all(
           arrayFrom(20, (i) =>
-            db.createLbRun({ map: map, rank: i + 1, time: (i + 1) * 100 })
+            db.createLbRun({ map: map, time: (i + 1) * 100 })
           )
         );
         u7 = runs[6].user;
@@ -1445,22 +1423,6 @@ describe('Maps Part 2', () => {
         expect(rankIndex).toBe(12);
       });
 
-      it('should return a list of ranks around your rank filter by userID if given', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/leaderboard`,
-          query: {
-            gamemode: Gamemode.AHOP,
-            filter: 'around',
-            userIDs: u7.id
-          },
-          status: 200,
-          token: u7Token,
-          validatePaged: { type: LeaderboardRunDto, count: 1 }
-        });
-
-        expect(res.body.data[0].userID).toBe(u7.id);
-      });
-
       it('should 401 when no access token is provided', () =>
         req.get({
           url: `maps/${map.id}/leaderboard`,
@@ -1488,15 +1450,13 @@ describe('Maps Part 2', () => {
           await db.createLbRun({
             map: map,
             user: user,
-            rank: i + 2,
             time: (i + 2) * 1000
           });
 
         await db.createLbRun({
           user: user,
           map: map,
-          time: 1,
-          rank: 1
+          time: 1
         });
       });
 
@@ -1556,14 +1516,12 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          rank: 1,
           time: 1
         });
 
         await db.createLbRun({
           map: map,
           user: u2,
-          rank: 2,
           time: 2
         });
 
@@ -1572,7 +1530,6 @@ describe('Maps Part 2', () => {
           user: u2,
           trackType: TrackType.STAGE,
           trackNum: 1,
-          rank: 1,
           time: 2
         });
       });
@@ -1694,10 +1651,9 @@ describe('Maps Part 2', () => {
         await db.createLbRun({
           map,
           user,
-          rank: 1,
           trackType: TrackType.MAIN,
           trackNum: 1,
-          style: 0,
+          style: Style.NORMAL,
           gamemode: Gamemode.AHOP
         });
       });

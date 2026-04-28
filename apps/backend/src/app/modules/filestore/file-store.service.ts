@@ -86,6 +86,33 @@ export class FileStoreService {
   }
 
   /**
+   * Copy multiple objects concurrently with a bounded concurrency limit.
+   * S3 has no native bulk-copy API, so this throttles individual CopyObject
+   * calls to avoid exhausting the HTTP connection pool.
+   *
+   * @param copies - Array of { fromKey, toKey } pairs to copy.
+   * @param concurrency - Max number of in-flight copy requests (default 10).
+   * @returns `true` if all copies succeeded, `false` if any source was missing.
+   * @throws S3ServiceException
+   */
+  async copyFiles(
+    copies: Array<{ fromKey: string; toKey: string }>,
+    concurrency = 10
+  ): Promise<boolean> {
+    let allFound = true;
+
+    for (let i = 0; i < copies.length; i += concurrency) {
+      const batch = copies.slice(i, i + concurrency);
+      const results = await Promise.all(
+        batch.map(({ fromKey, toKey }) => this.copyFile(fromKey, toKey))
+      );
+      if (results.some((r) => !r)) allFound = false;
+    }
+
+    return allFound;
+  }
+
+  /**
    * Delete a file from cloud storage.
    *
    * @returns `true` if file was found and deleted, `false` if file was missing.

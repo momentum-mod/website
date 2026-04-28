@@ -36,12 +36,10 @@ type BaseMapsGetAllExpand =
   | 'versionsWithZones'
   | 'credits';
 
-export type MapsGetAllExpand = Array<
-  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
->;
+export type MapsGetAllExpand = Array<BaseMapsGetAllExpand | 'inFavorites'>;
 
 export type MapsGetAllSubmissionExpand = Array<
-  BaseMapsGetAllExpand | 'inFavorites' | 'personalBest' | 'worldRecord'
+  BaseMapsGetAllExpand | 'inFavorites'
 >;
 
 type MapsGetAllBaseQuery = {
@@ -140,7 +138,11 @@ export type MapsGetExpand = Array<
   | 'reviewStats'
 >;
 
-export type MapsGetQuery = { expand?: MapsGetExpand };
+export type MapsGetQuery = {
+  expand?: MapsGetExpand;
+  personalBest?: [Gamemode, TrackType, number, Style];
+  worldRecord?: [Gamemode, TrackType, number, Style];
+};
 
 export interface CreateMapWithFiles {
   vmfs: File[];
@@ -235,11 +237,9 @@ export type MapLeaderboardGetQuery = PagedQuery & {
   trackType?: TrackType; // Default 0
   trackNum?: number; // Default 1
   style?: Style; // Default 0
-  expand?: MapRunsGetExpand;
   filter?: MapRunsGetFilter;
   userIDs?: number[];
   steamIDs?: string[];
-  orderByDate?: boolean;
 };
 
 export type MapLeaderboardGetRunQuery = PagedQuery & {

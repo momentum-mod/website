@@ -16,7 +16,8 @@ import {
   AdminGetAdminActivitiesQuery,
   AdminActivity,
   AdminAnnouncement,
-  CreateMapVersionWithFiles
+  CreateMapVersionWithFiles,
+  LeaderboardRun
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 import { HttpEvent } from '@angular/common/http';
@@ -94,6 +95,26 @@ export class AdminService {
         placeholderID: placeholder.id,
         userID: realUser.id
       }
+    });
+  }
+
+  deleteRun(run: LeaderboardRun, reason: string): Observable<void> {
+    return this.http.post('admin/delete-run', {
+      body: {
+        mapID: run.mapID,
+        userID: run.userID,
+        gamemode: run.gamemode,
+        trackType: run.trackType,
+        trackNum: run.trackNum,
+        style: run.style,
+        reason
+      }
+    });
+  }
+
+  deleteAllRuns(userID: number, reason: string): Observable<void> {
+    return this.http.post(`admin/delete-runs/${userID}`, {
+      body: { reason }
     });
   }
 

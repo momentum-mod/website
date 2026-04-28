@@ -29,17 +29,10 @@
         "cwd": "libs/db/src"
       }
     },
-    "push": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "prisma db push --accept-data-loss",
-        "cwd": "libs/db/src"
-      }
-    },
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node with-pg-lite.js \"prisma db push --skip-generate && prisma generate --no-hints --sql\"",
+        "command": "node with-pg-lite.js \"prisma db push && prisma generate --no-hints --sql\"",
         "cwd": "libs/db/src"
       }
     },
@@ -53,7 +46,7 @@
     "create-migration": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma migrate dev --skip-seed --name",
+        "command": "prisma migrate dev --name",
         "cwd": "libs/db/src",
         "parallel": false
       }
@@ -68,7 +61,7 @@
     "reset": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prisma db push --force-reset --accept-data-loss",
+        "command": "prisma migrate reset --force && docker exec valkey valkey-cli flushall",
         "cwd": "libs/db/src"
       }
     },

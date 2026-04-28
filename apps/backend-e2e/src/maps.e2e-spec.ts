@@ -516,62 +516,6 @@ describe('Maps', () => {
         });
       });
 
-      it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
-
-        const res = await req.get({
-          url: 'maps',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'worldRecord' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === mEarth.id);
-        expect(map).toMatchObject({
-          worldRecords: [
-            { rank: 1, gamemode: Gamemode.AHOP, user: { id: u2.id } }
-          ]
-        });
-      });
-
-      it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
-
-        const res = await req.get({
-          url: 'maps',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'personalBest' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === mEarth.id);
-        expect(map).toMatchObject({
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
-        });
-      });
-
-      it('should respond properly with both personalBest and worldRecord expansions', async () => {
-        await db.createLbRun({ map: mEarth, user: u2, time: 5, rank: 1 });
-        await db.createLbRun({ map: mEarth, user: u1, time: 10, rank: 2 });
-
-        const res = await req.get({
-          url: 'maps',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'worldRecord,personalBest' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === mEarth.id);
-        expect(map).toMatchObject({
-          worldRecords: [{ rank: 1, user: { id: u2.id } }],
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
-        });
-      });
-
       it('should respond with filtered maps when using the difficultyLow filter', async () => {
         await Promise.all([
           prisma.leaderboard.updateMany({
@@ -760,7 +704,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -772,7 +716,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -810,7 +754,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -822,7 +766,7 @@ describe('Maps', () => {
             trackType: TrackType.MAIN,
             trackNum: 1,
             style: Style.NORMAL,
-            runs: { create: { userID: u1.id, rank: 1, time: 1, splits: {} } }
+            runs: { create: { userID: u1.id, time: 1, splits: {} } }
           }
         });
 
@@ -2098,57 +2042,62 @@ describe('Maps', () => {
         });
       });
 
-      it("should respond with the map's WR when using the worldRecord expansion", async () => {
+      it("should respond with the map's WR when requested", async () => {
         await db.createLbRun({
           map: map,
           user: u2,
-          time: 5,
-          rank: 1
+          time: 5
         });
 
         const res = await req.get({
           url: `maps/${map.id}`,
           status: 200,
-          query: { expand: 'worldRecord' },
+          query: {
+            worldRecord: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`
+          },
           token: u1Token
         });
 
         expect(res.body).toMatchObject({
-          worldRecords: [{ rank: 1, user: { id: u2.id } }]
+          worldRecord: { rank: 1, user: { id: u2.id } }
         });
       });
 
-      it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
+      it("should respond with the logged in user's PB when requested", async () => {
         await db.createLbRun({
           map: map,
           user: u1,
-          time: 10,
-          rank: 2
+          time: 10
         });
 
         const res = await req.get({
           url: `maps/${map.id}`,
           status: 200,
-          query: { expand: 'personalBest' },
+          query: {
+            personalBest: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`
+          },
           token: u1Token
         });
 
         expect(res.body).toMatchObject({
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
+          personalBest: { rank: 2, user: { id: u1.id } }
         });
       });
 
-      it('should respond properly with both personalBest and worldRecord expansions', async () => {
+      it('should respond with both personalBest and worldRecord when requested', async () => {
         const res = await req.get({
           url: `maps/${map.id}`,
           status: 200,
-          query: { expand: 'worldRecord,personalBest' },
+          query: {
+            worldRecord: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`,
+            personalBest: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`
+          },
           token: u1Token
         });
 
         expect(res.body).toMatchObject({
-          worldRecords: [{ rank: 1, user: { id: u2.id } }],
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
+          worldRecord: { rank: 1, user: { id: u2.id } },
+          personalBest: { rank: 2, user: { id: u1.id } }
         });
       });
 
@@ -2415,7 +2364,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user: u1,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.RJ,
           trackType: TrackType.MAIN,
           trackNum: 1,
@@ -2425,7 +2374,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user: u1,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.BONUS,
           trackNum: 1,
@@ -3018,8 +2967,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3065,8 +3013,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3159,8 +3106,7 @@ describe('Maps', () => {
               create: {
                 userID: u1.id,
                 time: 1,
-                splits: {},
-                rank: 1
+                splits: {}
               }
             }
           }
@@ -3854,7 +3800,7 @@ describe('Maps', () => {
         await db.createLbRun({
           map,
           user,
-          rank: 1,
+          time: 1,
           gamemode: Gamemode.CONC,
           trackType: TrackType.MAIN
         });
@@ -4290,8 +4236,7 @@ describe('Maps', () => {
         const run = await db.createLbRun({
           map: map,
           user,
-          time: 1,
-          rank: 1
+          time: 1
         });
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
@@ -4793,68 +4738,6 @@ describe('Maps', () => {
           token: u1Token,
           some: true
         });
-      });
-
-      it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createLbRun({
-          map: pubMap1,
-          user: u2,
-          time: 5,
-          rank: 1
-        });
-
-        const res = await req.get({
-          url: 'maps/submissions',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'worldRecord' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === pubMap1.id);
-        expect(map).toMatchObject({
-          worldRecords: [{ rank: 1, user: { id: u2.id } }]
-        });
-      });
-
-      it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createLbRun({
-          map: pubMap1,
-          user: u1,
-          time: 10,
-          rank: 2
-        });
-
-        const res = await req.get({
-          url: 'maps/submissions',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'personalBest' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === pubMap1.id);
-        expect(map).toMatchObject({
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
-        });
-      });
-
-      it('should respond properly with both personalBest and worldRecord expansions', async () => {
-        const res = await req.get({
-          url: 'maps/submissions',
-          status: 200,
-          validatePaged: MapDto,
-          query: { expand: 'worldRecord,personalBest' },
-          token: u1Token
-        });
-
-        const map = res.body.data.find((map) => map.id === pubMap1.id);
-        expect(map).toMatchObject({
-          worldRecords: [{ rank: 1, user: { id: u2.id } }],
-          personalBests: [{ rank: 2, user: { id: u1.id } }]
-        });
-
-        await db.cleanup('leaderboardRun');
       });
 
       it('should respond with only pub and fa maps if the user has no special relations', async () => {
