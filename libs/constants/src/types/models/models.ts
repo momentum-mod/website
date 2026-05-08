@@ -428,6 +428,7 @@ export interface Segment {
 export interface Zone {
   regions?: Region[];
   filtername?: string;
+  filterNegated?: boolean;
 }
 
 export interface Region {
