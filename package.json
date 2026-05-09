@@ -58,6 +58,7 @@
     "class-validator": "0.14.2",
     "discord.js": "14.22.1",
     "dotenv-cli": "10.0.0",
+    "echarts": "^6.0.0",
     "fast-vdf": "2.0.5",
     "fast-xml-parser": "5.2.5",
     "flag-icons": "7.5.0",

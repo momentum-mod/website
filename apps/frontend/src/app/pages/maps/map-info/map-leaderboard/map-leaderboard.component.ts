@@ -43,11 +43,13 @@ import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RecordProgressionChartComponent } from '../../../../components/charts/record-progression-chart.component';
 
 enum LeaderboardFilterType {
   TOP10 = 1,
   AROUND = 2,
-  FRIENDS = 3
+  FRIENDS = 3,
+  WR_PROGRESSION = 4
 }
 
 export interface ActiveTrack {
@@ -73,7 +75,8 @@ export interface ActiveTrack {
     Select,
     FormsModule,
     TimingPipe,
-    TimeAgoPipe
+    TimeAgoPipe,
+    RecordProgressionChartComponent
   ]
 })
 export class MapLeaderboardComponent implements OnChanges {
@@ -89,7 +92,8 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly LeaderboardFilterTypeDropdown = [
     { label: 'Top 10', type: LeaderboardFilterType.TOP10 },
     { label: 'Around', type: LeaderboardFilterType.AROUND },
-    { label: 'Friend', type: LeaderboardFilterType.FRIENDS }
+    { label: 'Friend', type: LeaderboardFilterType.FRIENDS },
+    { label: 'WR Progression', type: LeaderboardFilterType.WR_PROGRESSION }
   ];
   protected readonly mapTagEnglishName = mapTagEnglishName;
   protected readonly styleEnglishName = styleEnglishName;
@@ -104,6 +108,7 @@ export class MapLeaderboardComponent implements OnChanges {
   // support for scrolling, jump-tos, and filtering. For now it's just in sync
   // with the game version. We'll do fancier stuff at 0.11.0.
   protected activeType: LeaderboardFilterType;
+  protected readonly filterTypes = LeaderboardFilterType;
   protected activeTags: MapTag[];
 
   protected runs: LeaderboardRun[] = [];
@@ -213,6 +218,8 @@ export class MapLeaderboardComponent implements OnChanges {
       query.filter = 'friends';
     if (this.activeType === LeaderboardFilterType.AROUND)
       query.filter = 'around';
+    // if (this.activeType === LeaderboardFilterType.WR_PROGRESSION)
+    // TODO: add proper filter
 
     return this.leaderboardService
       .getRuns(this.map.id, query)
