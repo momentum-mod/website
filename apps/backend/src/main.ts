@@ -1,4 +1,5 @@
 import './instrumentation'; // This must be first import!!
+import '@prisma/client'; // PLACEHOLDER: Makes nx add prisma client to dependencies
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
