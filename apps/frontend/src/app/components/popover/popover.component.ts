@@ -27,6 +27,9 @@ export class PopoverComponent {
   /**
    * https://www.oddbird.net/2025/01/29/anchor-position-validity/
    * an anchor should typically be a sibling element, or sibling to an ancestor, but not a direct ancestor
+   * Name must include "--".
+   * Each name must be unique, if you need to dynamically generate anchor names, you can do the following:
+   * protected readonly anchorName = `--someMenu-${Math.random().toString(36).substring(2, 12)}`;
    */
   @Input() anchorName: string;
 

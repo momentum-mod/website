@@ -1,4 +1,4 @@
-<div [style.anchor-name]="'--chip-anchor'" class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
+<div [style.anchor-name]="anchorName" class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
   <button
     (click)="op.toggle()"
     [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
@@ -41,7 +41,7 @@
     </div>
   }
 </div>
-<m-popover #op [classList]="'p-0'" anchorName="--chip-anchor">
+<m-popover #op [classList]="'p-0'" [anchorName]="anchorName">
   <div class="flex max-w-xl flex-wrap gap-2">
     @for (chip of available; track $index) {
       <button
