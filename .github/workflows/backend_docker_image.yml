@@ -27,14 +27,14 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: Prisma Cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
