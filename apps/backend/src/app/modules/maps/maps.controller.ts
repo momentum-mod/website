@@ -748,7 +748,6 @@ export class MapsController {
   //#region Featured Maps
 
   @Get('/featured')
-  @BypassJwtAuth()
   @ApiOperation({
     summary: 'Retrieve featured maps for each gamemode, refreshed every hour'
   })
