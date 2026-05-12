@@ -113,6 +113,10 @@ export class ZoneDto /* extends JsonifiableDto */ implements Zone {
       'A collection of regions. In most cases just a single region, but the format is structured this way so multiple are possible.'
   })
   readonly regions: RegionDto[];
+
+  @IsBoolean()
+  @IsOptional()
+  readonly filterNegated?: boolean;
 }
 
 export class SegmentDto /* extends JsonifiableDto */ implements SegmentDto {
