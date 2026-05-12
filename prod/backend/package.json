@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "migrate": "prisma migrate deploy",
+    "migrate": "prisma migrate --config prisma/prisma.config.ts deploy",
     "start": "node main.js"
   }
 }

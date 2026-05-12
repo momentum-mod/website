@@ -7,6 +7,7 @@ RUN useradd --system --user-group --create-home backend
 
 COPY ./dist/apps/backend .
 COPY ./libs/db/src/schema.prisma ./prisma/
+COPY ./libs/db/src/prisma.config.ts ./prisma/
 COPY ./libs/db/src/migrations/ ./prisma/migrations/
 
 RUN chown -R backend:backend .
