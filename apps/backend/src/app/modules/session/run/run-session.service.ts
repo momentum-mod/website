@@ -544,7 +544,7 @@ export class RunSessionService {
         }
       });
     } else {
-      newPB = await this.db.leaderboardRun.create({
+      newPB = await tx.leaderboardRun.create({
         data: {
           userID: submittedRun.userID,
           mapID: submittedRun.mapID,
@@ -562,11 +562,12 @@ export class RunSessionService {
     }
 
     newPB.rank = await this.leaderboardRunsDbService.getUserRank({
+      transaction: tx,
       mapID: submittedRun.mapID,
       gamemode: submittedRun.gamemode,
       trackType: submittedRun.trackType,
       trackNum: submittedRun.trackNum,
-      style: Style.NORMAL,
+      style: style,
       userID: submittedRun.userID
     });
 

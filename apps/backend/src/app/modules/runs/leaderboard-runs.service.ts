@@ -47,7 +47,8 @@ export class LeaderboardRunsService {
     });
 
     if (
-      [query.userIDs, query.steamIDs, query.filter].filter(Boolean).length > 1
+      [query.userIDs, query.steamIDs, query.filter?.[0]].filter(Boolean)
+        .length > 1
     ) {
       throw new BadRequestException(
         'Only one of userIDs, steamIDs or filter may be included'
