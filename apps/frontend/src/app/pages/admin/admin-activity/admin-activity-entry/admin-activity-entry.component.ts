@@ -141,7 +141,7 @@ export class AdminActivityEntryComponent implements OnInit {
         // provided, we just show that.
         const data = activity.oldData;
         return {
-          actionText: `deleted run on ${data.map.name} (mapID ${data.mapID} trackType ${data.trackType}, trackNum ${data.trackNum}), style ${data.style} for user`,
+          actionText: `deleted run on ${data.mmap.name} (mapID ${data.mapID} trackType ${data.trackType}, trackNum ${data.trackNum}), style ${data.style} for user`,
           targetName: data.user.alias,
           targetLink: '/profile/' + data.user.id
         };
