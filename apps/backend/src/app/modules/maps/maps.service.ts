@@ -1429,7 +1429,7 @@ export class MapsService {
           )
         ) {
           void this.discordNotificationService.sendMapContentApprovalNotification(
-            await this.getMapInfoForNotification(map.id)
+            await this.getMapInfoForNotification(map.id, tx)
           );
         } else if (
           newStatus === MapStatus.PUBLIC_TESTING &&
@@ -1438,7 +1438,7 @@ export class MapsService {
           )
         ) {
           void this.discordNotificationService.sendPublicTestingNotification(
-            await this.getMapInfoForNotification(map.id)
+            await this.getMapInfoForNotification(map.id, tx)
           );
         } else if (
           newStatus === MapStatus.APPROVED &&
@@ -1447,7 +1447,7 @@ export class MapsService {
           )
         ) {
           void this.discordNotificationService.sendApprovedNotification(
-            await this.getMapInfoForNotification(map.id)
+            await this.getMapInfoForNotification(map.id, tx)
           );
         }
       }
@@ -2289,8 +2289,11 @@ export class MapsService {
     });
   }
 
-  async getMapInfoForNotification(mapID: number) {
-    return await this.db.mMap.findUnique({
+  async getMapInfoForNotification(
+    mapID: number,
+    transaction?: ExtendedPrismaServiceTransaction
+  ) {
+    return await (transaction ? transaction : this.db).mMap.findUnique({
       where: { id: mapID },
       include: {
         info: true,

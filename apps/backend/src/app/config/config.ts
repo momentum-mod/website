@@ -13,7 +13,7 @@
   JWT_REFRESH_EXPIRY_TIME,
   MAX_MAP_IMAGE_SIZE,
   PRE_SIGNED_URL_EXPIRE_TIME,
-  GamemodeCategory
+  Gamemode
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { ConfigInterface, Environment } from './config.interface';
@@ -95,14 +95,13 @@ export const ConfigFactory = (): ConfigInterface => {
         process.env['DISCORD_CONTENT_APPROVAL_CHANNEL'] ?? '',
       reviewChannel: process.env['DISCORD_REVIEW_CHANNEL'] ?? '',
       statusChannels: Object.fromEntries(
-        Enum.values(GamemodeCategory).map((cat) => [
-          cat,
+        Enum.values(Gamemode).map((gm) => [
+          gm,
           isTest
             ? ''
-            : (process.env[`DISCORD_STATUS_CHANNEL_${GamemodeCategory[cat]}`] ??
-              '')
+            : (process.env[`DISCORD_STATUS_CHANNEL_${Gamemode[gm]}`] ?? '')
         ])
-      ) as Record<GamemodeCategory, string>,
+      ) as Record<Gamemode, string>,
       unrankedNotifications:
         process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true'
     },

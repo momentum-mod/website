@@ -12,7 +12,6 @@ import {
 import { DiscordService } from '../discord/discord.service';
 import {
   MapSubmissionSuggestion,
-  GamemodeCategories,
   GamemodeInfo,
   TrackType,
   imgLargePath,
@@ -22,7 +21,6 @@ import {
   Gamemode,
   steamAvatarUrl,
   MapStatuses,
-  GamemodeCategory,
   MapReviewSuggestion,
   TrackTypeName,
   mapTagEnglishName
@@ -119,21 +117,16 @@ export class MapDiscordNotifications {
       }
     });
 
-    const categories = this.getGamemodeCategories(
-      info.rankedGamemodes,
-      info.unrankedGamemodes
-    );
-
-    await this.broadcastToCategories(
+    await this.broadcastToGamemodes(
       `:warning: A new map is available for public testing! :warning: Post feedback in ${thread.url}`,
       mapEmbed,
-      categories.ranked
+      info.rankedGamemodes
     );
     if (this.config.getOrThrow('discord.unrankedNotifications'))
-      await this.broadcastToCategories(
+      await this.broadcastToGamemodes(
         `:warning: A new **UNRANKED** map is available for public testing! :warning: Post feedback in ${thread.url}`,
         mapEmbed,
-        categories.unranked
+        info.unrankedGamemodes
       );
   }
 
@@ -148,22 +141,17 @@ export class MapDiscordNotifications {
       info.leaderboards
     );
 
-    const categories = this.getGamemodeCategories(
-      info.rankedGamemodes,
-      info.unrankedGamemodes
-    );
-
-    await this.broadcastToCategories(
+    await this.broadcastToGamemodes(
       ':white_check_mark: A new map has been fully approved and added! :white_check_mark:',
       mapEmbed,
-      categories.ranked,
+      info.rankedGamemodes,
       true
     );
     if (this.config.getOrThrow('discord.unrankedNotifications'))
-      await this.broadcastToCategories(
+      await this.broadcastToGamemodes(
         ':white_check_mark: A new **UNRANKED** map has been fully approved and added! :white_check_mark:',
         mapEmbed,
-        categories.unranked,
+        info.unrankedGamemodes,
         true
       );
   }
@@ -289,20 +277,20 @@ export class MapDiscordNotifications {
     return embed;
   }
 
-  private async broadcastToCategories(
+  private async broadcastToGamemodes(
     text: string,
     embed: APIEmbed,
-    categories: Array<GamemodeCategory>,
+    gamemodes: Array<Gamemode>,
     crosspost = false
   ): Promise<void> {
-    await Promise.all(
-      categories.map(async (category) => {
-        if (!this.discord.isEnabled()) return;
+    const channelIDs = gamemodes
+      .map((gm) => this.config.getOrThrow(`discord.statusChannels.${gm}`))
+      .filter(Boolean)
+      .filter((id, i, arr) => arr.indexOf(id) === i);
 
-        const channelID = this.config.getOrThrow(
-          `discord.statusChannels.${category}`
-        );
-        if (channelID === '') return;
+    await Promise.all(
+      channelIDs.map(async (channelID) => {
+        if (!this.discord.isEnabled()) return;
 
         // Cached in Discord.js
         const channel = await this.discord.channels.fetch(channelID);
@@ -374,27 +362,6 @@ export class MapDiscordNotifications {
         .filter(({ type }) => type === LeaderboardType.UNRANKED)
         .map(({ gamemode }) => gamemode)
     };
-  }
-
-  private getGamemodeCategories(
-    rankedGamemodes: Gamemode[],
-    unrankedGamemodes: Gamemode[]
-  ): {
-    ranked: GamemodeCategory[];
-    unranked: GamemodeCategory[];
-  } {
-    const ranked = GamemodeCategories.entries()
-      .toArray()
-      .filter(([, modes]) => modes.some((gm) => rankedGamemodes.includes(gm)))
-      .map(([cat]) => cat);
-
-    const unranked = GamemodeCategories.entries()
-      .toArray()
-      .filter(([, modes]) => modes.some((gm) => unrankedGamemodes.includes(gm)))
-      .map(([cat]) => cat)
-      .filter((cat) => !ranked.includes(cat));
-
-    return { ranked, unranked };
   }
 }
 
