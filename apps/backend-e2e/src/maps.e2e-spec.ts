@@ -22,7 +22,6 @@ import {
   TrackType,
   LeaderboardType,
   FlatMapList,
-  GamemodeCategory,
   MAX_OPEN_MAP_SUBMISSIONS,
   MapTag,
   MapSortType,
@@ -5481,7 +5480,7 @@ describe('Maps', () => {
       );
     });
 
-    it('should send multiple discord notifications for different gamemode categories', async () => {
+    it('should send multiple discord notifications for different gamemodes', async () => {
       const map = await db.createMap({
         ...createMapData,
         status: MapStatus.FINAL_APPROVAL,
@@ -5553,8 +5552,8 @@ describe('Maps', () => {
 
       const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
       expect(requestUrls.sort()).toEqual(
-        [GamemodeCategory.RJ, GamemodeCategory.CONC].map((gc) =>
-          Routes.channelMessages(gc.toString())
+        [Gamemode.CONC, Gamemode.RJ].map((gm) =>
+          Routes.channelMessages(gm.toString())
         )
       );
 

@@ -1,4 +1,4 @@
-﻿import { GamemodeCategory } from '@momentum/constants';
+﻿import { Gamemode } from '@momentum/constants';
 import * as pino from 'pino';
 
 export enum Environment {
@@ -67,7 +67,7 @@ export interface ConfigInterface {
     guild: string;
     contentApprovalChannel: string;
     reviewChannel: string;
-    statusChannels: Record<GamemodeCategory, string>;
+    statusChannels: Record<Gamemode, string>;
     unrankedNotifications: boolean;
   };
   mapListUpdateSchedule: string;
