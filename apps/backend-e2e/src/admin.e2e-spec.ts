@@ -2986,7 +2986,7 @@ describe('Admin', () => {
         });
       });
 
-      it('should not allow a mod to delete a leaderboard run and archive the replay', () =>
+      it('should allow a mod to delete a leaderboard run and archive the replay', () =>
         req.post({
           url: 'admin/delete-run',
           body: {
@@ -2997,7 +2997,7 @@ describe('Admin', () => {
             style: run.style,
             userID: run.userID
           },
-          status: 403,
+          status: 204,
           token: modToken
         }));
 
@@ -3108,13 +3108,23 @@ describe('Admin', () => {
         });
       });
 
-      it('should return 403 for a moderator', () =>
-        req.post({
+      it("should allow a moderator to purge a user's leaderboard runs", async () => {
+        await db.createLbRun({
+          user,
+          gamemode: Gamemode.RJ,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: Style.NORMAL,
+          time: 1000
+        });
+
+        await req.post({
           url: `admin/delete-runs/${user.id}`,
           body: { reason: 'im an evil mod' },
-          status: 403,
+          status: 204,
           token: modToken
-        }));
+        });
+      });
 
       it('should return 404 if the user does not exist', () =>
         req.post({

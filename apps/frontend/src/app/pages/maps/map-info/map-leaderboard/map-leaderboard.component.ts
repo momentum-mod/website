@@ -232,8 +232,8 @@ export class MapLeaderboardComponent implements OnChanges {
     );
   }
 
-  get isAdmin() {
-    return this.localUserService.isAdmin;
+  get isModOrAdmin() {
+    return this.localUserService.isMod || this.localUserService.isAdmin;
   }
 
   deleteRun(run: LeaderboardRun) {

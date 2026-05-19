@@ -255,6 +255,7 @@ export class AdminController {
   }
 
   @Post('/delete-run')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteLeaderboardRun(
     @Body() body: AdminDeleteRunDto,
@@ -264,6 +265,7 @@ export class AdminController {
   }
 
   @Post('/delete-runs/:userID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserRuns(
     @Param('userID', ParseInt32SafePipe) userID: number,
