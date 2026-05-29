@@ -1,6 +1,6 @@
 /*
 * This component's game UI sibling lives at
-* https://github.com/momentum-mod/panorama/blob/master/styles/pages/main-menu.scss#L131 
+* https://github.com/momentum-mod/panorama/blob/master/styles/pages/main-menu.scss#L131
 */
 
 /* This isn't a pointless div, it's needed for variable sidenav width (seriously) */
@@ -37,7 +37,7 @@
     }
   }
 
-  & m-icon {
+  & > * > m-icon {
     /* Icon buttons are 3rem on mobile (still a decent tap target), 4.5rem on
        desktop where the header is taller. */
     padding: 0.75rem;
@@ -49,7 +49,7 @@
 }
 
 @media (min-width: 768px) {
-  .header m-icon {
+  .header > * > m-icon {
     padding: 0.875rem;
     width: 4.5rem;
   }
