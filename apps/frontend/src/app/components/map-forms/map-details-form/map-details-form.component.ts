@@ -5,7 +5,7 @@ import {
   OnInit,
   inject,
   input,
-  viewChildren
+  viewChild
 } from '@angular/core';
 import {
   MapSubmissionType,
@@ -108,7 +108,8 @@ export class MapDetailsFormComponent implements OnInit {
     return this.submissionType.value === MapSubmissionType.PORT;
   });
 
-  readonly tooltips = viewChildren(TooltipDirective);
+  private readonly mapNameTooltip =
+    viewChild<TooltipDirective>('mapNameTooltip');
 
   ngOnInit() {
     this.name.statusChanges
@@ -117,12 +118,8 @@ export class MapDetailsFormComponent implements OnInit {
   }
 
   onNameStatusChange(status: FormControlStatus) {
-    const tooltip = TooltipDirective.findByContext(
-      this.tooltips(),
-      'mapNameError'
-    );
     if (status !== 'INVALID') {
-      tooltip.hide();
+      this.mapNameTooltip().hide();
       return;
     }
 
@@ -136,10 +133,12 @@ export class MapDetailsFormComponent implements OnInit {
       } else if (errors['pattern']) {
         str =
           'Name must consist of lowercase letters, _ and -, and cannot start with a number.';
+      } else if (errors['required']) {
+        str = 'Map name cannot be empty';
       }
-      tooltip.setAndShow(str);
+      this.mapNameTooltip().setAndShow(str);
     } else {
-      tooltip.hide();
+      this.mapNameTooltip().hide();
     }
   }
 

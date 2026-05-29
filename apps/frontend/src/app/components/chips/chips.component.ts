@@ -63,8 +63,6 @@ export class ChipsComponent implements ControlValueAccessor {
 
   readonly typeName = input('Chip');
 
-  protected readonly anchorName = `--chips-${Math.random().toString(36).substring(2, 12)}`;
-
   /**
    * You can provide a function that maps values to strings.
    */

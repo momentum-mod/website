@@ -53,7 +53,6 @@ export class UserSearchComponent
   public itemsName = 'users';
   protected readonly searchBySteam = signal(false);
   protected readonly selectedIdx = signal(0);
-  protected readonly anchorName = `--userSearch-${Math.random().toString(36).substring(2, 12)}`;
 
   /**
    * Show a button for opening the user profile in a separate tab. Used when a

@@ -1,7 +1,7 @@
-<div [style.anchor-name]="anchorName" class="flex flex-wrap items-center gap-1.5 inputlike px-1.5 py-1.5">
+<div #chipsAnchor class="flex flex-wrap items-center gap-1.5 inputlike px-1.5 py-1.5">
   <button
     (click)="op.toggle()"
-    [mTooltip]="available().length > 0 ? 'Add ' + typeName() : null"
+    [mTooltip]="available().length > 0 ? 'Add ' + typeName() : undefined"
     [disabled]="available().length === 0"
     type="button"
     class="grid size-7 rounded-sm bg-white/10 p-0.5 text-white opacity-50 transition-colors not-disabled:hover:opacity-80 [&:not(:disabled)]:hover:bg-white/20"
@@ -11,7 +11,7 @@
   <button
     type="button"
     (click)="reset()"
-    [mTooltip]="available().length > 0 ? 'Reset ' + typeName() : null"
+    [mTooltip]="available().length > 0 ? 'Reset ' + typeName() : undefined"
     [disabled]="selected().length === 0"
     class="grid size-7 rounded-sm bg-white/10 p-0.5 text-white opacity-50 transition-colors not-disabled:hover:opacity-80 [&:not(:disabled)]:hover:bg-white/20"
   >
@@ -41,7 +41,7 @@
     </div>
   }
 </div>
-<m-popover #op [classList]="'p-0'" [anchorName]="anchorName">
+<m-popover #op [classList]="'p-0'" [anchor]="chipsAnchor">
   <div class="flex max-w-xl flex-wrap gap-2">
     @for (chip of available(); track $index) {
       <button (click)="add(chip)" class="flex gap-2 rounded-sm bg-white/10 px-2 py-1.5 transition-colors hover:bg-white/20" type="button">

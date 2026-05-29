@@ -1,187 +1,152 @@
-import { Tooltip as PTooltip, TooltipStyle } from '@openng/optimus-ui/tooltip';
-import { Directive, Input, TemplateRef, input } from '@angular/core';
-import { UniqueComponentId } from '@openng/optimus-ui/utils';
-import { DomHandler } from '@openng/optimus-ui/dom';
+import {
+  Directive,
+  ElementRef,
+  Renderer2,
+  TemplateRef,
+  inject,
+  input,
+  linkedSignal,
+  ViewContainerRef,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges
+} from '@angular/core';
 
-/**
- * Overriden PrimeNG Tooltip directive adding extra utilities for
- * programmatically displaying tooltips.
- *
- * https://primeng.org/tooltip
- * https://github.com/primefaces/primeng/blob/master/packages/primeng/src/tooltip/tooltip.ts
- */
 @Directive({
   selector: '[mTooltip]',
-  host: { class: 'p-element' },
-  standalone: true,
-  providers: [TooltipStyle]
+  exportAs: 'tooltip',
+  standalone: true
 })
-export class TooltipDirective extends PTooltip {
-  // These @Input()s override decorator inputs on Optimus UI's Tooltip, so they
-  // can't be signal inputs.
-  /**
-   * Event to show the tooltip.
-   * If any string other than 'hover' or 'focus' are given, it won't register
-   * event listeners.
-   *
-   * @default hover
-   */
-  @Input() override tooltipEvent: 'hover' | 'focus' | 'noop' | any = 'hover';
+export class TooltipDirective implements AfterViewInit, OnChanges {
+  readonly tooltipEvent = input<'default' | 'noop'>('default');
+  readonly tooltipPosition = input<'top' | 'top span-right' | 'top-span-left'>(
+    'top'
+  );
+  readonly contentInput = input<string | TemplateRef<any> | undefined>(
+    undefined,
+    { alias: 'mTooltip' }
+  );
+  readonly tooltipId = input<string>();
+  readonly tooltipDuration = input<number>();
+  readonly tooltipDisabled = input(false);
 
-  /**
-   * Content of the tooltip.
-   */
-  @Input('mTooltip') override content:
-    string | TemplateRef<HTMLElement> | undefined = undefined;
+  // setAndShow overrides the bound content until the binding next changes.
+  private readonly content = linkedSignal(() => this.contentInput());
 
-  /**
-   * String by which to distuingish multiple instances in a viewChildren() query
-   */
-  readonly tooltipContext = input<any>();
+  private popoverElement?: HTMLElement;
+  private popoverContent?: HTMLElement[];
+  private timeoutId?: number;
+  private readonly el = inject(ElementRef);
+  private readonly vcr = inject(ViewContainerRef);
+  private readonly renderer = inject(Renderer2);
 
-  /**
-   * Overriden position to make `top` the default.
-   */
-  @Input() override tooltipPosition: 'top' | 'left' | 'right' | 'bottom' =
-    'top';
-
-  // Needed to actually override.
-  //
-  // https://github.com/primefaces/primeng/blob/master/src/app/components/tooltip/tooltip.ts#L117
-  override _tooltipOptions = {
-    tooltipLabel: null,
-    tooltipPosition: 'top', // PrimeNG has this as 'right'.
-    tooltipEvent: 'hover',
-    appendTo: 'body',
-    positionStyle: null,
-    tooltipStyleClass: null,
-    tooltipZIndex: 'auto',
-    escape: true,
-    disabled: null,
-    showDelay: null,
-    hideDelay: null,
-    positionTop: null,
-    positionLeft: null,
-    life: null,
-    autoHide: true,
-    hideOnEscape: true,
-    showOnEllipsis: false,
-    id: UniqueComponentId() + '_tooltip'
-  };
-
-  override alignTop() {
-    this.preAlign('top');
-
-    const viewport = DomHandler.getViewport();
-    const hostOffset = this.getHostOffset();
-    const tooltipWidth = this.getBoxWidth(this.container);
-
-    let offsetLeft =
-      (this.getBoxWidth(this.el.nativeElement) - tooltipWidth) / 2;
-    const offsetTop = DomHandler.getOuterHeight(this.container);
-
-    if (hostOffset.left + offsetLeft < 0) {
-      offsetLeft = 0;
-    }
-
-    if (hostOffset.left + offsetLeft + tooltipWidth > viewport.width) {
-      offsetLeft = viewport.width - tooltipWidth - hostOffset.left;
-    }
-
-    this.alignTooltip(Math.floor(offsetLeft), -offsetTop);
-
-    const arrowElement = this.getArrowElement();
-    arrowElement.style.top = null;
-    arrowElement.style.right = null;
-    arrowElement.style.bottom = '0';
-    arrowElement.style.left = this.getParentCenterOffset() + 'px';
+  constructor() {
+    this.constructPopover();
   }
 
-  override alignBottom() {
-    this.preAlign('bottom');
-
-    const viewport = DomHandler.getViewport();
-    const hostOffset = this.getHostOffset();
-    const tooltipWidth = this.getBoxWidth(this.container);
-
-    let offsetLeft =
-      (this.getBoxWidth(this.el.nativeElement) - tooltipWidth) / 2;
-    const offsetTop = DomHandler.getOuterHeight(this.el.nativeElement);
-
-    if (hostOffset.left + offsetLeft < 0) {
-      offsetLeft = 0;
-    }
-
-    if (hostOffset.left + offsetLeft + tooltipWidth > viewport.width) {
-      offsetLeft = viewport.width - tooltipWidth - hostOffset.left;
-    }
-
-    this.alignTooltip(Math.floor(offsetLeft), offsetTop);
-
-    const arrowElement = this.getArrowElement();
-    arrowElement.style.top = '0';
-    arrowElement.style.right = null;
-    arrowElement.style.bottom = null;
-    arrowElement.style.left = this.getParentCenterOffset() + 'px';
+  show() {
+    if (this.tooltipDisabled() || !this.content()) return;
+    this.popoverElement.showPopover({ source: this.el.nativeElement });
   }
 
-  override alignLeft() {
-    super.alignLeft();
-    this.resetArrowOffset();
-  }
-
-  override alignRight() {
-    super.alignRight();
-    this.resetArrowOffset();
-  }
-
-  private getParentCenterOffset() {
-    const parent = this.el.nativeElement;
-    const parrentOffset = DomHandler.getOffset(parent);
-    const parentWidth = DomHandler.getOuterWidth(parent);
-    const tootltipOffset = DomHandler.getOffset(this.container);
-    return parentWidth / 2 + parrentOffset.left - tootltipOffset.left;
-  }
-
-  private resetArrowOffset() {
-    const arrowElement = this.getArrowElement();
-    arrowElement.style.top = null;
-    arrowElement.style.right = null;
-    arrowElement.style.bottom = null;
-    arrowElement.style.left = null;
-  }
-
-  private getBoxWidth(el: HTMLElement) {
-    return el.getBoundingClientRect().width;
-  }
-
-  override getArrowElement() {
-    return DomHandler.findSingle(this.container, '.p-tooltip-arrow');
-  }
-
-  /**
-   * Pick out a specific tooltip from a viewChildren() query based on some
-   * property.
-   */
-  static findByContext(
-    tooltips: readonly TooltipDirective[],
-    context: any
-  ): TooltipDirective | undefined {
-    return tooltips.find((t) => t.tooltipContext() === context);
-  }
-
-  /**
-   * Set the contents of a tooltip and show it. Duration sets a limit period,
-   * if just `true` is given, shows for 2s.
-   */
-  setAndShow(content: string, duration?: number | true): void {
-    this.content = content;
-    this.setOption({ tooltipLabel: content });
+  setAndShow(content: string | TemplateRef<any>) {
+    this.content.set(content);
+    this.initContent();
     this.show();
+  }
 
-    // Not messing with underlying tooltipOptions.life stuff, badly documented
-    // and can't get to work well.
-    if (duration)
-      setTimeout(() => this.hide(), duration === true ? 2000 : duration);
+  hide() {
+    if (this.tooltipDisabled() || !this.content()) return;
+    this.popoverElement.hidePopover();
+  }
+
+  private onMouseEnter(_: MouseEvent) {
+    this.show();
+  }
+
+  private onMouseLeave(_: MouseEvent) {
+    this.hide();
+  }
+
+  private onToggle(event: ToggleEvent) {
+    const duration = this.tooltipDuration();
+
+    if (event.newState === 'open' && duration) {
+      this.timeoutId = window?.setTimeout(
+        () => this.popoverElement?.hidePopover(),
+        duration
+      );
+    } else if (event.newState === 'closed' && this.timeoutId) {
+      window?.clearTimeout(this.timeoutId);
+    }
+  }
+
+  private constructPopover() {
+    this.popoverElement = this.renderer.createElement('div');
+    this.renderer.setAttribute(this.popoverElement, 'popover', 'hint');
+    this.renderer.setAttribute(this.popoverElement, 'class', 'm-tooltip');
+    this.popoverElement.addEventListener('toggle', this.onToggle.bind(this));
+  }
+
+  private initContent() {
+    if (this.popoverContent) {
+      this.popoverContent.forEach((node) =>
+        this.renderer.removeChild(this.popoverElement, node)
+      );
+      this.popoverContent = undefined;
+    }
+
+    const content = this.content();
+    if (!content) return;
+
+    if (typeof content === 'string') {
+      this.popoverContent = [this.renderer.createElement('span')];
+      this.renderer.appendChild(
+        this.popoverContent[0],
+        this.renderer.createText(content)
+      );
+    } else {
+      const embeddedView = this.vcr.createEmbeddedView(content);
+      this.popoverContent = embeddedView.rootNodes;
+    }
+
+    this.popoverContent.forEach((node) =>
+      this.renderer.appendChild(this.popoverElement, node)
+    );
+
+    // Insert same lvl as host, since popover can't be child of <input />'s.
+    // Shouldn't affect layouts since position: absolute.
+    this.renderer.insertBefore(
+      this.renderer.parentNode(this.el.nativeElement),
+      this.popoverElement,
+      this.el.nativeElement
+    );
+  }
+
+  ngAfterViewInit() {
+    if (this.tooltipEvent() !== 'noop') {
+      this.renderer.listen(
+        this.el.nativeElement,
+        'mouseenter',
+        this.onMouseEnter.bind(this)
+      );
+      this.renderer.listen(
+        this.el.nativeElement,
+        'mouseleave',
+        this.onMouseLeave.bind(this)
+      );
+    }
+
+    const position = this.tooltipPosition();
+    if (position !== 'top')
+      this.renderer.setStyle(this.popoverElement, 'position-area', position);
+
+    this.initContent();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['contentInput']) {
+      this.initContent();
+    }
   }
 }
