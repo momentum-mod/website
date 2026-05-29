@@ -512,6 +512,22 @@
       }
     }
   }
+
+  .m-tooltip {
+    inset: auto;
+    position: absolute;
+    background-color: #52525b;
+    position-area: top;
+    position-try-fallbacks: flip-block;
+    margin: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-shadow:
+      0 11px 15px -7px rgba(0, 0, 0, 0.2),
+      0 24px 38px 3px rgba(0, 0, 0, 0.14),
+      0 9px 46px 8px rgba(0, 0, 0, 0.12);
+    animation: fadeIn 0.2s ease-in;
+  }
 }
 
 @layer utilities {
@@ -603,5 +619,14 @@
     text-shadow:
       0 1px 1px rgba(0, 0, 0, 0.4),
       0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }

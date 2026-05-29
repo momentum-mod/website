@@ -2,7 +2,7 @@
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
       <div
-        class="mb-4 flex gap-4 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-4 text-xl"
+        class="mb-4 flex gap-4 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-4"
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
         @if (avatarLoaded) {
@@ -14,21 +14,24 @@
           ></div>
         }
         <div class="flex flex-grow flex-col justify-between">
-          <div class="flex gap-1">
-            <h1
-              class="flex flex-grow items-center gap-2 font-medium"
-              [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
-            >
-              {{ user.alias }}
+          <div class="flex flex-row gap-1">
+            <div class="flex flex-grow items-center gap-2">
+              <h1 class="text-xl font-medium" [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }">
+                {{ user.alias }}
+              </h1>
               @if (user.country && user.country.length === 2) {
-                <span [title]="countryDisplayName" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
+                <span
+                  [title]="countryDisplayName"
+                  [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
+                  class="rounded inline-block text-4 w-7 fi fi-{{ user.country.toLowerCase() }}"
+                ></span>
               }
               @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
                 <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
                   <m-icon class="h-7 w-7 text-gray-50 transition duration-100 ease-out hover:text-blue-500" icon="steam" pack="si" />
                 </a>
               }
-            </h1>
+            </div>
             <div class="flex gap-1">
               @if (!isLocal && (localUserService.user | async) && !localUserService.isLimited) {
                 <m-report-button
@@ -72,8 +75,8 @@
           </div>
           <m-role-badges class="h-10 !gap-0" [roles]="user.roles" classes="p-1" />
           @if (!hasRole(Role.DELETED)) {
-            <div class="flex w-full gap-2 font-display text-2xl">
-              <div class="flex-grow">
+            <div class="flex w-full gap-2">
+              <div class="flex-grow font-display text-2xl">
                 <p class="pb-1 leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
                 <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)" />
               </div>
@@ -90,15 +93,17 @@
           <div class="grid gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {
-                <a
-                  class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
-                  href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
-                  target="_blank"
-                  [mTooltip]="social.key"
-                >
-                  <m-icon class="mr-1 h-7 w-7 align-middle text-white" [icon]="SocialsData[social.key].icon" pack="si" />
-                  {{ social.value }}
-                </a>
+                <div class="w-fit">
+                  <a
+                    class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
+                    href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
+                    target="_blank"
+                    [mTooltip]="social.key"
+                  >
+                    <m-icon class="mr-1 h-7 w-7 align-middle text-white" [icon]="SocialsData[social.key].icon" pack="si" />
+                    {{ social.value }}
+                  </a>
+                </div>
               }
             }
           </div>

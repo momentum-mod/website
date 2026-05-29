@@ -6,12 +6,15 @@
     <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" />
   </a>
 
-  <div class="item" [style.anchor-name]="'--multisearch-anchor'" (click)="searchOverlay.toggle()">
+  <div #multisearchAnchor class="item" (click)="searchOverlay.toggle()">
     <m-icon class="h-auto" icon="magnify"></m-icon>
   </div>
+  <m-popover #searchOverlay [anchor]="multisearchAnchor">
+    <m-multisearch (selected)="searchOverlay.hide()" />
+  </m-popover>
 
   @if (localUserService.user | async) {
-    <div class="item relative" [style.anchor-name]="'--notification-anchor'" (click)="notificationsOverlay.toggle()">
+    <div #notificationAnchor class="item relative" (click)="notificationsOverlay.toggle()">
       @if (unreadNotificationsCount > 0) {
         <p class="badge badge-blue absolute right-1.5 top-1.5 z-10">
           {{ unreadNotificationsCount.toString() }}
@@ -22,24 +25,21 @@
 
     <p-menu #userMenu [model]="profileDropdownMenu" [popup]="true"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
+    <m-popover
+      #notificationsOverlay
+      [anchor]="notificationAnchor"
+      (onShow)="markingAsReadEnabled = true"
+      (onHide)="markingAsReadEnabled = false"
+    >
+      <m-notifications-menu
+        class="max-h-[80vh] w-[30rem]"
+        (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
+        [markingAsReadEnabled]="markingAsReadEnabled"
+      />
+    </m-popover>
   } @else {
     <button type="button" class="ml-2 mr-3 transition-all hover:brightness-110" (click)="localUserService.login()">
       <img src="/assets/images/steam-login-green-large.png" />
     </button>
   }
 </div>
-<m-popover #searchOverlay anchorName="--multisearch-anchor">
-  <m-multisearch (selected)="searchOverlay.hide()" />
-</m-popover>
-<m-popover
-  #notificationsOverlay
-  anchorName="--notification-anchor"
-  (onShow)="markingAsReadEnabled = true"
-  (onHide)="markingAsReadEnabled = false"
->
-  <m-notifications-menu
-    class="max-h-[80vh] w-[30rem]"
-    (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
-    [markingAsReadEnabled]="markingAsReadEnabled"
-  />
-</m-popover>
