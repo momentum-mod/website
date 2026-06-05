@@ -25,6 +25,8 @@ import Valkey from 'iovalkey';
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { UWebSocketAdapter } from '../../../backend/src/app/modules/game-connection/game-connection.adapter';
+import { JwtService } from '@nestjs/jwt';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -57,6 +59,13 @@ export async function setupE2ETestEnvironment(
     { bufferLogs: true, rawBody: true }
   );
 
+  const configService = app.get(ConfigService);
+  const jwtService = app.get(JwtService);
+
+  app.useWebSocketAdapter(
+    new UWebSocketAdapter(app, configService, jwtService)
+  );
+
   app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 
   app.enableVersioning({
@@ -70,7 +79,6 @@ export async function setupE2ETestEnvironment(
   app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  const configService = app.get(ConfigService);
   await app.register(fastifyCookie, {
     secret: configService.get<string>('sessionSecret')
   });

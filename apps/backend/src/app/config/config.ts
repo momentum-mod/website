@@ -23,12 +23,16 @@ import * as pino from 'pino';
 export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;
   const port: number = +(process.env['NEST_PORT'] || 3000);
+  const wsPort: number = process.env['NEST_WEBSOCKET_PORT']
+    ? +process.env['NEST_WEBSOCKET_PORT']
+    : port + 1;
 
   const isTest = env === Environment.TEST;
 
   return {
     env,
     port,
+    wsPort,
     domain: process.env['ROOT_DOMAIN'] || 'localhost',
     url: {
       backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,

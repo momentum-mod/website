@@ -26,6 +26,7 @@ import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
+import { GameConnectionModule } from './modules/game-connection/game-connection.module';
 
 @Module({
   imports: [
@@ -178,6 +179,7 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
     UserModule,
     UsersModule,
     SessionModule,
+    GameConnectionModule,
     XpSystemsModule,
     KillswitchModule,
     HealthcheckModule

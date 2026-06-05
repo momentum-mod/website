@@ -17,6 +17,7 @@ export interface ConfigInterface {
     runCdn: string;
   };
   port: number;
+  wsPort: number;
   appIDs: number[];
   jwt: {
     secret: string;

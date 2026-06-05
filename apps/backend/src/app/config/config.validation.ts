@@ -38,6 +38,10 @@ export class ConfigValidation {
   @IsInt()
   readonly NEST_PORT: number;
 
+  @IsInt()
+  @IsOptional()
+  readonly NEST_WEBSOCKET_PORT?: number;
+
   @IsString()
   @IsOptionalWithEmptyString()
   readonly ROOT_DOMAIN?: string;
