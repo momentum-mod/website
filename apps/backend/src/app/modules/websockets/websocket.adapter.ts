@@ -114,8 +114,8 @@ export class WebsocketAdapter extends AbstractWsAdapter<
 
     const close$ = fromEvent(client, 'close').pipe(share(), first());
     const source$ = fromEvent(client, 'message').pipe(
-      mergeMap((data) =>
-        this.bindMessageHandler(data, handlersMap, transform).pipe(
+      mergeMap((data: MessageEvent) =>
+        this.bindMessageHandler(data.data, handlersMap, transform).pipe(
           filter((result) => !isNil(result))
         )
       ),
@@ -140,7 +140,7 @@ export class WebsocketAdapter extends AbstractWsAdapter<
     transform: (data: any) => Observable<any>
   ): Observable<any> {
     try {
-      const stringMessageData = Buffer.from(buffer.message).toString('utf-8');
+      const stringMessageData = Buffer.from(buffer).toString('utf-8');
       const message = JSON.parse(stringMessageData);
 
       if (!message) {
