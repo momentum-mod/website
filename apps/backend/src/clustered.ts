@@ -1,3 +1,33 @@
+import cluster from 'node:cluster';
+import { JsonValue } from 'type-fest';
+
+export enum ClusterMessageType {
+  PubSub = 'pubsub'
+}
+
+export interface ClusterMessage {
+  type: ClusterMessageType;
+  payload: JsonValue;
+}
+
+export function initalizeClusterMessaging(): void {
+  if (!cluster.isPrimary) return;
+
+  cluster.on('message', (worker, message) => {
+    if (message?.type === ClusterMessageType.PubSub) {
+      for (const w of Object.values(cluster.workers)) {
+        w.send(message);
+      }
+    }
+  });
+}
+
+export function sendClusterMessage(message: ClusterMessage): void {
+  if (cluster.isWorker) {
+    cluster.worker.send(message);
+  }
+}
+
 export const FIRST_WORKER_ENV_VAR = 'NEST_WORKER_IS_PRIMARY';
 
 /**

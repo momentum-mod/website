@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { PrismaClient } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
@@ -16,7 +15,7 @@ type SocketEventMessage = {
   data?: unknown;
 };
 
-describe('Game Connection Gateway', () => {
+describe('WebSockets', () => {
   let app: NestFastifyApplication;
   let prisma: PrismaClient;
   let db: DbUtil;
@@ -31,8 +30,7 @@ describe('Game Connection Gateway', () => {
     db = env.db;
     valkey = env.valkey;
 
-    const configService = app.get(ConfigService);
-    websocketUrl = `ws://localhost:${configService.getOrThrow<number>('wsPort')}/game`;
+    websocketUrl = 'ws://localhost:3000/game';
 
     map = await db.createMapWithFullLeaderboards(
       {

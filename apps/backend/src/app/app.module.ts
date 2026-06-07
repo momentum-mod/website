@@ -27,6 +27,7 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
 import { GameConnectionModule } from './modules/game-connection/game-connection.module';
+import { WebsocketsModule } from './modules/websockets/websockets.module';
 
 @Module({
   imports: [
@@ -168,6 +169,7 @@ import { GameConnectionModule } from './modules/game-connection/game-connection.
     ScheduleModule.forRoot(),
     DbModule,
     ValkeyModule,
+    WebsocketsModule,
     AuthModule,
     ActivitiesModule,
     AdminModule,

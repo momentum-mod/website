@@ -34,6 +34,7 @@
     "@nestjs/core": "11.1.6",
     "@nestjs/jwt": "11.0.0",
     "@nestjs/platform-fastify": "11.1.6",
+    "@nestjs/platform-ws": "11.1.24",
     "@nestjs/schedule": "6.0.1",
     "@nestjs/swagger": "11.2.0",
     "@nestjs/throttler": "6.5.0",
@@ -79,7 +80,6 @@
     "steam-appticket": "2.0.1",
     "tslib": "2.8.1",
     "uuid": "11.0.5",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.68.0",
     "zone.js": "0.15.1"
   },
   "devDependencies": {

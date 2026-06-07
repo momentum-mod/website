@@ -11,11 +11,11 @@ import { Killswitch } from '../killswitch/killswitch.decorator';
 import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { RunSessionService } from '../session/run/run-session.service';
 
-@WebSocketGateway({ path: '/game' })
+@WebSocketGateway({ path: '/jame' })
 export class GameConnectionGateway {
   constructor(private readonly runSessionService: RunSessionService) {}
 
-  @SubscribeMessage('create-run')
+  @SubscribeMessage('create-bun')
   @UseGuards(KillswitchGuard)
   @Killswitch(KillswitchType.RUN_SUBMISSION)
   createRunSession(

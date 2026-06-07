@@ -25,8 +25,9 @@ import Valkey from 'iovalkey';
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { UWebSocketAdapter } from '../../../backend/src/app/modules/game-connection/game-connection.adapter';
 import { JwtService } from '@nestjs/jwt';
+import { WebsocketService } from '../../../backend/src/app/modules/websockets/websocket.service';
+import { WebsocketAdapter } from '../../../backend/src/app/modules/websockets/websocket.adapter';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -60,11 +61,9 @@ export async function setupE2ETestEnvironment(
   );
 
   const configService = app.get(ConfigService);
+  const wsService = app.get(WebsocketService);
   const jwtService = app.get(JwtService);
-
-  app.useWebSocketAdapter(
-    new UWebSocketAdapter(app, configService, jwtService)
-  );
+  app.useWebSocketAdapter(new WebsocketAdapter(app, wsService, jwtService));
 
   app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 

@@ -20,9 +20,10 @@ import cluster from 'node:cluster';
 import { Config, Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
-import { FIRST_WORKER_ENV_VAR } from './clustered';
-import { UWebSocketAdapter } from './app/modules/game-connection/uwebsockets.adapter';
+import { FIRST_WORKER_ENV_VAR, initalizeClusterMessaging } from './clustered';
 import { JwtService } from '@nestjs/jwt';
+import { WebsocketAdapter } from './app/modules/websockets/websocket.adapter';
+import { WebsocketService } from './app/modules/websockets/websocket.service';
 
 /* eslint no-console: 0 */
 async function bootstrap() {
@@ -49,11 +50,11 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   const configService = app.get(ConfigService);
-  const jwtService = app.get(JwtService);
 
-  app.useWebSocketAdapter(
-    new UWebSocketAdapter(app, configService, jwtService)
-  );
+  // WebSocket adapter doesn't support DI, pass directly
+  const wsService = app.get(WebsocketService);
+  const jwtService = app.get(JwtService);
+  app.useWebSocketAdapter(new WebsocketAdapter(app, wsService, jwtService));
 
   // Steam game auth and replay submission from game send raw octet-streams.
   // Steam auth we could limit to 2kb, but replays can be massive. Limiting
@@ -148,6 +149,7 @@ function startSingle(): void {
   console.log('Starting in single-process mode');
   process.env[FIRST_WORKER_ENV_VAR] = 'true';
   bootstrap().catch((error) => console.error(error));
+  initalizeClusterMessaging();
 }
 
 // Clustered mode. Forks multiple processes that share the same port, and
@@ -171,6 +173,8 @@ function startClustered(): void {
       );
       process.exit(1);
     });
+
+    initalizeClusterMessaging();
   } else {
     bootstrap().catch((error) => console.error(error));
     console.log(`Worker process ${process.pid} started`);
