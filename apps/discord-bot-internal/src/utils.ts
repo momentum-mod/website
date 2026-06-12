@@ -55,6 +55,13 @@ export const isTrusted = {
   message: 'You have to be trusted to use this command.'
 };
 
+export const isTeamMember = {
+  check(member: GuildMember) {
+    return member.roles.cache.has(config.team_member_role);
+  },
+  message: 'This command is reserved for team members only.'
+};
+
 export const isAdminBotChannel = {
   check(channel: Channel) {
     return channel.id === config.admin_bot_channel;

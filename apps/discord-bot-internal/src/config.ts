@@ -25,6 +25,8 @@ interface Config {
   media_verified_role: string;
   /** Blacklisted role id */
   media_blacklisted_role: string;
+  /** Team member role */
+  team_member_role: string;
 
   // Channels
   /** Live stream channel id */
@@ -75,6 +77,24 @@ interface Config {
   /** Roles that can be gived by mods through a bot */
   giveable_roles: string[];
 
+  // Meeting notifications config
+  /** Meetings channel id */
+  meeting_channel: string;
+  /** Timezone for meeting times */
+  meeting_timezone: string;
+  /** Array of alternating meeting times */
+  meeting_times: [number, number][];
+  /** Index shift of the next meeting time */
+  meeting_time_shift: number;
+  /** Cron schedule in UTC for when to send the meeting document */
+  metting_doc_schedule: string;
+  /** Cron schedule in UTC for when to send the meeting reminder */
+  metting_reminder_schedule: string;
+  /** URL for fetching new meeting documents */
+  metting_doc_url: string | null;
+  /** Password fetching new meeting documents */
+  meeting_doc_password: string | null;
+
   // Custom module storage
   custom_commands: { [key: string]: CustomCommand };
 }
@@ -91,9 +111,14 @@ export interface CustomCommand {
 }
 
 const environmentConfigMap = {
-  BOT_TOKEN: 'bot_token',
-  TWITCH_API_CLIENT_ID: 'twitch_api_client_id',
-  TWITCH_API_CLIENT_SECRET: 'twitch_api_client_secret'
+  BOT_TOKEN: { key: 'bot_token', isNullable: false },
+  TWITCH_API_CLIENT_ID: { key: 'twitch_api_client_id', isNullable: false },
+  TWITCH_API_CLIENT_SECRET: {
+    key: 'twitch_api_client_secret',
+    isNullable: false
+  },
+  MEETING_DOC_URL: { key: 'metting_doc_url', isNullable: true },
+  MEETING_DOC_PASSWORD: { key: 'meeting_doc_password', isNullable: true }
 } as const;
 
 class Config {
@@ -102,9 +127,16 @@ class Config {
   }
 
   loadFromEnv() {
-    for (const [envKey, configKey] of Object.entries(environmentConfigMap)) {
+    for (const [envKey, { key: configKey, isNullable }] of Object.entries(
+      environmentConfigMap
+    )) {
       if (!process.env[envKey]) {
-        throw new Error(`Environment key ${envKey} is not set.`);
+        if (!isNullable)
+          throw new Error(`Environment key ${envKey} is not set.`);
+        else {
+          this[configKey] = null;
+          continue;
+        }
       }
 
       this[configKey] = process.env[envKey];

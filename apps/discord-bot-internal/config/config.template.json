@@ -22,5 +22,12 @@
   "spam_time_window_ms": 5000,
   "spam_timeout_duration_minutes": 10,
   "giveable_roles": [],
+  "meeting_channel": "",
+  "meeting_timezone": "",
+  "meeting_times": [],
+  "meeting_time_shift": 0,
+  "metting_doc_schedule": "",
+  "metting_reminder_schedule": "",
+  "team_member_role": "",
   "custom_commands": {}
 }
