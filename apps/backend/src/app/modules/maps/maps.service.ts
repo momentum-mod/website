@@ -192,15 +192,13 @@ export class MapsService {
         leaderboardSome.type = { not: LeaderboardType.HIDDEN };
       }
 
-      if (query.difficultyHigh && query.difficultyLow) {
+      if (query.difficultyLow === query.difficultyHigh) {
+        leaderboardSome.tier = { equals: query.difficultyLow };
+      } else {
         leaderboardSome.tier = {
           lte: query.difficultyHigh,
           gte: query.difficultyLow
         };
-      } else if (query.difficultyLow) {
-        leaderboardSome.tier = { gte: query.difficultyLow };
-      } else if (query.difficultyHigh) {
-        leaderboardSome.tier = { lte: query.difficultyHigh };
       }
 
       if (query.linear != null) {
