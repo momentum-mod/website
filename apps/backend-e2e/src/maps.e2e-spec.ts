@@ -538,7 +538,7 @@ describe('Maps', () => {
         await req.get({
           url: 'maps',
           status: 200,
-          query: { difficultyLow: 2 },
+          query: { difficultyLow: 2, difficultyHigh: 10 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 3 }
         });
@@ -567,7 +567,7 @@ describe('Maps', () => {
         await req.get({
           url: 'maps',
           status: 200,
-          query: { difficultyHigh: 4 },
+          query: { difficultyLow: 1, difficultyHigh: 4 },
           token: u1Token,
           validatePaged: { type: MapDto, count: 3 }
         });
