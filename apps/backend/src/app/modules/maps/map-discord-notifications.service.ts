@@ -328,8 +328,10 @@ export class MapDiscordNotifications {
 
     let leaderboards: MapSubmissionSuggestion[] | Leaderboard[] =
       extendedMap.leaderboards?.filter(
-        ({ trackType, type }) =>
-          trackType === TrackType.MAIN && type !== LeaderboardType.HIDDEN
+        ({ trackType, type, gamemode }, i, a) =>
+          trackType === TrackType.MAIN &&
+          type !== LeaderboardType.HIDDEN &&
+          a.findIndex((lb) => lb.gamemode === gamemode) === i
       );
 
     if (MapStatuses.IN_SUBMISSION.includes(extendedMap.status)) {
