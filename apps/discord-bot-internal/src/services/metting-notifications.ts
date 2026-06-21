@@ -109,11 +109,6 @@ export class MeetingNotifcationsService extends Service {
 
     const date = moment().tz(config.meeting_timezone).weekday(6);
 
-    const currentDay = moment().tz(config.meeting_timezone).isoWeekday();
-    if (currentDay >= 6) {
-      date.add(1, 'w');
-    }
-
     const weeksSinceEpoch = date.diff(epoch, 'weeks');
 
     let timeIndex =
