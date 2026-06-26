@@ -19,14 +19,7 @@ import {
 } from '@momentum/constants';
 import { FileStoreService } from '../../filestore/file-store.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
-import {
-  CompletedRunDto,
-  CreateRunSessionDto,
-  DtoFactory,
-  RunSessionDto,
-  UpdateRunSessionDto,
-  XpGainDto
-} from '../../../dto';
+import { CompletedRunDto, DtoFactory, XpGainDto } from '../../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 import {
   ExtendedPrismaService,
@@ -54,133 +47,6 @@ export class RunSessionService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService
   ) {}
-
-  //#region Create Session
-
-  async createSession(
-    userID: number,
-    body: CreateRunSessionDto
-  ): Promise<RunSessionDto> {
-    const leaderboardData = {
-      mapID: body.mapID,
-      gamemode: body.gamemode,
-      trackNum: body.trackNum,
-      trackType: body.trackType
-    };
-
-    if (!(await this.db.leaderboard.exists({ where: leaderboardData })))
-      throw new BadRequestException('Leaderboard does not exist');
-
-    // User sessions are stored in array under runsess:id:<userID>
-    // This should be bounded by the number of segments on the map with the
-    // largest number of segments - see below.
-    const sessionKey = idKey(userID);
-    const sessionsIDs = await this.valkey.lrange(sessionKey, 0, -1);
-    for (const sessionID of sessionsIDs) {
-      const session = await this.valkey.hgetall(dataKey(sessionID));
-
-      if (
-        session &&
-        Number(session.userID) === userID &&
-        Number(session.trackType) === body.trackType &&
-        // Don't delete session for other trackNums, since the run session
-        // end for that trackNum is likely to arrive AFTER the start of the
-        // session for the next trackNum since contains replay data. Since this
-        // isn't limited by map, the number of inactive sessions a user could
-        // maliciously created by the map with the largest number of genuine
-        // leaderboards which is limited to MAX_TRACK_SEGMENTS, so can't be
-        // exploited in a significant way. Still, we probably want to add some
-        // pruning logic or something in the future to remove old sessions.
-        Number(session.trackNum) === body.trackNum
-      ) {
-        await Promise.all([
-          this.valkey.lrem(idKey(userID), 0, sessionID),
-          this.valkey.del(dataKey(sessionID))
-        ]);
-      }
-    }
-
-    const id = await this.valkey.incr(counterKey);
-    const createdAt = Date.now();
-    const createdAtDate = new Date(createdAt);
-    const tsKey = timestampKey(id);
-
-    // Each session has hash of main data under runsess:dat:<sessionID>,
-    // and array of timestamps under runsess:ts:<sessionID>, stored as strings
-    // in form <majorNum>,<minorNum>,<time>,<createdAt>
-    await Promise.all([
-      this.valkey.lpush(sessionKey, id),
-      this.valkey.hset(dataKey(id), {
-        userID,
-        createdAt,
-        ...leaderboardData
-      }),
-      this.valkey.lpush(tsKey, serializeTimestamp(1, 1, 0, createdAt))
-    ]);
-
-    if (Sentry.isInitialized()) {
-      Sentry.setTag('session_id', id);
-    }
-
-    return DtoFactory(RunSessionDto, {
-      id,
-      userID,
-      createdAt: createdAtDate,
-      ...leaderboardData,
-      timestamps: [
-        { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtDate }
-      ]
-    });
-  }
-
-  //#endregion
-
-  //#region Update Session
-
-  async updateSession(
-    userID: number,
-    sessionID: number,
-    { majorNum, minorNum, time }: UpdateRunSessionDto
-  ): Promise<void> {
-    const storedUserID = await this.valkey.hget(dataKey(sessionID), 'userID');
-
-    if (!storedUserID || Number(storedUserID) !== userID) {
-      throw new BadRequestException();
-    }
-
-    if (Sentry.isInitialized()) {
-      Sentry.setTag('session_id', sessionID);
-    }
-
-    await this.valkey.lpush(
-      timestampKey(sessionID),
-      serializeTimestamp(majorNum, minorNum, time, Date.now())
-    );
-  }
-
-  //#endregion
-
-  //#region Invalidate Session
-
-  async invalidateSession(userID: number, sessionID: number): Promise<void> {
-    const storedUserID = await this.valkey.hget(dataKey(sessionID), 'userID');
-
-    if (!storedUserID || Number(storedUserID) !== userID) {
-      throw new BadRequestException();
-    }
-
-    if (Sentry.isInitialized()) {
-      Sentry.setTag('session_id', sessionID);
-    }
-
-    await Promise.all([
-      this.valkey.lrem(idKey(userID), 0, sessionID),
-      this.valkey.del(dataKey(sessionID)),
-      this.valkey.del(timestampKey(sessionID))
-    ]);
-  }
-
-  //#endregion
 
   //#region Complete Session
 
@@ -612,15 +478,6 @@ function timestampKey(sessionID: string | number): string {
   return `runsess:ts:${sessionID}`;
 }
 
-function serializeTimestamp(
-  majorNum: number,
-  minorNum: number,
-  time: number,
-  createdAt: number
-): string {
-  return `${majorNum},${minorNum},${time},${createdAt}`;
-}
-
 function deserializeTimestamp(str: string): RunSessionTimestamp {
   const [majorNum, minorNum, time, createdAt] = str.split(',');
   return {
@@ -630,7 +487,5 @@ function deserializeTimestamp(str: string): RunSessionTimestamp {
     createdAt: new Date(Number(createdAt))
   };
 }
-
-const counterKey = 'runsess:counter';
 
 //#endregion

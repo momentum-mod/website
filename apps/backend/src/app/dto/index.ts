@@ -30,7 +30,6 @@ export * from './report/report.dto';
 export * from './run/leaderboard-run.dto';
 export * from './run/past-run.dto';
 export * from './run/leaderboard.dto';
-export * from './run/run-session.dto';
 export * from './run/completed-run.dto';
 export * from './run/run-session-timestamp.dto';
 export * from './user/user.dto';
