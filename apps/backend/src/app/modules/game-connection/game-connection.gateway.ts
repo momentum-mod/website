@@ -6,10 +6,12 @@ import {
   WsResponse
 } from '@nestjs/websockets';
 import { Inject, Logger } from '@nestjs/common';
+import { KillswitchType } from '@momentum/constants';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { ValkeyService } from '../valkey/valkey.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { KillswitchService } from '../killswitch/killswitch.service';
 
 @WebSocketGateway({ path: '/game' })
 export class GameConnectionGateway {
@@ -17,7 +19,8 @@ export class GameConnectionGateway {
 
   constructor(
     private readonly valkey: ValkeyService,
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly killswitch: KillswitchService
   ) {}
 
   @SubscribeMessage('session.create')
@@ -32,6 +35,18 @@ export class GameConnectionGateway {
     }
   ): Promise<WsResponse<unknown>> {
     const userID = client.userId;
+
+    // When run submission is disabled, refuse to start new sessions
+    if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
+      this.logger.warn(
+        `session.create: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
+      );
+      return {
+        event: 'session.create',
+        data: { error: 'Run submission is currently disabled' }
+      };
+    }
+
     const leaderboardData = {
       mapID: data.mapID,
       gamemode: data.gamemode,
@@ -175,21 +190,39 @@ export class GameConnectionGateway {
       'userID'
     );
 
-    if (!storedUserID || Number(storedUserID) !== userID) {
+    // This event and the replay upload (HTTP POST /session/run/:id/end) race and
+    // can arrive in either order. If the session is already gone the upload won
+    // the race and consumed it - that's the expected terminal state, so ack
+    // without warning rather than treating it as an invalid session.
+    if (!storedUserID) {
+      return { event: 'session.end', data: null };
+    }
+
+    if (Number(storedUserID) !== userID) {
       this.logger.warn(
         `session.end: invalid session (sessionID=${data.sessionID}, userID=${userID})`
       );
       return { event: 'session.end', data: { error: 'Invalid session' } };
     }
 
+    // Don't delete the session data/timestamps here: the replay upload still
+    // needs them to validate and process the run, and may not have arrived yet.
+    // Instead mark the session ended, drop it from the user's active list, and
+    // set a TTL so the data is reaped if the upload never arrives (e.g. the
+    // client crashed after ending but before uploading). The upload's
+    // completeSession owns the final deletion once it has processed the run.
     await Promise.all([
       this.valkey.lrem(idKey(userID), 0, data.sessionID),
-      this.valkey.del(dataKey(data.sessionID)),
-      this.valkey.del(timestampKey(data.sessionID))
+      this.valkey.hset(dataKey(data.sessionID), 'ended', 1),
+      this.valkey.expire(dataKey(data.sessionID), ENDED_SESSION_TTL_SECONDS),
+      this.valkey.expire(
+        timestampKey(data.sessionID),
+        ENDED_SESSION_TTL_SECONDS
+      )
     ]);
 
     this.logger.log(
-      `session.end: session completed (sessionID=${data.sessionID}, userID=${userID})`
+      `session.end: session ended, awaiting replay upload (sessionID=${data.sessionID}, userID=${userID})`
     );
     return { event: 'session.end', data: null };
   }
@@ -217,3 +250,8 @@ function serializeTimestamp(
 }
 
 const COUNTER_KEY = 'runsess:counter';
+
+// How long an ended session's data/timestamps are kept alive waiting for the
+// replay upload (HTTP) to arrive and process it, before being reaped. Generous
+// enough to cover a slow upload of a large replay on a poor connection.
+const ENDED_SESSION_TTL_SECONDS = 5 * 60;
