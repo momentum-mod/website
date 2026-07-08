@@ -21,6 +21,7 @@ import {
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
+  MapCompletionsGetQuery,
   MapSortType,
   MapCreditType,
   MapsGetAllUserSubmissionFilter,
@@ -312,6 +313,17 @@ export class MapLeaderboardGetQueryDto
     description: 'List of user Steam IDs to limit results to'
   })
   readonly steamIDs?: string[];
+}
+
+export class MapCompletionsGetQueryDto
+  extends QueryDto
+  implements MapCompletionsGetQuery
+{
+  @EnumQueryProperty(Gamemode, { required: true })
+  gamemode: Gamemode;
+
+  @EnumQueryProperty(Style, { required: false })
+  style = Style.NORMAL;
 }
 
 export class MapLeaderboardGetRunQueryDto

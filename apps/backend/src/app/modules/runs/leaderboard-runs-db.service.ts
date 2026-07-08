@@ -153,6 +153,38 @@ export class LeaderboardRunsDbService {
   }
 
   /**
+   * Get every track (leaderboard) on a map for a given gamemode + style, along
+   * with its total completions and the given user's PB time + rank (null where
+   * the user hasn't completed the track).
+   */
+  async getMapUserCompletions(args: {
+    mapID: number;
+    gamemode: Gamemode;
+    style: Style;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<
+    Array<{
+      trackType: number;
+      trackNum: number;
+      totalCompletions: number | null;
+      time: number | null;
+      rank: number | null;
+    }>
+  > {
+    const sql = TypedSql.getMapUserCompletions(
+      args.mapID,
+      args.gamemode,
+      args.style,
+      args.userID
+    );
+
+    return args.transaction
+      ? await args.transaction.$queryRawTyped(sql)
+      : await this.db.$queryRawTyped(sql);
+  }
+
+  /**
    * Get the rank of a user's run on a specific leaderboard.
    */
   async getUserRank(
