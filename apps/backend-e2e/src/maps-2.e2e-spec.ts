@@ -5,6 +5,7 @@ import { SteamService } from '../../backend/src/app/modules/steam/steam.service'
 import { Config } from '../../backend/src/app/config';
 import {
   LeaderboardRunDto,
+  MapCompletionDto,
   MapCreditDto,
   MapImageDto,
   MapInfoDto,
@@ -39,7 +40,9 @@ import {
   Role,
   TrackType,
   MapSubmissionType,
-  Style
+  Style,
+  LeaderboardType,
+  CompletionGroup
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1679,6 +1682,235 @@ describe('Maps Part 2', () => {
           }
         }
       });
+    });
+  });
+
+  describe('maps/{mapID}/user-completions', () => {
+    describe('GET', () => {
+      let u1, token, others: User[], map;
+
+      beforeAll(async () => {
+        [[u1, token], ...others] = await Promise.all([
+          db.createAndLoginUser(),
+          ...arrayFrom(10, () => db.createUser())
+        ]);
+
+        // Main track + two stages + a ranked bonus + an unranked bonus, all
+        // AHOP/Normal. Stages don't have tiers.
+        map = await db.createMap({
+          leaderboards: {
+            createMany: {
+              data: [
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  style: Style.NORMAL,
+                  tier: 2,
+                  linear: true,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.STAGE,
+                  trackNum: 1,
+                  style: Style.NORMAL,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.STAGE,
+                  trackNum: 2,
+                  style: Style.NORMAL,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  style: Style.NORMAL,
+                  tier: 4,
+                  type: LeaderboardType.RANKED
+                },
+                {
+                  gamemode: Gamemode.AHOP,
+                  trackType: TrackType.BONUS,
+                  trackNum: 2,
+                  style: Style.NORMAL,
+                  tier: 3,
+                  type: LeaderboardType.UNRANKED
+                }
+              ]
+            }
+          }
+        });
+
+        // Times are all distinct so ranks are deterministic regardless of order.
+        await Promise.all([
+          // Main track: u1 is WR (rank 1), 3 completions.
+          db.createLbRun({ map, user: u1, time: 5 }),
+          db.createLbRun({ map, user: others[0], time: 10 }),
+          db.createLbRun({ map, user: others[1], time: 15 }),
+
+          // Stage 1: u1 is rank 2 (Top10), 2 completions.
+          db.createLbRun({
+            map,
+            user: others[0],
+            time: 5,
+            trackType: TrackType.STAGE,
+            trackNum: 1
+          }),
+          db.createLbRun({
+            map,
+            user: u1,
+            time: 10,
+            trackType: TrackType.STAGE,
+            trackNum: 1
+          }),
+
+          // Stage 2: u1 has not completed, 1 completion by someone else.
+          db.createLbRun({
+            map,
+            user: others[0],
+            time: 5,
+            trackType: TrackType.STAGE,
+            trackNum: 2
+          }),
+
+          // Bonus 1: 10 faster runs, u1 is rank 11 -> a numbered group.
+          ...others.map((user, i) =>
+            db.createLbRun({
+              map,
+              user,
+              time: i + 1,
+              trackType: TrackType.BONUS,
+              trackNum: 1
+            })
+          ),
+          db.createLbRun({
+            map,
+            user: u1,
+            time: 11,
+            trackType: TrackType.BONUS,
+            trackNum: 1
+          }),
+
+          // Bonus 2 (unranked): u1 is the only completion (WR).
+          db.createLbRun({
+            map,
+            user: u1,
+            time: 5,
+            trackType: TrackType.BONUS,
+            trackNum: 2
+          })
+        ]);
+      });
+
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+
+      it("should return the user's completion status for every track on a map", async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/user-completions`,
+          status: 200,
+          query: { gamemode: Gamemode.AHOP },
+          validateArray: { type: MapCompletionDto, length: 5 },
+          token
+        });
+
+        const body = res.body as MapCompletionDto[];
+        const find = (trackType: TrackType, trackNum: number) =>
+          body.find(
+            (e) => e.trackType === trackType && e.trackNum === trackNum
+          );
+
+        // Main track: WR. tier is intentionally not returned by this endpoint -
+        // the game sources it from its map cache.
+        expect(find(TrackType.MAIN, 1)).toMatchObject({
+          totalCompletions: 3,
+          time: 5,
+          rank: 1,
+          group: CompletionGroup.WORLD_RECORD
+        });
+        expect(find(TrackType.MAIN, 1)).not.toHaveProperty('tier');
+
+        // Stage 1: Top10 (rank 2)
+        expect(find(TrackType.STAGE, 1)).toMatchObject({
+          totalCompletions: 2,
+          time: 10,
+          rank: 2,
+          group: CompletionGroup.TOP_10
+        });
+
+        // Stage 2: not completed by u1 (completion inferred from null time)
+        expect(find(TrackType.STAGE, 2)).toMatchObject({
+          totalCompletions: 1,
+          time: null,
+          rank: null,
+          group: null
+        });
+
+        // Bonus 1: rank 11 -> numbered group (past WR/Top10)
+        const bonus1 = find(TrackType.BONUS, 1);
+        expect(bonus1).toMatchObject({
+          totalCompletions: 11,
+          rank: 11
+        });
+        expect(bonus1.group).toBeGreaterThanOrEqual(CompletionGroup.GROUP_1);
+
+        // Bonus 2: the unranked track is still included
+        expect(find(TrackType.BONUS, 2)).toMatchObject({
+          totalCompletions: 1,
+          time: 5,
+          rank: 1,
+          group: CompletionGroup.WORLD_RECORD
+        });
+      });
+
+      it('should order entries by trackType then trackNum', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/user-completions`,
+          status: 200,
+          query: { gamemode: Gamemode.AHOP },
+          token
+        });
+
+        expect(
+          (res.body as MapCompletionDto[]).map((e) => [e.trackType, e.trackNum])
+        ).toEqual([
+          [TrackType.MAIN, 1],
+          [TrackType.STAGE, 1],
+          [TrackType.STAGE, 2],
+          [TrackType.BONUS, 1],
+          [TrackType.BONUS, 2]
+        ]);
+      });
+
+      it('should return an empty array for a gamemode the map has no leaderboards for', () =>
+        req.get({
+          url: `maps/${map.id}/user-completions`,
+          status: 200,
+          query: { gamemode: Gamemode.BHOP },
+          validateArray: { type: MapCompletionDto, length: 0 },
+          token
+        }));
+
+      it('should 400 if not given a gamemode', () =>
+        req.get({
+          url: `maps/${map.id}/user-completions`,
+          status: 400,
+          token
+        }));
+
+      it('should 404 if the map does not exist', () =>
+        req.get({
+          url: `maps/${NULL_ID}/user-completions`,
+          status: 404,
+          query: { gamemode: Gamemode.AHOP },
+          token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest(`maps/${map.id}/user-completions`, 'get'));
     });
   });
 

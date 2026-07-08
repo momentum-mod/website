@@ -252,6 +252,11 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
   rank?: number;
 };
 
+export type MapCompletionsGetQuery = {
+  gamemode: Gamemode;
+  style?: Style; // Default 0
+};
+
 //#endregion
 //#region Submissions
 

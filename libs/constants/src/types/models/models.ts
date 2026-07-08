@@ -23,6 +23,7 @@ import type { SteamGame } from '../../enums/steam-game.enum';
 import type { MapCreditType } from '../../enums/map-credit-type.enum';
 import type { Gamemode } from '../../enums/gamemode.enum';
 import type { TrackType } from '../../enums/track-type.enum';
+import type { CompletionGroup } from '../../enums/completion-group.enum';
 import type { MapTag } from '../../enums/map-tag.enum';
 import type { LeaderboardType } from '../../enums/leaderboard-type.enum';
 import type { MapTestInviteState } from '../../enums/map-test-invite-state.enum';
@@ -458,6 +459,27 @@ export interface Leaderboard {
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;
+}
+
+/**
+ * A single track's completion status for a given user, as summarised for the
+ * game's map selector. There's one of these per leaderboard (track) on a map
+ * for a given gamemode + style, whether or not the user has completed it.
+ *
+ * The user has completed the track iff `time` is non-null (`rank` and `group`
+ * are likewise non-null in that case). Other per-track data the game already
+ * has from its map cache (e.g. leaderboard type, linearity, tier) is
+ * intentionally omitted here.
+ */
+export interface MapCompletion {
+  trackType: TrackType;
+  trackNum: number;
+  /** Total number of users who have completed this track. */
+  totalCompletions: number;
+  // Non-null only when the user has completed the track (all three together).
+  time: number | null;
+  rank: number | null;
+  group: CompletionGroup | null;
 }
 
 export interface LeaderboardRun {
