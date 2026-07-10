@@ -7,6 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { Inject, Logger } from '@nestjs/common';
 import { KillswitchType } from '@momentum/constants';
+import {
+  CreateRunSessionDto,
+  RunSessionErrorDto,
+  RunSessionIdDto,
+  RunSessionResponseDto,
+  UpdateRunSessionDto
+} from '../../dto';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { ValkeyService } from '../valkey/valkey.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -26,14 +33,8 @@ export class GameConnectionGateway {
   @SubscribeMessage('session.create')
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
-    @MessageBody()
-    data: {
-      mapID: number;
-      gamemode: number;
-      trackType: number;
-      trackNum: number;
-    }
-  ): Promise<WsResponse<unknown>> {
+    @MessageBody() data: CreateRunSessionDto
+  ): Promise<WsResponse<RunSessionResponseDto | RunSessionErrorDto>> {
     const userID = client.userId;
 
     // When run submission is disabled, refuse to start new sessions
@@ -83,7 +84,7 @@ export class GameConnectionGateway {
 
     const id = await this.valkey.incr(COUNTER_KEY);
     const createdAt = Date.now();
-    const createdAtDate = new Date(createdAt);
+    const createdAtISO = new Date(createdAt).toISOString();
 
     await Promise.all([
       this.valkey.lpush(sessionKey, id),
@@ -102,10 +103,10 @@ export class GameConnectionGateway {
       data: {
         id,
         userID,
-        createdAt: createdAtDate,
+        createdAt: createdAtISO,
         ...leaderboardData,
         timestamps: [
-          { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtDate }
+          { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtISO }
         ]
       }
     };
@@ -114,14 +115,8 @@ export class GameConnectionGateway {
   @SubscribeMessage('session.update')
   async updateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
-    @MessageBody()
-    data: {
-      sessionID: number;
-      majorNum: number;
-      minorNum: number;
-      time: number;
-    }
-  ): Promise<WsResponse<unknown>> {
+    @MessageBody() data: UpdateRunSessionDto
+  ): Promise<WsResponse<null | RunSessionErrorDto>> {
     const userID = client.userId;
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
@@ -149,8 +144,8 @@ export class GameConnectionGateway {
   @SubscribeMessage('session.invalidate')
   async invalidateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
-    @MessageBody() data: { sessionID: number }
-  ): Promise<WsResponse<unknown>> {
+    @MessageBody() data: RunSessionIdDto
+  ): Promise<WsResponse<null | RunSessionErrorDto>> {
     const userID = client.userId;
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
@@ -182,8 +177,8 @@ export class GameConnectionGateway {
   @SubscribeMessage('session.end')
   async completeSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
-    @MessageBody() data: { sessionID: number }
-  ): Promise<WsResponse<unknown>> {
+    @MessageBody() data: RunSessionIdDto
+  ): Promise<WsResponse<null | RunSessionErrorDto>> {
     const userID = client.userId;
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
