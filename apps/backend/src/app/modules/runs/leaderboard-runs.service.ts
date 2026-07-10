@@ -208,12 +208,14 @@ export class LeaderboardRunsService {
   /**
    * Returns the logged-in user's completion status for every track on a map, in
    * a single gamemode + style. One entry per leaderboard (track), whether or not
-   * the user has completed it. The game merges this with its static map cache
-   * (track labels, tiers) to build the map selector's completion table.
+   * the user has completed it. The game merges this with its map cache (track
+   * labels, tiers, and the PB time) to build the map selector's completion table.
    *
-   * Note: tier is intentionally not returned - the game sources it from its map
-   * cache, which handles both approved (Leaderboard.tier) and submission maps
-   * (suggestion tier), whereas Leaderboard.tier is null for submissions.
+   * Note: neither tier nor the PB time is returned here. The game sources both
+   * from its map cache - tier because Leaderboard.tier is null for submission maps
+   * (the game reads the suggestion tier instead), and the PB time because it only
+   * changes when the user submits a run, so it's cached per track/style (populated
+   * from GetMap) rather than refetched on every map selection.
    */
   async getMapUserCompletions(
     mapID: number,
@@ -241,7 +243,6 @@ export class LeaderboardRunsService {
         trackType: row.trackType,
         trackNum: row.trackNum,
         totalCompletions,
-        time: row.time,
         rank: row.rank,
         group: completed
           ? this.getCompletionGroup(row.rank, totalCompletions)

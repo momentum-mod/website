@@ -1,6 +1,7 @@
 -- Returns one row per leaderboard (track) on a map for a given gamemode + style,
--- with that track's total completions and the given user's PB time + rank (null
--- if they haven't completed it). Ordered by trackType then trackNum.
+-- with that track's total completions and the given user's PB rank (null if they
+-- haven't completed it). The PB time is not returned here - the game caches it per
+-- track/style from GetMap. Ordered by trackType then trackNum.
 -- @param {Int} $1:mapID Map ID
 -- @param {Int} $2:gamemode Gamemode
 -- @param {Int} $3:style Style number
@@ -9,7 +10,6 @@ SELECT
     lb."trackType",
     lb."trackNum",
     counts."totalCompletions",
-    urun."time",
     urun."rank"
 FROM
     "Leaderboard" lb
@@ -23,7 +23,6 @@ FROM
     ) counts ON TRUE
     LEFT JOIN LATERAL (
         SELECT
-            ur."time",
             (
                 SELECT
                     COUNT(*)::int + 1

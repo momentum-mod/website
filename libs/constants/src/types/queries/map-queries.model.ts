@@ -140,8 +140,8 @@ export type MapsGetExpand = Array<
 
 export type MapsGetQuery = {
   expand?: MapsGetExpand;
-  personalBest?: [Gamemode, TrackType, number, Style];
   worldRecord?: [Gamemode, TrackType, number, Style];
+  personalBests?: boolean;
 };
 
 export interface CreateMapWithFiles {
