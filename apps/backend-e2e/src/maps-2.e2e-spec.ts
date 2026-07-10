@@ -1842,28 +1842,26 @@ describe('Maps Part 2', () => {
             (e) => e.trackType === trackType && e.trackNum === trackNum
           );
 
-        // Main track: WR. tier is intentionally not returned by this endpoint -
-        // the game sources it from its map cache.
+        // Main track: WR. Neither tier nor the PB time is returned by this
+        // endpoint - the game sources both from its map cache.
         expect(find(TrackType.MAIN, 1)).toMatchObject({
           totalCompletions: 3,
-          time: 5,
           rank: 1,
           group: CompletionGroup.WORLD_RECORD
         });
         expect(find(TrackType.MAIN, 1)).not.toHaveProperty('tier');
+        expect(find(TrackType.MAIN, 1)).not.toHaveProperty('time');
 
         // Stage 1: Top10 (rank 2)
         expect(find(TrackType.STAGE, 1)).toMatchObject({
           totalCompletions: 2,
-          time: 10,
           rank: 2,
           group: CompletionGroup.TOP_10
         });
 
-        // Stage 2: not completed by u1 (completion inferred from null time)
+        // Stage 2: not completed by u1 (completion inferred from null rank)
         expect(find(TrackType.STAGE, 2)).toMatchObject({
           totalCompletions: 1,
-          time: null,
           rank: null,
           group: null
         });
@@ -1879,7 +1877,6 @@ describe('Maps Part 2', () => {
         // Bonus 2: the unranked track is still included
         expect(find(TrackType.BONUS, 2)).toMatchObject({
           totalCompletions: 1,
-          time: 5,
           rank: 1,
           group: CompletionGroup.WORLD_RECORD
         });

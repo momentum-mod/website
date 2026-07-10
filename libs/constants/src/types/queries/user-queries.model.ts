@@ -68,9 +68,7 @@ export type UsersGetRunsQuery = PagedQuery & {
 
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
-export type UserMapFavoritesGetExpand = Array<
-  'info' | 'credits' | 'submitter' | 'personalBest'
->;
+export type UserMapFavoritesGetExpand = Array<'info' | 'credits' | 'submitter'>;
 
 export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapFavoritesGetExpand;

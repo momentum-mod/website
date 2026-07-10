@@ -139,12 +139,6 @@ export class UserMapFavoritesGetQueryDto
   extends UserMapsBaseGetQuery
   implements UserMapFavoritesGetQuery
 {
-  @ExpandQueryProperty([
-    'info',
-    'credits',
-    'thumbnail',
-    'submitter',
-    'personalBest'
-  ])
+  @ExpandQueryProperty(['info', 'credits', 'thumbnail', 'submitter'])
   readonly expand: UserMapFavoritesGetExpand;
 }

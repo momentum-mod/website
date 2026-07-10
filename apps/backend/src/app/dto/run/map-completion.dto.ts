@@ -1,6 +1,6 @@
 import { CompletionGroup, MapCompletion, TrackType } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 import { EnumProperty } from '../decorators';
 
 /**
@@ -24,15 +24,6 @@ export class MapCompletionDto implements MapCompletion {
   })
   @IsInt()
   readonly totalCompletions: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'The user PB time (ticks * tickRate), null if not completed',
-    nullable: true
-  })
-  @IsNumber()
-  @IsOptional()
-  readonly time: number | null;
 
   @ApiProperty({
     type: Number,
