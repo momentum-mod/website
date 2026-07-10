@@ -2057,48 +2057,45 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } }
+        // Slim shape: just the leaderboard coordinates and the time (no rank/user).
+        expect(res.body.worldRecord).toEqual({
+          gamemode: Gamemode.AHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 1,
+          style: Style.NORMAL,
+          time: 5
         });
       });
 
-      it("should respond with the logged in user's PB when requested", async () => {
-        await db.createLbRun({
-          map: map,
-          user: u1,
-          time: 10
-        });
+      it("should respond with the logged in user's PBs on all tracks/styles when personalBests is set", async () => {
+        // u2 already has a run from the WR test above; give u1 one PB too.
+        await db.createLbRun({ map: map, user: u1, time: 10 });
 
         const res = await req.get({
           url: `maps/${map.id}`,
           status: 200,
-          query: {
-            personalBest: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`
-          },
+          query: { personalBests: true },
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
-          personalBest: { rank: 2, user: { id: u1.id } }
-        });
+        // personalBests is scoped to the logged-in user, so only u1's run appears.
+        expect(res.body.personalBests).toEqual([
+          {
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 1,
+            style: Style.NORMAL,
+            time: 10
+          }
+        ]);
       });
 
-      it('should respond with both personalBest and worldRecord when requested', async () => {
-        const res = await req.get({
+      it('should 403 on personalBests when not logged in', () =>
+        req.get({
           url: `maps/${map.id}`,
-          status: 200,
-          query: {
-            worldRecord: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`,
-            personalBest: `${Gamemode.AHOP},${TrackType.MAIN},1,${Style.NORMAL}`
-          },
-          token: u1Token
-        });
-
-        expect(res.body).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } },
-          personalBest: { rank: 2, user: { id: u1.id } }
-        });
-      });
+          status: 403,
+          query: { personalBests: true }
+        }));
 
       it('should respond with expanded map data using the submission expand parameter', () =>
         req.expandTest({

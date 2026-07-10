@@ -187,10 +187,32 @@ export interface MMap {
   credits: MapCredit[];
   favorites: MapFavorite[];
   leaderboards: Leaderboard[];
-  worldRecord: LeaderboardRun;
-  personalBest: LeaderboardRun;
+  /** The map's world record on the requested leaderboard (track + style). */
+  worldRecord: MapLeaderboardTime;
+  /**
+   * The logged-in user's PB time on every leaderboard (track + style) they've
+   * completed on this map. Only populated when the `personalBests` query param is
+   * set. The game caches these so the map selector's completion table can show PB
+   * times without refetching (a user's PB only changes when they submit a run).
+   */
+  personalBests?: MapLeaderboardTime[];
   testInvites?: MapTestInvite[];
   reviewStats?: MapReviewStats;
+}
+
+/**
+ * A single recorded time on one leaderboard (track + style) of a map. A slim
+ * projection of {@link LeaderboardRun} - just the leaderboard coordinates and the
+ * time, which is all the game needs for the map selector (a user PB in
+ * {@link MMap.personalBests}, or the {@link MMap.worldRecord}). Deliberately omits
+ * rank/user etc., which nothing consumes for these.
+ */
+export interface MapLeaderboardTime {
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+  time: number;
 }
 
 export interface MapVersion {
@@ -466,9 +488,9 @@ export interface LeaderboardStats {
  * game's map selector. There's one of these per leaderboard (track) on a map
  * for a given gamemode + style, whether or not the user has completed it.
  *
- * The user has completed the track iff `time` is non-null (`rank` and `group`
- * are likewise non-null in that case). Other per-track data the game already
- * has from its map cache (e.g. leaderboard type, linearity, tier) is
+ * The user has completed the track iff `rank` is non-null (`group` is likewise
+ * non-null in that case). Other per-track data the game already has from its map
+ * cache (e.g. leaderboard type, linearity, tier, and the user's PB time) is
  * intentionally omitted here.
  */
 export interface MapCompletion {
@@ -476,8 +498,7 @@ export interface MapCompletion {
   trackNum: number;
   /** Total number of users who have completed this track. */
   totalCompletions: number;
-  // Non-null only when the user has completed the track (all three together).
-  time: number | null;
+  // Both non-null only when the user has completed the track.
   rank: number | null;
   group: CompletionGroup | null;
 }

@@ -99,32 +99,6 @@ export class LeaderboardRunsDbService {
     return rows.map(LeaderboardRunsDbService.mapRowToLeaderboardRun);
   }
 
-  /**
-   * Get a single ranked run for a user on a specific leaderboard.
-   */
-  async getRankedRun(
-    args: LeaderboardQuery & { userID: number }
-  ): Promise<LeaderboardRun | undefined> {
-    const sql = TypedSql.getLeaderboardRun(
-      args.mapID,
-      args.gamemode,
-      args.trackType,
-      args.trackNum,
-      args.style,
-      args.userID
-    );
-
-    const rows: any[] = args.transaction
-      ? await args.transaction.$queryRawTyped(sql)
-      : await this.db.$queryRawTyped(sql);
-
-    if (rows.length === 0) {
-      return undefined;
-    }
-
-    return LeaderboardRunsDbService.mapRowToLeaderboardRun(rows[0]);
-  }
-
   private static mapRowToLeaderboardRun(row: any): any {
     return {
       rank: row.rank,
@@ -154,8 +128,9 @@ export class LeaderboardRunsDbService {
 
   /**
    * Get every track (leaderboard) on a map for a given gamemode + style, along
-   * with its total completions and the given user's PB time + rank (null where
-   * the user hasn't completed the track).
+   * with its total completions and the given user's PB rank (null where the user
+   * hasn't completed the track). The PB time is not returned - the game caches it
+   * per track/style from GetMap.
    */
   async getMapUserCompletions(args: {
     mapID: number;
@@ -168,7 +143,6 @@ export class LeaderboardRunsDbService {
       trackType: number;
       trackNum: number;
       totalCompletions: number | null;
-      time: number | null;
       rank: number | null;
     }>
   > {
@@ -182,6 +156,38 @@ export class LeaderboardRunsDbService {
     return args.transaction
       ? await args.transaction.$queryRawTyped(sql)
       : await this.db.$queryRawTyped(sql);
+  }
+
+  /**
+   * Get the given user's PB time on every leaderboard (track + style) they've
+   * completed on a map. Each LeaderboardRun row is already a user's PB for that
+   * leaderboard, so no aggregation is needed - and no ranks, so plain Prisma is
+   * fine (unlike the rank-bearing queries above).
+   */
+  async getMapUserPersonalBests(args: {
+    mapID: number;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<
+    Array<{
+      gamemode: Gamemode;
+      trackType: TrackType;
+      trackNum: number;
+      style: Style;
+      time: number;
+    }>
+  > {
+    const db = args.transaction ?? this.db;
+    return db.leaderboardRun.findMany({
+      where: { mapID: args.mapID, userID: args.userID },
+      select: {
+        gamemode: true,
+        trackType: true,
+        trackNum: true,
+        style: true,
+        time: true
+      }
+    });
   }
 
   /**
