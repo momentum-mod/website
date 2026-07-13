@@ -8,13 +8,11 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import {
-  CompletionGroup,
   LeaderboardIdentifier,
   MapStatus,
   runPath,
   TrackType
 } from '@momentum/constants';
-import { getRankGroup } from '@momentum/xp-systems';
 import { Prisma, TypedSql } from '@momentum/db';
 import { SteamService } from '../steam/steam.service';
 import {
@@ -353,11 +351,11 @@ export class LeaderboardRunsService {
    * the user has completed it. The game merges this with its map cache (track
    * labels, tiers, and the PB time) to build the map selector's completion table.
    *
-   * Note: neither tier nor the PB time is returned here. The game sources both
-   * from its map cache - tier because Leaderboard.tier is null for submission maps
-   * (the game reads the suggestion tier instead), and the PB time because it only
-   * changes when the user submits a run, so it's cached per track/style (populated
-   * from GetMap) rather than refetched on every map selection.
+   * Note: tier, the PB time, and the completion group are not returned here. The
+   * game sources tier and PB time from its map cache (tier because Leaderboard.tier
+   * is null for submission maps; PB time because it only changes when the user
+   * submits a run, so it's cached per track/style from GetMap). The completion group
+   * is derived on the front end from rank + totalCompletions.
    */
   async getMapUserCompletions(
     mapID: number,
@@ -376,39 +374,14 @@ export class LeaderboardRunsService {
       userID: loggedInUserID
     });
 
-    return rows.map((row) => {
-      const totalCompletions = row.totalCompletions ?? 0;
-      // A user has completed the track iff they have a ranked run on it.
-      const completed = row.rank != null;
-
-      return DtoFactory(MapCompletionDto, {
+    return rows.map((row) =>
+      DtoFactory(MapCompletionDto, {
         trackType: row.trackType,
         trackNum: row.trackNum,
-        totalCompletions,
-        rank: row.rank,
-        group: completed
-          ? this.getCompletionGroup(row.rank, totalCompletions)
-          : null
-      });
-    });
-  }
-
-  /**
-   * Classify a PB's rank into a {@link CompletionGroup}. WR and Top10 take
-   * priority; otherwise the numbered groups are the display-only rank groups
-   * (`getRankGroup`), so this matches the group shown on the leaderboards.
-   */
-  private getCompletionGroup(
-    rank: number,
-    totalCompletions: number
-  ): CompletionGroup {
-    if (rank === 1) return CompletionGroup.WORLD_RECORD;
-    if (rank <= 10) return CompletionGroup.TOP_10;
-
-    const rankGroup = getRankGroup(rank, totalCompletions);
-    // Ranks past the last group's cutoff aren't in any group.
-    if (!rankGroup) return CompletionGroup.NO_GROUP;
-    return CompletionGroup.GROUP_1 + rankGroup.group - 1;
+        totalCompletions: row.totalCompletions ?? 0,
+        rank: row.rank
+      })
+    );
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {

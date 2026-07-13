@@ -41,8 +41,7 @@ import {
   TrackType,
   MapSubmissionType,
   Style,
-  LeaderboardType,
-  CompletionGroup
+  LeaderboardType
 } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
 import { difference, arrayFrom } from '@momentum/util-fn';
@@ -1842,43 +1841,38 @@ describe('Maps Part 2', () => {
             (e) => e.trackType === trackType && e.trackNum === trackNum
           );
 
-        // Main track: WR. Neither tier nor the PB time is returned by this
-        // endpoint - the game sources both from its map cache.
+        // Main track: WR (rank 1). Tier, PB time, and the completion group are not
+        // returned by this endpoint - the game/front end derive those.
         expect(find(TrackType.MAIN, 1)).toMatchObject({
           totalCompletions: 3,
-          rank: 1,
-          group: CompletionGroup.WORLD_RECORD
+          rank: 1
         });
         expect(find(TrackType.MAIN, 1)).not.toHaveProperty('tier');
         expect(find(TrackType.MAIN, 1)).not.toHaveProperty('time');
+        expect(find(TrackType.MAIN, 1)).not.toHaveProperty('group');
 
-        // Stage 1: Top10 (rank 2)
+        // Stage 1: rank 2
         expect(find(TrackType.STAGE, 1)).toMatchObject({
           totalCompletions: 2,
-          rank: 2,
-          group: CompletionGroup.TOP_10
+          rank: 2
         });
 
         // Stage 2: not completed by u1 (completion inferred from null rank)
         expect(find(TrackType.STAGE, 2)).toMatchObject({
           totalCompletions: 1,
-          rank: null,
-          group: null
+          rank: null
         });
 
-        // Bonus 1: rank 11 -> numbered group (past WR/Top10)
-        const bonus1 = find(TrackType.BONUS, 1);
-        expect(bonus1).toMatchObject({
+        // Bonus 1: rank 11
+        expect(find(TrackType.BONUS, 1)).toMatchObject({
           totalCompletions: 11,
           rank: 11
         });
-        expect(bonus1.group).toBeGreaterThanOrEqual(CompletionGroup.GROUP_1);
 
         // Bonus 2: the unranked track is still included
         expect(find(TrackType.BONUS, 2)).toMatchObject({
           totalCompletions: 1,
-          rank: 1,
-          group: CompletionGroup.WORLD_RECORD
+          rank: 1
         });
       });
 
