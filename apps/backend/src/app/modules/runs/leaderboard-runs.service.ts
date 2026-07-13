@@ -7,7 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { CompletionGroup, runPath } from '@momentum/constants';
+import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
@@ -18,7 +18,6 @@ import {
   PagedResponseDto,
   LeaderboardRunDto
 } from '../../dto';
-import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
@@ -33,8 +32,7 @@ export class LeaderboardRunsService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly fileStoreService: FileStoreService,
-    private readonly steamService: SteamService,
-    private readonly xpSystems: XpSystemsService
+    private readonly steamService: SteamService
   ) {}
 
   async getRuns(
@@ -211,11 +209,11 @@ export class LeaderboardRunsService {
    * the user has completed it. The game merges this with its map cache (track
    * labels, tiers, and the PB time) to build the map selector's completion table.
    *
-   * Note: neither tier nor the PB time is returned here. The game sources both
-   * from its map cache - tier because Leaderboard.tier is null for submission maps
-   * (the game reads the suggestion tier instead), and the PB time because it only
-   * changes when the user submits a run, so it's cached per track/style (populated
-   * from GetMap) rather than refetched on every map selection.
+   * Note: tier, the PB time, and the completion group are not returned here. The
+   * game sources tier and PB time from its map cache (tier because Leaderboard.tier
+   * is null for submission maps; PB time because it only changes when the user
+   * submits a run, so it's cached per track/style from GetMap). The completion group
+   * is derived on the front end from rank + totalCompletions.
    */
   async getMapUserCompletions(
     mapID: number,
@@ -234,49 +232,14 @@ export class LeaderboardRunsService {
       userID: loggedInUserID
     });
 
-    return rows.map((row) => {
-      const totalCompletions = row.totalCompletions ?? 0;
-      // A user has completed the track iff they have a ranked run on it.
-      const completed = row.rank != null;
-
-      return DtoFactory(MapCompletionDto, {
+    return rows.map((row) =>
+      DtoFactory(MapCompletionDto, {
         trackType: row.trackType,
         trackNum: row.trackNum,
-        totalCompletions,
-        rank: row.rank,
-        group: completed
-          ? this.getCompletionGroup(row.rank, totalCompletions)
-          : null
-      });
-    });
-  }
-
-  /**
-   * Classify a PB's rank into a {@link CompletionGroup}. WR and Top10 take
-   * priority; otherwise the numbered groups mirror the XP system's formula-based
-   * groups (`XpSystems.getRankXpForRank`), so this matches the group that
-   * awarded the run's rank XP.
-   */
-  private getCompletionGroup(
-    rank: number,
-    totalCompletions: number
-  ): CompletionGroup {
-    if (rank === 1) return CompletionGroup.WORLD_RECORD;
-    if (rank <= 10) return CompletionGroup.TOP_10;
-
-    const { group } = this.xpSystems.getRankXpForRank(rank, totalCompletions);
-    switch (group.groupNum) {
-      case 1:
-        return CompletionGroup.GROUP_1;
-      case 2:
-        return CompletionGroup.GROUP_2;
-      case 3:
-        return CompletionGroup.GROUP_3;
-      // groupNum 4, or -1 when the rank falls beyond the last group, both map to
-      // the bottom group for display purposes.
-      default:
-        return CompletionGroup.GROUP_4;
-    }
+        totalCompletions: row.totalCompletions ?? 0,
+        rank: row.rank
+      })
+    );
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {

@@ -3,7 +3,6 @@ import { DbModule } from '../database/db.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { SteamModule } from '../steam/steam.module';
 import { MapsModule } from '../maps/maps.module';
-import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { LeaderboardRunsService } from './leaderboard-runs.service';
 import { PastRunsService } from './past-runs.service';
 import { LeaderboardService } from './leaderboard.service';
@@ -15,8 +14,7 @@ import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
     DbModule,
     forwardRef(() => MapsModule),
     FileStoreModule,
-    SteamModule,
-    XpSystemsModule
+    SteamModule
   ],
   providers: [
     LeaderboardRunsService,
