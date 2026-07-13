@@ -1,4 +1,4 @@
-import { CompletionGroup, MapCompletion, TrackType } from '@momentum/constants';
+import { MapCompletion, TrackType } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, Min } from 'class-validator';
 import { EnumProperty } from '../decorators';
@@ -33,12 +33,4 @@ export class MapCompletionDto implements MapCompletion {
   @IsInt()
   @IsOptional()
   readonly rank: number | null;
-
-  @EnumProperty(CompletionGroup, {
-    description:
-      'The group the user PB falls into (WR/Top10/Group N), null if not completed',
-    required: false,
-    nullable: true
-  })
-  readonly group: CompletionGroup | null;
 }
