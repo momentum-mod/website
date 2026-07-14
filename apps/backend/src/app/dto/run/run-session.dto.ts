@@ -53,7 +53,7 @@ export class RunSessionDto implements RunSession {
 }
 
 /**
- * Body of the `session.create` message: identifies the leaderboard a new run
+ * Body of the `runsession.create` message: identifies the leaderboard a new run
  * session is being started on.
  */
 export class CreateRunSessionDto
@@ -66,8 +66,8 @@ export class CreateRunSessionDto
   implements CreateRunSession {}
 
 /**
- * Identifies an existing run session. Body of the `session.invalidate` and
- * `session.end` messages.
+ * Identifies an existing run session. Body of the `runsession.invalidate` and
+ * `runsession.end` messages.
  */
 export class RunSessionIdDto {
   @IdProperty({ description: 'The ID of the run session' })
@@ -75,7 +75,7 @@ export class RunSessionIdDto {
 }
 
 /**
- * Body of the `session.update` message: a timestamp to append to an existing
+ * Body of the `runsession.update` message: a timestamp to append to an existing
  * run session.
  */
 export class UpdateRunSessionDto
@@ -93,7 +93,7 @@ export class UpdateRunSessionDto
 }
 
 /**
- * The subset of a timestamp echoed back in a `session.create` response - the
+ * The subset of a timestamp echoed back in a `runsession.create` response - the
  * session's initial timestamp, before it's been persisted with an ID.
  */
 export class RunSessionResponseTimestampDto extends PickType(
@@ -102,7 +102,7 @@ export class RunSessionResponseTimestampDto extends PickType(
 ) {}
 
 /**
- * Successful response to a `session.create` message: the created session plus
+ * Successful response to a `runsession.create` message: the created session plus
  * its initial timestamp.
  */
 export class RunSessionResponseDto extends RunSessionDto {

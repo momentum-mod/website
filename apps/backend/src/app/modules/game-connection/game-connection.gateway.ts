@@ -30,7 +30,7 @@ export class GameConnectionGateway {
     private readonly killswitch: KillswitchService
   ) {}
 
-  @SubscribeMessage('session.create')
+  @SubscribeMessage('runsession.create')
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: CreateRunSessionDto
@@ -40,10 +40,10 @@ export class GameConnectionGateway {
     // When run submission is disabled, refuse to start new sessions
     if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
       this.logger.warn(
-        `session.create: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
+        `runsession.create: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
       );
       return {
-        event: 'session.create',
+        event: 'runsession.create',
         data: { error: 'Run submission is currently disabled' }
       };
     }
@@ -57,10 +57,10 @@ export class GameConnectionGateway {
 
     if (!(await this.db.leaderboard.exists({ where: leaderboardData }))) {
       this.logger.warn(
-        `session.create: leaderboard not found (userID=${userID}, mapID=${data.mapID}, gamemode=${data.gamemode}, trackType=${data.trackType}, trackNum=${data.trackNum})`
+        `runsession.create: leaderboard not found (userID=${userID}, mapID=${data.mapID}, gamemode=${data.gamemode}, trackType=${data.trackType}, trackNum=${data.trackNum})`
       );
       return {
-        event: 'session.create',
+        event: 'runsession.create',
         data: { error: 'Leaderboard does not exist' }
       };
     }
@@ -96,10 +96,10 @@ export class GameConnectionGateway {
     ]);
 
     this.logger.log(
-      `session.create: created session (sessionID=${id}, userID=${userID}, mapID=${data.mapID})`
+      `runsession.create: created session (sessionID=${id}, userID=${userID}, mapID=${data.mapID})`
     );
     return {
-      event: 'session.create',
+      event: 'runsession.create',
       data: {
         id,
         userID,
@@ -112,7 +112,7 @@ export class GameConnectionGateway {
     };
   }
 
-  @SubscribeMessage('session.update')
+  @SubscribeMessage('runsession.update')
   async updateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: UpdateRunSessionDto
@@ -125,9 +125,9 @@ export class GameConnectionGateway {
 
     if (!storedUserID || Number(storedUserID) !== userID) {
       this.logger.warn(
-        `session.update: invalid session (sessionID=${data.sessionID}, userID=${userID})`
+        `runsession.update: invalid session (sessionID=${data.sessionID}, userID=${userID})`
       );
-      return { event: 'session.update', data: { error: 'Invalid session' } };
+      return { event: 'runsession.update', data: { error: 'Invalid session' } };
     }
 
     await this.valkey.lpush(
@@ -136,12 +136,12 @@ export class GameConnectionGateway {
     );
 
     this.logger.log(
-      `session.update: timestamp added (sessionID=${data.sessionID}, userID=${userID}, majorNum=${data.majorNum}, minorNum=${data.minorNum}, time=${data.time})`
+      `runsession.update: timestamp added (sessionID=${data.sessionID}, userID=${userID}, majorNum=${data.majorNum}, minorNum=${data.minorNum}, time=${data.time})`
     );
-    return { event: 'session.update', data: null };
+    return { event: 'runsession.update', data: null };
   }
 
-  @SubscribeMessage('session.invalidate')
+  @SubscribeMessage('runsession.invalidate')
   async invalidateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
@@ -154,10 +154,10 @@ export class GameConnectionGateway {
 
     if (!storedUserID || Number(storedUserID) !== userID) {
       this.logger.warn(
-        `session.invalidate: invalid session (sessionID=${data.sessionID}, userID=${userID})`
+        `runsession.invalidate: invalid session (sessionID=${data.sessionID}, userID=${userID})`
       );
       return {
-        event: 'session.invalidate',
+        event: 'runsession.invalidate',
         data: { error: 'Invalid session' }
       };
     }
@@ -169,12 +169,12 @@ export class GameConnectionGateway {
     ]);
 
     this.logger.log(
-      `session.invalidate: session deleted (sessionID=${data.sessionID}, userID=${userID})`
+      `runsession.invalidate: session deleted (sessionID=${data.sessionID}, userID=${userID})`
     );
-    return { event: 'session.invalidate', data: null };
+    return { event: 'runsession.invalidate', data: null };
   }
 
-  @SubscribeMessage('session.end')
+  @SubscribeMessage('runsession.end')
   async completeSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
@@ -190,14 +190,14 @@ export class GameConnectionGateway {
     // the race and consumed it - that's the expected terminal state, so ack
     // without warning rather than treating it as an invalid session.
     if (!storedUserID) {
-      return { event: 'session.end', data: null };
+      return { event: 'runsession.end', data: null };
     }
 
     if (Number(storedUserID) !== userID) {
       this.logger.warn(
-        `session.end: invalid session (sessionID=${data.sessionID}, userID=${userID})`
+        `runsession.end: invalid session (sessionID=${data.sessionID}, userID=${userID})`
       );
-      return { event: 'session.end', data: { error: 'Invalid session' } };
+      return { event: 'runsession.end', data: { error: 'Invalid session' } };
     }
 
     // Don't delete the session data/timestamps here: the replay upload still
@@ -217,9 +217,9 @@ export class GameConnectionGateway {
     ]);
 
     this.logger.log(
-      `session.end: session ended, awaiting replay upload (sessionID=${data.sessionID}, userID=${userID})`
+      `runsession.end: session ended, awaiting replay upload (sessionID=${data.sessionID}, userID=${userID})`
     );
-    return { event: 'session.end', data: null };
+    return { event: 'runsession.end', data: null };
   }
 }
 
