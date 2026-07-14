@@ -119,18 +119,18 @@ describe('Game Connection Gateway - run sessions', () => {
     return id;
   }
 
-  describe('session.create', () => {
+  describe('runsession.create', () => {
     it('should create a run session and return its data', async () => {
       const client = await connect();
 
-      const res = await client.sendAndAwait('session.create', {
+      const res = await client.sendAndAwait('runsession.create', {
         mapID: map.id,
         gamemode: Gamemode.AHOP,
         trackType: TrackType.MAIN,
         trackNum: 1
       });
 
-      expect(res.event).toBe('session.create');
+      expect(res.event).toBe('runsession.create');
       expect(res.data.error).toBeUndefined();
       expect(res.data.userID).toBe(user.id);
       expect(typeof res.data.id).toBe('number');
@@ -187,7 +187,7 @@ describe('Game Connection Gateway - run sessions', () => {
       });
 
       const client = await connect();
-      const res = await client.sendAndAwait('session.create', {
+      const res = await client.sendAndAwait('runsession.create', {
         mapID: map.id,
         gamemode: Gamemode.AHOP,
         trackType: TrackType.STAGE,
@@ -207,7 +207,7 @@ describe('Game Connection Gateway - run sessions', () => {
     it('should return an error if the leaderboard does not exist', async () => {
       const client = await connect();
 
-      const res = await client.sendAndAwait('session.create', {
+      const res = await client.sendAndAwait('runsession.create', {
         mapID: NULL_ID,
         gamemode: Gamemode.AHOP,
         trackType: TrackType.MAIN,
@@ -229,7 +229,7 @@ describe('Game Connection Gateway - run sessions', () => {
       });
 
       const client = await connect();
-      const res = await client.sendAndAwait('session.create', {
+      const res = await client.sendAndAwait('runsession.create', {
         mapID: map.id,
         gamemode: Gamemode.AHOP,
         trackType: TrackType.MAIN,
@@ -244,7 +244,7 @@ describe('Game Connection Gateway - run sessions', () => {
     });
   });
 
-  describe('session.update', () => {
+  describe('runsession.update', () => {
     it('should append a timestamp to an existing session', async () => {
       const sessionID = await seedSession(user.id, {
         trackType: TrackType.MAIN,
@@ -252,7 +252,7 @@ describe('Game Connection Gateway - run sessions', () => {
       });
 
       const client = await connect();
-      const res = await client.sendAndAwait('session.update', {
+      const res = await client.sendAndAwait('runsession.update', {
         sessionID,
         majorNum: 1,
         minorNum: 2,
@@ -279,7 +279,7 @@ describe('Game Connection Gateway - run sessions', () => {
 
       const otherToken = await db.loginNewGameUser();
       const otherClient = await connect(otherToken);
-      const res = await otherClient.sendAndAwait('session.update', {
+      const res = await otherClient.sendAndAwait('runsession.update', {
         sessionID,
         majorNum: 1,
         minorNum: 2,
@@ -291,7 +291,7 @@ describe('Game Connection Gateway - run sessions', () => {
 
     it('should error when updating a non-existent session', async () => {
       const client = await connect();
-      const res = await client.sendAndAwait('session.update', {
+      const res = await client.sendAndAwait('runsession.update', {
         sessionID: NULL_ID,
         majorNum: 1,
         minorNum: 2,
@@ -302,7 +302,7 @@ describe('Game Connection Gateway - run sessions', () => {
     });
   });
 
-  describe('session.invalidate', () => {
+  describe('runsession.invalidate', () => {
     it('should delete the run session', async () => {
       const sessionID = await seedSession(user.id, {
         trackType: TrackType.MAIN,
@@ -310,7 +310,7 @@ describe('Game Connection Gateway - run sessions', () => {
       });
 
       const client = await connect();
-      const res = await client.sendAndAwait('session.invalidate', {
+      const res = await client.sendAndAwait('runsession.invalidate', {
         sessionID
       });
 
@@ -323,7 +323,7 @@ describe('Game Connection Gateway - run sessions', () => {
 
     it('should error when invalidating a non-existent session', async () => {
       const client = await connect();
-      const res = await client.sendAndAwait('session.invalidate', {
+      const res = await client.sendAndAwait('runsession.invalidate', {
         sessionID: NULL_ID
       });
 
@@ -338,7 +338,7 @@ describe('Game Connection Gateway - run sessions', () => {
 
       const otherToken = await db.loginNewGameUser();
       const otherClient = await connect(otherToken);
-      const res = await otherClient.sendAndAwait('session.invalidate', {
+      const res = await otherClient.sendAndAwait('runsession.invalidate', {
         sessionID
       });
 
@@ -348,7 +348,7 @@ describe('Game Connection Gateway - run sessions', () => {
     });
   });
 
-  describe('session.end', () => {
+  describe('runsession.end', () => {
     it('should mark the session ended and keep its data for the replay upload', async () => {
       const sessionID = await seedSession(user.id, {
         trackType: TrackType.MAIN,
@@ -356,7 +356,7 @@ describe('Game Connection Gateway - run sessions', () => {
       });
 
       const client = await connect();
-      const res = await client.sendAndAwait('session.end', { sessionID });
+      const res = await client.sendAndAwait('runsession.end', { sessionID });
 
       expect(res.data).toBeNull();
 
@@ -375,7 +375,7 @@ describe('Game Connection Gateway - run sessions', () => {
     it('should ack without error when the session is already gone', async () => {
       // Mirrors the upload winning the race and consuming the session first.
       const client = await connect();
-      const res = await client.sendAndAwait('session.end', {
+      const res = await client.sendAndAwait('runsession.end', {
         sessionID: NULL_ID
       });
 
@@ -390,7 +390,9 @@ describe('Game Connection Gateway - run sessions', () => {
 
       const otherToken = await db.loginNewGameUser();
       const otherClient = await connect(otherToken);
-      const res = await otherClient.sendAndAwait('session.end', { sessionID });
+      const res = await otherClient.sendAndAwait('runsession.end', {
+        sessionID
+      });
 
       expect(res.data.error).toBe('Invalid session');
     });
@@ -410,7 +412,7 @@ describe('Game Connection Gateway - run sessions', () => {
     });
   });
 
-  // The WS session.end and the HTTP replay upload race; the backend must handle
+  // The WS runsession.end and the HTTP replay upload race; the backend must handle
   // them in either order without losing the run (see the rendezvous design).
   describe('rendezvous with the HTTP replay upload', () => {
     afterEach(async () => {
@@ -436,13 +438,13 @@ describe('Game Connection Gateway - run sessions', () => {
         playerName: 'Abstract Barry'
       });
 
-    it('should still accept the upload when session.end arrives first', async () => {
+    it('should still accept the upload when runsession.end arrives first', async () => {
       const tester = newTester();
       await tester.startRun();
       await tester.doSegment([1, 1]);
 
       const client = await connect();
-      const endRes = await client.sendAndAwait('session.end', {
+      const endRes = await client.sendAndAwait('runsession.end', {
         sessionID: tester.sessionID
       });
       expect(endRes.data).toBeNull();
@@ -451,7 +453,7 @@ describe('Game Connection Gateway - run sessions', () => {
       expect(res.statusCode).toBe(200);
     });
 
-    it('should make session.end a no-op when the upload arrives first', async () => {
+    it('should make runsession.end a no-op when the upload arrives first', async () => {
       const tester = newTester();
       await tester.startRun();
       await tester.doSegment([1, 1]);
@@ -459,9 +461,9 @@ describe('Game Connection Gateway - run sessions', () => {
       const res = await tester.endRun();
       expect(res.statusCode).toBe(200);
 
-      // Upload consumed the session, so session.end finds nothing and acks.
+      // Upload consumed the session, so runsession.end finds nothing and acks.
       const client = await connect();
-      const endRes = await client.sendAndAwait('session.end', {
+      const endRes = await client.sendAndAwait('runsession.end', {
         sessionID: tester.sessionID
       });
       expect(endRes.data).toBeNull();
