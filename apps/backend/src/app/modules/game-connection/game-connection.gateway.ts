@@ -5,8 +5,6 @@ import {
   WebSocketGateway,
   WsResponse
 } from '@nestjs/websockets';
-import { Inject, Logger } from '@nestjs/common';
-import { KillswitchType } from '@momentum/constants';
 import {
   CreateRunSessionDto,
   RunSessionErrorDto,
@@ -15,100 +13,29 @@ import {
   UpdateRunSessionDto
 } from '../../dto';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
-import { ValkeyService } from '../valkey/valkey.service';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import { ExtendedPrismaService } from '../database/prisma.extension';
-import { KillswitchService } from '../killswitch/killswitch.service';
+import { RunSessionService } from '../session/run/run-session.service';
 
+/**
+ * Game client WebSocket entrypoint (`/game`).
+ *
+ * This is a thin transport layer: each handler frames an incoming message, hands
+ * it to the relevant subsystem service, and wraps the result back into a
+ * `{ event, data }` response. Business logic lives in the services (run sessions
+ * in {@link RunSessionService}), so new subsystems are added as a new service
+ * plus a handful of delegating handlers here.
+ */
 @WebSocketGateway({ path: '/game' })
 export class GameConnectionGateway {
-  private readonly logger = new Logger(GameConnectionGateway.name);
-
-  constructor(
-    private readonly valkey: ValkeyService,
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly killswitch: KillswitchService
-  ) {}
+  constructor(private readonly runSession: RunSessionService) {}
 
   @SubscribeMessage('runsession.create')
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: CreateRunSessionDto
   ): Promise<WsResponse<RunSessionResponseDto | RunSessionErrorDto>> {
-    const userID = client.userId;
-
-    // When run submission is disabled, refuse to start new sessions
-    if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
-      this.logger.warn(
-        `runsession.create: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
-      );
-      return {
-        event: 'runsession.create',
-        data: { error: 'Run submission is currently disabled' }
-      };
-    }
-
-    const leaderboardData = {
-      mapID: data.mapID,
-      gamemode: data.gamemode,
-      trackType: data.trackType,
-      trackNum: data.trackNum
-    };
-
-    if (!(await this.db.leaderboard.exists({ where: leaderboardData }))) {
-      this.logger.warn(
-        `runsession.create: leaderboard not found (userID=${userID}, mapID=${data.mapID}, gamemode=${data.gamemode}, trackType=${data.trackType}, trackNum=${data.trackNum})`
-      );
-      return {
-        event: 'runsession.create',
-        data: { error: 'Leaderboard does not exist' }
-      };
-    }
-
-    const sessionKey = idKey(userID);
-    const sessionIDs = await this.valkey.lrange(sessionKey, 0, -1);
-    for (const sessionID of sessionIDs) {
-      const session = await this.valkey.hgetall(dataKey(sessionID));
-      if (
-        session &&
-        Number(session.userID) === userID &&
-        Number(session.trackType) === data.trackType &&
-        Number(session.trackNum) === data.trackNum
-      ) {
-        await Promise.all([
-          this.valkey.lrem(sessionKey, 0, sessionID),
-          this.valkey.del(dataKey(sessionID))
-        ]);
-      }
-    }
-
-    const id = await this.valkey.incr(COUNTER_KEY);
-    const createdAt = Date.now();
-    const createdAtISO = new Date(createdAt).toISOString();
-
-    await Promise.all([
-      this.valkey.lpush(sessionKey, id),
-      this.valkey.hset(dataKey(id), { userID, createdAt, ...leaderboardData }),
-      this.valkey.lpush(
-        timestampKey(id),
-        serializeTimestamp(1, 1, 0, createdAt)
-      )
-    ]);
-
-    this.logger.log(
-      `runsession.create: created session (sessionID=${id}, userID=${userID}, mapID=${data.mapID})`
-    );
     return {
       event: 'runsession.create',
-      data: {
-        id,
-        userID,
-        createdAt: createdAtISO,
-        ...leaderboardData,
-        timestamps: [
-          { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtISO }
-        ]
-      }
+      data: await this.runSession.createSession(client.userId, data)
     };
   }
 
@@ -117,28 +44,10 @@ export class GameConnectionGateway {
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: UpdateRunSessionDto
   ): Promise<WsResponse<null | RunSessionErrorDto>> {
-    const userID = client.userId;
-    const storedUserID = await this.valkey.hget(
-      dataKey(data.sessionID),
-      'userID'
-    );
-
-    if (!storedUserID || Number(storedUserID) !== userID) {
-      this.logger.warn(
-        `runsession.update: invalid session (sessionID=${data.sessionID}, userID=${userID})`
-      );
-      return { event: 'runsession.update', data: { error: 'Invalid session' } };
-    }
-
-    await this.valkey.lpush(
-      timestampKey(data.sessionID),
-      serializeTimestamp(data.majorNum, data.minorNum, data.time, Date.now())
-    );
-
-    this.logger.log(
-      `runsession.update: timestamp added (sessionID=${data.sessionID}, userID=${userID}, majorNum=${data.majorNum}, minorNum=${data.minorNum}, time=${data.time})`
-    );
-    return { event: 'runsession.update', data: null };
+    return {
+      event: 'runsession.update',
+      data: await this.runSession.updateSession(client.userId, data)
+    };
   }
 
   @SubscribeMessage('runsession.invalidate')
@@ -146,32 +55,10 @@ export class GameConnectionGateway {
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
   ): Promise<WsResponse<null | RunSessionErrorDto>> {
-    const userID = client.userId;
-    const storedUserID = await this.valkey.hget(
-      dataKey(data.sessionID),
-      'userID'
-    );
-
-    if (!storedUserID || Number(storedUserID) !== userID) {
-      this.logger.warn(
-        `runsession.invalidate: invalid session (sessionID=${data.sessionID}, userID=${userID})`
-      );
-      return {
-        event: 'runsession.invalidate',
-        data: { error: 'Invalid session' }
-      };
-    }
-
-    await Promise.all([
-      this.valkey.lrem(idKey(userID), 0, data.sessionID),
-      this.valkey.del(dataKey(data.sessionID)),
-      this.valkey.del(timestampKey(data.sessionID))
-    ]);
-
-    this.logger.log(
-      `runsession.invalidate: session deleted (sessionID=${data.sessionID}, userID=${userID})`
-    );
-    return { event: 'runsession.invalidate', data: null };
+    return {
+      event: 'runsession.invalidate',
+      data: await this.runSession.invalidateSession(client.userId, data)
+    };
   }
 
   @SubscribeMessage('runsession.end')
@@ -179,74 +66,9 @@ export class GameConnectionGateway {
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
   ): Promise<WsResponse<null | RunSessionErrorDto>> {
-    const userID = client.userId;
-    const storedUserID = await this.valkey.hget(
-      dataKey(data.sessionID),
-      'userID'
-    );
-
-    // This event and the replay upload (HTTP POST /session/run/:id/end) race and
-    // can arrive in either order. If the session is already gone the upload won
-    // the race and consumed it - that's the expected terminal state, so ack
-    // without warning rather than treating it as an invalid session.
-    if (!storedUserID) {
-      return { event: 'runsession.end', data: null };
-    }
-
-    if (Number(storedUserID) !== userID) {
-      this.logger.warn(
-        `runsession.end: invalid session (sessionID=${data.sessionID}, userID=${userID})`
-      );
-      return { event: 'runsession.end', data: { error: 'Invalid session' } };
-    }
-
-    // Don't delete the session data/timestamps here: the replay upload still
-    // needs them to validate and process the run, and may not have arrived yet.
-    // Instead mark the session ended, drop it from the user's active list, and
-    // set a TTL so the data is reaped if the upload never arrives (e.g. the
-    // client crashed after ending but before uploading). The upload's
-    // completeSession owns the final deletion once it has processed the run.
-    await Promise.all([
-      this.valkey.lrem(idKey(userID), 0, data.sessionID),
-      this.valkey.hset(dataKey(data.sessionID), 'ended', 1),
-      this.valkey.expire(dataKey(data.sessionID), ENDED_SESSION_TTL_SECONDS),
-      this.valkey.expire(
-        timestampKey(data.sessionID),
-        ENDED_SESSION_TTL_SECONDS
-      )
-    ]);
-
-    this.logger.log(
-      `runsession.end: session ended, awaiting replay upload (sessionID=${data.sessionID}, userID=${userID})`
-    );
-    return { event: 'runsession.end', data: null };
+    return {
+      event: 'runsession.end',
+      data: await this.runSession.endSession(client.userId, data)
+    };
   }
 }
-
-function idKey(userID: number): string {
-  return `runsess:id:${userID}`;
-}
-
-function dataKey(sessionID: string | number): string {
-  return `runsess:dat:${sessionID}`;
-}
-
-function timestampKey(sessionID: string | number): string {
-  return `runsess:ts:${sessionID}`;
-}
-
-function serializeTimestamp(
-  majorNum: number,
-  minorNum: number,
-  time: number,
-  createdAt: number
-): string {
-  return `${majorNum},${minorNum},${time},${createdAt}`;
-}
-
-const COUNTER_KEY = 'runsess:counter';
-
-// How long an ended session's data/timestamps are kept alive waiting for the
-// replay upload (HTTP) to arrive and process it, before being reaped. Generous
-// enough to cover a slow upload of a large replay on a poor connection.
-const ENDED_SESSION_TTL_SECONDS = 5 * 60;

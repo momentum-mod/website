@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 import { GameConnectionGateway } from './game-connection.gateway';
-import { DbModule } from '../database/db.module';
-import { ValkeyModule } from '../valkey/valkey.module';
-import { KillswitchModule } from '../killswitch/killswitch.module';
+import { SessionModule } from '../session/session.module';
 
 @Module({
-  imports: [DbModule, ValkeyModule, KillswitchModule],
-  providers: [GameConnectionGateway],
-  exports: [GameConnectionGateway]
+  imports: [SessionModule],
+  providers: [GameConnectionGateway]
 })
 export class GameConnectionModule {}

@@ -20,6 +20,7 @@ import { RunsModule } from '../runs/runs.module';
     forwardRef(() => RunsModule)
   ],
   controllers: [SessionController],
-  providers: [RunSessionService]
+  providers: [RunSessionService],
+  exports: [RunSessionService]
 })
 export class SessionModule {}
