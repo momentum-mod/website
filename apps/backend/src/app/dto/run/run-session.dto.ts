@@ -7,7 +7,7 @@ import {
   UpdateRunSession
 } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsInt, IsPositive, IsString, Min, Max } from 'class-validator';
+import { IsInt, IsPositive, Min, Max } from 'class-validator';
 import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
 import { MAX_TRACK_SEGMENTS } from '@momentum/formats/zone';
 import { RunSessionTimestampDto } from './run-session-timestamp.dto';
@@ -112,13 +112,4 @@ export class RunSessionResponseDto extends RunSessionDto {
     description: 'Timestamps recorded for the session so far'
   })
   readonly timestamps: RunSessionResponseTimestampDto[];
-}
-
-/**
- * Payload returned in a `WsResponse` when a session operation fails.
- */
-export class RunSessionErrorDto {
-  @ApiProperty({ description: 'Description of why the operation failed' })
-  @IsString()
-  readonly error: string;
 }

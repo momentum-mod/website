@@ -7,10 +7,10 @@ import {
 } from '@nestjs/websockets';
 import {
   CreateRunSessionDto,
-  RunSessionErrorDto,
   RunSessionIdDto,
   RunSessionResponseDto,
-  UpdateRunSessionDto
+  UpdateRunSessionDto,
+  WsResponseDto
 } from '../../dto';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { RunSessionService } from '../session/run/run-session.service';
@@ -32,18 +32,19 @@ export class GameConnectionGateway {
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: CreateRunSessionDto
-  ): Promise<WsResponse<RunSessionResponseDto | RunSessionErrorDto>> {
-    return {
-      event: 'runsession.create',
-      data: await this.runSession.createSession(client.userId, data)
-    };
+  ): Promise<WsResponseDto<RunSessionResponseDto>> {
+    return new WsResponseDto(
+      RunSessionResponseDto,
+      'runsession.create',
+      await this.runSession.createSession(client.userId, data)
+    );
   }
 
   @SubscribeMessage('runsession.update')
   async updateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: UpdateRunSessionDto
-  ): Promise<WsResponse<null | RunSessionErrorDto>> {
+  ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.update',
       data: await this.runSession.updateSession(client.userId, data)
@@ -54,7 +55,7 @@ export class GameConnectionGateway {
   async invalidateSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
-  ): Promise<WsResponse<null | RunSessionErrorDto>> {
+  ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.invalidate',
       data: await this.runSession.invalidateSession(client.userId, data)
@@ -65,7 +66,7 @@ export class GameConnectionGateway {
   async completeSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: RunSessionIdDto
-  ): Promise<WsResponse<null | RunSessionErrorDto>> {
+  ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.end',
       data: await this.runSession.endSession(client.userId, data)
