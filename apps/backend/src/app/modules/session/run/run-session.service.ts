@@ -25,9 +25,7 @@ import {
   CompletedRunDto,
   CreateRunSessionDto,
   DtoFactory,
-  RunSessionErrorDto,
   RunSessionIdDto,
-  RunSessionResponseDto,
   UpdateRunSessionDto,
   XpGainDto
 } from '../../../dto';
@@ -72,7 +70,7 @@ export class RunSessionService {
   async createSession(
     userID: number,
     data: CreateRunSessionDto
-  ): Promise<RunSessionResponseDto | RunSessionErrorDto> {
+  ): Promise<(RunSession & { id: number }) | { error: string }> {
     // When run submission is disabled, refuse to start new sessions
     if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
       this.logger.warn(
@@ -114,7 +112,7 @@ export class RunSessionService {
 
     const id = await this.valkey.incr(COUNTER_KEY);
     const createdAt = Date.now();
-    const createdAtISO = new Date(createdAt).toISOString();
+    const createdAtDate = new Date(createdAt);
 
     await Promise.all([
       this.valkey.lpush(sessionKey, id),
@@ -131,10 +129,10 @@ export class RunSessionService {
     return {
       id,
       userID,
-      createdAt: createdAtISO,
+      createdAt: createdAtDate,
       ...leaderboardData,
       timestamps: [
-        { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtISO }
+        { majorNum: 1, minorNum: 1, time: 0, createdAt: createdAtDate }
       ]
     };
   }
@@ -145,7 +143,7 @@ export class RunSessionService {
   async updateSession(
     userID: number,
     data: UpdateRunSessionDto
-  ): Promise<null | RunSessionErrorDto> {
+  ): Promise<null | { error: string }> {
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
       'userID'
@@ -175,7 +173,7 @@ export class RunSessionService {
   async invalidateSession(
     userID: number,
     data: RunSessionIdDto
-  ): Promise<null | RunSessionErrorDto> {
+  ): Promise<null | { error: string }> {
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
       'userID'
@@ -207,7 +205,7 @@ export class RunSessionService {
   async endSession(
     userID: number,
     data: RunSessionIdDto
-  ): Promise<null | RunSessionErrorDto> {
+  ): Promise<null | { error: string }> {
     const storedUserID = await this.valkey.hget(
       dataKey(data.sessionID),
       'userID'
