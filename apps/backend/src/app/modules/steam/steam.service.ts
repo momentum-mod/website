@@ -193,22 +193,22 @@ export class SteamService {
    * Unfortunately Steam Web API doesn't supply this anywhere, so we have to use
    * this messier method of parsing the profile page as XML.
    */
-  isAccountLimited(steamID: bigint): Promise<boolean> {
-    return lastValueFrom(
+  async isAccountLimited(steamID: bigint): Promise<boolean> {
+    const steamResponse = await lastValueFrom(
       this.http
-        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
+        .get(
+          this.config.get('steam.webAPIUrl') +
+            '/IPlayerService/GetSteamLevel/v1/',
+          {
+            params: {
+              key: this.config.getOrThrow('steam.webAPIKey'),
+              steamid: steamID
+            },
+            validateStatus: () => true
+          }
+        )
         .pipe(
-          map((res) => {
-            const found = this.limitedAccountRegex.exec(res.data);
-
-            // Block doesn't exist, doesn't have a profile setup
-            if (!found) {
-              return true;
-            }
-
-            // We're in a block like <isLimitedAccount>0</isLimitedAccount>
-            return found[0] === '1';
-          }),
+          map((res) => res.data),
           catchError((_) => {
             throw new ServiceUnavailableException(
               'Failed to get limited status from Steam'
@@ -216,5 +216,16 @@ export class SteamService {
           })
         )
     );
+
+    if (
+      !steamResponse.response.player_level &&
+      steamResponse.response.player_level !== 0
+    ) {
+      throw new ServiceUnavailableException(
+        'Failed to get player Steam level. If your profile is private, make it public temporarily.'
+      );
+    }
+
+    return steamResponse.response.player_level === 0;
   }
 }
