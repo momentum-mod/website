@@ -78,7 +78,7 @@
       }
     },
     "serve": {
-      "executor": "@angular/build:dev-server",
+      "executor": "@nx/angular:dev-server",
       "defaultConfiguration": "development",
       "continuous": true,
       "readyWhen": {
