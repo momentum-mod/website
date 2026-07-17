@@ -186,6 +186,21 @@ export class SteamService {
     /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/
   );
 
+  async fetchAccountCommunityData(steamID: bigint): Promise<string> {
+    return lastValueFrom(
+      this.http
+        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
+        .pipe(
+          map((res) => res.data),
+          catchError((_) => {
+            throw new ServiceUnavailableException(
+              'Failed to get limited status from Steam'
+            );
+          })
+        )
+    );
+  }
+
   /**
    * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5
    * or more on Steam, or hasn't even set up a Steam Community profile.
@@ -211,7 +226,7 @@ export class SteamService {
           map((res) => res.data),
           catchError((_) => {
             throw new ServiceUnavailableException(
-              'Failed to get limited status from Steam'
+              'Failed to get player level from Steam'
             );
           })
         )
@@ -221,9 +236,17 @@ export class SteamService {
       !steamResponse.response.player_level &&
       steamResponse.response.player_level !== 0
     ) {
-      throw new ServiceUnavailableException(
-        'Failed to get player Steam level. If your profile is private, make it public temporarily.'
-      );
+      // Fallback to steamcommunity data
+      const communityData = await this.fetchAccountCommunityData(steamID);
+      const found = this.limitedAccountRegex.exec(communityData);
+
+      // Block doesn't exist, doesn't have a profile setup
+      if (!found) {
+        return true;
+      }
+
+      // We're in a block like <isLimitedAccount>0</isLimitedAccount>
+      return found[0] === '1';
     }
 
     return steamResponse.response.player_level === 0;
