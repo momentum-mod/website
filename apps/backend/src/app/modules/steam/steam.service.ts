@@ -187,18 +187,15 @@ export class SteamService {
   );
 
   async fetchAccountCommunityData(steamID: bigint): Promise<string> {
-    return lastValueFrom(
-      this.http
-        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
-        .pipe(
-          map((res) => res.data),
-          catchError((_) => {
-            throw new ServiceUnavailableException(
-              'Failed to get limited status from Steam'
-            );
-          })
-        )
-    );
+    try {
+      return fetch(`https://steamcommunity.com/profiles/${steamID}?xml=1`).then(
+        (r) => r.text()
+      );
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to get limited status from Steam'
+      );
+    }
   }
 
   /**
