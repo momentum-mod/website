@@ -30,6 +30,7 @@ export * from './maps/map-status-name.map';
 export * from './maps/map-status-change-rules.map';
 export * from './maps/role-names.map';
 export * from './maps/ban-names.map';
+export * from './maps/chat-ban-names.map';
 export * from './maps/map-tags.map';
 export * from './maps/map-sort-type-name.map';
 export * from './maps/steam-games.map';

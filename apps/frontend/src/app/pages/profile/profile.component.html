@@ -71,6 +71,7 @@
             </div>
           </div>
           <m-role-badges class="h-10 !gap-0" [roles]="user.roles" classes="p-1" />
+          <m-profile-chat-bans [user]="user" [isLocal]="isLocal" />
           @if (!hasRole(Role.DELETED)) {
             <div class="flex w-full gap-2 font-display text-2xl">
               <div class="flex-grow">
