@@ -40,10 +40,12 @@ import {
   AdminDeleteAllRunsDto,
   AdminDeleteRunDto,
   AdminGetAdminActivitiesQueryDto,
+  AdminGetChatBansQueryDto,
   AdminGetReportsQueryDto,
   AdminUpdateMapReviewDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
+  ChatBanDto,
   CreateMapVersionDto,
   CreateUserDto,
   MapDto,
@@ -52,6 +54,7 @@ import {
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
+  UpdateChatBanDto,
   UpdateMapDto,
   UpdateReportDto,
   UserDto
@@ -315,6 +318,59 @@ export class AdminController {
     @Body() body: UpdateReportDto
   ) {
     return this.adminService.updateReport(userID, reportID, body);
+  }
+
+  @Get('/chat-bans')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @ApiOperation({ description: 'Retrieve a list of chat/voice bans' })
+  @ApiOkPagedResponse(ChatBanDto, {
+    description: 'Paginated list of chat/voice bans'
+  })
+  @ApiBadRequestResponse({ description: 'Invalid query data' })
+  getChatBans(
+    @Query() query: AdminGetChatBansQueryDto
+  ): Promise<PagedResponseDto<ChatBanDto>> {
+    return this.adminService.getChatBans(query);
+  }
+
+  @Patch('/chat-bans/:banID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Update a chat/voice ban, e.g. to change its expiration'
+  })
+  @ApiParam({
+    name: 'banID',
+    type: Number,
+    description: 'ID of the ban to update',
+    required: true
+  })
+  @ApiBody({ type: UpdateChatBanDto, required: true })
+  @ApiNoContentResponse({ description: 'The ban was updated successfully' })
+  updateChatBan(
+    @LoggedInUser('id') userID: number,
+    @Param('banID', ParseInt32SafePipe) banID: number,
+    @Body() body: UpdateChatBanDto
+  ) {
+    return this.adminService.updateChatBan(userID, banID, body);
+  }
+
+  @Delete('/chat-bans/:banID')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Revoke (delete) a chat/voice ban' })
+  @ApiParam({
+    name: 'banID',
+    type: Number,
+    description: 'ID of the ban to revoke',
+    required: true
+  })
+  @ApiNoContentResponse({ description: 'The ban was revoked successfully' })
+  revokeChatBan(
+    @LoggedInUser('id') userID: number,
+    @Param('banID', ParseInt32SafePipe) banID: number
+  ) {
+    return this.adminService.revokeChatBan(userID, banID);
   }
 
   @Patch('/map-review/:reviewID')

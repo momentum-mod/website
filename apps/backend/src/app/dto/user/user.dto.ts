@@ -1,4 +1,6 @@
 import {
+  ActiveChatBan,
+  ChatBanType,
   Flags,
   MAX_BIO_LENGTH,
   MergeUser,
@@ -13,6 +15,7 @@ import {
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsDateString,
   IsInt,
   IsOptional,
   IsString,
@@ -22,11 +25,39 @@ import {
 import { Exclude, Expose } from 'class-transformer';
 import { Ban } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
-import { CreatedAtProperty, IdProperty, NestedProperty } from '../decorators';
+import {
+  CreatedAtProperty,
+  EnumProperty,
+  IdProperty,
+  NestedProperty
+} from '../decorators';
 import { IsCountryCode, IsSteamCommunityID } from '../../validators';
 import { ProfileDto } from './profile.dto';
 import { UserStatsDto } from './user-stats.dto';
 import { UpdateSocialsDto } from './socials.dto';
+
+// Minimal representation of an active chat/voice ban, embedded in the local
+// user's GET /user response. Defined here (rather than importing the full
+// ChatBanDto) so UserDto stays free of the ChatBan->User import cycle.
+export class ActiveChatBanDto implements ActiveChatBan {
+  @EnumProperty(ChatBanType, {
+    description: 'The type of communication the ban applies to (text or voice)'
+  })
+  readonly type: ChatBanType;
+
+  @ApiPropertyOptional({
+    type: String,
+    description: 'When the ban expires (ISO8601), or null if permanent'
+  })
+  @IsOptional()
+  @IsDateString()
+  readonly expiresAt: DateString | null;
+
+  @ApiPropertyOptional({ type: String, description: 'The reason for the ban' })
+  @IsOptional()
+  @IsString()
+  readonly reason: string | null;
+}
 
 export class UserDto implements User {
   @IdProperty({ description: 'The unique numeric ID of the user' })
@@ -91,6 +122,15 @@ export class UserDto implements User {
   @ApiProperty({ type: Number, description: "Flags of user's bans" })
   @IsInt()
   readonly bans: Flags<Ban>;
+
+  @NestedProperty(ActiveChatBanDto, {
+    isArray: true,
+    required: false,
+    description:
+      "The local user's currently-active timed chat/voice bans. Only present " +
+      'on GET /user (the local-user endpoint).'
+  })
+  readonly chatBans?: ActiveChatBanDto[];
 
   @CreatedAtProperty()
   readonly createdAt: DateString;

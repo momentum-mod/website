@@ -1,19 +1,9 @@
-import { PagedQuery } from './pagination.model';
 import { ChatBan } from '../../';
 
-export type ChatBanGetExpand = ('target' | 'issuer' | 'report')[];
+// The chat/voice bans an admin issues when resolving a report. `targetID` (the
+// reported user) and `reportID` are derived server-side from the report, so
+// they aren't part of the input.
+export type CreateChatBan = Pick<ChatBan, 'type'> &
+  Partial<Pick<ChatBan, 'expiresAt' | 'reason'>>;
 
-export type ChatBanGetQuery = PagedQuery & {
-  targetID?: number;
-  // If omitted or false, only active (unexpired) bans are returned; if true,
-  // expired bans are included as well.
-  includeExpired?: boolean;
-  expand?: ChatBanGetExpand;
-};
-
-export type CreateChatBan = Pick<
-  ChatBan,
-  'type' | 'expiresAt' | 'reason' | 'targetID'
->;
-
-export type UpdateChatBan = Pick<ChatBan, 'expiresAt' | 'reason'>;
+export type UpdateChatBan = Partial<Pick<ChatBan, 'expiresAt' | 'reason'>>;
