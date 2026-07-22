@@ -1,8 +1,9 @@
-﻿import { DateString, Report } from '@momentum/constants';
+﻿import { DateString, Report, UpdateReport } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
+import { CreateChatBanDto } from '../chat-ban/chat-ban-input.dto';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -78,7 +79,16 @@ export class CreateReportDto extends PickType(ReportDto, [
   'message'
 ] as const) {}
 
-export class UpdateReportDto extends PickType(ReportDto, [
-  'resolved',
-  'resolutionMessage'
-] as const) {}
+export class UpdateReportDto
+  extends PickType(ReportDto, ['resolved', 'resolutionMessage'] as const)
+  implements UpdateReport
+{
+  @NestedProperty(CreateChatBanDto, {
+    isArray: true,
+    required: false,
+    description:
+      'Chat/voice bans to issue against the reported user when resolving a ' +
+      'player report. Only honoured when the report is being resolved.'
+  })
+  readonly bans?: CreateChatBanDto[];
+}

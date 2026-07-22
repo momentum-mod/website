@@ -67,7 +67,7 @@ export class UserController {
     @LoggedInUser('id') userID: number,
     @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand);
+    return this.usersService.get(userID, query.expand, true);
   }
 
   @Patch()

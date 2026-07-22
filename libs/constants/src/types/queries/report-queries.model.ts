@@ -1,5 +1,6 @@
 ﻿import { PagedQuery } from './pagination.model';
 import { Report } from '../../';
+import { CreateChatBan } from './chat-ban-queries.model';
 
 export type ReportGetExpand = ('submitter' | 'resolver')[];
 
@@ -13,4 +14,8 @@ export type CreateReport = Pick<
   'data' | 'type' | 'category' | 'message'
 >;
 
-export type UpdateReport = Pick<Report, 'resolved' | 'resolutionMessage'>;
+export type UpdateReport = Pick<Report, 'resolved' | 'resolutionMessage'> & {
+  // Chat/voice bans to issue against the reported user as part of resolving a
+  // PLAYER_REPORT. Only honoured when the report is being resolved.
+  bans?: CreateChatBan[];
+};
