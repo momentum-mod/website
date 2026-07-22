@@ -17,6 +17,7 @@ import type { Flags } from '../utils/flags.type';
 import type { ActivityType } from '../../enums/activity-type.enum';
 import type { AdminActivityType } from '../../enums/admin-activity-type.enum';
 import type { ReportType } from '../../enums/report-type.enum';
+import type { ChatBanType } from '../../enums/chat-ban.enum';
 import type { KillswitchType } from '../../enums/killswitch.enum';
 import type { ReportCategory } from '../../enums/report-category.enum';
 import type { SteamGame } from '../../enums/steam-game.enum';
@@ -46,6 +47,9 @@ export interface User {
   createdAt: DateString;
   profile?: Profile;
   userStats?: UserStats;
+  /// Active (and optionally expired) timed chat/voice bans. Only populated on
+  /// endpoints that expand it (e.g. GET /user embeds the requester's own).
+  chatBans?: ChatBan[];
 }
 
 export interface Profile {
@@ -160,6 +164,26 @@ export interface Report {
   submitter: User;
   resolverID: number | null;
   resolver?: User;
+  createdAt: DateString;
+  updatedAt: DateString;
+}
+
+//#endregion
+//#region Bans
+
+export interface ChatBan {
+  id: number;
+  type: ChatBanType;
+  /// ISO date the ban expires, or null if permanent
+  expiresAt: DateString | null;
+  reason: string | null;
+  targetID: number;
+  target?: User;
+  issuerID: number | null;
+  issuer?: User;
+  /// The report whose resolution created this ban, if any
+  reportID: number | null;
+  report?: Report;
   createdAt: DateString;
   updatedAt: DateString;
 }
