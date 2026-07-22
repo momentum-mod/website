@@ -1,21 +1,40 @@
 <form [formGroup]="updateReportForm">
-  <div class="mb-4">
-    <label class="mr-3">Resolved</label>
-    <label class="flex items-center">
-      <input formControlName="resolved" class="radio mr-2" type="radio" [value]="true" />
-      Yes
-    </label>
-    <label class="flex items-center">
-      <input formControlName="resolved" class="radio mr-2" type="radio" [value]="false" />
-      No
-    </label>
-  </div>
-  <div class="m-0 mb-4">
-    <label>Resolution Message</label>
-    <textarea rows="8" class="textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
-  </div>
+  @if (isPlayerReport) {
+    <div class="card-inset m-0 flex flex-col gap-2 p-3">
+      <label class="font-medium">Issue Communication Ban</label>
+      <p class="text-sm text-gray-300">Leave both unchecked to resolve the report without banning.</p>
+      <label class="flex items-center">
+        <input type="checkbox" class="checkbox mr-2" formControlName="banChat" />
+        Ban from text chat
+      </label>
+      <label class="flex items-center">
+        <input type="checkbox" class="checkbox mr-2" formControlName="banVoice" />
+        Ban from voice chat
+      </label>
+      <label>Duration</label>
+      <p-select formControlName="banDuration" [options]="Durations" optionLabel="label" optionValue="value" appendTo="body" />
+      <label>Reason</label>
+      <textarea rows="3" class="textinput" [maxLength]="1000" formControlName="banReason"></textarea>
+    </div>
+  } @else {
+    <div class="mb-4">
+      <label class="mr-3">Resolved</label>
+      <label class="flex items-center">
+        <input formControlName="resolved" class="radio mr-2" type="radio" [value]="true" />
+        Yes
+      </label>
+      <label class="flex items-center">
+        <input formControlName="resolved" class="radio mr-2" type="radio" [value]="false" />
+        No
+      </label>
+    </div>
+    <div class="m-0 flex flex-col gap-1">
+      <label>Resolution Message</label>
+      <textarea rows="8" class="textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
+    </div>
+  }
 </form>
-<div class="grid grid-cols-2 gap-2">
+<div class="mt-4 grid grid-cols-2 gap-2">
   <button type="button" class="btn" (click)="cancel()">Cancel</button>
   <button type="button" class="btn btn-red" (click)="save()" [disabled]="!updateReportForm.valid">Submit</button>
 </div>

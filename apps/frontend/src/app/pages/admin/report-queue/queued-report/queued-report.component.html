@@ -1,32 +1,35 @@
-<!-- A table row from lg up. Below that each report is a small card with labelled fields. -->
+<!-- A table row from lg up. Below that each report is a block of labelled fields. -->
 <div
-  class="mb-3 flex flex-col gap-1 rounded bg-black bg-opacity-10 p-3 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:rounded-none lg:bg-transparent lg:p-0"
+  class="flex flex-col gap-1 p-3 lg:flex-row lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0"
 >
-  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">ID</span>{{ report.id }}</div>
-  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
-  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
-  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Reported Resource ID</span>{{ report.data }}</div>
-  <div class="flex items-center gap-2 text-left lg:block lg:w-1/6">
+  <div class="text-left lg:w-[6%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">ID</span>{{ report.id }}</div>
+  <div class="text-left lg:w-[12%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
+  <div class="text-left lg:w-[13%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
+  <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
-    <a [routerLink]="'/profile/' + report.submitter?.id" class="flex items-center gap-2">
-      <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
-      <p>{{ report.submitter.alias }}</p>
-    </a>
+    @if (report.submitter) {
+      <a [routerLink]="'/profile/' + report.submitter.id" class="flex items-center gap-2">
+        <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
+        <p>{{ report.submitter.alias }}</p>
+      </a>
+    }
   </div>
-  <div class="flex items-center gap-2 text-left lg:block lg:w-1/6">
+  <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Resolver</span>
-    <a [routerLink]="'/profile/' + report.resolver?.id" class="flex items-center gap-2">
-      <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
-      <p>{{ report.resolver.alias }}</p>
-    </a>
+    @if (report.resolver) {
+      <a [routerLink]="'/profile/' + report.resolver.id" class="flex items-center gap-2">
+        <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
+        <p>{{ report.resolver.alias }}</p>
+      </a>
+    }
   </div>
-  <div class="[overflow-wrap:anywhere] lg:w-1/5 lg:text-center">
+  <div class="[overflow-wrap:anywhere] lg:w-[13%] lg:px-2 lg:py-1 lg:text-center">
     <span class="mr-2 text-sm text-gray-300 lg:hidden">Message</span>{{ report.message }}
   </div>
-  <div class="[overflow-wrap:anywhere] lg:w-1/5 lg:text-center">
+  <div class="[overflow-wrap:anywhere] lg:w-[13%] lg:px-2 lg:py-1 lg:text-center">
     <span class="mr-2 text-sm text-gray-300 lg:hidden">Resolution Message</span>{{ report.resolutionMessage }}
   </div>
-  <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:block lg:w-1/5 lg:text-center">
+  <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:w-[17%] lg:flex-col lg:flex-nowrap lg:items-center lg:gap-1 lg:px-2 lg:py-1">
     <button type="button" class="btn btn-blue" (click)="update()">Update</button>
     <a [routerLink]="reportedResourceURL" target="_blank" class="btn">View Reported Resource</a>
   </div>
