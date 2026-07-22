@@ -43,7 +43,10 @@ export class AdminGetAdminActivitiesQueryDto
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE,
       AdminActivityType.REVIEW_DELETED,
-      AdminActivityType.REVIEW_COMMENT_DELETED
+      AdminActivityType.REVIEW_COMMENT_DELETED,
+      AdminActivityType.CHAT_BAN_CREATE,
+      AdminActivityType.CHAT_BAN_UPDATE,
+      AdminActivityType.CHAT_BAN_REVOKE
     ],
     {
       description: 'Types of activities to include'

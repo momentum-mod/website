@@ -41,6 +41,10 @@ export class QueuedReportComponent implements OnInit {
         this.typeText = 'Map Comment Report';
         this.reportedResourceURL = '/';
         break;
+      case ReportType.PLAYER_REPORT:
+        this.typeText = 'Player Report';
+        this.reportedResourceURL = '/profile/' + this.report.data;
+        break;
     }
     switch (this.report.category) {
       case ReportCategory.INAPPROPRIATE_CONTENT:
@@ -62,7 +66,8 @@ export class QueuedReportComponent implements OnInit {
     this.dialogService
       .open(UpdateReportDialogComponent, {
         header: 'Update Report',
-        data: { report: this.report }
+        data: { report: this.report },
+        style: { 'min-width': '600px' }
       })
       .onClose.subscribe((report) => {
         if (report) this.reportUpdate.emit(report);
