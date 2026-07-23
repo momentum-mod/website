@@ -44,7 +44,7 @@ import {
   MapTags,
   NotificationType,
   MapTestInviteState,
-  Style
+  GamemodeStyles
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Random from '@momentum/random';
@@ -504,47 +504,55 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.BONUS,
             trackNum: i + 1
           }))
-        ].map(({ trackType, trackNum }) => {
-          const leaderboard = {
-            trackType,
-            trackNum,
-            gamemode: m,
-            style: Style.NORMAL,
-            linear:
-              trackType === TrackType.MAIN
-                ? Zone.isLinearMainTrack(zones)
-                : undefined,
-            tier:
-              trackType !== TrackType.STAGE && !inSubmission
-                ? Random.int(10, 1)
-                : undefined,
-            type: inSubmission
-              ? LeaderboardType.IN_SUBMISSION
-              : trackType === TrackType.BONUS
-                ? Random.chance()
-                  ? LeaderboardType.RANKED
-                  : LeaderboardType.UNRANKED
-                : rankedMainTracks.get(m),
-            tags:
-              trackType === TrackType.MAIN && !inSubmission
-                ? Random.elements(MapTags.get(m), Random.int(4))
-                : []
-          };
+        ].flatMap(({ trackType, trackNum }) =>
+          [...GamemodeStyles.get(m)].map((style) => {
+            const leaderboard = {
+              trackType,
+              trackNum,
+              gamemode: m,
+              style,
+              linear:
+                trackType === TrackType.MAIN
+                  ? Zone.isLinearMainTrack(zones)
+                  : undefined,
+              tier:
+                trackType !== TrackType.STAGE && !inSubmission
+                  ? Random.int(10, 1)
+                  : undefined,
+              type: inSubmission
+                ? LeaderboardType.IN_SUBMISSION
+                : trackType === TrackType.BONUS
+                  ? Random.chance()
+                    ? LeaderboardType.RANKED
+                    : LeaderboardType.UNRANKED
+                  : rankedMainTracks.get(m),
+              tags:
+                trackType === TrackType.MAIN && !inSubmission
+                  ? Random.elements(MapTags.get(m), Random.int(4))
+                  : []
+            };
 
-          if (trackType === TrackType.MAIN) {
-            leaderboard.linear = Zone.isLinearMainTrack(zones);
-          }
+            if (trackType === TrackType.MAIN) {
+              leaderboard.linear = Zone.isLinearMainTrack(zones);
+            }
 
-          if (trackType !== TrackType.STAGE && !inSubmission) {
-            leaderboard.tier = Random.int(10, 1);
-          }
+            if (trackType !== TrackType.STAGE && !inSubmission) {
+              leaderboard.tier = Random.int(10, 1);
+            }
 
-          return leaderboard;
-        })
+            return leaderboard;
+          })
+        )
+      );
+
+      // Suggestions are per gamemode + track, not per style, so derive them from
+      // a single style's leaderboards to avoid duplicates.
+      const uniqueTrackLeaderboards = leaderboards.filter(
+        ({ gamemode, style }) => style === [...GamemodeStyles.get(gamemode)][0]
       );
 
       const submissionSuggestions = () =>
-        leaderboards
+        uniqueTrackLeaderboards
           .filter(({ trackType }) => trackType !== TrackType.STAGE)
           .map(({ gamemode, trackType, trackNum }) => ({
             gamemode,
@@ -577,7 +585,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               })
             )
           : undefined,
-        suggestions: leaderboards
+        suggestions: uniqueTrackLeaderboards
           .filter(({ trackType }) => trackType !== TrackType.STAGE)
           .filter(() => Random.chance())
           .map(({ gamemode, trackType, trackNum }) => ({
