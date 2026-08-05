@@ -77,7 +77,7 @@ const defaultVars = {
   commentsPerReview: { min: 0, max: 5 },
   submissionPlaceholders: { min: 0, max: 2 },
   submissionVersions: { min: 1, max: 5 },
-  runsPerLeaderboard: { min: 1, max: 10 },
+  runsPerLeaderboard: { min: 1, max: 50 },
   pastRunsPerLeaderboard: { min: 1, max: 25 },
   userReports: { min: 50, max: 50 },
   userFollows: { min: 50, max: 50 },
