@@ -1,9 +1,15 @@
-﻿import { DateString, Report, UpdateReport } from '@momentum/constants';
+﻿import {
+  CreateReport,
+  DateString,
+  Report,
+  UpdateReport
+} from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { CreateChatBanDto } from '../chat-ban/chat-ban-input.dto';
+import { IsSteamCommunityID } from '../../validators';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -72,12 +78,28 @@ export class ReportDto implements Report {
   readonly updatedAt: DateString;
 }
 
-export class CreateReportDto extends PickType(ReportDto, [
-  'data',
-  'type',
-  'category',
-  'message'
-] as const) {}
+export class CreateReportDto
+  extends PickType(ReportDto, ['type', 'category', 'message'] as const)
+  implements CreateReport
+{
+  @IdProperty({
+    required: false,
+    bigint: true,
+    description:
+      'The ID of the object being reported. Provide this OR targetSteamID.'
+  })
+  readonly data?: number;
+
+  @ApiPropertyOptional({
+    type: String,
+    description:
+      'SteamID (uint64 form) of the reported player. In-game alternative to ' +
+      '`data`: the backend resolves it to a user ID. Only valid for player reports.'
+  })
+  @IsOptional()
+  @IsSteamCommunityID()
+  readonly targetSteamID?: string;
+}
 
 export class UpdateReportDto
   extends PickType(ReportDto, ['resolved', 'resolutionMessage'] as const)

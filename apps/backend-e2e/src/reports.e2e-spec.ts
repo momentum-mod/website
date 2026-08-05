@@ -115,6 +115,71 @@ describe('Reports', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('reports', 'post'));
+
+      describe('player reports via targetSteamID', () => {
+        // Note: don't clean up the `user` table in here — that would delete the
+        // shared reporter created in the parent beforeAll. Target users are
+        // cleaned up by the parent afterAll('user').
+        it('should resolve targetSteamID to the reported user ID', async () => {
+          const target = await db.createUser();
+
+          const res = await req.post({
+            url: 'reports',
+            status: 201,
+            body: {
+              targetSteamID: target.steamID.toString(),
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'griefing in the lobby'
+            },
+            validate: ReportDto,
+            token
+          });
+
+          expect(res.body.data).toBe(target.id);
+        });
+
+        it('should 404 if targetSteamID matches no user', () =>
+          req.post({
+            url: 'reports',
+            status: 404,
+            body: {
+              targetSteamID: '76561199999999999',
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'nobody home'
+            },
+            token
+          }));
+
+        it('should 400 if targetSteamID is used with a non-player report', async () => {
+          const target = await db.createUser();
+
+          await req.post({
+            url: 'reports',
+            status: 400,
+            body: {
+              targetSteamID: target.steamID.toString(),
+              type: ReportType.MAP_COMMENT_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'wrong report type'
+            },
+            token
+          });
+        });
+
+        it('should 400 if neither data nor targetSteamID is provided', () =>
+          req.post({
+            url: 'reports',
+            status: 400,
+            body: {
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'no target at all'
+            },
+            token
+          }));
+      });
     });
   });
 });
