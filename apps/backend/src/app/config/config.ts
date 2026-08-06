@@ -50,7 +50,7 @@ export const ConfigFactory = (): ConfigInterface => {
         process.env['STEAM_USE_PARTNER_URL'] === 'true'
           ? 'https://partner.steam-api.com'
           : 'https://api.steampowered.com',
-      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' || true,
+      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false',
       useSteamTicketLibrary:
         process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' || false,
       ticketsSecretKey: process.env['STEAM_TICKETS_SECRET'] ?? ''
