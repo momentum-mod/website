@@ -1,4 +1,4 @@
-@if (activeBans.length > 0 || (canManage && bans.length > 0)) {
+@if (activeBans.length > 0) {
   <div class="flex flex-wrap items-center gap-2">
     @for (ban of activeBans; track $index) {
       <span
@@ -8,84 +8,5 @@
         {{ ChatBanTypeNames.get(ban.type) }} ban &middot; {{ expiryLabel(ban) }}
       </span>
     }
-    @if (activeBans.length === 0) {
-      <span class="rounded bg-gray-700 px-2 py-1 text-sm font-medium">No active communication bans</span>
-    }
-    <button type="button" class="btn btn-blue btn-thin" (click)="detailsVisible = true">Details</button>
   </div>
-
-  <p-dialog
-    [(visible)]="detailsVisible"
-    [modal]="true"
-    [style]="{ 'min-width': '30rem', 'max-width': '45rem' }"
-    [draggable]="false"
-    [resizable]="false"
-  >
-    <ng-template pTemplate="header">
-      <p class="text-lg">Communication Bans</p>
-    </ng-template>
-
-    @if (bans.length === 0) {
-      <p class="text-gray-300">This user has no communication bans.</p>
-    }
-
-    <div class="flex flex-col gap-3">
-      @for (ban of bans; track $index) {
-        <div class="card-inset flex flex-col gap-1 p-3">
-          <div class="flex items-center gap-2">
-            <span class="font-medium">{{ ChatBanTypeNames.get(ban.type) }}</span>
-            @if (isActive(ban)) {
-              <span
-                class="rounded bg-red-800 px-2 py-0.5 text-xs"
-                [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
-                >Active &middot; {{ expiryLabel(ban) }}</span
-              >
-            } @else {
-              <span class="rounded bg-gray-700 px-2 py-0.5 text-xs">Expired</span>
-            }
-          </div>
-
-          @if (ban.reason) {
-            <p class="whitespace-break-spaces text-sm">{{ ban.reason }}</p>
-          }
-
-          <p class="text-sm text-gray-300">
-            @if (ban.createdAt) {
-              <span>Issued {{ ban.createdAt | date: 'medium' }}</span>
-            }
-            @if (ban.issuer) {
-              <span>
-                by <a class="hover:!text-blue-500" [routerLink]="'/profile/' + ban.issuer.id">{{ ban.issuer.alias }}</a></span
-              >
-            }
-            <span> &middot; {{ ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'Never expires' }}</span>
-          </p>
-
-          @if (ban.reportID) {
-            <p class="text-sm text-gray-300">From report #{{ ban.reportID }}</p>
-          }
-
-          @if (canManage && ban.id) {
-            <div class="mt-2 flex flex-wrap items-end gap-2">
-              <div class="flex flex-col">
-                <label class="text-sm">Expires at</label>
-                <p-datepicker
-                  [(ngModel)]="ban.expiryEdit"
-                  [showTime]="true"
-                  [showClear]="true"
-                  [showIcon]="true"
-                  [showOnFocus]="false"
-                  appendTo="body"
-                  placeholder="Permanent"
-                />
-              </div>
-              <button type="button" class="btn btn-blue" (click)="saveExpiry(ban)">Save Expiry</button>
-              <button type="button" class="btn btn-red" (click)="revoke(ban)">Revoke</button>
-            </div>
-            <p class="text-xs text-gray-400">Clear the date to make this ban permanent.</p>
-          }
-        </div>
-      }
-    </div>
-  </p-dialog>
 }
