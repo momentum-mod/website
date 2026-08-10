@@ -7,6 +7,7 @@ import {
 import {
   ChatBanType,
   CreateChatBan,
+  MAX_REPORT_MESSAGE_LENGTH,
   Report,
   ReportType,
   UpdateReport
@@ -37,6 +38,8 @@ export class UpdateReportDialogComponent implements OnInit {
   // data via DynamicDialogConfig.data, not @Input.
   protected report: Report;
 
+  protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
+
   // null duration => permanent ban
   protected readonly Durations = [
     { value: 24 * 60 * 60 * 1000, label: '1 day' },
@@ -51,13 +54,16 @@ export class UpdateReportDialogComponent implements OnInit {
       validators: Validators.required
     }),
     resolutionMessage: this.nnfb.control<string>('', {
-      validators: [Validators.required, Validators.maxLength(1000)]
+      validators: [
+        Validators.required,
+        Validators.maxLength(MAX_REPORT_MESSAGE_LENGTH)
+      ]
     }),
     banChat: this.nnfb.control<boolean>(false),
     banVoice: this.nnfb.control<boolean>(false),
     banDuration: this.nnfb.control<number | null>(24 * 60 * 60 * 1000),
     banReason: this.nnfb.control<string>('', {
-      validators: Validators.maxLength(1000)
+      validators: Validators.maxLength(MAX_REPORT_MESSAGE_LENGTH)
     })
   });
 

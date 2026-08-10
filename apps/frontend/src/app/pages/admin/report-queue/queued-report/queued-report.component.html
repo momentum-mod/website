@@ -18,8 +18,22 @@
       </a>
     }
   </div>
-  <div class="w-[13%] break-words px-2 py-1 text-center">{{ report.message }}</div>
-  <div class="w-[13%] break-words px-2 py-1 text-center">{{ report.resolutionMessage }}</div>
+  <div class="w-[13%] px-2 py-1">
+    <textarea
+      readonly
+      rows="3"
+      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
+      [value]="report.message"
+    ></textarea>
+  </div>
+  <div class="w-[13%] px-2 py-1">
+    <textarea
+      readonly
+      rows="3"
+      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
+      [value]="report.resolutionMessage ?? ''"
+    ></textarea>
+  </div>
   <div class="flex w-[17%] flex-col items-center gap-1 px-2 py-1">
     <button type="button" class="btn btn-blue" (click)="update()">Update</button>
     <a [routerLink]="reportedResourceURL" target="_blank" class="btn">View Reported Resource</a>
