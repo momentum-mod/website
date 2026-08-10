@@ -179,6 +179,117 @@ describe('Reports', () => {
             },
             token
           }));
+
+        it('should 409 if the user already has an unresolved report against the same player', async () => {
+          const target = await db.createUser();
+          const body = {
+            targetSteamID: target.steamID.toString(),
+            type: ReportType.PLAYER_REPORT,
+            category: ReportCategory.OTHER,
+            message: 'being annoying'
+          };
+
+          await req.post({ url: 'reports', status: 201, body, token });
+          await req.post({ url: 'reports', status: 409, body, token });
+        });
+
+        it('should create a new report against the same player once the existing report is resolved', async () => {
+          const target = await db.createUser();
+          const body = {
+            targetSteamID: target.steamID.toString(),
+            type: ReportType.PLAYER_REPORT,
+            category: ReportCategory.OTHER,
+            message: 'being annoying'
+          };
+
+          const res = await req.post({
+            url: 'reports',
+            status: 201,
+            body,
+            validate: ReportDto,
+            token
+          });
+
+          await prisma.report.update({
+            where: { id: res.body.id },
+            data: { resolved: true }
+          });
+
+          await req.post({ url: 'reports', status: 201, body, token });
+        });
+
+        it('should 409 if the user has submitted 5 or more player reports in the last hour, even if resolved', async () => {
+          const targets = await db.createUsers(5);
+
+          for (const target of targets) {
+            const res = await req.post({
+              url: 'reports',
+              status: 201,
+              body: {
+                targetSteamID: target.steamID.toString(),
+                type: ReportType.PLAYER_REPORT,
+                category: ReportCategory.OTHER,
+                message: 'spam test'
+              },
+              token
+            });
+
+            // Resolve immediately so this test isolates the hourly
+            // player-report limit from the separate daily unresolved-reports
+            // limit, which would otherwise also trip at 5.
+            await prisma.report.update({
+              where: { id: res.body.id },
+              data: { resolved: true }
+            });
+          }
+
+          const lastTarget = await db.createUser();
+
+          await req.post({
+            url: 'reports',
+            status: 409,
+            body: {
+              targetSteamID: lastTarget.steamID.toString(),
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'spam test'
+            },
+            token
+          });
+        });
+
+        it('should create a new player report if the hourly reports are older than 1 hour', async () => {
+          const targets = await db.createUsers(5);
+
+          await prisma.report.createMany({
+            data: targets.map((target) => ({
+              submitterID: user.id,
+              data: target.id,
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'old spam test',
+              // Resolved so these don't also trip the separate daily
+              // unresolved-reports limit, which isn't what this test covers.
+              resolved: true,
+              createdAt: new Date(Date.now() - 61 * 60 * 1000) // 61 minutes ago
+            }))
+          });
+
+          const target = await db.createUser();
+
+          await req.post({
+            url: 'reports',
+            status: 201,
+            body: {
+              targetSteamID: target.steamID.toString(),
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.OTHER,
+              message: 'spam test'
+            },
+            validate: ReportDto,
+            token
+          });
+        });
       });
     });
   });
