@@ -13,7 +13,14 @@
       </label>
       <label>Duration</label>
       <p-select formControlName="banDuration" [options]="Durations" optionLabel="label" optionValue="value" appendTo="body" />
-      <label>Reason</label>
+      <label
+        >Reason
+        <m-icon
+          class="ml-1 pt-0.5 text-sm"
+          icon="help-circle"
+          mTooltip="This is shown to the player in-game when they try to chat or use voice while banned"
+        />
+      </label>
       <textarea rows="3" class="textinput" [maxLength]="1000" formControlName="banReason"></textarea>
     </div>
   } @else {
