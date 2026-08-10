@@ -3374,8 +3374,8 @@ describe('Admin', () => {
       let adminToken: string,
         u1: User,
         u1Token: string,
-        r1: Report,
-        _r2: Report;
+        _r1: Report,
+        r2: Report;
 
       beforeAll(async () => {
         [adminToken, [u1, u1Token]] = await Promise.all([
@@ -3383,7 +3383,7 @@ describe('Admin', () => {
           db.createAndLoginUser()
         ]);
 
-        r1 = await prisma.report.create({
+        _r1 = await prisma.report.create({
           data: {
             data: 1,
             type: ReportType.MAP_REPORT,
@@ -3395,7 +3395,7 @@ describe('Admin', () => {
           }
         });
 
-        _r2 = await prisma.report.create({
+        r2 = await prisma.report.create({
           data: {
             data: 2,
             type: ReportType.USER_PROFILE_REPORT,
@@ -3410,7 +3410,7 @@ describe('Admin', () => {
 
       afterAll(() => db.cleanup('user', 'report'));
 
-      it('should return a list of reports', async () => {
+      it('should return a list of reports, most recent first', async () => {
         const reports = await req.get({
           url: 'admin/reports',
           status: 200,
@@ -3418,15 +3418,15 @@ describe('Admin', () => {
           validatePaged: { type: ReportDto, count: 2 }
         });
         expect(reports.body).toHaveProperty('data');
-        expect(reports.body.data[0].data).toBe(Number(r1.data));
-        expect(reports.body.data[0].type).toBe(r1.type);
-        expect(reports.body.data[0].category).toBe(r1.category);
-        expect(reports.body.data[0].message).toBe(r1.message);
-        expect(reports.body.data[0].resolved).toBe(r1.resolved);
+        expect(reports.body.data[0].data).toBe(Number(r2.data));
+        expect(reports.body.data[0].type).toBe(r2.type);
+        expect(reports.body.data[0].category).toBe(r2.category);
+        expect(reports.body.data[0].message).toBe(r2.message);
+        expect(reports.body.data[0].resolved).toBe(r2.resolved);
         expect(reports.body.data[0].resolutionMessage).toBe(
-          r1.resolutionMessage
+          r2.resolutionMessage
         );
-        expect(reports.body.data[0].submitterID).toBe(r1.submitterID);
+        expect(reports.body.data[0].submitterID).toBe(r2.submitterID);
       });
 
       it('should only return resolved or non resolved based on query param resolved', async () => {
