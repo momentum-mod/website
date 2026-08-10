@@ -11,10 +11,12 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { RouterLink } from '@angular/router';
 import { AvatarComponent } from '../../../../components/avatar/avatar.component';
+import { IconComponent } from '../../../../icons';
+import { TooltipDirective } from '../../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-queued-report',
-  imports: [RouterLink, AvatarComponent],
+  imports: [RouterLink, AvatarComponent, IconComponent, TooltipDirective],
   templateUrl: './queued-report.component.html'
 })
 export class QueuedReportComponent implements OnInit {

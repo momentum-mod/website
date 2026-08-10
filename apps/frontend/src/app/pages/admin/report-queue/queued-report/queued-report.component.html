@@ -1,10 +1,8 @@
 <!-- A table row from lg up. Below that each report is a block of labelled fields. -->
-<div
-  class="flex flex-col gap-1 p-3 lg:flex-row lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0"
->
+<div class="flex flex-col gap-1 p-3 lg:flex-row lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0">
   <div class="text-left lg:w-[6%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">ID</span>{{ report.id }}</div>
   <div class="text-left lg:w-[12%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
-  <div class="text-left lg:w-[13%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
+  <div class="text-left lg:w-[9%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
   <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
     @if (report.submitter) {
@@ -23,26 +21,33 @@
       </a>
     }
   </div>
-  <div class="lg:w-[13%] lg:px-2 lg:py-1">
+  <div class="lg:w-[19%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Message</span>
     <textarea
       readonly
-      rows="3"
+      rows="2"
       class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
       [value]="report.message"
     ></textarea>
   </div>
-  <div class="lg:w-[13%] lg:px-2 lg:py-1">
+  <div class="lg:w-[19%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Resolution Message</span>
     <textarea
       readonly
-      rows="3"
+      rows="2"
       class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
       [value]="report.resolutionMessage ?? ''"
     ></textarea>
   </div>
-  <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:w-[17%] lg:flex-col lg:flex-nowrap lg:items-center lg:gap-1 lg:px-2 lg:py-1">
-    <button type="button" class="btn btn-blue" (click)="update()">Update</button>
-    <a [routerLink]="reportedResourceURL" target="_blank" class="btn">View Reported Resource</a>
+  <!-- Tooltips don't show on touch, so the icon buttons are labelled below lg. -->
+  <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:w-[9%] lg:items-center lg:justify-center lg:px-2 lg:py-1">
+    <button type="button" class="btn btn-blue gap-2 lg:aspect-square lg:p-2" mTooltip="Update Report" (click)="update()">
+      <m-icon icon="pencil" />
+      <span class="lg:hidden">Update</span>
+    </button>
+    <a [routerLink]="reportedResourceURL" target="_blank" class="btn gap-2 lg:aspect-square lg:p-2" mTooltip="View Reported Resource">
+      <m-icon icon="eye" />
+      <span class="lg:hidden">View Reported Resource</span>
+    </a>
   </div>
 </div>
