@@ -21,7 +21,7 @@
           mTooltip="This is shown to the player in-game when they try to chat or use voice while banned"
         />
       </label>
-      <textarea rows="3" class="textinput" [maxLength]="1000" formControlName="banReason"></textarea>
+      <textarea rows="3" class="textinput" [maxLength]="MAX_REPORT_MESSAGE_LENGTH" formControlName="banReason"></textarea>
     </div>
   } @else {
     <div class="mb-4">
@@ -37,7 +37,7 @@
     </div>
     <div class="m-0 flex flex-col gap-1">
       <label>Resolution Message</label>
-      <textarea rows="8" class="textinput" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
+      <textarea rows="8" class="textinput" [maxLength]="MAX_REPORT_MESSAGE_LENGTH" formControlName="resolutionMessage"></textarea>
     </div>
   }
 </form>
