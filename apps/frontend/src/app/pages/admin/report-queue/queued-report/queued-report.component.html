@@ -23,11 +23,23 @@
       </a>
     }
   </div>
-  <div class="[overflow-wrap:anywhere] lg:w-[13%] lg:px-2 lg:py-1 lg:text-center">
-    <span class="mr-2 text-sm text-gray-300 lg:hidden">Message</span>{{ report.message }}
+  <div class="lg:w-[13%] lg:px-2 lg:py-1">
+    <span class="text-sm text-gray-300 lg:hidden">Message</span>
+    <textarea
+      readonly
+      rows="3"
+      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
+      [value]="report.message"
+    ></textarea>
   </div>
-  <div class="[overflow-wrap:anywhere] lg:w-[13%] lg:px-2 lg:py-1 lg:text-center">
-    <span class="mr-2 text-sm text-gray-300 lg:hidden">Resolution Message</span>{{ report.resolutionMessage }}
+  <div class="lg:w-[13%] lg:px-2 lg:py-1">
+    <span class="text-sm text-gray-300 lg:hidden">Resolution Message</span>
+    <textarea
+      readonly
+      rows="3"
+      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
+      [value]="report.resolutionMessage ?? ''"
+    ></textarea>
   </div>
   <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:w-[17%] lg:flex-col lg:flex-nowrap lg:items-center lg:gap-1 lg:px-2 lg:py-1">
     <button type="button" class="btn btn-blue" (click)="update()">Update</button>

@@ -1,11 +1,12 @@
 ﻿import {
   CreateReport,
   DateString,
+  MAX_REPORT_MESSAGE_LENGTH,
   Report,
   UpdateReport
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { CreateChatBanDto } from '../chat-ban/chat-ban-input.dto';
@@ -39,6 +40,7 @@ export class ReportDto implements Report {
     type: String
   })
   @IsString()
+  @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
   readonly message: string;
 
   @ApiProperty({
@@ -54,6 +56,7 @@ export class ReportDto implements Report {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
   readonly resolutionMessage: string;
 
   @IdProperty({ description: 'The user ID of the submitter' })
