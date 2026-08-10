@@ -1,7 +1,10 @@
 @if (activeBans.length > 0 || (canManage && bans.length > 0)) {
   <div class="flex flex-wrap items-center gap-2">
     @for (ban of activeBans; track $index) {
-      <span class="rounded bg-red-800 px-2 py-1 text-sm font-medium">
+      <span
+        class="rounded bg-red-800 px-2 py-1 text-sm font-medium"
+        [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
+      >
         {{ ChatBanTypeNames.get(ban.type) }} ban &middot; {{ expiryLabel(ban) }}
       </span>
     }
@@ -32,7 +35,11 @@
           <div class="flex items-center gap-2">
             <span class="font-medium">{{ ChatBanTypeNames.get(ban.type) }}</span>
             @if (isActive(ban)) {
-              <span class="rounded bg-red-800 px-2 py-0.5 text-xs">Active &middot; {{ expiryLabel(ban) }}</span>
+              <span
+                class="rounded bg-red-800 px-2 py-0.5 text-xs"
+                [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
+                >Active &middot; {{ expiryLabel(ban) }}</span
+              >
             } @else {
               <span class="rounded bg-gray-700 px-2 py-0.5 text-xs">Expired</span>
             }
