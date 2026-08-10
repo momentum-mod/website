@@ -400,6 +400,7 @@ export class AdminService {
     const dbResponse = await this.db.report.findManyAndCount({
       where: { resolved },
       include: expandToIncludes(expand),
+      orderBy: { createdAt: 'desc' },
       skip,
       take
     });
