@@ -17,10 +17,12 @@ import { SelectModule } from 'primeng/select';
 
 import { AdminService } from '../../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { IconComponent } from '../../../../icons';
+import { TooltipDirective } from '../../../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-update-report-dialog',
-  imports: [ReactiveFormsModule, SelectModule],
+  imports: [ReactiveFormsModule, SelectModule, IconComponent, TooltipDirective],
   templateUrl: './update-report-dialog.component.html'
 })
 export class UpdateReportDialogComponent implements OnInit {
