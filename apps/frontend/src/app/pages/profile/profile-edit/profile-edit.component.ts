@@ -6,34 +6,26 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  AdminUpdateUser,
   MAX_BIO_LENGTH,
   UpdateUser,
   User,
   Ban,
   ISOCountryCode,
-  Role,
   Socials,
   SocialsData,
   NON_WHITESPACE_REGEXP
 } from '@momentum/constants';
-import * as Bitflags from '@momentum/bitflags';
 import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
 import { Icon, IconComponent } from '../../../icons';
 import { TitleService } from '../../../services/title.service';
-import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { UsersService } from '../../../services/data/users.service';
 import { AdminService } from '../../../services/data/admin.service';
-import { AuthService } from '../../../services/data/auth.service';
-import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
-import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { EMPTY, switchMap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgClass } from '@angular/common';
@@ -42,17 +34,11 @@ import { Select } from 'primeng/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { AvatarComponent } from '../../../components/avatar/avatar.component';
-import {
-  ConfirmWithReasonDialogComponent,
-  ConfirmWithReasonDialogResult
-} from '../../../components/dialogs/confirm-with-reason-dialog.component';
 
 @Component({
   selector: 'm-profile-edit',
   templateUrl: './profile-edit.component.html',
   imports: [
-    UserSearchComponent,
     SelectModule,
     ReactiveFormsModule,
     NgClass,
@@ -61,9 +47,7 @@ import {
     PluralPipe,
     UnsortedKeyvaluePipe,
     TooltipDirective,
-    IconComponent,
-    RouterLink,
-    AvatarComponent
+    IconComponent
   ]
 })
 export class ProfileEditComponent implements OnInit {
@@ -72,9 +56,7 @@ export class ProfileEditComponent implements OnInit {
   private readonly localUserService = inject(LocalUserService);
   private readonly usersService = inject(UsersService);
   private readonly adminService = inject(AdminService);
-  private readonly authService = inject(AuthService);
   private readonly messageService = inject(MessageService);
-  private readonly dialogService = inject(DialogService);
   private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly titleService = inject(TitleService);
@@ -82,7 +64,6 @@ export class ProfileEditComponent implements OnInit {
   protected readonly AlphabeticalCountryCodes = Object.entries(ISOCountryCode)
     .sort(([_, a], [__, b]) => a.localeCompare(b))
     .map(([code, label]) => ({ code, label }));
-  protected readonly Role = Role;
   protected readonly Ban = Ban;
   protected readonly SocialsData = SocialsData as Readonly<
     Record<
@@ -93,7 +74,6 @@ export class ProfileEditComponent implements OnInit {
 
   // Built up in ctor
   form: FormGroup;
-  adminEditForm: FormGroup;
 
   get alias() {
     return this.form.get('alias') as FormControl<string>;
@@ -109,8 +89,6 @@ export class ProfileEditComponent implements OnInit {
   }
 
   protected user: User | null = null;
-  protected mergeUser: User | null = null;
-  protected mergeErr = '';
   protected isLocal = false;
   protected isAdmin = false;
   protected isModOrAdmin = false;
@@ -137,22 +115,6 @@ export class ProfileEditComponent implements OnInit {
       country: this.nnfb.control<string>(''),
       socials: this.nnfb.group(socialsForm),
       resetAvatar: this.nnfb.control<boolean>(false)
-    });
-
-    // prettier-ignore
-    this.adminEditForm = this.nnfb.group({
-      banAlias:         this.nnfb.control<boolean>(false),
-      banBio:           this.nnfb.control<boolean>(false),
-      banAvatar:        this.nnfb.control<boolean>(false),
-      banLeaderboards:  this.nnfb.control<boolean>(false),
-      banMapSubmission: this.nnfb.control<boolean>(false),
-      verified:         this.nnfb.control<boolean>(false),
-      mapper:           this.nnfb.control<boolean>(false),
-      porter:           this.nnfb.control<boolean>(false),
-      reviewer:         this.nnfb.control<boolean>(false),
-      limited: [false],
-      moderator:        this.nnfb.control<boolean>(false),
-      admin:            this.nnfb.control<boolean>(false)
     });
   }
 
@@ -208,7 +170,7 @@ export class ProfileEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.form.valid) return;
 
-    const update: AdminUpdateUser | UpdateUser = this.form.value; // Intersection to skip annoying casts
+    const update: UpdateUser = this.form.value;
 
     // Don't include empty values on update input (they'd fail backend
     // validation!)
@@ -219,10 +181,7 @@ export class ProfileEditComponent implements OnInit {
     // We log /admin queries separately so really worth using the /user endpoint
     // whenever possible. So only do the /admin call is it's got admin-specific
     // stuff on.
-    if (
-      this.isLocal &&
-      (!this.isAdmin || !(this.user.bans || this.user.roles))
-    ) {
+    if (this.isLocal) {
       this.localUserService.updateUser(update).subscribe({
         next: () => {
           this.localUserService.refreshLocalUser();
@@ -239,8 +198,6 @@ export class ProfileEditComponent implements OnInit {
           })
       });
     } else {
-      (update as AdminUpdateUser).roles = this.user.roles;
-      (update as AdminUpdateUser).bans = this.user.bans;
       this.adminService.updateUser(this.user.id, update).subscribe({
         next: () => {
           this.messageService.add({
@@ -258,167 +215,25 @@ export class ProfileEditComponent implements OnInit {
     }
   }
 
-  toggleRole(role: Role) {
-    this.user.roles = this.hasRole(role)
-      ? Bitflags.remove(this.user.roles, role)
-      : Bitflags.add(this.user.roles, role);
-    this.checkUserPermissions();
-  }
-
-  toggleBan(ban: Ban) {
-    this.user.bans = this.hasBan(ban)
-      ? Bitflags.remove(this.user.bans, ban)
-      : Bitflags.add(this.user.bans, ban);
-    this.checkUserPermissions();
-  }
-
-  hasRole(role: Role) {
-    return this.localUserService.hasRole(role, this.user);
-  }
-
   hasBan(ban: Ban) {
     return this.localUserService.hasBan(ban, this.user);
   }
 
   checkUserPermissions() {
-    const permStatus = {
-      banAlias: this.hasBan(Ban.ALIAS),
-      banBio: this.hasBan(Ban.BIO),
-      banAvatar: this.hasBan(Ban.AVATAR),
-      banLeaderboards: this.hasBan(Ban.LEADERBOARDS),
-      banMapSubmission: this.hasBan(Ban.MAP_SUBMISSION),
-      verified: this.hasRole(Role.VERIFIED),
-      mapper: this.hasRole(Role.MAPPER),
-      porter: this.hasRole(Role.PORTER),
-      reviewer: this.hasRole(Role.REVIEWER),
-      limited: this.hasRole(Role.LIMITED),
-      moderator: this.hasRole(Role.MODERATOR),
-      admin: this.hasRole(Role.ADMIN)
-    };
-
-    if (permStatus.banAlias && !this.isModOrAdmin) {
+    if (this.hasBan(Ban.ALIAS) && !this.isModOrAdmin) {
       this.alias.disable();
     } else {
       this.alias.enable();
     }
-    if (permStatus.banBio && !this.isModOrAdmin) {
+    if (this.hasBan(Ban.BIO) && !this.isModOrAdmin) {
       this.bio.disable();
     } else {
       this.bio.enable();
     }
-
-    this.adminEditForm.patchValue(permStatus);
   }
 
   returnToProfile() {
     this.router.navigate([`/profile/${this.user.id}`]);
-  }
-
-  deleteUser() {
-    this.dialogService
-      .open(CodeVerifyDialogComponent, {
-        header: 'Delete user account',
-        data: {
-          message: `
-            <p>
-              This will <b>permanently</b> and <b>irrevocably</b> delete your account. If you do so, you will <b><i>never</i></b> be able to sign up
-              from the same Steam account.
-            </p>
-            <p>
-              This feature only exists for privacy reasons, to give users the ability to delete all data identifiable to them from our systems. Unless
-              you really want to do that, don't use this feature!
-            </p>
-            <p>
-              Again, we are <b><i>not</i></b> going to help you recover your account if you do this.
-            </p>`
-        }
-      })
-      .onClose.subscribe((response) => {
-        if (!response) return;
-        if (this.isLocal) this.deleteLocalUser();
-        else this.deleteUserAsAdmin();
-      });
-  }
-
-  deleteUserAsAdmin() {
-    this.adminService.deleteUser(this.user.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Successfully deleted user!'
-        });
-        this.router.navigate(['/']);
-      },
-      error: (httpError: HttpErrorResponse) =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Failed to delete user!',
-          detail: httpError.error.message
-        })
-    });
-  }
-
-  deleteLocalUser() {
-    this.localUserService.deleteUser().subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Successfully deleted user!'
-        });
-        this.authService.logout();
-      },
-      error: (httpError: HttpErrorResponse) =>
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Failed to delete user!',
-          detail: httpError.error.message
-        })
-    });
-  }
-
-  selectMergeUser(user1: User) {
-    if (this.user.id === user1.id) {
-      this.mergeErr = 'Cannot merge the same user onto themselves!';
-      return;
-    }
-    this.mergeErr = '';
-    this.mergeUser = user1;
-  }
-
-  mergeUsers() {
-    if (!this.mergeUser) return;
-    this.dialogService
-      .open(ConfirmDialogComponent, {
-        header: 'Merge users?',
-        data: {
-          message: `You are about to merge the placeholder user <b>${this.user.alias}</b> with the user <b>${this.mergeUser.alias}</b>.
-        This will merge over all activities, credits, and user follows, and then delete the placeholder user!
-        Are you sure you want to proceed?`
-        }
-      })
-      .onClose.subscribe((response) => {
-        if (!response) return;
-        this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              detail: 'Successfully merged the two users!'
-            });
-            this.router.navigate([`/profile/${this.mergeUser.id}`]);
-            this.mergeUser = null;
-          },
-          error: (httpError: HttpErrorResponse) =>
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Failed to merge users!',
-              detail: httpError.error.message
-            })
-        });
-      });
-  }
-
-  cancelMerge() {
-    this.mergeUser = null;
   }
 
   resetAlias() {
@@ -462,39 +277,5 @@ export class ProfileEditComponent implements OnInit {
           detail: httpError.error.message
         })
     });
-  }
-
-  deleteRuns() {
-    this.dialogService
-      .open(ConfirmWithReasonDialogComponent, {
-        header: 'Permanently delete all runs?',
-        data: {
-          message:
-            "This will permanently delete all of this user's runs. This action is irreversible.<br><br>" +
-            'Also note, this action involves renaming all run files, which is considerably slow for users with lots of runs.<br><br>' +
-            'Are you sure you want to proceed?',
-          proceedMessage: 'Confirm',
-          abortMessage: 'Cancel'
-        }
-      })
-      .onClose.subscribe(
-        ({ confirmed, reason }: ConfirmWithReasonDialogResult) => {
-          if (!confirmed) return;
-          this.adminService.deleteAllRuns(this.user.id, reason).subscribe({
-            next: () => {
-              this.messageService.add({
-                severity: 'success',
-                detail: 'Successfully purged user runs!'
-              });
-            },
-            error: (httpError: HttpErrorResponse) =>
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Failed to purge user runs!',
-                detail: httpError.error.message
-              })
-          });
-        }
-      );
   }
 }
