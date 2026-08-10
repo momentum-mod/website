@@ -4,7 +4,11 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { ReportCategory, ReportType } from '@momentum/constants';
+import {
+  MAX_REPORT_MESSAGE_LENGTH,
+  ReportCategory,
+  ReportType
+} from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SelectModule } from 'primeng/select';
@@ -37,6 +41,8 @@ export class CreateReportDialogComponent implements OnInit {
   @Input() reportType: ReportType;
   @Input() reportData: number;
 
+  protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
+
   protected readonly createReportForm = this.nnfb.group({
     data: this.nnfb.control<number>(0, { validators: Validators.required }),
     type: this.nnfb.control<ReportType>(ReportType.USER_PROFILE_REPORT, {
@@ -47,7 +53,10 @@ export class CreateReportDialogComponent implements OnInit {
       { validators: Validators.required }
     ),
     message: this.nnfb.control<string>('', {
-      validators: [Validators.required, Validators.maxLength(1000)]
+      validators: [
+        Validators.required,
+        Validators.maxLength(MAX_REPORT_MESSAGE_LENGTH)
+      ]
     })
   });
 

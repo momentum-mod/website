@@ -3,7 +3,11 @@
 import { ReportDto } from '../../backend/src/app/dto';
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
-import { ReportCategory, ReportType } from '@momentum/constants';
+import {
+  MAX_REPORT_MESSAGE_LENGTH,
+  ReportCategory,
+  ReportType
+} from '@momentum/constants';
 import { PrismaClient } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
@@ -115,6 +119,26 @@ describe('Reports', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('reports', 'post'));
+
+      it('should 400 if the message exceeds the max length', () =>
+        req.post({
+          url: 'reports',
+          status: 400,
+          body: {
+            ...report,
+            message: 'a'.repeat(MAX_REPORT_MESSAGE_LENGTH + 1)
+          },
+          token
+        }));
+
+      it('should create a new report if the message is exactly the max length', () =>
+        req.post({
+          url: 'reports',
+          status: 201,
+          body: { ...report, message: 'a'.repeat(MAX_REPORT_MESSAGE_LENGTH) },
+          validate: ReportDto,
+          token
+        }));
 
       describe('player reports via targetSteamID', () => {
         // Note: don't clean up the `user` table in here — that would delete the
