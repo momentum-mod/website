@@ -1,7 +1,9 @@
 <!-- A table row from lg up. Below that each report is a block of labelled fields. -->
 <div class="flex flex-col gap-1 p-3 lg:flex-row lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0">
-  <div class="text-left lg:w-[6%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">ID</span>{{ report.id }}</div>
-  <div class="text-left lg:w-[12%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
+  <div class="text-left lg:w-[9%] lg:px-2 lg:py-1" [title]="report.createdAt | date: 'medium'">
+    <span class="mr-2 text-sm text-gray-300 lg:hidden">Date</span>{{ report.createdAt | date: 'MMM d, h:mm a' }}
+  </div>
+  <div class="text-left lg:w-[9%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
   <div class="text-left lg:w-[9%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
   <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
@@ -22,22 +24,30 @@
     }
   </div>
   <div class="lg:w-[19%] lg:px-2 lg:py-1">
-    <span class="text-sm text-gray-300 lg:hidden">Message</span>
-    <textarea
-      readonly
-      rows="2"
-      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
-      [value]="report.message"
-    ></textarea>
+    <span class="text-sm text-gray-300 lg:hidden">Report Message</span>
+    <p
+      #messageText
+      class="whitespace-pre-wrap break-words text-sm"
+      [class.line-clamp-2]="!messageExpanded"
+      [class.cursor-pointer]="messageOverflows"
+      [title]="messageOverflows ? (messageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      (click)="toggleMessage()"
+    >
+      {{ report.message }}
+    </p>
   </div>
   <div class="lg:w-[19%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Resolution Message</span>
-    <textarea
-      readonly
-      rows="2"
-      class="textinput scroll-thin w-full resize-none overflow-y-auto text-sm"
-      [value]="report.resolutionMessage ?? ''"
-    ></textarea>
+    <p
+      #resolutionMessageText
+      class="whitespace-pre-wrap break-words text-sm"
+      [class.line-clamp-2]="!resolutionMessageExpanded"
+      [class.cursor-pointer]="resolutionMessageOverflows"
+      [title]="resolutionMessageOverflows ? (resolutionMessageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      (click)="toggleResolutionMessage()"
+    >
+      {{ report.resolutionMessage }}
+    </p>
   </div>
   <!-- Tooltips don't show on touch, so the icon buttons are labelled below lg. -->
   <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:w-[9%] lg:items-center lg:justify-center lg:px-2 lg:py-1">
