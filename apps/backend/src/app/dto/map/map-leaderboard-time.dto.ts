@@ -4,9 +4,10 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { EnumProperty } from '../decorators';
+import { IsSteamCommunityID } from '../../validators';
 
 /**
  * A single recorded time on one leaderboard (track + style) of a map - a slim
@@ -36,4 +37,14 @@ export class MapLeaderboardTimeDto implements MapLeaderboardTime {
   })
   @IsNumber()
   readonly time: number;
+
+  @ApiPropertyOptional({
+    type: String,
+    description:
+      'The Steam community ID of the player who set the time. Only sent for a ' +
+      "map's world record - on a personal best it's always the requesting user"
+  })
+  @IsOptional()
+  @IsSteamCommunityID()
+  readonly steamID?: string;
 }

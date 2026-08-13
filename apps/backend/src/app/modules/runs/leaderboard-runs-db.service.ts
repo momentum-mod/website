@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { LeaderboardRun, TypedSql } from '@momentum/db';
+import { LeaderboardRun, TypedSql, User } from '@momentum/db';
 import { type Gamemode, type Style, type TrackType } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
@@ -39,10 +39,12 @@ export class LeaderboardRunsDbService {
       userIDs?: number[];
       includeSplits?: IncludeSplits;
     }
+    // Every query variant selects the run's user columns, which mapRowToLeaderboardRun
+    // nests under `user` - so it's always present, despite not being on the Prisma model.
   ): Promise<
-    IncludeSplits extends true
-      ? LeaderboardRun[]
-      : Omit<LeaderboardRun, 'splits'>[]
+    ((IncludeSplits extends true
+      ? LeaderboardRun
+      : Omit<LeaderboardRun, 'splits'>) & { user: User })[]
   > {
     const skip = args.skip === undefined ? 0 : args.skip;
     const take = args.take === undefined ? 10 : args.take;
