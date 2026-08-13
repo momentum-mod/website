@@ -204,7 +204,7 @@ export interface MMap {
  * projection of {@link LeaderboardRun} - just the leaderboard coordinates and the
  * time, which is all the game needs for the map selector (a user PB in
  * {@link MMap.personalBests}, or the {@link MMap.worldRecord}). Deliberately omits
- * rank/user etc., which nothing consumes for these.
+ * rank and the full user, which nothing consumes for these.
  */
 export interface MapLeaderboardTime {
   gamemode: Gamemode;
@@ -212,6 +212,12 @@ export interface MapLeaderboardTime {
   trackNum: number;
   style: Style;
   time: number;
+  /**
+   * Steam ID of the player who set the time. Only sent for {@link MMap.worldRecord},
+   * where the game needs to identify the holder for the WR-holder achievement; omitted
+   * for {@link MMap.personalBests}, where it's always the requesting user.
+   */
+  steamID?: string;
 }
 
 export interface MapVersion {

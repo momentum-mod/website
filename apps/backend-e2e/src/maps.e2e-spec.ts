@@ -2057,13 +2057,15 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        // Slim shape: just the leaderboard coordinates and the time (no rank/user).
+        // Slim shape: the leaderboard coordinates, the time, and who set it (the game
+        // needs the holder for the WR-holder achievement) - but no rank or full user.
         expect(res.body.worldRecord).toEqual({
           gamemode: Gamemode.AHOP,
           trackType: TrackType.MAIN,
           trackNum: 1,
           style: Style.NORMAL,
-          time: 5
+          time: 5,
+          steamID: u2.steamID.toString()
         });
       });
 

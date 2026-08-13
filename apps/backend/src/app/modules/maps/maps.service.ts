@@ -527,8 +527,8 @@ export class MapsService {
 
     if (query.worldRecord) {
       // The WR is just the fastest run on the leaderboard. Only the time (+ its
-      // leaderboard coordinates) is consumed, so project to the slim shape rather
-      // than returning the full run with rank/user.
+      // leaderboard coordinates, and who set it) is consumed, so project to the slim
+      // shape rather than returning the full run with rank/user.
       const wr = (
         await this.leaderboardRunsDbService.getRankedRuns({
           mapID: map.id,
@@ -547,7 +547,10 @@ export class MapsService {
             trackType: wr.trackType,
             trackNum: wr.trackNum,
             style: wr.style,
-            time: wr.time
+            time: wr.time,
+            // The game identifies the holder for the WR-holder achievement. Already
+            // on the row getRankedRuns returns, so this costs no extra query.
+            steamID: wr.user.steamID.toString()
           }
         : undefined;
     }
