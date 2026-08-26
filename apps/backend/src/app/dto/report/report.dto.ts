@@ -9,7 +9,7 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
-import { CreateChatBanDto } from '../chat-ban/chat-ban-input.dto';
+import { CreateChatBanDto } from '../chat-ban/chat-ban.dto';
 import { IsSteamCommunityID } from '../../validators';
 import {
   CreatedAtProperty,
@@ -115,5 +115,5 @@ export class UpdateReportDto
       'Chat/voice bans to issue against the reported user when resolving a ' +
       'player report. Only honoured when the report is being resolved.'
   })
-  readonly bans?: CreateChatBanDto[];
+  readonly chatBans?: CreateChatBanDto[];
 }

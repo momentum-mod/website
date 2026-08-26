@@ -418,7 +418,7 @@ export class AdminService {
 
     if (!report) throw new NotFoundException('Report not found');
 
-    const issuingBans = reportDto.bans && reportDto.bans.length > 0;
+    const issuingBans = (reportDto.chatBans?.length ?? 0) > 0;
     if (issuingBans) {
       if (report.type !== ReportType.PLAYER_REPORT)
         throw new BadRequestException(
@@ -459,11 +459,11 @@ export class AdminService {
     if (issuingBans) {
       // For a player report, `data` is the reported user's ID.
       const targetID = Number(report.data);
-      for (const ban of reportDto.bans) {
+      for (const ban of reportDto.chatBans!) {
         const created = await this.db.chatBan.create({
           data: {
             type: ban.type,
-            expiresAt: ban.expiresAt ? new Date(ban.expiresAt) : null,
+            expiresAt: ban.expiresAt ?? null,
             reason: ban.reason ?? null,
             target: { connect: { id: targetID } },
             issuer: { connect: { id: userID } },
@@ -510,14 +510,9 @@ export class AdminService {
 
     if (!ban) throw new NotFoundException('Ban not found');
 
-    const data: Prisma.ChatBanUpdateInput = {};
-    if (dto.expiresAt !== undefined)
-      data.expiresAt = dto.expiresAt ? new Date(dto.expiresAt) : null;
-    if (dto.reason !== undefined) data.reason = dto.reason;
-
     const updated = await this.db.chatBan.update({
       where: { id: banID },
-      data
+      data: { expiresAt: dto.expiresAt, reason: dto.reason }
     });
 
     await this.adminActivityService.create(
