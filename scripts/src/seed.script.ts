@@ -19,6 +19,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import {
   ActivityType,
   Ban,
+  ChatBanType,
   MapStatuses,
   Gamemode,
   LeaderboardType,
@@ -352,22 +353,56 @@ prismaWrapper(async (prisma: PrismaClient) => {
     Random.uniquePairs(userIDs, randRange(vars.userReports)).flatMap(
       ([id1, id2]) =>
         () =>
-          prisma.report
-            .create({
+          (async () => {
+            const type = Random.chance()
+              ? ReportType.PLAYER_REPORT
+              : ReportType.USER_PROFILE_REPORT;
+            const resolved = faker.datatype.boolean();
+            const resolverID = Random.element(
+              userIDs.filter((u) => u !== id1 && u !== id2)
+            );
+            const dates = Random.createdUpdatedDates();
+
+            const report = await prisma.report.create({
               data: {
-                type: ReportType.USER_PROFILE_REPORT,
+                type,
                 data: id2,
                 category: Random.enumValue(ReportCategory),
                 message: faker.lorem.paragraph(),
-                resolved: faker.datatype.boolean(),
+                resolved,
                 resolutionMessage: faker.lorem.sentence(),
                 submitterID: id1,
-                resolverID: Random.element(
-                  userIDs.filter((u) => u !== id1 && u !== id2)
-                )
+                resolverID,
+                ...dates
               }
-            })
-            .catch(() => {})
+            });
+
+            // Chat/voice bans are only ever issued as a side effect of
+            // resolving a player report.
+            if (
+              type === ReportType.PLAYER_REPORT &&
+              resolved &&
+              Random.chance(0.5)
+            ) {
+              await prisma.chatBan.create({
+                data: {
+                  type: Random.enumValue(ChatBanType),
+                  expiresAt: Random.chance(0.7)
+                    ? Random.date(
+                        Date.now(),
+                        Date.now() + 1000 * 60 * 60 * 24 * 60
+                      )
+                    : null,
+                  reason: faker.lorem.sentence(),
+                  targetID: id2,
+                  issuerID: resolverID,
+                  reportID: report.id,
+                  createdAt: dates.updatedAt,
+                  updatedAt: dates.updatedAt
+                }
+              });
+            }
+          })().catch(() => {})
     )
   );
 
@@ -885,6 +920,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               type: ReportType.MAP_REPORT,
               message: faker.lorem.paragraph(),
               submitterID: userID,
+              ...Random.createdUpdatedDates(),
               ...(Random.chance()
                 ? {
                     resolved: true,
