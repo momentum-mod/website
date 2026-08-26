@@ -47,8 +47,6 @@ export interface User {
   createdAt: DateString;
   profile?: Profile;
   userStats?: UserStats;
-  /// The requester's own currently-active timed chat/voice bans. Only populated
-  /// on GET /user (the local-user endpoint), for the game to enforce against.
   chatBans?: ActiveChatBan[];
 }
 
@@ -174,22 +172,18 @@ export interface Report {
 export interface ChatBan {
   id: number;
   type: ChatBanType;
-  /// ISO date the ban expires, or null if permanent
   expiresAt: DateString | null;
   reason: string | null;
   targetID: number;
   target?: User;
   issuerID: number | null;
   issuer?: User;
-  /// The report whose resolution created this ban, if any
   reportID: number | null;
   report?: Report;
   createdAt: DateString;
   updatedAt: DateString;
 }
 
-/// Minimal shape of an active ban embedded in the local user's `GET /user`
-/// response — just what the game needs to block communication and show a toast.
 export type ActiveChatBan = Pick<ChatBan, 'type' | 'expiresAt' | 'reason'>;
 
 //#endregion

@@ -93,7 +93,6 @@ model Report {
   resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
   resolverID Int?
 
-  /// Chat/voice bans issued while resolving this report, if any
   chatBans ChatBan[]
 
   createdAt DateTime @default(now())
@@ -117,7 +116,6 @@ model ChatBan {
   issuer   User? @relation("chatban_issuer", fields: [issuerID], references: [id], onDelete: SetNull)
   issuerID Int?
 
-  /// The report whose resolution created this ban, if any
   report   Report? @relation(fields: [reportID], references: [id], onDelete: SetNull)
   reportID Int?
 

@@ -13,7 +13,7 @@
               <span
                 class="rounded bg-red-800 px-2 py-0.5 text-xs"
                 [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
-                >Active &middot; {{ expiryLabel(ban) }}</span
+                >Active - {{ expiryLabel(ban) }}</span
               >
             } @else {
               <span class="rounded bg-gray-700 px-2 py-0.5 text-xs">Expired</span>
@@ -33,7 +33,7 @@
                 by <a class="hover:!text-blue-500" [routerLink]="'/profile/' + ban.issuer.id">{{ ban.issuer.alias }}</a></span
               >
             }
-            <span> &middot; {{ ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'Never expires' }}</span>
+            <span> - {{ ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'Never expires' }}</span>
           </p>
 
           @if (ban.reportID) {
