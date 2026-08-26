@@ -28,7 +28,6 @@ export * from './map/map-test-invite.dto';
 export * from './map/map-pre-signed-url.dto';
 export * from './report/report.dto';
 export * from './chat-ban/chat-ban.dto';
-export * from './chat-ban/chat-ban-input.dto';
 export * from './run/leaderboard-run.dto';
 export * from './run/past-run.dto';
 export * from './run/leaderboard.dto';

@@ -1,5 +1,12 @@
-import { ChatBan, ChatBanType, DateString } from '@momentum/constants';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  ActiveChatBan,
+  ChatBan,
+  ChatBanType,
+  CreateChatBan,
+  DateString,
+  UpdateChatBan
+} from '@momentum/constants';
+import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
 import {
   CreatedAtProperty,
@@ -60,3 +67,15 @@ export class ChatBanDto implements ChatBan {
   @UpdatedAtProperty()
   readonly updatedAt: DateString;
 }
+
+export class CreateChatBanDto
+  extends PickType(ChatBanDto, ['type', 'expiresAt', 'reason'] as const)
+  implements CreateChatBan {}
+
+export class UpdateChatBanDto
+  extends PickType(ChatBanDto, ['expiresAt', 'reason'] as const)
+  implements UpdateChatBan {}
+
+export class ActiveChatBanDto
+  extends PickType(ChatBanDto, ['type', 'expiresAt', 'reason'] as const)
+  implements ActiveChatBan {}
