@@ -288,8 +288,8 @@ export class RunSessionService {
       trackType: Number(storedSession.trackType),
       trackNum: Number(storedSession.trackNum),
       id: sessionID,
-      // Chance these are out of sync from the client, but also Valkey doesn't
-      // seem to preserve order anyway.
+      // `lpush` prepends, so the list comes back newest-first; sort it into
+      // chronological order.
       timestamps: storedTimestamps
         .map(deserializeTimestamp)
         .toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
