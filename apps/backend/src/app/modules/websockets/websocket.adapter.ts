@@ -6,7 +6,14 @@ import { isNil } from '@nestjs/common/utils/shared.utils';
 import { AbstractWsAdapter } from '@nestjs/websockets';
 import { MessageMappingProperties } from '@nestjs/websockets/gateway-metadata-explorer';
 import { EMPTY, fromEvent, fromEventPattern, Observable } from 'rxjs';
-import { filter, first, mergeMap, share, takeUntil } from 'rxjs/operators';
+import {
+  catchError,
+  concatMap,
+  filter,
+  first,
+  share,
+  takeUntil
+} from 'rxjs/operators';
 import { JwtService } from '@nestjs/jwt';
 import { WebsocketService } from './websocket.service';
 import { UserJwtAccessPayloadVerified } from '../auth/auth.interface';
@@ -199,9 +206,16 @@ export class WebsocketAdapter extends AbstractWsAdapter<
       // `ws` calls the listener with `(data, isBinary)`; keep only the data.
       (data: WebSocket.RawData) => data
     ).pipe(
-      mergeMap((data) =>
+      // Handle each client's messages in order
+      concatMap((data) =>
         this.bindMessageHandler(data, handlersMap, transform).pipe(
-          filter((result) => !isNil(result))
+          filter((result) => !isNil(result)),
+          // Contain a failed handler to its own message; without this the error
+          // propagates out and tears down this client's whole subscription.
+          catchError((error) => {
+            this.logger.error(error);
+            return EMPTY;
+          })
         )
       ),
       takeUntil(close$)
