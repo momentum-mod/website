@@ -15,7 +15,17 @@ import { UserJwtAccessPayloadVerified } from '../auth/auth.interface';
  * A `ws` socket with the authenticated user's ID attached during the upgrade.
  * Gateways can read it via `@ConnectedSocket()`.
  */
-export type AuthenticatedWebSocket = WebSocket.WebSocket & { userId: number };
+export type AuthenticatedWebSocket = WebSocket.WebSocket & {
+  userId: number;
+  /** Liveness flag driven by the heartbeat, see {@link WebsocketAdapter}. */
+  isAlive: boolean;
+};
+
+/**
+ * How often every connection is pinged. A socket that fails to pong within one
+ * round is terminated, so a dead connection is reaped within 2x this.
+ */
+const HEARTBEAT_INTERVAL_MS = 30_000;
 
 /**
  * `ws`-based WebSocket adapter that shares the app's HTTP server (hooking the
@@ -30,6 +40,7 @@ export class WebsocketAdapter extends AbstractWsAdapter<
   WebSocket.WebSocket
 > {
   protected readonly logger = new Logger('WebsocketAdapter');
+  private heartbeatInterval?: NodeJS.Timeout;
 
   constructor(
     appOrHttpServer: INestApplicationContext | object,
@@ -70,11 +81,58 @@ export class WebsocketAdapter extends AbstractWsAdapter<
     const server = new WebSocket.Server({ noServer: true, ...wsOptions });
 
     server.on('connection', (ws: WebSocket.WebSocket) => {
+      const client = ws as AuthenticatedWebSocket;
+      client.isAlive = true;
+      client.on('pong', () => {
+        client.isAlive = true;
+      });
+
       ws.on('error', (err) => this.logger.error(err));
     });
     server.on('error', (err) => this.logger.error(err));
 
+    this.startHeartbeat(server);
+
     return server;
+  }
+
+  /**
+   * A client that dies without closing the TCP connection never emits `close`,
+   * so the socket lingers until the OS keepalive gives up, potentially hours
+   * later. Pinging on an interval turns those into prompt `close` events.
+   *
+   * A socket belongs to exactly one worker, so this needs no coordination.
+   */
+  private startHeartbeat(server: WebSocket.Server) {
+    this.stopHeartbeat();
+
+    this.heartbeatInterval = setInterval(() => {
+      for (const ws of server.clients) {
+        const client = ws as AuthenticatedWebSocket;
+
+        if (client.isAlive === false) {
+          // Missed the last round. `terminate` rather than `close` because a
+          // half-open socket will never complete a closing handshake.
+          client.terminate();
+          continue;
+        }
+
+        client.isAlive = false;
+        client.ping();
+      }
+    }, HEARTBEAT_INTERVAL_MS);
+
+    // Never hold the event loop open just for the heartbeat.
+    this.heartbeatInterval.unref();
+
+    server.on('close', () => this.stopHeartbeat());
+  }
+
+  private stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = undefined;
+    }
   }
 
   private onUpgrade(
@@ -189,6 +247,8 @@ export class WebsocketAdapter extends AbstractWsAdapter<
   }
 
   async close(server: WebSocket.Server) {
+    this.stopHeartbeat();
+
     const closeEventSignal = new Promise<void>((resolve, reject) =>
       server.close((err) => (err ? reject(err) : resolve()))
     );
