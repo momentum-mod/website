@@ -148,40 +148,21 @@ describe('Game Connection Gateway - run sessions', () => {
 
     it('should delete any existing session on the same track', async () => {
       await clearRunSessions();
-      const createdAt = Date.now();
 
       // Main track - different trackType, should survive
-      const mainID = await valkey.incr('runsess:counter');
-      await valkey.lpush(`runsess:id:${user.id}`, mainID);
-      await valkey.hset(`runsess:dat:${mainID}`, {
-        userID: user.id,
-        mapID: map.id,
-        createdAt,
-        gamemode: Gamemode.AHOP,
-        trackType: TrackType.STAGE,
+      const mainID = await seedSession(user.id, {
+        trackType: TrackType.MAIN,
         trackNum: 1
       });
 
       // Same trackType, different trackNum, should survive
-      const stage1ID = await valkey.incr('runsess:counter');
-      await valkey.lpush(`runsess:id:${user.id}`, stage1ID);
-      await valkey.hset(`runsess:dat:${stage1ID}`, {
-        userID: user.id,
-        mapID: map.id,
-        createdAt,
-        gamemode: Gamemode.AHOP,
+      const stage1ID = await seedSession(user.id, {
         trackType: TrackType.STAGE,
         trackNum: 1
       });
 
       // Same trackType and trackNum, should be deleted
-      const stage2ID = await valkey.incr('runsess:counter');
-      await valkey.lpush(`runsess:id:${user.id}`, stage2ID);
-      await valkey.hset(`runsess:dat:${stage2ID}`, {
-        userID: user.id,
-        mapID: map.id,
-        createdAt,
-        gamemode: Gamemode.AHOP,
+      const stage2ID = await seedSession(user.id, {
         trackType: TrackType.STAGE,
         trackNum: 2
       });
@@ -201,7 +182,17 @@ describe('Game Connection Gateway - run sessions', () => {
       expect(ids).toHaveLength(3);
       expect(ids).toContain(res.data.id.toString());
       expect(ids).not.toContain(stage2ID.toString());
+
+      // Both the data and timestamps of the replaced session must be gone,
+      // otherwise the timestamp list is orphaned in Valkey forever.
       expect(await valkey.exists(`runsess:dat:${stage2ID}`)).toBe(0);
+      expect(await valkey.exists(`runsess:ts:${stage2ID}`)).toBe(0);
+
+      // Untouched sessions keep both their keys
+      expect(await valkey.exists(`runsess:dat:${mainID}`)).toBe(1);
+      expect(await valkey.exists(`runsess:ts:${mainID}`)).toBe(1);
+      expect(await valkey.exists(`runsess:dat:${stage1ID}`)).toBe(1);
+      expect(await valkey.exists(`runsess:ts:${stage1ID}`)).toBe(1);
     });
 
     it('should return an error if the leaderboard does not exist', async () => {

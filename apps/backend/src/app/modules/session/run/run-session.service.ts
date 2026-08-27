@@ -105,7 +105,8 @@ export class RunSessionService {
       ) {
         await Promise.all([
           this.valkey.lrem(sessionKey, 0, sessionID),
-          this.valkey.del(dataKey(sessionID))
+          this.valkey.del(dataKey(sessionID)),
+          this.valkey.del(timestampKey(sessionID))
         ]);
       }
     }
