@@ -509,6 +509,19 @@ export class MapsService {
           value: { where: { userID: userID } }
         },
         {
+          // Explicit order, since without one Postgres may return these rows
+          // in a nondeterministic order.
+          expand: 'leaderboards',
+          value: {
+            orderBy: [
+              { gamemode: 'asc' },
+              { trackType: 'asc' },
+              { trackNum: 'asc' },
+              { style: 'asc' }
+            ]
+          }
+        },
+        {
           expand: 'submission',
           value: {
             include: {
