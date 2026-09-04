@@ -32,9 +32,9 @@ export class MapTestInviteSelectionComponent implements ControlValueAccessor {
 
   addUser(user: User, searchInput: UserSearchComponent): void {
     if (this.users.length >= this.MAX_TESTING_REQUESTS) {
-      this.tooltip.setAndShow('Maximum number of users reached!', true);
+      this.tooltip.setAndShow('Maximum number of users reached!');
     } else if (this.users.some(({ id }) => id === user.id)) {
-      this.tooltip.setAndShow('User already added!', true);
+      this.tooltip.setAndShow('User already added!');
     } else {
       searchInput.resetSearchBox();
       this.users.push(user);

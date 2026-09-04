@@ -52,11 +52,13 @@
           T{{ activeMode.tier }}
         </p>
       }
-      @if (activeMode.type === LeaderboardType.UNRANKED) {
-        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
-      } @else if (activeMode.type === LeaderboardType.HIDDEN) {
-        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
-      }
+      <div class="text-start">
+        @if (activeMode.type === LeaderboardType.UNRANKED) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+        } @else if (activeMode.type === LeaderboardType.HIDDEN) {
+          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+        }
+      </div>
     </button>
 
     @if (activeMode.stages > 0) {
@@ -109,11 +111,13 @@
             T{{ bonus.tier }}
           </p>
         }
-        @if (bonus.type === LeaderboardType.UNRANKED) {
-          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
-        } @else if (bonus.type === LeaderboardType.HIDDEN) {
-          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
-        }
+        <div class="text-start">
+          @if (bonus.type === LeaderboardType.UNRANKED) {
+            <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+          } @else if (bonus.type === LeaderboardType.HIDDEN) {
+            <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+          }
+        </div>
       </button>
     }
 
