@@ -11,6 +11,7 @@ import * as Bitflags from '@momentum/bitflags';
 import {
   AdminActivityType,
   NotificationType,
+  ReportType,
   Role,
   runPath,
   deletedRunPath
@@ -18,10 +19,13 @@ import {
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
   AdminDeleteRunDto,
+  AdminGetChatBansQueryDto,
   AdminUpdateUserDto,
+  ChatBanDto,
   DtoFactory,
   PagedResponseDto,
   ReportDto,
+  UpdateChatBanDto,
   UpdateReportDto,
   UserDto
 } from '../../dto';
@@ -396,6 +400,7 @@ export class AdminService {
     const dbResponse = await this.db.report.findManyAndCount({
       where: { resolved },
       include: expandToIncludes(expand),
+      orderBy: { createdAt: 'desc' },
       skip,
       take
     });
@@ -412,6 +417,18 @@ export class AdminService {
     });
 
     if (!report) throw new NotFoundException('Report not found');
+
+    const issuingBans = (reportDto.chatBans?.length ?? 0) > 0;
+    if (issuingBans) {
+      if (report.type !== ReportType.PLAYER_REPORT)
+        throw new BadRequestException(
+          'Chat/voice bans can only be issued from a player report'
+        );
+      if (!reportDto.resolved)
+        throw new BadRequestException(
+          'Chat/voice bans can only be issued when resolving a report'
+        );
+    }
 
     let activity = AdminActivityType.REPORT_UPDATE;
 
@@ -437,6 +454,89 @@ export class AdminService {
       reportID,
       updatedReport,
       report
+    );
+
+    if (issuingBans) {
+      // For a player report, `data` is the reported user's ID.
+      const targetID = Number(report.data);
+      for (const ban of reportDto.chatBans!) {
+        const created = await this.db.chatBan.create({
+          data: {
+            type: ban.type,
+            expiresAt: ban.expiresAt ?? null,
+            reason: ban.reason ?? null,
+            target: { connect: { id: targetID } },
+            issuer: { connect: { id: userID } },
+            report: { connect: { id: reportID } }
+          }
+        });
+
+        await this.adminActivityService.create(
+          userID,
+          AdminActivityType.CHAT_BAN_CREATE,
+          created.id,
+          created
+        );
+      }
+    }
+  }
+
+  async getChatBans(query: AdminGetChatBansQueryDto) {
+    const where: Prisma.ChatBanWhereInput = {};
+
+    if (query.targetID !== undefined) where.targetID = query.targetID;
+
+    // Only active (unexpired) bans unless expired ones are explicitly requested.
+    if (!query.includeExpired)
+      where.OR = [{ expiresAt: null }, { expiresAt: { gt: new Date() } }];
+
+    const dbResponse = await this.db.chatBan.findManyAndCount({
+      where,
+      include: expandToIncludes(query.expand),
+      orderBy: { createdAt: 'desc' },
+      skip: query.skip,
+      take: query.take
+    });
+
+    return new PagedResponseDto(ChatBanDto, dbResponse);
+  }
+
+  async updateChatBan(
+    adminID: number,
+    banID: number,
+    dto: UpdateChatBanDto
+  ): Promise<void> {
+    const ban = await this.db.chatBan.findUnique({ where: { id: banID } });
+
+    if (!ban) throw new NotFoundException('Ban not found');
+
+    const updated = await this.db.chatBan.update({
+      where: { id: banID },
+      data: { expiresAt: dto.expiresAt, reason: dto.reason }
+    });
+
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.CHAT_BAN_UPDATE,
+      banID,
+      updated,
+      ban
+    );
+  }
+
+  async revokeChatBan(adminID: number, banID: number): Promise<void> {
+    const ban = await this.db.chatBan.findUnique({ where: { id: banID } });
+
+    if (!ban) throw new NotFoundException('Ban not found');
+
+    await this.db.chatBan.delete({ where: { id: banID } });
+
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.CHAT_BAN_REVOKE,
+      banID,
+      null,
+      ban
     );
   }
 

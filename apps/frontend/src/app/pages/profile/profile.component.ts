@@ -45,6 +45,8 @@ import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
 import { SpinnerComponent } from '../../components/spinner/spinner.component';
 import { DialogModule } from 'primeng/dialog';
+import { ProfileChatBansComponent } from './profile-chat-bans/profile-chat-bans.component';
+import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-admin-settings.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -68,7 +70,8 @@ import { DialogModule } from 'primeng/dialog';
     AvatarComponent,
     SpinnerComponent,
     LevelIndicatorComponent,
-    DialogModule
+    DialogModule,
+    ProfileChatBansComponent
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -235,6 +238,29 @@ export class ProfileComponent implements OnInit {
     this.router.navigate([
       `/profile/${this.isLocal ? '' : this.user.id + '/'}edit`
     ]);
+  }
+
+  onAdminSettings() {
+    this.dialogService
+      .open(ProfileAdminSettingsComponent, {
+        header: 'Admin Settings',
+        data: { user: this.user, isLocal: this.isLocal },
+        style: { 'min-width': '35rem', 'max-width': '55rem' }
+      })
+      .onClose.subscribe(() => this.refreshUser());
+  }
+
+  private refreshUser() {
+    if (this.isLocal) {
+      this.localUserService.refreshLocalUser();
+    } else {
+      this.usersService
+        .getUser(this.user.id, { expand: ['profile', 'userStats'] })
+        .subscribe((user) => {
+          this.user = user;
+          this.userSubject.next(user);
+        });
+    }
   }
 
   toggleFollow() {

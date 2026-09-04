@@ -3,7 +3,8 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  Inject
+  Inject,
+  UnauthorizedException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -27,6 +28,11 @@ export class LimitedGuard implements CanActivate {
       where: { id: request.user.id },
       select: { roles: true }
     });
+
+    // Token was valid but the user it refers to no longer exists (e.g. a
+    // stale token from before a DB reset) - treat as unauthenticated
+    // rather than crashing.
+    if (!user) throw new UnauthorizedException();
 
     // eslint-disable-next-line eqeqeq
     return (Role.LIMITED & user.roles) == 0;
