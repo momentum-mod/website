@@ -7,11 +7,13 @@ import {
 } from '@momentum/constants';
 import { sleep } from '@momentum/util-fn';
 import * as ReplayFile from '@momentum/formats/replay';
+import Valkey from 'iovalkey';
 
 const DEFAULT_DELAY_MS = 10;
 
 export interface RunTesterProps {
   token?: string;
+  userID: number;
   mapID: number;
   mapName: string;
   mapHash: string;
@@ -42,20 +44,23 @@ export class RunTester {
   segments: RunSplits.Segment[] = [];
 
   private req: RequestUtil;
+  private valkey: Valkey;
 
-  constructor(req: RequestUtil, props: RunTesterProps) {
+  constructor(req: RequestUtil, valkey: Valkey, props: RunTesterProps) {
     this.req = req;
+    this.valkey = valkey;
     this.props = props;
   }
 
   static async run(args: {
     req: RequestUtil;
+    valkey: Valkey;
     props: RunTesterProps;
     segments: number[]; // array of number of minor checkpoints. 4 cp linear would be [0, 0, 0, 0]
     delay?: number;
     majorStart?: number;
   }) {
-    const runTester = new RunTester(args.req, args.props);
+    const runTester = new RunTester(args.req, args.valkey, args.props);
 
     await runTester.startRun({ majorStart: args.majorStart });
 
@@ -69,18 +74,25 @@ export class RunTester {
     this.curMinor = 1;
     this.startTime = Date.now();
 
-    const res = await this.req.post({
-      url: 'session/run',
-      body: {
+    // In production sessions are created over the WebSocket game connection
+    // (GameConnectionGateway#createSession). Tests don't run a WS client, so we
+    // write the session straight to Valkey using the same key schema.
+    this.sessionID = await this.valkey.incr('runsess:counter');
+    await Promise.all([
+      this.valkey.lpush(`runsess:id:${this.props.userID}`, this.sessionID),
+      this.valkey.hset(`runsess:dat:${this.sessionID}`, {
+        userID: this.props.userID,
+        createdAt: this.startTime,
         mapID: this.props.mapID,
         gamemode: this.props.gamemode,
         trackType: this.props.trackType,
         trackNum: this.props.trackNum
-      },
-      status: 200,
-      token: this.props.token ?? ''
-    });
-    this.sessionID = res.body.id;
+      }),
+      this.valkey.lpush(
+        `runsess:ts:${this.sessionID}`,
+        `1,1,0,${this.startTime}`
+      )
+    ]);
 
     this.segments.push({
       subsegments: [
@@ -147,16 +159,12 @@ export class RunTester {
     this.currTime = Date.now();
     const timeTotal = Date.now() - this.startTime;
 
-    await this.req.post({
-      url: `session/run/${this.sessionID}`,
-      body: {
-        majorNum: this.curMajor,
-        minorNum: this.curMinor,
-        time: timeTotal
-      },
-      status: 204,
-      token: this.props.token ?? ''
-    });
+    // Mirrors GameConnectionGateway#updateSession: push a timestamp string of
+    // form <majorNum>,<minorNum>,<time>,<createdAt> onto the session's list.
+    await this.valkey.lpush(
+      `runsess:ts:${this.sessionID}`,
+      `${this.curMajor},${this.curMinor},${timeTotal},${Date.now()}`
+    );
 
     const subseg: RunSplits.Subsegment = {
       velocityWhenReached: { x: 0, y: 0, z: 0 },

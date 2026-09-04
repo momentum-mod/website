@@ -1,4 +1,4 @@
-﻿import {
+import {
   CreateRunSession,
   DateString,
   Gamemode,
@@ -10,6 +10,7 @@ import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsInt, IsPositive, Min, Max } from 'class-validator';
 import { CreatedAtProperty, EnumProperty, IdProperty } from '../decorators';
 import { MAX_TRACK_SEGMENTS } from '@momentum/formats/zone';
+import { RunSessionTimestampDto } from './run-session-timestamp.dto';
 
 export class RunSessionDto implements RunSession {
   @IdProperty()
@@ -51,6 +52,10 @@ export class RunSessionDto implements RunSession {
   readonly createdAt: DateString;
 }
 
+/**
+ * Body of the `runsession.create` message: identifies the leaderboard a new run
+ * session is being started on.
+ */
 export class CreateRunSessionDto
   extends PickType(RunSessionDto, [
     'mapID',
@@ -60,7 +65,23 @@ export class CreateRunSessionDto
   ] as const)
   implements CreateRunSession {}
 
-export class UpdateRunSessionDto implements UpdateRunSession {
+/**
+ * Identifies an existing run session. Body of the `runsession.invalidate` and
+ * `runsession.end` messages.
+ */
+export class RunSessionIdDto {
+  @IdProperty({ description: 'The ID of the run session' })
+  readonly sessionID: number;
+}
+
+/**
+ * Body of the `runsession.update` message: a timestamp to append to an existing
+ * run session.
+ */
+export class UpdateRunSessionDto
+  extends RunSessionIdDto
+  implements UpdateRunSession
+{
   @IsInt()
   readonly majorNum: number;
 
@@ -69,4 +90,26 @@ export class UpdateRunSessionDto implements UpdateRunSession {
 
   @IsPositive()
   readonly time: number;
+}
+
+/**
+ * The subset of a timestamp echoed back in a `runsession.create` response - the
+ * session's initial timestamp, before it's been persisted with an ID.
+ */
+export class RunSessionResponseTimestampDto extends PickType(
+  RunSessionTimestampDto,
+  ['majorNum', 'minorNum', 'time', 'createdAt'] as const
+) {}
+
+/**
+ * Successful response to a `runsession.create` message: the created session plus
+ * its initial timestamp.
+ */
+export class RunSessionResponseDto extends RunSessionDto {
+  @ApiProperty({
+    type: () => RunSessionResponseTimestampDto,
+    isArray: true,
+    description: 'Timestamps recorded for the session so far'
+  })
+  readonly timestamps: RunSessionResponseTimestampDto[];
 }
