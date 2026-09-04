@@ -9,6 +9,7 @@ const G = Gamemode;
 export const GamemodeStyles: ReadonlyMap<Gamemode, ReadonlySet<Style>> = new Map([
   [G.SURF,        new Set([S.NORMAL, S.SURF_HALF_SIDEWAYS, S.SIDEWAYS, S.BACKWARDS])],
   [G.BHOP,        new Set([S.NORMAL, S.BHOP_HALF_SIDEWAYS, S.SIDEWAYS, S.W_ONLY, S.AD_ONLY])],
+  [G.BHOP_STAMINA, new Set([S.BUFFERED_JUMP, S.SCROLL, S._400VELBUFFERED, S._400VELSCROLL])],
   [G.BHOP_HL1,    new Set([S.NORMAL])],
   [G.CLIMB_MOM,   new Set([S.PRO, S.TELEPORT])],
   [G.CLIMB_KZT,   new Set([S.PRO, S.TELEPORT])],
@@ -25,6 +26,7 @@ export const GamemodeStyles: ReadonlyMap<Gamemode, ReadonlySet<Style>> = new Map
 export const GamemodeDefaultUIStyle: ReadonlyMap<Gamemode, Style> = new Map([
   [G.SURF, S.NORMAL],
   [G.BHOP, S.NORMAL],
+  [G.BHOP_STAMINA, S.NORMAL],
   [G.BHOP_HL1, S.NORMAL],
   [G.CLIMB_MOM, S.TELEPORT],
   [G.CLIMB_KZT, S.TELEPORT],
