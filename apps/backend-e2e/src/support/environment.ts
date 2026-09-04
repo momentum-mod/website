@@ -25,6 +25,7 @@ import Valkey from 'iovalkey';
 import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -79,6 +80,10 @@ export async function setupE2ETestEnvironment(
 
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
+
+  for (const job of app.get(SchedulerRegistry).getCronJobs().values()) {
+    job.stop();
+  }
 
   const server = app.getHttpServer();
 
