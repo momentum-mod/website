@@ -68,6 +68,7 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { Routes } from 'discord.js';
 import { DbService } from '../../../apps/backend/src/app/modules/database/db.service';
 import { EXTENDED_PRISMA_SERVICE } from '../../../apps/backend/src/app/modules/database/db.constants';
+import { FileStoreService } from '../../../apps/backend/src/app/modules/filestore/file-store.service';
 
 describe('Maps', () => {
   let app,
@@ -2603,6 +2604,63 @@ describe('Maps', () => {
         expect(data).toHaveLength(1);
         expect(data[0].id).toBe(map.id);
         expect(data[0]).not.toHaveProperty('zones');
+      });
+
+      it('should retry map list update if it fails', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatus.PUBLIC_TESTING }
+        });
+
+        const oldListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        await uploadBspToPreSignedUrl(bspBuffer, u1Token);
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'haha i am making ur thing update', hasBSP: true },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        });
+
+        const storeFileMock = jest.spyOn(
+          app.get(FileStoreService),
+          'storeFile'
+        );
+        storeFileMock.mockRejectedValue('Your storage no worky (((');
+
+        await checkScheduledMapListUpdates();
+
+        let newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions
+        );
+
+        storeFileMock.mockRestore();
+
+        await checkScheduledMapListUpdates();
+
+        newListVersion = await req.get({
+          url: 'maps/maplistversion',
+          status: 200,
+          token: u1Token
+        });
+
+        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
+        expect(newListVersion.body.submissions).toBe(
+          oldListVersion.body.submissions + 1
+        );
       });
 
       it('should 400 for bad zones', async () => {

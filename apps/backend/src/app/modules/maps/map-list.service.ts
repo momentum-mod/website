@@ -16,6 +16,7 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { ConfigService } from '@nestjs/config';
+import * as Sentry from '@sentry/node';
 import { ValkeyService } from '../valkey/valkey.service';
 import { isFirstWorker } from '../../../clustered';
 
@@ -59,7 +60,14 @@ export class MapListService implements OnModuleInit {
         cronTime: this.config.get('mapListUpdateSchedule'),
         onTick: this.checkScheduledUpdates.bind(this),
         waitForCompletion: true,
-        start: true
+        start: true,
+        errorHandler(error) {
+          if (Sentry.isInitialized()) {
+            Sentry.setContext('Error', { error });
+            Sentry.getCurrentScope().setLevel('warning');
+            Sentry.captureException('Failed to update map list');
+          }
+        }
       })
     );
   }
@@ -83,15 +91,13 @@ export class MapListService implements OnModuleInit {
     await Promise.all(
       [FlatMapList.APPROVED, FlatMapList.SUBMISSION].map(async (type) => {
         const scheduled = await this.valkey.get(updateFlagKeys[type]);
+        if (scheduled !== '1') return;
 
-        if (scheduled === '1') {
-          return Promise.all([
-            this.updateMapList(type),
-            this.valkey.set(updateFlagKeys[type], '0'),
-            type === FlatMapList.APPROVED ? this.updateSitemap() : null
-          ]);
-        } else {
-          return [];
+        await this.updateMapList(type);
+        await this.valkey.set(updateFlagKeys[type], '0');
+
+        if (type === FlatMapList.APPROVED) {
+          await this.updateSitemap();
         }
       })
     );
@@ -172,8 +178,8 @@ export class MapListService implements OnModuleInit {
 
     const outBuf = Buffer.concat([header, compressed]);
 
-    const newVersion = await this.valkey.incr(versionKeys[type]);
-    const oldVersion = newVersion - 1;
+    const oldVersion = await this.valkey.get(versionKeys[type]).then(parseInt);
+    const newVersion = oldVersion + 1;
 
     const oldKey = mapListPath(type, oldVersion);
     const newKey = mapListPath(type, newVersion);
@@ -182,10 +188,9 @@ export class MapListService implements OnModuleInit {
       `Updating ${type} map list from v${oldVersion} to v${newVersion}, ${maps.length} maps, encoding took ${Date.now() - t1}ms`
     );
 
-    await Promise.all([
-      this.fileStoreService.deleteFile(oldKey),
-      this.fileStoreService.storeFile(outBuf, newKey)
-    ]);
+    await this.fileStoreService.storeFile(outBuf, newKey);
+    await this.valkey.set(versionKeys[type], newVersion);
+    await this.fileStoreService.deleteFile(oldKey);
   }
 
   private async updateSitemap(): Promise<void> {
