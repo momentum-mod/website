@@ -112,6 +112,12 @@ export class LeaderboardRunsService {
           throw new GoneException('No friends detected :(');
 
         steamIDs = steamFriends.map((item) => BigInt(item.steamid));
+
+        // Always add the local player to the list, client handles the case where it's the only record returned
+        if (loggedInUserSteamID) {
+          steamIDs.push(loggedInUserSteamID);
+        }
+
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
           ...query,
