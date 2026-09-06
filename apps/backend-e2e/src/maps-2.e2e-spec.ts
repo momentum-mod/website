@@ -1481,7 +1481,7 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it("should return a list of the user's Steam friend's ranks", async () => {
+      it("should return a list of the user's and their Steam friend's ranks", async () => {
         // Mock the call to Steam's API
         jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
           mockSteamIDs.map((id) => ({
@@ -1496,10 +1496,12 @@ describe('Maps Part 2', () => {
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 200,
           token,
-          validatePaged: { type: LeaderboardRunDto, count: 10 }
+          validatePaged: { type: LeaderboardRunDto, count: 11 }
         });
 
-        for (const run of res.body.data)
+        const [ownRun, ...friendRuns] = res.body.data;
+        expect(ownRun).toMatchObject({ userID: user.id, rank: 1 });
+        for (const run of friendRuns)
           expect(mockSteamIDs).toContain(BigInt(run.user.steamID));
       });
 
