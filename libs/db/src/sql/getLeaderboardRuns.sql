@@ -25,7 +25,7 @@ SELECT
     u."roles" AS "user_roles",
     u."bans" AS "user_bans",
     u."createdAt" AS "user_createdAt",
-    CAST(ROW_NUMBER() OVER () + $6 AS INT) AS "rank"
+    CAST(ROW_NUMBER() OVER (ORDER BY r."time", r."createdAt") + $6 AS INT) AS "rank"
 FROM (
     SELECT
         *
@@ -48,5 +48,8 @@ ORDER BY
     "time",
     "createdAt"
 LIMIT $7) r
-    INNER JOIN "User" AS "u" ON "userID" = "u"."id";
+    INNER JOIN "User" AS "u" ON "userID" = "u"."id"
+ORDER BY
+    r."time",
+    r."createdAt";
 
