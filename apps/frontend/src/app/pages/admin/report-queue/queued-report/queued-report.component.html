@@ -1,24 +1,55 @@
-<div class="flex flex-wrap items-center">
-  <div class="w-1/6 text-left">{{ report.id }}</div>
-  <div class="w-1/6 text-left">{{ typeText }}</div>
-  <div class="w-1/6 text-left">{{ categoryText }}</div>
-  <div class="w-1/6 text-left">{{ report.data }}</div>
-  <div class="w-1/6 text-left">
-    <a [routerLink]="'/profile/' + report.submitter?.id" class="flex items-center gap-2">
-      <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
-      <p>{{ report.submitter.alias }}</p>
-    </a>
+<div class="flex divide-x divide-white divide-opacity-10">
+  <div class="w-[9%] px-2 py-1 text-left" [title]="report.createdAt | date: 'medium'">
+    {{ report.createdAt | date: 'MMM d, h:mm a' }}
   </div>
-  <div class="w-1/6 text-left">
-    <a [routerLink]="'/profile/' + report.resolver?.id" class="flex items-center gap-2">
-      <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
-      <p>{{ report.resolver.alias }}</p>
-    </a>
+  <div class="w-[9%] px-2 py-1 text-left">{{ typeText }}</div>
+  <div class="w-[9%] px-2 py-1 text-left">{{ categoryText }}</div>
+  <div class="w-[13%] px-2 py-1 text-left">
+    @if (report.submitter) {
+      <a [routerLink]="'/profile/' + report.submitter.id" class="flex items-center gap-2">
+        <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
+        <p>{{ report.submitter.alias }}</p>
+      </a>
+    }
   </div>
-  <div class="w-1/5 text-center">{{ report.message }}</div>
-  <div class="w-1/5 text-center">{{ report.resolutionMessage }}</div>
-  <div class="w-1/5 text-center">
-    <button type="button" class="btn btn-blue" (click)="update()">Update</button>
-    <a [routerLink]="reportedResourceURL" target="_blank" class="btn">View Reported Resource</a>
+  <div class="w-[13%] px-2 py-1 text-left">
+    @if (report.resolver) {
+      <a [routerLink]="'/profile/' + report.resolver.id" class="flex items-center gap-2">
+        <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
+        <p>{{ report.resolver.alias }}</p>
+      </a>
+    }
+  </div>
+  <div class="w-[19%] px-2 py-1">
+    <p
+      #messageText
+      class="whitespace-pre-wrap break-words text-sm"
+      [class.line-clamp-2]="!messageExpanded"
+      [class.cursor-pointer]="messageOverflows"
+      [title]="messageOverflows ? (messageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      (click)="toggleMessage()"
+    >
+      {{ report.message }}
+    </p>
+  </div>
+  <div class="w-[19%] px-2 py-1">
+    <p
+      #resolutionMessageText
+      class="whitespace-pre-wrap break-words text-sm"
+      [class.line-clamp-2]="!resolutionMessageExpanded"
+      [class.cursor-pointer]="resolutionMessageOverflows"
+      [title]="resolutionMessageOverflows ? (resolutionMessageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      (click)="toggleResolutionMessage()"
+    >
+      {{ report.resolutionMessage }}
+    </p>
+  </div>
+  <div class="flex w-[9%] items-center justify-center gap-2 px-2 py-1">
+    <button type="button" class="btn btn-blue aspect-square p-2" mTooltip="Update Report" (click)="update()">
+      <m-icon icon="pencil" />
+    </button>
+    <a [routerLink]="reportedResourceURL" target="_blank" class="btn aspect-square p-2" mTooltip="View Reported Resource">
+      <m-icon icon="eye" />
+    </a>
   </div>
 </div>

@@ -1,0 +1,12 @@
+@if (activeBans.length > 0) {
+  <div class="flex flex-wrap items-center gap-2">
+    @for (ban of activeBans; track $index) {
+      <span
+        class="rounded bg-red-800 px-2 py-1 text-sm font-medium"
+        [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
+      >
+        {{ ChatBanTypeNames.get(ban.type) }} ban - {{ expiryLabel(ban) }}
+      </span>
+    }
+  </div>
+}

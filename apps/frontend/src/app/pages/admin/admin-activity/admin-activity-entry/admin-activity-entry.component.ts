@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import {
   AdminActivity,
   AdminActivityType,
+  ChatBanTypeNames,
   Role,
   RoleNames,
   Ban,
@@ -154,6 +155,31 @@ export class AdminActivityEntryComponent implements OnInit {
           targetLink: '/profile/' + activity.target
         };
       }
+
+      case AdminActivityType.CHAT_BAN_CREATE:
+        return {
+          actionText: `issued a ${ChatBanTypeNames.get(activity.newData.type)} ban on user`,
+          targetName: 'ID ' + activity.newData.targetID,
+          targetLink: '/profile/' + activity.newData.targetID
+        };
+
+      case AdminActivityType.CHAT_BAN_UPDATE:
+        return {
+          actionText: `updated a ${ChatBanTypeNames.get(activity.newData.type)} ban on user`,
+          targetName: 'ID ' + activity.newData.targetID,
+          targetLink: '/profile/' + activity.newData.targetID,
+          diff: AdminActivityEntryComponent.calculateDiff(
+            activity.oldData,
+            activity.newData
+          )
+        };
+
+      case AdminActivityType.CHAT_BAN_REVOKE:
+        return {
+          actionText: `revoked a ${ChatBanTypeNames.get(activity.oldData.type)} ban on user`,
+          targetName: 'ID ' + activity.oldData.targetID,
+          targetLink: '/profile/' + activity.oldData.targetID
+        };
 
       default:
         return {

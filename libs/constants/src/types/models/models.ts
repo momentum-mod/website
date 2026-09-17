@@ -17,6 +17,7 @@ import type { Flags } from '../utils/flags.type';
 import type { ActivityType } from '../../enums/activity-type.enum';
 import type { AdminActivityType } from '../../enums/admin-activity-type.enum';
 import type { ReportType } from '../../enums/report-type.enum';
+import type { ChatBanType } from '../../enums/chat-ban.enum';
 import type { KillswitchType } from '../../enums/killswitch.enum';
 import type { ReportCategory } from '../../enums/report-category.enum';
 import type { SteamGame } from '../../enums/steam-game.enum';
@@ -46,6 +47,7 @@ export interface User {
   createdAt: DateString;
   profile?: Profile;
   userStats?: UserStats;
+  chatBans?: ActiveChatBan[];
 }
 
 export interface Profile {
@@ -163,6 +165,26 @@ export interface Report {
   createdAt: DateString;
   updatedAt: DateString;
 }
+
+//#endregion
+//#region Bans
+
+export interface ChatBan {
+  id: number;
+  type: ChatBanType;
+  expiresAt: DateString | null;
+  reason: string | null;
+  targetID: number;
+  target?: User;
+  issuerID: number | null;
+  issuer?: User;
+  reportID: number | null;
+  report?: Report;
+  createdAt: DateString;
+  updatedAt: DateString;
+}
+
+export type ActiveChatBan = Pick<ChatBan, 'type' | 'expiresAt' | 'reason'>;
 
 //#endregion
 //#region Maps

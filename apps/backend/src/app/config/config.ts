@@ -2,6 +2,7 @@
   MAX_MAP_IMAGES,
   MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
+  MAX_HOURLY_PLAYER_REPORTS,
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
   MAX_TEST_INVITES,
@@ -50,7 +51,7 @@ export const ConfigFactory = (): ConfigInterface => {
         process.env['STEAM_USE_PARTNER_URL'] === 'true'
           ? 'https://partner.steam-api.com'
           : 'https://api.steampowered.com',
-      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false' || true,
+      preventLimited: process.env['STEAM_PREVENT_LIMITED'] !== 'false',
       useSteamTicketLibrary:
         process.env['STEAM_USE_ENCRYPTED_TICKETS'] === 'true' || false,
       ticketsSecretKey: process.env['STEAM_TICKETS_SECRET'] ?? ''
@@ -76,6 +77,7 @@ export const ConfigFactory = (): ConfigInterface => {
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
+      hourlyPlayerReports: MAX_HOURLY_PLAYER_REPORTS,
       mapImageUploads: MAX_MAP_IMAGES,
       // Keep low for tests, as we'll be generating buffers of slightly
       // above this size to test make file size validation

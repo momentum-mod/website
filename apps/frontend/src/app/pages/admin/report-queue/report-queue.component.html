@@ -1,4 +1,4 @@
-<m-card title="Report Queue">
+<m-card [title]="'Report Queue'" cardClass="!p-0">
   <ng-container header>
     <label>Resolved: </label>
     <select name="Resolved" (change)="filterChange.next()" [(ngModel)]="filters.resolved">
@@ -6,29 +6,31 @@
       <option selected="selected" value="false">No</option>
     </select>
   </ng-container>
-  <div class="flex flex-wrap">
-    <div class="w-1/6">ID</div>
-    <div class="w-1/6">Type</div>
-    <div class="w-1/6">Category</div>
-    <div class="w-1/6">Reported Resource ID</div>
-    <div class="w-1/6">Submitter</div>
-    <div class="w-1/6">Resolver</div>
-    <div class="w-1/5 text-center">Message</div>
-    <div class="w-1/5 text-center">Resolution Message</div>
-    <div class="w-1/5 text-center">Actions</div>
+  <div
+    class="flex divide-x divide-white divide-opacity-10 border-b border-white border-opacity-10 bg-black bg-opacity-20 font-bold uppercase tracking-wide text-gray-300"
+  >
+    <div class="w-[9%] px-2 py-1">Date</div>
+    <div class="w-[9%] px-2 py-1">Type</div>
+    <div class="w-[9%] px-2 py-1">Category</div>
+    <div class="w-[13%] px-2 py-1">Submitter</div>
+    <div class="w-[13%] px-2 py-1">Resolver</div>
+    <div class="w-[19%] px-2 py-1 text-center">Report Message</div>
+    <div class="w-[19%] px-2 py-1 text-center">Resolution Message</div>
+    <div class="w-[9%] px-2 py-1 text-center">Actions</div>
   </div>
-  <ul [mSpinner]="loading">
+  <ul [mSpinner]="loading" class="divide-y divide-white divide-opacity-10">
     @for (report of reportQueue; track $index) {
       <li class="basis-full">
         <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
       </li>
     } @empty {
       @if (!loading) {
-        <i>There are no reports that match the search criteria.</i>
+        <i class="block px-2 py-1">There are no reports that match the search criteria.</i>
       }
     }
   </ul>
   <p-paginator
+    class="block border-t border-white border-opacity-10 px-3 py-2"
     (onPageChange)="pageChange.next($event)"
     [first]="first"
     [rows]="rows"

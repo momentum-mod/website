@@ -27,6 +27,7 @@ import { IsCountryCode, IsSteamCommunityID } from '../../validators';
 import { ProfileDto } from './profile.dto';
 import { UserStatsDto } from './user-stats.dto';
 import { UpdateSocialsDto } from './socials.dto';
+import { ActiveChatBanDto } from '../chat-ban/chat-ban.dto';
 
 export class UserDto implements User {
   @IdProperty({ description: 'The unique numeric ID of the user' })
@@ -91,6 +92,16 @@ export class UserDto implements User {
   @ApiProperty({ type: Number, description: "Flags of user's bans" })
   @IsInt()
   readonly bans: Flags<Ban>;
+
+  @NestedProperty(ActiveChatBanDto, {
+    lazy: true,
+    isArray: true,
+    required: false,
+    description:
+      "The local user's currently-active timed chat/voice bans. Only present " +
+      'on GET /user (the local-user endpoint).'
+  })
+  readonly chatBans?: ActiveChatBanDto[];
 
   @CreatedAtProperty()
   readonly createdAt: DateString;

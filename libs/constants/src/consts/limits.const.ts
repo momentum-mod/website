@@ -1,4 +1,6 @@
 export const MAX_DAILY_REPORTS = 5;
+export const MAX_HOURLY_PLAYER_REPORTS = 5;
+export const MAX_REPORT_MESSAGE_LENGTH = 500;
 export const MAX_MAP_IMAGES = 5;
 export const MAX_BSP_SIZE = 300_000_000;
 export const MAX_VMF_SIZE = 100_000_000;

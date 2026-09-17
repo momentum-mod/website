@@ -40,6 +40,8 @@ model User {
   pastRuns             PastRun[]
   reportSubmitted      Report[]            @relation("report_submitter")
   reportResolved       Report[]            @relation("report_resolver")
+  chatBans             ChatBan[]           @relation("chatban_target")
+  chatBansIssued       ChatBan[]           @relation("chatban_issuer")
   testInvites          MapTestInvite[]
   reviewsSubmitted     MapReview[]         @relation("mapreview_reviewer")
   reviewsResolved      MapReview[]         @relation("mapreview_resolver")
@@ -91,10 +93,36 @@ model Report {
   resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
   resolverID Int?
 
+  chatBans ChatBan[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([resolverID, submitterID])
+}
+
+/// A timed ban from text chat or voice chat. Distinct from the permanent
+/// `User.bans` bitflag (bans.enum.ts); these carry an expiry and history.
+model ChatBan {
+  id Int @id @default(autoincrement())
+
+  type      Int       @db.SmallInt /// chat-ban.enum.ts
+  expiresAt DateTime? /// If NULL, the ban is permanent
+  reason    String?
+
+  target   User @relation("chatban_target", fields: [targetID], references: [id], onDelete: Cascade)
+  targetID Int
+
+  issuer   User? @relation("chatban_issuer", fields: [issuerID], references: [id], onDelete: SetNull)
+  issuerID Int?
+
+  report   Report? @relation(fields: [reportID], references: [id], onDelete: SetNull)
+  reportID Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([targetID, type])
 }
 
 model Activity {

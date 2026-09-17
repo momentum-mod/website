@@ -1,8 +1,16 @@
-﻿import { DateString, Report } from '@momentum/constants';
+﻿import {
+  CreateReport,
+  DateString,
+  MAX_REPORT_MESSAGE_LENGTH,
+  Report,
+  UpdateReport
+} from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
+import { CreateChatBanDto } from '../chat-ban/chat-ban.dto';
+import { IsSteamCommunityID } from '../../validators';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -32,6 +40,7 @@ export class ReportDto implements Report {
     type: String
   })
   @IsString()
+  @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
   readonly message: string;
 
   @ApiProperty({
@@ -47,6 +56,7 @@ export class ReportDto implements Report {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
   readonly resolutionMessage: string;
 
   @IdProperty({ description: 'The user ID of the submitter' })
@@ -71,14 +81,39 @@ export class ReportDto implements Report {
   readonly updatedAt: DateString;
 }
 
-export class CreateReportDto extends PickType(ReportDto, [
-  'data',
-  'type',
-  'category',
-  'message'
-] as const) {}
+export class CreateReportDto
+  extends PickType(ReportDto, ['type', 'category', 'message'] as const)
+  implements CreateReport
+{
+  @IdProperty({
+    required: false,
+    bigint: true,
+    description:
+      'The ID of the object being reported. Provide this OR targetSteamID.'
+  })
+  readonly data?: number;
 
-export class UpdateReportDto extends PickType(ReportDto, [
-  'resolved',
-  'resolutionMessage'
-] as const) {}
+  @ApiPropertyOptional({
+    type: String,
+    description:
+      'SteamID (uint64 form) of the reported player. In-game alternative to ' +
+      '`data`: the backend resolves it to a user ID. Only valid for player reports.'
+  })
+  @IsOptional()
+  @IsSteamCommunityID()
+  readonly targetSteamID?: string;
+}
+
+export class UpdateReportDto
+  extends PickType(ReportDto, ['resolved', 'resolutionMessage'] as const)
+  implements UpdateReport
+{
+  @NestedProperty(CreateChatBanDto, {
+    isArray: true,
+    required: false,
+    description:
+      'Chat/voice bans to issue against the reported user when resolving a ' +
+      'player report. Only honoured when the report is being resolved.'
+  })
+  readonly chatBans?: CreateChatBanDto[];
+}

@@ -119,14 +119,14 @@ export function date(
   endHour = 24
 ): Date {
   if (typeof start != 'number') start = +start;
-  if (typeof end != 'number') end = +start;
+  if (typeof end != 'number') end = +end;
   const date = new Date(start + Math.random() * (end - start));
   date.setHours(int(startHour, endHour));
   return date;
 }
 
 export function pastDateInYears(years = 1): Date {
-  return date(Date.now() - years * 31_536_000, Date.now());
+  return date(Date.now() - years * 31_536_000 * 1000, Date.now());
 }
 
 export function pastDateSince(refDate: Date | number): Date {
