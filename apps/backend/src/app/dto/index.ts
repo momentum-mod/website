@@ -1,6 +1,7 @@
 // Decorators and PrismaModelToDto are currently only used by DTOs themselves,
 // not exporting them for now.
 export * from './paged-response.dto';
+export * from './ws-response.dto';
 export * from './jsonifiable.dto';
 export * from './auth/jwt-response.dto';
 export * from './auth/refresh-token.dto';
