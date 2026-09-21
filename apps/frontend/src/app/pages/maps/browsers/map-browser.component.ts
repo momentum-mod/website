@@ -207,8 +207,8 @@ export class MapBrowserComponent implements OnInit {
             options.gamemode = gamemode;
 
             const [low, high] = tiers;
-            if (low > 1 && low <= 10) options.difficultyLow = low;
-            if (high > 1 && high < 10) options.difficultyHigh = high;
+            if (low >= 1 && low <= 10) options.difficultyLow = low;
+            if (high >= 1 && high <= 10) options.difficultyHigh = high;
 
             if (tagsAndQualifiers.length > 0) {
               options.tagsWithQualifiers = tagsAndQualifiers.map(
