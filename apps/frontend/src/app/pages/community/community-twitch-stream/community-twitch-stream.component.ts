@@ -5,11 +5,12 @@ import { finalize } from 'rxjs/operators';
 import { TwitchDataComponent } from './twitch-data/twitch-data.component';
 import { TwitchAPIService } from '../../../services/data/twitch-api.service';
 import { CardComponent } from '../../../components/card/card.component';
+import { IconComponent } from '../../../icons';
 
 @Component({
   selector: 'm-community-twitch-stream',
   templateUrl: './community-twitch-stream.component.html',
-  imports: [TwitchDataComponent, CardComponent]
+  imports: [TwitchDataComponent, CardComponent, IconComponent]
 })
 export class CommunityTwitchStreamComponent implements OnInit {
   private readonly twitchAPI = inject(TwitchAPIService);
@@ -21,6 +22,6 @@ export class CommunityTwitchStreamComponent implements OnInit {
     this.twitchAPI
       .getGameStreams()
       .pipe(finalize(() => (this.queriedStreams = true)))
-      .subscribe((response) => (this.streams = response.data));
+      .subscribe((response) => (this.streams = response?.data ?? []));
   }
 }
