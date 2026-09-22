@@ -1,39 +1,4 @@
-.outer {
-  position: relative;
-  min-height: 70px;
-}
-
-.outer:hover {
-  box-shadow: 0 0 20px 0 #6441a4 !important;
-}
-
-.twitch-text {
-  position: absolute;
-  color: white;
-  background: rgba(0, 0, 0, 0.288);
-  text-shadow:
-    0.02em 0 0.14em black,
-    0 0.02em 0.14em black,
-    -0.02em 0 0.14em black,
-    0 -0.02em 0.14em black;
-}
-
-.title {
-  left: 0;
-  right: 0;
-  top: 0;
-}
-
-.user {
-  left: 0.25rem;
-  bottom: 0.25rem;
-}
-
-.views {
-  right: 0.25rem;
-  bottom: 0.25rem;
-}
-
-img {
-  width: 100%;
+:host {
+  display: block;
+  height: 100%;
 }
