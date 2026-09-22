@@ -50,5 +50,6 @@ export * from './queries/user-queries.dto';
 export * from './queries/admin-queries.dto';
 export * from './queries/report-queries.dto';
 export * from './queries/activity-queries.dto';
+export * from './twitch/twitch-stream.dto';
 export * from './functions';
 export * from './validation-pipe-config';

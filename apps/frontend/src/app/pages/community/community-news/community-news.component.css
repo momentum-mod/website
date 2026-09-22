@@ -13,6 +13,7 @@ p.post-separator {
 }
 
 .md-override {
+
   h1,
   h2,
   h3,
@@ -23,4 +24,8 @@ p.post-separator {
     font-size: revert;
     line-height: normal;
   }
+}
+
+.blog-post:hover {
+  opacity: 0.7;
 }

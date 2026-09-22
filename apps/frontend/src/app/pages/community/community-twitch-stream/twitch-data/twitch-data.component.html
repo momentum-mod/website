@@ -1,10 +1,92 @@
-<div class="overlay-backdrop outer shadow">
-  <a [href]="getURL()" target="_blank">
-    <h5 class="twitch-text title truncate px-2 py-1 text-center">
+<a
+  [href]="streamUrl"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="group flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-gray-700/40 shadow-md backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-950/40"
+>
+  <!-- Thumbnail & Badges Container -->
+  <div class="relative aspect-video w-full overflow-hidden bg-gray-900">
+    <img
+      [src]="thumbnailUrl"
+      [alt]="getTitle()"
+      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+      loading="lazy"
+    />
+
+    <!-- Subtle gradient overlay for contrast -->
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30"></div>
+
+    <!-- Top Left: Pulsing Live Badge -->
+    <div
+      class="absolute left-2.5 top-2.5 flex items-center gap-1.5 rounded bg-red-600 px-2 py-0.5 text-11 font-bold uppercase tracking-wider text-white shadow"
+    >
+      <span class="relative flex h-2 w-2">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75"></span>
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+      </span>
+      Live
+    </div>
+
+    <!-- Top Right: Mature 18+ Badge (if applicable) -->
+    @if (stream?.is_mature) {
+      <div
+        class="absolute right-2.5 top-2.5 rounded border border-yellow-500/40 bg-black/75 px-1.5 py-0.5 text-10 font-bold uppercase tracking-wide text-yellow-400 backdrop-blur-sm"
+        mTooltip="Mature Content"
+      >
+        18+
+      </div>
+    }
+
+    <!-- Bottom Overlay: Stream Start Time & Viewer Count -->
+    <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-12 text-white">
+      @if (stream?.started_at) {
+        <span
+          class="flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 font-medium text-gray-200 backdrop-blur-sm"
+          mTooltip="Stream started"
+        >
+          {{ stream.started_at | timeAgo }}
+        </span>
+      } @else {
+        <span></span>
+      }
+
+      <span class="flex items-center gap-1.5 rounded bg-black/70 px-2 py-0.5 font-semibold backdrop-blur-sm" mTooltip="Current Viewers">
+        <m-icon icon="eye" class="h-3.5 w-3.5 text-red-400" />
+        {{ stream?.viewer_count ?? 0 | number }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="flex flex-1 flex-col p-3.5">
+    <!-- Streamer Name & Icon -->
+    <div class="flex items-center gap-2">
+      <div
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-purple-500/30 bg-purple-600/30 text-purple-300"
+      >
+        <m-icon icon="twitch" pack="si" class="h-3.5 w-3.5" />
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="truncate font-semibold text-gray-100 transition-colors group-hover:text-purple-300">
+          {{ getUserName() }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Stream Title -->
+    <p class="mt-2 line-clamp-2 text-14 font-medium leading-snug text-gray-200" [title]="getTitle()">
       {{ getTitle() }}
-    </h5>
-    <span class="twitch-text user px-2 py-1">{{ getUserName() }}</span>
-    <span class="twitch-text views px-2 py-1">{{ getViewCount() }}</span>
-    <img [src]="getImage()" fill />
-  </a>
-</div>
+    </p>
+
+    <!-- Stream Tags (if any) -->
+    @if (stream?.tags && stream.tags.length > 0) {
+      <div class="mt-auto flex flex-wrap gap-1.5 pt-3">
+        @for (tag of stream.tags.slice(0, 3); track tag) {
+          <span class="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-11 font-medium text-gray-300">
+            {{ tag }}
+          </span>
+        }
+      </div>
+    }
+  </div>
+</a>

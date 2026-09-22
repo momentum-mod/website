@@ -1,22 +1,43 @@
-<m-card title="Live Streams">
-  <a header href="https://www.twitch.tv/directory/game/Momentum%20Mod" target="_blank">View Momentum on Twitch</a>
-  <div>
-    <div class="text-center">
-      @if (streams.length === 0 && queriedStreams) {
-        <h3 class="m-0">
-          <i>Nobody is currently streaming Momentum</i>
-        </h3>
-      }
-      @if (!queriedStreams) {
-        <h3 class="m-0">Waiting for API response</h3>
+<m-card title="Live Streams" [loading]="!queriedStreams">
+  <a
+    header
+    href="https://www.twitch.tv/directory/game/Momentum%20Mod"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="btn btn-purple btn-thin flex items-center gap-1.5"
+  >
+    <m-icon icon="twitch" pack="si" class="h-4 w-4" />
+    <span>Watch on Twitch</span>
+  </a>
+
+  @if (queriedStreams && streams.length === 0) {
+    <div class="flex flex-col items-center justify-center px-4 py-16 text-center">
+      <div
+        class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-purple-950/40 text-purple-400 shadow-inner"
+      >
+        <m-icon icon="television-classic-off" class="h-10 w-10 opacity-75" />
+      </div>
+      <h3 class="font-display text-28 font-bold tracking-wide text-gray-100">No Live Streams</h3>
+      <p class="mt-1 max-w-md text-14 text-gray-300">
+        Nobody is currently streaming Momentum Mod on Twitch. Check back later or broadcast your runs to be featured here!
+      </p>
+      <a
+        href="https://www.twitch.tv/directory/game/Momentum%20Mod"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-purple mt-5 flex items-center gap-2"
+      >
+        <m-icon icon="twitch" pack="si" class="h-4 w-4" />
+        <span>Browse Momentum Mod Directory</span>
+      </a>
+    </div>
+  }
+
+  @if (queriedStreams && streams.length > 0) {
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (stream of streams; track stream.id) {
+        <m-twitch-data [stream]="stream" />
       }
     </div>
-    <div class="m-0 flex flex-wrap">
-      @for (stream of streams; track stream) {
-        <div class="twitch-data my-3 w-full px-4 sm:w-1/2 md:w-1/3 xl:w-1/4">
-          <m-twitch-data [stream]="stream" />
-        </div>
-      }
-    </div>
-  </div>
+  }
 </m-card>

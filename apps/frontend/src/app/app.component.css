@@ -45,7 +45,7 @@
   grid-template-areas:
     'head head'
     'side main';
-  grid-template-rows: 4.5rem 1fr;
+  grid-template-rows: 4.5rem minmax(0, 1fr);
   /* Remember, 1fr is equiv to minmax(auto, 1fr), so anything that can't fit on
      main will expand out to the right. Looks bad if this happens, but site is
      still usable, and better that clip/squishing etc. */
@@ -69,6 +69,7 @@ m-header {
 m-sidenav {
   grid-area: side;
   display: block;
+  min-height: 0;
 }
 
 main {

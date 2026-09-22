@@ -1,7 +1,7 @@
 <div class="flex flex-wrap">
   <m-card title="Blog Posts" class="pr-8 lg:basis-3/4">
     @for (blogPost of feed.item.slice(0, POSTS_DISPLAYED); track blogPost) {
-      <div>
+      <a [href]="blogPost.link" target="_blank" rel="noopener noreferrer" class="blog-post">
         <div class="flex flex-wrap items-end">
           <h2 class="relative max-w-full flex-1 flex-grow px-4">{{ blogPost.title }}</h2>
           <h5 class="pubDate col-auto ml-auto hidden sm:block">
@@ -10,18 +10,17 @@
         </div>
         <p class="post-separator pb-3">
           <span class="md-override mr-2" [innerHTML]="blogPost['content:encoded']"></span>
-          <a [href]="blogPost.link" target="_blank" class="whitespace-nowrap">Read More</a>
+          <span class="whitespace-nowrap underline">Read More</span>
         </p>
-      </div>
+      </a>
     }
     @if (loaded) {
-      <h3 class="m-0 text-center">
-        Read more official posts
-        <a href="https://blog.momentum-mod.org" target="_blank">here</a>!
+      <h3 class="mt-3 text-center">
+        <a href="https://blog.momentum-mod.org" target="_blank">Read more official posts here!</a>
       </h3>
     }
     @if (!loaded) {
-      <h3 class="m-0 text-center">Waiting for API response</h3>
+      <h3 class="mt-3 text-center">Waiting for API response</h3>
     }
   </m-card>
   <iframe

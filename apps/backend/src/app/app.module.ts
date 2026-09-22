@@ -24,6 +24,7 @@ import { MapReviewModule } from './modules/map-review/map-review.module';
 import { DbModule } from './modules/database/db.module';
 import { KillswitchModule } from './modules/killswitch/killswitch.module';
 import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
+import { TwitchModule } from './modules/twitch/twitch.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
 
@@ -180,7 +181,8 @@ import { ValkeyModule } from './modules/valkey/valkey.module';
     SessionModule,
     XpSystemsModule,
     KillswitchModule,
-    HealthcheckModule
+    HealthcheckModule,
+    TwitchModule
   ],
   providers: [
     {

@@ -55,6 +55,11 @@ export class PastRunsService {
     if (query.userID) where.userID = query.userID;
     else if (query.userIDs) where.userID = { in: query.userIDs };
 
+    if (query.gamemode !== undefined) where.gamemode = query.gamemode;
+    if (query.trackType !== undefined) where.trackType = query.trackType;
+    if (query.trackNum !== undefined) where.trackNum = query.trackNum;
+    if (query.style !== undefined) where.style = query.style;
+
     if (query.flags) where.flags = { hasEvery: query.flags };
 
     if (query.isPB !== undefined) {

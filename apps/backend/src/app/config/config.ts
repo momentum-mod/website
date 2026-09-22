@@ -1,4 +1,4 @@
-﻿import {
+import {
   MAX_MAP_IMAGES,
   MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
@@ -104,6 +104,12 @@ export const ConfigFactory = (): ConfigInterface => {
       ) as Record<Gamemode, string>,
       unrankedNotifications:
         process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true'
+    },
+    twitch: {
+      clientId: process.env['TWITCH_CLIENT_ID'] ?? '',
+      clientSecret: process.env['TWITCH_CLIENT_SECRET'] ?? '',
+      streamsUpdateSchedule:
+        process.env['TWITCH_STREAMS_UPDATE_SCHEDULE'] ?? '*/5 * * * *'
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',

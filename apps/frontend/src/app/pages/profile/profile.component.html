@@ -223,30 +223,29 @@
               </button>
             </ng-template>
           </p-dialog>
-
-          @if (credits && credits.length > 0) {
-            <div>
-              <h3 class="font-display font-bold">Credits</h3>
-              <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
-                @for (type of MapCreditType | enumValue; track $index) {
-                  @if (creditMap[type]) {
-                    <div>
-                      <p class="font-sm mb-1 font-bold uppercase text-gray-200">
-                        {{ MapCreditNames.get(type) }}
-                      </p>
-                      @for (credit of creditMap[type]; track $index) {
-                        <a routerLink="/maps/{{ credit.map?.id }}">
-                          <p class="font-sm text-gray-200">
-                            {{ credit.map?.name }}
-                          </p>
-                        </a>
-                      }
-                    </div>
-                  }
+        }
+        @if (credits && credits.length > 0) {
+          <div>
+            <h3 class="font-display font-bold">Credits</h3>
+            <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+              @for (type of MapCreditType | enumValue; track $index) {
+                @if (creditMap[type]) {
+                  <div>
+                    <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                      {{ MapCreditNames.get(type) }}
+                    </p>
+                    @for (credit of creditMap[type]; track $index) {
+                      <a routerLink="/maps/{{ credit.map?.id }}">
+                        <p class="font-sm text-gray-200">
+                          {{ credit.map?.name }}
+                        </p>
+                      </a>
+                    }
+                  </div>
                 }
-              </div>
+              }
             </div>
-          }
+          </div>
         }
       </div>
     </div>

@@ -7,6 +7,9 @@ nav {
   flex-direction: column;
   align-content: center;
 
+  overflow-y: auto;
+  overflow-x: hidden;
+
   transition: width 0.3s;
 
   width: 14rem;
@@ -24,6 +27,7 @@ nav {
   backdrop-filter: blur(36px);
 
   & p.category {
+    flex-shrink: 0;
     pointer-events: none;
 
     margin-bottom: 0.25rem;
@@ -41,6 +45,7 @@ nav {
   }
 
   & a.item {
+    flex-shrink: 0;
     display: flex;
     justify-items: center;
     font-size: 1rem;

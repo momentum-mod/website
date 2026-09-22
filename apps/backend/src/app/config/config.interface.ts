@@ -1,4 +1,4 @@
-﻿import { Gamemode } from '@momentum/constants';
+import { Gamemode } from '@momentum/constants';
 import * as pino from 'pino';
 
 export enum Environment {
@@ -69,6 +69,11 @@ export interface ConfigInterface {
     reviewChannel: string;
     statusChannels: Record<Gamemode, string>;
     unrankedNotifications: boolean;
+  };
+  twitch: {
+    clientId: string;
+    clientSecret: string;
+    streamsUpdateSchedule: string;
   };
   mapListUpdateSchedule: string;
   sitemapMaxAge: string;
