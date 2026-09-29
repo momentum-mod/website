@@ -29,6 +29,7 @@ import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { WebsocketAdapter } from '../../../backend/src/app/modules/websockets/websocket.adapter';
 import { WebsocketService } from '../../../backend/src/app/modules/websockets/websocket.service';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -110,6 +111,10 @@ export async function setupE2ETestEnvironment(
   } else {
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
+  }
+
+  for (const job of app.get(SchedulerRegistry).getCronJobs().values()) {
+    job.stop();
   }
 
   const server = app.getHttpServer();

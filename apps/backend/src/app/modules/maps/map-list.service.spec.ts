@@ -27,6 +27,7 @@ describe('MapListService', () => {
 
     const valkeyMock = {
       set: jest.fn(),
+      get: async () => '0',
       incr: () => {},
       mget: () => Promise.resolve([null, null])
     };
