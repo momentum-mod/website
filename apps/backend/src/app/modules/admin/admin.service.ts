@@ -36,6 +36,7 @@ import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
+import { ChatBansService } from '../chat-bans/chat-bans.service';
 
 @Injectable()
 export class AdminService {
@@ -44,7 +45,8 @@ export class AdminService {
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
-    private readonly fileStore: FileStoreService
+    private readonly fileStore: FileStoreService,
+    private readonly chatBans: ChatBansService
   ) {}
 
   async createPlaceholderUser(
@@ -480,6 +482,8 @@ export class AdminService {
           created
         );
       }
+
+      await this.chatBans.broadcastPlayerBans(targetID);
     }
   }
 
@@ -524,6 +528,8 @@ export class AdminService {
       updated,
       ban
     );
+
+    await this.chatBans.broadcastPlayerBans(ban.targetID);
   }
 
   async revokeChatBan(adminID: number, banID: number): Promise<void> {
@@ -540,6 +546,8 @@ export class AdminService {
       null,
       ban
     );
+
+    await this.chatBans.broadcastPlayerBans(ban.targetID);
   }
 
   async createAdminAnnouncement(

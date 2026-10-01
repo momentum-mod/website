@@ -4,10 +4,19 @@ import {
   ChatBanType,
   CreateChatBan,
   DateString,
+  PlayerChatBans,
+  PlayerChatBansList,
+  PlayerChatBansQuery,
   UpdateChatBan
 } from '@momentum/constants';
-import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsDateString,
+  IsOptional,
+  IsString
+} from 'class-validator';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -16,6 +25,7 @@ import {
   UpdatedAtProperty
 } from '../decorators';
 import { UserDto } from '../user/user.dto';
+import { IsSteamCommunityID } from '../../validators';
 
 export class ChatBanDto implements ChatBan {
   @IdProperty()
@@ -79,3 +89,46 @@ export class UpdateChatBanDto
 export class ActiveChatBanDto
   extends PickType(ChatBanDto, ['type', 'expiresAt', 'reason'] as const)
   implements ActiveChatBan {}
+
+/** Steam's limit on lobby members, so a client can query its whole lobby. */
+const MAX_PLAYER_CHAT_BANS_QUERY = 250;
+
+/** Body of the `chatbans.get` message. */
+export class PlayerChatBansQueryDto implements PlayerChatBansQuery {
+  @ApiProperty({
+    type: String,
+    isArray: true,
+    description: 'Steam IDs of the players to look up, as uint64 strings'
+  })
+  @IsArray()
+  @ArrayMaxSize(MAX_PLAYER_CHAT_BANS_QUERY)
+  @IsSteamCommunityID({ each: true })
+  readonly steamIDs: string[];
+}
+
+export class PlayerChatBanDto extends PickType(ChatBanDto, [
+  'type',
+  'expiresAt'
+] as const) {}
+
+export class PlayerChatBansDto implements PlayerChatBans {
+  @ApiProperty({ type: String, description: 'Steam ID of the player' })
+  @IsSteamCommunityID()
+  readonly steamID: string;
+
+  @NestedProperty(PlayerChatBanDto, {
+    isArray: true,
+    required: true,
+    description: "The player's active bans. Empty if they have none"
+  })
+  readonly bans: PlayerChatBanDto[];
+}
+
+/**
+ * Response to `chatbans.get`, with an entry for every queried player, including
+ * those with no bans or no account.
+ */
+export class PlayerChatBansListDto implements PlayerChatBansList {
+  @NestedProperty(PlayerChatBansDto, { isArray: true, required: true })
+  readonly players: PlayerChatBansDto[];
+}
