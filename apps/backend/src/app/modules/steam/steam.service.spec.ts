@@ -7,6 +7,11 @@ import { ConfigService } from '@nestjs/config';
 describe('SteamService', () => {
   let service: SteamService;
   const httpGetMock = jest.fn();
+  const fetchMock = jest.fn();
+
+  const setFetchMockResponse = (text: string) => {
+    fetchMock.mockResolvedValueOnce({ text: () => Promise.resolve(text) });
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,6 +28,8 @@ describe('SteamService', () => {
       ]
     }).compile();
 
+    jest.spyOn(global, 'fetch').mockImplementation(fetchMock);
+
     service = module.get(SteamService);
   });
 
@@ -32,7 +39,31 @@ describe('SteamService', () => {
 
   describe('isAccountLimited', () => {
     it('should return false for an unlimited account', async () => {
-      const unlimitedXml = `
+      httpGetMock.mockReturnValueOnce(
+        of({ data: { response: { player_level: 34 } } })
+      );
+      const result = await service.isAccountLimited(76561198039308694n);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return true for a limited account', async () => {
+      httpGetMock.mockReturnValueOnce(
+        of({ data: { response: { player_level: 0 } } })
+      );
+
+      const result = await service.isAccountLimited(76561198039308694n);
+
+      expect(result).toBe(true);
+    });
+
+    describe('should fallback to steamcommunity logic', () => {
+      beforeEach(() => {
+        httpGetMock.mockReturnValueOnce(of({ data: { response: {} } }));
+      });
+
+      it('should return false for an unlimited account', async () => {
+        const unlimitedXml = `
         <profile>
           <steamID64>76561198039308694</steamID64>
           <isLimitedAccount>0</isLimitedAccount>
@@ -40,18 +71,15 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: unlimitedXml }));
+        setFetchMockResponse(unlimitedXml);
 
-      const result = await service.isAccountLimited(76561198039308694n);
+        const result = await service.isAccountLimited(76561198039308694n);
 
-      expect(result).toBe(false);
-      expect(httpGetMock).toHaveBeenCalledWith(
-        'https://steamcommunity.com/profiles/76561198039308694?xml=1'
-      );
-    });
+        expect(result).toBe(false);
+      });
 
-    it('should return true for a limited account', async () => {
-      const limitedXml = `
+      it('should return true for a limited account', async () => {
+        const limitedXml = `
         <profile>
           <steamID64>76561198039308694</steamID64>
           <isLimitedAccount>1</isLimitedAccount>
@@ -59,15 +87,15 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: limitedXml }));
+        setFetchMockResponse(limitedXml);
 
-      const result = await service.isAccountLimited(76561198039308694n);
+        const result = await service.isAccountLimited(76561198039308694n);
 
-      expect(result).toBe(true);
-    });
+        expect(result).toBe(true);
+      });
 
-    it('should return true for an account without a profile setup', async () => {
-      const noProfileXml = `
+      it('should return true for an account without a profile setup', async () => {
+        const noProfileXml = `
         <profile>
           <steamID64>76561199511085543</steamID64>
           <privacyMessage>
@@ -76,11 +104,12 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: noProfileXml }));
+        setFetchMockResponse(noProfileXml);
 
-      const result = await service.isAccountLimited(76561199511085543n);
+        const result = await service.isAccountLimited(76561199511085543n);
 
-      expect(result).toBe(true);
+        expect(result).toBe(true);
+      });
     });
   });
 });

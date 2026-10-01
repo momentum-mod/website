@@ -186,6 +186,18 @@ export class SteamService {
     /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/
   );
 
+  async fetchAccountCommunityData(steamID: bigint): Promise<string> {
+    try {
+      return fetch(`https://steamcommunity.com/profiles/${steamID}?xml=1`).then(
+        (r) => r.text()
+      );
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to get limited status from Steam'
+      );
+    }
+  }
+
   /**
    * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5
    * or more on Steam, or hasn't even set up a Steam Community profile.
@@ -193,28 +205,47 @@ export class SteamService {
    * Unfortunately Steam Web API doesn't supply this anywhere, so we have to use
    * this messier method of parsing the profile page as XML.
    */
-  isAccountLimited(steamID: bigint): Promise<boolean> {
-    return lastValueFrom(
+  async isAccountLimited(steamID: bigint): Promise<boolean> {
+    const steamResponse = await lastValueFrom(
       this.http
-        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
+        .get(
+          this.config.get('steam.webAPIUrl') +
+            '/IPlayerService/GetSteamLevel/v1/',
+          {
+            params: {
+              key: this.config.getOrThrow('steam.webAPIKey'),
+              steamid: steamID
+            },
+            validateStatus: () => true
+          }
+        )
         .pipe(
-          map((res) => {
-            const found = this.limitedAccountRegex.exec(res.data);
-
-            // Block doesn't exist, doesn't have a profile setup
-            if (!found) {
-              return true;
-            }
-
-            // We're in a block like <isLimitedAccount>0</isLimitedAccount>
-            return found[0] === '1';
-          }),
+          map((res) => res.data),
           catchError((_) => {
             throw new ServiceUnavailableException(
-              'Failed to get limited status from Steam'
+              'Failed to get player level from Steam'
             );
           })
         )
     );
+
+    if (
+      !steamResponse.response.player_level &&
+      steamResponse.response.player_level !== 0
+    ) {
+      // Fallback to steamcommunity data
+      const communityData = await this.fetchAccountCommunityData(steamID);
+      const found = this.limitedAccountRegex.exec(communityData);
+
+      // Block doesn't exist, doesn't have a profile setup
+      if (!found) {
+        return true;
+      }
+
+      // We're in a block like <isLimitedAccount>0</isLimitedAccount>
+      return found[0] === '1';
+    }
+
+    return steamResponse.response.player_level === 0;
   }
 }
