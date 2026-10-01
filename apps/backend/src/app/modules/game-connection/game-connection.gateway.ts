@@ -11,6 +11,8 @@ import {
   LobbyStatusDto,
   MapLobbyPlayerCountsDto,
   MapLobbyPlayerCountsQueryDto,
+  PlayerChatBansListDto,
+  PlayerChatBansQueryDto,
   RunSessionIdDto,
   RunSessionResponseDto,
   UpdateRunSessionDto,
@@ -20,6 +22,7 @@ import {
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { RunSessionService } from '../session/run/run-session.service';
 import { LobbyService } from '../lobby/lobby.service';
+import { ChatBansService } from '../chat-bans/chat-bans.service';
 
 /**
  * Game client WebSocket entrypoint (`/game`).
@@ -27,7 +30,8 @@ import { LobbyService } from '../lobby/lobby.service';
  * This is a thin transport layer: each handler frames an incoming message, hands
  * it to the relevant subsystem service, and wraps the result back into a
  * `{ event, data }` response. Business logic lives in the services (run sessions
- * in {@link RunSessionService}, lobby tracking in {@link LobbyService}), so new
+ * in {@link RunSessionService}, lobby tracking in {@link LobbyService}, chat ban
+ * lookups in {@link ChatBansService}), so new
  * subsystems are added as a new service plus a handful of delegating handlers
  * here.
  */
@@ -35,7 +39,8 @@ import { LobbyService } from '../lobby/lobby.service';
 export class GameConnectionGateway implements OnGatewayDisconnect {
   constructor(
     private readonly runSession: RunSessionService,
-    private readonly lobby: LobbyService
+    private readonly lobby: LobbyService,
+    private readonly chatBans: ChatBansService
   ) {}
 
   handleDisconnect(client: AuthenticatedWebSocket) {
@@ -123,6 +128,20 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
       'error' in validated
         ? validated
         : await this.lobby.getMapPlayerCounts(validated.data.gamemode)
+    );
+  }
+
+  @SubscribeMessage('chatbans.get')
+  async getPlayerChatBans(
+    @MessageBody() body: unknown
+  ): Promise<WsResponseDto<PlayerChatBansListDto>> {
+    const validated = await validateWsBody(PlayerChatBansQueryDto, body);
+    return new WsResponseDto(
+      PlayerChatBansListDto,
+      'chatbans.get',
+      'error' in validated
+        ? validated
+        : await this.chatBans.getPlayerBans(validated.data.steamIDs)
     );
   }
 }
