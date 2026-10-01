@@ -6,6 +6,7 @@ import { CompleteMap } from '../types/utils/compete-map.type';
 export enum Gamemode {
   SURF = 1,
   BHOP = 2,
+  BHOP_STAMINA = 14,
   BHOP_HL1 = 3,
   CLIMB_MOM = 4,
   CLIMB_KZT = 5,
@@ -36,7 +37,7 @@ export enum GamemodeCategory {
 // prettier-ignore
 export const GamemodeCategoryToGamemode: ReadonlyMap<GamemodeCategory, Gamemode[]> = new Map([
   [GamemodeCategory.SURF,     [Gamemode.SURF]],
-  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_HL1]],
+  [GamemodeCategory.BHOP,     [Gamemode.BHOP, Gamemode.BHOP_STAMINA, Gamemode.BHOP_HL1]],
   [GamemodeCategory.CLIMB,    [Gamemode.CLIMB_MOM, Gamemode.CLIMB_KZT, Gamemode.CLIMB_16]],
   [GamemodeCategory.RJ,       [Gamemode.RJ]],
   [GamemodeCategory.SJ,       [Gamemode.SJ]],
@@ -49,6 +50,7 @@ export const GamemodeCategoryToGamemode: ReadonlyMap<GamemodeCategory, Gamemode[
 export const GamemodeToGamemodeCategory = new Map([
   [Gamemode.SURF,           GamemodeCategory.SURF],
   [Gamemode.BHOP,           GamemodeCategory.BHOP],
+  [Gamemode.BHOP_STAMINA,   GamemodeCategory.BHOP],
   [Gamemode.BHOP_HL1,       GamemodeCategory.BHOP],
   [Gamemode.CLIMB_MOM,      GamemodeCategory.CLIMB],
   [Gamemode.CLIMB_KZT,      GamemodeCategory.CLIMB],
