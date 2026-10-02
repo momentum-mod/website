@@ -1,11 +1,14 @@
 @if (map) {
-  <div class="grid gap-x-4 gap-y-2 [grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
+  <div class="grid grid-cols-1 gap-x-4 gap-y-2 lg:[grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
     <div class="flex gap-4">
       <!-- This negative margin is pretty evil, breaking the standard <main>
            padding. But vertical space is so precious here! -->
-      <div class="-mt-4 flex h-24 flex-[1_1_auto] flex-col">
-        <p class="card-title -mb-1 mt-auto text-[2rem] text-gray-200">{{ prefix }}</p>
-        <p class="card-title" [fontSizeLerp]="{ chars: name.length, startAt: 12, baseRem: 4.5 }">
+      <div class="flex min-w-0 flex-[1_1_auto] flex-col lg:-mt-4 lg:h-24">
+        <p class="card-title -mb-1 mt-auto text-[1.5rem] text-gray-200 lg:text-[2rem]">{{ prefix }}</p>
+        <p
+          class="card-title [--font-lerp-scale:0.8] lg:[--font-lerp-scale:1]"
+          [fontSizeLerp]="{ chars: name.length, startAt: 12, baseRem: 4.5 }"
+        >
           {{ name }}
         </p>
       </div>
@@ -13,18 +16,22 @@
         <m-icon class="text-2xl text-gray-200 drop-shadow transition-colors hover:text-gray-50" icon="panorama" />
       </button>
     </div>
-    <div class="ml-2 flex gap-2">
-      @for (section of sections; track $index) {
-        <button
-          type="button"
-          class="mr-2 self-end justify-self-start font-display text-4xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50"
-          [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
-          (click)="currentSection = section"
-        >
-          {{ MapInfoSection[section] }}
-        </button>
-      }
-      <div class="ml-auto flex items-end gap-2">
+    <!-- Below lg this wrapper disappears, so its children can be reordered with the rest of the grid: the action buttons
+         sit under the title, and the tabs sit between the sidebar and the content they switch. -->
+    <div class="contents lg:ml-2 lg:flex lg:gap-2">
+      <div class="flex items-end gap-4 max-lg:order-3 lg:gap-4">
+        @for (section of sections; track $index) {
+          <button
+            type="button"
+            class="justify-self-start font-display text-3xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50 lg:text-4xl"
+            [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
+            (click)="currentSection = section"
+          >
+            {{ MapInfoSection[section] }}
+          </button>
+        }
+      </div>
+      <div class="flex flex-wrap items-end gap-2 max-lg:order-1 lg:ml-auto lg:flex-nowrap">
         @if ((isSubmitter && inSubmission) || localUserService.isReviewerOrAbove) {
           <a [routerLink]="'/map-edit/' + map.name" class="btn btn-green text-nowrap">Edit Map</a>
         }
@@ -83,7 +90,7 @@
         }
       </div>
     </div>
-    <div #sideBar>
+    <div #sideBar class="max-lg:order-2">
       <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
         <m-gallery #gallery [items]="images" [selectedItem]="selectedImage" (selectedItemChange)="selectedImage = $event" />
         <div>
@@ -254,8 +261,8 @@
         </div>
       </div>
     </div>
-    <div>
-      <div class="stack card card--fancy border-opacity-[0.0675] p-4">
+    <div class="min-w-0 max-lg:order-4">
+      <div class="stack card card--fancy border-opacity-[0.0675] p-3 [grid-template-columns:minmax(0,1fr)] md:p-4">
         <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
         <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
       </div>

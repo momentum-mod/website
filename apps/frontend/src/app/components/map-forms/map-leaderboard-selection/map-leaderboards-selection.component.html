@@ -1,21 +1,22 @@
 <button
   type="button"
-  class="btn btn-blue -mb-6 ml-auto"
+  class="btn btn-blue mb-3 ml-auto lg:-mb-6"
   [ngClass]="{ 'pointer-events-none saturate-50': disabled }"
   (click)="addEmptyItem()"
 >
   Add Leaderboard
 </button>
+<!-- A table from lg up. Below that, each row becomes a small card of labelled fields, since the columns can't fit. -->
 <table
-  class="grid w-full border-collapse gap-1"
+  class="grid w-full border-collapse grid-cols-1 gap-3 lg:gap-1 lg:[grid-template-columns:var(--lb-cols)]"
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled
   }"
-  [style.grid-template-columns]="
+  [style.--lb-cols]="
     `minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`
   "
 >
-  <thead class="mt-3 contents bg-gray-950 p-3">
+  <thead class="mt-3 hidden bg-gray-950 p-3 lg:contents">
     <tr class="contents">
       <th class="text-center">Gamemode</th>
       <th class="text-center">Type</th>
@@ -32,8 +33,9 @@
   </thead>
   <tbody class="contents">
     @for (item of value; track $index) {
-      <tr class="contents">
+      <tr class="grid grid-cols-2 items-end gap-2 rounded bg-black bg-opacity-10 p-3 lg:contents lg:bg-transparent lg:p-0">
         <td>
+          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Gamemode</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.gamemode"
@@ -46,6 +48,7 @@
           />
         </td>
         <td>
+          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Type</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.trackType"
@@ -57,8 +60,9 @@
             appendTo="body"
           />
         </td>
-        <td>
+        <td class="max-lg:empty:hidden">
           @if (item.trackType === TrackType.BONUS) {
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Track</p>
             <p-select
               class="w-full"
               [(ngModel)]="item.trackNum"
@@ -70,6 +74,7 @@
           }
         </td>
         <td>
+          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Tier</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.tier"
@@ -79,7 +84,8 @@
             appendTo="body"
           />
         </td>
-        <td class="ml-auto">
+        <td class="ml-auto max-lg:flex max-lg:items-center max-lg:gap-3">
+          <p class="text-xs font-medium uppercase text-gray-200 lg:hidden">Ranked</p>
           <input
             type="checkbox"
             class="checkbox h-[2.625rem] before:h-1/2 before:w-1/2"
@@ -89,7 +95,8 @@
           />
         </td>
         @if (!wasApproved) {
-          <td>
+          <td class="max-lg:col-span-2">
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Comments</p>
             <input
               type="text"
               class="textinput w-full"
@@ -100,7 +107,8 @@
             />
           </td>
         }
-        <td>
+        <td class="max-lg:col-span-2">
+          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Tags</p>
           <m-chips
             typeName="Tags"
             [chips]="MapTags.get(item.gamemode)"
@@ -109,7 +117,7 @@
             (ngModelChange)="updateTags(item, $event)"
           />
         </td>
-        <td>
+        <td class="max-lg:col-span-2 max-lg:justify-self-end">
           <button type="button" class="btn btn-red" (click)="removeItem($index)">Delete</button>
         </td>
       </tr>

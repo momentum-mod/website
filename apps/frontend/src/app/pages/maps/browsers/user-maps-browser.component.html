@@ -1,5 +1,5 @@
-<div class="grid grid-flow-col grid-cols-[minmax(auto,14rem)_1fr] grid-rows-[auto_auto] gap-4">
-  <p class="card-title text-nowrap text-48">Your Maps</p>
+<div class="grid grid-cols-1 gap-4 lg:grid-flow-col lg:grid-cols-[minmax(auto,14rem)_1fr] lg:grid-rows-[auto_auto]">
+  <p class="card-title text-nowrap text-40 md:text-48">Your Maps</p>
   <div class="flex flex-col gap-4">
     @if (hasSubmissionBan) {
       <p>You are banned from map submission</p>
@@ -20,13 +20,19 @@
     }
   </div>
 
-  <div class="flex items-end self-end">
-    <form class="ml-auto flex flex-col gap-2" [formGroup]="filters">
-      <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
-        <input class="textinput w-64 backdrop-blur-lg" type="text" placeholder="Map Name" formControlName="name" />
-        <div class="flex items-center gap-2">
-          <m-user-select formControlName="credit" />
+  <div class="flex items-end lg:self-end">
+    <form class="flex w-full flex-col gap-2 lg:ml-auto lg:w-auto" [formGroup]="filters">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
+        <input
+          class="textinput order-1 min-w-0 flex-1 backdrop-blur-lg md:order-none md:w-64 md:flex-none"
+          type="text"
+          placeholder="Map Name"
+          formControlName="name"
+        />
+        <div class="order-3 flex w-full items-center gap-2 md:order-none md:w-auto">
+          <m-user-select class="min-w-0 flex-1 md:flex-none" formControlName="credit" />
           <m-dropdown
+            class="shrink-0"
             [entries]="MapCreditOptions"
             [nameFn]="MapCreditNameFn"
             formControlName="creditType"
@@ -34,14 +40,15 @@
             tooltipPosition="top"
           />
         </div>
-        <button (click)="filters.reset({ status: [] })" type="button" class="btn size-8 p-0">
+        <button (click)="filters.reset({ status: [] })" type="button" class="btn order-2 size-10 p-0 md:order-none md:size-8">
           <m-icon icon="filter-remove" class="size-5" />
         </button>
       </div>
-      <div class="flex flex-wrap-reverse items-center justify-end gap-x-4 gap-y-2">
-        <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
+        <div class="flex w-full items-center gap-2 md:w-auto">
           <p class="font-display text-24">Status</p>
           <p-multiSelect
+            class="min-w-0 flex-1 md:flex-none"
             formControlName="status"
             [options]="StatusDropdown"
             optionLabel="label"
@@ -51,7 +58,7 @@
             appendTo="body"
           />
         </div>
-        <m-dropdown [entries]="MapSortOptions" [nameFn]="MapSortNameFn" formControlName="sortType" />
+        <m-dropdown class="max-md:ml-auto" [entries]="MapSortOptions" [nameFn]="MapSortNameFn" formControlName="sortType" />
       </div>
     </form>
   </div>

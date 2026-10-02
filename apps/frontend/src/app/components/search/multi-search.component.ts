@@ -20,7 +20,8 @@ enum SearchType {
       :host {
         display: flex;
         flex-direction: column;
-        min-width: 32rem;
+        /* Popover is anchored to the header, so don't let it outgrow the screen. */
+        width: min(32rem, calc(100vw - 3rem));
         padding: 0.75rem;
       }
     `

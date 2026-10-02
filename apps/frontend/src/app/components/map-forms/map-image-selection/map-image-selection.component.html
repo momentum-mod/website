@@ -1,6 +1,6 @@
-<div class="flex">
+<div class="flex flex-col gap-4 lg:flex-row lg:gap-0">
   <m-multi-file-upload
-    class="mr-4 flex h-auto w-[14rem] flex-shrink-0 flex-col"
+    class="flex h-auto w-full flex-shrink-0 flex-col lg:mr-4 lg:w-[14rem]"
     icon="image-multiple-outline"
     [formControl]="formControlPassthrough"
     typeName="image"
@@ -9,7 +9,7 @@
     [enableClipboard]="true"
     [max]="5"
   />
-  <div class="flex flex-grow gap-4">
+  <div class="flex flex-grow flex-col gap-4 lg:flex-row">
     <div class="lg:w-1/3">
       <p class="mb-1 ml-1 text-lg">
         Thumbnail
@@ -52,7 +52,7 @@
         [cdkDropListData]="items[ImageSelectionType.EXTRA]"
         [cdkDropListConnectedTo]="[thumbnailList]"
         (cdkDropListDropped)="drop($event, ImageSelectionType.EXTRA)"
-        class="inputlike grid h-full grid-cols-4 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 [&>.cdk-drag-placeholder]:opacity-0"
+        class="inputlike grid h-full grid-cols-2 gap-2 rounded bg-black bg-opacity-25 hover:!bg-opacity-25 max-sm:min-h-[6rem] sm:grid-cols-4 [&>.cdk-drag-placeholder]:opacity-0"
       >
         @for (item of items[ImageSelectionType.EXTRA]; track item) {
           <div

@@ -5,7 +5,7 @@ import { SIDENAV_ITEMS } from '../../side-menu.const';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { LayoutService, SidenavState } from '../../services/layout.service';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '../../icons';
 import { AsyncPipe, NgClass } from '@angular/common';
@@ -25,6 +25,19 @@ export class SidenavComponent {
     this.layoutService.sidenavToggled.pipe(
       map((state) => state === SidenavState.CLOSED)
     );
+
+  /**
+   * Item names are only hidden (so need tooltips) when the desktop sidebar is
+   * collapsed. In the mobile drawer they're always visible.
+   */
+  protected showTooltips: Observable<boolean> = combineLatest([
+    this.collapsed,
+    this.layoutService.isMobile
+  ]).pipe(map(([collapsed, isMobile]) => collapsed && !isMobile));
+
+  protected close() {
+    this.layoutService.setSidenavState(SidenavState.CLOSED);
+  }
 
   protected menuItems: Observable<typeof SIDENAV_ITEMS> =
     this.localUserService.user.pipe(

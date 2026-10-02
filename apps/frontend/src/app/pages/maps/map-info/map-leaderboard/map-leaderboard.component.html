@@ -1,6 +1,6 @@
 <div [mSpinner]="!map">
   <div class="flex gap-4">
-    <div class="flex grow flex-wrap gap-x-8 gap-y-2">
+    <div class="flex grow flex-wrap gap-x-4 gap-y-2 md:gap-x-8">
       @for (groupedLeaderboard of leaderboards; track $index) {
         @if (!groupedLeaderboard.allHidden || showHiddenLeaderboards) {
           <button
@@ -10,10 +10,10 @@
             [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
           >
             <img
-              class="aspect-square h-11"
+              class="aspect-square h-8 md:h-11"
               [src]="'assets/images/gamemodes/' + GamemodeInfo.get(groupedLeaderboard.gamemode).icon + '.png'"
             />
-            <p class="font-display text-5xl font-bold leading-none">
+            <p class="font-display text-3xl font-bold leading-none md:text-5xl">
               {{ groupedLeaderboard.gamemodeName }}
             </p>
           </button>
@@ -175,26 +175,32 @@
   }
   @if (!loading && runs.length > 0) {
     <div class="mt-4 w-full">
-      <div class="flex px-4">
-        <p class="basis-1/10 text-left">Rank</p>
-        <p class="grow basis-auto">User</p>
-        <p class="basis-1/10">Time</p>
-        <p class="basis-3/20 text-right">Achieved</p>
+      <!-- Below sm, the time and date are stacked in one column and the rank gets a fixed width, since percentage bases
+           don't leave enough room for the time. -->
+      <div class="flex gap-2 px-3 sm:gap-0 sm:px-4">
+        <p class="w-9 shrink-0 text-left sm:w-auto sm:basis-1/10">Rank</p>
+        <p class="min-w-0 grow basis-auto">User</p>
+        <p class="shrink-0 text-right sm:basis-1/10 sm:text-left">Time</p>
+        <p class="basis-3/20 text-right max-sm:hidden">Achieved</p>
       </div>
       @for (run of runs; track $index) {
         <div
-          class="mt-[0.375rem] flex items-center rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-4 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15]"
+          class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
         >
-          <p class="text-shadow pointer-events-none basis-1/10 text-left font-display text-2xl">{{ run.rank }}</p>
-          <div class="flex grow basis-auto gap-2">
-            <m-user class="contents" [user]="run.user" avatarClass="h-7" />
+          <p class="text-shadow pointer-events-none w-9 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">{{ run.rank }}</p>
+          <div class="flex min-w-0 grow basis-auto gap-2">
+            <m-user class="contents" [user]="run.user" avatarClass="h-7" aliasClass="min-w-0 truncate" />
           </div>
-          <p class="text-shadow pointer-events-none basis-1/10 text-lg">{{ run.time | timing }}</p>
-          <p class="text-shadow pointer-events-none basis-3/20 text-right">{{ run.createdAt | timeAgo }}</p>
+          <div class="flex shrink-0 flex-col items-end sm:contents">
+            <p class="text-shadow pointer-events-none text-lg sm:basis-1/10">{{ run.time | timing }}</p>
+            <p class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:basis-3/20 sm:text-base sm:text-gray-50">
+              {{ run.createdAt | timeAgo }}
+            </p>
+          </div>
           @if (isModOrAdmin) {
             <button
               type="button"
-              class="ml-4 flex items-center rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100"
+              class="flex items-center rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100 sm:ml-4"
               (click)="deleteRun(run)"
             >
               <m-icon class="h-4 w-4" icon="delete" />

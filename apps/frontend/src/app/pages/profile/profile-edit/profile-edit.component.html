@@ -1,12 +1,12 @@
 @if (user) {
   <m-card title="Edit Profile">
     <button type="button" header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>
-    <form class="m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
+    <form class="m-2 sm:m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="mb-4 flex flex-col gap-4">
         <div [ngClass]="{ 'has-error': !alias.valid }">
           <p class="text-lg">Alias</p>
-          <div class="relative flex w-full items-stretch gap-2">
-            <input class="textinput mb-1" formControlName="alias" type="text" />
+          <div class="relative flex w-full flex-wrap items-stretch gap-2">
+            <input class="textinput mb-1 min-w-0 max-sm:w-full" formControlName="alias" type="text" />
             @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
               <div class="input-group-append">
                 <button class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
@@ -61,7 +61,7 @@
 
         <div>
           <p class="text-lg">Socials</p>
-          <div class="grid gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" formGroupName="socials">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" formGroupName="socials">
             @for (social of SocialsData | unsortedKeyvalue; track social) {
               <div [mTooltip]="'Example: ' + social.value.example">
                 <div class="ml-1 flex items-center gap-2">
@@ -153,7 +153,7 @@
           }
         </div>
       }
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2">
         <button class="btn btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
         <button type="button" header class="btn btn-blue mr-4" (click)="returnToProfile()">Return to Profile</button>
         @if (isModOrAdmin) {

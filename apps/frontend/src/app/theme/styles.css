@@ -33,6 +33,17 @@
   iframe {
     border: none;
   }
+
+  /* Used by m-card-header to shrink very large titles on small screens. */
+  :root {
+    --card-title-scale: 0.7;
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --card-title-scale: 1;
+    }
+  }
 }
 
 @layer components {
@@ -98,6 +109,9 @@
 
     &:is(fieldset) {
       padding: 0.25rem 1rem 1rem 1rem;
+      /* Fieldsets default to min-width: min-content, so wide children make
+         them overflow their parent instead of shrinking/scrolling. */
+      min-width: 0;
     }
   }
 

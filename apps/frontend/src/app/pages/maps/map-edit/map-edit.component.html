@@ -13,9 +13,9 @@
   [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
-  <div class="card-title -mt-10 mb-2 text-5xl">Submit New Version</div>
-  <div class="flex gap-4">
-    <div class="flex w-1/3 grow flex-col gap-2">
+  <div class="card-title -mt-10 mb-2 text-4xl md:text-5xl">Submit New Version</div>
+  <div class="flex flex-col gap-4 lg:flex-row">
+    <div class="flex grow flex-col gap-2 lg:w-1/3">
       <div class="prose">
         <p>
           Provide new BSP and zone files and list of changes between the last version and this one. Players will automatically download the
@@ -40,13 +40,13 @@
         Submit
       </button>
     </div>
-    <div class="flex w-2/3 grow flex-col gap-2">
+    <div class="flex min-w-0 grow flex-col gap-2 lg:w-2/3">
       <div class="flex items-center gap-2">
         <p class="text-lg">Changelog</p>
         <span class="text-sm italic text-gray-200">Required</span>
       </div>
       <textarea class="textinput textinput-validated mb-2 w-full" rows="8" [formControl]="changelog"></textarea>
-      <div class="flex gap-4">
+      <div class="flex flex-col gap-4 md:flex-row">
         <m-file-upload class="grow" [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
         <m-file-upload class="grow" [formControl]="zon" typeName=".json" icon="vector-polygon" acceptExtensions=".json" />
         <m-multi-file-upload class="grow" [formControl]="vmfs" typeName="VMF" acceptExtensions=".vmf" icon="hammer" [max]="20" />
@@ -71,7 +71,7 @@
   class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
   [ngClass]="isSubmitter && map.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
 >
-  <p class="card-title -mb-4 -mt-9 text-5xl">Invite Testers</p>
+  <p class="card-title -mb-4 -mt-9 text-4xl md:text-5xl">Invite Testers</p>
   <m-map-test-invite-selection [formControl]="testInviteForm" />
   <button
     type="button"
@@ -91,7 +91,7 @@
   [ngClass]="isModOrAdmin || isSubmitter || isReviewer ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
-  <p class="card-title -mb-4 -mt-9 text-5xl">Update Map</p>
+  <p class="card-title -mb-4 -mt-9 text-4xl md:text-5xl">Update Map</p>
 
   <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Details</legend>
@@ -133,7 +133,7 @@
 
   <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || isSubmitter ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Credits</legend>
-    <m-map-credits-selection class="grid h-full min-h-[18rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
+    <m-map-credits-selection class="grid h-full min-h-[18rem] grid-cols-1 gap-4 lg:grid-cols-4" [formControl]="credits" />
   </fieldset>
 
   <fieldset class="card-inset flex flex-col" [ngClass]="isModOrAdmin || (isSubmitter && !wasApproved) ? '!block' : '!hidden'">
@@ -156,9 +156,9 @@
     <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" />
   </fieldset>
 
-  <div class="-mt-4 flex gap-4">
+  <div class="-mt-4 flex flex-wrap gap-4">
     @if (mainForm.invalid) {
-      <p class="my-auto block rounded bg-black bg-opacity-25 px-4 py-2 font-mono text-sm">
+      <p class="my-auto block max-w-full overflow-x-auto rounded bg-black bg-opacity-25 px-4 py-2 font-mono text-sm">
         Error: {{ FormUtils.getAllErrors(mainForm) | json }}
       </p>
     }

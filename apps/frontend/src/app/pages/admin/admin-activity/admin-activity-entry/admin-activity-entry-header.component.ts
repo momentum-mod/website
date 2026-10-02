@@ -11,7 +11,7 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
 @Component({
   selector: 'm-admin-activity-entry-header',
   template: `
-    <div class="flex h-[40px] flex-wrap items-center gap-1">
+    <div class="flex min-h-[40px] flex-wrap items-center gap-1 py-1">
       <a routerLink="/profile/{{ activity.userID }}" class="contents">
         <m-avatar [url]="activity.user.avatarURL" class="mr-2 !h-7" />
         <p>{{ activity.user.alias }}</p>
