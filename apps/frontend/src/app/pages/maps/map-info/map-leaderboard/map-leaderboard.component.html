@@ -68,15 +68,15 @@
         >
           Stage
         </p>
-        <div class="flex max-w-[60rem] flex-wrap">
+        <!-- Buttons have full borders that overlap by 1px (-mr-px/-mb-px), so wrapped cells are always closed on every side. -mt-px puts the first row's top border on the group's border rather than doubling it. -->
+        <div class="-mt-px flex max-w-[60rem] flex-wrap">
           @for (stage of activeMode.stages | range; track $index) {
             <button
               type="button"
-              class="text-shadow-strong border-collie h-full w-[3rem] items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+              class="text-shadow-strong border-collie -mb-px -mr-px h-full w-[3rem] items-center border border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
               [ngClass]="{
                 '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
-                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage + 1,
-                '!border-b': activeMode.stages > 20
+                  activeTrack.type === TrackType.STAGE && activeTrack.num === stage + 1
               }"
               (click)="selectTrack(TrackType.STAGE, stage + 1)"
             >
@@ -125,11 +125,12 @@
       >
         Style
       </p>
-      <div class="flex max-w-[60rem] flex-wrap">
+      <!-- Buttons have full borders that overlap by 1px (-mr-px/-mb-px), so wrapped cells are always closed on every side. -mt-px puts the first row's top border on the group's border rather than doubling it. -->
+      <div class="-mt-px flex max-w-[60rem] flex-wrap">
         @for (style of activeMode.styles; track $index) {
           <button
             type="button"
-            class="text-shadow-strong border-collie h-full items-center border-l border-white border-opacity-10 bg-black bg-opacity-0 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+            class="text-shadow-strong border-collie -mb-px -mr-px h-full items-center border border-white border-opacity-10 bg-black bg-opacity-0 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
             [ngClass]="{
               '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
                 activeStyle === style
