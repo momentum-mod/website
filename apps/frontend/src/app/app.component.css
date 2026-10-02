@@ -1,7 +1,18 @@
 :host {
   display: block;
+  /* dvh so mobile browser URL bars don't push content offscreen. */
   height: 100vh;
+  height: 100dvh;
   width: 100%;
+
+  /* Shared with header + sidenav, which are positioned relative to this. */
+  --header-height: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  :host {
+    --header-height: 4.5rem;
+  }
 }
 
 .bg-image {
@@ -38,25 +49,36 @@
 }
 
 .chungus {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
 
   display: grid;
+  /* On mobile the sidenav is a fixed-position drawer, so only header + main
+     take part in the grid. */
   grid-template-areas:
-    'head head'
-    'side main';
-  grid-template-rows: 4.5rem 1fr;
-  /* Remember, 1fr is equiv to minmax(auto, 1fr), so anything that can't fit on
-     main will expand out to the right. Looks bad if this happens, but site is
-     still usable, and better that clip/squishing etc. */
-  grid-template-columns: auto 1fr;
+    'head'
+    'main';
+  grid-template-rows: var(--header-height) 1fr;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .chungus {
+    grid-template-areas:
+      'head head'
+      'side main';
+    /* Remember, 1fr is equiv to minmax(auto, 1fr), so anything that can't fit on
+       main will expand out to the right. Looks bad if this happens, but site is
+       still usable, and better that clip/squishing etc. */
+    grid-template-columns: auto 1fr;
+  }
 }
 
 m-header {
   grid-area: head;
 
   display: block;
-  height: 4.5rem;
+  height: var(--header-height);
   top: 0;
   left: 0;
   right: 0;
@@ -67,8 +89,13 @@ m-header {
 }
 
 m-sidenav {
-  grid-area: side;
   display: block;
+}
+
+@media (min-width: 768px) {
+  m-sidenav {
+    grid-area: side;
+  }
 }
 
 main {
@@ -77,8 +104,16 @@ main {
 
   scroll-behavior: smooth;
   overflow-y: scroll;
+  /* Stops wide content from stretching the grid track on mobile. */
+  min-width: 0;
 
-  padding: 36px 48px;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding: 36px 48px;
+  }
 }
 
 .scroll-container {

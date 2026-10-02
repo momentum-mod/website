@@ -2,21 +2,21 @@
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
       <div
-        class="mb-4 flex gap-4 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-4 text-xl"
+        class="mb-4 flex flex-col gap-3 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:flex-row sm:gap-4 sm:p-4"
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
         @if (avatarLoaded) {
           <div
-            class="h-40 w-40 rounded-2xl bg-cover bg-no-repeat"
+            class="size-28 shrink-0 rounded-2xl bg-cover bg-no-repeat sm:size-40"
             [ngStyle]="{
               'background-image': 'url(' + avatarUrl + ')'
             }"
           ></div>
         }
-        <div class="flex flex-grow flex-col justify-between">
-          <div class="flex gap-1">
+        <div class="flex min-w-0 flex-grow flex-col justify-between gap-3 sm:gap-0">
+          <div class="flex flex-wrap gap-1">
             <h1
-              class="flex flex-grow items-center gap-2 font-medium"
+              class="flex flex-grow items-center gap-2 font-medium [--font-lerp-scale:0.8] md:[--font-lerp-scale:1]"
               [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
             >
               {{ user.alias }}
@@ -87,7 +87,7 @@
           <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
         }
         @if ((user.profile.socials | unsortedKeyvalue).length) {
-          <div class="grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+          <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {
                 <a
@@ -104,8 +104,8 @@
           </div>
         }
 
-        <div class="flex flex-wrap gap-4">
-          <div class="flex-grow basis-0">
+        <div class="flex flex-col gap-4 sm:flex-row">
+          <div class="min-w-0 flex-grow basis-0">
             <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
             @if (followedByUsers.length === 0) {
               <h5 class="m-0">
@@ -128,8 +128,8 @@
             }
           </div>
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
-            <div class="w-[1px] bg-gray-400"></div>
-            <div class="flex-grow basis-0">
+            <div class="h-[1px] bg-gray-400 sm:h-auto sm:w-[1px]"></div>
+            <div class="min-w-0 flex-grow basis-0">
               <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
               @if (followingUsers.length === 0) {
                 <h5 class="m-0">
@@ -166,7 +166,7 @@
             [mSpinner]="!steamFriends"
             [(visible)]="importSteamFriendsModalVisible"
             [modal]="true"
-            [style]="{ 'min-width': '25rem' }"
+            [style]="{ 'min-width': 'min(25rem, 95vw)' }"
             [draggable]="false"
             [resizable]="false"
           >
@@ -227,7 +227,7 @@
           @if (credits && credits.length > 0) {
             <div>
               <h3 class="font-display font-bold">Credits</h3>
-              <div class="ng-star-inserted grid gap-2 md:grid-cols-3 lg:grid-cols-4">
+              <div class="ng-star-inserted grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
                 @for (type of MapCreditType | enumValue; track $index) {
                   @if (creditMap[type]) {
                     <div>

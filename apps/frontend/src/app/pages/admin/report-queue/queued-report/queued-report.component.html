@@ -1,23 +1,32 @@
-<div class="flex flex-wrap items-center">
-  <div class="w-1/6 text-left">{{ report.id }}</div>
-  <div class="w-1/6 text-left">{{ typeText }}</div>
-  <div class="w-1/6 text-left">{{ categoryText }}</div>
-  <div class="w-1/6 text-left">{{ report.data }}</div>
-  <div class="w-1/6 text-left">
+<!-- A table row from lg up. Below that each report is a small card with labelled fields. -->
+<div
+  class="mb-3 flex flex-col gap-1 rounded bg-black bg-opacity-10 p-3 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:rounded-none lg:bg-transparent lg:p-0"
+>
+  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">ID</span>{{ report.id }}</div>
+  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
+  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
+  <div class="text-left lg:w-1/6"><span class="mr-2 text-sm text-gray-300 lg:hidden">Reported Resource ID</span>{{ report.data }}</div>
+  <div class="flex items-center gap-2 text-left lg:block lg:w-1/6">
+    <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
     <a [routerLink]="'/profile/' + report.submitter?.id" class="flex items-center gap-2">
       <m-avatar class="h-6" [url]="report.submitter.avatarURL" />
       <p>{{ report.submitter.alias }}</p>
     </a>
   </div>
-  <div class="w-1/6 text-left">
+  <div class="flex items-center gap-2 text-left lg:block lg:w-1/6">
+    <span class="text-sm text-gray-300 lg:hidden">Resolver</span>
     <a [routerLink]="'/profile/' + report.resolver?.id" class="flex items-center gap-2">
       <m-avatar class="h-6" [url]="report.resolver.avatarURL" />
       <p>{{ report.resolver.alias }}</p>
     </a>
   </div>
-  <div class="w-1/5 text-center">{{ report.message }}</div>
-  <div class="w-1/5 text-center">{{ report.resolutionMessage }}</div>
-  <div class="w-1/5 text-center">
+  <div class="[overflow-wrap:anywhere] lg:w-1/5 lg:text-center">
+    <span class="mr-2 text-sm text-gray-300 lg:hidden">Message</span>{{ report.message }}
+  </div>
+  <div class="[overflow-wrap:anywhere] lg:w-1/5 lg:text-center">
+    <span class="mr-2 text-sm text-gray-300 lg:hidden">Resolution Message</span>{{ report.resolutionMessage }}
+  </div>
+  <div class="mt-1 flex flex-wrap gap-2 lg:mt-0 lg:block lg:w-1/5 lg:text-center">
     <button type="button" class="btn btn-blue" (click)="update()">Update</button>
     <a [routerLink]="reportedResourceURL" target="_blank" class="btn">View Reported Resource</a>
   </div>

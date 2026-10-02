@@ -24,3 +24,20 @@ p.post-separator {
     line-height: normal;
   }
 }
+
+/* Blog posts are arbitrary HTML, so make sure they can't force the page wider
+   than the screen. */
+.md-override {
+  overflow-wrap: anywhere;
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  pre {
+    overflow-x: auto;
+  }
+}

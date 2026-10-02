@@ -1,5 +1,5 @@
-<fieldset class="flex flex-col gap-2 rounded border border-white border-opacity-20 px-6 pb-6 pt-2">
-  <legend class="mb-2 flex w-full items-center px-1">
+<fieldset class="flex min-w-0 flex-col gap-2 rounded border border-white border-opacity-20 px-3 pb-4 pt-2 md:px-6 md:pb-6">
+  <legend class="mb-2 flex w-full flex-wrap items-center gap-y-1 px-1">
     <m-user [user]="review.reviewer" class="mr-1" avatarClass="!h-8" aliasClass="font-medium" [badges]="true" badgesClass="!h-4" />
     @if (review.resolved === false) {
       <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
@@ -41,25 +41,38 @@
     <div class="flex flex-col gap-4">
       <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ review.mainText }}</p>
       @if (suggestions?.size > 0) {
-        <div class="grid grid-flow-row grid-cols-[auto_auto_auto_minmax(auto,1fr)] items-center gap-x-5">
+        <!-- Tags move onto their own full-width line on mobile, to leave room for the other columns. -->
+        <div
+          class="grid grid-flow-row grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-4 max-md:gap-y-1 md:grid-cols-[auto_auto_auto_minmax(auto,1fr)] md:gap-x-5"
+        >
           <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
           <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
           <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Rating</p>
-          <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
+          <p class="text-sm font-medium uppercase text-gray-250 max-md:hidden">Tags</p>
 
           @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
             @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
               <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.gameplayRating ?? '' }}</p>
-              <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
+              <p
+                class="text-sm text-gray-50 max-md:col-span-full max-md:mb-1 max-md:before:text-gray-250 max-md:before:content-['Tags:_']"
+                [class]="!mainSugg.tags?.length ? 'max-md:hidden' : ''"
+              >
+                {{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}
+              </p>
             }
 
             @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
               <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
               <p class="justify-self-center font-medium">{{ bonus.tier ?? '' }}</p>
               <p class="justify-self-center font-medium">{{ bonus.gameplayRating ?? '' }}</p>
-              <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
+              <p
+                class="text-sm text-gray-50 max-md:col-span-full max-md:mb-1 max-md:before:text-gray-250 max-md:before:content-['Tags:_']"
+                [class]="!bonus.tags?.length ? 'max-md:hidden' : ''"
+              >
+                {{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}
+              </p>
             }
           }
         </div>
@@ -67,7 +80,7 @@
 
       @if (review.images?.length > 0) {
         <m-gallery #gallery [items]="images" />
-        <div class="grid grid-cols-6 gap-2 rounded bg-black bg-opacity-20 p-1.5">
+        <div class="grid grid-cols-3 gap-2 rounded bg-black bg-opacity-20 p-1.5 sm:grid-cols-6">
           @for (image of images; track $index; let galleryImageIndex = $index) {
             <button
               type="button"
@@ -103,7 +116,7 @@
     <div class="flex flex-col gap-3" [mSpinner]="loadingComments">
       @for (comment of review.comments.slice().reverse(); track $index) {
         <div class="ml-1 flex flex-col">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-x-2">
             <m-user
               class="gap-1"
               [user]="comment.user"
@@ -169,13 +182,13 @@
   }
 
   @if (!isLimited) {
-    <form [formGroup]="commentInput" (ngSubmit)="postComment()" class="mt-2 flex gap-2">
+    <form [formGroup]="commentInput" (ngSubmit)="postComment()" class="mt-2 flex flex-wrap gap-2">
       <textarea
         rows="1"
         (keydown.control.enter)="postComment()"
         [formControl]="commentInput.controls.textInput"
         placeholder="Leave a comment"
-        class="textinput grow resize-none overflow-hidden px-2 py-1"
+        class="textinput min-w-0 grow resize-none overflow-hidden px-2 py-1 max-md:basis-full"
         dynamicTextareaHeight
       ></textarea>
       @if (commentInput.dirty) {
@@ -200,7 +213,7 @@
 
   @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       @switch (review.resolved) {
         @case (null) {
           <div class="flex justify-end gap-1">

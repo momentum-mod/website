@@ -1,7 +1,7 @@
-<div class="grid grid-cols-2 gap-12">
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-12">
   <m-home-stats [userStats]="user?.userStats" />
   <m-home-user-maps />
   <m-activity headerTitle="Your Activity" [activityFetchType]="'own'" height="16rem" />
   <m-activity headerTitle="Followed Activity" [activityFetchType]="'follow'" height="16rem" />
-  <m-activity class="col-span-2" headerTitle="All Activity" [activityFetchType]="'all'" height="16rem" />
+  <m-activity class="lg:col-span-2" headerTitle="All Activity" [activityFetchType]="'all'" height="16rem" />
 </div>

@@ -1,5 +1,8 @@
-<div class="flex gap-4 md:flex-wrap" [formGroup]="formGroup">
-  <div class="grid h-fit max-w-[30%] gap-4 [grid-template-columns:auto_1fr]">
+<div class="flex flex-col gap-4 lg:flex-row" [formGroup]="formGroup">
+  <!-- Labels sit above their fields on small screens, and beside them from sm. -->
+  <div
+    class="grid h-fit gap-x-4 gap-y-1 sm:gap-y-4 sm:[grid-template-columns:auto_1fr] lg:max-w-[30%] max-sm:[&>:nth-child(odd):not(:first-child)]:mt-3"
+  >
     <div class="flex flex-col">
       <label class="my-auto text-lg leading-4">
         Map Name

@@ -1,6 +1,7 @@
 @if (value && value.length > 0 && !disabled) {
-  <table class="mb-2 grid border-collapse grid-cols-[auto_8rem_auto_auto_auto_4fr_auto] gap-0.5">
-    <thead class="contents bg-gray-950">
+  <!-- On mobile, each item is a small card with labelled fields, rather than a row of the 7-column table. -->
+  <table class="mb-2 grid border-collapse grid-cols-1 gap-2 md:grid-cols-[auto_8rem_auto_auto_auto_4fr_auto] md:gap-0.5">
+    <thead class="hidden bg-gray-950 md:contents">
       <tr class="contents">
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Gamemode</th>
         <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Track Type</th>
@@ -16,10 +17,11 @@
     </thead>
     <tbody class="contents">
       @for (item of value; track item; let i = $index) {
-        <tr class="mt-2 contents">
+        <tr class="mt-2 grid grid-cols-2 gap-2 rounded bg-black bg-opacity-10 p-2 md:contents md:bg-transparent md:p-0">
           <td>
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Gamemode</p>
             <p-select
-              class="[&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded"
               [(ngModel)]="item.gamemode"
               [options]="availableGamemodes"
               optionLabel="label"
@@ -30,8 +32,9 @@
             />
           </td>
           <td>
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Track Type</p>
             <p-select
-              class="[&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackType"
               [options]="TrackTypes"
               optionLabel="label"
@@ -42,8 +45,9 @@
             />
           </td>
           <td>
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Track Number</p>
             <p-select
-              class="[&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded"
               [(ngModel)]="item.trackNum"
               optionLabel="label"
               optionValue="trackNum"
@@ -55,9 +59,10 @@
             />
           </td>
           <td>
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Tier</p>
             <input
               type="number"
-              class="textinput"
+              class="textinput max-md:w-full"
               min="1"
               max="10"
               step="1"
@@ -67,9 +72,10 @@
             />
           </td>
           <td>
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Rating</p>
             <input
               type="number"
-              class="textinput"
+              class="textinput max-md:w-full"
               min="1"
               max="10"
               step="1"
@@ -78,7 +84,8 @@
               (change)="onChange(value)"
             />
           </td>
-          <td>
+          <td class="max-md:col-span-2">
+            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Tags</p>
             <m-chips
               typeName="Tags"
               [chips]="MapTags.get(item.gamemode)"
@@ -87,7 +94,7 @@
               (ngModelChange)="updateTags(item, $event)"
             />
           </td>
-          <td>
+          <td class="max-md:col-span-2 max-md:justify-self-end">
             <button type="button" class="btn btn-red rounded px-2" (click)="removeItem(i)">
               <m-icon icon="delete-outline" />
             </button>

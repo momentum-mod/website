@@ -1,7 +1,24 @@
-/* 
-* I've styled this in CSS since the collapsing stuff is annoying in Tailwind,
-* and we need to do responsive versions in the future.
+/*
+* I've styled this in CSS since the collapsing stuff is annoying in Tailwind.
+*
+* Below the `md` breakpoint (768px) the sidenav is an off-canvas drawer that
+* slides over the page instead, and is toggled from the header's menu button.
 */
+:host {
+  /* Out of grid flow on mobile, since the nav and backdrop are both fixed. */
+  position: fixed;
+  /* Fixed positioning makes this its own stacking context, so the z-index has
+     to be here for the drawer to sit above page content. Header is 1000. */
+  z-index: 900;
+}
+
+@media (min-width: 768px) {
+  :host {
+    position: static;
+    z-index: auto;
+  }
+}
+
 nav {
   display: flex;
   flex-direction: column;
@@ -22,6 +39,12 @@ nav {
   );
 
   backdrop-filter: blur(36px);
+
+  /* Without this, headings and items get squashed to nothing instead of the
+     nav scrolling when it is taller than the screen. */
+  & > * {
+    flex-shrink: 0;
+  }
 
   & p.category {
     pointer-events: none;
@@ -72,31 +95,92 @@ nav {
   }
 }
 
-nav.smol {
-  width: 3.5rem;
+.backdrop {
+  display: none;
+}
 
-  & p.category {
-    overflow: clip;
-    opacity: 0;
-    width: 0;
-    margin-top: 0;
-    height: 1rem;
+/* Mobile: drawer */
+@media (max-width: 767.98px) {
+  .backdrop {
+    display: block;
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 899;
 
-    &:first-of-type {
-      height: 0;
+    background-color: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    transition: background-color 0.3s;
+
+    &.open {
+      background-color: rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
     }
   }
 
-  & a.item {
-    padding: 0.375rem 0;
+  nav {
+    position: fixed;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    z-index: 900;
 
-    & m-icon {
-      margin: auto;
+    width: min(16rem, 85vw);
+    height: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Keep the last item clear of iOS's home indicator. */
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+
+    transition:
+      transform 0.3s,
+      visibility 0.3s;
+    background: rgba(30, 30, 30, 0.96);
+
+    /* Bigger tap targets than the desktop list. */
+    & a.item {
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
     }
 
-    & p {
-      margin-left: 0;
-      display: none;
+    /* Closed. Hidden for tab/screen readers too, not just offscreen. */
+    &.smol {
+      transform: translateX(-100%);
+      visibility: hidden;
+    }
+  }
+}
+
+/* Desktop: collapsible sidebar */
+@media (min-width: 768px) {
+  nav.smol {
+    width: 3.5rem;
+
+    & p.category {
+      overflow: clip;
+      opacity: 0;
+      width: 0;
+      margin-top: 0;
+      height: 1rem;
+
+      &:first-of-type {
+        height: 0;
+      }
+    }
+
+    & a.item {
+      padding: 0.375rem 0;
+
+      & m-icon {
+        margin: auto;
+      }
+
+      & p {
+        margin-left: 0;
+        display: none;
+      }
     }
   }
 }

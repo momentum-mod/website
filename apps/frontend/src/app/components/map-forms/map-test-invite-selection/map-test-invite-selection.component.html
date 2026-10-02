@@ -1,13 +1,13 @@
 <div
-  class="flex h-full max-h-[36rem] min-h-[16rem] w-full gap-4 transition-opacity"
+  class="flex h-full max-h-[36rem] min-h-[16rem] w-full flex-col gap-4 transition-opacity lg:flex-row"
   [ngClass]="{
     'pointer-events-none opacity-25': disabled
   }"
 >
-  <div class="md:w-full lg:w-1/2">
+  <div class="lg:w-1/2">
     <m-user-search #searchInput (selected)="addUser($event, searchInput)" mTooltip tooltipEvent="noop" />
   </div>
-  <div class="flex flex-col overflow-y-auto rounded bg-black bg-opacity-25 py-2 md:w-full lg:w-1/2">
+  <div class="flex min-h-[10rem] flex-col overflow-y-auto rounded bg-black bg-opacity-25 py-2 lg:w-1/2">
     @for (user of users; track user) {
       <div class="flex items-center bg-white bg-opacity-0 p-2 px-4 transition-colors hover:bg-opacity-5">
         <m-user [user]="user" aliasClass="text-base ml-1" />

@@ -15,7 +15,7 @@ import * as Enum from '@momentum/enum';
   selector: 'm-admin-activity-entry',
   template: `
     <div
-      class="grid grid-cols-[6rem_1fr_1fr] gap-x-8 gap-y-1 bg-black bg-opacity-10 p-4 shadow-inner"
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 bg-black bg-opacity-10 p-3 shadow-inner sm:grid-cols-[6rem_1fr_1fr] sm:gap-x-8 sm:p-4"
     >
       <p class="col-start-2 font-medium">Old Value</p>
       <p class="font-medium">New Value</p>
