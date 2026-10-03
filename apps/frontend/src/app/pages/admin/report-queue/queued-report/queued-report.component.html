@@ -4,7 +4,9 @@
     <span class="mr-2 text-sm text-gray-300 lg:hidden">Date</span>{{ report.createdAt | date: 'MMM d, h:mm a' }}
   </div>
   <div class="text-left lg:w-[9%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Type</span>{{ typeText }}</div>
-  <div class="text-left lg:w-[9%] lg:px-2 lg:py-1"><span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}</div>
+  <div class="text-left lg:w-[9%] lg:px-2 lg:py-1">
+    <span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}
+  </div>
   <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
     @if (report.submitter) {
