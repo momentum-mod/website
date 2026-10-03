@@ -1,6 +1,6 @@
 /*
 * This component's game UI sibling lives at
-* https://github.com/momentum-mod/panorama/blob/master/styles/pages/main-menu.scss#L131 
+* https://github.com/momentum-mod/panorama/blob/master/styles/pages/main-menu.scss#L131
 */
 
 /* This isn't a pointless div, it's needed for variable sidenav width (seriously) */
@@ -37,7 +37,7 @@
     }
   }
 
-  & m-icon {
+  & > * > m-icon {
     padding: 0.875rem;
     width: 4.5rem;
 

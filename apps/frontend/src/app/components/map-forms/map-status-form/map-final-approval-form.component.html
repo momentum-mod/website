@@ -4,7 +4,7 @@
       <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-8 pt-6 shadow-inner">
         @for (leaderboard of group.value.leaderboards; track $index) {
           @if (leaderboard.trackType !== TrackType.STAGE) {
-            <div class="grid grid-cols-[auto_20rem_20rem] gap-12">
+            <div class="grid grid-cols-[auto_20rem] gap-12">
               <div class="flex flex-col gap-2">
                 <p>
                   <span class="text-xl font-medium">
@@ -112,12 +112,14 @@
                   />
                 </div>
               </div>
-              @if (leaderboard.averageTier) {
-                <p-chart type="bar" [data]="leaderboard.graphs.tiers" [options]="TierChartOptions" />
-              }
-              @if (leaderboard.averageRating) {
-                <p-chart type="bar" [data]="leaderboard.graphs.ratings" [options]="RatingChartOptions" />
-              }
+              <div class="flex flex-col">
+                @if (leaderboard.averageTier) {
+                  <p-chart class="flex-1" type="bar" [data]="leaderboard.graphs.tiers" [options]="TierChartOptions" />
+                }
+                @if (leaderboard.averageRating) {
+                  <p-chart class="flex-1" type="bar" [data]="leaderboard.graphs.ratings" [options]="RatingChartOptions" />
+                }
+              </div>
             </div>
           }
         }

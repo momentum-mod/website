@@ -63,12 +63,12 @@
           <p class="text-lg">Socials</p>
           <div class="grid gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" formGroupName="socials">
             @for (social of SocialsData | unsortedKeyvalue; track social) {
-              <div [mTooltip]="'Example: ' + social.value.example">
+              <div>
                 <div class="ml-1 flex items-center gap-2">
                   <m-icon class="h-5 w-5" [icon]="social.value.icon" pack="si" />
                   <h4>{{ social.key }}</h4>
                 </div>
-                <input [formControlName]="social.key" class="textinput" type="text" />
+                <input [mTooltip]="'Example: ' + social.value.example" [formControlName]="social.key" class="textinput" type="text" />
               </div>
             }
           </div>

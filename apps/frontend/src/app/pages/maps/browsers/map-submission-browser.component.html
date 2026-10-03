@@ -1,7 +1,8 @@
 <div class="mb-4 flex items-start gap-4">
-  <p class="card-title flex text-nowrap text-48">
-    Beta Maps <m-icon class="ml-2 size-5 self-start pt-1" icon="help-circle" [mTooltip]="infoTooltip" />
-  </p>
+  <div class="flex flex-row">
+    <p class="card-title flex text-nowrap text-48">Beta Maps</p>
+    <m-icon class="ml-2 size-5 self-start pt-1" icon="help-circle" [mTooltip]="infoTooltip" />
+  </div>
   <ng-template #infoTooltip>
     <div class="prose p-3">
       <p>Beta maps are maps currently in the submission pipeline.</p>

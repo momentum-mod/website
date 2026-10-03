@@ -2,43 +2,33 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  inject,
   Input,
-  Output,
-  ViewChild
+  Output
 } from '@angular/core';
 
 @Component({
   selector: 'm-popover',
-  template: `
-    <div
-      #popover
-      popover
-      [style]="{
-        'position-anchor': this.anchorName
-      }"
-      (toggle)="onToggle($event)"
-    >
-      <ng-content />
-    </div>
-  `,
+  template: '<ng-content />',
+  host: {
+    popover: '',
+    '(toggle)': 'onToggle($event)'
+  },
   styleUrl: './popover.component.css'
 })
 export class PopoverComponent {
   /**
    * https://www.oddbird.net/2025/01/29/anchor-position-validity/
    * an anchor should typically be a sibling element, or sibling to an ancestor, but not a direct ancestor
-   * Name must include "--".
-   * Each name must be unique, if you need to dynamically generate anchor names, you can do the following:
-   * protected readonly anchorName = `--someMenu-${Math.random().toString(36).substring(2, 12)}`;
    */
-  @Input() anchorName: string;
+  @Input() anchor: HTMLElement;
 
   // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onShow = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onHide = new EventEmitter();
 
-  @ViewChild('popover') popover: ElementRef<HTMLElement>;
+  private popover: ElementRef<HTMLElement> = inject(ElementRef);
 
   private active = false;
 
@@ -53,7 +43,9 @@ export class PopoverComponent {
   }
 
   show() {
-    this.popover.nativeElement.showPopover();
+    // @ts-expect-error need to update typescript to >v6 for popover API
+    // this creates implicit popovertarget/anchor association between elements, rather than needing to set in css
+    this.popover.nativeElement.showPopover({ source: this.anchor });
   }
 
   hide() {

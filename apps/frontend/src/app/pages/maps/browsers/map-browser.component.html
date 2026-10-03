@@ -87,7 +87,9 @@
               { icon: 'trophy', color: 'blue' },
               { icon: 'trophy-broken', color: 'red' }
             ]"
-            mTooltip="Any / Ranked / Unranked Leaderboard (You must select a gamemode to use this filter)"
+            [mTooltip]="
+              'Any / Ranked / Unranked Leaderboard' + (gamemode.value == null ? ' (You must select a gamemode to use this filter)' : '')
+            "
             formControlName="rankedUnranked"
           />
           <m-n-state-button

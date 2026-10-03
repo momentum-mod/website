@@ -1,9 +1,9 @@
-<div class="flex gap-4 md:flex-wrap" [formGroup]="formGroup">
-  <div class="grid h-fit max-w-[30%] gap-4 [grid-template-columns:auto_1fr]">
+<div class="flex flex-wrap gap-4" [formGroup]="formGroup">
+  <div class="grid h-fit w-full auto-rows-[1fr] grid-cols-[auto_1fr] gap-4 lg:max-w-lg">
     <div class="flex flex-col">
       <label class="my-auto text-lg leading-4">
         Map Name
-        <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapNameInfo" />
+        <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapNameInfo" tooltipPosition="top span-right" />
         <ng-template #mapNameInfo>
           <div class="prose p-3">
             <p>
@@ -17,26 +17,28 @@
       <span class="text-sm italic leading-4 text-gray-200">Required </span>
     </div>
     <input
+      #mapNameTooltip="tooltip"
       id="name"
       class="textinput textinput-validated !max-w-full"
       type="text"
       mTooltip
-      tooltipContext="mapNameError"
       tooltipEvent="noop"
       [formControl]="name"
     />
     <div class="flex flex-col">
       <label class="my-auto text-lg leading-4">
         Submission Type
-        <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="subType" />
+        <m-icon
+          icon="tooltip-question-outline"
+          class="mb-[1px] ml-0.5 align-middle"
+          [mTooltip]="subType"
+          tooltipPosition="top span-right"
+        />
         <ng-template #subType><m-submission-type-info /></ng-template>
       </label>
       <span class="text-sm italic leading-4 text-gray-200">Required</span>
     </div>
     <p-select
-      mTooltip
-      tooltipContext="mapNameError"
-      tooltipEvent="noop"
       class="textinput-validate"
       [formControl]="submissionType"
       [options]="mapSubmissionTypeOptions"
@@ -47,7 +49,12 @@
     <div class="flex flex-col">
       <label for="creationDate" class="my-auto text-lg leading-4">
         Creation Date
-        <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="mapCreationDateInfo" />
+        <m-icon
+          icon="tooltip-question-outline"
+          class="ml-1 align-middle"
+          [mTooltip]="mapCreationDateInfo"
+          tooltipPosition="top span-right"
+        />
         <ng-template #mapCreationDateInfo>
           <div class="prose p-3">
             <p>This is the date the map was finished.</p>
@@ -64,7 +71,12 @@
     <p-date-picker id="creationDate" class="w-full [&>*]:w-full" [maxDate]="maxDate" [formControl]="creationDate" appendTo="body" utc />
     <label for="youtubeID" class="my-auto text-lg leading-4">
       Youtube ID
-      <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="youtubeIDInfo" />
+      <m-icon
+        icon="tooltip-question-outline"
+        class="mb-[1px] ml-0.5 align-middle"
+        [mTooltip]="youtubeIDInfo"
+        tooltipPosition="top span-right"
+      />
       <ng-template #youtubeIDInfo>
         <div class="prose p-3">
           <p>An optional Youtube video showcasing your map.</p>
@@ -82,7 +94,12 @@
     />
     <label for="requiredGames" class="my-auto text-lg leading-4">
       Required Games
-      <m-icon icon="tooltip-question-outline" class="mb-[1px] ml-0.5 align-middle" [mTooltip]="requiredGamesInfo" />
+      <m-icon
+        icon="tooltip-question-outline"
+        class="mb-[1px] ml-0.5 align-middle"
+        [mTooltip]="requiredGamesInfo"
+        tooltipPosition="top span-right"
+      />
       <ng-template #requiredGamesInfo>
         <div class="prose p-3">
           <p>Source games that the map uses assets from</p>
@@ -99,41 +116,39 @@
     />
   </div>
   <div class="flex flex-1 flex-col">
-    <div class="flex flex-1 flex-col">
-      <div class="mb-2 flex">
-        <div class="my-auto flex flex-grow items-center">
-          <label for="description" class="text-lg">
-            Description
-            <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="descriptionInfo" />
-            <ng-template #descriptionInfo>
-              <div class="prose p-3">
-                <p>
-                  A general description of your map. You can include pretty much anything here, just keep in mind we have dedicated sections
-                  for credits, including special thanks!
-                </p>
-                <p>
-                  If you can't think of anything at all, just do something super simple like
-                  <i>"A short bhop map based on the life and works of Philip Seymour Hoffman"</i>.
-                </p>
-              </div>
-            </ng-template>
-          </label>
-        </div>
-        @if (MAX_MAP_DESCRIPTION_LENGTH / 2 < description.value.length) {
-          <span class="mr-2 mt-auto text-sm"
-            >{{ MAX_MAP_DESCRIPTION_LENGTH - description.value.length | plural: 'character' }} remaining</span
-          >
-        }
+    <div class="mb-2 flex">
+      <div class="my-auto flex flex-grow items-center">
+        <label for="description" class="text-lg">
+          Description
+          <m-icon icon="tooltip-question-outline" class="ml-1 align-middle" [mTooltip]="descriptionInfo" />
+          <ng-template #descriptionInfo>
+            <div class="prose p-3">
+              <p>
+                A general description of your map. You can include pretty much anything here, just keep in mind we have dedicated sections
+                for credits, including special thanks!
+              </p>
+              <p>
+                If you can't think of anything at all, just do something super simple like
+                <i>"A short bhop map based on the life and works of Philip Seymour Hoffman"</i>.
+              </p>
+            </div>
+          </ng-template>
+        </label>
       </div>
-      <textarea
-        id="description"
-        class="textinput textinput-validated flex-grow"
-        rows="2"
-        [formControl]="description"
-        [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
-        [placeholder]="'Minimum ' + MIN_MAP_DESCRIPTION_LENGTH + ' characters required'"
-      ></textarea>
+      @if (MAX_MAP_DESCRIPTION_LENGTH / 2 < description.value.length) {
+        <span class="mr-2 mt-auto text-sm"
+          >{{ MAX_MAP_DESCRIPTION_LENGTH - description.value.length | plural: 'character' }} remaining</span
+        >
+      }
     </div>
+    <textarea
+      id="description"
+      class="textinput textinput-validated flex-grow"
+      rows="2"
+      [formControl]="description"
+      [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
+      [placeholder]="'Minimum ' + MIN_MAP_DESCRIPTION_LENGTH + ' characters required'"
+    ></textarea>
   </div>
   @if (submissionType.value === MapSubmissionType.PORT) {
     <div class="flex flex-1 flex-col">

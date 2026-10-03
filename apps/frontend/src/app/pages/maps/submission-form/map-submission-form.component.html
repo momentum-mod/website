@@ -39,10 +39,10 @@
       </div>
       <div class="card card--fancy mt-6 grid gap-4 p-4 pt-6 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
         <div class="flex flex-col">
-          <p class="mt-2 text-center text-xl font-medium">
-            BSP File
-            <m-icon icon="asterisk" class="mb-1 p-0.5 align-middle" mTooltip="Required" />
-          </p>
+          <div class="my-1 flex flex-row items-center justify-center gap-1">
+            <p class="text-center text-xl font-medium">BSP File</p>
+            <m-icon icon="asterisk" class="p-0.5 align-middle" mTooltip="Required" />
+          </div>
           <p class="mb-6 mt-3 block w-auto flex-grow text-balance px-3 text-center text-sm">
             This is the main map file for your map. It should have all custom assets packed into it, and must be
             <a class="link" href="https://docs.momentum-mod.org/guide/map_submission/map_porting/#step-4-compress-the-map">compressed</a>.
@@ -77,10 +77,10 @@
           <m-file-upload [formControl]="bsp" typeName="BSP" acceptExtensions=".bsp" icon="land-plots" />
         </div>
         <div class="flex flex-col">
-          <h5 class="mt-1 text-center text-xl font-medium">
-            Zones File
-            <m-icon icon="asterisk" class="mb-1 p-0.5 align-middle" mTooltip="Required" />
-          </h5>
+          <div class="my-1 flex flex-row items-center justify-center gap-1">
+            <p class="text-center text-xl font-medium">Zones File</p>
+            <m-icon icon="asterisk" class="p-0.5 align-middle" mTooltip="Required" />
+          </div>
           <p class="mb-6 mt-3 block w-auto flex-grow text-balance px-3 text-center text-sm">The zones for your map</p>
           <div>
             @if (zon.errors?.['required'] && zon.dirty) {
@@ -99,7 +99,7 @@
           <m-file-upload [formControl]="zon" typeName=".json" icon="vector-polygon" acceptExtensions=".json" />
         </div>
         <div class="flex flex-col">
-          <p class="mt-1 text-center text-xl font-medium">VMF File(s)</p>
+          <p class="my-1 text-center text-xl font-medium">VMF File(s)</p>
           <p class="mb-6 mt-3 block w-auto flex-grow text-balance px-3 text-center text-sm">
             The VMF source files your map. Not required, but helps us archive file maps, and may be helpful for other mappers!
           </p>

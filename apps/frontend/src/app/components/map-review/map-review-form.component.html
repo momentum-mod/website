@@ -53,7 +53,10 @@
     }
     <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
       Add Tier/Ranking Suggestions
-      <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
+      <!--      div & styles needed here to revert button styles affecting the tooltip-->
+      <div class="ml-2 flex items-center justify-center text-start font-normal">
+        <m-icon icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
+      </div>
     </button>
     <ng-template #suggestionInfo>
       <div class="prose p-3">

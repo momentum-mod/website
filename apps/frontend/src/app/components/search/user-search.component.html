@@ -1,5 +1,5 @@
-<div [style.anchor-scope]="anchorName">
-  <div #searchMain [style.anchor-name]="anchorName" class="relative flex w-full items-center gap-2">
+<div>
+  <div #searchMain class="relative flex w-full items-center gap-2">
     <input
       class="textinput min-w-[15rem] flex-grow"
       [mSpinner]="search.pending"
@@ -18,7 +18,7 @@
     />
   </div>
   @if (useOverlay) {
-    <m-popover #searchOverlay [anchorName]="anchorName">
+    <m-popover #searchOverlay [anchor]="searchMain">
       <ng-container *ngTemplateOutlet="results" />
     </m-popover>
   } @else {
