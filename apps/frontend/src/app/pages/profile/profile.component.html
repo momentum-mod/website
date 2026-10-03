@@ -92,7 +92,7 @@
         @if (user.profile?.bio?.length > 0) {
           <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
         }
-        @if ((user.profile.socials | unsortedKeyvalue).length) {
+        @if ((user.profile?.socials | unsortedKeyvalue)?.length) {
           <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {

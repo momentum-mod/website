@@ -151,7 +151,6 @@ export class ProfileComponent implements OnInit {
           if (!this.isLocal) {
             this.titleService.setTitle(user.alias);
           }
-          this.user.profile.socials ??= {}; // So we can ngFor over this safely
           this.userSubject.next(user);
           if (this.user.avatarURL) this.avatarUrl = this.user.avatarURL;
 
