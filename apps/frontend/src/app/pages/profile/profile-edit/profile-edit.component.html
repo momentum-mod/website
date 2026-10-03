@@ -159,7 +159,7 @@
         @if (isModOrAdmin) {
           <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteRuns()">Purge runs</button>
         }
-        @if (isAdmin && !hasRole(Role.DELETED)) {
+        @if (!hasRole(Role.DELETED)) {
           <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteUser()">Delete User</button>
         }
       </div>
