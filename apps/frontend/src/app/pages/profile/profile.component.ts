@@ -245,7 +245,10 @@ export class ProfileComponent implements OnInit {
       .open(ProfileAdminSettingsComponent, {
         header: 'Admin Settings',
         data: { user: this.user, isLocal: this.isLocal },
-        style: { 'min-width': '35rem', 'max-width': '55rem' }
+        style: {
+          'min-width': 'min(35rem, 95vw)',
+          'max-width': 'min(55rem, 95vw)'
+        }
       })
       .onClose.subscribe(() => this.refreshUser());
   }

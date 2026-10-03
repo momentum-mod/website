@@ -7,7 +7,7 @@
     <div class="flex flex-col gap-3">
       @for (ban of chatBans; track ban.id) {
         <div class="card-inset flex flex-col gap-1 p-3">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <span class="font-medium">{{ ChatBanTypeNames.get(ban.type) }}</span>
             @if (isActive(ban)) {
               <span
@@ -63,10 +63,10 @@
   </div>
 
   <div [formGroup]="adminEditForm" class="border-t border-white border-opacity-10 pt-4">
-    <div class="mb-4 flex flex-wrap gap-8">
+    <div class="mb-4 flex flex-wrap gap-x-8 gap-y-4">
       <div>
         <h2>Bans</h2>
-        <ul class="list-unstyled whitespace-nowrap">
+        <ul class="list-unstyled sm:whitespace-nowrap">
           <li>
             <input type="checkbox" class="checkbox mr-1" (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias" />Ban changing alias
           </li>
@@ -84,7 +84,7 @@
       </div>
       <div>
         <h2>Roles</h2>
-        <ul class="list-unstyled whitespace-nowrap">
+        <ul class="list-unstyled sm:whitespace-nowrap">
           <li><input type="checkbox" class="checkbox mr-1" (change)="toggleRole(Role.VERIFIED)" formControlName="verified" />Verified</li>
           <li><input type="checkbox" class="checkbox mr-1" (change)="toggleRole(Role.MAPPER)" formControlName="mapper" />Mapper</li>
           <li><input type="checkbox" class="checkbox mr-1" (change)="toggleRole(Role.PORTER)" formControlName="porter" />Map Porter</li>
@@ -134,9 +134,9 @@
     <button class="btn btn-green mt-2" type="button" (click)="saveAdminSettings()">Save Admin Settings</button>
   </div>
 
-  <div class="flex items-center justify-between border-t border-white border-opacity-10 pt-4">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-t border-white border-opacity-10 pt-4">
     <button class="btn" type="button" (click)="close()">Close</button>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteRuns()">Purge runs</button>
       @if (isAdmin && !hasRole(Role.DELETED)) {
         <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteUser()">Delete User</button>
