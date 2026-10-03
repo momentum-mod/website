@@ -116,7 +116,7 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
       .open(UpdateReportDialogComponent, {
         header: 'Update Report',
         data: { report: this.report },
-        style: { 'min-width': '600px' }
+        style: { 'min-width': 'min(600px, 95vw)' }
       })
       .onClose.subscribe((report) => {
         if (report) this.reportUpdate.emit(report);
