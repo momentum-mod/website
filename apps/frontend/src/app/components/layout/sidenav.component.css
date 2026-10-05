@@ -24,6 +24,9 @@ nav {
   flex-direction: column;
   align-content: center;
 
+  overflow-y: auto;
+  overflow-x: hidden;
+
   transition: width 0.3s;
 
   width: 14rem;

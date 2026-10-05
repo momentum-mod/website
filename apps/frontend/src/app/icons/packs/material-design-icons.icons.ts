@@ -98,5 +98,6 @@ export {
   mdiFullscreen,
   mdiCheckDecagram,
   mdiWrenchClock,
-  mdiWeb
+  mdiWeb,
+  mdiTelevisionClassicOff
 } from '@mdi/js';

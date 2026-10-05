@@ -10,7 +10,14 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import { PrismaClient } from '@momentum/db';
-import { MapStatus, Order, RunsGetAllOrder } from '@momentum/constants';
+import {
+  Gamemode,
+  MapStatus,
+  Order,
+  RunsGetAllOrder,
+  Style,
+  TrackType
+} from '@momentum/constants';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -229,6 +236,28 @@ describe('Runs', () => {
           userID: users[0].id,
           mapID: maps[0].id
         });
+      });
+
+      it('should respond with a list of runs filtered by gamemode, trackType, trackNum, and style', async () => {
+        const res = await req.get({
+          url: 'runs',
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            style: Style.NONE
+          },
+          validatePaged: { type: PastRunDto },
+          token
+        });
+
+        for (const run of res.body.data) {
+          expect(run.gamemode).toBe(Gamemode.AHOP);
+          expect(run.trackType).toBe(TrackType.MAIN);
+          expect(run.trackNum).toBe(0);
+          expect(run.style).toBe(Style.NONE);
+        }
       });
 
       it('should respond with a list of runs with the map include', () =>
