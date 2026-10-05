@@ -58,7 +58,7 @@
   grid-template-areas:
     'head'
     'main';
-  grid-template-rows: var(--header-height) 1fr;
+  grid-template-rows: var(--header-height) minmax(0, 1fr);
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -90,11 +90,13 @@ m-header {
 
 m-sidenav {
   display: block;
+  min-height: 0;
 }
 
 @media (min-width: 768px) {
   m-sidenav {
     grid-area: side;
+    min-height: 0;
   }
 }
 
