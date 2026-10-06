@@ -2,7 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   PagedQuery,
+  LeaderboardRun,
   PagedResponse,
+  UsersGetRunsQuery,
   UsersGetQuery,
   UsersGetAllQuery,
   Follow,
@@ -49,5 +51,15 @@ export class UsersService {
     return this.http.get<PagedResponse<MapCredit>>(`users/${userID}/credits`, {
       query
     });
+  }
+
+  getUserRuns(
+    userID: number,
+    query?: UsersGetRunsQuery
+  ): Observable<PagedResponse<LeaderboardRun>> {
+    return this.http.get<PagedResponse<LeaderboardRun>>(
+      `users/${userID}/runs`,
+      { query }
+    );
   }
 }

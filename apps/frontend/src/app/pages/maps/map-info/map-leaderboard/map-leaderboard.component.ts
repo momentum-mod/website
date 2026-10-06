@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   DestroyRef,
   OnChanges,
   inject,
@@ -48,6 +49,7 @@ import { Select } from '@openng/optimus-ui/select';
 import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
+import { NumberWithCommasPipe } from '../../../../pipes/number-with-commas.pipe';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LocalUserService } from '../../../../services/data/local-user.service';
 import { AdminService } from '../../../../services/data/admin.service';
@@ -85,7 +87,8 @@ export interface ActiveTrack {
     Select,
     FormsModule,
     TimingPipe,
-    TimeAgoPipe
+    TimeAgoPipe,
+    NumberWithCommasPipe
   ]
 })
 export class MapLeaderboardComponent implements OnChanges {
@@ -125,6 +128,11 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly activeTags = signal<MapTag[] | null>(null);
 
   protected readonly runs = signal<LeaderboardRun[]>([]);
+
+  /** Whether the current leaderboard awards rank points. */
+  protected readonly hasPoints = computed(() =>
+    this.runs().some((run) => run.points != null)
+  );
   protected readonly load = new Subject<void>();
   protected readonly loading = signal(false);
 
