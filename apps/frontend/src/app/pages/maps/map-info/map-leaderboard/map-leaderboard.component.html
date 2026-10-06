@@ -182,6 +182,9 @@
         <p class="w-9 shrink-0 text-left sm:w-auto sm:basis-1/10">Rank</p>
         <p class="min-w-0 grow basis-auto">User</p>
         <p class="shrink-0 text-right sm:basis-1/10 sm:text-left">Time</p>
+        @if (hasPoints) {
+          <p class="shrink-0 basis-[12%] px-3 text-right max-sm:hidden">Points</p>
+        }
         <p class="basis-3/20 text-right max-sm:hidden">Achieved</p>
       </div>
       @for (run of runs; track $index) {
@@ -194,6 +197,17 @@
           </div>
           <div class="flex shrink-0 flex-col items-end sm:contents">
             <p class="text-shadow pointer-events-none text-lg sm:basis-1/10">{{ run.time | timing }}</p>
+            @if (hasPoints) {
+              <p
+                class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:shrink-0 sm:basis-[12%] sm:px-3 sm:text-lg sm:text-gray-50"
+              >
+                @if (run.points != null) {
+                  {{ run.points | numberWithCommas }}<span class="sm:hidden"> pts</span>
+                } @else {
+                  <span class="text-gray-400">—</span>
+                }
+              </p>
+            }
             <p class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:basis-3/20 sm:text-base sm:text-gray-50">
               {{ run.createdAt | timeAgo }}
             </p>
