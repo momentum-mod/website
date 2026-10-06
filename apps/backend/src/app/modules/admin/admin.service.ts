@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { LeaderboardRun, Prisma } from '@momentum/db';
@@ -33,6 +34,8 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from './admin-activity.service';
 import { UsersService } from '../users/users.service';
+import { RankingService } from '../ranking/ranking.service';
+import { serializeLeaderboard } from '../ranking/rank-points.keys';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
@@ -43,9 +46,12 @@ export class AdminService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
+    private readonly rankingService: RankingService,
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService
   ) {}
+
+  private readonly logger = new Logger('Admin Service');
 
   async createPlaceholderUser(
     adminID: number,
@@ -326,6 +332,7 @@ export class AdminService {
     await this.db.leaderboardRun.delete({ where });
 
     await Promise.all([
+      this.rankingService.queueLeaderboardUpdates([run]),
       this.deleteRunFiles(run),
       this.adminActivityService.create(
         adminID,
@@ -355,6 +362,11 @@ export class AdminService {
       where: { userID }
     });
 
+    // Every leaderboard the user was on needs its points recomputed.
+    await this.rankingService.queueLeaderboardUpdates([
+      ...new Map(runs.map((run) => [serializeLeaderboard(run), run])).values()
+    ]);
+
     // Copy all replay files to the deleted-runs location with bounded
     // concurrency, then bulk-delete all sources in one request.
     const copies = runs.map((run) => ({
@@ -379,6 +391,17 @@ export class AdminService {
         reason
       )
     ]);
+  }
+
+  /**
+   * Regenerate all rank points from the database in the background.
+   */
+  rebuildRankPoints(): void {
+    void this.rankingService
+      .rebuildAll()
+      .catch((error) =>
+        this.logger.error('Admin-triggered rank points rebuild failed', error)
+      );
   }
 
   private async deleteRunFiles(
