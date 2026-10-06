@@ -26,6 +26,7 @@ import { TypedSql } from '@momentum/db';
 import { ZonesStubString } from '@momentum/formats/zone';
 import * as ReplayFile from '@momentum/formats/replay';
 import {
+  app,
   prisma,
   valkey,
   req,
@@ -33,6 +34,9 @@ import {
   registerE2ETestFile,
   resetKillswitches
 } from './support/e2e-environment';
+import { getRankPoints } from '@momentum/xp-systems';
+import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
+import { RankPointsKeys } from '../../backend/src/app/modules/ranking/rank-points.keys';
 
 describe('Session', () => {
   registerE2ETestFile();
@@ -201,6 +205,27 @@ describe('Session', () => {
           assert.equal(completedRun.isNewPersonalBest, true);
           assert.equal(completedRun.isNewWorldRecord, false);
           assert.equal(completedRun.totalRuns, 11);
+        });
+
+        it('should include rank points for the new PB and update the ladder', async () => {
+          const res = await submitRun();
+          const completedRun = res.body[0];
+
+          // Rank 2 of 11 on a tier 1 leaderboard. Computed directly so the
+          // player sees it immediately, before the ladder catches up.
+          const expected = getRankPoints(2, 11, 1);
+          assert.equal(completedRun.newPersonalBest.points, expected);
+
+          // The leaderboard should have been queued for a ladder update.
+          await app.get(RankingService).processQueue();
+
+          assert.equal(
+            await valkey.zscore(
+              RankPointsKeys.ladder(Gamemode.AHOP, Style.NORMAL),
+              user.id.toString()
+            ),
+            expected.toString()
+          );
         });
 
         // Note that now we're using a window function the rank column isn't
