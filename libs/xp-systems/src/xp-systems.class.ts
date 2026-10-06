@@ -1,25 +1,18 @@
 import { TrackType } from '@momentum/constants';
-import {
-  COS_XP_PARAMS,
-  CosXpParams,
-  RANK_XP_PARAMS,
-  RankXpGain,
-  RankXpParams
-} from './index';
+import { COS_XP_PARAMS, CosXpParams } from './index';
 
 /**
- * This class provides methods for calculating rank and cosmetic XP. It needs to
- * calculate and stores an array of 500 (soon 3000) level boundaries in memory,
- * so we provide a class that can be extended by Nest/Angular services and
- * injected where needed (though full disclosure, this takes under 1ms so
- * doesn't matter that much).
+ * This class provides methods for calculating cosmetic XP (rank points live in
+ * `rank-points.ts`). It needs to calculate and stores an array of 500 (soon
+ * 3000) level boundaries in memory, so we provide a class that can be extended
+ * by Nest/Angular services and injected where needed (though full disclosure,
+ * this takes under 1ms so doesn't matter that much).
  *
  * A static class version could be made if required, but I'd rather rely on Nest
  * and Angular's dependency injectors.
  */
 export class XpSystems {
   public readonly cosXpParams: CosXpParams = Object.freeze(COS_XP_PARAMS);
-  public readonly rankXpParams: RankXpParams = Object.freeze(RANK_XP_PARAMS);
   private readonly xpInLevels: number[];
   private readonly xpForLevels: number[];
 
@@ -142,65 +135,6 @@ export class XpSystems {
           : levels.staticScaleBaseMultiplier)
       );
     }
-  }
-
-  getRankXpForRank(rank: number, completions: number): RankXpGain {
-    const rankGain: RankXpGain = {
-      rankXP: 0,
-      group: {
-        groupXP: 0,
-        groupNum: -1
-      },
-      formula: 0,
-      top10: 0
-    };
-
-    // Regardless of run, we want to calculate formula points
-    const formulaPoints = Math.ceil(
-      this.rankXpParams.formula.A / (rank + this.rankXpParams.formula.B)
-    );
-    rankGain.formula = formulaPoints;
-    rankGain.rankXP += formulaPoints;
-
-    // Calculate Top10 points if in there
-    if (rank <= 10) {
-      const top10Points = Math.ceil(
-        this.rankXpParams.top10.rankPercentages[rank - 1] *
-          this.rankXpParams.top10.WRPoints
-      );
-      rankGain.top10 = top10Points;
-      rankGain.rankXP += top10Points;
-    } else {
-      // Otherwise we calculate group points depending on group location
-
-      // Going to have to calculate groupSizes dynamically
-      const groupSizes = [];
-      for (let i = 0; i < this.rankXpParams.groups.maxGroups; i++) {
-        groupSizes[i] = Math.max(
-          this.rankXpParams.groups.groupScaleFactors[i] *
-            completions ** this.rankXpParams.groups.groupExponents[i],
-          this.rankXpParams.groups.groupMinSizes[i]
-        );
-      }
-
-      let rankOffset = 11;
-      for (let i = 0; i < this.rankXpParams.groups.maxGroups; i++) {
-        if (rank < rankOffset + groupSizes[i]) {
-          const groupPoints = Math.ceil(
-            this.rankXpParams.top10.WRPoints *
-              this.rankXpParams.groups.groupPointPcts[i]
-          );
-          rankGain.group.groupNum = i + 1;
-          rankGain.group.groupXP = groupPoints;
-          rankGain.rankXP += groupPoints;
-          break;
-        } else {
-          rankOffset += groupSizes[i];
-        }
-      }
-    }
-
-    return rankGain;
   }
 
   getPrestige(totalLevel: number): number {
