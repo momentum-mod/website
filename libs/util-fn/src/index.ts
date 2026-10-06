@@ -17,3 +17,4 @@ export * from './omit';
 export * from './magic';
 export * from './approx-eq';
 export * from './sleep';
+export * from './parallel-limit';
