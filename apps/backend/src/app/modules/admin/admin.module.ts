@@ -10,6 +10,7 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
+import { RankingModule } from '../ranking/ranking.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { FileStoreModule } from '../filestore/file-store.module';
     forwardRef(() => MapReviewModule),
     KillswitchModule,
     NotificationsModule,
-    FileStoreModule
+    FileStoreModule,
+    RankingModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService, NotificationsService],

@@ -104,6 +104,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
+import { RankingService } from '../ranking/ranking.service';
 
 @Injectable()
 export class MapsService {
@@ -121,7 +122,8 @@ export class MapsService {
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
-    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
+    private readonly rankingService: RankingService
   ) {}
 
   //#region Gets
@@ -1511,6 +1513,13 @@ export class MapsService {
     if (newStatus === MapStatus.APPROVED || oldStatus === MapStatus.APPROVED) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
+
+    // Status changes and leaderboard type/tier changes both affect which runs
+    // earn rank points and how many. Queued after the transaction so the
+    // worker sees the committed state.
+    if (newStatus !== oldStatus || dto.leaderboards) {
+      await this.rankingService.queueMapUpdates(mapID);
+    }
   }
 
   private getGeneralMapDataUpdate(
@@ -2013,6 +2022,10 @@ export class MapsService {
 
     await this.deleteMapFiles(mapID);
 
+    // Grab these before anything is deleted; disabling or deleting the map
+    // removes its runs from the rank points ladders either way.
+    const leaderboards = await this.rankingService.getMapLeaderboards(mapID);
+
     if (map.info.approvedDate) {
       // Disable map without touching leaderboards
 
@@ -2075,6 +2088,8 @@ export class MapsService {
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
     );
+
+    await this.rankingService.queueLeaderboardUpdates(leaderboards);
   }
 
   private async deleteMapFiles(mapID: number) {

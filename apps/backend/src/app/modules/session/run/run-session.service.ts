@@ -6,7 +6,7 @@ import {
   Logger
 } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
-import { LeaderboardRun, User } from '@momentum/db';
+import { Leaderboard, LeaderboardRun, User } from '@momentum/db';
 import {
   ActivityType,
   CompatibleStyles,
@@ -46,6 +46,11 @@ import { RunProcessor } from './run-processor.class';
 import { ValkeyService } from '../../valkey/valkey.service';
 import { RunFileStoreService } from '../../filestore/run-file-store.service';
 import { LeaderboardRunsDbService } from '../../runs/leaderboard-runs-db.service';
+import {
+  isRankPointsEligible,
+  RankingService
+} from '../../ranking/ranking.service';
+import { getRankPoints } from '@momentum/xp-systems';
 
 @Injectable()
 export class RunSessionService {
@@ -58,7 +63,8 @@ export class RunSessionService {
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
-    private readonly killswitch: KillswitchService
+    private readonly killswitch: KillswitchService,
+    private readonly rankingService: RankingService
   ) {}
 
   //#region Run Session (game WebSocket)
@@ -387,26 +393,48 @@ export class RunSessionService {
     const replayHash = FileStoreService.getHashForBuffer(replayBuffer);
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ newPB, xpGain, isWR, lastPB, totalRuns, worldRecord }] =
-      await Promise.all([
-        this.db.$transaction((tx) =>
-          this.updateLeaderboards(
-            tx,
-            submittedRun,
-            style,
-            isPB,
-            existingRun,
-            replayHash
+    const [
+      { newPB, xpGain, isWR, lastPB, totalRuns, worldRecord, leaderboard }
+    ] = await Promise.all([
+      this.db.$transaction((tx) =>
+        this.updateLeaderboards(
+          tx,
+          submittedRun,
+          style,
+          isPB,
+          existingRun,
+          replayHash
+        )
+      ),
+      isPB
+        ? this.updateReplayFiles(
+            replayBuffer,
+            replayHash,
+            existingRun?.replayHash
           )
-        ),
-        isPB
-          ? this.updateReplayFiles(
-              replayBuffer,
-              replayHash,
-              existingRun?.replayHash
-            )
-          : Promise.resolve()
+        : Promise.resolve()
+    ]);
+
+    if (isPB && isRankPointsEligible(leaderboard)) {
+      // The player should see what their new PB is worth immediately rather
+      // than waiting for the ladder to catch up, so compute this run's points
+      // directly. The ladder itself updates asynchronously.
+      newPB.points = getRankPoints(
+        newPB.rank,
+        totalRuns,
+        leaderboard.tier ?? 1
+      );
+
+      await this.rankingService.queueLeaderboardUpdates([
+        {
+          mapID: submittedRun.mapID,
+          gamemode: submittedRun.gamemode,
+          trackType: submittedRun.trackType,
+          trackNum: submittedRun.trackNum,
+          style
+        }
       ]);
+    }
 
     if (isWR) {
       await this.db.activity.create({
@@ -447,12 +475,13 @@ export class RunSessionService {
     existingRun?: LeaderboardRun,
     replayHash?: string
   ): Promise<{
-    newPB?: LeaderboardRun;
+    newPB?: LeaderboardRun & { rank?: number; points?: number };
     lastPB?: LeaderboardRun;
     isWR: boolean;
     worldRecord?: LeaderboardRun;
     totalRuns: number;
     xpGain: XpGainDto;
+    leaderboard: Leaderboard;
   }> {
     const leaderboardWhere = {
       mapID: submittedRun.mapID,
@@ -567,7 +596,8 @@ export class RunSessionService {
         isWR: false,
         totalRuns,
         lastPB: existingRun,
-        worldRecord: existingWorldRecord
+        worldRecord: existingWorldRecord,
+        leaderboard
       };
     }
 
@@ -591,7 +621,7 @@ export class RunSessionService {
 
     // We could use a Prisma upsert here but we already know if the existing
     // rank exists or not
-    let newPB: LeaderboardRun & { rank?: number };
+    let newPB: LeaderboardRun & { rank?: number; points?: number };
     if (existingRun) {
       newPB = await tx.leaderboardRun.update({
         where: {
@@ -646,7 +676,8 @@ export class RunSessionService {
       newPB,
       lastPB: existingRun,
       isWR,
-      worldRecord: isWR ? newPB : existingWorldRecord
+      worldRecord: isWR ? newPB : existingWorldRecord,
+      leaderboard
     };
   }
 
