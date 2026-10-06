@@ -1,0 +1,130 @@
+import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
+import { NgStyle } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
+import { MessageService } from 'primeng/api';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import {
+  Gamemode,
+  GamemodeInfo,
+  LeaderboardRun,
+  LeaderboardType,
+  TrackType,
+  TrackTypeName
+} from '@momentum/constants';
+import { UsersService } from '../../../services/data/users.service';
+import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
+import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { NumberWithCommasPipe } from '../../../pipes/number-with-commas.pipe';
+import { TimingPipe } from '../../../pipes/timing.pipe';
+import { TimeAgoPipe } from '../../../pipes/time-ago.pipe';
+
+/**
+ * A user's leaderboard runs (PBs) on approved maps with rank, leaderboard size
+ * and rank points.
+ */
+@Component({
+  selector: 'm-profile-runs',
+  templateUrl: './profile-runs.component.html',
+  imports: [
+    GamemodeSelectComponent,
+    SpinnerDirective,
+    PaginatorModule,
+    NumberWithCommasPipe,
+    TimingPipe,
+    TimeAgoPipe,
+    RouterLink,
+    NgStyle
+  ]
+})
+export class ProfileRunsComponent implements OnChanges {
+  private readonly usersService = inject(UsersService);
+  private readonly messageService = inject(MessageService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly GamemodeInfo = GamemodeInfo;
+  protected readonly TrackType = TrackType;
+  protected readonly TrackTypeName = TrackTypeName;
+
+  @Input({ required: true }) userID: number;
+
+  protected gamemode: Gamemode | null = null;
+  protected rankedOnly = true;
+  protected runs: LeaderboardRun[] = [];
+  protected totalCount = 0;
+  protected loading = false;
+  protected skip = 0;
+  protected readonly take = 10;
+
+  private readonly load = new Subject<void>();
+
+  constructor() {
+    this.load
+      .pipe(
+        tap(() => (this.loading = true)),
+        switchMap(() =>
+          this.usersService
+            .getUserRuns(this.userID, {
+              gamemode: this.gamemode ?? undefined,
+              // Only main tracks on RANKED leaderboards award points; stage
+              // and bonus leaderboards can be RANKED too but never do.
+              ...(this.rankedOnly && {
+                leaderboardType: LeaderboardType.RANKED,
+                trackType: TrackType.MAIN
+              }),
+              skip: this.skip,
+              take: this.take
+            })
+            .pipe(
+              catchError((error: HttpErrorResponse) => {
+                this.loading = false;
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error fetching runs',
+                  detail: error.error?.message
+                });
+                return EMPTY;
+              })
+            )
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((response) => {
+        this.runs = response.data;
+        this.totalCount = response.totalCount;
+        this.loading = false;
+      });
+  }
+
+  ngOnChanges(): void {
+    if (!this.userID) return;
+    this.skip = 0;
+    this.load.next();
+  }
+
+  protected setGamemode(gamemode: Gamemode | null): void {
+    this.gamemode = gamemode;
+    this.skip = 0;
+    this.load.next();
+  }
+
+  protected setRankedOnly(rankedOnly: boolean): void {
+    if (rankedOnly === this.rankedOnly) return;
+    this.rankedOnly = rankedOnly;
+    this.skip = 0;
+    this.load.next();
+  }
+
+  protected onPageChange(event: PaginatorState): void {
+    this.skip = event.first;
+    this.load.next();
+  }
+
+  protected trackName(run: LeaderboardRun): string | null {
+    if (run.trackType === TrackType.MAIN) return null;
+    return `${TrackTypeName.get(run.trackType)} ${run.trackNum}`;
+  }
+}
