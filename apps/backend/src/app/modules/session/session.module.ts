@@ -8,6 +8,7 @@ import { RunSessionService } from './run/run-session.service';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 import { ValkeyModule } from '../valkey/valkey.module';
 import { RunsModule } from '../runs/runs.module';
+import { RankingModule } from '../ranking/ranking.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RunsModule } from '../runs/runs.module';
     XpSystemsModule,
     forwardRef(() => MapsModule),
     KillswitchModule,
+    RankingModule,
     forwardRef(() => RunsModule)
   ],
   controllers: [SessionController],
