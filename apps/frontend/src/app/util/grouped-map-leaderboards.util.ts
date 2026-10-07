@@ -24,6 +24,11 @@ export type GroupedMapLeaderboard = {
     tags: MapTag[];
   }>;
   styles: Style[];
+  /**
+   * The style whose leaderboards populate tier/type/tags/stages/bonuses: the
+   * gamemode's default UI style if the map has it, otherwise one it does have.
+   */
+  style?: Style;
   reviews?: MapReview[];
   totalRuns?: number;
   allHidden: boolean;
@@ -53,13 +58,34 @@ export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
 export function groupMapLeaderboards(
   leaderboards: Leaderboard[]
 ): GroupedMapLeaderboards {
+  // The style whose leaderboards describe each gamemode's tracks: its default
+  // UI style if the map has leaderboards for it, otherwise whichever style the
+  // map's main track does have (or failing that, any style).
+  const groupStyles = new Map<Gamemode, Style>();
+  for (const gamemode of new Set(leaderboards.map((lb) => lb.gamemode))) {
+    const modeLbs = leaderboards.filter((lb) => lb.gamemode === gamemode);
+    const defaultStyle = GamemodeDefaultUIStyle.get(gamemode);
+    groupStyles.set(
+      gamemode,
+      modeLbs.some((lb) => lb.style === defaultStyle)
+        ? defaultStyle
+        : (modeLbs.find((lb) => lb.trackType === TrackType.MAIN) ?? modeLbs[0])
+            .style
+    );
+  }
+
   const arr = [];
   for (const lb of leaderboards) {
     const gamemodeName = GamemodeInfo.get(lb.gamemode).name;
     let entry = arr.find((e) => e.gamemodeName === gamemodeName);
 
     if (!entry) {
-      entry = { gamemode: lb.gamemode, gamemodeName, styles: [] };
+      entry = {
+        gamemode: lb.gamemode,
+        gamemodeName,
+        styles: [],
+        style: groupStyles.get(lb.gamemode)
+      };
       arr.push(entry);
     }
 
@@ -67,12 +93,12 @@ export function groupMapLeaderboards(
       entry.styles.push(lb.style);
     }
 
-    if (lb.style === GamemodeDefaultUIStyle.get(lb.gamemode)) {
+    if (lb.style === entry.style) {
       if (lb.trackType === TrackType.MAIN) {
         entry.tier = lb.tier;
         entry.type = lb.type;
         entry.linear = lb.linear;
-        entry.tags = lb.tags;
+        entry.tags = lb.tags ?? [];
       } else if (lb.trackType === TrackType.STAGE) {
         if (!entry.stages) {
           entry.stages = 1;

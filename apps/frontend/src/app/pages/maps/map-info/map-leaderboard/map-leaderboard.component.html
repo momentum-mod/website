@@ -158,7 +158,7 @@
     <m-spinner />
   }
 
-  @if (map.status === MapStatus.APPROVED && activeTags.length > 0) {
+  @if (map.status === MapStatus.APPROVED && activeTags?.length > 0) {
     <p class="text-lg">
       <span class="flex flex-wrap gap-1.5">
         @for (tag of activeTags; track $index) {
