@@ -1,6 +1,8 @@
 :host {
   height: 100%;
   width: 3.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
   position: relative;
   z-index: -3;
 
