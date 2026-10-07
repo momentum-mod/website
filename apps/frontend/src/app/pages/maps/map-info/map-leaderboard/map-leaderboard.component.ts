@@ -142,9 +142,9 @@ export class MapLeaderboardComponent implements OnChanges {
     const activeTrack = this.activeTrack();
     const activeMode = this.activeMode();
     this.activeTags.set(
-      activeTrack.type === TrackType.BONUS
-        ? activeMode.bonuses.find(({ num }) => num === activeTrack.num)?.tags
-        : activeMode.tags
+      (activeTrack.type === TrackType.BONUS
+        ? activeMode.bonuses?.find(({ num }) => num === activeTrack.num)?.tags
+        : activeMode.tags) ?? []
     );
   }
 
@@ -152,9 +152,7 @@ export class MapLeaderboardComponent implements OnChanges {
     const mode = this.leaderboards()[modeIndex];
     this.activeModeIndex.set(modeIndex);
     this.activeMode.set(mode);
-    this.activeStyle.set(
-      GamemodeDefaultUIStyle.get(mode.gamemode) ?? Style.NORMAL
-    );
+    this.activeStyle.set(this.groupStyle(mode));
 
     this.updateTags();
     this.load.next();
@@ -217,12 +215,16 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeMode.set(activeMode);
     this.activeType.set(LeaderboardFilterType.TOP10);
     this.activeTrack.set({ type: TrackType.MAIN, num: 1 });
-    this.activeStyle.set(
-      GamemodeDefaultUIStyle.get(activeMode.gamemode) ?? Style.NORMAL
-    );
-    this.activeTags.set(activeMode.tags);
+    this.activeStyle.set(this.groupStyle(activeMode));
+    this.activeTags.set(activeMode.tags ?? []);
 
     this.load.next();
+  }
+
+  private groupStyle(group: GroupedMapLeaderboard): Style {
+    return (
+      group.style ?? GamemodeDefaultUIStyle.get(group.gamemode) ?? Style.NORMAL
+    );
   }
 
   fetchRuns(): Observable<PagedResponse<LeaderboardRun>> {
