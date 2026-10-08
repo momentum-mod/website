@@ -35,6 +35,7 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from './admin-activity.service';
 import { UsersService } from '../users/users.service';
 import { RankingService } from '../ranking/ranking.service';
+import { UserCacheService } from '../user-cache/user-cache.service';
 import { serializeLeaderboard } from '../ranking/rank-points.keys';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -47,6 +48,7 @@ export class AdminService {
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
     private readonly rankingService: RankingService,
+    private readonly userCache: UserCacheService,
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService
   ) {}
@@ -100,7 +102,7 @@ export class AdminService {
 
     if (!user) throw new BadRequestException('Merging user not found');
 
-    return await this.db.$transaction(async (tx) => {
+    const merged = await this.db.$transaction(async (tx) => {
       // Update credits to point to new ID
       await tx.mapCredit.updateMany({
         where: { userID: placeholderID },
@@ -203,6 +205,10 @@ export class AdminService {
 
       return DtoFactory(UserDto, mergedUserDbResponse);
     });
+
+    await this.userCache.invalidate(userID, placeholderID);
+
+    return merged;
   }
 
   async updateUser(
@@ -288,6 +294,7 @@ export class AdminService {
         where: { id: userID },
         data: updateInput
       });
+      await this.userCache.invalidate(userID);
     }
 
     // Check rest of fields not needed to be admin to update, separately.

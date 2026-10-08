@@ -9,6 +9,7 @@ import { LeaderboardService } from './leaderboard.service';
 import { RunsController } from './runs.controller';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
 import { RankingModule } from '../ranking/ranking.module';
+import { UserCacheModule } from '../user-cache/user-cache.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { RankingModule } from '../ranking/ranking.module';
     forwardRef(() => MapsModule),
     FileStoreModule,
     SteamModule,
-    RankingModule
+    RankingModule,
+    UserCacheModule
   ],
   providers: [
     LeaderboardRunsService,
