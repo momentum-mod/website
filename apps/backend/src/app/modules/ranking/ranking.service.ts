@@ -8,6 +8,7 @@ import {
   OnModuleInit
 } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import {
   Gamemode,
@@ -47,8 +48,6 @@ declare module 'iovalkey' {
 
 /** How many leaderboards to stage before committing them in one batch. */
 const BATCH_SIZE = 100;
-/** Concurrent DB fetches while staging a batch. */
-const STAGE_CONCURRENCY = 8;
 /** Members per ZADD when staging very large leaderboards. */
 const ZADD_CHUNK = 5000;
 /** How often the worker checks the queue. */
@@ -105,7 +104,8 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly valkey: ValkeyService,
-    private readonly schedulerRegistry: SchedulerRegistry
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly config: ConfigService
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -303,7 +303,13 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
   private async processBatch(
     leaderboards: LeaderboardIdentifier[]
   ): Promise<void> {
-    await parallelLimit(leaderboards, STAGE_CONCURRENCY, (lb) =>
+    // Half the DB pool, so a rebuild never starves request handling of
+    // connections.
+    const concurrency = Math.max(
+      1,
+      Math.floor(this.config.getOrThrow<number>('db.poolSize') / 2)
+    );
+    await parallelLimit(leaderboards, concurrency, (lb) =>
       this.stageLeaderboard(lb)
     );
 
