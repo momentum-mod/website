@@ -69,11 +69,10 @@ export class ProfileRunsComponent implements OnChanges {
           this.usersService
             .getUserRuns(this.userID, {
               gamemode: this.gamemode ?? undefined,
-              // Only main tracks on RANKED leaderboards award points; stage
-              // and bonus leaderboards can be RANKED too but never do.
+              // Every RANKED leaderboard awards points: main tracks, stages
+              // and bonuses.
               ...(this.rankedOnly && {
-                leaderboardType: LeaderboardType.RANKED,
-                trackType: TrackType.MAIN
+                leaderboardType: LeaderboardType.RANKED
               }),
               skip: this.skip,
               take: this.take
