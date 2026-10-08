@@ -26,6 +26,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { ValkeyService } from '../valkey/valkey.service';
 import { isFirstWorker } from '../../../clustered';
+import { UserCacheService } from '../user-cache/user-cache.service';
 import { PagedResponseDto, RankEntryDto, UserRankDto } from '../../dto';
 import {
   parseLeaderboard,
@@ -105,6 +106,7 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly valkey: ValkeyService,
     private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly userCache: UserCacheService,
     private readonly config: ConfigService
   ) {}
 
@@ -441,17 +443,13 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
       points.push(Number(entries[i + 1]));
     }
 
-    const users = new Map(
-      (await this.db.user.findMany({ where: { id: { in: userIDs } } })).map(
-        (user) => [user.id, user]
-      )
-    );
+    const users = await this.userCache.getUsers(userIDs);
 
     const data = userIDs.map((userID, i) => ({
       rank: skip + i + 1,
       userID,
       points: points[i],
-      user: users.get(userID)
+      user: users[i]
     }));
 
     return new PagedResponseDto(RankEntryDto, [data, totalCount]);
@@ -461,7 +459,7 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
    * A user's rank on every ladder they have points on.
    */
   async getUserRanks(userID: number): Promise<UserRankDto[]> {
-    if (!(await this.db.user.exists({ where: { id: userID } })))
+    if (!(await this.userCache.exists(userID)))
       throw new NotFoundException('User not found');
 
     const ladders: Array<[Gamemode, Style]> = [];

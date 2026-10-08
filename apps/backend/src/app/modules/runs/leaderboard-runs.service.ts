@@ -20,6 +20,7 @@ import {
 } from '../../dto';
 import { RankingService } from '../ranking/ranking.service';
 import { serializeLeaderboard } from '../ranking/rank-points.keys';
+import { UserCacheService } from '../user-cache/user-cache.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
@@ -35,7 +36,8 @@ export class LeaderboardRunsService {
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly fileStoreService: FileStoreService,
     private readonly steamService: SteamService,
-    private readonly rankingService: RankingService
+    private readonly rankingService: RankingService,
+    private readonly userCache: UserCacheService
   ) {}
 
   async getRuns(
@@ -179,7 +181,7 @@ export class LeaderboardRunsService {
     userID: number,
     query: UsersGetRunsQueryDto
   ): Promise<PagedResponseDto<LeaderboardRunDto>> {
-    if (!(await this.db.user.exists({ where: { id: userID } })))
+    if (!(await this.userCache.exists(userID)))
       throw new NotFoundException('User not found');
 
     const where: Prisma.LeaderboardRunWhereInput = {

@@ -11,6 +11,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { RankingModule } from '../ranking/ranking.module';
+import { UserCacheModule } from '../user-cache/user-cache.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { RankingModule } from '../ranking/ranking.module';
     KillswitchModule,
     NotificationsModule,
     FileStoreModule,
-    RankingModule
+    RankingModule,
+    UserCacheModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService, NotificationsService],
