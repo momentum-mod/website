@@ -143,15 +143,19 @@
       </div>
     </div>
 
-    <p-select
-      class="ml-auto self-center"
-      [(ngModel)]="activeType"
-      [options]="LeaderboardFilterTypeDropdown"
-      optionLabel="label"
-      optionValue="type"
-      (onChange)="reload()"
-      appendTo="body"
-    />
+    <div class="ml-auto flex items-center gap-4 self-center">
+      @if (localUserService.user | async) {
+        <button type="button" class="btn" (click)="jumpToSelf()">Jump to me</button>
+      }
+      <p-select
+        [(ngModel)]="activeType"
+        [options]="LeaderboardFilterTypeDropdown"
+        optionLabel="label"
+        optionValue="type"
+        (onChange)="reload()"
+        appendTo="body"
+      />
+    </div>
   </div>
 
   @if (map.status === MapStatus.APPROVED && activeTags?.length > 0) {
@@ -189,6 +193,8 @@
         @for (run of runs; track $index) {
           <div
             class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
+            [id]="isLocalUser(run) ? 'leaderboard-run-self' : null"
+            [ngClass]="{ 'outline outline-1 [outline-color:rgb(255_255_255/0.4)]': isLocalUser(run) }"
           >
             <p class="text-shadow pointer-events-none w-9 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">
               {{ run.rank }}
