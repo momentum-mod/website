@@ -436,6 +436,19 @@ describe('Rank points', () => {
       );
     });
 
+    it("should give stage runs on a user's profile their main track's tier", async () => {
+      const res = await req.get({
+        url: `users/${b.id}/runs`,
+        query: { trackType: TrackType.STAGE },
+        status: 200,
+        validatePaged: { type: LeaderboardRunDto, count: 2 }
+      });
+
+      for (const run of res.body.data) {
+        assert.equal(run.leaderboard.tier, 4);
+      }
+    });
+
     it('should not include points on runs on an unranked bonus', async () => {
       const res = await req.get({
         url: `maps/${map.id}/leaderboard`,
