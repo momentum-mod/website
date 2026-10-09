@@ -7,7 +7,12 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { LeaderboardIdentifier, MapStatus, runPath } from '@momentum/constants';
+import {
+  LeaderboardIdentifier,
+  MapStatus,
+  runPath,
+  TrackType
+} from '@momentum/constants';
 import { Prisma, TypedSql } from '@momentum/db';
 import { SteamService } from '../steam/steam.service';
 import {
@@ -217,7 +222,8 @@ export class LeaderboardRunsService {
             runs.map((run) => run.style)
           )
         ),
-        this.rankingService.getUserTrackPoints(userID, runs)
+        this.rankingService.getUserTrackPoints(userID, runs),
+        this.fillStageTiers(runs)
       ]);
 
       const rankMap = new Map(
@@ -235,6 +241,48 @@ export class LeaderboardRunsService {
     }
 
     return new PagedResponseDto(LeaderboardRunDto, [runs, totalCount]);
+  }
+
+  /**
+   * Stage leaderboards have no tier of their own. Their rank points are scored
+   * at the main track's tier, so report that as the stage's tier too.
+   */
+  private async fillStageTiers(
+    runs: Array<{
+      mapID: number;
+      gamemode: number;
+      trackType: number;
+      style: number;
+      leaderboard: { tier: number | null } | null;
+    }>
+  ): Promise<void> {
+    const stageRuns = runs.filter(
+      (run) => run.trackType === TrackType.STAGE && run.leaderboard
+    );
+    if (stageRuns.length === 0) return;
+
+    const mains = await this.db.leaderboard.findMany({
+      where: {
+        OR: stageRuns.map(({ mapID, gamemode, style }) => ({
+          mapID,
+          gamemode,
+          style,
+          trackType: TrackType.MAIN,
+          trackNum: 1
+        }))
+      },
+      select: { mapID: true, gamemode: true, style: true, tier: true }
+    });
+
+    for (const run of stageRuns) {
+      run.leaderboard.tier =
+        mains.find(
+          (main) =>
+            main.mapID === run.mapID &&
+            main.gamemode === run.gamemode &&
+            main.style === run.style
+        )?.tier ?? null;
+    }
   }
 
   async getRun(
