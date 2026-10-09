@@ -35,7 +35,7 @@ import { UserComponent } from '../../../../components/user/user.component';
 import { LeaderboardsService } from '../../../../services/data/leaderboards.service';
 import { TooltipDirective } from '../../../../directives/tooltip.directive';
 import { IconComponent } from '../../../../icons';
-import { NgClass, NgStyle } from '@angular/common';
+import { AsyncPipe, NgClass, NgStyle } from '@angular/common';
 import { RangePipe } from '../../../../pipes/range.pipe';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
@@ -75,6 +75,7 @@ export interface ActiveTrack {
     IconComponent,
     NgClass,
     NgStyle,
+    AsyncPipe,
     RangePipe,
     Select,
     FormsModule,
@@ -88,7 +89,7 @@ export class MapLeaderboardComponent implements OnChanges {
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly adminService = inject(AdminService);
-  private readonly localUserService = inject(LocalUserService);
+  protected readonly localUserService = inject(LocalUserService);
   private readonly dialogService = inject(DialogService);
 
   protected readonly MapStatus = MapStatus;
@@ -120,6 +121,9 @@ export class MapLeaderboardComponent implements OnChanges {
   protected totalCount = 0;
   protected skip = 0;
   protected readonly take = 10;
+
+  /** Set by "Jump to me" so the next load scrolls to the user's row. */
+  private scrollToSelfAfterLoad = false;
 
   /** "Around" is a fixed window centred on the user, so it isn't paged. */
   protected get isPaged(): boolean {
@@ -171,6 +175,49 @@ export class MapLeaderboardComponent implements OnChanges {
     this.load.next();
   }
 
+  /**
+   * Go to the page of the full leaderboard containing the user's run, then
+   * scroll to it.
+   */
+  protected jumpToSelf(): void {
+    const userID = this.localUserService.user.value?.id;
+    if (!userID) return;
+
+    this.leaderboardService
+      .getRun(this.map.id, {
+        gamemode: this.activeMode.gamemode,
+        trackType: this.activeTrack.type,
+        trackNum: this.activeTrack.num,
+        style: this.activeStyle,
+        userID
+      })
+      .subscribe({
+        next: ({ rank }) => {
+          this.activeType = LeaderboardFilterType.TOP10;
+          this.skip = Math.floor((rank - 1) / this.take) * this.take;
+          this.scrollToSelfAfterLoad = true;
+          this.load.next();
+        },
+        error: (httpError: HttpErrorResponse) =>
+          this.messageService.add(
+            httpError.status === 404
+              ? {
+                  severity: 'info',
+                  summary: "You don't have a run on this leaderboard"
+                }
+              : {
+                  severity: 'error',
+                  summary: 'Error finding your run',
+                  detail: httpError.error?.message
+                }
+          )
+      });
+  }
+
+  protected isLocalUser(run: LeaderboardRun): boolean {
+    return this.localUserService.user.value?.id === run.userID;
+  }
+
   protected onPageChange(event: PaginatorState): void {
     if (event.first === this.skip) return;
     this.skip = event.first;
@@ -198,6 +245,16 @@ export class MapLeaderboardComponent implements OnChanges {
           this.runs = response.data;
           this.totalCount = response.totalCount;
           this.loading = false;
+
+          if (this.scrollToSelfAfterLoad) {
+            this.scrollToSelfAfterLoad = false;
+            // Wait a tick for the rows to render.
+            setTimeout(() =>
+              document
+                .getElementById('leaderboard-run-self')
+                ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+            );
+          }
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
