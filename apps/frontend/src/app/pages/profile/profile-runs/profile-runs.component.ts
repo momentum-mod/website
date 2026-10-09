@@ -53,6 +53,8 @@ export class ProfileRunsComponent implements OnChanges {
 
   protected gamemode: Gamemode | null = null;
   protected rankedOnly = true;
+  /** Hide stage and bonus runs, which otherwise crowd out main tracks. */
+  protected mainOnly = true;
   protected runs: LeaderboardRun[] = [];
   protected totalCount = 0;
   protected loading = false;
@@ -74,6 +76,7 @@ export class ProfileRunsComponent implements OnChanges {
               ...(this.rankedOnly && {
                 leaderboardType: LeaderboardType.RANKED
               }),
+              ...(this.mainOnly && { trackType: TrackType.MAIN }),
               skip: this.skip,
               take: this.take
             })
@@ -113,6 +116,13 @@ export class ProfileRunsComponent implements OnChanges {
   protected setRankedOnly(rankedOnly: boolean): void {
     if (rankedOnly === this.rankedOnly) return;
     this.rankedOnly = rankedOnly;
+    this.skip = 0;
+    this.load.next();
+  }
+
+  protected setMainOnly(mainOnly: boolean): void {
+    if (mainOnly === this.mainOnly) return;
+    this.mainOnly = mainOnly;
     this.skip = 0;
     this.load.next();
   }
