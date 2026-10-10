@@ -11,6 +11,11 @@ import {
   STAGE_POOL_FRACTION
 } from './rank-points';
 
+// The design document's tables were computed with the original falloff and
+// completion award, before gamma and m were retuned. Checking against them
+// with those values still verifies the formula itself.
+const DESIGN_DOC_PARAMS = { ...RANK_POINTS_PARAMS, gamma: 0.2, m: 0.25 };
+
 describe('rank-points', () => {
   describe('getTierMultiplier', () => {
     it('is 1 at tier 1 and grows geometrically', () => {
@@ -34,13 +39,14 @@ describe('rank-points', () => {
 
     it('matches the design document table at γ = 0.20', () => {
       // Rank 10 on various board sizes
-      expect(getRankShare(10, 100)).toBeCloseTo(0.387, 3);
-      expect(getRankShare(10, 2000)).toBeCloseTo(0.528, 3);
-      expect(getRankShare(10, 17_291)).toBeCloseTo(0.57, 3);
+      const p = DESIGN_DOC_PARAMS;
+      expect(getRankShare(10, 100, p)).toBeCloseTo(0.387, 3);
+      expect(getRankShare(10, 2000, p)).toBeCloseTo(0.528, 3);
+      expect(getRankShare(10, 17_291, p)).toBeCloseTo(0.57, 3);
       // Rank 2 of 10
-      expect(getRankShare(2, 10)).toBeCloseTo(0.649, 3);
+      expect(getRankShare(2, 10, p)).toBeCloseTo(0.649, 3);
       // Rank 1000 of 17291
-      expect(getRankShare(1000, 17_291)).toBeCloseTo(0.127, 3);
+      expect(getRankShare(1000, 17_291, p)).toBeCloseTo(0.127, 3);
     });
 
     it('is strictly decreasing in rank', () => {
@@ -55,19 +61,30 @@ describe('rank-points', () => {
   });
 
   describe('getCompletionAward', () => {
-    it('matches the design document M(tier) table', () => {
-      expect(Math.round(getCompletionAward(1))).toBe(66);
-      expect(Math.round(getCompletionAward(4))).toBe(143);
-      expect(Math.round(getCompletionAward(6))).toBe(239);
-      expect(Math.round(getCompletionAward(8))).toBe(399);
-      expect(Math.round(getCompletionAward(9))).toBe(517);
-      expect(Math.round(getCompletionAward(10))).toBe(668);
+    it('matches the design document M(tier) table at m = 0.25', () => {
+      const award = (tier: number) =>
+        Math.round(getCompletionAward(tier, DESIGN_DOC_PARAMS));
+      expect(award(1)).toBe(66);
+      expect(award(4)).toBe(143);
+      expect(award(6)).toBe(239);
+      expect(award(8)).toBe(399);
+      expect(award(9)).toBe(517);
+      expect(award(10)).toBe(668);
+    });
+
+    it('scales with m', () => {
+      expect(getCompletionAward(4)).toBeCloseTo(
+        (getCompletionAward(4, DESIGN_DOC_PARAMS) * RANK_POINTS_PARAMS.m) /
+          DESIGN_DOC_PARAMS.m,
+        9
+      );
     });
   });
 
   describe('getRankPoints', () => {
-    // "Worked values" table from the design document. Allow ±1 for rounding
-    // differences between the document's rendering and Math.round.
+    // "Worked values" table from the design document (original gamma and m).
+    // Allow ±1 for rounding differences between the document's rendering and
+    // Math.round.
     it.each([
       // [tier, N, rank, expected]
       [1, 50, 1, 1066],
@@ -88,11 +105,40 @@ describe('rank-points', () => {
       [8, 17, 10, 1014],
       [8, 17, 17, 399]
     ])(
-      'tier %i, N=%i, rank %i pays about %i points',
+      'design document: tier %i, N=%i, rank %i pays about %i points',
       (tier, n, rank, expected) => {
         expect(
-          Math.abs(getRankPoints(rank, n, tier) - expected)
+          Math.abs(
+            getRankPoints(rank, n, tier, 1, DESIGN_DOC_PARAMS) - expected
+          )
         ).toBeLessThanOrEqual(1);
+      }
+    );
+
+    // The same kind of table at the current parameters (gamma 0.5, m 0.1),
+    // so retuning them is a deliberate, visible change.
+    it.each([
+      // [tier, N, rank, expected]
+      [1, 50, 1, 1026],
+      [1, 50, 10, 230],
+      [1, 50, 50, 26],
+      [1, 1000, 1, 2796],
+      [1, 1000, 2, 1958],
+      [1, 1000, 10, 840],
+      [1, 1000, 100, 222],
+      [1, 1000, 500, 64],
+      [1, 1000, 1000, 26],
+      [4, 295, 1, 4010],
+      [4, 295, 10, 1140],
+      [4, 295, 100, 233],
+      [4, 295, 295, 57],
+      [8, 17, 1, 4347],
+      [8, 17, 10, 567],
+      [8, 17, 17, 160]
+    ])(
+      'current params: tier %i, N=%i, rank %i pays %i points',
+      (tier, n, rank, expected) => {
+        expect(getRankPoints(rank, n, tier)).toBe(expected);
       }
     );
 

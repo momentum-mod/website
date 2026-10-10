@@ -28,19 +28,38 @@ import { TrackType } from '@momentum/constants';
  * A player's total for a gamemode+style ladder is the plain sum of their
  * weighted scores across every eligible board. No decay, no cap.
  *
- * Constants were fitted against production Surf and Bhop ranked main-track
- * data. See the design and calibration documents for the reasoning behind
- * each. If any of these change, every stored total changes with them, so
- * bump RANK_POINTS_VERSION so caches know to rebuild.
+ * b, alpha and pLadder were fitted against production Surf and Bhop ranked
+ * main-track data; see the design and calibration documents. gamma and m were
+ * later retuned by hand (see their comments). If any of these change, every
+ * stored total changes with them, so bump RANK_POINTS_VERSION so caches know
+ * to rebuild.
+ *
+ * For reference, KSF's surf ranking (a stepped system: fixed top 10 points,
+ * then six rank groups paying 8.5%, 5.9%, 3.3%, 1.6%, 0.65% and 0.2% of the
+ * WR, then nothing below ~2/3 of the field) is matched closely by
+ * gamma ≈ 0.8 and m ≈ 0.15. Fitted from KSF's in-game map info for
+ * surf_shape (T2, 1622 completions) and surf_infrared (T4, 295 completions).
+ * Their per-tier completion step is also ~1.3, close to b.
  */
 export interface RankPointsParams {
   /** Tier multiplier step. T(tier) = b^(tier - 1). Fitted: cliff^α. */
   b: number;
   /** Value of popularity. Pool scales as N^α. */
   alpha: number;
-  /** Rank falloff steepness. How much of the pool reaches the field. */
+  /**
+   * Rank falloff steepness: how quickly the pool share drops from the WR
+   * (always 100%) to last place (always 0%). Higher is steeper.
+   * At 0.5 on a 1000-completion board, rank 2 gets ~70% of the WR's share,
+   * rank 10 ~30% and rank 100 ~7%. KSF-like: ~0.8 (rank 10 ~15%).
+   */
   gamma: number;
-  /** Completion award, as a fraction of P · T(tier). */
+  /**
+   * Completion award, as a fraction of P · T(tier). Paid for any finish on top
+   * of the rank share, so it's what playing new maps earns regardless of
+   * time. Lower makes improving a time worth more relative to finishing
+   * another map. At 0.1 with gamma 0.5, moving from the median to the top 25%
+   * of a board is worth ~0.85x a fresh median finish. KSF-like: ~0.15.
+   */
   m: number;
   /** Overall scale. Cosmetic: a tier-1 board with 50 completions pays ~1000. */
   pLadder: number;
@@ -49,8 +68,8 @@ export interface RankPointsParams {
 export const RANK_POINTS_PARAMS: Readonly<RankPointsParams> = Object.freeze({
   b: 1.293,
   alpha: 0.34,
-  gamma: 0.2,
-  m: 0.25,
+  gamma: 0.5,
+  m: 0.1,
   pLadder: 264.45
 });
 
@@ -58,7 +77,7 @@ export const RANK_POINTS_PARAMS: Readonly<RankPointsParams> = Object.freeze({
  * Bump whenever RANK_POINTS_PARAMS or the formula changes, so persisted
  * totals derived from the old model get regenerated.
  */
-export const RANK_POINTS_VERSION = 2;
+export const RANK_POINTS_VERSION = 3;
 
 /** What all of a map's stages together are worth, relative to its main track. */
 export const STAGE_POOL_FRACTION = 0.5;
