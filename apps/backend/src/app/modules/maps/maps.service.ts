@@ -851,6 +851,14 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
+    // A new version of an approved map can add or remove stages and bonuses
+    // (which changes what each is worth) or reset runs, so rank points need
+    // recomputing for its leaderboards before and after the change.
+    const rankedLeaderboardsBefore =
+      map.status === MapStatus.APPROVED
+        ? await this.rankingService.getMapLeaderboards(mapID)
+        : [];
+
     const newVersion = await this.db.$transaction(async (tx) => {
       const newVersion = await tx.mapVersion.create({
         data: {
@@ -923,6 +931,13 @@ export class MapsService {
 
       return newVersion;
     });
+
+    if (map.status === MapStatus.APPROVED) {
+      await this.rankingService.queueLeaderboardUpdates([
+        ...rankedLeaderboardsBefore,
+        ...(await this.rankingService.getMapLeaderboards(mapID))
+      ]);
+    }
 
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
