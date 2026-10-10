@@ -1,12 +1,16 @@
 import * as assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { TrackType } from '@momentum/constants';
 import {
+  BONUS_POOL_FRACTION,
   getCompletionAward,
   getRankPoints,
   getRankPointsBreakdown,
   getRankShare,
   getTierMultiplier,
-  RANK_POINTS_PARAMS
+  getTrackWeight,
+  RANK_POINTS_PARAMS,
+  STAGE_POOL_FRACTION
 } from './rank-points';
 
 function assertCloseTo(actual: number, expected: number, tolerance = 1e-6) {
@@ -144,9 +148,65 @@ describe('rank-points', () => {
 
     it('should use custom params when provided', () => {
       const params = { ...RANK_POINTS_PARAMS, m: 0 };
-      const breakdown = getRankPointsBreakdown(10, 10, 1, params);
+      const breakdown = getRankPointsBreakdown(10, 10, 1, 1, params);
       assert.equal(breakdown.completionPoints, 0);
-      assert.equal(breakdown.points, 0);
+      // Nothing earned, but a finish is always worth at least 1.
+      assert.equal(breakdown.points, 1);
+    });
+  });
+
+  describe('getTrackWeight', () => {
+    it('should be 1 for main tracks regardless of count', () => {
+      assert.equal(getTrackWeight(TrackType.MAIN, 0), 1);
+      assert.equal(getTrackWeight(TrackType.MAIN, 7), 1);
+    });
+
+    it('should split the stage fraction across stages', () => {
+      assert.equal(getTrackWeight(TrackType.STAGE, 10), 0.05);
+      assert.equal(getTrackWeight(TrackType.STAGE, 1), STAGE_POOL_FRACTION);
+    });
+
+    it('should split the bonus fraction across bonuses', () => {
+      assert.equal(getTrackWeight(TrackType.BONUS, 4), 0.0625);
+      assert.equal(getTrackWeight(TrackType.BONUS, 1), BONUS_POOL_FRACTION);
+    });
+
+    it('should never divide by zero', () => {
+      assert.equal(getTrackWeight(TrackType.STAGE, 0), STAGE_POOL_FRACTION);
+    });
+  });
+
+  describe('weighted points', () => {
+    it('should scale the unrounded score by the weight', () => {
+      const full = getRankPointsBreakdown(3, 40, 4);
+      const weighted = getRankPointsBreakdown(3, 40, 4, 0.05);
+      assertCloseTo(weighted.rankPoints, full.rankPoints * 0.05, 5e-10);
+      assertCloseTo(
+        weighted.completionPoints,
+        full.completionPoints * 0.05,
+        5e-10
+      );
+      assert.equal(
+        weighted.points,
+        Math.round((full.rankPoints + full.completionPoints) * 0.05)
+      );
+    });
+
+    it('should make a full set of stages worth about half the main track', () => {
+      // Same field finishing the main track and all 10 stages.
+      const stages = 10;
+      const weight = getTrackWeight(TrackType.STAGE, stages);
+      const main = getRankPoints(1, 100, 3);
+      const allStages = stages * getRankPoints(1, 100, 3, weight);
+      assertCloseTo(allStages / main, STAGE_POOL_FRACTION, 0.005);
+    });
+
+    it('should never round a finish down to 0', () => {
+      assert.equal(getRankPoints(500, 500, 1, 0.001), 1);
+    });
+
+    it('should reject a non-positive weight', () => {
+      assert.throws(() => getRankPoints(1, 10, 1, 0), RangeError);
     });
   });
 });
