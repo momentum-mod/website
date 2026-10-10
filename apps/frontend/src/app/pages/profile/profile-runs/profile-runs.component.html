@@ -44,6 +44,9 @@
               @if (trackName(run); as track) {
                 · {{ track }}
               }
+              @if (rankGroup(run); as group) {
+                · {{ group }}
+              }
               · {{ run.createdAt | timeAgo }}
             </p>
           </div>
