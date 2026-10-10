@@ -416,24 +416,28 @@ export class RunSessionService {
     ]);
 
     if (isPB && isRankPointsEligible(leaderboard)) {
+      const leaderboardID = {
+        mapID: submittedRun.mapID,
+        gamemode: submittedRun.gamemode,
+        trackType: submittedRun.trackType,
+        trackNum: submittedRun.trackNum,
+        style
+      };
+
       // The player should see what their new PB is worth immediately rather
       // than waiting for the ladder to catch up, so compute this run's points
       // directly. The ladder itself updates asynchronously.
-      newPB.points = getRankPoints(
-        newPB.rank,
-        totalRuns,
-        leaderboard.tier ?? 1
-      );
+      const scoring = await this.rankingService.getTrackScoring(leaderboardID);
+      if (scoring) {
+        newPB.points = getRankPoints(
+          newPB.rank,
+          totalRuns,
+          scoring.tier,
+          scoring.weight
+        );
+      }
 
-      await this.rankingService.queueLeaderboardUpdates([
-        {
-          mapID: submittedRun.mapID,
-          gamemode: submittedRun.gamemode,
-          trackType: submittedRun.trackType,
-          trackNum: submittedRun.trackNum,
-          style
-        }
-      ]);
+      await this.rankingService.queueLeaderboardUpdates([leaderboardID]);
     }
 
     if (isWR) {
