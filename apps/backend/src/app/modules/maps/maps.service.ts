@@ -874,6 +874,12 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
+    // Leaderboards can be added or removed, so queue both the old and new ones
+    const leaderboardsBefore =
+      map.status === MapStatus.APPROVED
+        ? await this.rankingService.getMapLeaderboards(mapID)
+        : [];
+
     const newVersion = await this.db.$transaction(async (tx) => {
       const newVersion = await tx.mapVersion.create({
         data: {
@@ -946,6 +952,13 @@ export class MapsService {
 
       return newVersion;
     });
+
+    if (map.status === MapStatus.APPROVED) {
+      await this.rankingService.queueLeaderboardUpdates([
+        ...leaderboardsBefore,
+        ...(await this.rankingService.getMapLeaderboards(mapID))
+      ]);
+    }
 
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)

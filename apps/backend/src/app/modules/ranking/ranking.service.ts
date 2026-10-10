@@ -20,7 +20,11 @@ import {
   TrackType
 } from '@momentum/constants';
 import { TypedSql } from '@momentum/db';
-import { getRankPoints, RANK_POINTS_VERSION } from '@momentum/xp-systems';
+import {
+  getRankPoints,
+  getTrackWeight,
+  RANK_POINTS_VERSION
+} from '@momentum/xp-systems';
 import { parallelLimit } from '@momentum/util-fn';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -59,12 +63,20 @@ const LOCK_TTL_MS = 60_000;
 
 interface LeaderboardEligibility {
   type: LeaderboardType | number;
-  trackType: TrackType | number;
+}
+
+/** How a leaderboard's runs are scored. See `RankingService.getTrackScoring`. */
+export interface TrackScoring {
+  /** Tier to score at. Stages use their main track's. */
+  tier: number;
+  /** Track weight, see `getTrackWeight`. */
+  weight: number;
 }
 
 /**
- * Whether runs on this leaderboard earn rank points. The map must also be
- * APPROVED; callers that have the status to hand should check it too.
+ * Whether runs on this leaderboard earn rank points. Main tracks, stages and
+ * bonuses all can. The map must also be APPROVED; callers that have the
+ * status to hand should check it too.
  */
 export function isRankPointsEligible(
   leaderboard: LeaderboardEligibility,
@@ -72,25 +84,13 @@ export function isRankPointsEligible(
 ): boolean {
   return (
     leaderboard.type === LeaderboardType.RANKED &&
-    leaderboard.trackType === TrackType.MAIN &&
     (mapStatus === undefined || mapStatus === MapStatus.APPROVED)
   );
 }
 
 /**
- * Rank points, stored in Valkey.
- *
- * Every RANKED main-track leaderboard on an APPROVED map has a sorted set of
- * userID -> points ("track"), and every gamemode+style has a sorted set of
- * userID -> total points ("ladder") which is the sum of its tracks.
- *
- * Updates flow through a queue: anything that changes a leaderboard's runs or
- * eligibility calls `queueLeaderboardUpdates`, and a worker on the first
- * cluster worker periodically drains the queue, recomputing each leaderboard
- * from Postgres into a staging set and then committing batches of staging sets
- * into their ladders atomically.
- *
- * All of this is derived data: `rebuildAll` regenerates it from Postgres.
+ * Rank points, stored in Valkey (see `rank-points.keys.ts`). All derived from
+ * Postgres, so `rebuildAll` can regenerate it.
  */
 @Injectable()
 export class RankingService implements OnModuleInit, OnModuleDestroy {
@@ -171,12 +171,12 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Main-track leaderboards for a map, for queueing. Fetch *before* deleting a
-   * map so the identifiers still exist, then queue after the delete.
+   * Every leaderboard of a map, for queueing. Fetch *before* deleting a map so
+   * the identifiers still exist, then queue after the delete.
    */
   async getMapLeaderboards(mapID: number): Promise<LeaderboardIdentifier[]> {
     return this.db.leaderboard.findMany({
-      where: { mapID, trackType: TrackType.MAIN },
+      where: { mapID },
       select: {
         mapID: true,
         gamemode: true,
@@ -188,8 +188,9 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Queue every main-track leaderboard of a map. Use after anything that can
-   * change a map's status or its leaderboards' type/tier.
+   * Queue every leaderboard of a map. Use after anything that can change a
+   * map's status, its leaderboards' type/tier, or how many stages or bonuses
+   * it has (stage and bonus points depend on all three).
    */
   async queueMapUpdates(mapID: number): Promise<void> {
     await this.queueLeaderboardUpdates(await this.getMapLeaderboards(mapID));
@@ -271,7 +272,6 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
       const leaderboards = await this.db.leaderboard.findMany({
         where: {
           type: LeaderboardType.RANKED,
-          trackType: TrackType.MAIN,
           mmap: { status: MapStatus.APPROVED }
         },
         select: {
@@ -341,20 +341,8 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
   private async stageLeaderboard(lb: LeaderboardIdentifier): Promise<void> {
     const stagingKey = RankPointsKeys.staging(lb);
 
-    const leaderboard = await this.db.leaderboard.findUnique({
-      where: { mapID_gamemode_trackType_trackNum_style: lb },
-      select: {
-        type: true,
-        trackType: true,
-        tier: true,
-        mmap: { select: { status: true } }
-      }
-    });
-
-    if (
-      !leaderboard ||
-      !isRankPointsEligible(leaderboard, leaderboard.mmap.status)
-    ) {
+    const scoring = await this.getTrackScoring(lb);
+    if (!scoring) {
       await this.valkey.del(stagingKey);
       return;
     }
@@ -374,20 +362,14 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    let tier = leaderboard.tier;
-    if (tier == null) {
-      // Shouldn't happen for a RANKED main track, but don't let a data issue
-      // either crash the worker or silently zero a leaderboard.
-      this.logger.warn(
-        `Ranked leaderboard ${serializeLeaderboard(lb)} has no tier, treating as tier 1`
-      );
-      tier = 1;
-    }
-
+    const { tier, weight } = scoring;
     const completions = runs.length;
     const members: Array<number | string> = [];
     for (const run of runs) {
-      members.push(getRankPoints(run.rank, completions, tier), run.userID);
+      members.push(
+        getRankPoints(run.rank, completions, tier, weight),
+        run.userID
+      );
     }
 
     // Atomic DEL + ZADD so a concurrent commit never sees a half-written set.
@@ -396,6 +378,70 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
       multi.zadd(stagingKey, ...members.slice(i, i + ZADD_CHUNK * 2));
     }
     await multi.exec();
+  }
+
+  /**
+   * The tier and track weight a leaderboard's runs are scored with, or null if
+   * it doesn't award rank points (or no longer exists).
+   *
+   * Stages have no tier of their own, so use the main track's. A stage's
+   * weight depends on how many stages the map has, a bonus's on how many
+   * *ranked* bonuses it has, both for the same gamemode+style.
+   */
+  async getTrackScoring(
+    lb: LeaderboardIdentifier
+  ): Promise<TrackScoring | null> {
+    const leaderboard = await this.db.leaderboard.findUnique({
+      where: { mapID_gamemode_trackType_trackNum_style: lb },
+      select: { type: true, tier: true, mmap: { select: { status: true } } }
+    });
+
+    if (
+      !leaderboard ||
+      !isRankPointsEligible(leaderboard, leaderboard.mmap.status)
+    )
+      return null;
+
+    const { mapID, gamemode, trackType, style } = lb;
+    let tier = leaderboard.tier;
+    let trackCount = 1;
+    if (trackType !== TrackType.MAIN) {
+      const [main, count] = await Promise.all([
+        trackType === TrackType.STAGE
+          ? this.db.leaderboard.findUnique({
+              where: {
+                mapID_gamemode_trackType_trackNum_style: {
+                  mapID,
+                  gamemode,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  style
+                }
+              },
+              select: { tier: true }
+            })
+          : null,
+        this.db.leaderboard.count({
+          where: {
+            mapID,
+            gamemode,
+            style,
+            trackType,
+            // Unranked bonuses award nothing, so don't take a share of the
+            // bonus pool. (Stages always share their main track's type.)
+            ...(trackType === TrackType.BONUS && {
+              type: LeaderboardType.RANKED
+            })
+          }
+        })
+      ]);
+      if (trackType === TrackType.STAGE) tier = main?.tier ?? null;
+      trackCount = count;
+    }
+
+    // Ranked tracks should always have a tier, but never zero a leaderboard
+    // over bad data
+    return { tier: tier ?? 1, weight: getTrackWeight(trackType, trackCount) };
   }
 
   //#endregion
