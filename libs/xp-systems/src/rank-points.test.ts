@@ -13,6 +13,11 @@ import {
   STAGE_POOL_FRACTION
 } from './rank-points';
 
+// The design document's tables were computed with the original falloff and
+// completion award, before gamma and m were retuned. Checking against them
+// with those values still verifies the formula itself.
+const DESIGN_DOC_PARAMS = { ...RANK_POINTS_PARAMS, gamma: 0.2, m: 0.25 };
+
 function assertCloseTo(actual: number, expected: number, tolerance = 1e-6) {
   assert.ok(
     Math.abs(actual - expected) < tolerance,
@@ -43,13 +48,14 @@ describe('rank-points', () => {
 
     it('should match the design document table at γ = 0.20', () => {
       // Rank 10 on various board sizes
-      assertCloseTo(getRankShare(10, 100), 0.387, 0.0005);
-      assertCloseTo(getRankShare(10, 2000), 0.528, 0.0005);
-      assertCloseTo(getRankShare(10, 17_291), 0.57, 0.0005);
+      const p = DESIGN_DOC_PARAMS;
+      assertCloseTo(getRankShare(10, 100, p), 0.387, 0.0005);
+      assertCloseTo(getRankShare(10, 2000, p), 0.528, 0.0005);
+      assertCloseTo(getRankShare(10, 17_291, p), 0.57, 0.0005);
       // Rank 2 of 10
-      assertCloseTo(getRankShare(2, 10), 0.649, 0.0005);
+      assertCloseTo(getRankShare(2, 10, p), 0.649, 0.0005);
       // Rank 1000 of 17291
-      assertCloseTo(getRankShare(1000, 17_291), 0.127, 0.0005);
+      assertCloseTo(getRankShare(1000, 17_291, p), 0.127, 0.0005);
     });
 
     it('should be strictly decreasing in rank', () => {
@@ -64,22 +70,33 @@ describe('rank-points', () => {
   });
 
   describe('getCompletionAward', () => {
-    it('should match the design document M(tier) table', () => {
-      assert.equal(Math.round(getCompletionAward(1)), 66);
-      assert.equal(Math.round(getCompletionAward(4)), 143);
-      assert.equal(Math.round(getCompletionAward(6)), 239);
-      assert.equal(Math.round(getCompletionAward(8)), 399);
-      assert.equal(Math.round(getCompletionAward(9)), 517);
-      assert.equal(Math.round(getCompletionAward(10)), 668);
+    it('should match the design document M(tier) table at m = 0.25', () => {
+      const award = (tier: number) =>
+        Math.round(getCompletionAward(tier, DESIGN_DOC_PARAMS));
+      assert.equal(award(1), 66);
+      assert.equal(award(4), 143);
+      assert.equal(award(6), 239);
+      assert.equal(award(8), 399);
+      assert.equal(award(9), 517);
+      assert.equal(award(10), 668);
+    });
+
+    it('should scale with m', () => {
+      assertCloseTo(
+        getCompletionAward(4),
+        (getCompletionAward(4, DESIGN_DOC_PARAMS) * RANK_POINTS_PARAMS.m) /
+          DESIGN_DOC_PARAMS.m,
+        5e-10
+      );
     });
   });
 
   describe('getRankPoints', () => {
-    // "Worked values" table from the design document. Allow ±1 for rounding
-    // differences between the document's rendering and Math.round.
-    // prettier-ignore
+    // "Worked values" table from the design document (original gamma and m).
+    // Allow ±1 for rounding differences between the document's rendering and
+    // Math.round.
     for (const [tier, n, rank, expected] of [
-      // Tier | N | Rank | Expected
+      // [tier, N, rank, expected]
       [1, 50, 1, 1066],
       [1, 50, 10, 386],
       [1, 50, 50, 66],
@@ -98,8 +115,38 @@ describe('rank-points', () => {
       [8, 17, 10, 1014],
       [8, 17, 17, 399]
     ]) {
-      it(`tier ${tier}, N=${n}, rank ${rank} should pay about ${expected} points`, () => {
-        assert.ok(Math.abs(getRankPoints(rank, n, tier) - expected) <= 1);
+      it(`design document: tier ${tier}, N=${n}, rank ${rank} should pay about ${expected} points`, () => {
+        assert.ok(
+          Math.abs(
+            getRankPoints(rank, n, tier, 1, DESIGN_DOC_PARAMS) - expected
+          ) <= 1
+        );
+      });
+    }
+
+    // The same kind of table at the current parameters (gamma 0.5, m 0.1),
+    // so retuning them is a deliberate, visible change.
+    for (const [tier, n, rank, expected] of [
+      // [tier, N, rank, expected]
+      [1, 50, 1, 1026],
+      [1, 50, 10, 230],
+      [1, 50, 50, 26],
+      [1, 1000, 1, 2796],
+      [1, 1000, 2, 1958],
+      [1, 1000, 10, 840],
+      [1, 1000, 100, 222],
+      [1, 1000, 500, 64],
+      [1, 1000, 1000, 26],
+      [4, 295, 1, 4010],
+      [4, 295, 10, 1140],
+      [4, 295, 100, 233],
+      [4, 295, 295, 57],
+      [8, 17, 1, 4347],
+      [8, 17, 10, 567],
+      [8, 17, 17, 160]
+    ]) {
+      it(`current params: tier ${tier}, N=${n}, rank ${rank} should pay ${expected} points`, () => {
+        assert.equal(getRankPoints(rank, n, tier), expected);
       });
     }
 
