@@ -231,15 +231,57 @@
           </div>
         }
         @if (isPaged) {
+          <!-- With group jumps, the double arrows (and the page report, to keep it before them) come from the start/end
+               slots instead of the built-ins. The slots' margins are cleared so they sit where the built-ins would. -->
           <p-paginator
-            class="mt-4 block"
+            class="mt-4 block [&_.p-paginator-content-end]:m-0 [&_.p-paginator-content-start]:m-0"
             (onPageChange)="onPageChange($event)"
             [first]="skip"
             [rows]="take"
             [totalRecords]="totalCount"
-            [showCurrentPageReport]="true"
+            [showCurrentPageReport]="!jumpsByGroup"
+            [showFirstLastIcon]="!jumpsByGroup"
+            [templateLeft]="jumpsByGroup ? previousGroupJump : null"
+            [templateRight]="jumpsByGroup ? nextGroupJump : null"
             [alwaysShow]="false"
           />
+          <ng-template #previousGroupJump>
+            <div class="flex items-center">
+              <span class="p-paginator-current">{{ pageReport }}</span>
+              @if (previousGroupBoundary; as target) {
+                <button
+                  type="button"
+                  class="p-paginator-first"
+                  [attr.aria-label]="'Jump to ' + target.label"
+                  [mTooltip]="'Jump to ' + target.label + ' (rank ' + (target.rank | numberWithCommas) + ')'"
+                  (click)="jumpToRank(target.rank)"
+                >
+                  <svg data-p-icon="angle-double-left" class="p-paginator-first-icon"></svg>
+                </button>
+              } @else {
+                <button type="button" class="p-paginator-first p-disabled" disabled aria-label="Jump to previous group">
+                  <svg data-p-icon="angle-double-left" class="p-paginator-first-icon"></svg>
+                </button>
+              }
+            </div>
+          </ng-template>
+          <ng-template #nextGroupJump>
+            @if (nextGroupBoundary; as target) {
+              <button
+                type="button"
+                class="p-paginator-last"
+                [attr.aria-label]="'Jump to ' + target.label"
+                [mTooltip]="'Jump to ' + target.label + ' (rank ' + (target.rank | numberWithCommas) + ')'"
+                (click)="jumpToRank(target.rank)"
+              >
+                <svg data-p-icon="angle-double-right" class="p-paginator-last-icon"></svg>
+              </button>
+            } @else {
+              <button type="button" class="p-paginator-last p-disabled" disabled aria-label="Jump to next group">
+                <svg data-p-icon="angle-double-right" class="p-paginator-last-icon"></svg>
+              </button>
+            }
+          </ng-template>
         }
       </div>
     }
