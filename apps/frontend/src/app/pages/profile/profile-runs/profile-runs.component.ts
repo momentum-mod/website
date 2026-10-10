@@ -15,6 +15,7 @@ import {
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
+import { getRankGroup, RANK_GROUP_TOP_RANKS } from '@momentum/xp-systems';
 import { UsersService } from '../../../services/data/users.service';
 import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
@@ -130,6 +131,17 @@ export class ProfileRunsComponent implements OnChanges {
   protected onPageChange(event: PaginatorState): void {
     this.skip = event.first;
     this.load.next();
+  }
+
+  /**
+   * Where the run places on its leaderboard: WR, Top 10, or its cosmetic
+   * percentile group. Null below the last group.
+   */
+  protected rankGroup(run: LeaderboardRun): string | null {
+    if (run.rank === 1) return 'WR';
+    if (run.rank <= RANK_GROUP_TOP_RANKS) return 'Top 10';
+    const group = run.totalRuns ? getRankGroup(run.rank, run.totalRuns) : null;
+    return group ? `Group ${group.group}` : null;
   }
 
   protected trackName(run: LeaderboardRun): string | null {
