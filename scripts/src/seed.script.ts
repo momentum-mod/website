@@ -147,6 +147,14 @@ const weights = {
 const randRange = ({ min, max }: { min: number; max: number }) =>
   Random.int(max, min);
 
+// Ranks break time ties by createdAt, so runs on one leaderboard need distinct
+// dates
+const distinctPastDates = (count: number): Date[] => {
+  const dates = new Set<number>();
+  while (dates.size < count) dates.add(Random.pastDateInYears().getTime());
+  return [...dates].map((ms) => new Date(ms));
+};
+
 const xpSystems = new XpSystems();
 const randomLevelAndXp = () => {
   const level = Random.int(1, COS_XP_PARAMS.levels.maxLevels - 1);
@@ -895,10 +903,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
         const usedUserIDs = [];
 
         let time = Random.float(5, 30);
+        const runDates = distinctPastDates(numPastRuns);
 
         await Promise.all(
           arrayFrom(numPastRuns, (i) => {
             time += Random.float(0, 5);
+            const createdAt = runDates[i];
 
             const createLbRun = i < numRuns;
             let userID: number;
@@ -918,12 +928,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 trackNum,
                 style,
                 time,
+                createdAt,
                 leaderboardRun: createLbRun
                   ? {
                       create: {
                         mmap: { connect: { id: mapID } },
                         user: { connect: { id: userID } },
                         time,
+                        createdAt,
                         // Just any SHA1 hash is fine so long as unique, so game
                         // can use for unique compator on these
                         replayHash: createHash('sha1')
