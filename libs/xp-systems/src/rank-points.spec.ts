@@ -1,10 +1,14 @@
+import { TrackType } from '@momentum/constants';
 import {
+  BONUS_POOL_FRACTION,
   getCompletionAward,
   getRankPoints,
   getRankPointsBreakdown,
   getRankShare,
   getTierMultiplier,
-  RANK_POINTS_PARAMS
+  getTrackWeight,
+  RANK_POINTS_PARAMS,
+  STAGE_POOL_FRACTION
 } from './rank-points';
 
 describe('rank-points', () => {
@@ -136,9 +140,63 @@ describe('rank-points', () => {
 
     it('uses custom params when provided', () => {
       const params = { ...RANK_POINTS_PARAMS, m: 0 };
-      const breakdown = getRankPointsBreakdown(10, 10, 1, params);
+      const breakdown = getRankPointsBreakdown(10, 10, 1, 1, params);
       expect(breakdown.completionPoints).toBe(0);
-      expect(breakdown.points).toBe(0);
+      // Nothing earned, but a finish is always worth at least 1.
+      expect(breakdown.points).toBe(1);
+    });
+  });
+
+  describe('getTrackWeight', () => {
+    it('is 1 for main tracks regardless of count', () => {
+      expect(getTrackWeight(TrackType.MAIN, 0)).toBe(1);
+      expect(getTrackWeight(TrackType.MAIN, 7)).toBe(1);
+    });
+
+    it('splits the stage fraction across stages', () => {
+      expect(getTrackWeight(TrackType.STAGE, 10)).toBe(0.05);
+      expect(getTrackWeight(TrackType.STAGE, 1)).toBe(STAGE_POOL_FRACTION);
+    });
+
+    it('splits the bonus fraction across bonuses', () => {
+      expect(getTrackWeight(TrackType.BONUS, 4)).toBe(0.0625);
+      expect(getTrackWeight(TrackType.BONUS, 1)).toBe(BONUS_POOL_FRACTION);
+    });
+
+    it('never divides by zero', () => {
+      expect(getTrackWeight(TrackType.STAGE, 0)).toBe(STAGE_POOL_FRACTION);
+    });
+  });
+
+  describe('weighted points', () => {
+    it('scales the unrounded score by the weight', () => {
+      const full = getRankPointsBreakdown(3, 40, 4);
+      const weighted = getRankPointsBreakdown(3, 40, 4, 0.05);
+      expect(weighted.rankPoints).toBeCloseTo(full.rankPoints * 0.05, 9);
+      expect(weighted.completionPoints).toBeCloseTo(
+        full.completionPoints * 0.05,
+        9
+      );
+      expect(weighted.points).toBe(
+        Math.round((full.rankPoints + full.completionPoints) * 0.05)
+      );
+    });
+
+    it('makes a full set of stages worth about half the main track', () => {
+      // Same field finishing the main track and all 10 stages.
+      const stages = 10;
+      const weight = getTrackWeight(TrackType.STAGE, stages);
+      const main = getRankPoints(1, 100, 3);
+      const allStages = stages * getRankPoints(1, 100, 3, weight);
+      expect(allStages / main).toBeCloseTo(STAGE_POOL_FRACTION, 2);
+    });
+
+    it('never rounds a finish down to 0', () => {
+      expect(getRankPoints(500, 500, 1, 0.001)).toBe(1);
+    });
+
+    it('rejects a non-positive weight', () => {
+      expect(() => getRankPoints(1, 10, 1, 0)).toThrow(RangeError);
     });
   });
 });
