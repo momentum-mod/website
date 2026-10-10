@@ -26,6 +26,7 @@ import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from '@openng/optimus-ui/api';
 import { SelectModule } from '@openng/optimus-ui/select';
+import { PaginatorModule, PaginatorState } from '@openng/optimus-ui/paginator';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import {
   GroupedMapLeaderboard,
@@ -37,7 +38,6 @@ import { map } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HiddenLeaderboardsInfoComponent } from '../../../../components/tooltips/hidden-leaderboards-info.component';
 import { UnrankedLeaderboardsInfoComponent } from '../../../../components/tooltips/unranked-leaderboards-info.component';
-import { SpinnerComponent } from '../../../../components/spinner/spinner.component';
 import { SpinnerDirective } from '../../../../directives/spinner.directive';
 import { UserComponent } from '../../../../components/user/user.component';
 import { LeaderboardsService } from '../../../../services/data/leaderboards.service';
@@ -74,7 +74,7 @@ export interface ActiveTrack {
   templateUrl: 'map-leaderboard.component.html',
   imports: [
     SelectModule,
-    SpinnerComponent,
+    PaginatorModule,
     SpinnerDirective,
     UserComponent,
     HiddenLeaderboardsInfoComponent,
@@ -105,7 +105,7 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly floor = Math.floor;
   protected readonly LeaderboardFilterTypeDropdown = [
-    { label: 'Top 10', type: LeaderboardFilterType.TOP10 },
+    { label: 'Top', type: LeaderboardFilterType.TOP10 },
     { label: 'Around', type: LeaderboardFilterType.AROUND },
     { label: 'Friend', type: LeaderboardFilterType.FRIENDS }
   ];
@@ -128,6 +128,14 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly activeTags = signal<MapTag[] | null>(null);
 
   protected readonly runs = signal<LeaderboardRun[]>([]);
+  protected readonly totalCount = signal(0);
+  protected readonly skip = signal(0);
+  protected readonly take = 10;
+
+  /** "Around" is a fixed window centred on the user, so it isn't paged. */
+  protected readonly isPaged = computed(
+    () => this.activeType() !== LeaderboardFilterType.AROUND
+  );
 
   /** Whether the current leaderboard awards rank points. */
   protected readonly hasPoints = computed(() =>
@@ -155,17 +163,29 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeStyle.set(this.groupStyle(mode));
 
     this.updateTags();
-    this.load.next();
+    this.reload();
   }
 
   selectTrack(type: TrackType, num: number) {
     this.activeTrack.set({ type, num });
     this.updateTags();
-    this.load.next();
+    this.reload();
   }
 
   selectStyle(style: Style) {
     this.activeStyle.set(style);
+    this.reload();
+  }
+
+  /** Load the first page. */
+  reload() {
+    this.skip.set(0);
+    this.load.next();
+  }
+
+  protected onPageChange(event: PaginatorState): void {
+    if (event.first === this.skip()) return;
+    this.skip.set(event.first);
     this.load.next();
   }
 
@@ -177,7 +197,8 @@ export class MapLeaderboardComponent implements OnChanges {
             this.activeMode(),
             this.activeTrack(),
             this.activeType(),
-            this.activeStyle()
+            this.activeStyle(),
+            this.skip()
           ])
         ),
         tap(() => this.loading.set(true)),
@@ -187,6 +208,7 @@ export class MapLeaderboardComponent implements OnChanges {
       .subscribe({
         next: (response) => {
           this.runs.set(response.data);
+          this.totalCount.set(response.totalCount);
           this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
@@ -218,7 +240,7 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeStyle.set(this.groupStyle(activeMode));
     this.activeTags.set(activeMode.tags ?? []);
 
-    this.load.next();
+    this.reload();
   }
 
   private groupStyle(group: GroupedMapLeaderboard): Style {
@@ -232,7 +254,8 @@ export class MapLeaderboardComponent implements OnChanges {
     const activeTrack = this.activeTrack();
     const query: MapLeaderboardGetQuery = {
       gamemode,
-      take: 10,
+      take: this.take,
+      ...(this.isPaged() && { skip: this.skip() }),
       trackType: activeTrack.type,
       trackNum: activeTrack.num,
       style: this.activeStyle()
