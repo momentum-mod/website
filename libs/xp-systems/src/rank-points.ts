@@ -1,3 +1,5 @@
+import { TrackType } from '@momentum/constants';
+
 /**
  * Rank points model.
  *
@@ -12,8 +14,19 @@
  *   s(rank, N) = (rank^-γ - N^-γ) / (1 - N^-γ)  -- share of pool, 1 at WR, 0 at last
  *   M(tier)    = m · P · T(tier)            -- completion award
  *
- * A player's total for a gamemode+style ladder is the plain, unweighted sum of
- * their scores across every eligible board. No decay, no cap, no floor.
+ * Stages and bonuses are scored the same way, then weighted so each kind of
+ * track shares a fixed fraction of what the map's main track is worth:
+ *
+ *   main:  score
+ *   stage: score · STAGE_POOL_FRACTION / (stages on the map)
+ *   bonus: score · BONUS_POOL_FRACTION / (ranked bonuses on the map)
+ *
+ * So finishing every stage is worth roughly half the main track, and every
+ * ranked bonus roughly a quarter, however many of them a map has. Stages have
+ * no tier of their own and use the main track's.
+ *
+ * A player's total for a gamemode+style ladder is the plain sum of their
+ * weighted scores across every eligible board. No decay, no cap.
  *
  * Constants were fitted against production Surf and Bhop ranked main-track
  * data. See the design and calibration documents for the reasoning behind
@@ -45,15 +58,47 @@ export const RANK_POINTS_PARAMS: Readonly<RankPointsParams> = Object.freeze({
  * Bump whenever RANK_POINTS_PARAMS or the formula changes, so persisted
  * totals derived from the old model get regenerated.
  */
-export const RANK_POINTS_VERSION = 1;
+export const RANK_POINTS_VERSION = 2;
+
+/** What all of a map's stages together are worth, relative to its main track. */
+export const STAGE_POOL_FRACTION = 0.5;
+
+/**
+ * What all of a map's ranked bonuses together are worth, relative to its main
+ * track.
+ */
+export const BONUS_POOL_FRACTION = 0.25;
+
+/**
+ * Multiplier for a board's score based on its track type.
+ *
+ * @param trackCount For stages, how many the map has; for bonuses, how many
+ *   *ranked* bonuses it has (both for the board's gamemode+style). Ignored for
+ *   main tracks.
+ */
+export function getTrackWeight(
+  trackType: TrackType,
+  trackCount: number
+): number {
+  switch (trackType) {
+    case TrackType.MAIN:
+      return 1;
+    case TrackType.STAGE:
+      return STAGE_POOL_FRACTION / Math.max(1, trackCount);
+    case TrackType.BONUS:
+      return BONUS_POOL_FRACTION / Math.max(1, trackCount);
+  }
+}
 
 export interface RankPointsBreakdown {
   /** Total rounded points for this run. */
   points: number;
-  /** Points from rank share of the pool, before rounding. */
+  /** Points from rank share of the pool, weighted, before rounding. */
   rankPoints: number;
-  /** Flat completion award, before rounding. */
+  /** Flat completion award, weighted, before rounding. */
   completionPoints: number;
+  /** Track weight applied to both of the above. See `getTrackWeight`. */
+  weight: number;
   /** Pool value V(tier, N) the rank share is taken from. */
   poolValue: number;
   /** Rank share s(rank, N) in [0, 1]. */
@@ -116,12 +161,14 @@ export function getCompletionAward(
  * @param rank 1-based rank of the run on its board (ties broken by submission
  *   date, so ranks are unique)
  * @param completions Number of runs on the board (N)
- * @param tier Leaderboard tier, 1-10
+ * @param tier Leaderboard tier, 1-10 (a stage uses its main track's tier)
+ * @param weight Track weight, see `getTrackWeight`. 1 for main tracks.
  */
 export function getRankPointsBreakdown(
   rank: number,
   completions: number,
   tier: number,
+  weight = 1,
   params: RankPointsParams = RANK_POINTS_PARAMS
 ): RankPointsBreakdown {
   if (!Number.isInteger(rank) || rank < 1)
@@ -132,19 +179,23 @@ export function getRankPointsBreakdown(
     );
   if (!Number.isInteger(tier) || tier < 1)
     throw new RangeError(`tier must be a positive integer, got ${tier}`);
+  if (!(weight > 0))
+    throw new RangeError(`weight must be positive, got ${weight}`);
 
   const poolValue = getPoolValue(tier, completions, params);
   const share = getRankShare(rank, completions, params);
-  const rankPoints = poolValue * share;
-  const completionPoints = getCompletionAward(tier, params);
+  const rankPoints = poolValue * share * weight;
+  const completionPoints = getCompletionAward(tier, params) * weight;
 
   return {
     // Integers are deliberate: sums of integers stay exact in doubles, so
     // repeatedly adding and subtracting a track's points from a ladder total
-    // never accumulates floating point drift.
-    points: Math.round(rankPoints + completionPoints),
+    // never accumulates floating point drift. Every finish is worth at least
+    // 1, so a heavily divided stage or bonus never rounds away to nothing.
+    points: Math.max(1, Math.round(rankPoints + completionPoints)),
     rankPoints,
     completionPoints,
+    weight,
     poolValue,
     share
   };
@@ -157,7 +208,8 @@ export function getRankPoints(
   rank: number,
   completions: number,
   tier: number,
+  weight = 1,
   params: RankPointsParams = RANK_POINTS_PARAMS
 ): number {
-  return getRankPointsBreakdown(rank, completions, tier, params).points;
+  return getRankPointsBreakdown(rank, completions, tier, weight, params).points;
 }
