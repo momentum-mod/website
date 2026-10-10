@@ -7,7 +7,7 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { getRankPoints } from '@momentum/xp-systems';
+import { getRankPoints, getTrackWeight } from '@momentum/xp-systems';
 import { RankEntryDto } from '../../backend/src/app/dto';
 import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
 import {
@@ -25,12 +25,19 @@ describe('Ranks', () => {
     describe('GET', () => {
       let u1, u2, u3, u3Token, noRunsToken, map1, map2;
 
-      // map1 is tier 1 with 3 runs, map2 is tier 3 with 2 runs.
+      // map1 is tier 1 with 3 runs, map2 is tier 3 with 2 runs. map1 also has a
+      // single tier 1 bonus that only u1 has finished.
       const map1Points = (rank: number) => getRankPoints(rank, 3, 1);
       const map2Points = (rank: number) => getRankPoints(rank, 2, 3);
+      const map1BonusPoints = getRankPoints(
+        1,
+        1,
+        1,
+        getTrackWeight(TrackType.BONUS, 1)
+      );
       const expectedLadder = () =>
         [
-          [u1.id, map1Points(1)],
+          [u1.id, map1Points(1) + map1BonusPoints],
           [u2.id, map1Points(2) + map2Points(1)],
           [u3.id, map1Points(3) + map2Points(2)]
         ]
@@ -60,8 +67,7 @@ describe('Ranks', () => {
           }
         });
 
-        // An unranked leaderboard, and a bonus track, neither of which should
-        // award points.
+        // An unranked leaderboard, which shouldn't award points.
         await prisma.leaderboard.create({
           data: {
             mapID: map1.id,
@@ -101,7 +107,7 @@ describe('Ranks', () => {
         await db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap');
       });
 
-      it('should return the ladder ordered by points, summing only ranked main tracks', async () => {
+      it('should return the ladder ordered by points, summing only ranked leaderboards', async () => {
         const res = await req.get({
           url: `ranks/${Gamemode.AHOP}`,
           status: 200,
