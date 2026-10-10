@@ -27,6 +27,15 @@ import { Observable, Subject, switchMap, tap } from 'rxjs';
 import { MessageService } from '@openng/optimus-ui/api';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { PaginatorModule, PaginatorState } from '@openng/optimus-ui/paginator';
+import {
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon
+} from '@openng/optimus-ui/icons';
+import {
+  getRankGroupEnds,
+  RANK_GROUP_COUNT,
+  RANK_GROUP_TOP_RANKS
+} from '@momentum/xp-systems';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import {
   GroupedMapLeaderboard,
@@ -64,6 +73,12 @@ enum LeaderboardFilterType {
   FRIENDS = 3
 }
 
+interface GroupBoundary {
+  label: string;
+  /** First rank of the section. */
+  rank: number;
+}
+
 export interface ActiveTrack {
   type: TrackType;
   num: number;
@@ -75,6 +90,8 @@ export interface ActiveTrack {
   imports: [
     SelectModule,
     PaginatorModule,
+    AngleDoubleLeftIcon,
+    AngleDoubleRightIcon,
     SpinnerDirective,
     UserComponent,
     HiddenLeaderboardsInfoComponent,
@@ -146,6 +163,79 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly hasPoints = computed(() =>
     this.runs().some((run) => run.points != null)
   );
+
+  /**
+   * Whether the paginator's double arrows jump between rank group boundaries
+   * rather than to the first/last page. Not with the friends filter, whose
+   * total count is only the friends rather than the whole board.
+   */
+  protected readonly jumpsByGroup = computed(
+    () => this.activeType() !== LeaderboardFilterType.FRIENDS
+  );
+
+  /**
+   * Where each section of the board starts: the top 10, each rank group, and
+   * the runs past the last group. Only sections that start on different
+   * pages, and that exist on this board.
+   */
+  private readonly groupBoundaries = computed((): GroupBoundary[] => {
+    const totalCount = this.totalCount();
+    const boundaries: GroupBoundary[] = [{ label: 'Top 10', rank: 1 }];
+    const ends = getRankGroupEnds(totalCount);
+    for (let group = 1; group <= RANK_GROUP_COUNT; group++) {
+      boundaries.push({
+        label: `Group ${group}`,
+        rank: group === 1 ? RANK_GROUP_TOP_RANKS + 1 : ends[group - 2] + 1
+      });
+    }
+    boundaries.push({
+      label: `ranks past Group ${RANK_GROUP_COUNT}`,
+      rank: ends.at(-1) + 1
+    });
+
+    return boundaries.filter(
+      ({ rank }, i) =>
+        rank <= totalCount &&
+        (i === 0 || this.pageOf(rank) !== this.pageOf(boundaries[i - 1].rank))
+    );
+  });
+
+  /**
+   * The next boundary on a later page. Past the last boundary, the last run
+   * on the board, so the end is still reachable.
+   */
+  protected readonly nextGroupBoundary = computed((): GroupBoundary | null => {
+    const totalCount = this.totalCount();
+    const page = this.pageOf(this.skip() + 1);
+    const next = this.groupBoundaries().find(
+      ({ rank }) => this.pageOf(rank) > page
+    );
+    if (next) return next;
+    if (this.pageOf(totalCount) > page)
+      return { label: 'last place', rank: totalCount };
+    return null;
+  });
+
+  /**
+   * The nearest boundary on an earlier page: the start of the current section,
+   * or of the previous one if already on the current section's first page.
+   */
+  protected readonly previousGroupBoundary = computed(
+    (): GroupBoundary | null => {
+      const page = this.pageOf(this.skip() + 1);
+      return (
+        this.groupBoundaries().findLast(
+          ({ rank }) => this.pageOf(rank) < page
+        ) ?? null
+      );
+    }
+  );
+
+  protected readonly pageReport = computed(
+    () =>
+      `${this.pageOf(this.skip() + 1)} of ${this.pageOf(this.totalCount())}`
+  );
+
   protected readonly load = new Subject<void>();
   protected readonly loading = signal(false);
 
@@ -235,6 +325,15 @@ export class MapLeaderboardComponent implements OnChanges {
     if (event.first === this.skip()) return;
     this.skip.set(event.first);
     this.load.next();
+  }
+
+  protected jumpToRank(rank: number): void {
+    this.onPageChange({ first: (this.pageOf(rank) - 1) * this.take });
+  }
+
+  /** 1-based page containing a rank. */
+  private pageOf(rank: number): number {
+    return Math.max(1, Math.ceil(rank / this.take));
   }
 
   constructor() {
