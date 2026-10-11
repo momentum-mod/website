@@ -1,24 +1,17 @@
-import { HttpService } from '@nestjs/axios';
 import {
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { catchError, lastValueFrom, map, of } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { SteamFriendData, SteamUserSummaryData } from './steam.interface';
-import { AxiosError } from 'axios';
 import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class SteamService {
-  constructor(
-    private readonly http: HttpService,
-    private readonly config: ConfigService
-  ) {
+  constructor(private readonly config: ConfigService) {
     this.steamApiKey = this.config.getOrThrow('steam.webAPIKey');
     this.steamTicketsSecretKey = this.config.getOrThrow(
       'steam.ticketsSecretKey'
@@ -34,40 +27,43 @@ export class SteamService {
   async getSteamUserSummaryData(
     steamID: bigint
   ): Promise<SteamUserSummaryData> {
-    const getPlayerResponse = await lastValueFrom(
-      this.http.get(
+    try {
+      const getPlayerResponse = await fetch(
         this.config.get('steam.webAPIUrl') +
-          '/ISteamUser/GetPlayerSummaries/v2/',
-        {
-          params: {
+          '/ISteamUser/GetPlayerSummaries/v2/?' +
+          new URLSearchParams({
             key: this.config.getOrThrow('steam.webAPIKey'),
             steamids: steamID.toString()
-          },
-          validateStatus: () => true
+          })
+      );
+
+      await this.reportOnRateLimit(getPlayerResponse);
+
+      const getPlayerData = await getPlayerResponse.json();
+      const userSummary = getPlayerData.response?.players?.[0];
+
+      if (
+        !userSummary ||
+        getPlayerData.response.error ||
+        userSummary.personaname === undefined ||
+        !userSummary.avatarhash
+      ) {
+        if (Sentry.isInitialized()) {
+          Sentry.setContext('Steam Response', {
+            data: userSummary,
+            headers: getPlayerResponse.headers
+          });
+          Sentry.getCurrentScope().setLevel('log');
+          Sentry.captureException('Invalid data on user summary');
         }
-      )
-    );
 
-    if (getPlayerResponse.status === 429 && Sentry.isInitialized()) {
-      Sentry.setContext('Steam Response', {
-        data: getPlayerResponse.data,
-        headers: getPlayerResponse.headers
-      });
-      Sentry.getCurrentScope().setLevel('log');
-      Sentry.captureException('Recieved rate limit from Steam');
-    }
+        throw new Error('Invalid data on user summary');
+      }
 
-    const userSummary = getPlayerResponse.data?.response?.players?.[0];
-
-    if (
-      !userSummary ||
-      getPlayerResponse.data.response.error ||
-      userSummary.personaname === undefined ||
-      !userSummary.avatarhash
-    )
+      return userSummary;
+    } catch {
       throw new ServiceUnavailableException('Failed to get player summary');
-
-    return userSummary;
+    }
   }
 
   /**
@@ -76,39 +72,31 @@ export class SteamService {
    * be left uncaught if you want to throw an error response if this fails.
    */
   async getSteamFriends(steamID: bigint): Promise<SteamFriendData[]> {
-    return lastValueFrom(
-      this.http
-        .get(
-          this.config.get('steam.webAPIUrl') + '/ISteamUser/GetFriendList/v1/',
-          {
-            params: {
-              key: this.steamApiKey,
-              steamID: steamID,
-              relationship: 'friend'
-            }
-          }
-        )
-        .pipe(
-          map((res) => res?.data?.friendslist?.friends),
-          catchError((error: AxiosError) => {
-            if (error.response) {
-              if (error.response.status === 401) {
-                throw new ConflictException(
-                  'User has private Steam friends list'
-                );
-              } else {
-                throw new InternalServerErrorException(
-                  `ISteamUser/GetFriendList/v1/ returned ${error.status}, which we don't know how to handle!`
-                );
-              }
-            } else {
-              throw new ServiceUnavailableException(
-                'Steam friends list API did not respond to our request'
-              );
-            }
+    try {
+      const response = await fetch(
+        this.config.get('steam.webAPIUrl') +
+          '/ISteamUser/GetFriendList/v1/?' +
+          new URLSearchParams({
+            key: this.steamApiKey,
+            steamID: steamID.toString(),
+            relationship: 'friend'
           })
-        )
-    );
+      );
+
+      await this.reportOnRateLimit(response);
+
+      if (response.status === 401) {
+        throw new ConflictException('User has private Steam friends list');
+      }
+
+      const data = await response.json();
+
+      return data?.friendslist?.friends;
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to fetch player steam friends'
+      );
+    }
   }
 
   /**
@@ -121,38 +109,35 @@ export class SteamService {
     ticket: string,
     appID: number
   ): Promise<bigint> {
-    const steamResponse = await lastValueFrom(
-      this.http
-        .get(
-          this.config.get('steam.webAPIUrl') +
-            '/ISteamUserAuth/AuthenticateUserTicket/v1/',
-          {
-            params: {
-              key: this.config.getOrThrow('steam.webAPIKey'),
-              appid: appID,
-              ticket: ticket
-            }
-          }
-        )
-        .pipe(map((res) => res.data))
-        .pipe(
-          catchError((_) => {
-            throw new ServiceUnavailableException(
-              'Failed to authenticate user with Steam'
-            );
+    try {
+      const steamResponse = await fetch(
+        this.config.get('steam.webAPIUrl') +
+          '/ISteamUserAuth/AuthenticateUserTicket/v1/?' +
+          new URLSearchParams({
+            key: this.config.getOrThrow('steam.webAPIKey'),
+            appid: appID.toString(),
+            ticket: ticket
           })
-        )
-    );
+      );
 
-    if (
-      !steamResponse ||
-      steamResponse.response.error ||
-      steamResponse.response.params.result !== 'OK' ||
-      !steamResponse.response.params.steamid
-    )
-      throw new UnauthorizedException('Invalid user ticket');
+      await this.reportOnRateLimit(steamResponse);
 
-    return BigInt(steamResponse.response.params.steamid);
+      const steamData = await steamResponse.json();
+
+      if (
+        !steamData ||
+        steamData.response.error ||
+        steamData.response.params.result !== 'OK' ||
+        !steamData.response.params.steamid
+      )
+        throw new UnauthorizedException('Invalid user ticket');
+
+      return BigInt(steamData.params.steamid);
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to authenticate user with Steam'
+      );
+    }
   }
 
   /**
@@ -186,67 +171,81 @@ export class SteamService {
     /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/
   );
 
+  async fetchAccountCommunityData(steamID: bigint): Promise<string> {
+    try {
+      const response = await fetch(
+        `https://steamcommunity.com/profiles/${steamID}?xml=1`
+      );
+
+      await this.reportOnRateLimit(response);
+
+      return await response.text();
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to get limited status from Steam'
+      );
+    }
+  }
+
   /**
    * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5
    * or more on Steam, or hasn't even set up a Steam Community profile.
    *
    * Unfortunately Steam Web API doesn't supply this anywhere, so we have to use
    * this messier method of parsing the profile page as XML.
-   *
-   * Note that steamcommunity.com rate-limits much more aggressively than the
-   * Web API, and it's easy to get a 429 here through no fault of the user. This
-   * check is only a spam deterrent rather than a security boundary, so if Steam
-   * won't answer we fail open and treat the account as unlimited - previously
-   * we threw, which turned a transient rate limit into a failed login.
    */
-  isAccountLimited(steamID: bigint): Promise<boolean> {
-    return lastValueFrom(
-      this.http
-        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`, {
-          validateStatus: () => true
-        })
-        .pipe(
-          map((res) => {
-            if (res.status !== 200) {
-              this.reportLimitedCheckFailure(steamID, res.status);
-              return false;
-            }
-
-            const found = this.limitedAccountRegex.exec(res.data);
-
-            // Block doesn't exist, doesn't have a profile setup
-            if (!found) {
-              return true;
-            }
-
-            // We're in a block like <isLimitedAccount>0</isLimitedAccount>
-            return found[0] === '1';
-          }),
-          // Request never completed at all (DNS, timeout, connection reset)
-          catchError((error: AxiosError) => {
-            this.reportLimitedCheckFailure(
-              steamID,
-              error.code ?? error.message
-            );
-            return of(false);
+  async isAccountLimited(steamID: bigint): Promise<boolean> {
+    try {
+      const steamResponse = await fetch(
+        this.config.get('steam.webAPIUrl') +
+          '/IPlayerService/GetSteamLevel/v1/?' +
+          new URLSearchParams({
+            key: this.config.getOrThrow('steam.webAPIKey'),
+            steamid: steamID.toString()
           })
-        )
-    );
+      );
+
+      await this.reportOnRateLimit(steamResponse);
+
+      const steamData = await steamResponse.json();
+
+      if (
+        !steamData.response.player_level &&
+        steamData.response.player_level !== 0
+      ) {
+        // Fallback to steamcommunity data
+        const communityData = await this.fetchAccountCommunityData(steamID);
+        const found = this.limitedAccountRegex.exec(communityData);
+
+        // Block doesn't exist, doesn't have a profile setup
+        if (!found) {
+          return true;
+        }
+
+        // We're in a block like <isLimitedAccount>0</isLimitedAccount>
+        return found[0] === '1';
+      }
+
+      return steamData.response.player_level === 0;
+    } catch {
+      throw new ServiceUnavailableException(
+        'Failed to get player level from Steam'
+      );
+    }
   }
 
-  private reportLimitedCheckFailure(
-    steamID: bigint,
-    reason: string | number
-  ): void {
-    if (!Sentry.isInitialized()) return;
+  private async reportOnRateLimit(resp: Response) {
+    if (resp.status === 429) {
+      if (Sentry.isInitialized()) {
+        Sentry.setContext('Steam Response', {
+          data: await resp.text(),
+          headers: resp.headers
+        });
+        Sentry.getCurrentScope().setLevel('log');
+        Sentry.captureException('Recieved rate limit from Steam');
+      }
 
-    Sentry.setContext('Steam Response', {
-      steamID: steamID.toString(),
-      reason
-    });
-    Sentry.getCurrentScope().setLevel('log');
-    Sentry.captureException(
-      'Failed to get limited status from Steam, treating account as unlimited'
-    );
+      throw new Error('Recieved rate limit from Steam');
+    }
   }
 }
