@@ -7,7 +7,7 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { catchError, lastValueFrom, map, of } from 'rxjs';
+import { catchError, lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { SteamFriendData, SteamUserSummaryData } from './steam.interface';
 import { AxiosError } from 'axios';
@@ -192,61 +192,40 @@ export class SteamService {
    *
    * Unfortunately Steam Web API doesn't supply this anywhere, so we have to use
    * this messier method of parsing the profile page as XML.
-   *
-   * Note that steamcommunity.com rate-limits much more aggressively than the
-   * Web API, and it's easy to get a 429 here through no fault of the user. This
-   * check is only a spam deterrent rather than a security boundary, so if Steam
-   * won't answer we fail open and treat the account as unlimited - previously
-   * we threw, which turned a transient rate limit into a failed login.
    */
-  isAccountLimited(steamID: bigint): Promise<boolean> {
-    return lastValueFrom(
+  async isAccountLimited(steamID: bigint): Promise<boolean> {
+    const steamResponse = await lastValueFrom(
       this.http
-        .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`, {
-          validateStatus: () => true
-        })
+        .get(
+          this.config.get('steam.webAPIUrl') +
+            '/IPlayerService/GetSteamLevel/v1/',
+          {
+            params: {
+              key: this.config.getOrThrow('steam.webAPIKey'),
+              steamid: steamID
+            },
+            validateStatus: () => true
+          }
+        )
         .pipe(
-          map((res) => {
-            if (res.status !== 200) {
-              this.reportLimitedCheckFailure(steamID, res.status);
-              return false;
-            }
-
-            const found = this.limitedAccountRegex.exec(res.data);
-
-            // Block doesn't exist, doesn't have a profile setup
-            if (!found) {
-              return true;
-            }
-
-            // We're in a block like <isLimitedAccount>0</isLimitedAccount>
-            return found[0] === '1';
-          }),
-          // Request never completed at all (DNS, timeout, connection reset)
-          catchError((error: AxiosError) => {
-            this.reportLimitedCheckFailure(
-              steamID,
-              error.code ?? error.message
+          map((res) => res.data),
+          catchError((_) => {
+            throw new ServiceUnavailableException(
+              'Failed to get limited status from Steam'
             );
-            return of(false);
           })
         )
     );
-  }
 
-  private reportLimitedCheckFailure(
-    steamID: bigint,
-    reason: string | number
-  ): void {
-    if (!Sentry.isInitialized()) return;
+    if (
+      !steamResponse.response.player_level &&
+      steamResponse.response.player_level !== 0
+    ) {
+      throw new ServiceUnavailableException(
+        'Failed to get player Steam level. If your profile is private, make it public temporarily.'
+      );
+    }
 
-    Sentry.setContext('Steam Response', {
-      steamID: steamID.toString(),
-      reason
-    });
-    Sentry.getCurrentScope().setLevel('log');
-    Sentry.captureException(
-      'Failed to get limited status from Steam, treating account as unlimited'
-    );
+    return steamResponse.response.player_level === 0;
   }
 }
