@@ -214,12 +214,13 @@ export class LeaderboardRunsService {
       const [ranks, points] = await Promise.all([
         this.db.$queryRawTyped(
           TypedSql.getUserLeaderboardRunRanks(
-            userID,
             runs.map((run) => run.mapID),
             runs.map((run) => run.gamemode),
             runs.map((run) => run.trackType),
             runs.map((run) => run.trackNum),
-            runs.map((run) => run.style)
+            runs.map((run) => run.style),
+            runs.map((run) => run.time),
+            runs.map((run) => run.createdAt.toISOString())
           )
         ),
         this.rankingService.getUserTrackPoints(userID, runs),
