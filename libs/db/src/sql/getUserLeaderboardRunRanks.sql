@@ -1,45 +1,45 @@
--- @param {Int} $1:userID User ID
--- @param       $2:mapIDs Array of map IDs, parallel with the other arrays
--- @param       $3:gamemodes Array of gamemodes
--- @param       $4:trackTypes Array of track types
--- @param       $5:trackNums Array of track numbers
--- @param       $6:styles Array of styles
+-- @param $1:mapIDs Array of map IDs, parallel with the other arrays
+-- @param $2:gamemodes Array of gamemodes
+-- @param $3:trackTypes Array of track types
+-- @param $4:trackNums Array of track numbers
+-- @param $5:styles Array of styles
+-- @param $6:times Array of the runs' times
+-- @param $7:createdAts Array of the runs' createdAt, as ISO strings
 
--- For a user and a set of leaderboards (given as parallel arrays), returns the
--- user's rank on each leaderboard and the total number of runs on it. Used to
--- decorate a page of a user's runs without a query per run. Leaderboards the
--- user has no run on are omitted.
+-- For a set of runs (given as parallel arrays of their leaderboard, time and
+-- createdAt), returns each run's rank on its leaderboard and the total number
+-- of runs on it. Used to decorate a page of a user's runs without a query per
+-- run.
 --
--- Both subqueries are index-only scans of the leaderboard-order index.
-WITH lbs AS (
+-- The caller already has each run's time and createdAt, so they're passed in
+-- rather than looked up: the planner reaches a user's run through the
+-- leaderboard-order index and filters on userID, reading every run on the
+-- leaderboard. Both counts are index-only scans of that index.
+WITH runs AS (
     SELECT
         *
     FROM
-        unnest($2::int[], $3::smallint[], $4::smallint[], $5::smallint[], $6::smallint[])
-        AS t ("mapID", "gamemode", "trackType", "trackNum", "style")
+        unnest($1::int[], $2::smallint[], $3::smallint[], $4::smallint[], $5::smallint[], $6::float8[], $7::text[])
+        AS t ("mapID", "gamemode", "trackType", "trackNum", "style", "time", "createdAt")
 )
 SELECT
-    lbs."mapID",
-    lbs."gamemode",
-    lbs."trackType",
-    lbs."trackNum",
-    lbs."style",
+    runs."mapID",
+    runs."gamemode",
+    runs."trackType",
+    runs."trackNum",
+    runs."style",
     CAST((
         SELECT
             COUNT(*)
         FROM "LeaderboardRun" faster
         WHERE (faster."mapID", faster."gamemode", faster."trackType", faster."trackNum", faster."style")
-            = (lbs."mapID", lbs."gamemode", lbs."trackType", lbs."trackNum", lbs."style")
-        AND (faster."time", faster."createdAt") < (r."time", r."createdAt")) + 1 AS INT) AS "rank",
+            = (runs."mapID", runs."gamemode", runs."trackType", runs."trackNum", runs."style")
+        AND (faster."time", faster."createdAt") < (runs."time", runs."createdAt"::timestamp(3))) + 1 AS INT) AS "rank",
     CAST((
         SELECT
             COUNT(*)
         FROM "LeaderboardRun" total
         WHERE (total."mapID", total."gamemode", total."trackType", total."trackNum", total."style")
-            = (lbs."mapID", lbs."gamemode", lbs."trackType", lbs."trackNum", lbs."style")) AS INT) AS "totalRuns"
+            = (runs."mapID", runs."gamemode", runs."trackType", runs."trackNum", runs."style")) AS INT) AS "totalRuns"
 FROM
-    lbs
-    INNER JOIN "LeaderboardRun" r
-        ON (r."mapID", r."gamemode", r."trackType", r."trackNum", r."style")
-            = (lbs."mapID", lbs."gamemode", lbs."trackType", lbs."trackNum", lbs."style")
-        AND r."userID" = $1;
+    runs;
