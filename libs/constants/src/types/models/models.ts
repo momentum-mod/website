@@ -477,9 +477,38 @@ export interface Leaderboard {
   linear: boolean;
 }
 
+/**
+ * The components that uniquely identify a leaderboard. Leaderboards have no
+ * numeric ID; they are defined purely in terms of these.
+ */
+export interface LeaderboardIdentifier {
+  mapID: number;
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+}
+
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;
+}
+
+/** A single row of a gamemode+style rank points ladder. */
+export interface RankEntry {
+  rank: number;
+  userID: number;
+  points: number;
+  user: User;
+}
+
+/** A user's position on a single gamemode+style rank points ladder. */
+export interface UserRank {
+  gamemode: Gamemode;
+  style: Style;
+  rank: number;
+  points: number;
+  totalPlayers: number;
 }
 
 export interface LeaderboardRun {
@@ -493,7 +522,17 @@ export interface LeaderboardRun {
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;
-  // rankXP: number;
+  /**
+   * Rank points this run is worth. Only present for runs on leaderboards that
+   * award points (RANKED main tracks on approved maps), and only on endpoints
+   * that look them up.
+   */
+  points?: number;
+  /**
+   * Total number of runs on the run's leaderboard. Only present on endpoints
+   * that look it up (e.g. a user's runs).
+   */
+  totalRuns?: number;
   userID: number;
   user?: User;
   mapID: number;

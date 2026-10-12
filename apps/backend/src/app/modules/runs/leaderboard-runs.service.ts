@@ -7,15 +7,25 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { runPath } from '@momentum/constants';
+import {
+  LeaderboardIdentifier,
+  MapStatus,
+  runPath,
+  TrackType
+} from '@momentum/constants';
+import { Prisma, TypedSql } from '@momentum/db';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
-  LeaderboardRunDto
+  LeaderboardRunDto,
+  UsersGetRunsQueryDto
 } from '../../dto';
+import { RankingService } from '../ranking/ranking.service';
+import { serializeLeaderboard } from '../ranking/rank-points.keys';
+import { UserCacheService } from '../user-cache/user-cache.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
@@ -30,7 +40,9 @@ export class LeaderboardRunsService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly fileStoreService: FileStoreService,
-    private readonly steamService: SteamService
+    private readonly steamService: SteamService,
+    private readonly rankingService: RankingService,
+    private readonly userCache: UserCacheService
   ) {}
 
   async getRuns(
@@ -127,23 +139,151 @@ export class LeaderboardRunsService {
     // is presumably misconfigured in some way). This would be a (minor) perf
     // hit for new maps with no runs yet - not something we should do just to
     // show the right error message. Have left a note in the Swagger docs.
-    return new PagedResponseDto(
-      LeaderboardRunDto,
-      await Promise.all([
-        dbCall,
-        this.db.leaderboardRun.count({
-          where: {
-            mapID: mapID,
-            gamemode: query.gamemode,
-            trackType: query.trackType,
-            trackNum: query.trackNum,
-            style: query.style,
-            ...(steamIDs && { user: { steamID: { in: steamIDs } } }),
-            ...(query.userIDs && { userID: { in: query.userIDs } })
-          }
-        })
-      ])
+    const [runs, totalCount] = await Promise.all([
+      dbCall,
+      this.db.leaderboardRun.count({
+        where: {
+          mapID: mapID,
+          gamemode: query.gamemode,
+          trackType: query.trackType,
+          trackNum: query.trackNum,
+          style: query.style,
+          ...(steamIDs && { user: { steamID: { in: steamIDs } } }),
+          ...(query.userIDs && { userID: { in: query.userIDs } })
+        }
+      })
+    ]);
+
+    await this.attachPoints({ mapID, ...query }, runs);
+
+    return new PagedResponseDto(LeaderboardRunDto, [runs, totalCount]);
+  }
+
+  /**
+   * Attach committed rank points to runs from a single leaderboard. Runs on
+   * leaderboards that don't award points are left untouched.
+   */
+  private async attachPoints(
+    leaderboard: LeaderboardIdentifier,
+    runs: Array<{ userID: number; points?: number }>
+  ): Promise<void> {
+    const points = await this.rankingService.getTrackPoints(
+      leaderboard,
+      runs.map((run) => run.userID)
     );
+
+    for (const [i, run] of runs.entries()) {
+      if (points[i] !== undefined) run.points = points[i];
+    }
+  }
+
+  /**
+   * A user's leaderboard runs, newest first, with rank, total runs on the
+   * leaderboard and rank points. Limited to approved maps so this never leaks
+   * maps the requester can't see.
+   */
+  async getUserRuns(
+    userID: number,
+    query: UsersGetRunsQueryDto
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
+    if (!(await this.userCache.exists(userID)))
+      throw new NotFoundException('User not found');
+
+    const where: Prisma.LeaderboardRunWhereInput = {
+      userID,
+      gamemode: query.gamemode,
+      trackType: query.trackType,
+      trackNum: query.trackNum,
+      style: query.style,
+      mmap: { status: MapStatus.APPROVED },
+      ...(query.leaderboardType !== undefined && {
+        leaderboard: { type: query.leaderboardType }
+      })
+    };
+
+    const [runs, totalCount] = await this.db.leaderboardRun.findManyAndCount({
+      where,
+      include: { mmap: true, leaderboard: true },
+      omit: { splits: true },
+      orderBy: { createdAt: 'desc' },
+      skip: query.skip,
+      take: query.take
+    });
+
+    if (runs.length > 0) {
+      const [ranks, points] = await Promise.all([
+        this.db.$queryRawTyped(
+          TypedSql.getUserLeaderboardRunRanks(
+            runs.map((run) => run.mapID),
+            runs.map((run) => run.gamemode),
+            runs.map((run) => run.trackType),
+            runs.map((run) => run.trackNum),
+            runs.map((run) => run.style),
+            runs.map((run) => run.time),
+            runs.map((run) => run.createdAt.toISOString())
+          )
+        ),
+        this.rankingService.getUserTrackPoints(userID, runs),
+        this.fillStageTiers(runs)
+      ]);
+
+      const rankMap = new Map(
+        ranks.map((row) => [serializeLeaderboard(row), row])
+      );
+
+      for (const [i, run] of runs.entries()) {
+        const row = rankMap.get(serializeLeaderboard(run));
+        Object.assign(run, {
+          rank: row?.rank,
+          totalRuns: row?.totalRuns,
+          points: points[i]
+        });
+      }
+    }
+
+    return new PagedResponseDto(LeaderboardRunDto, [runs, totalCount]);
+  }
+
+  /**
+   * Stage leaderboards have no tier of their own. Their rank points are scored
+   * at the main track's tier, so report that as the stage's tier too.
+   */
+  private async fillStageTiers(
+    runs: Array<{
+      mapID: number;
+      gamemode: number;
+      trackType: number;
+      style: number;
+      leaderboard: { tier: number | null } | null;
+    }>
+  ): Promise<void> {
+    const stageRuns = runs.filter(
+      (run) => run.trackType === TrackType.STAGE && run.leaderboard
+    );
+    if (stageRuns.length === 0) return;
+
+    const mains = await this.db.leaderboard.findMany({
+      where: {
+        OR: stageRuns.map(({ mapID, gamemode, style }) => ({
+          mapID,
+          gamemode,
+          style,
+          trackType: TrackType.MAIN,
+          trackNum: 1
+        }))
+      },
+      select: { mapID: true, gamemode: true, style: true, tier: true }
+    });
+
+    for (const run of stageRuns) {
+      run.leaderboard.tier =
+        mains.find(
+          (main) =>
+            main.mapID === run.mapID &&
+            main.gamemode === run.gamemode &&
+            main.style === run.style
+        )?.tier ?? null;
+    }
   }
 
   async getRun(
@@ -175,6 +315,7 @@ export class LeaderboardRunsService {
       });
 
       if (dbResponse?.[0]) {
+        await this.attachPoints({ mapID, ...query }, dbResponse);
         return DtoFactory(LeaderboardRunDto, dbResponse[0]);
       }
     } else if (query.userID) {
@@ -189,6 +330,7 @@ export class LeaderboardRunsService {
       });
 
       if (dbResponse?.[0]) {
+        await this.attachPoints({ mapID, ...query }, dbResponse);
         return DtoFactory(LeaderboardRunDto, dbResponse[0]);
       }
     } else {
