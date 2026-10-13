@@ -68,6 +68,10 @@ export class RunSessionService implements OnModuleInit {
       numberOfKeys: 3,
       lua: CLAIM_SESSION_SCRIPT
     });
+    this.valkey.defineCommand('createRunSession', {
+      numberOfKeys: 2,
+      lua: CREATE_SESSION_SCRIPT
+    });
   }
 
   //#region Run Session (game WebSocket)
@@ -102,36 +106,27 @@ export class RunSessionService implements OnModuleInit {
       return { error: 'Leaderboard does not exist' };
     }
 
-    const sessionKey = idKey(userID);
-    const sessionIDs = await this.valkey.lrange(sessionKey, 0, -1);
-    for (const sessionID of sessionIDs) {
-      const session = await this.valkey.hgetall(dataKey(sessionID));
-      if (
-        session &&
-        Number(session.userID) === userID &&
-        Number(session.trackType) === data.trackType &&
-        Number(session.trackNum) === data.trackNum
-      ) {
-        await Promise.all([
-          this.valkey.lrem(sessionKey, 0, sessionID),
-          this.valkey.del(dataKey(sessionID)),
-          this.valkey.del(timestampKey(sessionID))
-        ]);
-      }
-    }
-
-    const id = await this.valkey.incr(COUNTER_KEY);
     const createdAt = Date.now();
     const createdAtDate = new Date(createdAt);
 
-    await Promise.all([
-      this.valkey.lpush(sessionKey, id),
-      this.valkey.hset(dataKey(id), { userID, createdAt, ...leaderboardData }),
-      this.valkey.lpush(
-        timestampKey(id),
-        serializeTimestamp(1, 1, 0, createdAt)
-      )
-    ]);
+    // Replacing the user's existing session on this track and creating the
+    // new one happens in one step, so two creates at once (e.g. from an old
+    // and a new game connection) can't both miss each other's session and
+    // leave two live sessions on the track. The later one replaces the
+    // earlier, as if they'd run one after the other.
+    const id = await this.valkey.createRunSession(
+      idKey(userID),
+      COUNTER_KEY,
+      userID,
+      createdAt,
+      data.mapID,
+      data.gamemode,
+      data.trackType,
+      data.trackNum,
+      serializeTimestamp(1, 1, 0, createdAt),
+      dataKey(''),
+      timestampKey('')
+    );
 
     this.logger.log(
       `createSession: created session (sessionID=${id}, userID=${userID}, mapID=${data.mapID})`
@@ -745,6 +740,39 @@ redis.call('LREM', KEYS[3], 0, ARGV[2])
 return { session, timestamps }
 `;
 
+/**
+ * KEYS: user's session IDs key, session ID counter key
+ * ARGV: userID, createdAt, mapID, gamemode, trackType, trackNum,
+ *       first serialized timestamp, data key prefix, timestamps key prefix
+ *
+ * Deletes the user's active sessions on the same track (trackType and
+ * trackNum), then creates the new session and returns its ID.
+ *
+ * The session keys are built inside the script from the prefixes, which is
+ * fine on standalone Valkey but would need changing for Valkey Cluster.
+ */
+const CREATE_SESSION_SCRIPT = `
+local idKey, userID = KEYS[1], ARGV[1]
+local trackType, trackNum = ARGV[5], ARGV[6]
+local datPrefix, tsPrefix = ARGV[8], ARGV[9]
+
+for _, id in ipairs(redis.call('LRANGE', idKey, 0, -1)) do
+  local s = redis.call('HMGET', datPrefix .. id, 'userID', 'trackType', 'trackNum')
+  if s[1] == userID and s[2] == trackType and s[3] == trackNum then
+    redis.call('LREM', idKey, 0, id)
+    redis.call('DEL', datPrefix .. id, tsPrefix .. id)
+  end
+end
+
+local id = redis.call('INCR', KEYS[2])
+redis.call('LPUSH', idKey, id)
+redis.call('HSET', datPrefix .. id,
+  'userID', userID, 'createdAt', ARGV[2], 'mapID', ARGV[3],
+  'gamemode', ARGV[4], 'trackType', trackType, 'trackNum', trackNum)
+redis.call('LPUSH', tsPrefix .. id, ARGV[7])
+return id
+`;
+
 declare module 'iovalkey' {
   interface RedisCommander<Context extends ClientContext> {
     /** {@link CLAIM_SESSION_SCRIPT}, registered in {@link RunSessionService.onModuleInit}. */
@@ -755,5 +783,20 @@ declare module 'iovalkey' {
       userID: number,
       sessionID: number
     ): Result<[string[], string[]] | null, Context>;
+
+    /** {@link CREATE_SESSION_SCRIPT}, registered in {@link RunSessionService.onModuleInit}. */
+    createRunSession(
+      idKey: string,
+      counterKey: string,
+      userID: number,
+      createdAt: number,
+      mapID: number,
+      gamemode: number,
+      trackType: number,
+      trackNum: number,
+      firstTimestamp: string,
+      dataKeyPrefix: string,
+      timestampKeyPrefix: string
+    ): Result<number, Context>;
   }
 }
