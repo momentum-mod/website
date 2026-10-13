@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import * as http from 'node:http';
+import { randomUUID } from 'node:crypto';
 import Stream from 'node:stream';
 import { INestApplicationContext, Logger } from '@nestjs/common';
 import { isNil } from '@nestjs/common/utils/shared.utils';
@@ -24,6 +25,12 @@ import { UserJwtAccessPayloadVerified } from '../auth/auth.interface';
  */
 export type AuthenticatedWebSocket = WebSocket.WebSocket & {
   userId: number;
+  /**
+   * Unique per connection, unlike `userId`. State written on behalf of a socket
+   * can be tagged with this so a stale socket's close (e.g. one replaced by a
+   * reconnect, possibly on another worker) doesn't clobber the new one's state.
+   */
+  connectionID: string;
   /** Liveness flag driven by the heartbeat, see {@link WebsocketAdapter}. */
   isAlive: boolean;
 };
@@ -178,6 +185,7 @@ export class WebsocketAdapter extends AbstractWsAdapter<
       wsServer.handleUpgrade(request, socket, head, (ws) => {
         const client = ws as AuthenticatedWebSocket;
         client.userId = payload.id;
+        client.connectionID = randomUUID();
         this.wsService.addClient(payload.id, client);
         ws.on('close', () => this.wsService.removeClient(payload.id, client));
         wsServer.emit('connection', ws, request);
