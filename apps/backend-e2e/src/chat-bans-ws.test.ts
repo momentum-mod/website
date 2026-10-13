@@ -202,6 +202,25 @@ describe('Game Connection Gateway - chat bans', () => {
       }
     });
 
+    it('should be sent when an admin issues a ban directly', async () => {
+      const client = await connect();
+
+      await req.post({
+        url: 'admin/chat-bans',
+        status: 201,
+        body: { targetID: target.id, type: ChatBanType.VOICE },
+        token: adminToken
+      });
+
+      assert.deepEqual(await client.next(), {
+        event: 'chatbans.update',
+        data: {
+          steamID: target.steamID.toString(),
+          bans: [{ type: ChatBanType.VOICE, expiresAt: null }]
+        }
+      });
+    });
+
     it('should not be sent when resolving a report without bans', async () => {
       const client = await connect();
 
