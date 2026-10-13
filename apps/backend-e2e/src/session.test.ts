@@ -426,6 +426,58 @@ describe('Session', () => {
         });
       });
 
+      // E.g. a client retrying an upload that timed out
+      describe('should count a session submitted twice at once only once', () => {
+        const submitTwice = async () => {
+          let second: Promise<{ statusCode: number }>;
+          const first = await submitWithOverrides({
+            beforeSubmit: (self) => {
+              second = req.postOctetStream({
+                url: `session/run/${self.sessionID}/end`,
+                body: Buffer.from(self.replayBuffer),
+                token
+              });
+            }
+          });
+          return [first.statusCode, (await second).statusCode].sort();
+        };
+
+        it('for a first completion', async () => {
+          assert.deepEqual(await submitTwice(), [200, 400]);
+
+          const stats = await prisma.userStats.findUnique({
+            where: { userID: user.id }
+          });
+          assert.equal(stats.runsSubmitted, 1);
+          assert.equal(
+            await prisma.pastRun.count({ where: { userID: user.id } }),
+            1
+          );
+        });
+
+        it('for a PB improvement', async () => {
+          // A slower run first, so the duplicated one below is a PB
+          await submitRun(300);
+
+          assert.deepEqual(await submitTwice(), [200, 400]);
+
+          const stats = await prisma.userStats.findUnique({
+            where: { userID: user.id }
+          });
+          assert.equal(stats.runsSubmitted, 2);
+          assert.equal(
+            await prisma.pastRun.count({ where: { userID: user.id } }),
+            2
+          );
+          assert.equal(
+            await prisma.activity.count({
+              where: { userID: user.id, type: ActivityType.PB_ACHIEVED }
+            }),
+            2
+          );
+        });
+      });
+
       it('should reject if should 401 when no access token is provided', async () => {
         await req.unauthorizedTest('session/run/1/end', 'post');
       });
