@@ -92,7 +92,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     const { userId: userID, connectionID } = client;
 
     this.localStatuses.set(userID, { connectionID, status });
-    await this.writeStatus(userID, connectionID, status, false);
+    await this.writeStatus(userID, connectionID, status, Ownership.ANY);
 
     this.logger.debug(
       `updateStatus: (userID=${userID}, lobbyID=${status.lobbyID}, isMapLobby=${status.isMapLobby}, mapID=${status.mapID}, gamemode=${status.gamemode})`
@@ -107,7 +107,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     const { userId: userID, connectionID } = client;
 
     this.localStatuses.delete(userID);
-    await this.writeStatus(userID, connectionID, null, false);
+    await this.writeStatus(userID, connectionID, null, Ownership.ANY);
 
     this.logger.debug(`leaveLobby: (userID=${userID})`);
     return null;
@@ -125,7 +125,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      await this.writeStatus(userID, connectionID, null, true);
+      await this.writeStatus(userID, connectionID, null, Ownership.OWNED);
     } catch (error) {
       // Nothing awaits this, and the TTL reaps the entry regardless.
       this.logger.error(
@@ -246,17 +246,17 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * Atomically replace a user's status (or clear it, if `status` is null),
    * moving them between the lobby/map indexes as needed.
    *
-   * With `onlyIfOwner`, does nothing unless `connectionID` is the connection
-   * that last wrote the user's status. Returns whether anything was written.
+   * Does nothing if `ownership` doesn't allow `connectionID` to replace the
+   * user's current status. Returns whether anything was written.
    */
   private async writeStatus(
     userID: number,
     connectionID: string,
     status: LobbyStatusDto | null,
-    onlyIfOwner: boolean
+    ownership: Ownership
   ): Promise<boolean> {
     const result = await this.valkey.writeLobbyStatus(
-      ...writeStatusArgs(userID, connectionID, status, onlyIfOwner)
+      ...writeStatusArgs(userID, connectionID, status, ownership)
     );
     return result === 1;
   }
@@ -264,7 +264,8 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
   /**
    * Re-write the statuses in this tick's slice of those owned by connections
    * on this worker, pushing back their expiry. Statuses another connection has
-   * taken over are forgotten.
+   * taken over are forgotten, and ones Valkey has lost (e.g. by restarting
+   * without persistence) are restored, as clients only report changes.
    *
    * Users are split into slices by ID so each tick sends a fraction of the
    * worker's statuses, rather than all of them landing on Valkey at once. Each
@@ -282,7 +283,12 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     const pipeline = this.valkey.pipeline();
     for (const [userID, { connectionID, status }] of entries) {
       pipeline.writeLobbyStatus(
-        ...writeStatusArgs(userID, connectionID, status, true)
+        ...writeStatusArgs(
+          userID,
+          connectionID,
+          status,
+          Ownership.OWNED_OR_NONE
+        )
       );
     }
 
@@ -311,6 +317,16 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
   }
 
   //#endregion
+}
+
+/** Whose status a write may replace. Values are checked by WRITE_STATUS_SCRIPT. */
+enum Ownership {
+  /** Anyone's, as the connection is reporting where its user is now. */
+  ANY = 0,
+  /** Only the connection's own. */
+  OWNED = 1,
+  /** The connection's own, or nobody's. */
+  OWNED_OR_NONE = 2
 }
 
 interface LocalStatus {
@@ -367,14 +383,14 @@ function writeStatusArgs(
   userID: number,
   connectionID: string,
   status: LobbyStatusDto | null,
-  onlyIfOwner: boolean
+  ownership: Ownership
 ): [string, ...(string | number)[]] {
   const now = Date.now();
   return [
     userKey(userID),
     userID,
     connectionID,
-    onlyIfOwner ? 1 : 0,
+    ownership,
     status?.lobbyID ?? '',
     status?.isMapLobby ? 1 : 0,
     status?.mapID ?? '',
@@ -387,7 +403,7 @@ function writeStatusArgs(
 
 /**
  * KEYS[1]: user key
- * ARGV: userID, connectionID, onlyIfOwner (1/0), lobbyID ('' to clear),
+ * ARGV: userID, connectionID, ownership (see Ownership), lobbyID ('' to clear),
  *       isMapLobby (1/0), mapID (or ''), gamemode (or ''), expiresAt (ms),
  *       ttl (s), now (ms)
  *
@@ -400,12 +416,14 @@ function writeStatusArgs(
  */
 const WRITE_STATUS_SCRIPT = `
 local userKey = KEYS[1]
-local userID, connectionID, onlyIfOwner = ARGV[1], ARGV[2], ARGV[3] == '1'
+local userID, connectionID, ownership = ARGV[1], ARGV[2], ARGV[3]
 local lobbyID, isMapLobby, mapID, gamemode = ARGV[4], ARGV[5], ARGV[6], ARGV[7]
 local expiresAt, ttl, now = ARGV[8], ARGV[9], ARGV[10]
 
 local old = redis.call('HMGET', userKey, 'connectionID', 'lobbyID', 'isMapLobby', 'mapID', 'gamemode')
-if onlyIfOwner and old[1] ~= connectionID then
+local owner = old[1]
+if (ownership == '1' and owner ~= connectionID)
+  or (ownership == '2' and owner and owner ~= connectionID) then
   return 0
 end
 

@@ -396,6 +396,59 @@ describe('Game Connection Gateway - lobbies', () => {
       assert.ok(Number(await valkey.zscore(membersKey, user.id)) > before);
       assert.ok((await valkey.ttl(`lobby:user:${user.id}`)) > 0);
     });
+
+    it('should restore statuses Valkey has lost', async () => {
+      const client = await connect();
+      await client.sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: true,
+        mapID: 10,
+        gamemode: Gamemode.AHOP
+      });
+
+      // As if Valkey restarted without persistence
+      await clearLobbies();
+
+      for (let i = 0; i < 12; i++) {
+        await lobbyService['refreshLocalStatuses']();
+      }
+
+      assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
+        lobbyID: LOBBY_A,
+        mapID: 10
+      });
+      assert.deepEqual(await lobbyService.getLobbyMembers(LOBBY_A), [user.id]);
+      const res = await client.sendAndAwait('lobby.mapcounts', {
+        gamemode: Gamemode.AHOP
+      });
+      assert.deepEqual(res.data.counts, [{ mapID: 10, count: 1 }]);
+    });
+
+    it('should forget statuses another connection has taken over', async () => {
+      const client = await connect();
+      await client.sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: false
+      });
+
+      // As if the user reconnected on another worker and reported a new lobby
+      await valkey.hset(
+        `lobby:user:${user.id}`,
+        'connectionID',
+        'other',
+        'lobbyID',
+        LOBBY_B
+      );
+
+      for (let i = 0; i < 12; i++) {
+        await lobbyService['refreshLocalStatuses']();
+      }
+
+      assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
+        lobbyID: LOBBY_B
+      });
+      assert.equal(lobbyService['localStatuses'].has(user.id), false);
+    });
   });
 
   describe('broadcastToLobby', () => {
