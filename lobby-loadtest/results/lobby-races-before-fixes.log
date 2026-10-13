@@ -1,0 +1,14 @@
+04:15:33 === handoff
+04:15:38 handoff immediately after: {"same":{"ok":57,"bad":0},"cross":{"ok":143,"bad":0}} []
+04:15:38 waiting 65s for a full refresh cycle...
+04:16:43 after refresh cycle: 200/200 still correct; invariant violations: 0 []
+04:16:43 === close
+04:16:45 close race: 0/400 statuses left 2s after closing
+04:16:45 waiting 65s to see if refresh keeps any alive...
+04:17:50 close race: 0/400 statuses left after a refresh cycle; violations: 0 []
+04:17:50 === churn
+04:18:10 churn: 12000 ops over 19.5s
+04:18:11 churn immediately: 0/400 mismatched; invariant violations: 0 [] []
+04:18:11 waiting 65s for a refresh cycle...
+04:19:16 churn after refresh cycle: 0/400 mismatched; invariant violations: 0 [] []
+04:19:17 churn: 0 statuses left after all closed
