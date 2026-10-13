@@ -18,6 +18,7 @@ import {
   AdminAnnouncement,
   CreateMapVersionWithFiles,
   LeaderboardRun,
+  AdminCreateChatBan,
   AdminGetChatBansQuery,
   ChatBan,
   UpdateChatBan
@@ -83,6 +84,10 @@ export class AdminService {
     query?: AdminGetChatBansQuery
   ): Observable<PagedResponse<ChatBan>> {
     return this.http.get<PagedResponse<ChatBan>>('admin/chat-bans', { query });
+  }
+
+  createChatBan(body: AdminCreateChatBan): Observable<ChatBan> {
+    return this.http.post<ChatBan>('admin/chat-bans', { body });
   }
 
   updateChatBan(banID: number, body: UpdateChatBan): Observable<void> {
