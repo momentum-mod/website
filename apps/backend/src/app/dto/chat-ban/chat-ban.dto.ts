@@ -1,5 +1,6 @@
 import {
   ActiveChatBan,
+  AdminCreateChatBan,
   ChatBan,
   ChatBanType,
   CreateChatBan,
@@ -81,6 +82,15 @@ export class ChatBanDto implements ChatBan {
 export class CreateChatBanDto
   extends PickType(ChatBanDto, ['type', 'expiresAt', 'reason'] as const)
   implements CreateChatBan {}
+
+export class AdminCreateChatBanDto
+  extends PickType(ChatBanDto, [
+    'type',
+    'expiresAt',
+    'reason',
+    'targetID'
+  ] as const)
+  implements AdminCreateChatBan {}
 
 export class UpdateChatBanDto
   extends PickType(ChatBanDto, ['expiresAt', 'reason'] as const)
