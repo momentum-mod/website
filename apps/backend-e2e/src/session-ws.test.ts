@@ -23,6 +23,7 @@ import * as ReplayFile from '@momentum/formats/replay';
 // here mirror the run-session tests that used to live there as HTTP routes
 // before the move to WebSockets.
 import {
+  app,
   prisma,
   valkey,
   req,
@@ -31,6 +32,7 @@ import {
   registerE2ETestFile,
   resetKillswitches
 } from './support/e2e-environment';
+import { RunSessionService } from '../../backend/src/app/modules/session/run/run-session.service';
 
 describe('Game Connection Gateway - run sessions', () => {
   registerE2ETestFile();
@@ -179,6 +181,62 @@ describe('Game Connection Gateway - run sessions', () => {
       assert.equal(await valkey.exists(`runsess:ts:${mainID}`), 1);
       assert.equal(await valkey.exists(`runsess:dat:${stage1ID}`), 1);
       assert.equal(await valkey.exists(`runsess:ts:${stage1ID}`), 1);
+    });
+
+    // E.g. a game's new connection creating a session while its old one is
+    // still mid-request. Each create used to read the user's sessions before
+    // either had written its own, so both survived.
+    it('should leave one session on a track when several are created at once', async () => {
+      await clearRunSessions();
+      const runSession = app.get(RunSessionService);
+
+      const otherTrack = await seedSession(user.id, {
+        trackType: TrackType.MAIN,
+        trackNum: 1
+      });
+
+      const created = await Promise.all(
+        Array.from({ length: 10 }, () =>
+          runSession.createSession(user.id, {
+            mapID: map.id,
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.STAGE,
+            trackNum: 1
+          })
+        )
+      );
+      const ids = created.map((res) => {
+        if ('error' in res) throw new Error(res.error);
+        return res.id;
+      });
+      // The last to run replaced all the others.
+      const winner = Math.max(...ids);
+
+      const stored = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
+      assert.deepEqual(
+        stored.sort(),
+        [otherTrack.toString(), winner.toString()].sort()
+      );
+
+      for (const id of ids.filter((id) => id !== winner)) {
+        assert.equal(await valkey.exists(`runsess:dat:${id}`), 0);
+        assert.equal(await valkey.exists(`runsess:ts:${id}`), 0);
+      }
+      assert.partialDeepStrictEqual(
+        await valkey.hgetall(`runsess:dat:${winner}`),
+        {
+          userID: user.id.toString(),
+          mapID: map.id.toString(),
+          gamemode: Gamemode.AHOP.toString(),
+          trackType: TrackType.STAGE.toString(),
+          trackNum: '1'
+        }
+      );
+      assert.equal(
+        (await valkey.lrange(`runsess:ts:${winner}`, 0, -1)).length,
+        1
+      );
+      assert.equal(await valkey.exists(`runsess:dat:${otherTrack}`), 1);
     });
 
     it('should return an error if the leaderboard does not exist', async () => {
