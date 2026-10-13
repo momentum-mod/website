@@ -31,6 +31,11 @@ export type AuthenticatedWebSocket = WebSocket.WebSocket & {
    * reconnect, possibly on another worker) doesn't clobber the new one's state.
    */
   connectionID: string;
+  /**
+   * When the connection was opened (ms). Of a user's connections, only the
+   * newest is kept, across all workers; see {@link WebsocketService.addClient}.
+   */
+  connectedAt: number;
   /** Liveness flag driven by the heartbeat, see {@link WebsocketAdapter}. */
   isAlive: boolean;
 };
@@ -186,6 +191,7 @@ export class WebsocketAdapter extends AbstractWsAdapter<
         const client = ws as AuthenticatedWebSocket;
         client.userId = payload.id;
         client.connectionID = randomUUID();
+        client.connectedAt = Date.now();
         this.wsService.addClient(payload.id, client);
         ws.on('close', () => this.wsService.removeClient(payload.id, client));
         wsServer.emit('connection', ws, request);
