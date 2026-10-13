@@ -10,6 +10,7 @@ import { LeaderboardRun, Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
   AdminActivityType,
+  CreateChatBan,
   NotificationType,
   ReportType,
   Role,
@@ -18,6 +19,7 @@ import {
 } from '@momentum/constants';
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
+  AdminCreateChatBanDto,
   AdminDeleteRunDto,
   AdminGetChatBansQueryDto,
   AdminUpdateUserDto,
@@ -464,27 +466,59 @@ export class AdminService {
       // For a player report, `data` is the reported user's ID.
       const targetID = Number(report.data);
       for (const ban of reportDto.chatBans!) {
-        const created = await this.db.chatBan.create({
-          data: {
-            type: ban.type,
-            expiresAt: ban.expiresAt ?? null,
-            reason: ban.reason ?? null,
-            target: { connect: { id: targetID } },
-            issuer: { connect: { id: userID } },
-            report: { connect: { id: reportID } }
-          }
-        });
-
-        await this.adminActivityService.create(
-          userID,
-          AdminActivityType.CHAT_BAN_CREATE,
-          created.id,
-          created
-        );
+        await this.issueChatBan(userID, targetID, ban, reportID);
       }
 
       await this.chatBans.broadcastPlayerBans(targetID);
     }
+  }
+
+  async createChatBan(
+    adminID: number,
+    dto: AdminCreateChatBanDto
+  ): Promise<ChatBanDto> {
+    const target = await this.db.user.findUnique({
+      where: { id: dto.targetID },
+      select: { id: true }
+    });
+
+    if (!target) throw new NotFoundException('User not found');
+
+    const created = await this.issueChatBan(adminID, dto.targetID, dto);
+
+    await this.chatBans.broadcastPlayerBans(dto.targetID);
+
+    return DtoFactory(ChatBanDto, created);
+  }
+
+  /** Doesn't broadcast the change, so several bans can be sent as one update. */
+  private async issueChatBan(
+    adminID: number,
+    targetID: number,
+    ban: CreateChatBan,
+    reportID?: number
+  ) {
+    const created = await this.db.chatBan.create({
+      data: {
+        type: ban.type,
+        expiresAt: ban.expiresAt ?? null,
+        reason: ban.reason ?? null,
+        target: { connect: { id: targetID } },
+        issuer: { connect: { id: adminID } },
+        ...(reportID !== undefined
+          ? { report: { connect: { id: reportID } } }
+          : {})
+      }
+    });
+
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.CHAT_BAN_CREATE,
+      created.id,
+      created
+    );
+
+    return created;
   }
 
   async getChatBans(query: AdminGetChatBansQueryDto) {

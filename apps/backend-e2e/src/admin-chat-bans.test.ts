@@ -1,8 +1,8 @@
-import { after, before, describe, it } from 'node:test';
-import { NULL_ID } from '@momentum/test-utils';
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
+import { matchesPartial, NULL_ID } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 import { ChatBanDto } from '../../backend/src/app/dto';
-import { ChatBanType, Role } from '@momentum/constants';
+import { AdminActivityType, ChatBanType, Role } from '@momentum/constants';
 import { User } from '@momentum/db';
 import {
   prisma,
@@ -13,6 +13,16 @@ import {
 
 describe('Admin', () => {
   registerE2ETestFile();
+
+  async function expectAdminActivityWasCreated(
+    userID: number,
+    type: AdminActivityType
+  ) {
+    const activities = await prisma.adminActivity.findMany({
+      where: { userID }
+    });
+    assert.ok(activities.some((activity) => activity.type === type));
+  }
 
   const inAnHour = () => new Date(Date.now() + 60 * 60 * 1000);
   const anHourAgo = () => new Date(Date.now() - 60 * 60 * 1000);
@@ -159,6 +169,136 @@ describe('Admin', () => {
 
       it('should 401 when no access token is provided', async () => {
         await req.unauthorizedTest('admin/chat-bans', 'get');
+      });
+    });
+
+    describe('POST', () => {
+      let admin: User,
+        adminToken: string,
+        target: User,
+        u1Token: string,
+        moderatorToken: string;
+
+      beforeEach(async () => {
+        [[admin, adminToken], [target, u1Token], [, moderatorToken]] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+            db.createAndLoginUser(),
+            db.createAndLoginUser({ data: { roles: Role.MODERATOR } })
+          ]);
+      });
+
+      afterEach(async () => {
+        await db.cleanup('chatBan', 'user', 'adminActivity');
+      });
+
+      it('should issue a ban without a report', async () => {
+        const expiresAt = inAnHour();
+        const res = await req.post({
+          url: 'admin/chat-bans',
+          status: 201,
+          body: {
+            targetID: target.id,
+            type: ChatBanType.VOICE,
+            expiresAt: expiresAt.toISOString(),
+            reason: 'mic spam'
+          },
+          validate: ChatBanDto,
+          token: adminToken
+        });
+
+        assert.ok(
+          matchesPartial(res.body, {
+            type: ChatBanType.VOICE,
+            reason: 'mic spam',
+            targetID: target.id,
+            issuerID: admin.id,
+            reportID: null
+          })
+        );
+
+        const ban = await prisma.chatBan.findUnique({
+          where: { id: res.body.id }
+        });
+        assert.ok(
+          Math.abs(ban.expiresAt.getTime() - expiresAt.getTime()) <
+            0.5 * 10 ** -(-3)
+        );
+      });
+
+      it('should issue a permanent ban when expiresAt is omitted', async () => {
+        const res = await req.post({
+          url: 'admin/chat-bans',
+          status: 201,
+          body: { targetID: target.id, type: ChatBanType.CHAT },
+          validate: ChatBanDto,
+          token: adminToken
+        });
+
+        assert.equal(res.body.expiresAt, null);
+      });
+
+      it('should allow a moderator to issue a ban', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 201,
+          body: { targetID: target.id, type: ChatBanType.CHAT },
+          token: moderatorToken
+        });
+      });
+
+      it('should log a CHAT_BAN_CREATE admin activity', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 201,
+          body: { targetID: target.id, type: ChatBanType.CHAT },
+          token: adminToken
+        });
+
+        await expectAdminActivityWasCreated(
+          admin.id,
+          AdminActivityType.CHAT_BAN_CREATE
+        );
+      });
+
+      it('should 404 if the target user does not exist', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 404,
+          body: { targetID: NULL_ID, type: ChatBanType.CHAT },
+          token: adminToken
+        });
+      });
+
+      it('should 400 for an invalid ban type', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 400,
+          body: { targetID: target.id, type: 99 },
+          token: adminToken
+        });
+      });
+
+      it('should 400 if the target is missing', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 400,
+          body: { type: ChatBanType.CHAT },
+          token: adminToken
+        });
+      });
+
+      it('should return 403 if a non admin access token is given', async () => {
+        await req.post({
+          url: 'admin/chat-bans',
+          status: 403,
+          body: { targetID: target.id, type: ChatBanType.CHAT },
+          token: u1Token
+        });
+      });
+
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/chat-bans', 'post');
       });
     });
   });
