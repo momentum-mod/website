@@ -531,6 +531,27 @@ export interface RunSession {
   createdAt: DateString;
 }
 
+/**
+ * A game client's current Steam lobby, as reported over the game WebSocket.
+ * `mapID`/`gamemode` are only set while the player is on a map.
+ */
+export interface LobbyStatus {
+  lobbyID: string;
+  isMapLobby: boolean;
+  mapID?: number;
+  gamemode?: Gamemode;
+}
+
+export interface MapLobbyPlayerCount {
+  mapID: number;
+  count: number;
+}
+
+export interface MapLobbyPlayerCounts {
+  gamemode: Gamemode;
+  counts: MapLobbyPlayerCount[];
+}
+
 export interface RunSessionTimestamp {
   id: number;
   majorNum: number;
