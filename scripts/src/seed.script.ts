@@ -70,9 +70,6 @@ const defaultVars = {
   credits: { min: 2, max: 20 },
   images: { min: 1, max: 5 },
   modesPerLeaderboard: { min: 1, max: 3 },
-  majorCPs: { min: 0, max: 5 },
-  minorCPs: { min: 0, max: 5 },
-  bonusesPerMap: { min: 0, max: 3 },
   reviewsPerMap: { min: 0, max: 10 },
   imagesPerReview: { min: 1, max: 5 }, // 80% chance for no images
   commentsPerReview: { min: 0, max: 5 },
@@ -186,8 +183,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
   }
 
   const dir = path.join(__dirname, '../../scripts/assets');
-  const mapBuffer = readFileSync(path.join(dir, '/flat_devgrid.bsp'));
+  // Every seeded map uses this BSP and its real zones, so any of them can be
+  // loaded in-game with valid tracks. The first map also gets its real name, so
+  // it matches a local copy of the map.
+  const mapName = 'surf_fruits';
+  const mapBuffer = readFileSync(path.join(dir, `${mapName}.bsp`));
   const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
+  const mapZones = readFileSync(path.join(dir, `${mapName}.json`), 'utf8');
+  const mapZoneHash = createHash('sha1').update(mapZones).digest('hex');
 
   let imageBuffers: Array<{
     small: Buffer;
@@ -430,6 +433,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     for (let i = 0; i < mapsToCreate; i++) {
       console.log(`Adding map (${i + 1}/${mapsToCreate})`);
       console.time('Added map');
+      const isNamedMap = i === 0 && !usedNames.includes(mapName);
       // Make sure name always <= 32 chars (16 + 11 + 5 = 32)
       let name =
         faker.lorem.word({ length: { min: 3, max: 16 } }) +
@@ -437,7 +441,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       // Most maps have a gamemode prefix, some don't, want to be able to test
       // with both.
       const prefix = Random.element(prefixes);
-      if (Random.chance(0.75)) {
+      if (isNamedMap) {
+        name = mapName;
+      } else if (Random.chance(0.75)) {
         name = `${prefix}_${name}`;
       }
 
@@ -449,19 +455,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
 
       usedNames.push(name);
-
-      const majCps = randRange(vars.majorCPs);
-      const randomZones = () =>
-        Zone.generateRandomMapZones(
-          majCps,
-          arrayFrom(majCps, () => randRange(vars.minorCPs)),
-          arrayFrom(randRange(vars.bonusesPerMap), (_) =>
-            randRange({ min: 1, max: 3 })
-          ),
-          512,
-          64,
-          64
-        );
 
       const submissionsDates = () => {
         const dates: MapSubmissionDateCreateWithoutSubmissionInput[] = [];
@@ -490,7 +483,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       };
 
       const versions = arrayFrom(randRange(vars.submissionVersions), (i) => {
-        const zones = JSON.stringify(randomZones());
         return {
           versionNum: i + 1,
           // Has to be submitterID; connect is not supported by createMany.
@@ -498,20 +490,22 @@ prismaWrapper(async (prisma: PrismaClient) => {
           bspHash: mapHash,
           bspDownloadId: randomUUID(),
           vmfDownloadId: null, // Could add a VMF if we really want but leaving for now
-          zones,
-          zoneHash: createHash('sha1').update(zones).digest('hex'),
+          zones: mapZones,
+          zoneHash: mapZoneHash,
           changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
         };
       });
 
-      const status = Random.weighted(weights.mapStatusWeights);
+      const status = isNamedMap
+        ? MapStatus.APPROVED
+        : Random.weighted(weights.mapStatusWeights);
       const inSubmission = MapStatuses.IN_SUBMISSION.includes(status);
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = JSON.parse(versions.at(-1).zones);
-      const numModes = randRange(vars.modesPerLeaderboard);
-      const modesSet = new Set<Gamemode>();
+      const zones = JSON.parse(mapZones);
+      const numModes = isNamedMap ? 1 : randRange(vars.modesPerLeaderboard);
+      const modesSet = new Set<Gamemode>(isNamedMap ? [Gamemode.SURF] : []);
       while (modesSet.size < numModes) {
         modesSet.add(Random.enumValue(Gamemode));
       }
