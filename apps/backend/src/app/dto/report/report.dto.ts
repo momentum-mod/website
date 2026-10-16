@@ -9,6 +9,7 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
+import { MapDto } from '../map/map.dto';
 import { CreateChatBanDto } from '../chat-ban/chat-ban.dto';
 import { IsSteamCommunityID } from '../../validators';
 import {
@@ -73,6 +74,18 @@ export class ReportDto implements Report {
 
   @NestedProperty(UserDto)
   readonly resolver: UserDto;
+
+  @NestedProperty(UserDto, {
+    description:
+      'The reported user, for user profile and player reports (expand: target)'
+  })
+  readonly targetUser?: UserDto;
+
+  @NestedProperty(MapDto, {
+    lazy: true,
+    description: 'The reported map, for map reports (expand: target)'
+  })
+  readonly targetMap?: MapDto;
 
   @CreatedAtProperty()
   readonly createdAt: DateString;
