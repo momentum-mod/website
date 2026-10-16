@@ -162,6 +162,8 @@ export interface Report {
   submitter: User;
   resolverID: number | null;
   resolver?: User;
+  targetUser?: User;
+  targetMap?: MMap;
   createdAt: DateString;
   updatedAt: DateString;
 }
