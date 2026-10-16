@@ -6,7 +6,9 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import {
   DialogService,
   DynamicDialogConfig,
@@ -18,8 +20,10 @@ import * as Bitflags from '@momentum/bitflags';
 import {
   Ban,
   ChatBan,
+  ChatBanType,
   ChatBanTypeNames,
   Flags,
+  MAX_REPORT_MESSAGE_LENGTH,
   Role,
   User
 } from '@momentum/constants';
@@ -30,6 +34,8 @@ import { AuthService } from '../../../services/data/auth.service';
 import { UserSearchComponent } from '../../../components/search/user-search.component';
 import { AvatarComponent } from '../../../components/avatar/avatar.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { IconComponent } from '../../../icons';
 import { ConfirmDialogComponent } from '../../../components/dialogs/confirm-dialog.component';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import {
@@ -49,11 +55,14 @@ interface BanView extends ChatBan {
     ReactiveFormsModule,
     FormsModule,
     DatePickerModule,
+    SelectModule,
     DatePipe,
     RouterLink,
     UserSearchComponent,
     AvatarComponent,
-    SpinnerDirective
+    SpinnerDirective,
+    TooltipDirective,
+    IconComponent
   ]
 })
 export class ProfileAdminSettingsComponent implements OnInit {
@@ -73,6 +82,19 @@ export class ProfileAdminSettingsComponent implements OnInit {
   protected readonly Role = Role;
   protected readonly Ban = Ban;
   protected readonly ChatBanTypeNames = ChatBanTypeNames;
+  protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
+
+  // null duration => permanent ban. The short ones are mostly useful for
+  // testing that bans expire in-game.
+  protected readonly BanDurations = [
+    { value: 5 * 60 * 1000, label: '5 minutes' },
+    { value: 60 * 60 * 1000, label: '1 hour' },
+    { value: 24 * 60 * 60 * 1000, label: '1 day' },
+    { value: 3 * 24 * 60 * 60 * 1000, label: '3 days' },
+    { value: 7 * 24 * 60 * 60 * 1000, label: '1 week' },
+    { value: 30 * 24 * 60 * 60 * 1000, label: '30 days' },
+    { value: null, label: 'Permanent' }
+  ];
 
   protected user: User;
   protected isLocal = false;
@@ -89,6 +111,16 @@ export class ProfileAdminSettingsComponent implements OnInit {
   // of the profile page is bound to before Save is actually clicked.
   private pendingRoles: Flags<Role> = 0 as Flags<Role>;
   private pendingBans: Flags<Ban> = 0 as Flags<Ban>;
+
+  protected showIssueChatBan = false;
+  protected issuingChatBan = false;
+
+  protected readonly issueChatBanForm = this.nnfb.group({
+    banChat: this.nnfb.control<boolean>(false),
+    banVoice: this.nnfb.control<boolean>(false),
+    banDuration: this.nnfb.control<number | null>(24 * 60 * 60 * 1000),
+    banReason: this.nnfb.control<string>('')
+  });
 
   protected readonly adminEditForm = this.nnfb.group({
     banAlias: this.nnfb.control<boolean>(false),
@@ -209,6 +241,59 @@ export class ProfileAdminSettingsComponent implements OnInit {
           });
         }
       });
+  }
+
+  protected toggleIssueChatBan() {
+    this.showIssueChatBan = !this.showIssueChatBan;
+    if (!this.showIssueChatBan) this.issueChatBanForm.reset();
+  }
+
+  protected issueChatBans() {
+    const { banChat, banVoice, banDuration, banReason } =
+      this.issueChatBanForm.getRawValue();
+
+    const types = [
+      ...(banChat ? [ChatBanType.CHAT] : []),
+      ...(banVoice ? [ChatBanType.VOICE] : [])
+    ];
+    if (types.length === 0) return;
+
+    const expiresAt = banDuration
+      ? new Date(Date.now() + banDuration).toISOString()
+      : null;
+
+    this.issuingChatBan = true;
+    forkJoin(
+      types.map((type) =>
+        this.adminService.createChatBan({
+          targetID: this.user.id,
+          type,
+          expiresAt,
+          reason: banReason || null
+        })
+      )
+    ).subscribe({
+      next: () => {
+        this.issuingChatBan = false;
+        this.showIssueChatBan = false;
+        this.issueChatBanForm.reset();
+        this.messageService.add({
+          severity: 'success',
+          summary: types.length > 1 ? 'Bans issued' : 'Ban issued'
+        });
+        this.loadChatBans();
+      },
+      error: (httpError: HttpErrorResponse) => {
+        this.issuingChatBan = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Could not issue the ban',
+          detail: httpError.error.message
+        });
+        // One of the two may still have gone through
+        this.loadChatBans();
+      }
+    });
   }
 
   protected isActive(ban: ChatBan) {

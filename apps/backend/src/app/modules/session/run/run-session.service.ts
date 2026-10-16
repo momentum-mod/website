@@ -3,10 +3,12 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Logger
+  Logger,
+  OnModuleInit
 } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 import { LeaderboardRun, User } from '@momentum/db';
+import { ClientContext, Result } from 'iovalkey';
 import {
   ActivityType,
   CompatibleStyles,
@@ -48,7 +50,7 @@ import { RunFileStoreService } from '../../filestore/run-file-store.service';
 import { LeaderboardRunsDbService } from '../../runs/leaderboard-runs-db.service';
 
 @Injectable()
-export class RunSessionService {
+export class RunSessionService implements OnModuleInit {
   private readonly logger = new Logger(RunSessionService.name);
 
   constructor(
@@ -60,6 +62,17 @@ export class RunSessionService {
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly killswitch: KillswitchService
   ) {}
+
+  onModuleInit() {
+    this.valkey.defineCommand('claimRunSession', {
+      numberOfKeys: 3,
+      lua: CLAIM_SESSION_SCRIPT
+    });
+    this.valkey.defineCommand('createRunSession', {
+      numberOfKeys: 2,
+      lua: CREATE_SESSION_SCRIPT
+    });
+  }
 
   //#region Run Session (game WebSocket)
 
@@ -93,36 +106,27 @@ export class RunSessionService {
       return { error: 'Leaderboard does not exist' };
     }
 
-    const sessionKey = idKey(userID);
-    const sessionIDs = await this.valkey.lrange(sessionKey, 0, -1);
-    for (const sessionID of sessionIDs) {
-      const session = await this.valkey.hgetall(dataKey(sessionID));
-      if (
-        session &&
-        Number(session.userID) === userID &&
-        Number(session.trackType) === data.trackType &&
-        Number(session.trackNum) === data.trackNum
-      ) {
-        await Promise.all([
-          this.valkey.lrem(sessionKey, 0, sessionID),
-          this.valkey.del(dataKey(sessionID)),
-          this.valkey.del(timestampKey(sessionID))
-        ]);
-      }
-    }
-
-    const id = await this.valkey.incr(COUNTER_KEY);
     const createdAt = Date.now();
     const createdAtDate = new Date(createdAt);
 
-    await Promise.all([
-      this.valkey.lpush(sessionKey, id),
-      this.valkey.hset(dataKey(id), { userID, createdAt, ...leaderboardData }),
-      this.valkey.lpush(
-        timestampKey(id),
-        serializeTimestamp(1, 1, 0, createdAt)
-      )
-    ]);
+    // Replacing the user's existing session on this track and creating the
+    // new one happens in one step, so two creates at once (e.g. from an old
+    // and a new game connection) can't both miss each other's session and
+    // leave two live sessions on the track. The later one replaces the
+    // earlier, as if they'd run one after the other.
+    const id = await this.valkey.createRunSession(
+      idKey(userID),
+      COUNTER_KEY,
+      userID,
+      createdAt,
+      data.mapID,
+      data.gamemode,
+      data.trackType,
+      data.trackNum,
+      serializeTimestamp(1, 1, 0, createdAt),
+      dataKey(''),
+      timestampKey('')
+    );
 
     this.logger.log(
       `createSession: created session (sessionID=${id}, userID=${userID}, mapID=${data.mapID})`
@@ -258,27 +262,53 @@ export class RunSessionService {
     sessionID: number,
     replay?: Buffer
   ): Promise<CompletedRunDto[]> {
-    const [storedUserID, storedSession, storedTimestamps] = await Promise.all([
-      this.valkey.hget(dataKey(sessionID), 'userID'),
-      this.valkey.hgetall(dataKey(sessionID)),
-      this.valkey.lrange(timestampKey(sessionID), 0, -1)
-    ]);
+    const [storedUserID, storedMapID] = await this.valkey.hmget(
+      dataKey(sessionID),
+      'userID',
+      'mapID'
+    );
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
 
-    if (
-      !storedUserID ||
-      !storedSession ||
-      !storedTimestamps ||
-      Number(storedUserID) !== userID
-    ) {
+    if (!storedUserID || Number(storedUserID) !== userID) {
       if (Sentry.isInitialized()) {
         Sentry.getCurrentScope().setLevel('log');
         Sentry.captureException('Invalid session ID on run end');
       }
       throw new BadRequestException('Invalid session');
+    }
+
+    // Check user has read permissions for this map. Someone *could* actually
+    // start/update a session on this map through weird API calls, but that'd be
+    // completely pointless since we block actual submission here.
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID: Number(storedMapID),
+      userID,
+      include: { currentVersion: true }
+    });
+
+    const user = await this.db.user.findUnique({ where: { id: userID } });
+
+    // Takes the session's data and deletes it in one step, so if the same
+    // session is submitted twice at once (e.g. a client retrying an upload that
+    // timed out), only one gets it and the run isn't counted twice.
+    const claimed = await this.valkey.claimRunSession(
+      dataKey(sessionID),
+      timestampKey(sessionID),
+      idKey(userID),
+      userID,
+      sessionID
+    );
+    if (!claimed) {
+      throw new BadRequestException('Invalid session');
+    }
+
+    const [sessionFields, storedTimestamps] = claimed;
+    const storedSession: Record<string, string> = {};
+    for (let i = 0; i < sessionFields.length; i += 2) {
+      storedSession[sessionFields[i]] = sessionFields[i + 1];
     }
 
     const session: RunSession = {
@@ -296,25 +326,8 @@ export class RunSessionService {
       createdAt: new Date(storedSession.createdAt)
     };
 
-    // Check user has read permissions for this map. Someone *could* actually
-    // start/update a session on this map through weird API calls, but that'd be
-    // completely pointless since we block actual submission here.
-    const map = await this.mapsService.getMapAndCheckReadAccess({
-      mapID: Number(storedSession.mapID),
-      userID,
-      include: { currentVersion: true }
-    });
-
-    const user = await this.db.user.findUnique({ where: { id: userID } });
-
     session.mmap = map;
     session.user = user;
-
-    await Promise.all([
-      this.valkey.lrem(idKey(userID), 0, sessionID),
-      this.valkey.del(dataKey(sessionID)),
-      this.valkey.del(timestampKey(sessionID))
-    ]);
 
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
@@ -577,7 +590,7 @@ export class RunSessionService {
       totalRuns++;
     }
 
-    const pastRun = await this.db.pastRun.create({
+    const pastRun = await tx.pastRun.create({
       data: {
         userID: submittedRun.userID,
         mapID: submittedRun.mapID,
@@ -708,3 +721,82 @@ function deserializeTimestamp(str: string): RunSessionTimestamp {
 }
 
 //#endregion
+
+/**
+ * KEYS: data key, timestamps key, user's session IDs key
+ * ARGV: userID, sessionID
+ *
+ * Returns the session's data (as HGETALL's flat field/value list) and
+ * timestamps, deleting them, or nil if it isn't the user's session.
+ */
+const CLAIM_SESSION_SCRIPT = `
+if redis.call('HGET', KEYS[1], 'userID') ~= ARGV[1] then
+  return nil
+end
+local session = redis.call('HGETALL', KEYS[1])
+local timestamps = redis.call('LRANGE', KEYS[2], 0, -1)
+redis.call('DEL', KEYS[1], KEYS[2])
+redis.call('LREM', KEYS[3], 0, ARGV[2])
+return { session, timestamps }
+`;
+
+/**
+ * KEYS: user's session IDs key, session ID counter key
+ * ARGV: userID, createdAt, mapID, gamemode, trackType, trackNum,
+ *       first serialized timestamp, data key prefix, timestamps key prefix
+ *
+ * Deletes the user's active sessions on the same track (trackType and
+ * trackNum), then creates the new session and returns its ID.
+ *
+ * The session keys are built inside the script from the prefixes, which is
+ * fine on standalone Valkey but would need changing for Valkey Cluster.
+ */
+const CREATE_SESSION_SCRIPT = `
+local idKey, userID = KEYS[1], ARGV[1]
+local trackType, trackNum = ARGV[5], ARGV[6]
+local datPrefix, tsPrefix = ARGV[8], ARGV[9]
+
+for _, id in ipairs(redis.call('LRANGE', idKey, 0, -1)) do
+  local s = redis.call('HMGET', datPrefix .. id, 'userID', 'trackType', 'trackNum')
+  if s[1] == userID and s[2] == trackType and s[3] == trackNum then
+    redis.call('LREM', idKey, 0, id)
+    redis.call('DEL', datPrefix .. id, tsPrefix .. id)
+  end
+end
+
+local id = redis.call('INCR', KEYS[2])
+redis.call('LPUSH', idKey, id)
+redis.call('HSET', datPrefix .. id,
+  'userID', userID, 'createdAt', ARGV[2], 'mapID', ARGV[3],
+  'gamemode', ARGV[4], 'trackType', trackType, 'trackNum', trackNum)
+redis.call('LPUSH', tsPrefix .. id, ARGV[7])
+return id
+`;
+
+declare module 'iovalkey' {
+  interface RedisCommander<Context extends ClientContext> {
+    /** {@link CLAIM_SESSION_SCRIPT}, registered in {@link RunSessionService.onModuleInit}. */
+    claimRunSession(
+      dataKey: string,
+      timestampKey: string,
+      idKey: string,
+      userID: number,
+      sessionID: number
+    ): Result<[string[], string[]] | null, Context>;
+
+    /** {@link CREATE_SESSION_SCRIPT}, registered in {@link RunSessionService.onModuleInit}. */
+    createRunSession(
+      idKey: string,
+      counterKey: string,
+      userID: number,
+      createdAt: number,
+      mapID: number,
+      gamemode: number,
+      trackType: number,
+      trackNum: number,
+      firstTimestamp: string,
+      dataKeyPrefix: string,
+      timestampKeyPrefix: string
+    ): Result<number, Context>;
+  }
+}

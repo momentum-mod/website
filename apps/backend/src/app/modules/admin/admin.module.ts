@@ -10,6 +10,7 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
+import { ChatBansModule } from '../chat-bans/chat-bans.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { FileStoreModule } from '../filestore/file-store.module';
     forwardRef(() => MapReviewModule),
     KillswitchModule,
     NotificationsModule,
-    FileStoreModule
+    FileStoreModule,
+    ChatBansModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService, NotificationsService],
