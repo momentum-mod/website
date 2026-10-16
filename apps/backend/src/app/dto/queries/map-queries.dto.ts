@@ -21,6 +21,7 @@ import {
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
+  MapCompletionsGetQuery,
   MapSortType,
   MapCreditType,
   MapsGetAllUserSubmissionFilter,
@@ -259,12 +260,11 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
   })
   worldRecord?: [Gamemode, TrackType, number, Style];
 
-  @IntCsvQueryProperty({
-    example: '0,0,1,0',
+  @BooleanQueryProperty({
     description:
-      'CSV gamemode, trackType, trackNum and style to fetch the user PB for'
+      "Include the user's PB time on every track/style they've completed on the map"
   })
-  personalBest?: [Gamemode, TrackType, number, Style];
+  personalBests?: boolean;
 }
 
 //#endregion
@@ -312,6 +312,17 @@ export class MapLeaderboardGetQueryDto
     description: 'List of user Steam IDs to limit results to'
   })
   readonly steamIDs?: string[];
+}
+
+export class MapCompletionsGetQueryDto
+  extends QueryDto
+  implements MapCompletionsGetQuery
+{
+  @EnumQueryProperty(Gamemode, { required: true })
+  gamemode: Gamemode;
+
+  @EnumQueryProperty(Style, { required: false })
+  style = Style.NORMAL;
 }
 
 export class MapLeaderboardGetRunQueryDto

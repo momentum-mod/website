@@ -15,7 +15,13 @@ import {
   User
 } from '@momentum/db';
 import { faker } from '@faker-js/faker';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3';
+import Valkey from 'iovalkey';
 import {
   ActivityType,
   Ban,
@@ -34,6 +40,7 @@ import {
   TrackType,
   FlatMapList,
   mapListPath,
+  mapListDir,
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
@@ -45,7 +52,7 @@ import {
   MapTags,
   NotificationType,
   MapTestInviteState,
-  Style
+  GamemodeStyles
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Random from '@momentum/random';
@@ -70,15 +77,12 @@ const defaultVars = {
   credits: { min: 2, max: 20 },
   images: { min: 1, max: 5 },
   modesPerLeaderboard: { min: 1, max: 3 },
-  majorCPs: { min: 0, max: 5 },
-  minorCPs: { min: 0, max: 5 },
-  bonusesPerMap: { min: 0, max: 3 },
   reviewsPerMap: { min: 0, max: 10 },
   imagesPerReview: { min: 1, max: 5 }, // 80% chance for no images
   commentsPerReview: { min: 0, max: 5 },
   submissionPlaceholders: { min: 0, max: 2 },
   submissionVersions: { min: 1, max: 5 },
-  runsPerLeaderboard: { min: 1, max: 10 },
+  runsPerLeaderboard: { min: 1, max: 50 },
   pastRunsPerLeaderboard: { min: 1, max: 25 },
   userReports: { min: 50, max: 50 },
   userFollows: { min: 50, max: 50 },
@@ -186,8 +190,24 @@ prismaWrapper(async (prisma: PrismaClient) => {
   }
 
   const dir = path.join(__dirname, '../../scripts/assets');
-  const mapBuffer = readFileSync(path.join(dir, '/flat_devgrid.bsp'));
-  const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
+  // Real maps with their real zones, so seeded maps can be loaded in-game with
+  // valid tracks. The first few maps get these names (approved, surf) so they
+  // match local copies of the maps; every other map uses the first one's BSP
+  // and zones. surf_lt_omnific and surf_classics have lots of tracks, handy
+  // for testing UI with many stages/bonuses.
+  const realMaps = ['surf_fruits', 'surf_lt_omnific', 'surf_classics'].map(
+    (name) => {
+      const bsp = readFileSync(path.join(dir, `${name}.bsp`));
+      const zones = readFileSync(path.join(dir, `${name}.json`), 'utf8');
+      return {
+        name,
+        bsp,
+        bspHash: createHash('sha1').update(bsp).digest('hex'),
+        zones,
+        zoneHash: createHash('sha1').update(zones).digest('hex')
+      };
+    }
+  );
 
   let imageBuffers: Array<{
     small: Buffer;
@@ -430,6 +450,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
     for (let i = 0; i < mapsToCreate; i++) {
       console.log(`Adding map (${i + 1}/${mapsToCreate})`);
       console.time('Added map');
+      const namedMap =
+        i < realMaps.length && !usedNames.includes(realMaps[i].name)
+          ? realMaps[i]
+          : undefined;
+      const isNamedMap = namedMap !== undefined;
+      const realMap = namedMap ?? realMaps[0];
       // Make sure name always <= 32 chars (16 + 11 + 5 = 32)
       let name =
         faker.lorem.word({ length: { min: 3, max: 16 } }) +
@@ -437,7 +463,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       // Most maps have a gamemode prefix, some don't, want to be able to test
       // with both.
       const prefix = Random.element(prefixes);
-      if (Random.chance(0.75)) {
+      if (isNamedMap) {
+        name = namedMap.name;
+      } else if (Random.chance(0.75)) {
         name = `${prefix}_${name}`;
       }
 
@@ -449,19 +477,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
 
       usedNames.push(name);
-
-      const majCps = randRange(vars.majorCPs);
-      const randomZones = () =>
-        Zone.generateRandomMapZones(
-          majCps,
-          arrayFrom(majCps, () => randRange(vars.minorCPs)),
-          arrayFrom(randRange(vars.bonusesPerMap), (_) =>
-            randRange({ min: 1, max: 3 })
-          ),
-          512,
-          64,
-          64
-        );
 
       const submissionsDates = () => {
         const dates: MapSubmissionDateCreateWithoutSubmissionInput[] = [];
@@ -490,28 +505,29 @@ prismaWrapper(async (prisma: PrismaClient) => {
       };
 
       const versions = arrayFrom(randRange(vars.submissionVersions), (i) => {
-        const zones = JSON.stringify(randomZones());
         return {
           versionNum: i + 1,
           // Has to be submitterID; connect is not supported by createMany.
           submitterID: Random.element(userIDs),
-          bspHash: mapHash,
+          bspHash: realMap.bspHash,
           bspDownloadId: randomUUID(),
           vmfDownloadId: null, // Could add a VMF if we really want but leaving for now
-          zones,
-          zoneHash: createHash('sha1').update(zones).digest('hex'),
+          zones: realMap.zones,
+          zoneHash: realMap.zoneHash,
           changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
         };
       });
 
-      const status = Random.weighted(weights.mapStatusWeights);
+      const status = isNamedMap
+        ? MapStatus.APPROVED
+        : Random.weighted(weights.mapStatusWeights);
       const inSubmission = MapStatuses.IN_SUBMISSION.includes(status);
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = JSON.parse(versions.at(-1).zones);
-      const numModes = randRange(vars.modesPerLeaderboard);
-      const modesSet = new Set<Gamemode>();
+      const zones = JSON.parse(realMap.zones);
+      const numModes = isNamedMap ? 1 : randRange(vars.modesPerLeaderboard);
+      const modesSet = new Set<Gamemode>(isNamedMap ? [Gamemode.SURF] : []);
       while (modesSet.size < numModes) {
         modesSet.add(Random.enumValue(Gamemode));
       }
@@ -535,51 +551,59 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.STAGE,
             trackNum: i + 1
           })),
-          ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
+          ...arrayFrom(zones.tracks.bonuses?.length ?? 0, (i) => ({
             trackType: TrackType.BONUS,
             trackNum: i + 1
           }))
-        ].map(({ trackType, trackNum }) => {
-          const leaderboard = {
-            trackType,
-            trackNum,
-            gamemode: m,
-            style: Style.NORMAL,
-            linear:
-              trackType === TrackType.MAIN
-                ? Zone.isLinearMainTrack(zones)
-                : undefined,
-            tier:
-              trackType !== TrackType.STAGE && !inSubmission
-                ? Random.int(10, 1)
-                : undefined,
-            type: inSubmission
-              ? LeaderboardType.IN_SUBMISSION
-              : trackType === TrackType.BONUS
-                ? Random.chance()
-                  ? LeaderboardType.RANKED
-                  : LeaderboardType.UNRANKED
-                : rankedMainTracks.get(m),
-            tags:
-              trackType === TrackType.MAIN && !inSubmission
-                ? Random.elements(MapTags.get(m), Random.int(4))
-                : []
-          };
+        ].flatMap(({ trackType, trackNum }) =>
+          [...GamemodeStyles.get(m)].map((style) => {
+            const leaderboard = {
+              trackType,
+              trackNum,
+              gamemode: m,
+              style,
+              linear:
+                trackType === TrackType.MAIN
+                  ? Zone.isLinearMainTrack(zones)
+                  : undefined,
+              tier:
+                trackType !== TrackType.STAGE && !inSubmission
+                  ? Random.int(10, 1)
+                  : undefined,
+              type: inSubmission
+                ? LeaderboardType.IN_SUBMISSION
+                : trackType === TrackType.BONUS
+                  ? Random.chance()
+                    ? LeaderboardType.RANKED
+                    : LeaderboardType.UNRANKED
+                  : rankedMainTracks.get(m),
+              tags:
+                trackType === TrackType.MAIN && !inSubmission
+                  ? Random.elements(MapTags.get(m), Random.int(4))
+                  : []
+            };
 
-          if (trackType === TrackType.MAIN) {
-            leaderboard.linear = Zone.isLinearMainTrack(zones);
-          }
+            if (trackType === TrackType.MAIN) {
+              leaderboard.linear = Zone.isLinearMainTrack(zones);
+            }
 
-          if (trackType !== TrackType.STAGE && !inSubmission) {
-            leaderboard.tier = Random.int(10, 1);
-          }
+            if (trackType !== TrackType.STAGE && !inSubmission) {
+              leaderboard.tier = Random.int(10, 1);
+            }
 
-          return leaderboard;
-        })
+            return leaderboard;
+          })
+        )
+      );
+
+      // Suggestions are per gamemode + track, not per style, so derive them from
+      // a single style's leaderboards to avoid duplicates.
+      const uniqueTrackLeaderboards = leaderboards.filter(
+        ({ gamemode, style }) => style === [...GamemodeStyles.get(gamemode)][0]
       );
 
       const submissionSuggestions = () =>
-        leaderboards
+        uniqueTrackLeaderboards
           .filter(({ trackType }) => trackType !== TrackType.STAGE)
           .map(({ gamemode, trackType, trackNum }) => ({
             gamemode,
@@ -612,7 +636,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               })
             )
           : undefined,
-        suggestions: leaderboards
+        suggestions: uniqueTrackLeaderboards
           .filter(({ trackType }) => trackType !== TrackType.STAGE)
           .filter(() => Random.chance())
           .map(({ gamemode, trackType, trackNum }) => ({
@@ -746,7 +770,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         new PutObjectCommand({
           Bucket: s3BucketName,
           Key: bspPath(lastVersion.bspDownloadId),
-          Body: mapBuffer
+          Body: realMap.bsp
         })
       );
 
@@ -1193,6 +1217,23 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     console.log(`Generated map list, encoding took ${Date.now() - t1}ms`);
 
+    // Remove map lists from previous seeds, otherwise the backend keeps serving
+    // whichever version Valkey (or the highest-numbered file) points to.
+    const { Contents: oldMapLists } = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: s3BucketName,
+        Prefix: mapListDir(type)
+      })
+    );
+    if (oldMapLists?.length > 0) {
+      await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: s3BucketName,
+          Delete: { Objects: oldMapLists.map(({ Key }) => ({ Key })) }
+        })
+      );
+    }
+
     await s3.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
@@ -1201,6 +1242,18 @@ prismaWrapper(async (prisma: PrismaClient) => {
       })
     );
   }
+
+  // Point the backend at the v1 map lists we just generated. Keys copied from
+  // map-list.service.ts, if changing there, change here as well.
+  const valkeyPort =
+    process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'];
+  const valkeyHost = process.env['VALKEY_HOST'] || 'localhost';
+  const valkey =
+    valkeyPort === 0
+      ? new Valkey({ path: valkeyHost })
+      : new Valkey({ port: valkeyPort, host: valkeyHost });
+  await valkey.mset({ 'maplistver:approved': 1, 'maplistver:submission': 1 });
+  await valkey.quit();
 
   //#region Make me admin
 
