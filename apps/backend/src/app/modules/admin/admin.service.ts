@@ -403,14 +403,49 @@ export class AdminService {
     expand?: string[],
     resolved?: boolean
   ) {
-    const dbResponse = await this.db.report.findManyAndCount({
+    const [reports, count] = await this.db.report.findManyAndCount({
       where: { resolved },
-      include: expandToIncludes(expand),
+      include: expandToIncludes(expand, { without: ['target'] }),
       orderBy: { createdAt: 'desc' },
       skip,
       take
     });
-    return new PagedResponseDto(ReportDto, dbResponse);
+
+    if (!expand?.includes('target'))
+      return new PagedResponseDto(ReportDto, [reports, count]);
+
+    // `data` points into a different table depending on `type`, so there's no
+    // relation Prisma can include.
+    const isUserReport = (type: number) =>
+      type === ReportType.USER_PROFILE_REPORT ||
+      type === ReportType.PLAYER_REPORT;
+    const userIDs = reports
+      .filter(({ type }) => isUserReport(type))
+      .map(({ data }) => Number(data));
+    const mapIDs = reports
+      .filter(({ type }) => type === ReportType.MAP_REPORT)
+      .map(({ data }) => Number(data));
+
+    const [users, maps] = await Promise.all([
+      this.db.user.findMany({ where: { id: { in: userIDs } } }),
+      this.db.mMap.findMany({ where: { id: { in: mapIDs } } })
+    ]);
+    const usersByID = new Map(users.map((user) => [user.id, user]));
+    const mapsByID = new Map(maps.map((map) => [map.id, map]));
+
+    return new PagedResponseDto(ReportDto, [
+      reports.map((report) => ({
+        ...report,
+        targetUser: isUserReport(report.type)
+          ? usersByID.get(Number(report.data))
+          : undefined,
+        targetMap:
+          report.type === ReportType.MAP_REPORT
+            ? mapsByID.get(Number(report.data))
+            : undefined
+      })),
+      count
+    ]);
   }
 
   async updateReport(
