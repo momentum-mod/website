@@ -3488,6 +3488,32 @@ describe('Admin', () => {
           token: adminToken
         }));
 
+      it('should resolve the reported user with the target include', async () => {
+        const playerReport = await prisma.report.create({
+          data: {
+            data: u1.id,
+            type: ReportType.PLAYER_REPORT,
+            category: ReportCategory.OTHER,
+            message: 'player report',
+            submitterID: u1.id
+          }
+        });
+
+        const res = await req.get({
+          url: 'admin/reports',
+          status: 200,
+          query: { expand: 'target', resolved: false },
+          token: adminToken,
+          validatePaged: { type: ReportDto }
+        });
+
+        const report = res.body.data.find(({ id }) => id === playerReport.id);
+        expect(report.targetUser.id).toBe(u1.id);
+        expect(report.targetMap).toBeUndefined();
+
+        await prisma.report.delete({ where: { id: playerReport.id } });
+      });
+
       it('should return 403 if a non admin access token is given', () =>
         req.get({
           url: 'admin/reports',
