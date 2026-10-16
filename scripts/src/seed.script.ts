@@ -190,14 +190,24 @@ prismaWrapper(async (prisma: PrismaClient) => {
   }
 
   const dir = path.join(__dirname, '../../scripts/assets');
-  // Every seeded map uses this BSP and its real zones, so any of them can be
-  // loaded in-game with valid tracks. The first map also gets its real name, so
-  // it matches a local copy of the map.
-  const mapName = 'surf_fruits';
-  const mapBuffer = readFileSync(path.join(dir, `${mapName}.bsp`));
-  const mapHash = createHash('sha1').update(mapBuffer).digest('hex');
-  const mapZones = readFileSync(path.join(dir, `${mapName}.json`), 'utf8');
-  const mapZoneHash = createHash('sha1').update(mapZones).digest('hex');
+  // Real maps with their real zones, so seeded maps can be loaded in-game with
+  // valid tracks. The first few maps get these names (approved, surf) so they
+  // match local copies of the maps; every other map uses the first one's BSP
+  // and zones. surf_lt_omnific and surf_classics have lots of tracks, handy
+  // for testing UI with many stages/bonuses.
+  const realMaps = ['surf_fruits', 'surf_lt_omnific', 'surf_classics'].map(
+    (name) => {
+      const bsp = readFileSync(path.join(dir, `${name}.bsp`));
+      const zones = readFileSync(path.join(dir, `${name}.json`), 'utf8');
+      return {
+        name,
+        bsp,
+        bspHash: createHash('sha1').update(bsp).digest('hex'),
+        zones,
+        zoneHash: createHash('sha1').update(zones).digest('hex')
+      };
+    }
+  );
 
   let imageBuffers: Array<{
     small: Buffer;
@@ -440,7 +450,12 @@ prismaWrapper(async (prisma: PrismaClient) => {
     for (let i = 0; i < mapsToCreate; i++) {
       console.log(`Adding map (${i + 1}/${mapsToCreate})`);
       console.time('Added map');
-      const isNamedMap = i === 0 && !usedNames.includes(mapName);
+      const namedMap =
+        i < realMaps.length && !usedNames.includes(realMaps[i].name)
+          ? realMaps[i]
+          : undefined;
+      const isNamedMap = namedMap !== undefined;
+      const realMap = namedMap ?? realMaps[0];
       // Make sure name always <= 32 chars (16 + 11 + 5 = 32)
       let name =
         faker.lorem.word({ length: { min: 3, max: 16 } }) +
@@ -449,7 +464,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       // with both.
       const prefix = Random.element(prefixes);
       if (isNamedMap) {
-        name = mapName;
+        name = namedMap.name;
       } else if (Random.chance(0.75)) {
         name = `${prefix}_${name}`;
       }
@@ -494,11 +509,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
           versionNum: i + 1,
           // Has to be submitterID; connect is not supported by createMany.
           submitterID: Random.element(userIDs),
-          bspHash: mapHash,
+          bspHash: realMap.bspHash,
           bspDownloadId: randomUUID(),
           vmfDownloadId: null, // Could add a VMF if we really want but leaving for now
-          zones: mapZones,
-          zoneHash: mapZoneHash,
+          zones: realMap.zones,
+          zoneHash: realMap.zoneHash,
           changelog: faker.lorem.paragraphs({ min: 1, max: 10 })
         };
       });
@@ -510,7 +525,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = JSON.parse(mapZones);
+      const zones = JSON.parse(realMap.zones);
       const numModes = isNamedMap ? 1 : randRange(vars.modesPerLeaderboard);
       const modesSet = new Set<Gamemode>(isNamedMap ? [Gamemode.SURF] : []);
       while (modesSet.size < numModes) {
@@ -536,7 +551,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             trackType: TrackType.STAGE,
             trackNum: i + 1
           })),
-          ...arrayFrom(zones.tracks.bonuses.length, (i) => ({
+          ...arrayFrom(zones.tracks.bonuses?.length ?? 0, (i) => ({
             trackType: TrackType.BONUS,
             trackNum: i + 1
           }))
@@ -755,7 +770,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         new PutObjectCommand({
           Bucket: s3BucketName,
           Key: bspPath(lastVersion.bspDownloadId),
-          Body: mapBuffer
+          Body: realMap.bsp
         })
       );
 
