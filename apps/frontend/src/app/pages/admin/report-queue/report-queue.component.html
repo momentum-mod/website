@@ -12,14 +12,15 @@
     <div class="w-[9%] px-2 py-1">Date</div>
     <div class="w-[9%] px-2 py-1">Type</div>
     <div class="w-[9%] px-2 py-1">Category</div>
-    <div class="w-[13%] px-2 py-1">Submitter</div>
-    <div class="w-[13%] px-2 py-1">Resolver</div>
-    <div class="w-[19%] px-2 py-1 text-center">Report Message</div>
-    <div class="w-[19%] px-2 py-1 text-center">Resolution Message</div>
+    <div class="w-[12%] px-2 py-1">Reported</div>
+    <div class="w-[11%] px-2 py-1">Submitter</div>
+    <div class="w-[11%] px-2 py-1">Resolver</div>
+    <div class="w-[16%] px-2 py-1 text-center">Report Message</div>
+    <div class="w-[14%] px-2 py-1 text-center">Resolution Message</div>
     <div class="w-[9%] px-2 py-1 text-center">Actions</div>
   </div>
   <ul [mSpinner]="loading" class="divide-y divide-white divide-opacity-10">
-    @for (report of reportQueue; track $index) {
+    @for (report of reportQueue; track report.id) {
       <li class="basis-full">
         <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
       </li>
