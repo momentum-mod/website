@@ -1,5 +1,5 @@
 <!-- A table row from lg up. Below that each report is a block of labelled fields. -->
-<div class="flex flex-col gap-1 p-3 lg:flex-row lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0">
+<div class="flex flex-col gap-1 p-3 lg:flex-row lg:gap-0 lg:divide-x lg:divide-white lg:divide-opacity-10 lg:p-0">
   <div class="text-left lg:w-[9%] lg:px-2 lg:py-1" [title]="report.createdAt | date: 'medium'">
     <span class="mr-2 text-sm text-gray-300 lg:hidden">Date</span>{{ report.createdAt | date: 'MMM d, h:mm a' }}
   </div>
@@ -7,7 +7,21 @@
   <div class="text-left lg:w-[9%] lg:px-2 lg:py-1">
     <span class="mr-2 text-sm text-gray-300 lg:hidden">Category</span>{{ categoryText }}
   </div>
-  <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
+  <div class="flex items-center gap-2 text-left lg:block lg:w-[12%] lg:px-2 lg:py-1">
+    <span class="text-sm text-gray-300 lg:hidden">Reported</span>
+    @if (report.targetUser) {
+      <a [routerLink]="'/profile/' + report.targetUser.id" class="flex items-center gap-2">
+        <m-avatar class="h-6" [url]="report.targetUser.avatarURL" />
+        <p>{{ report.targetUser.alias }}</p>
+      </a>
+    } @else if (report.targetMap) {
+      <a [routerLink]="'/maps/' + report.targetMap.name">{{ report.targetMap.name }}</a>
+    } @else {
+      <!-- Deleted, or a type we don't resolve (map comments) -->
+      <i class="text-gray-300">#{{ report.data }}</i>
+    }
+  </div>
+  <div class="flex items-center gap-2 text-left lg:block lg:w-[11%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Submitter</span>
     @if (report.submitter) {
       <a [routerLink]="'/profile/' + report.submitter.id" class="flex items-center gap-2">
@@ -16,7 +30,7 @@
       </a>
     }
   </div>
-  <div class="flex items-center gap-2 text-left lg:block lg:w-[13%] lg:px-2 lg:py-1">
+  <div class="flex items-center gap-2 text-left lg:block lg:w-[11%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Resolver</span>
     @if (report.resolver) {
       <a [routerLink]="'/profile/' + report.resolver.id" class="flex items-center gap-2">
@@ -25,7 +39,7 @@
       </a>
     }
   </div>
-  <div class="lg:w-[19%] lg:px-2 lg:py-1">
+  <div class="lg:w-[16%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Report Message</span>
     <p
       #messageText
@@ -38,7 +52,7 @@
       {{ report.message }}
     </p>
   </div>
-  <div class="lg:w-[19%] lg:px-2 lg:py-1">
+  <div class="lg:w-[14%] lg:px-2 lg:py-1">
     <span class="text-sm text-gray-300 lg:hidden">Resolution Message</span>
     <p
       #resolutionMessageText
