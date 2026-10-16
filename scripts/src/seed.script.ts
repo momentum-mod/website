@@ -15,7 +15,13 @@ import {
   User
 } from '@momentum/db';
 import { faker } from '@faker-js/faker';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3';
+import Valkey from 'iovalkey';
 import {
   ActivityType,
   Ban,
@@ -34,6 +40,7 @@ import {
   TrackType,
   FlatMapList,
   mapListPath,
+  mapListDir,
   imgSmallPath,
   imgMediumPath,
   imgLargePath,
@@ -1195,6 +1202,23 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     console.log(`Generated map list, encoding took ${Date.now() - t1}ms`);
 
+    // Remove map lists from previous seeds, otherwise the backend keeps serving
+    // whichever version Valkey (or the highest-numbered file) points to.
+    const { Contents: oldMapLists } = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: s3BucketName,
+        Prefix: mapListDir(type)
+      })
+    );
+    if (oldMapLists?.length > 0) {
+      await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: s3BucketName,
+          Delete: { Objects: oldMapLists.map(({ Key }) => ({ Key })) }
+        })
+      );
+    }
+
     await s3.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
@@ -1203,6 +1227,18 @@ prismaWrapper(async (prisma: PrismaClient) => {
       })
     );
   }
+
+  // Point the backend at the v1 map lists we just generated. Keys copied from
+  // map-list.service.ts, if changing there, change here as well.
+  const valkeyPort =
+    process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'];
+  const valkeyHost = process.env['VALKEY_HOST'] || 'localhost';
+  const valkey =
+    valkeyPort === 0
+      ? new Valkey({ path: valkeyHost })
+      : new Valkey({ port: valkeyPort, host: valkeyHost });
+  await valkey.mset({ 'maplistver:approved': 1, 'maplistver:submission': 1 });
+  await valkey.quit();
 
   //#region Make me admin
 
