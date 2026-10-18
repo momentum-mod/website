@@ -524,12 +524,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
         const updatePlaceholders = async () =>
           await firstValueFrom(
-            (this.localUserService.isModOrAdmin
-              ? this.adminService
-              : this.mapsService
-            ).updateMap(this.map.id, {
-              placeholders: this.credits.value.getSubmittablePlaceholders()
-            })
+            (this.canEdit ? this.adminService : this.mapsService).updateMap(
+              this.map.id,
+              {
+                placeholders: this.credits.value.getSubmittablePlaceholders()
+              }
+            )
           );
 
         // Backend won't allow us to be in state with no authors whatsoever,
@@ -954,5 +954,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   get isModOrAdmin() {
     return this.localUserService.isMod || this.localUserService.isAdmin;
+  }
+
+  get canEdit() {
+    return (
+      this.isModOrAdmin ||
+      (this.isReviewer && this.map?.status === MapStatus.PUBLIC_TESTING)
+    );
   }
 }

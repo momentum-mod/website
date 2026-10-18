@@ -1481,32 +1481,75 @@ describe('Admin', () => {
           );
         });
 
-        it(`should not allow a reviewer to update map data during ${MapStatus[status]}`, async () => {
-          const map = await db.createMap({ ...createMapData, status });
+        if (status === MapStatus.PUBLIC_TESTING) {
+          it('should allow a reviewer to update map data during PUBLIC_TESTING', async () => {
+            const map = await db.createMap({ ...createMapData, status });
 
-          await prisma.mMap.update({ where: { id: map.id }, data: { status } });
+            await req.patch({
+              url: `admin/maps/${map.id}`,
+              status: 204,
+              body: {
+                name: 'surf_albatross',
+                info: {
+                  description: 'Albatrosses are large seabirds.',
+                  youtubeID: 'IUfBBCkl_QI'
+                },
+                placeholders: [
+                  { type: MapCreditType.CONTRIBUTOR, alias: 'eee' }
+                ]
+              },
+              token: reviewerToken
+            });
 
-          await req.patch({
-            url: `admin/maps/${map.id}`,
-            status: 403,
-            body: {
+            const changedMap = await prisma.mMap.findFirst({
+              where: { id: map.id },
+              include: { info: true, submission: true }
+            });
+
+            expect(changedMap).toMatchObject({
               name: 'surf_albatross',
-              finalLeaderboards:
-                status === MapStatus.FINAL_APPROVAL
-                  ? [
-                      {
-                        gamemode: Gamemode.RJ,
-                        trackType: TrackType.MAIN,
-                        trackNum: 1,
-                        tier: 5,
-                        type: LeaderboardType.UNRANKED
-                      }
-                    ]
-                  : undefined
-            },
-            token: reviewerToken
+              info: {
+                description: 'Albatrosses are large seabirds.',
+                youtubeID: 'IUfBBCkl_QI'
+              },
+              submission: {
+                placeholders: [
+                  { type: MapCreditType.CONTRIBUTOR, alias: 'eee' }
+                ]
+              }
+            });
           });
-        });
+        } else {
+          it(`should not allow a reviewer to update map data during ${MapStatus[status]}`, async () => {
+            const map = await db.createMap({ ...createMapData, status });
+
+            await prisma.mMap.update({
+              where: { id: map.id },
+              data: { status }
+            });
+
+            await req.patch({
+              url: `admin/maps/${map.id}`,
+              status: 403,
+              body: {
+                name: 'surf_albatross',
+                finalLeaderboards:
+                  status === MapStatus.FINAL_APPROVAL
+                    ? [
+                        {
+                          gamemode: Gamemode.RJ,
+                          trackType: TrackType.MAIN,
+                          trackNum: 1,
+                          tier: 5,
+                          type: LeaderboardType.UNRANKED
+                        }
+                      ]
+                    : undefined
+              },
+              token: reviewerToken
+            });
+          });
+        }
       }
 
       it('should allow an admin to update suggestions during submission', async () => {
