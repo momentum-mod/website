@@ -91,6 +91,18 @@ export class ConfigValidation {
   readonly VALKEY_PORT: string;
 
   @IsString()
+  @IsOptionalWithEmptyString()
+  readonly TWITCH_CLIENT_ID?: string;
+
+  @IsString()
+  @IsOptionalWithEmptyString()
+  readonly TWITCH_CLIENT_SECRET?: string;
+
+  @IsString()
+  @IsOptionalWithEmptyString()
+  readonly TWITCH_STREAMS_UPDATE_SCHEDULE?: string;
+
+  @IsString()
   @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
   @IsOptional()
   readonly LOG_LEVEL?: pino.LevelWithSilent;

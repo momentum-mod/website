@@ -1,34 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { PagedResponse, TwitchStream } from '@momentum/constants';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class TwitchAPIService {
-  private http = inject(HttpClient);
+  private http = inject(HttpService);
 
-  private readonly baseURL: string;
-  private readonly clientID: string;
-  private readonly gameID: string;
-  private readonly headers: HttpHeaders;
-  constructor() {
-    this.baseURL = 'https://api.twitch.tv/helix';
-    this.clientID = '5aerrhj5xm0lgbrpdjw50wjh6pnmbc';
-    this.gameID = '492973';
-    this.headers = new HttpHeaders({
-      'Client-ID': this.clientID
-    });
-  }
-
-  public getGameStreams(): Observable<any> {
-    return this.http.get(this.baseURL + '/streams?game_id=' + this.gameID, {
-      headers: this.headers
-    });
-  }
-
-  public isUserLive(userID: string): Observable<any> {
-    return this.http.get(
-      this.baseURL + '/streams?game_id=' + this.gameID + '&user_id=' + userID,
-      { headers: this.headers }
-    );
+  public getGameStreams(): Observable<
+    PagedResponse<TwitchStream> | { data: any[] }
+  > {
+    return this.http.get<PagedResponse<TwitchStream>>('twitch/streams');
   }
 }
