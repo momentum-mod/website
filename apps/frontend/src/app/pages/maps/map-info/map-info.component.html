@@ -32,7 +32,7 @@
         }
       </div>
       <div class="flex flex-wrap items-end gap-2 max-lg:order-1 lg:ml-auto lg:flex-nowrap">
-        @if ((isSubmitter && inSubmission) || localUserService.isReviewerOrAbove) {
+        @if (canEditMap) {
           <a [routerLink]="'/map-edit/' + map.name" class="btn btn-green text-nowrap">Edit Map</a>
         }
         <button class="btn btn-blue pr-4 font-medium" type="button" mTooltip="Play Map - This doesn't work yet!!">

@@ -10,8 +10,10 @@ import { Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
   ActivityType,
+  MapStatus,
   MapStatuses,
   CombinedRoles,
+  Role,
   MapCreditsGetExpand,
   MapCreditType,
   MapSubmissionPlaceholder
@@ -106,8 +108,15 @@ export class MapCreditsService {
       select: { roles: true }
     });
 
-    // Let admins/mods update in any state
-    if (!Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)) {
+    // Let admins/mods update in any state, and reviewers in public testing
+    const isReviewerInPublicTesting =
+      Bitflags.has(roles, Role.REVIEWER) &&
+      map.status === MapStatus.PUBLIC_TESTING;
+
+    if (
+      !Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN) &&
+      !isReviewerInPublicTesting
+    ) {
       if (map.submitterID !== loggedInUserID) {
         throw new ForbiddenException('User is not the submitter of this map');
       }
