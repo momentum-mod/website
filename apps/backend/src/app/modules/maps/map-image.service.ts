@@ -9,8 +9,10 @@ import {
 } from '@nestjs/common';
 import {
   AdminActivityType,
+  MapStatus,
   MapStatuses,
   CombinedRoles,
+  Role,
   imgLargePath,
   imgMediumPath,
   imgSmallPath,
@@ -64,11 +66,15 @@ export class MapImageService {
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    const isMod = Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN);
+    // Reviewers can update images on maps in public testing, mods and admins can update always
+    const canUpdate =
+      Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN) ||
+      (Bitflags.has(user.roles, Role.REVIEWER) &&
+        map.status === MapStatus.PUBLIC_TESTING);
     const isSubmitter = map.submitterID === userID;
     const isInSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
 
-    if (!isMod) {
+    if (!canUpdate) {
       if (!isSubmitter)
         throw new ForbiddenException('User is not the submitter of the map');
 
@@ -128,7 +134,7 @@ export class MapImageService {
       select: { images: true }
     });
 
-    if (isMod && !(isSubmitter && isInSubmission)) {
+    if (canUpdate && !(isSubmitter && isInSubmission)) {
       await this.adminActivityService.create(
         userID,
         AdminActivityType.MAP_UPDATE,

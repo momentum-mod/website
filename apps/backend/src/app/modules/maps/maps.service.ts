@@ -744,8 +744,14 @@ export class MapsService {
       where: { id: userID }
     });
 
+    // Reviewers can upload new versions to maps in public testing
+    const isReviewerInPublicTesting =
+      Bitflags.has(user.roles, Role.REVIEWER) &&
+      map.status === MapStatus.PUBLIC_TESTING;
+
     if (
       !Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN) &&
+      !isReviewerInPublicTesting &&
       map.submitterID !== userID
     )
       throw new ForbiddenException('User is not the map submitter');
@@ -1311,11 +1317,14 @@ export class MapsService {
       }
     } else if (!Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
       if (Bitflags.has(user.roles, Role.REVIEWER)) {
-        // The *only* things reviewer is allowed is to go from
-        // content approval -> public testing or rejected
+        // Reviewers can update a map in any way while it's in public testing.
+        // (Status changes are still checked against MapStatusChangeRules.)
+        // In every other status, the *only* things reviewer is allowed is to
+        // go from content approval -> public testing or rejected
         if (
-          dto.status !== MapStatus.PUBLIC_TESTING || // updating to status other public testing
-          Object.values(dto).filter((x) => x !== undefined).length !== 1 // anything else on the DTO
+          map.status !== MapStatus.PUBLIC_TESTING &&
+          (dto.status !== MapStatus.PUBLIC_TESTING || // updating to status other public testing
+            Object.values(dto).filter((x) => x !== undefined).length !== 1) // anything else on the DTO
         ) {
           throw new ForbiddenException(
             'Reviewer may only change status to PUBLIC_TESTING'

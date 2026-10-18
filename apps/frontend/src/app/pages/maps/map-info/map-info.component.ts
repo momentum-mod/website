@@ -120,6 +120,22 @@ export class MapInfoComponent implements OnInit {
   inSubmission: boolean;
 
   currentSection = MapInfoSection.SUBMISSION;
+
+  /**
+   * Whether to show the "Edit Map" button.
+   * Mods/admins can edit any map
+   * submitters can edit during submission.
+   * Reviewers can only edit maps in public testing, or use the status control on maps in content approval.
+   */
+  get canEditMap() {
+    if (this.localUserService.isModOrAdmin) return true;
+    if (this.isSubmitter && this.inSubmission) return true;
+    return (
+      this.localUserService.isReviewerOrAbove &&
+      (this.map.status === MapStatus.PUBLIC_TESTING ||
+        this.map.status === MapStatus.CONTENT_APPROVAL)
+    );
+  }
   sections = Enum.values(MapInfoSection);
 
   ngOnInit() {
