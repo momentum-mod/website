@@ -96,8 +96,25 @@ export class UsersService {
     return new PagedResponseDto(UserDto, dbResponse);
   }
 
-  async get(id: number, expand?: string[]): Promise<UserDto> {
+  async get(
+    id: number,
+    expand?: string[],
+    localUser = false
+  ): Promise<UserDto> {
     const include: Prisma.UserInclude = expandToIncludes(expand) ?? {};
+
+    // Embed the user's own currently-active chat/voice bans. Only done for the
+    // local-user endpoint (GET /user); the game reads these to block
+    // communication and show a toast. We don't expose the reason or duration
+    // through the general /users/:id endpoint.
+    if (localUser) {
+      include.chatBans = {
+        where: {
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
+        },
+        select: { type: true, expiresAt: true, reason: true }
+      };
+    }
 
     const dbResponse: any = await this.db.user.findUnique({
       where: { id },

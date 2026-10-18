@@ -6,6 +6,14 @@ import { filter, first } from 'rxjs/operators';
 export const SIDENAV_LS_KEY = 'sideNavOpen';
 export const BG_STATE_LS_KEY = 'customBgState';
 
+/**
+ * Viewports narrower than this are treated as mobile, where the sidenav is an
+ * off-canvas drawer rather than a persistent sidebar. Must match Tailwind's
+ * `md` breakpoint in tailwind.config.js, and the `@media` queries in the app,
+ * header and sidenav CSS.
+ */
+export const MOBILE_MEDIA_QUERY = '(max-width: 767.98px)';
+
 // Using enums here as localStorage only stores strings.
 export enum SidenavState {
   OPEN = 'open',
@@ -21,8 +29,19 @@ export enum BackgroundState {
 export class LayoutService {
   private readonly router = inject(Router);
 
+  private readonly mobileQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+
+  public readonly isMobile = new BehaviorSubject<boolean>(
+    this.mobileQuery.matches
+  );
+
+  /**
+   * On desktop, OPEN/CLOSED is the full/collapsed sidebar, and is persisted.
+   * On mobile it's whether the drawer is showing, which always starts CLOSED
+   * and is never persisted.
+   */
   public readonly sidenavToggled = new BehaviorSubject<SidenavState>(
-    SidenavState.OPEN
+    this.getInitialSidenavState()
   );
 
   private backgroundReservations: RegExp[] = [];
@@ -31,14 +50,11 @@ export class LayoutService {
   public readonly backgroundEnable = new BehaviorSubject<boolean>(true);
 
   constructor() {
-    const storedState = localStorage.getItem(
-      SIDENAV_LS_KEY
-    ) as SidenavState | null;
-    if (storedState != null) {
-      this.setSidenavState(storedState);
-    } else {
-      this.setSidenavState(SidenavState.OPEN);
-    }
+    this.mobileQuery.addEventListener('change', ({ matches }) => {
+      this.isMobile.next(matches);
+      // Don't carry the drawer's state over to the sidebar, or vice versa.
+      this.sidenavToggled.next(this.getInitialSidenavState());
+    });
 
     const bgState = localStorage.getItem(BG_STATE_LS_KEY) as BackgroundState;
     if (bgState != null) {
@@ -56,10 +72,26 @@ export class LayoutService {
         )
       )
       .subscribe(() => this.resetBackgroundImage());
+
+    // The drawer covers the page, so dismiss it after navigating.
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (this.isMobile.value) this.setSidenavState(SidenavState.CLOSED);
+      });
+  }
+
+  private getInitialSidenavState(): SidenavState {
+    if (this.isMobile.value) return SidenavState.CLOSED;
+
+    const storedState = localStorage.getItem(SIDENAV_LS_KEY);
+    return storedState === SidenavState.CLOSED
+      ? SidenavState.CLOSED
+      : SidenavState.OPEN;
   }
 
   setSidenavState(state: SidenavState): void {
-    localStorage.setItem(SIDENAV_LS_KEY, state);
+    if (!this.isMobile.value) localStorage.setItem(SIDENAV_LS_KEY, state);
 
     this.sidenavToggled.next(state);
   }
@@ -88,7 +120,7 @@ export class LayoutService {
     const enable = state === BackgroundState.ENABLED;
     if (this.backgroundEnable.value === enable) return;
 
-    localStorage.setItem(SIDENAV_LS_KEY, state);
+    localStorage.setItem(BG_STATE_LS_KEY, state);
     this.backgroundEnable.next(enable);
   }
 

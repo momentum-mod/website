@@ -27,6 +27,7 @@ export class FontSizeLerpDirective implements OnChanges {
     if (chars > startAt) {
       val = (baseRem * startAt) / chars;
     }
-    this.fontSize = `${val}rem`;
+    // Elements can set --font-lerp-scale to shrink the result, e.g. on mobile.
+    this.fontSize = `calc(${val}rem * var(--font-lerp-scale, 1))`;
   }
 }

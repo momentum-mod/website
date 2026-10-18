@@ -1,6 +1,6 @@
 :host {
   height: 100%;
-  width: 20rem;
+  width: 3.5rem;
   position: relative;
   z-index: -3;
 
@@ -40,4 +40,10 @@
 /* TODO: Evil ::ng-deep until we have proper PrimeNG styling. */
 ::ng-deep .playercard__progressbar > .p-progressbar {
   height: 100%;
+}
+
+@media (min-width: 768px) {
+  :host {
+    width: 20rem;
+  }
 }

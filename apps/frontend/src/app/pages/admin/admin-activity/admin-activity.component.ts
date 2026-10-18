@@ -58,6 +58,9 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.REVIEW_COMMENT_DELETED, text: 'Review comment deleted' },
     { value: AdminActivityType.RUN_DELETED, text: 'Run deleted' },
     { value: AdminActivityType.RUNS_PURGED, text: 'Purged runs' },
+    { value: AdminActivityType.CHAT_BAN_CREATE, text: 'Chat ban issued' },
+    { value: AdminActivityType.CHAT_BAN_UPDATE, text: 'Chat ban updated' },
+    { value: AdminActivityType.CHAT_BAN_REVOKE, text: 'Chat ban revoked' },
   ];
 
   protected compositeActivities: Array<{

@@ -24,28 +24,66 @@
     }
   </ul>
 
-  <div class="mt-5 grid grid-flow-row grid-cols-[auto_auto_auto_auto_auto] gap-x-4 gap-y-1">
+  <!-- Table on desktop. On mobile each suggestion is its own small card, with tags and comments on separate lines, since
+       the five columns don't fit. Rows are display: contents on desktop so they take part in the parent grid. -->
+  <div class="mt-5 grid grid-flow-row grid-cols-1 gap-2 md:grid-cols-[auto_auto_auto_auto_auto] md:gap-x-4 md:gap-y-1">
     <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
-    <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
-    <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
-    <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
-    <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments ? 'Comment' : '' }}</p>
+    <div class="hidden md:contents">
+      <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
+      <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
+      <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
+      <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments ? 'Comment' : '' }}</p>
+    </div>
 
     @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
       @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
-        <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
-        <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
-        <m-icon class="justify-self-center text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
-        <p class="text-sm text-gray-50">{{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
-        <p class="text-sm text-gray-50">{{ mainSugg.comment }}</p>
+        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
+          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
+          <p
+            class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
+            [class]="mainSugg.tier == null ? 'max-md:hidden' : ''"
+          >
+            {{ mainSugg.tier ?? '' }}
+          </p>
+          <m-icon class="justify-self-center text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
+          <p
+            class="text-sm text-gray-50 max-md:col-span-full max-md:before:text-gray-250 max-md:before:content-['Tags:_']"
+            [class]="!mainSugg.tags?.length ? 'max-md:hidden' : ''"
+          >
+            {{ mainSugg.tags?.map(mapTagEnglishName)?.join(', ') }}
+          </p>
+          <p
+            class="text-sm text-gray-50 max-md:col-span-full max-md:before:text-gray-250 max-md:before:content-['Comment:_']"
+            [class]="!mainSugg.comment ? 'max-md:hidden' : ''"
+          >
+            {{ mainSugg.comment }}
+          </p>
+        </div>
       }
 
       @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-        <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
-        <p class="justify-self-center text-sm font-medium">{{ bonus.tier ?? '' }}</p>
-        <m-icon class="justify-self-center text-xl" [icon]="bonus.type === LeaderboardType.RANKED ? 'check' : 'close'" />
-        <p class="text-sm text-gray-50">{{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}</p>
-        <p class="text-sm text-gray-50">{{ bonus.comment }}</p>
+        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
+          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
+          <p
+            class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
+            [class]="bonus.tier == null ? 'max-md:hidden' : ''"
+          >
+            {{ bonus.tier ?? '' }}
+          </p>
+          <m-icon class="justify-self-center text-xl" [icon]="bonus.type === LeaderboardType.RANKED ? 'check' : 'close'" />
+          <p
+            class="text-sm text-gray-50 max-md:col-span-full max-md:before:text-gray-250 max-md:before:content-['Tags:_']"
+            [class]="!bonus.tags?.length ? 'max-md:hidden' : ''"
+          >
+            {{ bonus.tags?.map(mapTagEnglishName)?.join(', ') }}
+          </p>
+          <p
+            class="text-sm text-gray-50 max-md:col-span-full max-md:before:text-gray-250 max-md:before:content-['Comment:_']"
+            [class]="!bonus.comment ? 'max-md:hidden' : ''"
+          >
+            {{ bonus.comment }}
+          </p>
+        </div>
       }
     }
   </div>

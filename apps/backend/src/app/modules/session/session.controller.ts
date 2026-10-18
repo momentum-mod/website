@@ -1,8 +1,6 @@
 import {
   BadRequestException,
-  Body,
   Controller,
-  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -12,25 +10,15 @@ import {
   UseGuards
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
-  ApiForbiddenResponse,
-  ApiNoContentResponse,
-  ApiOkResponse,
-  ApiOperation,
   ApiParam,
   ApiTags
 } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
 import { GameAuthGuard } from '../auth/jwt/game.guard';
-import {
-  CompletedRunDto,
-  CreateRunSessionDto,
-  RunSessionDto,
-  UpdateRunSessionDto
-} from '../../dto';
+import { CompletedRunDto } from '../../dto';
 import { LoggedInUser } from '../../decorators';
 import { ParseIntSafePipe } from '../../pipes';
 import { RunSessionService } from './run/run-session.service';
@@ -38,6 +26,10 @@ import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { KillswitchType } from '@momentum/constants';
 
+// Run sessions are created, updated and invalidated over the WebSocket game
+// connection (see GameConnectionGateway). Only the run submission / replay
+// upload remains here, since WebSockets aren't well suited to large binary
+// uploads.
 @Controller('session')
 @UseGuards(GameAuthGuard)
 @ApiTags('Session')
@@ -45,70 +37,9 @@ import { KillswitchType } from '@momentum/constants';
 export class SessionController {
   constructor(private readonly runSessionService: RunSessionService) {}
 
-  @Post('/run')
-  @UseGuards(KillswitchGuard)
-  @Killswitch(KillswitchType.RUN_SUBMISSION)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Starts a run' })
-  @ApiBody({ type: CreateRunSessionDto })
-  @ApiOkResponse({
-    type: RunSessionDto,
-    description:
-      'Run Session DTO, including the ID of the run to use on other run run endpoints'
-  })
-  @ApiBadRequestResponse({ description: 'Body is invalid' })
-  @ApiBadRequestResponse({ description: 'Map does not exist' }) // Could 404 but we'd have to do an extra DB query
-  createRunSession(
-    @LoggedInUser('id') userID: number,
-    @Body() body: CreateRunSessionDto
-  ): Promise<RunSessionDto> {
-    return this.runSessionService.createSession(userID, body);
-  }
-
-  @Delete('/run/:sessionID')
-  @UseGuards(KillswitchGuard)
-  @Killswitch(KillswitchType.RUN_SUBMISSION)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({
-    type: Number,
-    description: 'Target Session ID',
-    name: 'sessionID',
-    required: true
-  })
-  @ApiNoContentResponse({ description: 'Session deleted successfully' })
-  @ApiBadRequestResponse({ description: 'Session does not exist' })
-  @ApiBadRequestResponse({
-    description: 'Session does not belong to that user'
-  })
-  invalidateSession(
-    @LoggedInUser('id') userID: number,
-    @Param('sessionID', ParseIntSafePipe) sessionID: number
-  ): Promise<void> {
-    return this.runSessionService.invalidateSession(userID, sessionID);
-  }
-
-  @Post('/run/:sessionID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiParam({
-    name: 'sessionID',
-    type: Number,
-    description: 'Target Session ID',
-    required: true
-  })
-  @ApiBody({ type: UpdateRunSessionDto })
-  @ApiNoContentResponse({ description: 'Timestamp submitted successfully' })
-  @ApiBadRequestResponse({ description: 'Session does not exist' })
-  @ApiBadRequestResponse({ description: 'Timestamps are invalid' })
-  @ApiForbiddenResponse({ description: 'Session does not belong to user' })
-  updateRunSession(
-    @LoggedInUser('id') userID: number,
-    @Param('sessionID', ParseIntSafePipe) sessionID: number,
-    @Body() body: UpdateRunSessionDto
-  ): Promise<void> {
-    return this.runSessionService.updateSession(userID, sessionID, body);
-  }
-
   @Post('/run/:sessionID/end')
+  @UseGuards(KillswitchGuard)
+  @Killswitch(KillswitchType.RUN_SUBMISSION)
   @HttpCode(HttpStatus.OK)
   @ApiParam({
     name: 'sessionID',

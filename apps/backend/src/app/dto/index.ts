@@ -1,6 +1,7 @@
 // Decorators and PrismaModelToDto are currently only used by DTOs themselves,
 // not exporting them for now.
 export * from './paged-response.dto';
+export * from './ws-response.dto';
 export * from './jsonifiable.dto';
 export * from './auth/jwt-response.dto';
 export * from './auth/refresh-token.dto';
@@ -27,6 +28,7 @@ export * from './map/map-review-edit.dto';
 export * from './map/map-test-invite.dto';
 export * from './map/map-pre-signed-url.dto';
 export * from './report/report.dto';
+export * from './chat-ban/chat-ban.dto';
 export * from './run/leaderboard-run.dto';
 export * from './run/past-run.dto';
 export * from './run/leaderboard.dto';

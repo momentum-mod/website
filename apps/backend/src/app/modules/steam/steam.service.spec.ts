@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { SteamService } from './steam.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
@@ -40,13 +40,14 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: unlimitedXml }));
+      httpGetMock.mockReturnValueOnce(of({ status: 200, data: unlimitedXml }));
 
       const result = await service.isAccountLimited(76561198039308694n);
 
       expect(result).toBe(false);
       expect(httpGetMock).toHaveBeenCalledWith(
-        'https://steamcommunity.com/profiles/76561198039308694?xml=1'
+        'https://steamcommunity.com/profiles/76561198039308694?xml=1',
+        expect.objectContaining({ validateStatus: expect.any(Function) })
       );
     });
 
@@ -59,7 +60,7 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: limitedXml }));
+      httpGetMock.mockReturnValueOnce(of({ status: 200, data: limitedXml }));
 
       const result = await service.isAccountLimited(76561198039308694n);
 
@@ -76,11 +77,45 @@ describe('SteamService', () => {
         </profile>
       `;
 
-      httpGetMock.mockReturnValueOnce(of({ data: noProfileXml }));
+      httpGetMock.mockReturnValueOnce(of({ status: 200, data: noProfileXml }));
 
       const result = await service.isAccountLimited(76561199511085543n);
 
       expect(result).toBe(true);
+    });
+
+    // steamcommunity.com rate-limits aggressively and this check is only a spam
+    // deterrent, so any failure to reach it must not block the user's login.
+    it('should fail open when Steam rate-limits us', async () => {
+      httpGetMock.mockReturnValueOnce(
+        of({ status: 429, data: '<html>Steam Community :: Error</html>' })
+      );
+
+      const result = await service.isAccountLimited(76561198039308694n);
+
+      expect(result).toBe(false);
+    });
+
+    it('should fail open when Steam returns a server error', async () => {
+      httpGetMock.mockReturnValueOnce(of({ status: 503, data: '' }));
+
+      const result = await service.isAccountLimited(76561198039308694n);
+
+      expect(result).toBe(false);
+    });
+
+    it('should fail open when the request never completes', async () => {
+      httpGetMock.mockReturnValueOnce(
+        throwError(() =>
+          Object.assign(new Error('socket hang up'), {
+            code: 'ECONNRESET'
+          })
+        )
+      );
+
+      const result = await service.isAccountLimited(76561198039308694n);
+
+      expect(result).toBe(false);
     });
   });
 });

@@ -52,6 +52,7 @@ export interface ConfigInterface {
   };
   limits: {
     dailyReports: number;
+    hourlyPlayerReports: number;
     mapImageUploads: number;
     bspSize: number;
     vmfSize: number;

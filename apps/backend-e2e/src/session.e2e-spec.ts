@@ -1,9 +1,8 @@
 // noinspection DuplicatedCode
 
-import { CompletedRunDto, RunSessionDto } from '../../backend/src/app/dto';
+import { CompletedRunDto } from '../../backend/src/app/dto';
 import {
   DbUtil,
-  NULL_ID,
   randomHash,
   randomSteamID,
   RequestUtil,
@@ -60,445 +59,6 @@ describe('Session', () => {
     await teardownE2ETestEnvironment(app, prisma);
   });
 
-  async function clearRunSessions() {
-    const [, elements] = await valkey.scan(
-      0,
-      'MATCH',
-      'runsess*',
-      'COUNT',
-      1000
-    );
-    await valkey.del(...elements);
-  }
-
-  describe('session/run', () => {
-    describe('POST', () => {
-      let user, token;
-
-      beforeEach(
-        async () => ([user, token] = await db.createAndLoginGameUser())
-      );
-
-      afterEach(() => db.cleanup('user'));
-
-      it('should return a valid run DTO', async () => {
-        for (const [trackType, trackNum] of [
-          [TrackType.MAIN, 1],
-          [TrackType.STAGE, 1],
-          [TrackType.STAGE, 2],
-          [TrackType.BONUS, 1]
-        ]) {
-          const res = await req.post({
-            url: 'session/run',
-            status: 200,
-            token,
-            body: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType,
-              trackNum
-            }
-          });
-
-          expect(res.body).toBeValidDto(RunSessionDto);
-          expect(res.body.userID).toBe(user.id);
-        }
-      });
-
-      it('should delete any sessions on the same trackID', async () => {
-        await clearRunSessions();
-
-        const createdAt = Date.now();
-
-        // Test will start stage run on stage 2
-
-        // Main track - should live
-        const mainID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${user.id}`, mainID);
-        await valkey.hset(`runsess:dat:${mainID}`, {
-          userID: user.id,
-          mapID: map.id,
-          createdAt,
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.MAIN,
-          trackNum: 1
-        });
-        await valkey.lpush(`runsess:ts:${mainID}`, `1,1,1,${createdAt}`);
-
-        // Stage track, different trackNum, should live
-        const stage1ID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${user.id}`, stage1ID);
-        await valkey.hset(`runsess:dat:${stage1ID}`, {
-          userID: user.id,
-          mapID: map.id,
-          createdAt,
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.STAGE,
-          trackNum: 1
-        });
-        await valkey.lpush(`runsess:ts:${stage1ID}`, `1,1,1,${createdAt}`);
-
-        // Stage track, same trackNum, should be deleted
-        const stage2ID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${user.id}`, stage2ID);
-        await valkey.hset(`runsess:dat:${stage2ID}`, {
-          userID: user.id,
-          mapID: map.id,
-          createdAt,
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.STAGE,
-          trackNum: 2
-        });
-        await valkey.lpush(`runsess:ts:${stage2ID}`, `1,1,1,${createdAt}`);
-
-        const res = await req.post({
-          url: 'session/run',
-          status: 200,
-          token,
-          body: {
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.STAGE,
-            trackNum: 2
-          }
-        });
-
-        const sessionIDs = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-        expect(sessionIDs).toHaveLength(3);
-        expect(sessionIDs).toContain(res.body.id.toString());
-
-        const sessions = await Promise.all(
-          sessionIDs.map((id) => valkey.hgetall(`runsess:dat:${id}`))
-        );
-
-        expect(sessions).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              userID: user.id.toString(),
-              mapID: map.id.toString(),
-              gamemode: Gamemode.AHOP.toString(),
-              trackType: TrackType.MAIN.toString(),
-              trackNum: '1'
-            }),
-            expect.objectContaining({
-              userID: user.id.toString(),
-              mapID: map.id.toString(),
-              gamemode: Gamemode.AHOP.toString(),
-              trackType: TrackType.STAGE.toString(),
-              trackNum: '1'
-            }),
-            expect.objectContaining({
-              userID: user.id.toString(),
-              mapID: map.id.toString(),
-              gamemode: Gamemode.AHOP.toString(),
-              trackType: TrackType.STAGE.toString(),
-              trackNum: '2'
-            })
-          ])
-        );
-      });
-
-      it('should 400 if not given a proper body', () =>
-        req.post({
-          url: 'session/run',
-          status: 400,
-          token
-        }));
-
-      it('should 400 if the map does not have leaderboards for given trackType/Num', async () => {
-        for (const [trackType, trackNum] of [
-          [TrackType.MAIN, 0],
-          [TrackType.MAIN, 2],
-          [TrackType.STAGE, 0],
-          [TrackType.STAGE, 3],
-          [TrackType.BONUS, 0],
-          [TrackType.BONUS, 2]
-        ]) {
-          await req.post({
-            url: 'session/run',
-            status: 400,
-            body: {
-              mapID: map.id,
-              gamemode: Gamemode.AHOP,
-              trackType,
-              trackNum
-            },
-            token
-          });
-        }
-      });
-
-      it('should 400 if the map does not exist', () =>
-        req.post({
-          url: 'session/run',
-          status: 400,
-          body: {
-            mapID: NULL_ID,
-            trackType: TrackType.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP
-          },
-          token
-        }));
-
-      it("should 400 if the map doesn't have a leaderboard for the provided gamemode", () =>
-        req.post({
-          url: 'session/run',
-          status: 400,
-          body: {
-            mapID: NULL_ID,
-            trackType: TrackType.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.BHOP
-          },
-          token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.post({
-          url: 'session/run',
-          status: 401,
-          body: {
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          }
-        }));
-
-      it('should return 403 if not using a game API key', async () => {
-        const nonGameToken = await db.loginNewUser();
-
-        await req.post({
-          url: 'session/run',
-          status: 403,
-          body: {
-            mapID: map.id,
-            gamemode: Gamemode.AHOP,
-            trackType: TrackType.MAIN,
-            trackNum: 1
-          },
-          token: nonGameToken
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('session/run', 'post'));
-
-      it('should 503 if killswitch guard is active', async () => {
-        const adminToken = await db.loginNewUser({
-          data: { roles: Role.ADMIN }
-        });
-
-        await req.patch({
-          url: 'admin/killswitch',
-          status: 204,
-          body: {
-            RUN_SUBMISSION: true
-          },
-          token: adminToken
-        });
-
-        await req.post({
-          url: 'session/run',
-          status: 503,
-          token
-        });
-
-        await resetKillswitches(req, adminToken);
-      });
-    });
-
-    describe('DELETE', () => {
-      let u1, u1Token, u2Token, s1ID, s2ID;
-
-      beforeEach(async () => {
-        [u1, u1Token] = await db.createAndLoginGameUser();
-        u2Token = await db.loginNewGameUser();
-
-        await clearRunSessions();
-        const createdAt = Date.now();
-
-        s1ID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${u1.id}`, s1ID);
-        await valkey.hset(`runsess:dat:${s1ID}`, {
-          userID: u1.id,
-          createdAt,
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.MAIN,
-          trackNum: 1
-        });
-        await valkey.lpush(`runsess:ts:${s1ID}`, `1,1,1,${createdAt}`);
-
-        s2ID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${u1.id}`, s2ID);
-        await valkey.hset(`runsess:dat:${s2ID}`, {
-          userID: u1.id,
-          createdAt,
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.STAGE,
-          trackNum: 1
-        });
-        await valkey.lpush(`runsess:ts:${s2ID}`, `1,1,1,${createdAt}`);
-      });
-
-      afterEach(() => db.cleanup('user'));
-
-      it('should delete the run session', async () => {
-        await req.del({
-          url: `session/run/${s1ID}`,
-          status: 204,
-          token: u1Token
-        });
-
-        expect(await valkey.exists(`runsess:dat:${s1ID}`)).toBe(0);
-        expect(await valkey.exists(`runsess:ts:${s1ID}`)).toBe(0);
-        const sessionIDs = await valkey.lrange(`runsess:id:${u1.id}`, 0, -1);
-        expect(sessionIDs).toHaveLength(1);
-        expect(sessionIDs).not.toContain(s1ID.toString());
-        expect(sessionIDs).toContain(s2ID.toString());
-      });
-
-      it("should 400 if session doesn't exist", async () => {
-        await req.del({
-          url: `session/run/${NULL_ID}`,
-          status: 400,
-          token: u1Token
-        });
-      });
-
-      it('should 503 if killswitch guard is active for session/run', async () => {
-        const adminToken = await db.loginNewUser({
-          data: { roles: Role.ADMIN }
-        });
-
-        await req.patch({
-          url: 'admin/killswitch',
-          status: 204,
-          body: {
-            RUN_SUBMISSION: true
-          },
-          token: adminToken
-        });
-
-        await req.post({
-          url: 'session/run',
-          status: 503,
-          token: u1Token
-        });
-
-        await resetKillswitches(req, adminToken);
-      });
-
-      it('should 400 if trying to delete a session belonging to another user', async () => {
-        await req.del({
-          url: `session/run/${s1ID}`,
-          status: 400,
-          token: u2Token
-        });
-      });
-
-      it('should return 403 if not using a game API key', async () => {
-        const nonGameToken = await db.loginNewUser();
-
-        await req.del({
-          url: `session/run/${s1ID}`,
-          status: 403,
-          token: nonGameToken
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`session/run/${s1ID}`, 'del'));
-    });
-  });
-
-  describe('session/run/:sessionID', () => {
-    describe('POST', () => {
-      let user, token, sessionID: number;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginGameUser();
-
-        await clearRunSessions();
-
-        sessionID = await valkey.incr('runsess:counter');
-        await valkey.lpush(`runsess:id:${user.id}`, sessionID);
-        await valkey.hset(`runsess:dat:${sessionID}`, {
-          userID: user.id,
-          createdAt: Date.now(),
-          gamemode: Gamemode.AHOP,
-          trackType: TrackType.MAIN,
-          trackNum: 1,
-          mapID: map.id
-        });
-        await valkey.lpush(`runsess:ts:${sessionID}`, `1,1,47,${Date.now()}`);
-      });
-
-      afterAll(() => db.cleanup('user'));
-
-      it('should update an existing run with the zone and tick', async () => {
-        await req.post({
-          url: `session/run/${sessionID}`,
-          status: 204,
-          body: { majorNum: 1, minorNum: 2, time: 510 },
-          token
-        });
-
-        const runSessions = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-        expect(runSessions.length).toBe(1);
-        expect(runSessions[0]).toBe(sessionID.toString());
-
-        const timestamps = await valkey.lrange(
-          `runsess:ts:${sessionID}`,
-          0,
-          -1
-        );
-        expect(timestamps.length).toBe(2);
-
-        expect(timestamps).toEqual(
-          expect.arrayContaining([
-            expect.stringMatching(/1,1,47,\d+/),
-            expect.stringMatching(/1,2,510,\d+/)
-          ])
-        );
-      });
-
-      it('should 403 if not the owner of the run', async () => {
-        const u2Token = await db.loginNewGameUser();
-
-        await req.post({
-          url: `session/run/${sessionID}`,
-          status: 400,
-          body: { majorNum: 1, minorNum: 2, time: 510 },
-          token: u2Token
-        });
-      });
-
-      it('should 400 if the run does not exist', () =>
-        req.post({
-          url: `session/run/${NULL_ID}`,
-          status: 400,
-          body: { majorNum: 1, minorNum: 2, time: 510 },
-          token
-        }));
-
-      it('should 403 if not using a game API key', async () => {
-        const nonGameToken = await db.loginNewUser();
-
-        await req.post({
-          url: `session/run/${sessionID}`,
-          status: 403,
-          body: { majorNum: 1, minorNum: 2, time: 510 },
-          token: nonGameToken
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('session/run/1', 'post'));
-    });
-  });
-
   // Testing this is HARD. We need a replay that matches our timestamps okay so
   // we're going to be heavily relying on this RunTester class to essentially
   // generate a valid run the API will accept. NOTE: Before anyone gets any
@@ -516,6 +76,7 @@ describe('Session', () => {
 
         defaultTesterProperties = (): RunTesterProps => ({
           token,
+          userID: user.id,
           gamemode: Gamemode.AHOP,
           trackType: TrackType.MAIN,
           trackNum: 1,
@@ -600,6 +161,7 @@ describe('Session', () => {
       const submitRun = (delay?: number) =>
         RunTester.run({
           req,
+          valkey,
           props: defaultTesterProperties(),
           segments: [1, 1],
           delay
@@ -613,7 +175,7 @@ describe('Session', () => {
         writeStats?: boolean;
         writeFrames?: boolean;
       }) => {
-        const tester = new RunTester(req, {
+        const tester = new RunTester(req, valkey, {
           ...defaultTesterProperties(),
           ...overrides.props
         });
@@ -823,6 +385,7 @@ describe('Session', () => {
       it('should accept a valid stage run', async () => {
         const res = await RunTester.run({
           req,
+          valkey,
           props: {
             ...defaultTesterProperties(),
             trackType: TrackType.STAGE
@@ -836,6 +399,7 @@ describe('Session', () => {
       it('should accept a valid bonus run', async () => {
         const res = await RunTester.run({
           req,
+          valkey,
           props: {
             ...defaultTesterProperties(),
             trackType: TrackType.BONUS
@@ -875,6 +439,30 @@ describe('Session', () => {
       it('should reject if should 401 when no access token is provided', () =>
         req.unauthorizedTest('session/run/1/end', 'post'));
 
+      it('should 503 if the RUN_SUBMISSION killswitch is active', async () => {
+        const adminToken = await db.loginNewUser({
+          data: { roles: Role.ADMIN }
+        });
+
+        await req.patch({
+          url: 'admin/killswitch',
+          status: 204,
+          body: { RUN_SUBMISSION: true },
+          token: adminToken
+        });
+
+        // The killswitch guard short-circuits before the handler, so the
+        // session/replay don't need to be valid to observe the 503.
+        await req.postOctetStream({
+          url: 'session/run/1/end',
+          body: Buffer.alloc(4000),
+          status: 503,
+          token
+        });
+
+        await resetKillswitches(req, adminToken);
+      });
+
       describe('compatible styles', () => {
         let compatMap;
 
@@ -911,8 +499,10 @@ describe('Session', () => {
         it('should return a CompletedRunDto for each compatible style', async () => {
           const res = await RunTester.run({
             req,
+            valkey,
             props: {
               token,
+              userID: user.id,
               gamemode: Gamemode.BHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
@@ -945,8 +535,10 @@ describe('Session', () => {
         it('should create leaderboard entries for both the submitted and compatible styles', async () => {
           await RunTester.run({
             req,
+            valkey,
             props: {
               token,
+              userID: user.id,
               gamemode: Gamemode.BHOP,
               trackType: TrackType.MAIN,
               trackNum: 1,
@@ -1021,8 +613,10 @@ describe('Session', () => {
 
           const res = await RunTester.run({
             req,
+            valkey,
             props: {
               token,
+              userID: user.id,
               gamemode: Gamemode.CLIMB_KZT,
               trackType: TrackType.MAIN,
               trackNum: 1,

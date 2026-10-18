@@ -34,34 +34,40 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
-  minio:
+  rustfs:
     restart: unless-stopped
-    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    command: /data
+    user: root
     env_file:
       - .env
     environment:
-      - MINIO_SITE_REGION=${STORAGE_REGION}
+      - RUSTFS_REGION=${STORAGE_REGION}
+      - RUSTFS_ADDRESS=:${RUSTFS_SERVER_PORT}
+      - RUSTFS_CONSOLE_ADDRESS=:${RUSTFS_CONSOLE_PORT}
+      - RUSTFS_CONSOLE_ENABLE=true
     ports:
-      - ${MINIO_SERVER_PORT}:${MINIO_SERVER_PORT}
-      - ${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}
+      - ${RUSTFS_SERVER_PORT}:${RUSTFS_SERVER_PORT}
+      - ${RUSTFS_CONSOLE_PORT}:${RUSTFS_CONSOLE_PORT}
     expose:
-      - ${MINIO_SERVER_PORT}
+      - ${RUSTFS_SERVER_PORT}
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:${MINIO_SERVER_PORT}/minio/health/live']
+      test: ['CMD', 'curl', '-f', 'http://localhost:${RUSTFS_SERVER_PORT}/health']
       interval: 5s
       timeout: 20s
       retries: 3
     volumes:
-     - ./data/minio:/data
+     - ./data/rustfs:/data
   createbuckets:
     env_file:
       - .env
     entrypoint: >
-     bash -c "
-       mc alias set momentum_minio http://minio:${MINIO_SERVER_PORT} ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
-       mc mb momentum_minio/${STORAGE_BUCKET_NAME} --ignore-existing &&
-       mc anonymous set public momentum_minio/${STORAGE_BUCKET_NAME} &&
-       mc ilm rule add --prefix "upload_tmp/" --expire-days 1 momentum_minio/${STORAGE_BUCKET_NAME}
+     sh -c "
+       rc alias set momentum http://rustfs:${RUSTFS_SERVER_PORT} ${RUSTFS_ACCESS_KEY} ${RUSTFS_SECRET_KEY} &&
+       rc bucket create momentum/${STORAGE_BUCKET_NAME} --ignore-existing &&
+       rc bucket anonymous set public momentum/${STORAGE_BUCKET_NAME} &&
+       if ! rc bucket lifecycle rule list momentum/${STORAGE_BUCKET_NAME} | grep -q 'upload_tmp/'; then
+        rc bucket lifecycle rule add --prefix 'upload_tmp/' --expiry-days 1 momentum/${STORAGE_BUCKET_NAME}
+       fi
      "
   pgadmin:
     container_name: pgadmin

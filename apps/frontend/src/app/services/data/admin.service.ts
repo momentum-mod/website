@@ -17,7 +17,10 @@ import {
   AdminActivity,
   AdminAnnouncement,
   CreateMapVersionWithFiles,
-  LeaderboardRun
+  LeaderboardRun,
+  AdminGetChatBansQuery,
+  ChatBan,
+  UpdateChatBan
 } from '@momentum/constants';
 import { HttpService } from './http.service';
 import { HttpEvent } from '@angular/common/http';
@@ -74,6 +77,20 @@ export class AdminService {
 
   updateReport(reportID: number, body: UpdateReport): Observable<void> {
     return this.http.patch(`admin/reports/${reportID}`, { body });
+  }
+
+  getChatBans(
+    query?: AdminGetChatBansQuery
+  ): Observable<PagedResponse<ChatBan>> {
+    return this.http.get<PagedResponse<ChatBan>>('admin/chat-bans', { query });
+  }
+
+  updateChatBan(banID: number, body: UpdateChatBan): Observable<void> {
+    return this.http.patch(`admin/chat-bans/${banID}`, { body });
+  }
+
+  revokeChatBan(banID: number): Observable<void> {
+    return this.http.delete(`admin/chat-bans/${banID}`);
   }
 
   updateAllUserStats(_userStats: object): Observable<never> {

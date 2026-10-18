@@ -1,7 +1,7 @@
 <div [style.anchor-scope]="anchorName">
   <div #searchMain [style.anchor-name]="anchorName" class="relative flex w-full items-center gap-2">
     <input
-      class="textinput min-w-[15rem] flex-grow"
+      class="textinput min-w-0 flex-grow md:min-w-[15rem]"
       [mSpinner]="search.pending"
       [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
       [formControl]="search"
@@ -26,7 +26,11 @@
   }
 </div>
 <ng-template #results>
-  <div class="flex min-h-12 flex-col justify-center gap-2" [ngClass]="{ 'w-96': useOverlay }" (keydown)="onKeydown($event)">
+  <div
+    class="flex min-h-12 flex-col justify-center gap-2"
+    [ngClass]="{ 'w-96 max-w-[calc(100vw-3rem)]': useOverlay }"
+    (keydown)="onKeydown($event)"
+  >
     @if (search.invalid && search.value.length > 0 && found.length === 0) {
       <div class="flex flex-row flex-wrap justify-center gap-4">
         <p class="my-auto text-center text-lg text-gray-200">

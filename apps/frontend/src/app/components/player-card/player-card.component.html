@@ -1,7 +1,8 @@
 <div class="bg-image"></div>
-<div class="pointer-events-none flex h-full gap-2 p-2">
+<div class="pointer-events-none flex h-full gap-2 p-1.5 md:p-2">
   <img [src]="user.avatarURL" class="aspect-square h-full rounded-sm shadow-md" />
-  <div class="ml-2 flex h-full flex-grow flex-col py-0.5">
+  <!-- Mobile header only has room for the avatar. -->
+  <div class="ml-2 flex h-full flex-grow flex-col py-0.5 max-md:hidden">
     <p class="mb-auto text-18 leading-none">{{ user.alias }}</p>
     <p class="text-sm leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
     <p-progressBar
@@ -10,5 +11,5 @@
       [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)"
     />
   </div>
-  <m-level-indicator [totalLevel]="level" class="self-end" />
+  <m-level-indicator [totalLevel]="level" class="self-end max-md:hidden" />
 </div>

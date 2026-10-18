@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import {
   AdminActivity,
   AdminActivityType,
+  ChatBanTypeNames,
   Role,
   RoleNames,
   Ban,
@@ -15,7 +16,7 @@ import * as Enum from '@momentum/enum';
   selector: 'm-admin-activity-entry',
   template: `
     <div
-      class="grid grid-cols-[6rem_1fr_1fr] gap-x-8 gap-y-1 bg-black bg-opacity-10 p-4 shadow-inner"
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 bg-black bg-opacity-10 p-3 shadow-inner sm:grid-cols-[6rem_1fr_1fr] sm:gap-x-8 sm:p-4"
     >
       <p class="col-start-2 font-medium">Old Value</p>
       <p class="font-medium">New Value</p>
@@ -154,6 +155,31 @@ export class AdminActivityEntryComponent implements OnInit {
           targetLink: '/profile/' + activity.target
         };
       }
+
+      case AdminActivityType.CHAT_BAN_CREATE:
+        return {
+          actionText: `issued a ${ChatBanTypeNames.get(activity.newData.type)} ban on user`,
+          targetName: 'ID ' + activity.newData.targetID,
+          targetLink: '/profile/' + activity.newData.targetID
+        };
+
+      case AdminActivityType.CHAT_BAN_UPDATE:
+        return {
+          actionText: `updated a ${ChatBanTypeNames.get(activity.newData.type)} ban on user`,
+          targetName: 'ID ' + activity.newData.targetID,
+          targetLink: '/profile/' + activity.newData.targetID,
+          diff: AdminActivityEntryComponent.calculateDiff(
+            activity.oldData,
+            activity.newData
+          )
+        };
+
+      case AdminActivityType.CHAT_BAN_REVOKE:
+        return {
+          actionText: `revoked a ${ChatBanTypeNames.get(activity.oldData.type)} ban on user`,
+          targetName: 'ID ' + activity.oldData.targetID,
+          targetLink: '/profile/' + activity.oldData.targetID
+        };
 
       default:
         return {

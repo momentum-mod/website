@@ -1,13 +1,16 @@
 ﻿import {
   AdminGetAdminActivitiesQuery,
   AdminActivityType,
+  AdminGetChatBansExpand,
+  AdminGetChatBansQuery,
   AdminGetReportsExpand,
   AdminGetReportsQuery
 } from '@momentum/constants';
 import {
   BooleanQueryProperty,
   EnumFilterQueryProperty,
-  ExpandQueryProperty
+  ExpandQueryProperty,
+  IntQueryProperty
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 
@@ -40,11 +43,34 @@ export class AdminGetAdminActivitiesQueryDto
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE,
       AdminActivityType.REVIEW_DELETED,
-      AdminActivityType.REVIEW_COMMENT_DELETED
+      AdminActivityType.REVIEW_COMMENT_DELETED,
+      AdminActivityType.CHAT_BAN_CREATE,
+      AdminActivityType.CHAT_BAN_UPDATE,
+      AdminActivityType.CHAT_BAN_REVOKE
     ],
     {
       description: 'Types of activities to include'
     }
   )
   readonly filter?: AdminActivityType[];
+}
+
+export class AdminGetChatBansQueryDto
+  extends PagedQueryDto
+  implements AdminGetChatBansQuery
+{
+  @IntQueryProperty({
+    required: false,
+    description: 'Restrict results to bans issued against this user ID'
+  })
+  readonly targetID?: number;
+
+  @BooleanQueryProperty({
+    required: false,
+    description: 'Whether to include expired bans as well as active ones'
+  })
+  readonly includeExpired?: boolean;
+
+  @ExpandQueryProperty(['target', 'issuer'])
+  readonly expand?: AdminGetChatBansExpand;
 }

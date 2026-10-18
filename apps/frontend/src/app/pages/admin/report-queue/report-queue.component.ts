@@ -32,7 +32,7 @@ export class ReportQueueComponent implements OnInit {
   reportQueue: Report[] = [];
   filters = { resolved: false };
 
-  protected readonly rows = 5;
+  protected readonly rows = 10;
   protected totalRecords = 0;
   protected first = 0;
 
