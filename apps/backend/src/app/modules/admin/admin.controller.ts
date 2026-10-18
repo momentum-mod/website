@@ -206,7 +206,7 @@ export class AdminController {
   }
 
   @Post('/maps/:mapID')
-  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR, RolesEnum.REVIEWER)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary:
