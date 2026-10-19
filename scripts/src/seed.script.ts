@@ -250,6 +250,40 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
   //#endregion
 
+  //#region Make me admin
+
+  // Before the users are seeded so dev users exist when interactions and runs
+  // are created, and get some of their own.
+  const devUsers = await Promise.all(
+    (process.env['ADMIN_STEAM_ID64S'] || '')
+      .split(',')
+      .filter(Boolean)
+      .map(async (steamID, i) => {
+        console.log(`Making user ${steamID} an admin`);
+        return prisma.user.upsert({
+          where: {
+            steamID: BigInt(steamID)
+          },
+          update: {
+            roles: Role.ADMIN
+          },
+          create: {
+            steamID: BigInt(steamID),
+            roles: Role.ADMIN,
+            alias: `Admin User ${i + 1}`,
+            profile: { create: {} },
+            userStats: {
+              create: randomLevelAndXp()
+            }
+          }
+        });
+      })
+  );
+
+  const devUserIDs = new Set(devUsers.map(({ id }) => id));
+
+  //#endregion
+
   //#region Users
 
   console.log('Creating users');
@@ -545,11 +579,14 @@ prismaWrapper(async (prisma: PrismaClient) => {
       }
       const modes = modesSet.values().toArray();
 
-      // Keep main track and stage ranked-ness synced up
+      // Keep main track and stage ranked-ness synced up. The real maps are
+      // always ranked, bonuses included.
       const rankedMainTracks = new Map(
         modes.map((m) => [
           m,
-          Random.chance() ? LeaderboardType.RANKED : LeaderboardType.UNRANKED
+          isNamedMap || Random.chance()
+            ? LeaderboardType.RANKED
+            : LeaderboardType.UNRANKED
         ])
       );
 
@@ -585,7 +622,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               type: inSubmission
                 ? LeaderboardType.IN_SUBMISSION
                 : trackType === TrackType.BONUS
-                  ? Random.chance()
+                  ? isNamedMap || Random.chance()
                     ? LeaderboardType.RANKED
                     : LeaderboardType.UNRANKED
                   : rankedMainTracks.get(m),
@@ -992,6 +1029,13 @@ prismaWrapper(async (prisma: PrismaClient) => {
   )
     ? randRange(vars.adminActivities)
     : 0;
+  // Never let admin activities rename, ban, demote or delete dev users.
+  const adminTargets = (adminID: number) =>
+    users.filter(({ id }) => id !== adminID && !devUserIDs.has(id));
+  // Or change the real maps' status; they stay approved.
+  const updatableMaps = maps.filter(
+    ({ name }) => !realMaps.some((realMap) => realMap.name === name)
+  );
   for (let i = 0; i < adminActivitiesToCreate; i++) {
     const adminID = Random.element(userIDs);
     const type = Random.element([
@@ -999,7 +1043,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       AdminActivityType.USER_CREATE_PLACEHOLDER,
       // AdminActivityType.USER_MERGE, // I don't want to simulate the whole merge logic
       AdminActivityType.USER_DELETE,
-      AdminActivityType.MAP_UPDATE,
+      ...(updatableMaps.length > 0 ? [AdminActivityType.MAP_UPDATE] : []),
       AdminActivityType.MAP_CONTENT_DELETE,
       AdminActivityType.REPORT_UPDATE,
       AdminActivityType.REPORT_RESOLVE
@@ -1014,7 +1058,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       case AdminActivityType.USER_UPDATE:
         switch (Random.int(3)) {
           case 0:
-            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            oldData = Random.element(adminTargets(adminID));
             target = oldData.id;
             newData = await prisma.user.update({
               where: { id: oldData.id },
@@ -1028,7 +1072,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             });
             break;
           case 1:
-            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            oldData = Random.element(adminTargets(adminID));
             target = oldData.id;
             newData = await prisma.user.update({
               where: { id: oldData.id },
@@ -1043,7 +1087,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             });
             break;
           case 2:
-            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            oldData = Random.element(adminTargets(adminID));
             target = oldData.id;
             newData = await prisma.user.update({
               where: { id: oldData.id },
@@ -1053,7 +1097,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             });
             break;
           case 3:
-            oldData = Random.element(users.filter((u) => u.id !== adminID));
+            oldData = Random.element(adminTargets(adminID));
             target = oldData.id;
             newData = await prisma.user.update({
               where: { id: oldData.id },
@@ -1086,7 +1130,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       case AdminActivityType.USER_MERGE: // No
         break;
       case AdminActivityType.USER_DELETE:
-        oldData = Random.element(users.filter((u) => u.id !== adminID));
+        oldData = Random.element(adminTargets(adminID));
         target = oldData.id;
         newData = await prisma.user.update({
           where: { id: oldData.id },
@@ -1096,7 +1140,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         });
         break;
       case AdminActivityType.MAP_UPDATE:
-        oldData = Random.element(maps);
+        oldData = Random.element(updatableMaps);
         target = oldData.id;
         newData = await prisma.mMap.update({
           where: { id: oldData.id },
@@ -1270,36 +1314,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
       : new Valkey({ port: valkeyPort, host: valkeyHost });
   await valkey.mset({ 'maplistver:approved': 1, 'maplistver:submission': 1 });
   await valkey.quit();
-
-  //#region Make me admin
-
-  const personalSteamIDs = process.env['ADMIN_STEAM_ID64S'];
-  if (!personalSteamIDs) return;
-
-  const devUsers = await Promise.all(
-    personalSteamIDs.split(',').map(async (steamID, i) => {
-      console.log(`Making user ${steamID} an admin`);
-      return prisma.user.upsert({
-        where: {
-          steamID: BigInt(steamID)
-        },
-        update: {
-          roles: Role.ADMIN
-        },
-        create: {
-          steamID: BigInt(steamID),
-          roles: Role.ADMIN,
-          alias: `Admin User ${i + 1}`,
-          profile: { create: {} },
-          userStats: {
-            create: randomLevelAndXp()
-          }
-        }
-      });
-    })
-  );
-
-  //#endregion
 
   //#region Notifications
 
