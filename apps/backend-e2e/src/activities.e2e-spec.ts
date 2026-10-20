@@ -1,34 +1,18 @@
 import { after, before, describe, it } from 'node:test';
-
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
 import { ActivityDto } from '../../backend/src/app/dto';
-
-import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
-
+import { NULL_ID } from '@momentum/test-utils';
 import { ActivityType, Role } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
+  prisma,
+  req,
+  db,
+  registerE2ETestFile
+} from './support/test-environment';
 
 describe('Activities', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
-
-  before(async () => {
-    const env = await setupE2ETestEnvironment();
-    prisma = env.prisma;
-    app = env.app;
-    req = env.req;
-    db = env.db;
-  });
-
-  after(async () => {
-    await teardownE2ETestEnvironment(app, prisma);
-  });
+  registerE2ETestFile();
 
   describe('activities', () => {
     describe('GET', () => {

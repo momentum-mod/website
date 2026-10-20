@@ -1,38 +1,21 @@
 import { after, afterEach, before, describe, it } from 'node:test';
-
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
 import { ReportDto } from '../../backend/src/app/dto';
-
-import { DbUtil, RequestUtil } from '@momentum/test-utils';
-
 import {
   MAX_REPORT_MESSAGE_LENGTH,
   ReportCategory,
   ReportType
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
 import { arrayFrom } from '@momentum/util-fn';
+import {
+  prisma,
+  req,
+  db,
+  registerE2ETestFile
+} from './support/test-environment';
 
 describe('Reports', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
-
-  before(async () => {
-    const env = await setupE2ETestEnvironment();
-    app = env.app;
-    prisma = env.prisma;
-    req = env.req;
-    db = env.db;
-  });
-
-  after(async () => {
-    await teardownE2ETestEnvironment(app, prisma);
-  });
+  registerE2ETestFile();
 
   describe('reports/', () => {
     describe('POST', () => {

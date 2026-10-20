@@ -1,22 +1,14 @@
-import { after, afterEach, before, describe, it } from 'node:test';
-
+import { afterEach, describe, it } from 'node:test';
 import {
   arrayContaining,
   createSha1Hash,
-  DbUtil,
   FILES_PATH,
-  FileStoreUtil,
   matchesPartial,
-  objectContaining,
-  RequestUtil
+  objectContaining
 } from '@momentum/test-utils';
-
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { PrismaClient } from '@momentum/db';
 import {
   Gamemode,
   LeaderboardType,
@@ -28,34 +20,19 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-
 import Zip from 'adm-zip';
 import { BabyZonesStub } from '@momentum/formats/zone';
 import { MapDto, MapReviewDto } from '../../backend/src/app/dto';
 import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
+  prisma,
+  req,
+  db,
+  fileStore,
+  registerE2ETestFile
+} from './support/test-environment';
 
 describe('Multi-stage E2E tests', () => {
-  let app,
-    prisma: PrismaClient,
-    req: RequestUtil,
-    db: DbUtil,
-    fileStore: FileStoreUtil;
-
-  before(async () => {
-    const env = await setupE2ETestEnvironment();
-    prisma = env.prisma;
-    app = env.app;
-    req = env.req;
-    db = env.db;
-    fileStore = env.fileStore;
-  });
-
-  after(async () => {
-    await teardownE2ETestEnvironment(app, prisma);
-  });
+  registerE2ETestFile();
 
   afterEach(async () => {
     await db.cleanup('mMap', 'user');

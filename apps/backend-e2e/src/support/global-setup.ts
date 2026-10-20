@@ -18,7 +18,15 @@ export default async function globalSetup() {
   }
 
   // Nuke the current DB (Bye)
-  await nukeDB();
+  const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+  });
+
+  try {
+    await nukeDb(prisma);
+  } finally {
+    await prisma.$disconnect();
+  }
 
   // Clear out the S3 bucket
   await nukeS3();
@@ -32,11 +40,7 @@ export default async function globalSetup() {
   process.env['NODE_ENV'] = 'test';
 }
 
-async function nukeDB() {
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-  });
-
+export async function nukeDb(prisma: PrismaClient) {
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename::text FROM pg_tables WHERE schemaname='public'`;
@@ -48,11 +52,9 @@ async function nukeDB() {
     .join(', ');
 
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
-
-  await prisma.$disconnect();
 }
 
-async function nukeS3() {
+export async function nukeS3(): Promise<void> {
   const s3 = new S3Client({
     region: process.env.STORAGE_REGION,
     endpoint: process.env.STORAGE_ENDPOINT_URL,
@@ -63,24 +65,43 @@ async function nukeS3() {
     forcePathStyle: true
   });
 
-  const objects = await s3.send(
-    new ListObjectsV2Command({ Bucket: process.env.STORAGE_BUCKET_NAME })
-  );
-  if (objects?.Contents?.length > 0)
-    await s3.send(
-      new DeleteObjectsCommand({
-        Bucket: process.env.STORAGE_BUCKET_NAME,
-        Delete: {
-          Objects: objects.Contents.map((object) => ({ Key: object.Key }))
-        }
-      })
-    );
+  try {
+    let continuationToken: string | undefined;
+    do {
+      const objects = await s3.send(
+        new ListObjectsV2Command({
+          Bucket: process.env.STORAGE_BUCKET_NAME,
+          ContinuationToken: continuationToken
+        })
+      );
+      const keys = objects.Contents?.flatMap(({ Key }) =>
+        Key ? [{ Key }] : []
+      );
+      if (keys?.length) {
+        await s3.send(
+          new DeleteObjectsCommand({
+            Bucket: process.env.STORAGE_BUCKET_NAME,
+            Delete: { Objects: keys }
+          })
+        );
+      }
+      continuationToken = objects.IsTruncated
+        ? objects.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+  } finally {
+    s3.destroy();
+  }
 }
 
-async function nukeValkey() {
+export async function nukeValkey() {
   const valkey = new Valkey({
     port: +process.env.VALKEY_PORT,
     host: process.env.VALKEY_HOST || 'localhost'
   });
-  await valkey.flushall();
+  try {
+    await valkey.flushall();
+  } finally {
+    await valkey.quit();
+  }
 }

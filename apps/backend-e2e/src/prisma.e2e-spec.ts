@@ -1,12 +1,11 @@
 import { after, before, describe, it } from 'node:test';
-
 import * as assert from 'node:assert/strict';
 import { PrismaClient } from '@momentum/db';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ExtendedPrismaClient, getExtendedPrismaClient } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
-
 import { arrayFrom } from '@momentum/util-fn';
+import { resetE2EDatabase } from './support/global-setup';
 
 // No, these are not E2E tests, but they need a live DB so they live here. Bite me!
 describe('Prisma Client Extensions', () => {
@@ -24,7 +23,8 @@ describe('Prisma Client Extensions', () => {
   });
 
   after(async () => {
-    await Promise.all([prisma.$disconnect, ePrisma.$disconnect()]);
+    await resetE2EDatabase(prisma);
+    await Promise.all([prisma.$disconnect(), ePrisma.$disconnect()]);
   });
 
   describe('findManyAndCount', () => {
