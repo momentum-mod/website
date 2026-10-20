@@ -1,17 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
 import path from 'node:path';
 
 async function runTests(): Promise<void> {
   const sourcePath = path.join(__dirname, 'src');
-  const testFiles = readdirSync(sourcePath)
-    .filter((file) => file.endsWith('.test.ts'))
-    .sort()
-    .map((file) => path.join(sourcePath, file));
-  if (testFiles.length === 0) {
-    throw new Error(`No E2E test files found in ${sourcePath}`);
-  }
-
   const watchMode = process.argv.includes('--watch');
   const env = { ...process.env };
   delete env['MOMENTUM_E2E_TEST_FILES'];
@@ -29,7 +20,7 @@ async function runTests(): Promise<void> {
       'reflect-metadata',
       '-r',
       path.join(sourcePath, 'support/e2e-setup.ts'),
-      ...testFiles
+      path.join(__dirname, 'test-file-loader.cjs')
     ],
     { stdio: 'inherit', env }
   );

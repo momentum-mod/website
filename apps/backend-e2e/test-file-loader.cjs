@@ -21,7 +21,7 @@ const {
 } = require('./src/support/e2e-environment.ts');
 registerE2ETestRunnerHooks();
 
-// Load every spec into this worker so they share one module cache and app.
+// Load every test file into this worker so they share one module cache and app.
 for (const file of files) {
   require(file);
 }
