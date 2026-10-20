@@ -38,7 +38,6 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MapReviewFormComponent } from './map-review-form.component';
 import { DialogModule } from 'primeng/dialog';
-
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { AdminService } from '../../services/data/admin.service';

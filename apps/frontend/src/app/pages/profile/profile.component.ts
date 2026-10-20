@@ -21,7 +21,6 @@ import {
   MapCredit
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
-
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
 import { ActivityComponent } from '../../components/activity/activity.component';

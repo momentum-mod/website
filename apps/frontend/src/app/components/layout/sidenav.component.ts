@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CombinedRoles } from '@momentum/constants';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
-
 import { LocalUserService } from '../../services/data/local-user.service';
 import { LayoutService, SidenavState } from '../../services/layout.service';
 import { map } from 'rxjs/operators';

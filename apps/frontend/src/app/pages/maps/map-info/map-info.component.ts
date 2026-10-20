@@ -16,7 +16,6 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
@@ -28,7 +27,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../../services/title.service';
 import { downloadZoneFile } from '../../../util/download-zone-file.util';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
-
 import {
   GalleryComponent,
   GalleryItem

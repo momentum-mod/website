@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActiveChatBan, ChatBanTypeNames, User } from '@momentum/constants';
-
 import { AdminService } from '../../../services/data/admin.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 

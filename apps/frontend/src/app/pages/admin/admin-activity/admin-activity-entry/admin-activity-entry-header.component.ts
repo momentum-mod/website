@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AdminActivity } from '@momentum/constants';
 import { AdminActivityEntryData } from './admin-activity-entry.component';
-
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
 import { RouterLink } from '@angular/router';
 import { NgStyle } from '@angular/common';

@@ -23,7 +23,6 @@ import {
   Role,
   User
 } from '@momentum/constants';
-
 import { AdminService } from '../../../services/data/admin.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { AuthService } from '../../../services/data/auth.service';

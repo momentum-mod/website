@@ -14,7 +14,6 @@ import { of } from 'rxjs';
 import { PaginatorModule } from 'primeng/paginator';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
-
 import { UsersService } from '../../services/data/users.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { IconComponent } from '../../icons';
