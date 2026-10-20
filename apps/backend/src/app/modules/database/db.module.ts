@@ -7,7 +7,7 @@ import { EXTENDED_PRISMA_SERVICE } from './db.constants';
   providers: [
     {
       provide: EXTENDED_PRISMA_SERVICE,
-      useValue: extendedNestJsPrismaClientFactory(new DbService())
+      useFactory: () => extendedNestJsPrismaClientFactory(new DbService())
     }
   ],
   exports: [EXTENDED_PRISMA_SERVICE]
