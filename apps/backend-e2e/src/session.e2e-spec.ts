@@ -1,25 +1,18 @@
-import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
-
+import { afterEach, before, beforeEach, describe, it } from 'node:test';
 import {
   any,
   arrayContaining,
   assertValidDto,
-  DbUtil,
   matchesPartial,
   objectContaining,
   randomHash,
   randomSteamID,
-  RequestUtil,
   resetKillswitches,
   RunTester,
   RunTesterProps
 } from '@momentum/test-utils';
-
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
 import { CompletedRunDto } from '../../backend/src/app/dto';
-
 import {
   ActivityType,
   Gamemode,
@@ -30,31 +23,22 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient, TypedSql } from '@momentum/db';
+import { TypedSql } from '@momentum/db';
 import { ZonesStubString } from '@momentum/formats/zone';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
 import * as ReplayFile from '@momentum/formats/replay';
-import Valkey from 'iovalkey';
+import {
+  prisma,
+  valkey,
+  req,
+  db,
+  registerE2ETestFile
+} from './support/test-environment';
 
 describe('Session', () => {
-  let app,
-    prisma: PrismaClient,
-    req: RequestUtil,
-    db: DbUtil,
-    map,
-    valkey: Valkey;
+  registerE2ETestFile();
+  let map;
 
   before(async () => {
-    const env = await setupE2ETestEnvironment();
-    app = env.app;
-    prisma = env.prisma;
-    valkey = env.valkey;
-    req = env.req;
-    db = env.db;
-
     map = await db.createMapWithFullLeaderboards(
       {
         name: ReplayFile.Stubs.ReplayHeaderStub.mapName,
@@ -62,11 +46,6 @@ describe('Session', () => {
       },
       [Gamemode.AHOP, Gamemode.BHOP]
     );
-  });
-
-  after(async () => {
-    await db.cleanup('mMap');
-    await teardownE2ETestEnvironment(app, prisma);
   });
 
   // Testing this is HARD. We need a replay that matches our timestamps okay so
