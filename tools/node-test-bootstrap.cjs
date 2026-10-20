@@ -16,14 +16,6 @@ const { isMainThread } = require('node:worker_threads');
 // 		Loader: ts-node
 // 		Node Options: --test -r ./tools/node-test-bootstrap.cjs
 // 		Working Directory: <path to your repo root>
-//
-// To configure a runner for *all* backend-e2e, create a specific
-// Node Test Runner configuration with:
-//    Language: TypeScript
-//    Loader: ts-node
-//    Node Options: --test-concurrency=1 -r ts-node/register -r tsconfig-paths/register -r reflect-metadata -r ./src/support/e2e-setup.ts
-//    Working Directory: <path to your repo root>
-//    Environment Variables: TS_NODE_PROJECT=tsconfig.spec.json;TS_NODE_TRANSPILE_ONLY=true
 
 const workspaceRoot = path.resolve(__dirname, '..');
 const testFiles = process.argv
