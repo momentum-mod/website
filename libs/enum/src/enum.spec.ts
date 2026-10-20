@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import * as Enum from './';
 
 enum NumericEnum {
@@ -22,13 +24,13 @@ enum EmptyEnum {}
 
 describe('Enum', () => {
   it('should return the correct length of the enum', () => {
-    expect(Enum.length(NumericEnum)).toBe(4);
-    expect(Enum.length(StringEnum)).toBe(3);
-    expect(Enum.length(HeteroEnum)).toBe(2);
-    expect(Enum.length(EmptyEnum)).toBe(0);
+    assert.equal(Enum.length(NumericEnum), 4);
+    assert.equal(Enum.length(StringEnum), 3);
+    assert.equal(Enum.length(HeteroEnum), 2);
+    assert.equal(Enum.length(EmptyEnum), 0);
 
-    expect(Enum.fastLengthNumeric(NumericEnum)).toBe(4);
-    expect(Enum.fastLengthString(StringEnum)).toBe(3);
+    assert.equal(Enum.fastLengthNumeric(NumericEnum), 4);
+    assert.equal(Enum.fastLengthString(StringEnum), 3);
   });
 
   /*
@@ -67,28 +69,32 @@ describe('Enum', () => {
   */
 
   it('should return an array of the keys of the enum', () => {
-    expect(Enum.keys(NumericEnum)).toEqual(['A', 'B', 'C', 'D']);
-    expect(Enum.keys(StringEnum)).toEqual(['A', 'B', 'C']);
-    expect(Enum.keys(HeteroEnum)).toEqual(['A', 'B']);
-    expect(Enum.keys(EmptyEnum)).toEqual([]);
-    expect(Enum.fastKeysNumeric(NumericEnum)).toEqual(['A', 'B', 'C', 'D']);
-    expect(Enum.fastKeysString(StringEnum)).toEqual(['A', 'B', 'C']);
+    assert.deepEqual(Enum.keys(NumericEnum), ['A', 'B', 'C', 'D']);
+    assert.deepEqual(Enum.keys(StringEnum), ['A', 'B', 'C']);
+    assert.deepEqual(Enum.keys(HeteroEnum), ['A', 'B']);
+    assert.deepEqual(Enum.keys(EmptyEnum), []);
+    assert.deepEqual(Enum.fastKeysNumeric(NumericEnum), ['A', 'B', 'C', 'D']);
+    assert.deepEqual(Enum.fastKeysString(StringEnum), ['A', 'B', 'C']);
 
     enum NaNTest {
       A,
 
       NaN
     }
-    expect(Enum.keys(NaNTest)).toEqual(['A', 'NaN']);
+    assert.deepEqual(Enum.keys(NaNTest), ['A', 'NaN']);
   });
 
   it('should return an array of the values of the enum', () => {
-    expect(Enum.values(NumericEnum)).toEqual([1, 2, 3, 4]);
-    expect(Enum.values(StringEnum)).toEqual(['Apple', 'Banana', 'Cauliflower']);
-    expect(Enum.values(HeteroEnum)).toEqual([1, 'DONTUSETHESE']);
+    assert.deepEqual(Enum.values(NumericEnum), [1, 2, 3, 4]);
+    assert.deepEqual(Enum.values(StringEnum), [
+      'Apple',
+      'Banana',
+      'Cauliflower'
+    ]);
+    assert.deepEqual(Enum.values(HeteroEnum), [1, 'DONTUSETHESE']);
 
-    expect(Enum.fastValuesNumeric(NumericEnum)).toEqual([1, 2, 3, 4]);
-    expect(Enum.fastValuesString(StringEnum)).toEqual([
+    assert.deepEqual(Enum.fastValuesNumeric(NumericEnum), [1, 2, 3, 4]);
+    assert.deepEqual(Enum.fastValuesString(StringEnum), [
       'Apple',
       'Banana',
       'Cauliflower'
@@ -96,35 +102,35 @@ describe('Enum', () => {
   });
 
   it('should return an empty array for the values of an empty enum', () => {
-    expect(Enum.values(EmptyEnum)).toEqual([]);
+    assert.deepEqual(Enum.values(EmptyEnum), []);
   });
 
   it('should return an array of [key, value] tuples for the entries of the enum', () => {
-    expect(Enum.entries(NumericEnum)).toEqual([
+    assert.deepEqual(Enum.entries(NumericEnum), [
       ['A', 1],
       ['B', 2],
       ['C', 3],
       ['D', 4]
     ]);
-    expect(Enum.entries(StringEnum)).toEqual([
+    assert.deepEqual(Enum.entries(StringEnum), [
       ['A', 'Apple'],
       ['B', 'Banana'],
       ['C', 'Cauliflower']
     ]);
-    expect(Enum.entries(HeteroEnum)).toEqual([
+    assert.deepEqual(Enum.entries(HeteroEnum), [
       ['A', 1],
       ['B', 'DONTUSETHESE']
     ]);
-    expect(Enum.entries(EmptyEnum)).toEqual([]);
+    assert.deepEqual(Enum.entries(EmptyEnum), []);
 
-    expect(Enum.fastEntriesNumeric(NumericEnum)).toEqual([
+    assert.deepEqual(Enum.fastEntriesNumeric(NumericEnum), [
       ['A', 1],
       ['B', 2],
       ['C', 3],
       ['D', 4]
     ]);
 
-    expect(Enum.fastEntriesString(StringEnum)).toEqual([
+    assert.deepEqual(Enum.fastEntriesString(StringEnum), [
       ['A', 'Apple'],
       ['B', 'Banana'],
       ['C', 'Cauliflower']

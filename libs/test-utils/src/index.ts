@@ -7,5 +7,7 @@ export * from './utils/request.util';
 export * from './utils/run-tester.util';
 export * from './utils/websocket.util';
 export * from './utils/discord.util';
+export * from './utils/node-mock.util';
+export * from './utils/node-test-assert.util';
 export * from './matchers/to-be-valid-dto';
 export * from './files-path.const';

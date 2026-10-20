@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { validate } from 'class-validator';
 import { IsVector } from './is-vector.validator';
 
@@ -23,14 +25,14 @@ describe('IsVector', () => {
   it('should pass validation if the value is an 2 item array of numbers', async () => {
     const testObject = new TestClass([1, 2]);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(0);
+    assert.strictEqual(errors.length, 0);
   });
 
   it('should fail validation if the value is an 3 item array of numbers', async () => {
     const testObject = new TestClass([1, 2, 3]);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].constraints).toEqual({
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0].constraints, {
       isVector: 'value must be an number array of length 2'
     });
   });
@@ -38,8 +40,8 @@ describe('IsVector', () => {
   it('should fail validation if the value is an 2 item array of non-numbers', async () => {
     const testObject = new TestClass([1, '2']);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].constraints).toEqual({
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0].constraints, {
       isVector: 'value must be an number array of length 2'
     });
   });
@@ -50,7 +52,7 @@ describe('IsVector', () => {
       [3, 4]
     ]);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(0);
+    assert.strictEqual(errors.length, 0);
   });
 
   it('should fail validation if the value is an array of 3 item arrays of numbers', async () => {
@@ -59,8 +61,8 @@ describe('IsVector', () => {
       [1, 2]
     ]);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].constraints).toEqual({
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0].constraints, {
       isVector: 'value must be an number array of length 2'
     });
   });
@@ -71,8 +73,8 @@ describe('IsVector', () => {
       [1, '2']
     ]);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].constraints).toEqual({
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0].constraints, {
       isVector: 'value must be an number array of length 2'
     });
   });

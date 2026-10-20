@@ -24,10 +24,14 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "libs/util-fn/jest.config.ts"
+        "command": "node --test -r ts-node/register -r tsconfig-paths/register libs/util-fn/src/*.spec.ts",
+        "env": {
+          "TS_NODE_PROJECT": "libs/util-fn/tsconfig.spec.json"
+        }
       }
     }
   }

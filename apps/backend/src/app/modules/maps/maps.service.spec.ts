@@ -1,5 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, resetDeepMockCalls } from '@momentum/test-utils';
 import {
   ForbiddenException,
   InternalServerErrorException,
@@ -29,32 +31,32 @@ describe('MapsService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.notStrictEqual(service, undefined);
   });
 
   //prettier-ignore
   describe('getMapAndCheckReadAccess', () => {
     // Not every test calls every mock we set for it, so clear after each test.
     it('should 404 for a missing map', async () => {
-      db.mMap.findUnique.mockResolvedValueOnce(undefined);
+      db.mMap.findUnique.mock.mockImplementationOnce(() => Promise.resolve(undefined));
 
-      await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(NotFoundException);
+      await assert.rejects(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 }), NotFoundException);
     });
 
     it('should 500 for invalid map data', async () => {
-      db.mMap.findUnique.mockResolvedValueOnce('sausage' as any);
+      db.mMap.findUnique.mock.mockImplementationOnce(() => Promise.resolve('sausage' as any));
 
-      await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(InternalServerErrorException);
+      await assert.rejects(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 }), InternalServerErrorException);
     });
 
      it('should only non-logged in requests to access APPROVED and PUBLIC_TESTING maps', async () => {
        for (const status of Enum.values(MapStatus)) {
-           db.mMap.findUnique.mockResolvedValueOnce({id: 1, status } as any);
+           db.mMap.findUnique.mock.mockImplementationOnce(() => Promise.resolve({id: 1, status } as any));
 
            if ([MapStatus.APPROVED, MapStatus.PUBLIC_TESTING, MapStatus.FINAL_APPROVAL].includes(status)) {
-             expect(await service.getMapAndCheckReadAccess({ mapID: 1, })).toBeTruthy();
+             assert.ok(await service.getMapAndCheckReadAccess({ mapID: 1, }));
            } else {
-             await expect(service.getMapAndCheckReadAccess({ mapID: 1 })).rejects.toThrow(ForbiddenException);
+             await assert.rejects(service.getMapAndCheckReadAccess({ mapID: 1 }), ForbiddenException);
            }
        }
      });
@@ -72,17 +74,20 @@ describe('MapsService', () => {
 
     const expects = async (pass: boolean, map: any, userID = 1) =>
       pass
-        ? expect(await service.getMapAndCheckReadAccess({ mapID: map.id, userID })).toMatchObject(map)
-        : await expect(service.getMapAndCheckReadAccess({ mapID: map.id, userID })).rejects.toThrow(ForbiddenException);
+        ? assert.partialDeepStrictEqual(await service.getMapAndCheckReadAccess({ mapID: map.id, userID }), map)
+        : await assert.rejects(service.getMapAndCheckReadAccess({ mapID: map.id, userID }), ForbiddenException);
 
-    const mockMapValue = (map) => db.mMap.findUnique.mockResolvedValueOnce(map);
-    const mockUserValue = (user) => db.user.findUnique.mockResolvedValueOnce(user);
-    const mockTestInviteExists = (exists: boolean) => db.mapTestInvite.exists.mockResolvedValueOnce(exists);
-    const mockMapCreditExists = (exists: boolean) => db.mapCredit.exists.mockResolvedValueOnce(exists);
+    const mockMapValue = (map) => db.mMap.findUnique.mock.mockImplementationOnce(() => Promise.resolve(map));
+    const mockUserValue = (user) => db.user.findUnique.mock.mockImplementationOnce(() => Promise.resolve(user));
+    const mockTestInviteExists = (exists: boolean) => db.mapTestInvite.exists.mock.mockImplementationOnce(() => Promise.resolve(exists));
+    const mockMapCreditExists = (exists: boolean) => db.mapCredit.exists.mock.mockImplementationOnce(() => Promise.resolve(exists));
 
     for (const status of Enum.values(MapStatus)) {
       describe(MapStatus[status], () => {
-        afterEach(() => jest.resetAllMocks());
+        afterEach(() => {
+          mock.restoreAll();
+          resetDeepMockCalls();
+        });
 
         const conditions = tests[status];
         const map = { id: 1, status };

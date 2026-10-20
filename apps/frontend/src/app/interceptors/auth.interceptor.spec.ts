@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import { TestBed } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
@@ -30,11 +32,11 @@ describe('AuthInterceptor', () => {
         {
           provide: AuthService,
           useValue: {
-            getAccessToken: jest.fn(),
-            getRefreshToken: jest.fn(),
-            isAccessTokenExpired: jest.fn().mockReturnValue(false),
-            refreshAccessToken: jest.fn(),
-            logout: jest.fn()
+            getAccessToken: mock.fn(),
+            getRefreshToken: mock.fn(),
+            isAccessTokenExpired: mock.fn(() => false),
+            refreshAccessToken: mock.fn(),
+            logout: mock.fn()
           }
         },
         {
@@ -44,7 +46,8 @@ describe('AuthInterceptor', () => {
               origin: 'https://momentum-mod.org',
               host: 'momentum-mod.org'
             },
-            querySelectorAll: jest.fn // Needed to stifle errors during teardown
+            querySelectorAll: (selector: string) =>
+              document.querySelectorAll(selector)
           }
         }
       ]
@@ -57,39 +60,37 @@ describe('AuthInterceptor', () => {
 
   afterEach(() => {
     httpMock.verify();
-    jest.clearAllMocks();
+    mock.restoreAll();
+    TestBed.resetTestingModule();
   });
 
   it('should add an Authorization header with the access token when the request is to an allowed domain', () => {
     const accessToken = 'test-access-token';
-    jest.spyOn(authService, 'getAccessToken').mockReturnValue(accessToken);
+    mock.method(authService, 'getAccessToken', () => accessToken);
 
     httpClient.get('/test').subscribe();
 
     const req = httpMock.expectOne('/test');
-    expect(req.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      req.request.headers.get('Authorization'),
       `Bearer ${accessToken}`
     );
   });
 
   it('should not add an Authorization header when the request is not to an allowed domain', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
 
     httpClient.get('https://not-allowed.com/test').subscribe();
 
     const httpRequest = httpMock.expectOne('https://not-allowed.com/test');
-    expect(httpRequest.request.headers.has('Authorization')).toBeFalsy();
+    assert.equal(httpRequest.request.headers.has('Authorization'), false);
   });
 
   it('should handle a 401 error by attempting to refresh the access token', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
-    const refreshSpy = jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValueOnce(of('new-access-token'));
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
+    const refreshSpy = mock.method(authService, 'refreshAccessToken', () =>
+      of('new-access-token')
+    );
 
     httpClient.get('/test').subscribe();
 
@@ -100,58 +101,56 @@ describe('AuthInterceptor', () => {
     );
 
     const refreshRequest = httpMock.expectOne('/test');
-    expect(refreshRequest.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      refreshRequest.request.headers.get('Authorization'),
       'Bearer new-access-token'
     );
-    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    assert.equal(refreshSpy.mock.callCount(), 1);
   });
 
   it('should get new access token if current one is missing but refresh token exists', () => {
-    jest.spyOn(authService, 'getAccessToken').mockReturnValue(null);
-    jest.spyOn(authService, 'getRefreshToken').mockReturnValue('refresh-token');
-    const refreshSpy = jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValueOnce(of('new-access-token'));
+    mock.method(authService, 'getAccessToken', () => null);
+    mock.method(authService, 'getRefreshToken', () => 'refresh-token');
+    const refreshSpy = mock.method(authService, 'refreshAccessToken', () =>
+      of('new-access-token')
+    );
 
     httpClient.get('/test').subscribe();
 
     const httpRequest = httpMock.expectOne('/test');
-    expect(httpRequest.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      httpRequest.request.headers.get('Authorization'),
       'Bearer new-access-token'
     );
-    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    assert.equal(refreshSpy.mock.callCount(), 1);
   });
 
   it('should get new access token if current one is expired', () => {
-    jest.spyOn(authService, 'getAccessToken').mockReturnValue('expired-token');
-    jest.spyOn(authService, 'getRefreshToken').mockReturnValue('refresh-token');
-    jest.spyOn(authService, 'isAccessTokenExpired').mockReturnValue(true);
-    const refreshSpy = jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValueOnce(of('new-access-token'));
+    mock.method(authService, 'getAccessToken', () => 'expired-token');
+    mock.method(authService, 'getRefreshToken', () => 'refresh-token');
+    mock.method(authService, 'isAccessTokenExpired', () => true);
+    const refreshSpy = mock.method(authService, 'refreshAccessToken', () =>
+      of('new-access-token')
+    );
 
     httpClient.get('/test').subscribe();
 
     const httpRequest = httpMock.expectOne('/test');
-    expect(httpRequest.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      httpRequest.request.headers.get('Authorization'),
       'Bearer new-access-token'
     );
-    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    assert.equal(refreshSpy.mock.callCount(), 1);
   });
 
   it('should logout the user if the refresh token request responds with 401', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
-    jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValueOnce(
-        throwError(
-          () =>
-            new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })
-        )
-      );
-    const logoutSpy = jest.spyOn(authService, 'logout');
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
+    mock.method(authService, 'refreshAccessToken', () =>
+      throwError(
+        () => new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })
+      )
+    );
+    const logoutSpy = mock.method(authService, 'logout');
 
     httpClient.get('/test').subscribe();
 
@@ -161,17 +160,15 @@ describe('AuthInterceptor', () => {
       new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })
     );
 
-    expect(logoutSpy).toHaveBeenCalledTimes(1);
+    assert.equal(logoutSpy.mock.callCount(), 1);
   });
 
   it('should handle multiple requests 401ing at once by only sending one refresh request and repeating the original requests with the new access token', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
 
-    const refreshSpy = jest.spyOn(authService, 'refreshAccessToken');
+    const refreshSpy = mock.method(authService, 'refreshAccessToken');
     const refreshObservable = new Subject<string>();
-    refreshSpy.mockReturnValueOnce(refreshObservable);
+    refreshSpy.mock.mockImplementationOnce(() => refreshObservable);
 
     httpClient.get('/test1').subscribe();
     httpClient.get('/test2').subscribe();
@@ -188,30 +185,30 @@ describe('AuthInterceptor', () => {
       new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })
     );
 
-    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    assert.equal(refreshSpy.mock.callCount(), 1);
 
     refreshObservable.next('new-access-token');
 
     const refreshedReq1 = httpMock.expectOne('/test1');
     const refreshedReq2 = httpMock.expectOne('/test2');
-    expect(refreshedReq1.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      refreshedReq1.request.headers.get('Authorization'),
       'Bearer new-access-token'
     );
-    expect(refreshedReq2.request.headers.get('Authorization')).toBe(
+    assert.equal(
+      refreshedReq2.request.headers.get('Authorization'),
       'Bearer new-access-token'
     );
 
-    expect(refreshSpy).toHaveBeenCalledTimes(1);
+    assert.equal(refreshSpy.mock.callCount(), 1);
   });
 
   it('should handle a failed refresh attempt by logging out the user', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
-    jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValue(throwError(() => new Error('error')));
-    jest.spyOn(authService, 'logout').mockImplementation();
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
+    const refreshSpy = mock.method(authService, 'refreshAccessToken', () =>
+      throwError(() => new Error('error'))
+    );
+    const logoutSpy = mock.method(authService, 'logout');
 
     httpClient.get('/test').subscribe();
 
@@ -221,30 +218,28 @@ describe('AuthInterceptor', () => {
       new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' })
     );
 
-    expect(authService.logout).toHaveBeenCalled();
+    assert.equal(refreshSpy.mock.callCount(), 1);
+    assert.ok(logoutSpy.mock.callCount() > 0);
   });
 
   it('should not add an Authorization header if there is no access token', () => {
-    jest.spyOn(authService, 'getAccessToken').mockReturnValue(null);
+    mock.method(authService, 'getAccessToken', () => null);
 
     httpClient.get('/test').subscribe();
 
     const httpRequest = httpMock.expectOne('/test');
-    expect(httpRequest.request.headers.has('Authorization')).toBeFalsy();
+    assert.equal(httpRequest.request.headers.has('Authorization'), false);
   });
 
   it('should not attempt to refresh the access token if the error status is not 401', () => {
-    jest
-      .spyOn(authService, 'getAccessToken')
-      .mockReturnValue('test-access-token');
-
-    const refreshSpy = jest
-      .spyOn(authService, 'refreshAccessToken')
-      .mockReturnValueOnce(of('new-access-token'));
+    mock.method(authService, 'getAccessToken', () => 'test-access-token');
+    const refreshSpy = mock.method(authService, 'refreshAccessToken', () =>
+      of('new-access-token')
+    );
 
     httpClient.get('/test').subscribe({
-      next: () => fail('Should have failed with 404 error'),
-      error: (error: HttpErrorResponse) => expect(error.status).toEqual(400)
+      next: () => assert.fail('Should have failed with 404 error'),
+      error: (error: HttpErrorResponse) => assert.equal(error.status, 400)
     });
 
     const httpRequest = httpMock.expectOne('/test');
@@ -254,6 +249,6 @@ describe('AuthInterceptor', () => {
     );
 
     httpMock.expectNone('/test');
-    expect(refreshSpy).not.toHaveBeenCalled();
+    assert.equal(refreshSpy.mock.callCount(), 0);
   });
 });

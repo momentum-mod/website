@@ -1,5 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, resetDeepMockCalls } from '@momentum/test-utils';
 import {
   PRISMA_MOCK_PROVIDER,
   PrismaMock
@@ -21,10 +23,13 @@ describe('NotificationsService', () => {
     _db = module.get(EXTENDED_PRISMA_SERVICE);
   });
 
-  afterEach(() => jest.resetAllMocks());
+  afterEach(() => {
+    mock.restoreAll();
+    resetDeepMockCalls();
+  });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.notStrictEqual(service, undefined);
   });
 
   // TODO extend, e.g. when sendNotifications does other stuff than just db calls.

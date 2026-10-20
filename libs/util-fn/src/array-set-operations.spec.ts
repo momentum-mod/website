@@ -1,35 +1,37 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { intersection, difference, symDiff } from './array-set-operations';
 
 describe('intersection', () => {
   it('should return an array containing the elements that are present in both input arrays', () => {
-    expect(intersection([1, 2, 3], [2, 3, 4])).toEqual([2, 3]);
+    assert.deepEqual(intersection([1, 2, 3], [2, 3, 4]), [2, 3]);
   });
 
   it('should return an empty array if there are no common elements between the input arrays', () => {
-    expect(intersection([1, 2, 3], [4, 5, 6])).toEqual([]);
+    assert.deepEqual(intersection([1, 2, 3], [4, 5, 6]), []);
   });
 });
 
 describe('difference', () => {
   it('should return an array containing the elements that are present in the first input array but not in the second', () => {
-    expect(difference([1, 2, 3], [2, 3, 4])).toEqual([1]);
+    assert.deepEqual(difference([1, 2, 3], [2, 3, 4]), [1]);
   });
 
   it('should return a copy of the first input array if there are no common elements between the input arrays', () => {
-    expect(difference([1, 2, 3], [4, 5, 6])).toEqual([1, 2, 3]);
+    assert.deepEqual(difference([1, 2, 3], [4, 5, 6]), [1, 2, 3]);
   });
 });
 
 describe('symDiff', () => {
   it('should return an array containing the symmetric difference of the input arrays', () => {
-    expect(symDiff([1, 2, 3], [2, 3, 4])).toEqual([1, 4]);
+    assert.deepEqual(symDiff([1, 2, 3], [2, 3, 4]), [1, 4]);
   });
 
   it('should return an empty array if the input arrays are equal', () => {
-    expect(symDiff([1, 2, 3], [1, 2, 3])).toEqual([]);
+    assert.deepEqual(symDiff([1, 2, 3], [1, 2, 3]), []);
   });
 
   it('should return a concatenated copy of the input arrays if they have no common elements', () => {
-    expect(symDiff([1, 2, 3], [4, 5, 6])).toEqual([1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(symDiff([1, 2, 3], [4, 5, 6]), [1, 2, 3, 4, 5, 6]);
   });
 });

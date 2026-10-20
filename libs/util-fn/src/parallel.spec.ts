@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { parallel } from './parallel';
 
 describe('parallel', () => {
@@ -14,21 +16,22 @@ describe('parallel', () => {
       returnAfter10ms('Hi'),
       returnAfter10ms(456)
     );
-    expect(resolved).toEqual(['Hello', 'World', 123, 'Hi', 456]);
+    assert.deepEqual(resolved, ['Hello', 'World', 123, 'Hi', 456]);
   });
 
   it('should handle empty input', async () => {
-    expect(await parallel()).toEqual([]);
+    assert.deepEqual(await parallel(), []);
   });
 
   it('should reject if any of the promises reject', async () => {
-    await expect(
+    await assert.rejects(
       parallel(
         async () => 'Hello',
         async () => {
           throw new Error('Oops!');
         }
-      )
-    ).rejects.toThrow('Oops!');
+      ),
+      /Oops!/
+    );
   });
 });

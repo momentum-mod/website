@@ -1,10 +1,12 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { XpSystems } from './xp-systems.class';
 
 describe('XpSystemsService', () => {
   const service = new XpSystems();
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.ok(service);
   });
 
   it('should calculate correct level assignments for original constants', () => {
@@ -17,22 +19,24 @@ describe('XpSystemsService', () => {
     // 152000 - it must factor in `startingValue` for some reason. In code,
     // `startingValue` isn't used at all for levels greater than
     // `staticScaleStart`. Not really an issue, but worth being aware of.
-    jest.replaceProperty(service, 'cosXpParams', {
-      levels: {
-        maxLevels: 500,
-        startingValue: 20000,
-        linearScaleBaseIncrease: 1000,
-        linearScaleInterval: 10,
-        linearScaleIntervalMultiplier: 1,
-        staticScaleStart: 101,
-        staticScaleBaseMultiplier: 1.5,
-        staticScaleInterval: 25,
-        staticScaleIntervalMultiplier: 0.5
-      },
-      completions: {
-        unique: { tierScale: { linear: 2500, staged: 2500 } },
-        repeat: {
-          tierScale: { linear: 20, staged: 40, stages: 5, bonus: 40 }
+    Object.defineProperty(service, 'cosXpParams', {
+      value: {
+        levels: {
+          maxLevels: 500,
+          startingValue: 20000,
+          linearScaleBaseIncrease: 1000,
+          linearScaleInterval: 10,
+          linearScaleIntervalMultiplier: 1,
+          staticScaleStart: 101,
+          staticScaleBaseMultiplier: 1.5,
+          staticScaleInterval: 25,
+          staticScaleIntervalMultiplier: 0.5
+        },
+        completions: {
+          unique: { tierScale: { linear: 2500, staged: 2500 } },
+          repeat: {
+            tierScale: { linear: 20, staged: 40, stages: 5, bonus: 40 }
+          }
         }
       }
     });
@@ -61,8 +65,8 @@ describe('XpSystemsService', () => {
       [  103,    1500000,      41025000  ],
       [  104,    1500000,      42525000  ],
     ]) {
-      expect(service.getCosmeticXpInLevel(level)).toBe(xpInLevel);
-      expect(service.getCosmeticXpForLevel(level)).toBe(xpForLevel);
+      assert.equal(service.getCosmeticXpInLevel(level), xpInLevel);
+      assert.equal(service.getCosmeticXpForLevel(level), xpForLevel);
     }
   });
 });

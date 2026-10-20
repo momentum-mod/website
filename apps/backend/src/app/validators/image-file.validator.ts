@@ -24,6 +24,15 @@ export class ImageFileValidator extends FileValidator<
   ImageFileValidatorOptions,
   NestCompatibleFile
 > {
+  constructor(
+    options: ImageFileValidatorOptions,
+    private readonly readMetadata: (
+      buffer: Buffer
+    ) => Promise<sharp.Metadata> = (buffer) => sharp(buffer).metadata()
+  ) {
+    super(options);
+  }
+
   async isValid(file?: NestCompatibleFile): Promise<boolean> {
     if (!file) return false;
     let mimetype: ImageType | undefined;
@@ -43,7 +52,7 @@ export class ImageFileValidator extends FileValidator<
     try {
       // This does the brunt of the validation - sharp will autodetect image
       // formats, and throw if it can't parse it at all
-      metadata = await sharp(file.buffer).metadata();
+      metadata = await this.readMetadata(file.buffer);
     } catch {
       return false;
     }

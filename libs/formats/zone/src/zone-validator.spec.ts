@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import {
   BonusTrack,
   MapZones,
@@ -20,6 +22,11 @@ import {
 } from './';
 import { arrayFrom } from '@momentum/util-fn';
 
+const messageIncludes = (message: string) => (error: Error) =>
+  error.message.includes(message);
+const messageMatches = (pattern: RegExp) => (error: Error) =>
+  pattern.test(error.message);
+
 describe('validateZoneFile', () => {
   let input: MapZones;
 
@@ -30,32 +37,44 @@ describe('validateZoneFile', () => {
 
   describe('main bit', () => {
     it('should pass for a valid zone file', () => {
-      expect(() => validateZoneFile(input)).not.toThrow();
-      expect(() => validateZoneFile(BabyZonesStub)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
+      assert.doesNotThrow(() => validateZoneFile(BabyZonesStub));
     });
 
     it('should throw if missing input data', () => {
       input = undefined;
 
-      expect(() => validateZoneFile(input)).toThrow('Bad input data');
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Bad input data')
+      );
     });
 
     it('should throw if tracks are missing', () => {
       input.tracks = undefined;
 
-      expect(() => validateZoneFile(input)).toThrow('Missing tracks');
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Missing tracks')
+      );
     });
 
     it('should throw if main track is missing', () => {
       input.tracks.main = undefined;
 
-      expect(() => validateZoneFile(input)).toThrow('Missing main track');
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Missing main track')
+      );
     });
 
     it('should throw if formatVersion is not CURRENT_ZONE_FORMAT_VERSION', () => {
       input.formatVersion = CURRENT_ZONE_FORMAT_VERSION + 1;
 
-      expect(() => validateZoneFile(input)).toThrow('Bad format version');
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Bad format version')
+      );
     });
 
     it('should throw if map has too many bonuses', () => {
@@ -64,7 +83,10 @@ describe('validateZoneFile', () => {
         bonus
       ) as BonusTrack[];
 
-      expect(() => validateZoneFile(input)).toThrow('Too many bonus tracks');
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Too many bonus tracks')
+      );
     });
 
     it('should throw if a bonus track has multiple segments', () => {
@@ -72,8 +94,9 @@ describe('validateZoneFile', () => {
         input.tracks.bonuses[0].zones.segments[0]
       );
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Bonus 1 track must have a single segment'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Bonus 1 track must have a single segment')
       );
     });
 
@@ -92,7 +115,7 @@ describe('validateZoneFile', () => {
         })
       ) as Segment[];
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
 
       input.tracks.bonuses = [bonus];
 
@@ -101,8 +124,9 @@ describe('validateZoneFile', () => {
       }));
       input.tracks.main.zones.segments = [segment];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Too many regions in total'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Too many regions in total')
       );
     });
 
@@ -120,15 +144,16 @@ describe('validateZoneFile', () => {
         }
       ] as Segment[];
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
 
       input.tracks.main.zones.segments[0].cancel = arrayFrom(
         1000,
         () => checkpoint
       );
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Too many regions in total'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Too many regions in total')
       );
     });
 
@@ -139,34 +164,43 @@ describe('validateZoneFile', () => {
       const cp2 = segment.checkpoints[1];
 
       segment.checkpoints = [cp1];
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
 
       input.tracks.main.stagesEndAtStageStarts = false;
-      expect(() => validateZoneFile(input)).toThrow(
-        /^Stage 1 does not have a checkpoint to use as a stage track end/
+      assert.throws(
+        () => validateZoneFile(input),
+        messageMatches(
+          /^Stage 1 does not have a checkpoint to use as a stage track end/
+        )
       );
 
       segment.checkpoints = [cp1, cp2];
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
 
     it('should throw if the main track has stagesEndAtStageStarts false and checkpointsOrdered false', () => {
       input.tracks.main.stagesEndAtStageStarts = false;
       input.tracks.main.zones.segments[0].checkpointsOrdered = false;
 
-      expect(() => validateZoneFile(input)).toThrow(/^Stage 1 wants to use/);
+      assert.throws(
+        () => validateZoneFile(input),
+        messageMatches(/^Stage 1 wants to use/)
+      );
     });
 
     it('should throw if a bonus track has both zones and defragModifiers', () => {
       input.tracks.main.zones.segments = [input.tracks.main.zones.segments[0]];
       input.tracks.bonuses[0].defragModifiers = 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Bonus 1 track must specify exactly one of zones or defragModifiers'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Bonus 1 track must specify exactly one of zones or defragModifiers'
+        )
       );
 
       delete input.tracks.bonuses[0].zones;
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
 
     it('should throw if a bonus track has multiple segments', () => {
@@ -174,8 +208,9 @@ describe('validateZoneFile', () => {
         input.tracks.bonuses[0].zones.segments[0]
       );
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Bonus 1 track must have a single segment'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Bonus 1 track must have a single segment')
       );
     });
 
@@ -183,8 +218,9 @@ describe('validateZoneFile', () => {
       input.tracks.bonuses[0].defragModifiers = 1;
       delete input.tracks.bonuses[0].zones;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        /^Bonus 1 track is a Defrag modifier bonus but/
+      assert.throws(
+        () => validateZoneFile(input),
+        messageMatches(/^Bonus 1 track is a Defrag modifier bonus but/)
       );
     });
   });
@@ -193,8 +229,9 @@ describe('validateZoneFile', () => {
     it('should throw if a volume has no regions', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions = [];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone has no regions'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Track Main segment 1 start zone has no regions')
       );
     });
 
@@ -204,8 +241,11 @@ describe('validateZoneFile', () => {
         [0, 512]
       ];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 does not have enough points'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 does not have enough points'
+        )
       );
     });
 
@@ -213,8 +253,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points =
         arrayFrom(MAX_ZONE_REGION_POINTS + 1).fill([0, 0]) as Vector2D[]; // Would also fail angle checks but this throws first
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 has too many points'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 has too many points'
+        )
       );
     });
 
@@ -222,23 +265,32 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[0] =
         [0, 0, 0] as any;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+        )
       );
 
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[0] =
         [0, 'i can hear the voice of God'] as any;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 point 0 is not a 2-tuple'
+        )
       );
     });
 
     it('should throw if a region has no bottom position', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].bottom =
         undefined;
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 has no bottom position'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 has no bottom position'
+        )
       );
     });
 
@@ -247,15 +299,21 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].bottom =
         MIN_COORD_FLOAT - 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 bottom is out of bounds'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 bottom is out of bounds'
+        )
       );
 
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].bottom =
         MAX_COORD_FLOAT + 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 bottom is out of bounds'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 bottom is out of bounds'
+        )
       );
     });
 
@@ -263,14 +321,20 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].height =
         undefined;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 has no height'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 has no height'
+        )
       );
 
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].height = 0;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 has no height'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 has no height'
+        )
       );
     });
 
@@ -278,8 +342,9 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].height =
         MAX_COORD_FLOAT * 2 + 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 is too high'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Track Main segment 1 start zone region 0 is too high')
       );
     });
 
@@ -287,8 +352,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[0][0] =
         MAX_COORD_FLOAT + 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 point 0 is out of bounds'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 point 0 is out of bounds'
+        )
       );
     });
 
@@ -296,8 +364,11 @@ describe('validateZoneFile', () => {
       // points[0] = [0, 0], points[1] = [0, 512], so change the 512 to something small
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[1][1] = 1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 polygon vertices are too close to each other'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 polygon vertices are too close to each other'
+        )
       );
     });
 
@@ -309,12 +380,15 @@ describe('validateZoneFile', () => {
       // min angle is 15deg (pi/12) so set to length < 512 * tan(pi/12) = 137.1899...
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[2][0] = 137.1;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 polygon has an angle which is too small'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 polygon has an angle which is too small'
+        )
       );
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[2][0] = 137.2;
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
 
     it('should throw if a region has an angle has colinear points', () => {
@@ -323,8 +397,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].points[2] =
         [256, 256];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 polygon has colinear points'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 polygon has colinear points'
+        )
       );
     });
 
@@ -340,8 +417,11 @@ describe('validateZoneFile', () => {
         ]
       });
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 1 polygon is self-intersecting'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 1 polygon is self-intersecting'
+        )
       );
 
       input.tracks.main.zones.segments[0].checkpoints[0].regions[1].points = [
@@ -355,8 +435,11 @@ describe('validateZoneFile', () => {
         [200, 0]
       ];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 1 polygon is self-intersecting'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 1 polygon is self-intersecting'
+        )
       );
 
       input.tracks.main.zones.segments[0].checkpoints[0].regions[1].points = [
@@ -374,7 +457,7 @@ describe('validateZoneFile', () => {
         [-50, 0]
       ];
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
 
     it('should throw if a region has both a targetname and position destination', () => {
@@ -383,8 +466,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].teleDestTargetname =
         'tele_dest';
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 must not specify both a targetname-based and a custom position-based destination'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 must not specify both a targetname-based and a custom position-based destination'
+        )
       );
     });
 
@@ -394,8 +480,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].teleDestYaw =
         undefined;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 must specify teleDestYaw if teleDestPos is specified'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 must specify teleDestYaw if teleDestPos is specified'
+        )
       );
     });
 
@@ -403,8 +492,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].teleDestPos =
         [0, 0, 'sausage' as any];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 teleDestPos must be a 3-tuple of numbers'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 teleDestPos must be a 3-tuple of numbers'
+        )
       );
     });
 
@@ -412,8 +504,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].teleDestYaw =
         'haggis' as any;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 teleDestYaw must be a number'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 teleDestYaw must be a number'
+        )
       );
     });
 
@@ -423,8 +518,11 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[0].regions[0].teleDestTargetname =
         undefined;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 must specify either a targetname-based or a custom position-based destination'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 must specify either a targetname-based or a custom position-based destination'
+        )
       );
     });
 
@@ -434,7 +532,7 @@ describe('validateZoneFile', () => {
       input.tracks.main.zones.segments[0].checkpoints[1].regions[0].teleDestTargetname =
         undefined;
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
   });
 
@@ -442,8 +540,9 @@ describe('validateZoneFile', () => {
     it('should throw if a track has no segments', () => {
       input.tracks.main.zones.segments = [];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'The Main track has no segments'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('The Main track has no segments')
       );
     });
 
@@ -454,16 +553,18 @@ describe('validateZoneFile', () => {
     it('should throw if a segment has no checkpoints', () => {
       input.tracks.main.zones.segments[0].checkpoints = undefined;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 has no checkpoints'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Track Main segment 1 has no checkpoints')
       );
     });
 
     it('should throw if a segment has no start zone', () => {
       input.tracks.main.zones.segments[0].checkpoints = [];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 has no start zone'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Track Main segment 1 has no start zone')
       );
     });
 
@@ -474,8 +575,9 @@ describe('validateZoneFile', () => {
         ...(arrayFrom(MAX_SEGMENT_CHECKPOINTS + 1).fill(checkpoint) as Zone[])
       ];
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 has too many checkpoints'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes('Track Main segment 1 has too many checkpoints')
       );
     });
   });
@@ -490,8 +592,11 @@ describe('validateZoneFile', () => {
       region.teleDestYaw = undefined;
       region.teleDestTargetname = undefined;
 
-      expect(() => validateZoneFile(input)).toThrow(
-        'Track Main segment 1 start zone region 0 must specify either a targetname-based or a custom position-based destination'
+      assert.throws(
+        () => validateZoneFile(input),
+        messageIncludes(
+          'Track Main segment 1 start zone region 0 must specify either a targetname-based or a custom position-based destination'
+        )
       );
     });
 
@@ -502,7 +607,7 @@ describe('validateZoneFile', () => {
       region.teleDestPos = undefined;
       region.teleDestTargetname = undefined;
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
 
     it('should not throw if an end zone has a no teleport destination or yaw', () => {
@@ -511,7 +616,7 @@ describe('validateZoneFile', () => {
       region.teleDestPos = undefined;
       region.teleDestTargetname = undefined;
 
-      expect(() => validateZoneFile(input)).not.toThrow();
+      assert.doesNotThrow(() => validateZoneFile(input));
     });
   });
 });

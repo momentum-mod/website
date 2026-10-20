@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import { RangePipe } from './range.pipe';
 
 describe('RangePipe', () => {
@@ -8,18 +10,18 @@ describe('RangePipe', () => {
   });
 
   it('should create an instance', () => {
-    expect(pipe).toBeTruthy();
+    assert.ok(pipe);
   });
 
   it('should return [0] when start is 1 and stop is undefined', () => {
-    expect(pipe.transform(1)).toEqual([0]);
+    assert.deepEqual(pipe.transform(1), [0]);
   });
 
   it('should return [0, 1, 2] when start is 0 and stop is 3', () => {
-    expect(pipe.transform(0, 3)).toEqual([0, 1, 2]);
+    assert.deepEqual(pipe.transform(0, 3), [0, 1, 2]);
   });
 
   it('should return [2, 3] when start is 2 and stop is 4', () => {
-    expect(pipe.transform(2, 4)).toEqual([2, 3]);
+    assert.deepEqual(pipe.transform(2, 4), [2, 3]);
   });
 });

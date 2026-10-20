@@ -23,14 +23,13 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "libs/enum/jest.config.ts"
-      },
-      "configurations": {
-        "ci": {
-          "codeCoverage": false
+        "command": "node --test -r ts-node/register -r tsconfig-paths/register libs/enum/src/*.spec.ts",
+        "env": {
+          "TS_NODE_PROJECT": "libs/enum/tsconfig.spec.json"
         }
       }
     }

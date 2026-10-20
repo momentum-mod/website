@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TwitchAPIService } from './twitch-api.service';
@@ -6,11 +8,11 @@ import { PagedResponse, TwitchStream } from '@momentum/constants';
 
 describe('TwitchAPIService', () => {
   let service: TwitchAPIService;
-  let httpMock: { get: jest.Mock };
+  let httpMock: { get: ReturnType<typeof mock.fn<(...args: any[]) => any>> };
 
   beforeEach(() => {
     httpMock = {
-      get: jest.fn()
+      get: mock.fn<(...args: any[]) => any>()
     };
 
     TestBed.configureTestingModule({
@@ -23,8 +25,13 @@ describe('TwitchAPIService', () => {
     service = TestBed.inject(TwitchAPIService);
   });
 
+  afterEach(() => {
+    mock.restoreAll();
+    TestBed.resetTestingModule();
+  });
+
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    assert.ok(service);
   });
 
   describe('getGameStreams', () => {
@@ -53,15 +60,18 @@ describe('TwitchAPIService', () => {
         ]
       };
 
-      httpMock.get.mockReturnValue(of(mockResponse));
+      httpMock.get.mock.mockImplementation(() => of(mockResponse));
 
       let result: any;
       service.getGameStreams().subscribe((res) => {
         result = res;
       });
 
-      expect(httpMock.get).toHaveBeenCalledWith('twitch/streams');
-      expect(result).toEqual(mockResponse);
+      assert.deepEqual(
+        httpMock.get.mock.calls.map(({ arguments: args }) => args),
+        [['twitch/streams']]
+      );
+      assert.deepEqual(result, mockResponse);
     });
   });
 });

@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { expandToIncludes } from './expand-to-includes';
 
 describe('expandToIncludes', () => {
@@ -7,13 +9,13 @@ describe('expandToIncludes', () => {
   };
 
   it('should return undefined if expansions is not an array or is empty', () => {
-    expect(expandToIncludes(undefined)).toBeUndefined();
-    expect(expandToIncludes(null)).toBeUndefined();
-    expect(expandToIncludes([])).toBeUndefined();
+    assert.equal(expandToIncludes(undefined), undefined);
+    assert.equal(expandToIncludes(null), undefined);
+    assert.equal(expandToIncludes([]), undefined);
   });
 
   it('should map strings to an object of those strings as keys with values as true', () => {
-    expect(expandToIncludes(['a', 'b', 'c'])).toEqual({
+    assert.deepEqual(expandToIncludes(['a', 'b', 'c']), {
       a: true,
       b: true,
       c: true
@@ -21,67 +23,75 @@ describe('expandToIncludes', () => {
   });
 
   it('should ignore any strings in the options.without array', () => {
-    expect(expandToIncludes(['a', 'b', 'c'], { without: ['b', 'd'] })).toEqual({
-      a: true,
-      c: true
-    });
+    assert.deepEqual(
+      expandToIncludes(['a', 'b', 'c'], { without: ['b', 'd'] }),
+      {
+        a: true,
+        c: true
+      }
+    );
   });
 
   it('should only maps strings in the options.only array', () => {
-    expect(expandToIncludes(['a', 'b', 'c'], { only: ['b', 'c'] })).toEqual({
+    assert.deepEqual(expandToIncludes(['a', 'b', 'c'], { only: ['b', 'c'] }), {
       b: true,
       c: true
     });
   });
 
   it('should only maps strings in the options.only array without strings in the options.without array', () => {
-    expect(
-      expandToIncludes(['a', 'b', 'c'], { only: ['b', 'c'], without: ['b'] })
-    ).toEqual({
-      c: true
-    });
+    assert.deepEqual(
+      expandToIncludes(['a', 'b', 'c'], { only: ['b', 'c'], without: ['b'] }),
+      {
+        c: true
+      }
+    );
   });
 
   it('should map expands in the options.mappings arrays', () => {
-    expect(
+    assert.deepEqual(
       expandToIncludes<TestInclude, string[]>(['a', 'b'], {
         mappings: [{ expand: 'a', model: 'model1', value: { something: true } }]
-      })
-    ).toEqual({
-      model1: { something: true },
-      b: true
-    });
+      }),
+      {
+        model1: { something: true },
+        b: true
+      }
+    );
 
-    expect(
+    assert.deepEqual(
       expandToIncludes<TestInclude, string[]>(['model1', 'b'], {
         mappings: [{ expand: 'b', model: 'model1', value: { something: true } }]
-      })
-    ).toEqual({
-      model1: { something: true }
-    });
+      }),
+      {
+        model1: { something: true }
+      }
+    );
 
-    expect(
+    assert.deepEqual(
       expandToIncludes<TestInclude, string[]>(['a', 'b'], {
         without: ['b'],
         mappings: [
           { expand: 'a', model: 'model1', value: { something: true } },
           { expand: 'b', model: 'model2', value: { something: true } }
         ]
-      })
-    ).toEqual({
-      model1: { something: true }
-    });
+      }),
+      {
+        model1: { something: true }
+      }
+    );
 
-    expect(
+    assert.deepEqual(
       expandToIncludes<TestInclude, string[]>(['a', 'b'], {
         only: ['b'],
         mappings: [
           { expand: 'a', model: 'model1', value: { something: true } },
           { expand: 'b', model: 'model2', value: { something: true } }
         ]
-      })
-    ).toEqual({
-      model2: { something: true }
-    });
+      }),
+      {
+        model2: { something: true }
+      }
+    );
   });
 });

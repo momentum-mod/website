@@ -134,6 +134,7 @@
     "jest-environment-node": "29.7.0",
     "jest-mock-extended": "4.0.0",
     "jest-preset-angular": "14.6.1",
+    "jsdom": "20.0.3",
     "lint-staged": "16.2.3",
     "nx": "21.6.1",
     "pino-pretty": "13.1.1",
