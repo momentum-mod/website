@@ -135,13 +135,23 @@ export class ProfileRunsComponent implements OnChanges {
 
   /**
    * Where the run places on its leaderboard: WR, Top 10, or its cosmetic
-   * percentile group. Null below the last group.
+   * percentile group, labelled like the game's group pills. `color` names the
+   * --group-*-bg/-text CSS vars. Null below the last group.
    */
-  protected rankGroup(run: LeaderboardRun): string | null {
-    if (run.rank === 1) return 'WR';
-    if (run.rank <= RANK_GROUP_TOP_RANKS) return 'Top 10';
+  protected rankGroup(
+    run: LeaderboardRun
+  ): { label: string; title: string; color: string } | null {
+    if (run.rank === 1)
+      return { label: 'WR', title: 'World record', color: 'wr' };
+    if (run.rank <= RANK_GROUP_TOP_RANKS)
+      return { label: 'TOP 10', title: 'Top 10', color: 'top10' };
     const group = run.totalRuns ? getRankGroup(run.rank, run.totalRuns) : null;
-    return group ? `Group ${group.group}` : null;
+    if (!group) return null;
+    return {
+      label: `G${group.group}`,
+      title: `Group ${group.group}`,
+      color: `${group.group}`
+    };
   }
 
   protected trackName(run: LeaderboardRun): string | null {
