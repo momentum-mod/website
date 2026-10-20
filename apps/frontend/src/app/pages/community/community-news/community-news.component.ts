@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
-
 import { BlogService } from '../../../services/data/blog.service';
 import { CardComponent } from '../../../components/card/card.component';
 
