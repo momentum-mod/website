@@ -1,8 +1,11 @@
-﻿import { Test, TestingModule } from '@nestjs/testing';
+import * as assert from 'node:assert/strict';
+import { describe, it, before, mock } from 'node:test';
+import { assertValidDto } from '../../../../../test/dto-assert';
+import { Test, TestingModule } from '@nestjs/testing';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from '@momentum/test-utils';
 import { JWTResponseGameDto, JWTResponseWebDto } from '../../../dto';
 import {
   UserJwtAccessPayloadVerified,
@@ -28,30 +31,33 @@ describe('JwtAuthService', () => {
   };
 
   const testWebTokenDto = (user, jwt) => {
-    expect(jwt).toBeValidDto(JWTResponseWebDto);
+    assertValidDto(jwt, JWTResponseWebDto);
 
     const decodedAccessToken = testJwtService.decode(
       jwt.accessToken
     ) as UserJwtAccessPayloadVerified;
-    expect(decodedAccessToken).toMatchObject({
+    assert.partialDeepStrictEqual(decodedAccessToken, {
       id: user.id,
       steamID: user.steamID.toString(),
       gameAuth: false
     });
 
-    expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(60); // 1m. JWT times are seconds, not ms.
+    assert.strictEqual(decodedAccessToken.exp - decodedAccessToken.iat, 60); // 1m. JWT times are seconds, not ms.
 
     const decodedRefreshToken = testJwtService.decode(
       jwt.refreshToken
     ) as UserJwtPayloadVerified;
-    expect(decodedRefreshToken.id).toBe(user.id);
+    assert.strictEqual(decodedRefreshToken.id, user.id);
 
-    expect(decodedRefreshToken.exp - decodedRefreshToken.iat).toBe(3 * 60); // 3m
+    assert.strictEqual(
+      decodedRefreshToken.exp - decodedRefreshToken.iat,
+      3 * 60
+    ); // 3m
 
-    expect(jwt.expiresIn).toBe(jwtConfig.expTime);
+    assert.strictEqual(jwt.expiresIn, jwtConfig.expTime);
   };
 
-  beforeAll(async () => {
+  before(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: jwtSecret })],
       providers: [JwtAuthService, PRISMA_MOCK_PROVIDER]
@@ -59,7 +65,7 @@ describe('JwtAuthService', () => {
       .useMocker((token) => {
         if (token === ConfigService)
           return {
-            getOrThrow: jest.fn((key) => {
+            getOrThrow: mock.fn((key) => {
               switch (key) {
                 case 'jwt.expTime':
                   return jwtConfig.expTime;
@@ -79,7 +85,7 @@ describe('JwtAuthService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.notStrictEqual(service, undefined);
   });
 
   describe('loginWeb', () => {
@@ -120,18 +126,21 @@ describe('JwtAuthService', () => {
         steamID: user.steamID
       });
 
-      expect(jwt).toBeValidDto(JWTResponseGameDto);
+      assertValidDto(jwt, JWTResponseGameDto);
 
       const decodedAccessToken = testJwtService.decode(
         jwt.token
       ) as UserJwtAccessPayloadVerified;
-      expect(decodedAccessToken).toMatchObject({
+      assert.partialDeepStrictEqual(decodedAccessToken, {
         id: user.id,
         steamID: user.steamID.toString(),
         gameAuth: true
       });
 
-      expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(2 * 60); // 2m
+      assert.strictEqual(
+        decodedAccessToken.exp - decodedAccessToken.iat,
+        2 * 60
+      ); // 2m
     });
   });
 
@@ -149,7 +158,9 @@ describe('JwtAuthService', () => {
     it('should generate a web JWT DTO for a valid refresh token', async () => {
       const token = testJwtService.sign({ id: user.id });
 
-      db.user.findUnique.mockResolvedValueOnce(user as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(user as any)
+      );
 
       const jwt = await service.refreshRefreshToken(token);
 
@@ -160,7 +171,8 @@ describe('JwtAuthService', () => {
       const token =
         testJwtService.sign({ id: user.id, steamID: user.steamID }) + 'a';
 
-      await expect(service.refreshRefreshToken(token)).rejects.toThrow(
+      await assert.rejects(
+        service.refreshRefreshToken(token),
         UnauthorizedException
       );
     });
@@ -168,8 +180,11 @@ describe('JwtAuthService', () => {
     it('should throw an UnauthorizedException is the user does not exist in DB', async () => {
       const token = testJwtService.sign({ id: user.id, steamID: user.steamID });
 
-      db.user.findUnique.mockResolvedValueOnce(undefined);
-      await expect(service.refreshRefreshToken(token)).rejects.toThrow(
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(undefined)
+      );
+      await assert.rejects(
+        service.refreshRefreshToken(token),
         UnauthorizedException
       );
     });

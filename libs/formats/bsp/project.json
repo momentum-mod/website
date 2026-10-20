@@ -21,12 +21,6 @@
       "options": {
         "lintFilePatterns": ["libs/formats/bsp/**/*.ts"]
       }
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "options": {
-        "jestConfig": "libs/formats/bsp/jest.config.ts"
-      }
     }
   }
 }

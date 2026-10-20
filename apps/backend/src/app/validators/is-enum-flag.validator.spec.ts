@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { validate } from 'class-validator';
 import { IsEnumFlag } from './is-enum-flag.validator';
 
@@ -20,14 +22,14 @@ describe('IsEnumFlag', () => {
   it('should pass validation if the value is a valid flag of the enum', async () => {
     const testObject = new TestClass(TestEnum.A | TestEnum.B);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(0);
+    assert.strictEqual(errors.length, 0);
   });
 
   it('should fail validation if the value is not a valid flag of the enum', async () => {
     const testObject = new TestClass(1 << 3);
     const errors = await validate(testObject);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].constraints).toEqual({
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0].constraints, {
       isFlagEnum: 'value is not a valid enum flag.'
     });
   });

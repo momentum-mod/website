@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import { NumberWithCommasPipe } from './number-with-commas.pipe';
 
 describe('NumberWithCommasPipe', () => {
@@ -8,7 +10,7 @@ describe('NumberWithCommasPipe', () => {
   });
 
   it('should transform a number to a string with commas', () => {
-    expect(pipe.transform(1000)).toBe('1,000');
-    expect(pipe.transform(1000000)).toBe('1,000,000');
+    assert.equal(pipe.transform(1000), '1,000');
+    assert.equal(pipe.transform(1000000), '1,000,000');
   });
 });

@@ -1,6 +1,9 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, before, afterEach, mock } from 'node:test';
+import { wasCalledWith } from '@momentum/test-utils';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, resetDeepMockCalls } from '@momentum/test-utils';
 import {
   PRISMA_MOCK_PROVIDER,
   PrismaMock
@@ -23,7 +26,7 @@ describe('UserService', () => {
   let killswitchService: KillswitchService;
   let db: PrismaMock;
 
-  beforeAll(async () => {
+  before(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [UsersService, PRISMA_MOCK_PROVIDER, KillswitchService]
     })
@@ -35,9 +38,14 @@ describe('UserService', () => {
     db = module.get(EXTENDED_PRISMA_SERVICE);
   });
 
+  afterEach(() => {
+    mock.restoreAll();
+    resetDeepMockCalls();
+  });
+
   it('should be defined', () => {
-    expect(usersService).toBeDefined();
-    expect(db).toBeDefined();
+    assert.notStrictEqual(usersService, undefined);
+    assert.notStrictEqual(db, undefined);
   });
 
   describe('findOrCreateUser', () => {
@@ -52,7 +60,9 @@ describe('UserService', () => {
         country: 'QA',
         createdAt: undefined
       };
-      db.user.findUnique.mockResolvedValueOnce(existingUser as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(existingUser as any)
+      );
 
       await usersService.findOrCreateUser(BigInt(123456789));
     });
@@ -66,11 +76,14 @@ describe('UserService', () => {
       });
 
       const fakeUser: User = undefined;
-      db.user.findUnique.mockResolvedValueOnce(fakeUser as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(fakeUser as any)
+      );
 
-      await expect(
-        usersService.findOrCreateUser(BigInt(123456789))
-      ).rejects.toThrow(ConflictException);
+      await assert.rejects(
+        usersService.findOrCreateUser(BigInt(123456789)),
+        ConflictException
+      );
 
       // reset killswitches
       await killswitchService.updateKillswitches({
@@ -93,7 +106,9 @@ describe('UserService', () => {
         createdAt: undefined
       };
 
-      db.user.findUnique.mockResolvedValueOnce(existingUser as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(existingUser as any)
+      );
 
       await killswitchService.updateKillswitches({
         NEW_SIGNUPS: true,
@@ -115,9 +130,11 @@ describe('UserService', () => {
 
     it('should create a new user', async () => {
       const nonExistingUser: User = undefined;
-      db.user.findUnique.mockResolvedValueOnce(nonExistingUser as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(nonExistingUser as any)
+      );
 
-      const spy = jest.spyOn(db['user'], 'create');
+      const spy = db.user.create;
 
       const steamUserSummaryData: SteamUserSummaryData = {
         avatar: 'avatar',
@@ -137,28 +154,34 @@ describe('UserService', () => {
         steamid: '123456789',
         timecreated: 999887
       };
-      jest
-        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
-        .mockResolvedValueOnce(steamUserSummaryData);
+      (
+        usersService['steamService'] as any
+      ).getSteamUserSummaryData.mock.mockImplementationOnce(() =>
+        Promise.resolve(steamUserSummaryData)
+      );
 
       await usersService.findOrCreateUser(BigInt(123456789));
 
-      expect(spy).toHaveBeenCalledWith({
-        data: {
-          alias: steamUserSummaryData.personaname,
-          avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
-          country: steamUserSummaryData.loccountrycode,
-          steamID: BigInt(123456789)
-        },
-        select: { id: true, steamID: true }
-      });
+      assert.ok(
+        wasCalledWith(spy, {
+          data: {
+            alias: steamUserSummaryData.personaname,
+            avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
+            country: steamUserSummaryData.loccountrycode,
+            steamID: BigInt(123456789)
+          },
+          select: { id: true, steamID: true }
+        })
+      );
     });
 
     it('should create a limited user when using a limited account if the setting is on', async () => {
       const nonExistingUser: User = undefined;
-      db.user.findUnique.mockResolvedValueOnce(nonExistingUser as any);
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(nonExistingUser as any)
+      );
 
-      const spy = jest.spyOn(db['user'], 'create');
+      const spy = db.user.create;
 
       const steamUserSummaryData: SteamUserSummaryData = {
         avatar: 'avatar',
@@ -178,38 +201,47 @@ describe('UserService', () => {
         steamid: '123456789',
         timecreated: 999887
       };
-      jest
-        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
-        .mockResolvedValueOnce(steamUserSummaryData);
+      (
+        usersService['steamService'] as any
+      ).getSteamUserSummaryData.mock.mockImplementationOnce(() =>
+        Promise.resolve(steamUserSummaryData)
+      );
 
-      jest
-        .spyOn(usersService['config'], 'getOrThrow')
-        .mockReturnValueOnce(true);
-      jest
-        .spyOn(usersService['steamService'], 'isAccountLimited')
-        .mockResolvedValueOnce(true);
+      (usersService['config'] as any).getOrThrow.mock.mockImplementationOnce(
+        () => true
+      );
+      (
+        usersService['steamService'] as any
+      ).isAccountLimited.mock.mockImplementationOnce(() =>
+        Promise.resolve(true)
+      );
 
       await usersService.findOrCreateUser(BigInt(123456789));
 
-      expect(spy).toHaveBeenCalledWith({
-        data: {
-          alias: steamUserSummaryData.personaname,
-          avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
-          country: steamUserSummaryData.loccountrycode,
-          steamID: BigInt(123456789),
-          roles: Role.LIMITED
-        },
-        select: { id: true, steamID: true }
-      });
+      assert.ok(
+        wasCalledWith(spy, {
+          data: {
+            alias: steamUserSummaryData.personaname,
+            avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
+            country: steamUserSummaryData.loccountrycode,
+            steamID: BigInt(123456789),
+            roles: Role.LIMITED
+          },
+          select: { id: true, steamID: true }
+        })
+      );
     });
 
     it('should throw an error when getSteamUserSummaryData throws and error', async () => {
-      jest
-        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
-        .mockRejectedValueOnce('failed to start');
-      await expect(
-        usersService.findOrCreateUser(BigInt(123456789))
-      ).rejects.toThrow(ServiceUnavailableException);
+      (
+        usersService['steamService'] as any
+      ).getSteamUserSummaryData.mock.mockImplementationOnce(() =>
+        Promise.reject('failed to start')
+      );
+      await assert.rejects(
+        usersService.findOrCreateUser(BigInt(123456789)),
+        ServiceUnavailableException
+      );
     });
 
     it("should throw an error when the steamid's don't match", async () => {
@@ -231,12 +263,15 @@ describe('UserService', () => {
         timecreated: 0,
         steamid: '123456789'
       };
-      jest
-        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
-        .mockResolvedValueOnce(steamUserSummaryData);
-      await expect(
-        usersService.findOrCreateUser(BigInt(999999999))
-      ).rejects.toThrow(BadRequestException);
+      (
+        usersService['steamService'] as any
+      ).getSteamUserSummaryData.mock.mockImplementationOnce(() =>
+        Promise.resolve(steamUserSummaryData)
+      );
+      await assert.rejects(
+        usersService.findOrCreateUser(BigInt(999999999)),
+        BadRequestException
+      );
     });
 
     it('should error when profile state is not 1', async () => {
@@ -259,11 +294,14 @@ describe('UserService', () => {
         steamid: steamID.toString(),
         timecreated: 0
       };
-      jest
-        .spyOn(usersService['steamService'], 'getSteamUserSummaryData')
-        .mockResolvedValueOnce(steamUserSummaryData);
+      (
+        usersService['steamService'] as any
+      ).getSteamUserSummaryData.mock.mockImplementationOnce(() =>
+        Promise.resolve(steamUserSummaryData)
+      );
 
-      await expect(usersService.findOrCreateUser(steamID)).rejects.toThrow(
+      await assert.rejects(
+        usersService.findOrCreateUser(steamID),
         ForbiddenException
       );
     });
@@ -274,9 +312,12 @@ describe('UserService', () => {
         .update(steamID.toString())
         .digest('hex');
 
-      db.deletedUser.findUnique.mockResolvedValueOnce({ steamIDHash });
+      db.deletedUser.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve({ steamIDHash })
+      );
 
-      await expect(usersService.findOrCreateUser(steamID)).rejects.toThrow(
+      await assert.rejects(
+        usersService.findOrCreateUser(steamID),
         ForbiddenException
       );
     });

@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import { PluralPipe } from './plural.pipe';
 
 describe('PluralPipe', () => {
@@ -8,8 +10,8 @@ describe('PluralPipe', () => {
   });
 
   it('should transform a number to a pluralized string', () => {
-    expect(pipe.transform(1, 'cat')).toBe('1 cat');
-    expect(pipe.transform(2, 'cat')).toBe('2 cats');
-    expect(pipe.transform(3, 'child', 'children')).toBe('3 children');
+    assert.equal(pipe.transform(1, 'cat'), '1 cat');
+    assert.equal(pipe.transform(2, 'cat'), '2 cats');
+    assert.equal(pipe.transform(3, 'child', 'children'), '3 children');
   });
 });

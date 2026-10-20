@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach, before, mock } from 'node:test';
 import { RunProcessor } from './run-processor.class';
 import {
   Gamemode,
@@ -21,15 +23,15 @@ import deepmerge from '@fastify/deepmerge';
 describe('RunProcessor', () => {
   const BASE_TIME = ReplayFile.Stubs.BaseTime;
 
-  beforeAll(() => {
-    jest.useFakeTimers();
+  before(() => {
+    mock.timers.enable();
 
     // Suppress spammy run rejection logs
-    jest.spyOn(RunProcessor.Logger, 'log').mockImplementation(() => {});
+    mock.method(RunProcessor.Logger, 'log').mock.mockImplementation(() => {});
   });
 
   beforeEach(() => {
-    jest.setSystemTime(BASE_TIME);
+    mock.timers.setTime(BASE_TIME);
   });
 
   const DefaultSession: CompletedRunSession = {
@@ -107,13 +109,14 @@ describe('RunProcessor', () => {
 
   describe('validateTimestamps', () => {
     function expectPass(args: ProcessorOverrides = {}) {
-      expect(() =>
+      assert.doesNotThrow(() =>
         createProcessor(args).validateSessionTimestamps()
-      ).not.toThrow();
+      );
     }
 
     function expectFail(args: ProcessorOverrides = {}) {
-      expect(() => createProcessor(args).validateSessionTimestamps()).toThrow(
+      assert.throws(
+        () => createProcessor(args).validateSessionTimestamps(),
         new RunValidationError(ErrorType.BAD_TIMESTAMPS)
       );
     }
@@ -682,11 +685,12 @@ describe('RunProcessor', () => {
     const runTimeMS = ReplayFile.Stubs.ReplayHeaderStub.runTime * 1000;
 
     function expectPass() {
-      expect(() => processor.validateReplayHeader()).not.toThrow();
+      assert.doesNotThrow(() => processor.validateReplayHeader());
     }
 
     function expectFail(error: ErrorType) {
-      expect(() => processor.validateReplayHeader()).toThrow(
+      assert.throws(
+        () => processor.validateReplayHeader(),
         new RunValidationError(error)
       );
     }
@@ -694,7 +698,7 @@ describe('RunProcessor', () => {
     it('should not throw for a valid header and run time', () => {
       processor = createProcessor({ session: { timestamps } });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectPass();
     });
@@ -705,12 +709,12 @@ describe('RunProcessor', () => {
       expectFail(ErrorType.OUT_OF_SYNC);
 
       // Appropriate time has passed - should not throw
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
       processor = createProcessor({ session: { timestamps } });
       expectPass();
 
       // Now we're too far into future - should throw
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
       expectFail(ErrorType.OUT_OF_SYNC);
     });
 
@@ -723,10 +727,10 @@ describe('RunProcessor', () => {
       processor = createProcessor({ session: { timestamps } });
 
       const acceptableDelay = base + (runTimeMS / 60000) * incr;
-      jest.advanceTimersByTime(runTimeMS + acceptableDelay - 100);
+      mock.timers.tick(runTimeMS + acceptableDelay - 100);
       expectPass();
 
-      jest.advanceTimersByTime(200);
+      mock.timers.tick(200);
       expectFail(ErrorType.OUT_OF_SYNC);
     });
 
@@ -736,7 +740,7 @@ describe('RunProcessor', () => {
         header: { trackType: TrackType.STAGE }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
 
@@ -744,7 +748,7 @@ describe('RunProcessor', () => {
         session: { timestamps, trackType: TrackType.STAGE }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -755,7 +759,7 @@ describe('RunProcessor', () => {
         header: { trackNum: 2 }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
 
@@ -763,7 +767,7 @@ describe('RunProcessor', () => {
         session: { timestamps, trackNum: 2 }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -774,7 +778,7 @@ describe('RunProcessor', () => {
         header: { magic: 0 }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -785,7 +789,7 @@ describe('RunProcessor', () => {
         header: { formatVersion: -354 }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -796,7 +800,7 @@ describe('RunProcessor', () => {
         header: { mapHash: 'B'.repeat(40) }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -807,7 +811,7 @@ describe('RunProcessor', () => {
         header: { mapName: 'bhop_map2' }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -818,7 +822,7 @@ describe('RunProcessor', () => {
         header: { playerSteamID: 2n }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -829,7 +833,7 @@ describe('RunProcessor', () => {
         header: { gamemode: Gamemode.SURF }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BAD_META);
     });
@@ -840,7 +844,7 @@ describe('RunProcessor', () => {
         header: { tickInterval: Math.fround(0.015) }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.OUT_OF_SYNC);
     });
@@ -851,7 +855,7 @@ describe('RunProcessor', () => {
         user: { bans: Ban.LEADERBOARDS }
       });
 
-      jest.advanceTimersByTime(runTimeMS);
+      mock.timers.tick(runTimeMS);
 
       expectFail(ErrorType.BANNED);
     });
@@ -861,11 +865,12 @@ describe('RunProcessor', () => {
     let processor: RunProcessor;
 
     function expectPass() {
-      expect(() => processor.validateRunSplits()).not.toThrow();
+      assert.doesNotThrow(() => processor.validateRunSplits());
     }
 
     function expectFail() {
-      expect(() => processor.validateRunSplits()).toThrow(
+      assert.throws(
+        () => processor.validateRunSplits(),
         new RunValidationError(ErrorType.OUT_OF_SYNC)
       );
     }
