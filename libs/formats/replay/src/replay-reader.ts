@@ -1,4 +1,4 @@
-﻿import {
+import {
   REPLAY_HEADER_SIZE,
   REPLAY_SPLITS_OFFSET,
   ReplayHeader
@@ -36,7 +36,8 @@ export function readHeader(buffer: Readonly<Buffer>): ReplayHeader {
       style: buffer.readUInt8(194)
     };
   } catch (error) {
-    throw new ReplayReadError(error.code, error.message);
+    const err = error as Error & { code?: string };
+    throw new ReplayReadError(err.message, err.code);
   }
 }
 
@@ -55,7 +56,8 @@ export function readRunSplits(buffer: Readonly<Buffer>): RunSplits.Splits {
     );
     lastChar = buffer.readUInt8(REPLAY_SPLITS_OFFSET + length);
   } catch (error) {
-    throw new ReplayReadError(error.code, error.message);
+    const err = error as Error & { code?: string };
+    throw new ReplayReadError(err.message, err.code);
   }
 
   if (splits.length !== length || splits.at(-1) !== '}' || lastChar !== 0x00) {
@@ -67,11 +69,10 @@ export function readRunSplits(buffer: Readonly<Buffer>): RunSplits.Splits {
 
 export class ReplayReadError extends Error {
   /** Node error code https://nodejs.org/api/errors.html#nodejs-error-codes */
-  code: string;
+  code?: string;
 
   constructor(message: string, code?: string) {
-    super();
-    this.message = message;
+    super(message);
     this.code = code;
     this.name = 'ReplayReadError';
   }
