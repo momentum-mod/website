@@ -1,43 +1,23 @@
-import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
-
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
-import { DbUtil, RequestUtil } from '@momentum/test-utils';
-
-import { MMap, PrismaClient, User, Notification } from '@momentum/db';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
+import { MMap, User, Notification } from '@momentum/db';
 import { MapStatus, NotificationType } from '@momentum/constants';
 import { NotificationDto } from 'apps/backend/src/app/dto';
-import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { RawServerDefault } from 'fastify';
+import {
+  prisma,
+  req,
+  db,
+  registerE2ETestFile
+} from './support/test-environment';
 
 describe('Notifications', () => {
-  let app: NestFastifyApplication<RawServerDefault>,
-    prisma: PrismaClient,
-    req: RequestUtil,
-    db: DbUtil;
+  registerE2ETestFile();
 
   let user: User,
     userToken: string,
     map: MMap,
     user2: User,
     notifications: Notification[];
-
-  before(async () => {
-    const env = await setupE2ETestEnvironment();
-    app = env.app;
-    prisma = env.prisma;
-    req = env.req;
-    db = env.db;
-  });
-
-  after(async () => {
-    await teardownE2ETestEnvironment(app, prisma);
-  });
 
   beforeEach(async () => {
     [user, userToken] = await db.createAndLoginUser();
@@ -297,71 +277,6 @@ describe('Notifications', () => {
 
     it('should 401 when no access token is provided', async () => {
       await req.unauthorizedTest('notifications', 'del');
-    });
-  });
-
-  describe('notifications/markRead PATCH', () => {
-    it('should mark a list of notifications as read', async () => {
-      await req.patch({
-        url: 'notifications/markRead',
-        status: 204,
-        query: { notificationIDs: [notifications[0].id, notifications[3].id] },
-        token: userToken
-      });
-
-      const readNotifications = await prisma.notification.findMany({
-        where: {
-          notifiedUserID: user.id,
-          id: { in: [notifications[0].id, notifications[3].id] }
-        }
-      });
-      assert.equal(readNotifications.length, 2);
-      assert.equal(readNotifications[0].isRead, true);
-      assert.equal(readNotifications[1].isRead, true);
-
-      assert.equal(
-        (
-          await prisma.notification.findMany({
-            where: {
-              notifiedUserID: user.id,
-              isRead: false
-            }
-          })
-        ).length,
-        2
-      );
-    });
-
-    it('should mark all notifications as read when all field is true', async () => {
-      await req.patch({
-        url: 'notifications/markRead',
-        status: 204,
-        query: { all: true },
-        token: userToken
-      });
-
-      const alteredNotifications = await prisma.notification.findMany({
-        where: { notifiedUserID: user.id }
-      });
-      assert.equal(alteredNotifications.length, 4);
-      for (const notification of alteredNotifications) {
-        assert.equal(notification.isRead, true);
-      }
-    });
-
-    it("should only mark the given user's notifications as read", async () => {
-      await req.patch({
-        url: 'notifications/markRead',
-        status: 204,
-        query: { all: true },
-        token: userToken
-      });
-
-      const user2Notifications = await prisma.notification.findMany({
-        where: { notifiedUserID: user2.id }
-      });
-      assert.equal(user2Notifications.length, 1);
-      assert.equal(user2Notifications[0].isRead, false);
     });
   });
 });

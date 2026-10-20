@@ -1,19 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
 import path from 'node:path';
-import globalSetup from './src/support/global-setup';
 
 async function runTests(): Promise<void> {
-  await globalSetup();
-
   const sourcePath = path.join(__dirname, 'src');
-  const testFiles = readdirSync(sourcePath)
-    .filter((file) => file.endsWith('.e2e-spec.ts'))
-    .sort()
-    .map((file) => path.join(sourcePath, file));
-  if (testFiles.length === 0) {
-    throw new Error(`No E2E test files found in ${sourcePath}`);
-  }
 
   const watchMode = process.argv.includes('--watch');
   const result = spawnSync(
@@ -30,9 +19,9 @@ async function runTests(): Promise<void> {
       'reflect-metadata',
       '-r',
       path.join(sourcePath, 'support/test-setup.ts'),
-      ...testFiles
+      path.join(__dirname, 'test-file-loader.cjs')
     ],
-    { stdio: 'inherit', env: process.env }
+    { stdio: 'inherit' }
   );
 
   if (result.error) throw result.error;
