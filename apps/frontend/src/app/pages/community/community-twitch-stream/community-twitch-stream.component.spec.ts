@@ -4,7 +4,6 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
-
 import { TwitchAPIService } from '../../../services/data/twitch-api.service';
 
 // Avast! Here be the tests for the CommunityTwitchStreamComponent

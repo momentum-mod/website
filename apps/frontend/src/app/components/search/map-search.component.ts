@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { PaginatorModule } from 'primeng/paginator';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { MMap } from '@momentum/constants';
-
 import { MapsService } from '../../services/data/maps.service';
 import { SpinnerDirective } from '../../directives/spinner.directive';
 import { ReactiveFormsModule } from '@angular/forms';
