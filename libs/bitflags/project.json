@@ -27,7 +27,7 @@
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "command": "node --test -r ts-node/register -r tsconfig-paths/register libs/bitflags/src/*.spec.ts",
+        "command": "node --test -r ts-node/register -r tsconfig-paths/register libs/bitflags/src/*.test.ts",
         "env": {
           "TS_NODE_PROJECT": "libs/bitflags/tsconfig.spec.json"
         }
