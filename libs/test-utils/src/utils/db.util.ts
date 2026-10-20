@@ -59,10 +59,13 @@ export class DbUtil {
 
   cleanup(...models: CamelCase<Prisma.ModelName>[]) {
     return this.prisma.$transaction(
-      models.map((name) =>
-        (this.prisma[name] as any) // >:D
-          .deleteMany()
-      )
+      async (transaction) => {
+        for (const name of models) {
+          await (transaction[name] as any) // >:D
+            .deleteMany();
+        }
+      },
+      { maxWait: 10_000 }
     );
   }
 
