@@ -3,6 +3,12 @@ on:
   pull_request:
     branches:
       - main
+env:
+  # Pinned exactly, otherwise setup-node resolves from each runner's tool cache
+  # and jobs in the same run can end up on different patch versions. Keep in
+  # sync with the other workflows, the prod/ Dockerfiles and the backend-e2e
+  # image in docker-compose.test.yml.
+  NODE_VERSION: 24.22.0
 jobs:
   install-deps:
     name: Install Dependencies
@@ -31,7 +37,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: npm install
@@ -66,7 +72,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: commitlint
@@ -112,7 +118,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Test Affected
@@ -148,7 +154,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Build Affected
@@ -183,7 +189,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Check affected
@@ -233,7 +239,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Test Build @momentum/constants

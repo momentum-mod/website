@@ -2,7 +2,7 @@ import { after, before, mock } from 'node:test';
 import { faker } from '@faker-js/faker';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { MAPLIST_UPDATE_JOB_NAME } from 'apps/backend/src/app/modules/maps/map-list.service';
-import globalSetup from './global-setup';
+import globalSetup, { nukeDb } from './global-setup';
 import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
