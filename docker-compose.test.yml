@@ -68,7 +68,7 @@ services:
     # as some binaries are slightly different. About the same bandwidth for that
     # as to download the larger (Debian based) `node` image, and that's a bit
     # simpler.
-    image: node:22.14.0-alpine
+    image: node:24.22.0
     depends_on:
       - postgres
       - valkey
