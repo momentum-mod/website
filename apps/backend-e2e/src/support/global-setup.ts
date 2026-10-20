@@ -1,28 +1,21 @@
-// Jest isn't resolving TS paths here, yuck!
-import { PrismaClient } from '../../../../libs/db/src/generated/client';
+import { PrismaClient } from '@momentum/db';
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,
   S3Client
 } from '@aws-sdk/client-s3';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { faker } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
 import path from 'node:path';
 import Valkey from 'iovalkey';
 
 export default async function globalSetup() {
-  // Load .env file in project root. Nx does this automatically, but this helps
-  // in cases where running the Jest config directly (e.g. through WebStorm Jest
-  // plugin). Annoyingly, WebStorm likes to set the cwd to /apps/backend-e2e.
+  // Load the root .env when invoked from an IDE with the project as its cwd.
   if (/apps([/\\])backend-e2e/.test(path.resolve(process.cwd()))) {
     dotenv.config({ path: '../../.env' });
   } else {
     dotenv.config({ path: './.env' });
   }
-
-  // Seed faker for consistent random number generation
-  faker.seed(1);
 
   // Nuke the current DB (Bye)
   await nukeDB();

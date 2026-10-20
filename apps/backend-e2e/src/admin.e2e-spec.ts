@@ -1,3 +1,21 @@
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
+
+import {
+  anything,
+  arrayContaining,
+  AuthUtil,
+  createSha1Hash,
+  DbUtil,
+  E2ETestMMap,
+  FILES_PATH,
+  FileStoreUtil,
+  matchesPartial,
+  NULL_ID,
+  objectContaining,
+  RequestUtil
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import {
@@ -43,16 +61,7 @@ import {
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import * as Enum from '@momentum/enum';
-import {
-  AuthUtil,
-  createSha1Hash,
-  DbUtil,
-  E2ETestMMap,
-  FILES_PATH,
-  FileStoreUtil,
-  NULL_ID,
-  RequestUtil
-} from '@momentum/test-utils';
+
 import {
   LeaderboardRun,
   MapReview,
@@ -109,13 +118,13 @@ describe('Admin', () => {
     const activities = await prisma.adminActivity.findMany({
       where: { userID }
     });
-    expect(activities.some((activity) => activity.type === type)).toBeTruthy();
+    assert.ok(activities.some((activity) => activity.type === type));
   }
 
   const inAnHour = () => new Date(Date.now() + 60 * 60 * 1000);
   const anHourAgo = () => new Date(Date.now() - 60 * 60 * 1000);
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -129,7 +138,9 @@ describe('Admin', () => {
     ).fireOnTick;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('admin/users', () => {
     describe('POST', () => {
@@ -138,7 +149,7 @@ describe('Admin', () => {
         modToken: string,
         nonAdminToken: string;
 
-      beforeAll(async () => {
+      before(async () => {
         [[admin, adminToken], modToken, nonAdminToken] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
@@ -146,7 +157,9 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity');
+      });
 
       it('should successfully create a placeholder user', async () => {
         const res = await req.post({
@@ -157,31 +170,34 @@ describe('Admin', () => {
           validate: UserDto
         });
 
-        expect(res.body.alias).toBe('Burger');
+        assert.equal(res.body.alias, 'Burger');
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_CREATE_PLACEHOLDER
         );
       });
 
-      it('should 403 when the user requesting only is a moderator', () =>
-        req.post({
+      it('should 403 when the user requesting only is a moderator', async () => {
+        await req.post({
           url: 'admin/users',
           status: 403,
           body: { alias: 'Barry 2' },
           token: modToken
-        }));
+        });
+      });
 
-      it('should 403 when the user requesting is not an admin', () =>
-        req.post({
+      it('should 403 when the user requesting is not an admin', async () => {
+        await req.post({
           url: 'admin/users',
           status: 403,
           body: { alias: 'Barry 2' },
           token: nonAdminToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/users', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/users', 'post');
+      });
     });
   });
 
@@ -241,7 +257,9 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity');
+      });
 
       it('should merge two accounts together', async () => {
         const res = await req.post({
@@ -252,22 +270,23 @@ describe('Admin', () => {
           validate: UserDto
         });
 
-        expect(res.body.id).toBe(mergeUser.id);
-        expect(res.body.alias).toBe(mergeUser.alias);
+        assert.equal(res.body.id, mergeUser.id);
+        assert.equal(res.body.alias, mergeUser.alias);
 
         // u1 was following mergePlaceholder, that should be transferred to mergeUser.
         const u1Follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id, followedID: mergeUser.id }
         });
-        expect(u1Follow.followeeID).toBeTruthy();
+        assert.ok(u1Follow.followeeID);
 
         // u2 was following mergePlaceholder and mergeUser, the creation data should be earliest
         // of the two and the notifyOn flags combined.
         const u2Follow = await prisma.follow.findFirst({
           where: { followeeID: u2.id, followedID: mergeUser.id }
         });
-        expect(new Date(u2Follow.createdAt)).toEqual(new Date('12/24/2021'));
-        expect(u2Follow.notifyOn).toBe(
+        assert.deepEqual(new Date(u2Follow.createdAt), new Date('12/24/2021'));
+        assert.equal(
+          u2Follow.notifyOn,
           ActivityType.MAP_APPROVED | ActivityType.MAP_UPLOADED
         );
 
@@ -275,20 +294,20 @@ describe('Admin', () => {
         const mergeUserFollows = await prisma.follow.findFirst({
           where: { followeeID: mergeUser.id, followedID: mergePlaceholder.id }
         });
-        expect(mergeUserFollows).toBeNull();
+        assert.equal(mergeUserFollows, null);
 
         // mergePlaceholder's activities should have been transferred to mergeUser
 
         const mergeUserActivities = await prisma.activity.findFirst({
           where: { userID: mergeUser.id }
         });
-        expect(mergeUserActivities.type).toBe(ActivityType.REPORT_FILED);
+        assert.equal(mergeUserActivities.type, ActivityType.REPORT_FILED);
 
         // Placeholder should have been deleted
         const mergePlaceholderDB = await prisma.user.findFirst({
           where: { id: mergePlaceholder.id }
         });
-        expect(mergePlaceholderDB).toBeNull();
+        assert.equal(mergePlaceholderDB, null);
 
         await expectAdminActivityWasCreated(
           admin.id,
@@ -296,32 +315,35 @@ describe('Admin', () => {
         );
       });
 
-      it('should 400 if the user to merge from is not a placeholder', () =>
-        req.post({
+      it('should 400 if the user to merge from is not a placeholder', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 400,
           body: { placeholderID: u1.id, userID: mergeUser.id },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 400 if the user to merge from does not exist', () =>
-        req.post({
+      it('should 400 if the user to merge from does not exist', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 400,
           body: { placeholderID: NULL_ID, userID: mergeUser.id },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 400 if the user to merge to does not exist', () =>
-        req.post({
+      it('should 400 if the user to merge to does not exist', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 400,
           body: { placeholderID: mergePlaceholder.id, userID: NULL_ID },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 400 if the user to merge are the same user', () =>
-        req.post({
+      it('should 400 if the user to merge are the same user', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 400,
           body: {
@@ -329,26 +351,30 @@ describe('Admin', () => {
             userID: mergePlaceholder.id
           },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 403 when the user requesting is only a moderator', () =>
-        req.post({
+      it('should 403 when the user requesting is only a moderator', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 403,
           body: { placeholderID: mergePlaceholder.id, userID: mergeUser.id },
           token: modToken
-        }));
+        });
+      });
 
-      it('should 403 when the user requesting is not an admin', () =>
-        req.post({
+      it('should 403 when the user requesting is not an admin', async () => {
+        await req.post({
           url: 'admin/users/merge',
           status: 403,
           body: { placeholderID: mergePlaceholder.id, userID: mergeUser.id },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/users/merge', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/users/merge', 'post');
+      });
     });
   });
 
@@ -388,9 +414,13 @@ describe('Admin', () => {
         adminGameToken = auth.gameLogin(admin);
       });
 
-      afterEach(() => db.cleanup('adminActivity'));
+      afterEach(async () => {
+        await db.cleanup('adminActivity');
+      });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it("should successfully update a specific user's alias", async () => {
         await req.patch({
@@ -406,36 +436,39 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.alias).toBe('Barry 2');
+        assert.equal(res.body.alias, 'Barry 2');
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
         );
       });
 
-      it("should 409 when an admin tries to set a verified user's alias to something used by another verified user", () =>
-        req.patch({
+      it("should 409 when an admin tries to set a verified user's alias to something used by another verified user", async () => {
+        await req.patch({
           url: `admin/users/${u2.id}`,
           status: 409,
           body: { alias: u3.alias },
           token: adminToken
-        }));
+        });
+      });
 
-      it("should allow an admin to set a verified user's alias to something used by another unverified user", () =>
-        req.patch({
+      it("should allow an admin to set a verified user's alias to something used by another unverified user", async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
           body: { alias: mod.alias },
           token: adminToken
-        }));
+        });
+      });
 
-      it("should allow an admin to set an unverified user's alias to something used by another verified user", () =>
-        req.patch({
+      it("should allow an admin to set an unverified user's alias to something used by another verified user", async () => {
+        await req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
           body: { alias: u2.alias },
           token: adminToken
-        }));
+        });
+      });
 
       it("should successfully update a specific user's bio", async () => {
         const bio = "I'm hungry";
@@ -452,7 +485,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.bio).toBe(bio);
+        assert.equal(res.body.bio, bio);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
@@ -471,7 +504,7 @@ describe('Admin', () => {
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(userDB.bans).toBe(bans);
+        assert.equal(userDB.bans, bans);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
@@ -488,7 +521,7 @@ describe('Admin', () => {
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
+        assert.equal(Bitflags.has(userDB.roles, Role.MAPPER), true);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
@@ -496,7 +529,7 @@ describe('Admin', () => {
       });
 
       it('should successfully make a non-verified user verified', async () => {
-        expect(Bitflags.has(u1.roles, Role.VERIFIED)).toBe(false);
+        assert.equal(Bitflags.has(u1.roles, Role.VERIFIED), false);
 
         await req.patch({
           url: `admin/users/${u1.id}`,
@@ -506,14 +539,14 @@ describe('Admin', () => {
         });
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
-        expect(Bitflags.has(userDB.roles, Role.VERIFIED)).toBe(true);
+        assert.equal(Bitflags.has(userDB.roles, Role.VERIFIED), true);
       });
 
       it('should fail to verify a user if they share alias with another verified user', async () => {
         const imitator = await db.createUser({ data: { alias: u2.alias } });
 
-        expect(Bitflags.has(imitator.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(u2.roles, Role.VERIFIED)).toBe(true);
+        assert.equal(Bitflags.has(imitator.roles, Role.VERIFIED), false);
+        assert.equal(Bitflags.has(u2.roles, Role.VERIFIED), true);
 
         await req.patch({
           url: `admin/users/${imitator.id}`,
@@ -527,15 +560,15 @@ describe('Admin', () => {
         });
         const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
         // Make sure role was not set before throwing 409.
-        expect(Bitflags.has(imitatorDB.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
+        assert.equal(Bitflags.has(imitatorDB.roles, Role.VERIFIED), false);
+        assert.equal(Bitflags.has(user2DB.roles, Role.VERIFIED), true);
       });
 
       // Very edge case where the admin is both
       // changing the alias and giving verified role.
       it('should fail to verify and update alias of a user if a verified user shares the new alias', async () => {
-        expect(Bitflags.has(u1.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(u2.roles, Role.VERIFIED)).toBe(true);
+        assert.equal(Bitflags.has(u1.roles, Role.VERIFIED), false);
+        assert.equal(Bitflags.has(u2.roles, Role.VERIFIED), true);
 
         await req.patch({
           url: `admin/users/${u1.id}`,
@@ -546,136 +579,153 @@ describe('Admin', () => {
 
         const user1DB = await prisma.user.findFirst({ where: { id: u1.id } });
         const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
-        expect(Bitflags.has(user1DB.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
-        expect(user1DB.alias).not.toEqual(user2DB.alias);
+        assert.equal(Bitflags.has(user1DB.roles, Role.VERIFIED), false);
+        assert.equal(Bitflags.has(user2DB.roles, Role.VERIFIED), true);
+        assert.notDeepEqual(user1DB.alias, user2DB.alias);
       });
 
-      it('should allow an admin to make a regular user a moderator', () =>
-        req.patch({
+      it('should allow an admin to make a regular user a moderator', async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
           body: { roles: Role.MODERATOR },
           token: adminToken
-        }));
+        });
+      });
 
-      it("should allow an admin to update a moderator's roles", () =>
-        req.patch({
+      it("should allow an admin to update a moderator's roles", async () => {
+        await req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
           body: { roles: Role.MAPPER },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should allow an admin to remove a user as moderator', () =>
-        req.patch({
+      it('should allow an admin to remove a user as moderator', async () => {
+        await req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
           body: { roles: 0 },
           token: adminToken
-        }));
+        });
+      });
 
-      it("should not allow an admin to update another admin's roles", () =>
-        req.patch({
+      it("should not allow an admin to update another admin's roles", async () => {
+        await req.patch({
           url: `admin/users/${admin2.id}`,
           status: 403,
           body: { roles: Role.MAPPER },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should allow an admin to update their own non-admin roles', () =>
-        req.patch({
+      it('should allow an admin to update their own non-admin roles', async () => {
+        await req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
           body: { roles: Role.MAPPER },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should allow an admin to update their own moderator role', () =>
-        req.patch({
+      it('should allow an admin to update their own moderator role', async () => {
+        await req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
           body: { roles: Role.MODERATOR },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should allow an admin to update their own admin role', () =>
-        req.patch({
+      it('should allow an admin to update their own admin role', async () => {
+        await req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
           body: { roles: 0 },
           token: adminToken
-        }));
+        });
+      });
 
-      it("should successfully allow a moderator to update a specific user's roles", () =>
-        req.patch({
+      it("should successfully allow a moderator to update a specific user's roles", async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
           body: { roles: Role.MAPPER },
           token: modToken
-        }));
+        });
+      });
 
-      it('should not allow a moderator to make another user a moderator', () =>
-        req.patch({
+      it('should not allow a moderator to make another user a moderator', async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
           body: { roles: Role.MODERATOR },
           token: modToken
-        }));
+        });
+      });
 
-      it("should not allow a moderator to update another moderator's roles", () =>
-        req.patch({
+      it("should not allow a moderator to update another moderator's roles", async () => {
+        await req.patch({
           url: `admin/users/${mod2.id}`,
           status: 403,
           body: { roles: 0 },
           token: modToken
-        }));
+        });
+      });
 
-      it("should not allow a moderator to update an admin's roles", () =>
-        req.patch({
+      it("should not allow a moderator to update an admin's roles", async () => {
+        await req.patch({
           url: `admin/users/${admin2.id}`,
           status: 403,
           body: { roles: Role.MAPPER },
           token: modToken
-        }));
+        });
+      });
 
-      it('should allow a moderator to update their own non-mod roles', () =>
-        req.patch({
+      it('should allow a moderator to update their own non-mod roles', async () => {
+        await req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
           body: { roles: Bitflags.join(Role.MAPPER, Role.MODERATOR) },
           token: modToken
-        }));
+        });
+      });
 
-      it('should not allow a moderator to update their own mod role', () =>
-        req.patch({
+      it('should not allow a moderator to update their own mod role', async () => {
+        await req.patch({
           url: `admin/users/${mod.id}`,
           status: 403,
           body: { roles: 0 },
           token: modToken
-        }));
+        });
+      });
 
-      it('should 403 when the user requesting is not an admin', () =>
-        req.patch({
+      it('should 403 when the user requesting is not an admin', async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
           body: { alias: 'Barry 2' },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 when authenticated from game', () =>
-        req.patch({
+      it('should 403 when authenticated from game', async () => {
+        await req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
           body: { roles: Role.MAPPER },
           token: adminGameToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.patch({ url: `admin/users/${u1.id}`, status: 401 }));
+      it('should 401 when no access token is provided', async () => {
+        await req.patch({ url: `admin/users/${u1.id}`, status: 401 });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/users/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/users/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
@@ -693,11 +743,19 @@ describe('Admin', () => {
         ]);
       });
 
-      afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user'));
+      afterEach(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user');
+      });
 
-      afterAll(() =>
-        db.cleanup('mMap', 'report', 'activity', 'deletedUser', 'adminActivity')
-      );
+      after(async () => {
+        await db.cleanup(
+          'mMap',
+          'report',
+          'activity',
+          'deletedUser',
+          'adminActivity'
+        );
+      });
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
@@ -836,7 +894,7 @@ describe('Admin', () => {
           where: { steamIDHash }
         });
 
-        expect(deletedUser).toMatchObject({
+        assert.partialDeepStrictEqual(deletedUser, {
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
           steamID: null,
@@ -860,24 +918,36 @@ describe('Admin', () => {
           reportResolved: userBeforeDeletion.reportResolved
         });
 
-        expect(deletedSteamIDEntry).toBeTruthy();
+        assert.ok(deletedSteamIDEntry);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_DELETE
         );
       });
 
-      it('should 403 when the user requesting only is a moderator', () =>
-        req.del({ url: `admin/users/${u1.id}`, status: 403, token: modToken }));
+      it('should 403 when the user requesting only is a moderator', async () => {
+        await req.del({
+          url: `admin/users/${u1.id}`,
+          status: 403,
+          token: modToken
+        });
+      });
 
-      it('should 403 when the user requesting is not an admin', () =>
-        req.del({ url: `admin/users/${u1.id}`, status: 403, token: u1Token }));
+      it('should 403 when the user requesting is not an admin', async () => {
+        await req.del({
+          url: `admin/users/${u1.id}`,
+          status: 403,
+          token: u1Token
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.del({ url: `admin/users/${u1.id}`, status: 401 }));
+      it('should 401 when no access token is provided', async () => {
+        await req.del({ url: `admin/users/${u1.id}`, status: 401 });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/users/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/users/1', 'del');
+      });
     });
   });
 
@@ -892,7 +962,7 @@ describe('Admin', () => {
         caMap: E2ETestMMap,
         faMap: E2ETestMMap;
 
-      beforeAll(async () => {
+      before(async () => {
         [modToken, adminToken, reviewerToken, [u1, u1Token], [map1]] =
           await Promise.all([
             db.loginNewUser({ data: { roles: Role.MODERATOR } }),
@@ -909,7 +979,9 @@ describe('Admin', () => {
         await db.createMap({ status: MapStatus.DISABLED });
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'user', 'mMap');
+      });
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -919,37 +991,41 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body).not.toHaveProperty('zones');
+        assert.ok(!Object.hasOwn(res.body, 'zones'));
       });
 
-      it('should include maps with any map statuses by default', () =>
-        req.get({
+      it('should include maps with any map statuses by default', async () => {
+        await req.get({
           url: 'admin/maps',
           status: 200,
           validatePaged: { type: MapDto, count: 9 },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should be ordered by date', () =>
-        req.sortByDateTest({
+      it('should be ordered by date', async () => {
+        await req.sortByDateTest({
           url: 'admin/maps',
           validate: MapDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the take parameter', () =>
-        req.takeTest({
+      it('should respond with filtered map data using the take parameter', async () => {
+        await req.takeTest({
           url: 'admin/maps',
           validate: MapDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the skip parameter', () =>
-        req.skipTest({
+      it('should respond with filtered map data using the skip parameter', async () => {
+        await req.skipTest({
           url: 'admin/maps',
           validate: MapDto,
           token: adminToken
-        }));
+        });
+      });
 
       it('should respond with filtered map data using the search parameter', async () => {
         const map = await db.createMap({ name: 'aaaaa' }, true);
@@ -980,7 +1056,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.data[0], {
           submitterID: u1.id,
           id: map1.id
         });
@@ -997,37 +1073,44 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: caMap.id }),
-            expect.objectContaining({ id: faMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: caMap.id }),
+              objectContaining({ id: faMap.id })
+            ])
+          )
         );
       });
 
-      it('should return 403 if a regular access token is given', () =>
-        req.get({
+      it('should return 403 if a regular access token is given', async () => {
+        await req.get({
           url: 'admin/maps',
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return 403 if a reviewer token is given', () =>
-        req.get({
+      it('should return 403 if a reviewer token is given', async () => {
+        await req.get({
           url: 'admin/maps',
           status: 403,
           token: reviewerToken
-        }));
+        });
+      });
 
-      it('should accept if a mod access token is given', () =>
-        req.get({
+      it('should accept if a mod access token is given', async () => {
+        await req.get({
           url: 'admin/maps',
           status: 200,
           token: modToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/maps', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/maps', 'get');
+      });
     });
   });
 
@@ -1042,7 +1125,7 @@ describe('Admin', () => {
         modToken: string,
         map;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], [admin, adminToken], modToken] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
@@ -1050,7 +1133,7 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(async () => {
+      after(async () => {
         await db.cleanup('user');
         await fileStore.deleteDirectory('submissions');
         await fileStore.deleteDirectory('upload_tmp');
@@ -1098,13 +1181,13 @@ describe('Admin', () => {
         );
       });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('mMap'),
           fileStore.deleteDirectory('maplist'),
           fileStore.deleteDirectory('upload_tmp')
-        ])
-      );
+        ]);
+      });
 
       it('should allow admin to add a new map version', async () => {
         const changelog = 'Added walls, floors etc...';
@@ -1119,29 +1202,31 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body).toMatchObject({
-          currentVersion: {
-            versionNum: 2,
-            submitterID: admin.id,
-            changelog
-          },
-          versions: expect.arrayContaining([
-            expect.objectContaining({ versionNum: 1 }),
-            expect.objectContaining({
+        assert.ok(
+          matchesPartial(res.body, {
+            currentVersion: {
               versionNum: 2,
-              changelog,
-              submitterID: admin.id
-            })
-          ])
-        });
+              submitterID: admin.id,
+              changelog
+            },
+            versions: arrayContaining([
+              objectContaining({ versionNum: 1 }),
+              objectContaining({
+                versionNum: 2,
+                changelog,
+                submitterID: admin.id
+              })
+            ])
+          })
+        );
 
         const mapDB = await prisma.mMap.findUnique({
           where: { id: map.id },
           include: { currentVersion: true }
         });
 
-        expect(mapDB.currentVersion.versionNum).toBe(2);
-        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
+        assert.equal(mapDB.currentVersion.versionNum, 2);
+        assert.equal(res.body.currentVersion.id, mapDB.currentVersion.id);
       });
 
       it('should allow admin to add a new map version when map is approved', async () => {
@@ -1243,35 +1328,39 @@ describe('Admin', () => {
         });
       });
 
-      it('should return 404 if map not found', () =>
-        req.postAttach({
+      it('should return 404 if map not found', async () => {
+        await req.postAttach({
           url: `admin/maps/${NULL_ID}`,
           status: 404,
           data: { changelog: 'sausage' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 for a non-admin/mod access token is given', () =>
-        req.postAttach({
+      it('should return 403 for a non-admin/mod access token is given', async () => {
+        await req.postAttach({
           url: `admin/maps/${map.id}`,
           status: 403,
           data: { changelog: 'tomato' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u1Token
-        }));
+        });
+      });
 
-      it('should accept if a mod access token is given', () =>
-        req.postAttach({
+      it('should accept if a mod access token is given', async () => {
+        await req.postAttach({
           url: `admin/maps/${map.id}`,
           status: 201,
           data: { changelog: 'mamping' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: modToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/maps/1', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/maps/1', 'post');
+      });
     });
 
     describe('PATCH', () => {
@@ -1290,7 +1379,7 @@ describe('Admin', () => {
         u3: User,
         createMapData: Partial<Prisma.MMapCreateInput>;
 
-      beforeAll(async () => {
+      before(async () => {
         [
           [admin, adminToken],
           [mod, modToken],
@@ -1356,16 +1445,18 @@ describe('Admin', () => {
         };
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'user', 'adminActivity');
+      });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('mMap', 'adminActivity', 'notification'),
           fileStore.deleteDirectory('maps'),
           fileStore.deleteDirectory('submissions'),
           fileStore.deleteDirectory('maplist')
-        ])
-      );
+        ]);
+      });
 
       for (const status of Enum.values(MapStatus)) {
         it(`should allow an admin to update map data during ${MapStatus[status]}`, async () => {
@@ -1403,7 +1494,7 @@ describe('Admin', () => {
             include: { info: true, submission: true }
           });
 
-          expect(changedMap).toMatchObject({
+          assert.partialDeepStrictEqual(changedMap, {
             name: 'surf_dogs',
             info: {
               description:
@@ -1464,7 +1555,7 @@ describe('Admin', () => {
             include: { info: true, submission: true }
           });
 
-          expect(changedMap).toMatchObject({
+          assert.partialDeepStrictEqual(changedMap, {
             name: 'surf_whelks',
             info: {
               description:
@@ -1593,11 +1684,11 @@ describe('Admin', () => {
           (lb) => lb.type === LeaderboardType.RANKED
         );
 
-        expect(newLeaderboards).toHaveLength(oldLeaderboards.length);
+        assert.equal(newLeaderboards.length, oldLeaderboards.length);
 
-        expect(newRanked.gamemode).toBe(Gamemode.SJ);
-        expect(newRanked.tier).toBe(4);
-        expect(newRanked.tags).toStrictEqual([MapTag.Portals]);
+        assert.equal(newRanked.gamemode, Gamemode.SJ);
+        assert.equal(newRanked.tier, 4);
+        assert.deepEqual(newRanked.tags, [MapTag.Portals]);
       });
 
       it('should not allow to update leaderboards to an unsupported gamemode', async () => {
@@ -1787,9 +1878,9 @@ describe('Admin', () => {
           (lb) => lb.type === LeaderboardType.RANKED
         );
 
-        expect(createdLeaderboards).not.toHaveLength(0);
-        expect(rankedLb).not.toBeFalsy();
-        expect(rankedLb.gamemode).toBe(Gamemode.RJ);
+        assert.notEqual(createdLeaderboards.length, 0);
+        assert.ok(rankedLb);
+        assert.equal(rankedLb.gamemode, Gamemode.RJ);
       });
 
       const statuses = Enum.values(MapStatus);
@@ -1906,7 +1997,7 @@ describe('Admin', () => {
                 const updatedMap = await prisma.mMap.findUnique({
                   where: { id: map.id }
                 });
-                expect(updatedMap.status).toBe(s2);
+                assert.equal(updatedMap.status, s2);
               }
             });
           }
@@ -1980,7 +2071,7 @@ describe('Admin', () => {
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatus.APPROVED);
+        assert.equal(updatedMap.status, MapStatus.APPROVED);
       });
 
       it('should create placeholder accounts and wipe placeholder json after map status changed from FA to approved', async () => {
@@ -2041,7 +2132,7 @@ describe('Admin', () => {
           include: { mapCredits: true }
         });
 
-        expect(bungus).toMatchObject({
+        assert.partialDeepStrictEqual(bungus, {
           mapCredits: [
             {
               mapID: map.id,
@@ -2054,7 +2145,7 @@ describe('Admin', () => {
         const submission = await prisma.mapSubmission.findUnique({
           where: { mapID: map.id }
         });
-        expect(submission.placeholders).toMatchObject([]);
+        assert.partialDeepStrictEqual(submission.placeholders, []);
       });
 
       it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to DISABLED', async () => {
@@ -2096,12 +2187,12 @@ describe('Admin', () => {
             mapID: map.id
           }
         });
-        expect(notifs).toHaveLength(0);
+        assert.equal(notifs.length, 0);
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id },
           include: { testInvites: true }
         });
-        expect(updatedMap.testInvites).toMatchObject([
+        assert.partialDeepStrictEqual(updatedMap.testInvites, [
           { userID: u3.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
@@ -2228,7 +2319,7 @@ describe('Admin', () => {
             include: { currentVersion: true, versions: true }
           });
 
-          expect(updatedMap).toMatchObject({
+          assert.partialDeepStrictEqual(updatedMap, {
             status: MapStatus.APPROVED,
             currentVersion: { bspHash, versionNum: 2 }
           });
@@ -2237,19 +2328,21 @@ describe('Admin', () => {
             map.versions[0];
           const { bspDownloadId: bspId2, vmfDownloadId: vmfId2 } =
             map.versions[1];
-          expect(await fileStore.exists(`maps/${bspId1}.bsp`)).toBeFalsy();
-          expect(await fileStore.exists(`maps/${vmfId1}_VMFs.zip`)).toBeFalsy();
+          assert.ok(!(await fileStore.exists(`maps/${bspId1}.bsp`)));
+          assert.ok(!(await fileStore.exists(`maps/${vmfId1}_VMFs.zip`)));
 
-          expect(
-            createSha1Hash(await fileStore.get(`maps/${bspId2}.bsp`))
-          ).toBe(bspHash);
-          expect(
+          assert.equal(
+            createSha1Hash(await fileStore.get(`maps/${bspId2}.bsp`)),
+            bspHash
+          );
+          assert.equal(
             createSha1Hash(
               new Zip(await fileStore.get(`maps/${vmfId2}_VMFs.zip`))
                 .getEntry('map.vmf')
                 .getData()
-            )
-          ).toBe(vmfHash);
+            ),
+            vmfHash
+          );
         });
 
         it('should create MAP_APPROVED activities for authors after map status changed from FA to approved', async () => {
@@ -2272,10 +2365,11 @@ describe('Admin', () => {
             where: { type: ActivityType.MAP_APPROVED, data: map.id }
           });
 
-          expect(mapApprovedActvities).toHaveLength(3);
-          expect(
-            mapApprovedActvities.map((activity) => activity.userID).sort()
-          ).toEqual([u1.id, admin.id, mod.id].sort());
+          assert.equal(mapApprovedActvities.length, 3);
+          assert.deepEqual(
+            mapApprovedActvities.map((activity) => activity.userID).sort(),
+            [u1.id, admin.id, mod.id].sort()
+          );
         });
 
         it('should send a notification to the map submitter on approval', async () => {
@@ -2289,8 +2383,8 @@ describe('Admin', () => {
           const notifs = await prisma.notification.findMany({
             where: { mapID: map.id, type: NotificationType.MAP_STATUS_CHANGE }
           });
-          expect(notifs.length).toBe(1);
-          expect(notifs[0]).toMatchObject({
+          assert.equal(notifs.length, 1);
+          assert.partialDeepStrictEqual(notifs[0], {
             notifiedUserID: map.submitterID,
             userID: admin.id,
             json: {
@@ -2317,17 +2411,23 @@ describe('Admin', () => {
             trackNum: 1
           });
 
-          expect(
-            await prisma.leaderboardRun.findMany({
-              where: { mapID: map.id, gamemode: Gamemode.RJ }
-            })
-          ).toHaveLength(1);
+          assert.equal(
+            (
+              await prisma.leaderboardRun.findMany({
+                where: { mapID: map.id, gamemode: Gamemode.RJ }
+              })
+            ).length,
+            1
+          );
 
-          expect(
-            await prisma.leaderboardRun.findMany({
-              where: { mapID: map.id, gamemode: Gamemode.CONC }
-            })
-          ).toHaveLength(1);
+          assert.equal(
+            (
+              await prisma.leaderboardRun.findMany({
+                where: { mapID: map.id, gamemode: Gamemode.CONC }
+              })
+            ).length,
+            1
+          );
 
           await req.patch({
             url: `admin/maps/${map.id}`,
@@ -2339,79 +2439,88 @@ describe('Admin', () => {
           const leaderboards = await prisma.leaderboard.findMany({
             where: { mapID: map.id }
           });
-          expect(leaderboards).toEqual(
-            expect.arrayContaining([
-              {
-                mapID: map.id,
-                gamemode: Gamemode.RJ,
-                trackType: TrackType.MAIN,
-                trackNum: 1,
-                linear: false,
-                style: Style.NORMAL,
-                tier: 5,
-                type: LeaderboardType.UNRANKED,
-                tags: [MapTag.Sync]
-              },
-              {
-                mapID: map.id,
-                gamemode: Gamemode.RJ,
-                trackType: TrackType.STAGE,
-                trackNum: 1,
-                linear: null,
-                tier: null,
-                type: LeaderboardType.UNRANKED,
-                style: Style.NORMAL,
-                tags: []
-              },
-              {
-                mapID: map.id,
-                gamemode: Gamemode.RJ,
-                trackType: TrackType.STAGE,
-                trackNum: 2,
-                linear: null,
-                tier: null,
-                type: LeaderboardType.UNRANKED,
-                style: Style.NORMAL,
-                tags: []
-              },
-              {
-                mapID: map.id,
-                gamemode: Gamemode.DEFRAG_VQ3,
-                trackType: TrackType.BONUS,
-                trackNum: 1,
-                linear: null,
-                tier: 5,
-                type: LeaderboardType.RANKED,
-                style: Style.NORMAL,
-                tags: [MapTag.Strafe]
-              },
-              {
-                mapID: map.id,
-                gamemode: Gamemode.DEFRAG_CPM,
-                trackType: TrackType.BONUS,
-                trackNum: 1,
-                linear: null,
-                tier: null,
-                type: LeaderboardType.HIDDEN,
-                style: Style.NORMAL,
-                tags: []
-              }
-            ])
+          assert.ok(
+            matchesPartial(
+              leaderboards,
+              arrayContaining([
+                {
+                  mapID: map.id,
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  linear: false,
+                  style: Style.NORMAL,
+                  tier: 5,
+                  type: LeaderboardType.UNRANKED,
+                  tags: [MapTag.Sync]
+                },
+                {
+                  mapID: map.id,
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.STAGE,
+                  trackNum: 1,
+                  linear: null,
+                  tier: null,
+                  type: LeaderboardType.UNRANKED,
+                  style: Style.NORMAL,
+                  tags: []
+                },
+                {
+                  mapID: map.id,
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.STAGE,
+                  trackNum: 2,
+                  linear: null,
+                  tier: null,
+                  type: LeaderboardType.UNRANKED,
+                  style: Style.NORMAL,
+                  tags: []
+                },
+                {
+                  mapID: map.id,
+                  gamemode: Gamemode.DEFRAG_VQ3,
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  linear: null,
+                  tier: 5,
+                  type: LeaderboardType.RANKED,
+                  style: Style.NORMAL,
+                  tags: [MapTag.Strafe]
+                },
+                {
+                  mapID: map.id,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  trackType: TrackType.BONUS,
+                  trackNum: 1,
+                  linear: null,
+                  tier: null,
+                  type: LeaderboardType.HIDDEN,
+                  style: Style.NORMAL,
+                  tags: []
+                }
+              ])
+            )
           );
 
-          expect(leaderboards).toHaveLength(5);
+          assert.equal(leaderboards.length, 5);
 
-          expect(
-            await prisma.leaderboardRun.findMany({
-              where: { mapID: map.id, gamemode: Gamemode.RJ }
-            })
-          ).toHaveLength(0);
+          assert.equal(
+            (
+              await prisma.leaderboardRun.findMany({
+                where: { mapID: map.id, gamemode: Gamemode.RJ }
+              })
+            ).length,
+            0
+          );
 
-          expect(
-            await prisma.leaderboardRun.findMany({
-              where: { mapID: map.id, gamemode: Gamemode.CONC }
-            })
-          ).toHaveLength(0);
+          assert.equal(
+            (
+              await prisma.leaderboardRun.findMany({
+                where: { mapID: map.id, gamemode: Gamemode.CONC }
+              })
+            ).length,
+            0
+          );
         });
 
         it('should 400 if map has unresolved reviews', async () => {
@@ -2482,8 +2591,9 @@ describe('Admin', () => {
             token: adminToken
           });
 
-          expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
-          expect(newVersion.body.submissions).toBe(
+          assert.equal(newVersion.body.approved, oldVersion.body.approved + 1);
+          assert.equal(
+            newVersion.body.submissions,
             oldVersion.body.submissions + 1
           );
 
@@ -2491,23 +2601,25 @@ describe('Admin', () => {
             FlatMapList.APPROVED,
             newVersion.body.approved
           );
-          expect(approved.ident).toBe('MSML');
-          expect(approved.numMaps).toBe(1);
-          expect(approved.data).toHaveLength(1);
-          expect(approved.data[0]).toMatchObject({
-            id: map.id,
-            leaderboards: expect.anything(),
-            info: expect.anything()
-          });
-          expect(approved.data[0]).not.toHaveProperty('zones');
+          assert.equal(approved.ident, 'MSML');
+          assert.equal(approved.numMaps, 1);
+          assert.equal(approved.data.length, 1);
+          assert.ok(
+            matchesPartial(approved.data[0], {
+              id: map.id,
+              leaderboards: anything(),
+              info: anything()
+            })
+          );
+          assert.ok(!Object.hasOwn(approved.data[0], 'zones'));
 
           const submission = await fileStore.getMapListVersion(
             FlatMapList.SUBMISSION,
             newVersion.body.submissions
           );
-          expect(submission.ident).toBe('MSML');
-          expect(submission.numMaps).toBe(0);
-          expect(submission.data).toHaveLength(0);
+          assert.equal(submission.ident, 'MSML');
+          assert.equal(submission.numMaps, 0);
+          assert.equal(submission.data.length, 0);
         });
 
         it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
@@ -2553,36 +2665,39 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
-        expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
+        assert.equal(newVersion.body.submissions, oldVersion.body.submissions);
+        assert.equal(newVersion.body.approved, oldVersion.body.approved + 1);
 
         const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.APPROVED,
           newVersion.body.approved
         );
-        expect(ident).toBe('MSML');
-        expect(numMaps).toBe(1);
-        expect(data).toHaveLength(1);
-        expect(data[0].id).toBe(map2.id);
+        assert.equal(ident, 'MSML');
+        assert.equal(numMaps, 1);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].id, map2.id);
       });
 
-      it('should return 404 if map not found', () =>
-        req.patch({
+      it('should return 404 if map not found', async () => {
+        await req.patch({
           url: `admin/maps/${NULL_ID}`,
           status: 404,
           body: { status: MapStatus.PUBLIC_TESTING },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 for a non-admin/mod/reviewer access token is given', () =>
-        req.patch({
+      it('should return 403 for a non-admin/mod/reviewer access token is given', async () => {
+        await req.patch({
           url: `admin/maps/${NULL_ID}`,
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/maps/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/maps/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
@@ -2593,7 +2708,7 @@ describe('Admin', () => {
         token: string,
         map: E2ETestMMap;
 
-      beforeAll(async () => {
+      before(async () => {
         [modToken, [admin, adminToken], [user, token]] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
@@ -2601,9 +2716,9 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() =>
-        db.cleanup('leaderboardRun', 'user', 'mMap', 'adminActivity')
-      );
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'user', 'mMap', 'adminActivity');
+      });
 
       beforeEach(async () => {
         map = await db.createMap({
@@ -2623,9 +2738,12 @@ describe('Admin', () => {
         });
       });
 
-      afterEach(() =>
-        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('/maplist')])
-      );
+      afterEach(async () => {
+        await Promise.all([
+          db.cleanup('mMap'),
+          fileStore.deleteDirectory('/maplist')
+        ]);
+      });
 
       it('should completely delete the map and related stored data if map was never approved', async () => {
         const imgID = db.uuid();
@@ -2662,7 +2780,7 @@ describe('Admin', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
+          assert.ok(await fileStore.exists(sizePath(imgID)));
         }
 
         const run = await db.createLbRun({
@@ -2685,20 +2803,20 @@ describe('Admin', () => {
           where: { mapID: map.id }
         });
 
-        expect(updated).toBeNull();
-        expect(versions).toHaveLength(0);
-        expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
-        ).toBeFalsy();
-        expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
-        ).toBeFalsy();
+        assert.equal(updated, null);
+        assert.equal(versions.length, 0);
+        assert.ok(
+          !(await fileStore.exists(bspPath(map.currentVersion.bspDownloadId)))
+        );
+        assert.ok(
+          !(await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId)))
+        );
 
         const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: map.id }
         });
-        expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        assert.equal(relatedRuns.length, 0);
+        assert.ok(!(await fileStore.exists(runPath(run.replayHash))));
 
         for (const sizePath of [
           imgSmallPath,
@@ -2706,7 +2824,7 @@ describe('Admin', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
+          assert.ok(!(await fileStore.exists(sizePath(imgID))));
         }
 
         await expectAdminActivityWasCreated(
@@ -2755,7 +2873,7 @@ describe('Admin', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
+          assert.ok(await fileStore.exists(sizePath(imgID)));
         }
 
         const run = await db.createLbRun({
@@ -2776,23 +2894,23 @@ describe('Admin', () => {
           include: { versions: { orderBy: { versionNum: 'asc' } } }
         });
 
-        expect(updated.status).toBe(MapStatus.DISABLED);
-        expect(updated.versions.at(-1).bspHash).toBeNull();
-        expect(updated.versions.at(-1).bspDownloadId).toBeNull();
-        expect(updated.versions.at(-1).vmfDownloadId).toBeNull();
-        expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
-        ).toBeFalsy();
-        expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
-        ).toBeFalsy();
+        assert.equal(updated.status, MapStatus.DISABLED);
+        assert.equal(updated.versions.at(-1).bspHash, null);
+        assert.equal(updated.versions.at(-1).bspDownloadId, null);
+        assert.equal(updated.versions.at(-1).vmfDownloadId, null);
+        assert.ok(
+          !(await fileStore.exists(bspPath(map.currentVersion.bspDownloadId)))
+        );
+        assert.ok(
+          !(await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId)))
+        );
 
         // We used to delete these, check we don't anymore
         const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: map.id }
         });
-        expect(relatedRuns).toHaveLength(1);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeTruthy();
+        assert.equal(relatedRuns.length, 1);
+        assert.ok(await fileStore.exists(runPath(run.replayHash)));
 
         for (const sizePath of [
           imgSmallPath,
@@ -2800,7 +2918,7 @@ describe('Admin', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
+          assert.ok(!(await fileStore.exists(sizePath(imgID))));
         }
 
         await expectAdminActivityWasCreated(
@@ -2842,41 +2960,45 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(newVersion.body.submissions).toBe(oldVersion.body.submissions);
-        expect(newVersion.body.approved).toBe(oldVersion.body.approved + 1);
+        assert.equal(newVersion.body.submissions, oldVersion.body.submissions);
+        assert.equal(newVersion.body.approved, oldVersion.body.approved + 1);
 
         const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.APPROVED,
           newVersion.body.approved
         );
-        expect(ident).toBe('MSML');
-        expect(numMaps).toBe(0);
-        expect(data).toHaveLength(0);
+        assert.equal(ident, 'MSML');
+        assert.equal(numMaps, 0);
+        assert.equal(data.length, 0);
       });
 
-      it('should return 404 if map not found', () =>
-        req.del({
+      it('should return 404 if map not found', async () => {
+        await req.del({
           url: `admin/maps/${NULL_ID}`,
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 if a non admin access token is given', () =>
-        req.del({
+      it('should return 403 if a non admin access token is given', async () => {
+        await req.del({
           url: `admin/maps/${map.id}`,
           status: 403,
           token: token
-        }));
+        });
+      });
 
-      it('should return 403 if a mod access token is given', () =>
-        req.del({
+      it('should return 403 if a mod access token is given', async () => {
+        await req.del({
           url: `admin/maps/${map.id}`,
           status: 403,
           token: modToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/maps/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/maps/1', 'del');
+      });
     });
   });
 
@@ -2903,7 +3025,7 @@ describe('Admin', () => {
           )
         );
 
-      beforeAll(async () => {
+      before(async () => {
         [[admin, adminToken], [mod, modToken], u1] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
@@ -2913,7 +3035,9 @@ describe('Admin', () => {
         map = await db.createMap({ status: MapStatus.APPROVED });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'leaderboardRun'));
+      after(async () => {
+        await db.cleanup('user', 'mMap', 'leaderboardRun');
+      });
 
       beforeEach(async () => {
         run = await db.createLbRun({
@@ -2931,26 +3055,26 @@ describe('Admin', () => {
         await fileStore.add(runPath(run.replayHash), Buffer.alloc(256));
       });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('pastRun', 'leaderboardRun'),
           fileStore.deleteDirectory('deletedruns'),
           fileStore.deleteDirectory('runs')
-        ])
-      );
+        ]);
+      });
 
       it('should allow an admin to delete a leaderboard run', async () => {
         const runsBefore = await getRuns();
-        expect(runsBefore).toHaveLength(2);
-        expect(runsBefore).toMatchObject([
+        assert.equal(runsBefore.length, 2);
+        assert.partialDeepStrictEqual(runsBefore, [
           { userID: u1.id, rank: 1 },
           { userID: admin.id, rank: 2 }
         ]);
 
         const oldPath = `runs/${run.replayHash}`;
         const newPath = `deletedruns/${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`;
-        expect(await fileStore.exists(oldPath)).toBe(true);
-        expect(await fileStore.exists(newPath)).toBe(false);
+        assert.equal(await fileStore.exists(oldPath), true);
+        assert.equal(await fileStore.exists(newPath), false);
 
         await req.post({
           url: 'admin/delete-run',
@@ -2968,14 +3092,17 @@ describe('Admin', () => {
         });
 
         const runsAfter = await getRuns();
-        expect(runsAfter).toHaveLength(1);
-        expect(runsAfter[0]).toMatchObject({ userID: admin.id, rank: 1 });
+        assert.equal(runsAfter.length, 1);
+        assert.partialDeepStrictEqual(runsAfter[0], {
+          userID: admin.id,
+          rank: 1
+        });
 
-        expect(await fileStore.exists(oldPath)).toBe(false);
-        expect(await fileStore.exists(newPath)).toBe(true);
+        assert.equal(await fileStore.exists(oldPath), false);
+        assert.equal(await fileStore.exists(newPath), true);
 
         const adminActivity = await prisma.adminActivity.findFirst();
-        expect(adminActivity).toMatchObject({
+        assert.partialDeepStrictEqual(adminActivity, {
           type: AdminActivityType.RUN_DELETED,
           userID: admin.id,
           target: BigInt(u1.id),
@@ -2991,8 +3118,8 @@ describe('Admin', () => {
         });
       });
 
-      it('should allow a mod to delete a leaderboard run and archive the replay', () =>
-        req.post({
+      it('should allow a mod to delete a leaderboard run and archive the replay', async () => {
+        await req.post({
           url: 'admin/delete-run',
           body: {
             mapID: run.mapID,
@@ -3004,10 +3131,11 @@ describe('Admin', () => {
           },
           status: 204,
           token: modToken
-        }));
+        });
+      });
 
-      it('should return 404 if the map does not exist', () =>
-        req.post({
+      it('should return 404 if the map does not exist', async () => {
+        await req.post({
           url: 'admin/delete-run',
           body: {
             mapID: NULL_ID,
@@ -3019,10 +3147,11 @@ describe('Admin', () => {
           },
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 404 if the run does not exist', () =>
-        req.post({
+      it('should return 404 if the run does not exist', async () => {
+        await req.post({
           url: 'admin/delete-run',
           body: {
             mapID: run.mapID,
@@ -3034,10 +3163,12 @@ describe('Admin', () => {
           },
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/delete-run', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/delete-run', 'post');
+      });
     });
   });
 
@@ -3045,7 +3176,7 @@ describe('Admin', () => {
     describe('POST', () => {
       let admin, adminToken, modToken, run1, run2, user;
 
-      beforeAll(async () => {
+      before(async () => {
         [admin, adminToken] = await db.createAndLoginUser({
           data: { roles: Role.ADMIN }
         });
@@ -3071,7 +3202,9 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap');
+      });
 
       it("should allow an admin to purge a user's leaderboard runs", async () => {
         const oldPath1 = `runs/${run1.replayHash}`;
@@ -3082,10 +3215,10 @@ describe('Admin', () => {
         await fileStore.add(oldPath1, Buffer.alloc(256));
         await fileStore.add(oldPath2, Buffer.alloc(256));
 
-        expect(await fileStore.exists(oldPath1)).toBe(true);
-        expect(await fileStore.exists(oldPath2)).toBe(true);
-        expect(await fileStore.exists(newPath1)).toBe(false);
-        expect(await fileStore.exists(newPath2)).toBe(false);
+        assert.equal(await fileStore.exists(oldPath1), true);
+        assert.equal(await fileStore.exists(oldPath2), true);
+        assert.equal(await fileStore.exists(newPath1), false);
+        assert.equal(await fileStore.exists(newPath2), false);
 
         await req.post({
           url: `admin/delete-runs/${user.id}`,
@@ -3097,15 +3230,15 @@ describe('Admin', () => {
         const runsAfter = await prisma.leaderboardRun.findMany({
           where: { userID: user.id }
         });
-        expect(runsAfter).toHaveLength(0);
+        assert.equal(runsAfter.length, 0);
 
-        expect(await fileStore.exists(oldPath1)).toBe(false);
-        expect(await fileStore.exists(oldPath2)).toBe(false);
-        expect(await fileStore.exists(newPath1)).toBe(true);
-        expect(await fileStore.exists(newPath2)).toBe(true);
+        assert.equal(await fileStore.exists(oldPath1), false);
+        assert.equal(await fileStore.exists(oldPath2), false);
+        assert.equal(await fileStore.exists(newPath1), true);
+        assert.equal(await fileStore.exists(newPath2), true);
 
         const adminActivity = await prisma.adminActivity.findFirst();
-        expect(adminActivity).toMatchObject({
+        assert.partialDeepStrictEqual(adminActivity, {
           type: AdminActivityType.RUNS_PURGED,
           userID: admin.id,
           target: BigInt(user.id),
@@ -3131,16 +3264,18 @@ describe('Admin', () => {
         });
       });
 
-      it('should return 404 if the user does not exist', () =>
-        req.post({
+      it('should return 404 if the user does not exist', async () => {
+        await req.post({
           url: `admin/delete-runs/${user.id}`,
           body: { reason: 'who is this' },
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`admin/delete-runs/${user.id}`, 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest(`admin/delete-runs/${user.id}`, 'post');
+      });
     });
   });
 
@@ -3154,7 +3289,7 @@ describe('Admin', () => {
         map: MMap,
         review: MapReview;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], adminToken, modToken, reviewerToken] =
           await Promise.all([
             db.createAndLoginUser(),
@@ -3166,7 +3301,9 @@ describe('Admin', () => {
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       beforeEach(async () => {
         review = await prisma.mapReview.create({
@@ -3188,7 +3325,9 @@ describe('Admin', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(async () => {
+        await db.cleanup('mapReview');
+      });
 
       it('should allow admin to update resolved status', async () => {
         const res = await req.patch({
@@ -3199,7 +3338,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.resolved).toBe(true);
+        assert.equal(res.body.resolved, true);
       });
 
       it('should allow mod to update resolved status', async () => {
@@ -3211,7 +3350,7 @@ describe('Admin', () => {
           token: modToken
         });
 
-        expect(res.body.resolved).toBe(true);
+        assert.equal(res.body.resolved, true);
       });
 
       it('should allow reviewer to update resolved status', async () => {
@@ -3223,43 +3362,48 @@ describe('Admin', () => {
           token: reviewerToken
         });
 
-        expect(res.body.resolved).toBe(true);
+        assert.equal(res.body.resolved, true);
       });
 
-      it('should not allow admin to update approved status', () =>
-        req.patch({
+      it('should not allow admin to update approved status', async () => {
+        await req.patch({
           url: `admin/map-review/${review.id}`,
           status: 400, // 400s since does even exist on dto
           body: { approves: true },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should not allow review author to access', () =>
-        req.patch({
+      it('should not allow review author to access', async () => {
+        await req.patch({
           url: `admin/map-review/${review.id}`,
           status: 403,
           body: { resolved: true },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 400 for bad update data', () =>
-        req.patch({
+      it('should 400 for bad update data', async () => {
+        await req.patch({
           url: `admin/map-review/${review.id}`,
           status: 400,
           body: { mainText: "admins cant rewrite people's reviews" },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 404 for missing review', () =>
-        req.patch({
+      it('should return 404 for missing review', async () => {
+        await req.patch({
           url: `admin/map-review/${NULL_ID}`,
           status: 404,
           body: { resolved: true },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/map-review/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/map-review/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
@@ -3272,7 +3416,7 @@ describe('Admin', () => {
         review: MapReview;
       const assetPath = mapReviewAssetPath('1');
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], adminToken, modToken, reviewerToken] =
           await Promise.all([
             db.createAndLoginUser(),
@@ -3284,7 +3428,9 @@ describe('Admin', () => {
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       beforeEach(async () => {
         review = await prisma.mapReview.create({
@@ -3309,7 +3455,9 @@ describe('Admin', () => {
         await fileStore.add(assetPath, Buffer.alloc(1024));
       });
 
-      afterEach(() => db.cleanup('mapReview'));
+      afterEach(async () => {
+        await db.cleanup('mapReview');
+      });
 
       it('should allow an admin to delete a map review', async () => {
         await req.del({
@@ -3318,13 +3466,14 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(
-          await prisma.mapReview.findUnique({ where: { id: review.id } })
-        ).toBeNull();
+        assert.equal(
+          await prisma.mapReview.findUnique({ where: { id: review.id } }),
+          null
+        );
       });
 
       it('should delete any stored assets', async () => {
-        expect(await fileStore.exists(assetPath)).toBe(true);
+        assert.equal(await fileStore.exists(assetPath), true);
 
         await req.del({
           url: `admin/map-review/${review.id}`,
@@ -3332,7 +3481,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(await fileStore.exists(assetPath)).toBe(false);
+        assert.equal(await fileStore.exists(assetPath), false);
       });
 
       it('should allow a mod to delete a map review', async () => {
@@ -3342,9 +3491,10 @@ describe('Admin', () => {
           token: modToken
         });
 
-        expect(
-          await prisma.mapReview.findUnique({ where: { id: review.id } })
-        ).toBeNull();
+        assert.equal(
+          await prisma.mapReview.findUnique({ where: { id: review.id } }),
+          null
+        );
       });
 
       it('should not allow a reviewer to delete a map review', async () => {
@@ -3355,22 +3505,25 @@ describe('Admin', () => {
         });
       });
 
-      it('should not allow review author to delete a map review (via this endpoint)', () =>
-        req.del({
+      it('should not allow review author to delete a map review (via this endpoint)', async () => {
+        await req.del({
           url: `admin/map-review/${review.id}`,
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return 404 for missing review', () =>
-        req.del({
+      it('should return 404 for missing review', async () => {
+        await req.del({
           url: `admin/map-review/${NULL_ID}`,
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/map-review/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/map-review/1', 'del');
+      });
     });
   });
 
@@ -3382,7 +3535,7 @@ describe('Admin', () => {
         _r1: Report,
         r2: Report;
 
-      beforeAll(async () => {
+      before(async () => {
         [adminToken, [u1, u1Token]] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser()
@@ -3413,7 +3566,9 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'report'));
+      after(async () => {
+        await db.cleanup('user', 'report');
+      });
 
       it('should return a list of reports, most recent first', async () => {
         const reports = await req.get({
@@ -3422,16 +3577,17 @@ describe('Admin', () => {
           token: adminToken,
           validatePaged: { type: ReportDto, count: 2 }
         });
-        expect(reports.body).toHaveProperty('data');
-        expect(reports.body.data[0].data).toBe(Number(r2.data));
-        expect(reports.body.data[0].type).toBe(r2.type);
-        expect(reports.body.data[0].category).toBe(r2.category);
-        expect(reports.body.data[0].message).toBe(r2.message);
-        expect(reports.body.data[0].resolved).toBe(r2.resolved);
-        expect(reports.body.data[0].resolutionMessage).toBe(
+        assert.ok(Object.hasOwn(reports.body, 'data'));
+        assert.equal(reports.body.data[0].data, Number(r2.data));
+        assert.equal(reports.body.data[0].type, r2.type);
+        assert.equal(reports.body.data[0].category, r2.category);
+        assert.equal(reports.body.data[0].message, r2.message);
+        assert.equal(reports.body.data[0].resolved, r2.resolved);
+        assert.equal(
+          reports.body.data[0].resolutionMessage,
           r2.resolutionMessage
         );
-        expect(reports.body.data[0].submitterID).toBe(r2.submitterID);
+        assert.equal(reports.body.data[0].submitterID, r2.submitterID);
       });
 
       it('should only return resolved or non resolved based on query param resolved', async () => {
@@ -3443,7 +3599,7 @@ describe('Admin', () => {
           validatePaged: { type: ReportDto, count: 1 }
         });
 
-        expect(reportsResolved.body.data[0].resolved).toBe(true);
+        assert.equal(reportsResolved.body.data[0].resolved, true);
 
         const reportsNonResolved = await req.get({
           url: 'admin/reports',
@@ -3453,50 +3609,56 @@ describe('Admin', () => {
           validatePaged: { type: ReportDto, count: 1 }
         });
 
-        expect(reportsNonResolved.body.data[0].resolved).toBe(false);
+        assert.equal(reportsNonResolved.body.data[0].resolved, false);
       });
 
-      it('should limit the result set when using the take query param', () =>
-        req.takeTest({
+      it('should limit the result set when using the take query param', async () => {
+        await req.takeTest({
           url: 'admin/reports',
           validate: ReportDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should skip some of the result set when using the skip query param', () =>
-        req.skipTest({
+      it('should skip some of the result set when using the skip query param', async () => {
+        await req.skipTest({
           url: 'admin/reports',
           validate: ReportDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return a list of reports with the submitter include', () =>
-        req.expandTest({
-          url: 'admin/reports',
-          validate: ReportDto,
-          expand: 'submitter',
-          paged: true,
-          token: adminToken
-        }));
-
-      it('should return a list of reports with the resolver include', () =>
-        req.expandTest({
+      it('should return a list of reports with the submitter include', async () => {
+        await req.expandTest({
           url: 'admin/reports',
           validate: ReportDto,
           expand: 'submitter',
           paged: true,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 if a non admin access token is given', () =>
-        req.get({
+      it('should return a list of reports with the resolver include', async () => {
+        await req.expandTest({
+          url: 'admin/reports',
+          validate: ReportDto,
+          expand: 'submitter',
+          paged: true,
+          token: adminToken
+        });
+      });
+
+      it('should return 403 if a non admin access token is given', async () => {
+        await req.get({
           url: 'admin/reports',
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/reports', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/reports', 'get');
+      });
     });
   });
 
@@ -3542,7 +3704,9 @@ describe('Admin', () => {
         });
       });
 
-      afterEach(() => db.cleanup('user', 'report', 'adminActivity'));
+      afterEach(async () => {
+        await db.cleanup('user', 'report', 'adminActivity');
+      });
 
       it('should edit a report', async () => {
         await req.patch({
@@ -3556,32 +3720,35 @@ describe('Admin', () => {
           where: { id: r1.id }
         });
 
-        expect(changedReport.resolved).toBe(true);
-        expect(changedReport.resolutionMessage).toBe('resolved');
-        expect(changedReport.resolverID).toBe(admin.id);
+        assert.equal(changedReport.resolved, true);
+        assert.equal(changedReport.resolutionMessage, 'resolved');
+        assert.equal(changedReport.resolverID, admin.id);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.REPORT_RESOLVE
         );
       });
 
-      it('should return 404 if targeting a nonexistent report', () =>
-        req.patch({
+      it('should return 404 if targeting a nonexistent report', async () => {
+        await req.patch({
           url: `admin/reports/${NULL_ID}`,
           status: 404,
           body: { resolved: true, resolutionMessage: 'resolved' },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 if a non admin access token is given', () =>
-        req.patch({
+      it('should return 403 if a non admin access token is given', async () => {
+        await req.patch({
           url: `admin/reports/${r1.id}`,
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return 401 if no access token is given', () =>
-        req.patch({ url: `admin/reports/${r1.id}`, status: 401 }));
+      it('should return 401 if no access token is given', async () => {
+        await req.patch({ url: `admin/reports/${r1.id}`, status: 401 });
+      });
     });
 
     // Chat/voice bans are only created as a side effect of resolving a player
@@ -3624,7 +3791,9 @@ describe('Admin', () => {
         });
       });
 
-      afterEach(() => db.cleanup('chatBan', 'report', 'user', 'adminActivity'));
+      afterEach(async () => {
+        await db.cleanup('chatBan', 'report', 'user', 'adminActivity');
+      });
 
       it('should create chat and voice bans when resolving a player report', async () => {
         const expiresAt = inAnHour();
@@ -3651,23 +3820,23 @@ describe('Admin', () => {
           orderBy: { type: 'asc' }
         });
 
-        expect(bans).toHaveLength(2);
+        assert.equal(bans.length, 2);
 
         const chatBan = bans.find((b) => b.type === ChatBanType.CHAT);
-        expect(chatBan).toMatchObject({
+        assert.partialDeepStrictEqual(chatBan, {
           reason: 'spamming chat',
           issuerID: admin.id,
           reportID: playerReport.id
         });
-        expect(chatBan.expiresAt.getTime()).toBeCloseTo(
-          expiresAt.getTime(),
-          -3
+        assert.ok(
+          Math.abs(chatBan.expiresAt.getTime() - expiresAt.getTime()) <
+            0.5 * 10 ** -(-3)
         );
 
         const voiceBan = bans.find((b) => b.type === ChatBanType.VOICE);
         // No expiresAt given => permanent
-        expect(voiceBan.expiresAt).toBeNull();
-        expect(voiceBan.reason).toBe('mic spam');
+        assert.equal(voiceBan.expiresAt, null);
+        assert.equal(voiceBan.reason, 'mic spam');
       });
 
       it('should allow a moderator to create bans when resolving a player report', async () => {
@@ -3689,8 +3858,8 @@ describe('Admin', () => {
         const bans = await prisma.chatBan.findMany({
           where: { targetID: target.id }
         });
-        expect(bans).toHaveLength(1);
-        expect(bans[0].issuerID).toBe(moderator.id);
+        assert.equal(bans.length, 1);
+        assert.equal(bans[0].issuerID, moderator.id);
       });
 
       it('should log a CHAT_BAN_CREATE admin activity for each ban', async () => {
@@ -3722,11 +3891,11 @@ describe('Admin', () => {
         const bans = await prisma.chatBan.findMany({
           where: { targetID: target.id }
         });
-        expect(bans).toHaveLength(0);
+        assert.equal(bans.length, 0);
       });
 
-      it('should 400 if bans are provided for a non-player report', () =>
-        req.patch({
+      it('should 400 if bans are provided for a non-player report', async () => {
+        await req.patch({
           url: `admin/reports/${mapReport.id}`,
           status: 400,
           body: {
@@ -3735,10 +3904,11 @@ describe('Admin', () => {
             chatBans: [{ type: ChatBanType.CHAT }]
           },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 400 if bans are provided without resolving the report', () =>
-        req.patch({
+      it('should 400 if bans are provided without resolving the report', async () => {
+        await req.patch({
           url: `admin/reports/${playerReport.id}`,
           status: 400,
           body: {
@@ -3746,7 +3916,8 @@ describe('Admin', () => {
             chatBans: [{ type: ChatBanType.CHAT }]
           },
           token: adminToken
-        }));
+        });
+      });
     });
   });
 
@@ -3759,7 +3930,7 @@ describe('Admin', () => {
         u1Token: string,
         moderatorToken: string;
 
-      beforeAll(async () => {
+      before(async () => {
         [[_admin, adminToken], issuer, [target, u1Token], [, moderatorToken]] =
           await Promise.all([
             db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
@@ -3788,7 +3959,9 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('chatBan', 'user'));
+      after(async () => {
+        await db.cleanup('chatBan', 'user');
+      });
 
       it('should return only active bans by default', async () => {
         const res = await req.get({
@@ -3798,89 +3971,99 @@ describe('Admin', () => {
           validatePaged: { type: ChatBanDto, count: 1 }
         });
 
-        expect(res.body.data[0].reason).toBe('active');
+        assert.equal(res.body.data[0].reason, 'active');
       });
 
-      it('should include expired bans when includeExpired is true', () =>
-        req.get({
+      it('should include expired bans when includeExpired is true', async () => {
+        await req.get({
           url: 'admin/chat-bans',
           status: 200,
           query: { includeExpired: true },
           token: adminToken,
           validatePaged: { type: ChatBanDto, count: 2 }
-        }));
+        });
+      });
 
-      it('should filter by targetID', () =>
-        req.get({
+      it('should filter by targetID', async () => {
+        await req.get({
           url: 'admin/chat-bans',
           status: 200,
           query: { targetID: target.id, includeExpired: true },
           token: adminToken,
           validatePaged: { type: ChatBanDto, count: 2 }
-        }));
+        });
+      });
 
-      it('should return no bans for a targetID with none', () =>
-        req.get({
+      it('should return no bans for a targetID with none', async () => {
+        await req.get({
           url: 'admin/chat-bans',
           status: 200,
           query: { targetID: NULL_ID, includeExpired: true },
           token: adminToken,
           validatePaged: { type: ChatBanDto, count: 0 }
-        }));
+        });
+      });
 
-      it('should limit the result set when using the take query param', () =>
-        req.takeTest({
+      it('should limit the result set when using the take query param', async () => {
+        await req.takeTest({
           url: 'admin/chat-bans',
           query: { includeExpired: true },
           validate: ChatBanDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should skip some of the result set when using the skip query param', () =>
-        req.skipTest({
+      it('should skip some of the result set when using the skip query param', async () => {
+        await req.skipTest({
           url: 'admin/chat-bans',
           query: { includeExpired: true },
           validate: ChatBanDto,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return bans with the issuer include', () =>
-        req.expandTest({
+      it('should return bans with the issuer include', async () => {
+        await req.expandTest({
           url: 'admin/chat-bans',
           validate: ChatBanDto,
           expand: 'issuer',
           query: { includeExpired: true },
           paged: true,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return bans with the target include', () =>
-        req.expandTest({
+      it('should return bans with the target include', async () => {
+        await req.expandTest({
           url: 'admin/chat-bans',
           validate: ChatBanDto,
           expand: 'target',
           query: { includeExpired: true },
           paged: true,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should return 403 if a non admin access token is given', () =>
-        req.get({
+      it('should return 403 if a non admin access token is given', async () => {
+        await req.get({
           url: 'admin/chat-bans',
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return chat bans for a moderator access token', () =>
-        req.get({
+      it('should return chat bans for a moderator access token', async () => {
+        await req.get({
           url: 'admin/chat-bans',
           status: 200,
           token: moderatorToken,
           validatePaged: { type: ChatBanDto, count: 1 }
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('admin/chat-bans', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/chat-bans', 'get');
+      });
     });
   });
 
@@ -3904,7 +4087,9 @@ describe('Admin', () => {
       });
     });
 
-    afterEach(() => db.cleanup('chatBan', 'user', 'adminActivity'));
+    afterEach(async () => {
+      await db.cleanup('chatBan', 'user', 'adminActivity');
+    });
 
     describe('PATCH', () => {
       it('should edit the ban expiration', async () => {
@@ -3919,9 +4104,9 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.expiresAt.getTime()).toBeCloseTo(
-          newExpiry.getTime(),
-          -3
+        assert.ok(
+          Math.abs(updated.expiresAt.getTime() - newExpiry.getTime()) <
+            0.5 * 10 ** -(-3)
         );
       });
 
@@ -3936,7 +4121,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.expiresAt).toBeNull();
+        assert.equal(updated.expiresAt, null);
       });
 
       it('should edit the ban reason', async () => {
@@ -3950,7 +4135,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.reason).toBe('updated reason');
+        assert.equal(updated.reason, 'updated reason');
       });
 
       it('should allow a moderator to edit the ban', async () => {
@@ -3968,7 +4153,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.reason).toBe('updated by moderator');
+        assert.equal(updated.reason, 'updated by moderator');
       });
 
       it('should log a CHAT_BAN_UPDATE admin activity', async () => {
@@ -3985,24 +4170,27 @@ describe('Admin', () => {
         );
       });
 
-      it('should 404 if the ban does not exist', () =>
-        req.patch({
+      it('should 404 if the ban does not exist', async () => {
+        await req.patch({
           url: `admin/chat-bans/${NULL_ID}`,
           status: 404,
           body: { reason: 'updated reason' },
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 403 if a non admin access token is given', () =>
-        req.patch({
+      it('should 403 if a non admin access token is given', async () => {
+        await req.patch({
           url: `admin/chat-bans/${ban.id}`,
           status: 403,
           body: { reason: 'nope' },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 if no access token is given', () =>
-        req.patch({ url: `admin/chat-bans/${ban.id}`, status: 401 }));
+      it('should 401 if no access token is given', async () => {
+        await req.patch({ url: `admin/chat-bans/${ban.id}`, status: 401 });
+      });
     });
 
     describe('DELETE', () => {
@@ -4016,7 +4204,7 @@ describe('Admin', () => {
         const deleted = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(deleted).toBeNull();
+        assert.equal(deleted, null);
       });
 
       it('should allow a moderator to revoke a ban', async () => {
@@ -4033,7 +4221,7 @@ describe('Admin', () => {
         const deleted = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(deleted).toBeNull();
+        assert.equal(deleted, null);
       });
 
       it('should log a CHAT_BAN_REVOKE admin activity', async () => {
@@ -4049,29 +4237,32 @@ describe('Admin', () => {
         );
       });
 
-      it('should 404 if the ban does not exist', () =>
-        req.del({
+      it('should 404 if the ban does not exist', async () => {
+        await req.del({
           url: `admin/chat-bans/${NULL_ID}`,
           status: 404,
           token: adminToken
-        }));
+        });
+      });
 
-      it('should 403 if a non admin access token is given', () =>
-        req.del({
+      it('should 403 if a non admin access token is given', async () => {
+        await req.del({
           url: `admin/chat-bans/${ban.id}`,
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 if no access token is given', () =>
-        req.del({ url: `admin/chat-bans/${ban.id}`, status: 401 }));
+      it('should 401 if no access token is given', async () => {
+        await req.del({ url: `admin/chat-bans/${ban.id}`, status: 401 });
+      });
     });
   });
 
   describe('user - active chat bans in GET /user', () => {
     let user: User, token: string;
 
-    beforeAll(async () => {
+    before(async () => {
       [user, token] = await db.createAndLoginUser();
 
       await prisma.chatBan.createMany({
@@ -4098,7 +4289,9 @@ describe('Admin', () => {
       });
     });
 
-    afterAll(() => db.cleanup('chatBan', 'user'));
+    after(async () => {
+      await db.cleanup('chatBan', 'user');
+    });
 
     it("should embed the local user's active chat bans", async () => {
       const res = await req.get({
@@ -4108,13 +4301,17 @@ describe('Admin', () => {
         token
       });
 
-      expect(res.body.chatBans).toBeDefined();
+      assert.notEqual(res.body.chatBans, undefined);
       // Two active bans, the expired one excluded
-      expect(res.body.chatBans).toHaveLength(2);
-      expect(res.body.chatBans.map((b) => b.type).sort()).toEqual(
+      assert.equal(res.body.chatBans.length, 2);
+      assert.deepEqual(
+        res.body.chatBans.map((b) => b.type).sort(),
         [ChatBanType.CHAT, ChatBanType.VOICE].sort()
       );
-      expect(res.body.chatBans.some((b) => b.reason === 'expired')).toBe(false);
+      assert.equal(
+        res.body.chatBans.some((b) => b.reason === 'expired'),
+        false
+      );
     });
 
     it('should not expose chat bans of another user via GET /users/{id}', async () => {
@@ -4125,14 +4322,14 @@ describe('Admin', () => {
         token
       });
 
-      expect(res.body.chatBans).toBeUndefined();
+      assert.equal(res.body.chatBans, undefined);
     });
   });
 
   describe('admin/activities', () => {
     describe('GET', () => {
       let admin: User, adminToken: string, mod: User, u1: User, u1Token: string;
-      beforeAll(async () => {
+      before(async () => {
         [[admin, adminToken], mod, [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createUser({ data: { roles: Role.MODERATOR } }),
@@ -4169,7 +4366,9 @@ describe('Admin', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity');
+      });
 
       it('should return a list of all sorted admin activities', async () => {
         const adminActivities = await req.get({
@@ -4179,12 +4378,14 @@ describe('Admin', () => {
           validatePaged: { type: AdminActivityDto, count: 3 }
         });
 
-        expect(adminActivities.body).toHaveProperty('data');
+        assert.ok(Object.hasOwn(adminActivities.body, 'data'));
 
-        expect(adminActivities.body.data[0].type).toEqual(
+        assert.deepEqual(
+          adminActivities.body.data[0].type,
           AdminActivityType.USER_DELETE
         );
-        expect(adminActivities.body.data[1].type).toEqual(
+        assert.deepEqual(
+          adminActivities.body.data[1].type,
           AdminActivityType.USER_UPDATE
         );
       });
@@ -4203,39 +4404,45 @@ describe('Admin', () => {
           validatePaged: { type: AdminActivityDto, count: 2 }
         });
 
-        expect(adminActivities.body).toHaveProperty('data');
+        assert.ok(Object.hasOwn(adminActivities.body, 'data'));
 
-        expect(adminActivities.body.data[0].type).toEqual(
+        assert.deepEqual(
+          adminActivities.body.data[0].type,
           AdminActivityType.USER_UPDATE
         );
-        expect(adminActivities.body.data[1].type).toEqual(
+        assert.deepEqual(
+          adminActivities.body.data[1].type,
           AdminActivityType.MAP_UPDATE
         );
       });
 
-      it('should 403 when the user tries to get admin activities', () =>
-        req.get({
+      it('should 403 when the user tries to get admin activities', async () => {
+        await req.get({
           url: 'admin/activities',
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 when no access token is provided', () =>
-        req.unauthorizedTest('admin/activities', 'get'));
+      it('should 403 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/activities', 'get');
+      });
     });
   });
 
   describe('admin/activities/{adminID}', () => {
     describe('GET', () => {
       let admin: User, adminToken: string, u1: User, u1Token: string;
-      beforeAll(async () => {
+      before(async () => {
         [[admin, adminToken], [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser()
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity');
+      });
 
       it('should return a list of admin activities', async () => {
         const oldUser = await prisma.user.findUnique({
@@ -4262,37 +4469,41 @@ describe('Admin', () => {
           validatePaged: { type: AdminActivityDto, count: 1 }
         });
 
-        expect(adminActivities.body).toHaveProperty('data');
+        assert.ok(Object.hasOwn(adminActivities.body, 'data'));
 
         const userUpdateActivity = adminActivities.body.data.find(
           (activity) => activity.type == AdminActivityType.USER_UPDATE
         );
 
-        expect(userUpdateActivity.oldData).toEqual(
-          JSON.parse(JSON.stringify(oldUser)) // To convert object to format from the request (For example: convert dates and bigints to strings)
+        assert.deepEqual(
+          userUpdateActivity.oldData,
+          JSON.parse(JSON.stringify(oldUser))
         );
-        expect(userUpdateActivity.newData).toEqual(
+        assert.deepEqual(
+          userUpdateActivity.newData,
           JSON.parse(JSON.stringify(newUser))
         );
-        expect(userUpdateActivity.target).toBe(oldUser.id);
+        assert.equal(userUpdateActivity.target, oldUser.id);
       });
 
-      it('should 403 when the user tries to get admin activities', () =>
-        req.get({
+      it('should 403 when the user tries to get admin activities', async () => {
+        await req.get({
           url: 'admin/activities/' + admin.id,
           status: 403,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 when no access token is provided', () =>
-        req.unauthorizedTest('admin/activities/' + admin.id, 'get'));
+      it('should 403 when no access token is provided', async () => {
+        await req.unauthorizedTest('admin/activities/' + admin.id, 'get');
+      });
     });
   });
 
   describe('admin/killswitch', () => {
     describe('GET', () => {
       let adminToken: string, modToken: string, u1Token: string;
-      beforeAll(async () => {
+      before(async () => {
         [adminToken, modToken, u1Token] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
@@ -4300,7 +4511,9 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity');
+      });
 
       it('should respond with all killswitches', async () => {
         const response = await req.get({
@@ -4316,7 +4529,7 @@ describe('Admin', () => {
           ])
         ) as Killswitches;
 
-        expect(response.body).toEqual(killswitches);
+        assert.deepEqual(response.body, killswitches);
       });
 
       it('should 403 for moderators', async () => {
@@ -4338,7 +4551,7 @@ describe('Admin', () => {
 
     describe('PATCH', () => {
       let adminToken: string, modToken: string, u1Token: string;
-      beforeAll(async () => {
+      before(async () => {
         [adminToken, modToken, u1Token] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
@@ -4346,7 +4559,9 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'adminActivity', 'config'));
+      after(async () => {
+        await db.cleanup('user', 'adminActivity', 'config');
+      });
 
       it('should allow admin to patch killswitches', async () => {
         await req.patch({
@@ -4429,7 +4644,7 @@ describe('Admin', () => {
   describe('admin/announcement', () => {
     describe('POST', () => {
       let adminToken: string, modToken: string, u1Token: string;
-      beforeAll(async () => {
+      before(async () => {
         [adminToken, modToken, u1Token] = await Promise.all([
           db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser({ data: { roles: Role.MODERATOR } }),
@@ -4437,8 +4652,12 @@ describe('Admin', () => {
         ]);
       });
 
-      afterEach(() => db.cleanup('notification'));
-      afterAll(() => db.cleanup('user'));
+      afterEach(async () => {
+        await db.cleanup('notification');
+      });
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should post an announcement to all users', async () => {
         const horseTime = "It's Horse Time!";
@@ -4461,7 +4680,7 @@ describe('Admin', () => {
             }
           })
         ]);
-        expect(notificationsCount).toBe(userCount);
+        assert.equal(notificationsCount, userCount);
       });
 
       it('should 403 for moderators', async () => {

@@ -1,3 +1,6 @@
+import { after, before, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { PastRunDto } from '../../backend/src/app/dto';
@@ -9,6 +12,7 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
+
 import { PrismaClient } from '@momentum/db';
 import { MapStatus, Order, RunsGetAllOrder } from '@momentum/constants';
 import {
@@ -19,7 +23,7 @@ import {
 describe('Runs', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -28,13 +32,15 @@ describe('Runs', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('runs', () => {
     describe('GET', () => {
       let users, token, maps, testingMap;
 
-      beforeAll(async () => {
+      before(async () => {
         [users, maps, testingMap] = await Promise.all([
           db.createUsers(2),
           db.createMaps(2),
@@ -91,7 +97,9 @@ describe('Runs', () => {
         });
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it('should respond with a list of runs', async () => {
         const {
@@ -103,51 +111,56 @@ describe('Runs', () => {
           token
         });
 
-        for (const x of data) expect(x).toHaveProperty('isPB');
-        expect(data.filter((x) => x.isPB === true)).toHaveLength(2);
-        expect(data.filter((x) => x.isPB === false)).toHaveLength(3);
+        for (const x of data) assert.ok(Object.hasOwn(x, 'isPB'));
+        assert.equal(data.filter((x) => x.isPB === true).length, 2);
+        assert.equal(data.filter((x) => x.isPB === false).length, 3);
       });
 
-      it('should respond with a list of runs with take parameter', () =>
-        req.takeTest({
+      it('should respond with a list of runs with take parameter', async () => {
+        await req.takeTest({
           url: 'runs',
           validate: PastRunDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with a list of runs with skip parameter', () =>
-        req.skipTest({
+      it('should respond with a list of runs with skip parameter', async () => {
+        await req.skipTest({
           url: 'runs',
           validate: PastRunDto,
           token
-        }));
+        });
+      });
 
-      it('should include user data if using the user expand parameter', () =>
-        req.expandTest({
+      it('should include user data if using the user expand parameter', async () => {
+        await req.expandTest({
           url: 'runs',
           expand: 'user',
           validate: PastRunDto,
           paged: true,
           token
-        }));
+        });
+      });
 
-      it('should include map data if using the map expand parameter', () =>
-        req.expandTest({
+      it('should include map data if using the map expand parameter', async () => {
+        await req.expandTest({
           url: 'runs',
           expand: 'map',
           validate: PastRunDto,
           paged: true,
           token
-        }));
+        });
+      });
 
-      it('should include leaderboardRun data if using the leaderboardRun expand parameter', () =>
-        req.expandTest({
+      it('should include leaderboardRun data if using the leaderboardRun expand parameter', async () => {
+        await req.expandTest({
           url: 'runs',
           expand: 'leaderboardRun',
           validate: PastRunDto,
           paged: true,
           token
-        }));
+        });
+      });
 
       it('should respond with list of runs filtered by mapID parameter', async () => {
         const res = await req.get({
@@ -158,17 +171,18 @@ describe('Runs', () => {
           token
         });
 
-        for (const run of res.body.data) expect(run.mapID).toBe(maps[0].id);
+        for (const run of res.body.data) assert.equal(run.mapID, maps[0].id);
       });
 
-      it('should be able to fetch non-approved maps if using mapID param', async () =>
-        req.get({
+      it('should be able to fetch non-approved maps if using mapID param', async () => {
+        await req.get({
           url: 'runs',
           status: 200,
           query: { mapID: testingMap.id },
           validatePaged: { type: PastRunDto, count: 1 },
           token
-        }));
+        });
+      });
 
       it("should refuse to return non-approved maps the user can't access", async () => {
         await prisma.mMap.update({
@@ -198,7 +212,7 @@ describe('Runs', () => {
           token
         });
 
-        for (const run of res.body.data) expect(run.userID).toBe(users[0].id);
+        for (const run of res.body.data) assert.equal(run.userID, users[0].id);
       });
 
       it('should respond with a list of runs filtered by a list of user ids', async () => {
@@ -212,7 +226,7 @@ describe('Runs', () => {
         });
 
         for (const run of res.body.data)
-          expect(ids).toContain(run.userID.toString());
+          assert.ok(ids.includes(run.userID.toString()));
       });
 
       it('should respond with a list of runs filtered by flags', async () => {
@@ -224,21 +238,22 @@ describe('Runs', () => {
           token
         });
 
-        expect(res.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.data[0], {
           flags: [1],
           userID: users[0].id,
           mapID: maps[0].id
         });
       });
 
-      it('should respond with a list of runs with the map include', () =>
-        req.expandTest({
+      it('should respond with a list of runs with the map include', async () => {
+        await req.expandTest({
           url: 'runs',
           validate: PastRunDto,
           expand: 'map',
           paged: true,
           token
-        }));
+        });
+      });
 
       it('should respond with a list of runs filtered by partial mapName match', async () => {
         const res = await req.get({
@@ -249,43 +264,47 @@ describe('Runs', () => {
           token
         });
 
-        expect(res.body.data[0].mapID).toBe(maps[0].id);
+        assert.equal(res.body.data[0].mapID, maps[0].id);
       });
 
-      it('should respond with a list of runs filtered by PBs', async () =>
-        req.get({
+      it('should respond with a list of runs filtered by PBs', async () => {
+        await req.get({
           url: 'runs',
           status: 200,
           query: { isPB: true },
           validatePaged: { type: PastRunDto, count: 2 },
           token
-        }));
+        });
+      });
 
-      it('should respond with a list of runs filtered by non-PBs', async () =>
-        req.get({
+      it('should respond with a list of runs filtered by non-PBs', async () => {
+        await req.get({
           url: 'runs',
           status: 200,
           query: { isPB: false },
           validatePaged: { type: PastRunDto, count: 3 },
           token
-        }));
+        });
+      });
 
-      it('should respond with a list of runs sorted by date', () =>
-        req.sortByDateTest({
+      it('should respond with a list of runs sorted by date', async () => {
+        await req.sortByDateTest({
           url: 'runs',
           query: { orderBy: RunsGetAllOrder.DATE },
           validate: PastRunDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with a list of runs sorted by time', () =>
-        req.sortTest({
+      it('should respond with a list of runs sorted by time', async () => {
+        await req.sortTest({
           url: 'runs',
           query: { orderBy: RunsGetAllOrder.RUN_TIME, order: Order.ASC },
           validate: PastRunDto,
           sortFn: (n1, n2) => n1.ticks - n2.ticks,
           token
-        }));
+        });
+      });
     });
   });
 
@@ -293,7 +312,7 @@ describe('Runs', () => {
     describe('GET', () => {
       let user, token, map, run1, run2;
 
-      beforeAll(async () => {
+      before(async () => {
         run1 = await db.createPastRun({
           time: 1,
           createLbRun: true,
@@ -311,7 +330,9 @@ describe('Runs', () => {
         token = auth.login(user);
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'mMap', 'user'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'mMap', 'user');
+      });
 
       it('should return a valid run', async () => {
         await req.get({
@@ -330,7 +351,7 @@ describe('Runs', () => {
           token
         });
 
-        expect(res.body.isPB).toBe(true);
+        assert.equal(res.body.isPB, true);
 
         const res2 = await req.get({
           url: `runs/${run2.id}`,
@@ -339,32 +360,35 @@ describe('Runs', () => {
           token
         });
 
-        expect(res2.body.isPB).toBe(false);
+        assert.equal(res2.body.isPB, false);
       });
 
-      it('should respond with a run using the user include', () =>
-        req.expandTest({
+      it('should respond with a run using the user include', async () => {
+        await req.expandTest({
           url: `runs/${run1.id}`,
           validate: PastRunDto,
           expand: 'user',
           token
-        }));
+        });
+      });
 
-      it('should respond with a run using the map include', () =>
-        req.expandTest({
+      it('should respond with a run using the map include', async () => {
+        await req.expandTest({
           url: `runs/${run1.id}`,
           validate: PastRunDto,
           expand: 'map',
           token
-        }));
+        });
+      });
 
-      it('should respond with a run using the leaderboardRun include', () =>
-        req.expandTest({
+      it('should respond with a run using the leaderboardRun include', async () => {
+        await req.expandTest({
           url: `runs/${run1.id}`,
           validate: PastRunDto,
           expand: 'leaderboardRun',
           token
-        }));
+        });
+      });
 
       it("should refuse to return non-approved maps the user can't access", async () => {
         await prisma.mMap.update({
@@ -384,8 +408,9 @@ describe('Runs', () => {
         });
       });
 
-      it('should 404 when no run is found', () =>
-        req.get({ url: `runs/${NULL_ID}`, status: 404, token }));
+      it('should 404 when no run is found', async () => {
+        await req.get({ url: `runs/${NULL_ID}`, status: 404, token });
+      });
     });
   });
 });

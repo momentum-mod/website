@@ -1,5 +1,6 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ConfigService } from '@nestjs/config';
+import { mock } from 'node:test';
 import * as rxjs from 'rxjs';
 import { ChannelType, Client } from 'discord.js';
 import { DiscordService } from '../../../../apps/backend/src/app/modules/discord/discord.service';
@@ -9,8 +10,8 @@ export async function mockDiscordService(app: NestFastifyApplication) {
 
   const configService = app.get(ConfigService);
   const getOrThrow = configService.getOrThrow;
-  const configMock = jest.spyOn(app.get(ConfigService), 'getOrThrow');
-  configMock.mockImplementation((path: string) => {
+  const configMock = mock.method(configService, 'getOrThrow');
+  configMock.mock.mockImplementation((path: string) => {
     if (path.startsWith('discord.')) {
       const parts = path.split('.');
       switch (parts[1]) {
@@ -33,15 +34,13 @@ export async function mockDiscordService(app: NestFastifyApplication) {
 
   const discordService: DiscordService = app.get(DiscordService);
 
-  jest
-    .spyOn(discordService, 'isEnabled')
-    .mockImplementation((): this is Client => true);
+  mock.method(discordService, 'isEnabled', (): this is Client => true);
   if (!discordService.isEnabled())
     throw new Error('Failed to mock Discord service');
   discordService.rest.setToken(configService.getOrThrow('discord.token'));
 
-  const restGetMock = jest.spyOn(discordService.rest, 'get');
-  const restPostMock = jest.spyOn(discordService.rest, 'post');
+  const restGetMock = mock.method(discordService.rest, 'get');
+  const restPostMock = mock.method(discordService.rest, 'post');
 
   const idToTypeMap = {
     '001': ChannelType.GuildText,
@@ -49,7 +48,7 @@ export async function mockDiscordService(app: NestFastifyApplication) {
     '003': ChannelType.PublicThread
   };
 
-  restGetMock.mockImplementation((url: string) => {
+  restGetMock.mock.mockImplementation((url: string) => {
     if (url.startsWith('/')) url = url.slice(1);
     const parts = url.split('/');
     return new Promise((res) => {
@@ -75,7 +74,7 @@ export async function mockDiscordService(app: NestFastifyApplication) {
   });
 
   const restPostObservable = new rxjs.Subject<void>();
-  restPostMock.mockImplementation((url: string) => {
+  restPostMock.mock.mockImplementation((url: string) => {
     if (url.startsWith('/')) url = url.slice(1);
     const parts = url.split('/');
     return new Promise((res) => {

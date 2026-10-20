@@ -1,6 +1,10 @@
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
+
 import { MMap, PrismaClient, User, Notification } from '@momentum/db';
 import {
   setupE2ETestEnvironment,
@@ -23,7 +27,7 @@ describe('Notifications', () => {
     user2: User,
     notifications: Notification[];
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -31,7 +35,9 @@ describe('Notifications', () => {
     db = env.db;
   });
 
-  afterAll(async () => await teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   beforeEach(async () => {
     [user, userToken] = await db.createAndLoginUser();
@@ -76,7 +82,9 @@ describe('Notifications', () => {
     });
   });
 
-  afterEach(() => db.cleanup('notification', 'mMap', 'user'));
+  afterEach(async () => {
+    await db.cleanup('notification', 'mMap', 'user');
+  });
 
   // The GET endpoint uses PagedNotificationResponse which is an extension
   // of PagedResponse. Since this is only for a single endpoint, we just rely
@@ -90,7 +98,7 @@ describe('Notifications', () => {
         validatePaged: { type: NotificationDto, count: 4 },
         token: userToken
       });
-      expect(res.body.totalUnreadCount).toBe(4);
+      assert.equal(res.body.totalUnreadCount, 4);
     });
 
     it('should get a list of notifications with correct totalUnreadCount', async () => {
@@ -105,25 +113,28 @@ describe('Notifications', () => {
         validatePaged: { type: NotificationDto, count: 4 },
         token: userToken
       });
-      expect(res.body.totalUnreadCount).toBe(1);
+      assert.equal(res.body.totalUnreadCount, 1);
     });
 
-    it('should respond with a paged list of notifications with the take parameter', () =>
-      req.takeTest({
+    it('should respond with a paged list of notifications with the take parameter', async () => {
+      await req.takeTest({
         url: 'notifications',
         validate: NotificationDto,
         token: userToken
-      }));
+      });
+    });
 
-    it('should respond with a paged list of notifications with the skip parameter', () =>
-      req.skipTest({
+    it('should respond with a paged list of notifications with the skip parameter', async () => {
+      await req.skipTest({
         url: 'notifications',
         validate: NotificationDto,
         token: userToken
-      }));
+      });
+    });
 
-    it('should 401 when no access token is provided', () =>
-      req.unauthorizedTest('notifications', 'get'));
+    it('should 401 when no access token is provided', async () => {
+      await req.unauthorizedTest('notifications', 'get');
+    });
   });
 
   describe('notifications/ DELETE', () => {
@@ -149,7 +160,7 @@ describe('Notifications', () => {
         }
       });
 
-      expect(newNotifs).toMatchObject([
+      assert.partialDeepStrictEqual(newNotifs, [
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
@@ -186,7 +197,7 @@ describe('Notifications', () => {
         }
       });
 
-      expect(notifs).toMatchObject([
+      assert.partialDeepStrictEqual(notifs, [
         {
           notifiedUserID: user.id,
           type: NotificationType.ANNOUNCEMENT,
@@ -230,7 +241,7 @@ describe('Notifications', () => {
         }
       });
 
-      expect(newNotifs).toMatchObject([
+      assert.partialDeepStrictEqual(newNotifs, [
         {
           notifiedUserID: user2.id,
           type: NotificationType.ANNOUNCEMENT,
@@ -253,7 +264,7 @@ describe('Notifications', () => {
         }
       });
 
-      expect(notifs).toMatchObject([
+      assert.partialDeepStrictEqual(notifs, [
         {
           notifiedUserID: user.id,
           type: NotificationType.MAP_TESTING_INVITE,
@@ -284,8 +295,9 @@ describe('Notifications', () => {
       });
     });
 
-    it('should 401 when no access token is provided', () =>
-      req.unauthorizedTest('notifications', 'del'));
+    it('should 401 when no access token is provided', async () => {
+      await req.unauthorizedTest('notifications', 'del');
+    });
   });
 
   describe('notifications/markRead PATCH', () => {
@@ -303,11 +315,11 @@ describe('Notifications', () => {
           id: { in: [notifications[0].id, notifications[3].id] }
         }
       });
-      expect(readNotifications.length).toBe(2);
-      expect(readNotifications[0].isRead).toBe(true);
-      expect(readNotifications[1].isRead).toBe(true);
+      assert.equal(readNotifications.length, 2);
+      assert.equal(readNotifications[0].isRead, true);
+      assert.equal(readNotifications[1].isRead, true);
 
-      expect(
+      assert.equal(
         (
           await prisma.notification.findMany({
             where: {
@@ -315,8 +327,9 @@ describe('Notifications', () => {
               isRead: false
             }
           })
-        ).length
-      ).toBe(2);
+        ).length,
+        2
+      );
     });
 
     it('should mark all notifications as read when all field is true', async () => {
@@ -330,9 +343,9 @@ describe('Notifications', () => {
       const alteredNotifications = await prisma.notification.findMany({
         where: { notifiedUserID: user.id }
       });
-      expect(alteredNotifications.length).toBe(4);
+      assert.equal(alteredNotifications.length, 4);
       for (const notification of alteredNotifications) {
-        expect(notification.isRead).toBe(true);
+        assert.equal(notification.isRead, true);
       }
     });
 
@@ -347,8 +360,8 @@ describe('Notifications', () => {
       const user2Notifications = await prisma.notification.findMany({
         where: { notifiedUserID: user2.id }
       });
-      expect(user2Notifications.length).toBe(1);
-      expect(user2Notifications[0].isRead).toBe(false);
+      assert.equal(user2Notifications.length, 1);
+      assert.equal(user2Notifications[0].isRead, false);
     });
   });
 });
