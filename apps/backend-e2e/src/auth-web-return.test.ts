@@ -42,6 +42,7 @@ describe('Auth', () => {
         verifyAssertionSpy: ReturnType<typeof mock.method>,
         steamSummarySpy: ReturnType<typeof mock.method>,
         steamIsLimitedSpy: ReturnType<typeof mock.method>,
+        configSpy: ReturnType<typeof mock.method>,
         configService: ConfigService;
 
       const request = () =>
@@ -83,20 +84,19 @@ describe('Auth', () => {
         );
         steamIsLimitedSpy.mock.mockImplementation(() => Promise.resolve(false));
 
-        mock
-          .method(configService, 'getOrThrow')
-          .mock.mockImplementation((key) => {
-            switch (key) {
-              case 'steam.preventLimited':
-                return true;
-              case 'jwt.expTime':
-                return '1m';
-              case 'jwt.refreshExpTime':
-                return '5m';
-              case 'url.frontend':
-                return 'dashboard.momentum-mod.org';
-            }
-          });
+        configSpy = mock.method(configService, 'getOrThrow');
+        configSpy.mock.mockImplementation((key) => {
+          switch (key) {
+            case 'steam.preventLimited':
+              return true;
+            case 'jwt.expTime':
+              return '1m';
+            case 'jwt.refreshExpTime':
+              return '5m';
+            case 'url.frontend':
+              return 'dashboard.momentum-mod.org';
+          }
+        });
       });
 
       after(async () => {
@@ -269,18 +269,16 @@ describe('Auth', () => {
 
       it('should create an account if the user is a limited account and preventLimited is false', async () => {
         steamIsLimitedSpy.mock.mockImplementationOnce(async () => true);
-        mock
-          .method(configService, 'getOrThrow')
-          .mock.mockImplementationOnce((key) => {
-            switch (key) {
-              case 'steam.preventLimited':
-                return false;
-              case 'jwt.expTime':
-                return '1m';
-              case 'jwt.refreshExpTime':
-                return '5m';
-            }
-          });
+        configSpy.mock.mockImplementationOnce((key) => {
+          switch (key) {
+            case 'steam.preventLimited':
+              return false;
+            case 'jwt.expTime':
+              return '1m';
+            case 'jwt.refreshExpTime':
+              return '5m';
+          }
+        });
 
         steamIsLimitedSpy.mock.mockImplementationOnce(async () => true);
 
