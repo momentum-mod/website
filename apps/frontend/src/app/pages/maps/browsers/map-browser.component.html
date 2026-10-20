@@ -1,57 +1,6 @@
 <form class="mb-4 flex flex-col gap-3 lg:flex-row lg:gap-0" [formGroup]="filters">
   <div class="flex min-w-0 flex-col lg:basis-4/10">
-    <!-- Horizontally scrolling strip on mobile (bleeding to the screen edges), wrapping block on desktop. -->
-    <div
-      class="scroll-thin flex items-end gap-x-4 gap-y-1 overflow-x-auto pb-1 max-md:-mx-4 max-md:px-4 md:flex-wrap md:overflow-visible md:pb-0 lg:-mt-4"
-    >
-      <ng-template #gm let-mode="mode" let-name="name" let-size="size">
-        <button type="button" class="shrink-0" (click)="gamemode.setValue(mode)">
-          <p
-            class="whitespace-nowrap text-left font-display text-28 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50 md:text-36"
-            [ngClass]="{
-              'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': gamemode.value === mode
-            }"
-            [ngStyle]="{ 'font-size': size }"
-          >
-            {{ name }}
-          </p>
-        </button>
-      </ng-template>
-      <ng-container *ngTemplateOutlet="gm; context: { mode: null, name: 'All modes' }" />
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SURF, name: 'Surf' }" />
-      <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
-        <p
-          class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
-        >
-          Bhop
-        </p>
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP, name: 'CSS' }" />
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP_HL1, name: 'HL1' }" />
-      </div>
-      <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
-        <p
-          class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
-        >
-          Climb
-        </p>
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_KZT, name: 'KZT' }" />
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_16, name: '1.6' }" />
-      </div>
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.RJ, name: 'Rocket Jump' }" />
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SJ, name: 'Sticky Jump' }" />
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.AHOP, name: 'Ahop' }" />
-      <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CONC, name: 'Conc' }" />
-      <div class="grid shrink-0 grid-cols-3 grid-rows-1 gap-x-2">
-        <p
-          class="pointer-events-none col-span-3 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
-        >
-          Defrag
-        </p>
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_CPM, name: 'CPM' }" />
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
-        <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
-      </div>
-    </div>
+    <m-gamemode-select class="lg:-mt-4" [value]="gamemode.value" (valueChange)="gamemode.setValue($event)" />
   </div>
   <div class="flex min-w-0 flex-col gap-2 lg:ml-auto lg:basis-6/10">
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">

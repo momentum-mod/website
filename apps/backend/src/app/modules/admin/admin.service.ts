@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { LeaderboardRun, Prisma } from '@momentum/db';
@@ -36,6 +37,9 @@ import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
+import { RankingService } from '../ranking/ranking.service';
+import { UserCacheService } from '../user-cache/user-cache.service';
+import { serializeLeaderboard } from '../ranking/rank-points.keys';
 
 @Injectable()
 export class AdminService {
@@ -44,8 +48,12 @@ export class AdminService {
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
-    private readonly fileStore: FileStoreService
+    private readonly fileStore: FileStoreService,
+    private readonly rankingService: RankingService,
+    private readonly userCache: UserCacheService
   ) {}
+
+  private readonly logger = new Logger('Admin Service');
 
   async createPlaceholderUser(
     adminID: number,
@@ -94,7 +102,7 @@ export class AdminService {
 
     if (!user) throw new BadRequestException('Merging user not found');
 
-    return await this.db.$transaction(async (tx) => {
+    const merged = await this.db.$transaction(async (tx) => {
       // Update credits to point to new ID
       await tx.mapCredit.updateMany({
         where: { userID: placeholderID },
@@ -195,6 +203,10 @@ export class AdminService {
 
       return DtoFactory(UserDto, mergedUserDbResponse);
     });
+
+    await this.userCache.invalidate(userID, placeholderID);
+
+    return merged;
   }
 
   async updateUser(
@@ -280,6 +292,7 @@ export class AdminService {
         where: { id: userID },
         data: updateInput
       });
+      await this.userCache.invalidate(userID);
     }
 
     // Check rest of fields not needed to be admin to update, separately.
@@ -324,6 +337,7 @@ export class AdminService {
     await this.db.leaderboardRun.delete({ where });
 
     await Promise.all([
+      this.rankingService.queueLeaderboardUpdates([run]),
       this.deleteRunFiles(run),
       this.adminActivityService.create(
         adminID,
@@ -353,6 +367,11 @@ export class AdminService {
       where: { userID }
     });
 
+    // Every leaderboard the user was on needs its points recomputed.
+    await this.rankingService.queueLeaderboardUpdates([
+      ...new Map(runs.map((run) => [serializeLeaderboard(run), run])).values()
+    ]);
+
     // Copy all replay files to the deleted-runs location with bounded
     // concurrency, then bulk-delete all sources in one request.
     const copies = runs.map((run) => ({
@@ -377,6 +396,17 @@ export class AdminService {
         reason
       )
     ]);
+  }
+
+  /**
+   * Regenerate all rank points from the database in the background.
+   */
+  rebuildRankPoints(): void {
+    void this.rankingService
+      .rebuildAll()
+      .catch((error) =>
+        this.logger.error('Admin-triggered rank points rebuild failed', error)
+      );
   }
 
   private async deleteRunFiles(

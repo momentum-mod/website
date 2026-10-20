@@ -39,6 +39,29 @@
     --card-title-scale: 0.7;
   }
 
+  /* Rank group badges: WR in the logo's blue, top 10 in its white (with its
+     dark gray text), then gold (1-2), silver (3-4) and bronze (5-6), the
+     better group of each pair in the brighter shade. Badges fade as groups
+     get worse. */
+  :root {
+    --group-wr-bg: rgb(24 150 211 / 0.9);
+    --group-wr-text: rgb(255 255 255);
+    --group-top10-bg: rgb(255 255 255 / 0.9);
+    --group-top10-text: rgb(32 32 32);
+    --group-1-bg: rgb(240 185 30 / 0.85);
+    --group-1-text: rgb(255 255 255);
+    --group-2-bg: rgb(190 140 25 / 0.75);
+    --group-2-text: rgb(255 255 255 / 0.95);
+    --group-3-bg: rgb(200 202 210 / 0.6);
+    --group-3-text: rgb(255 255 255 / 0.9);
+    --group-4-bg: rgb(140 143 152 / 0.5);
+    --group-4-text: rgb(255 255 255 / 0.85);
+    --group-5-bg: rgb(205 127 50 / 0.4);
+    --group-5-text: rgb(255 255 255 / 0.75);
+    --group-6-bg: rgb(140 85 40 / 0.35);
+    --group-6-text: rgb(255 255 255 / 0.6);
+  }
+
   @media (min-width: 768px) {
     :root {
       --card-title-scale: 1;

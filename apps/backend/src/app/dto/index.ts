@@ -52,5 +52,8 @@ export * from './queries/user-queries.dto';
 export * from './queries/admin-queries.dto';
 export * from './queries/report-queries.dto';
 export * from './queries/activity-queries.dto';
+export * from './queries/ranking-queries.dto';
+export * from './ranking/rank-entry.dto';
+export * from './ranking/user-rank.dto';
 export * from './functions';
 export * from './validation-pipe-config';

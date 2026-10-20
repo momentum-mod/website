@@ -47,6 +47,8 @@ import { SpinnerComponent } from '../../components/spinner/spinner.component';
 import { DialogModule } from 'primeng/dialog';
 import { ProfileChatBansComponent } from './profile-chat-bans/profile-chat-bans.component';
 import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-admin-settings.component';
+import { ProfileRanksComponent } from './profile-ranks/profile-ranks.component';
+import { ProfileRunsComponent } from './profile-runs/profile-runs.component';
 
 @Component({
   selector: 'm-user-profile',
@@ -71,7 +73,9 @@ import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-
     SpinnerComponent,
     LevelIndicatorComponent,
     DialogModule,
-    ProfileChatBansComponent
+    ProfileChatBansComponent,
+    ProfileRanksComponent,
+    ProfileRunsComponent
   ]
 })
 export class ProfileComponent implements OnInit {

@@ -1,0 +1,30 @@
+<h3 class="font-display font-bold">Rankings</h3>
+<div [mSpinner]="loading">
+  @if (ranks.length === 0) {
+    @if (!loading) {
+      <h5 class="m-0"><i>No rank points yet</i></h5>
+    }
+  } @else {
+    <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+      @for (rank of ranks; track rank.gamemode + '-' + rank.style) {
+        <a
+          class="flex flex-col rounded border border-white border-opacity-10 bg-white bg-opacity-5 p-3 transition-colors hover:bg-opacity-10"
+          routerLink="/community/rankings"
+          [queryParams]="{ gamemode: rank.gamemode, style: rank.style }"
+        >
+          <p class="text-sm font-bold uppercase text-gray-200">
+            {{ GamemodeInfo.get(rank.gamemode)?.name }}
+            @if (rank.style !== Style.NORMAL) {
+              <span class="font-normal normal-case text-gray-300"> · {{ styleEnglishName(rank.style) }}</span>
+            }
+          </p>
+          <p class="font-display text-3xl leading-tight">
+            #{{ rank.rank | numberWithCommas }}
+            <span class="text-base text-gray-300">/ {{ rank.totalPlayers | numberWithCommas }}</span>
+          </p>
+          <p class="text-gray-200">{{ rank.points | numberWithCommas }} points</p>
+        </a>
+      }
+    </div>
+  }
+</div>

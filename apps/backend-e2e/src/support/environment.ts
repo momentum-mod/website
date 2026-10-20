@@ -113,8 +113,14 @@ export async function setupE2ETestEnvironment(
     await app.getHttpAdapter().getInstance().ready();
   }
 
-  for (const job of app.get(SchedulerRegistry).getCronJobs().values()) {
+  // Stop scheduled jobs so they don't fire mid-test. Anything needing them
+  // (e.g. rank points processing) calls the relevant service directly.
+  const schedulerRegistry = app.get(SchedulerRegistry);
+  for (const job of schedulerRegistry.getCronJobs().values()) {
     job.stop();
+  }
+  for (const name of schedulerRegistry.getIntervals()) {
+    schedulerRegistry.deleteInterval(name);
   }
 
   const server = app.getHttpServer();

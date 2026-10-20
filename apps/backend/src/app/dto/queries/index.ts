@@ -5,3 +5,4 @@ export * from './user-queries.dto';
 export * from './admin-queries.dto';
 export * from './report-queries.dto';
 export * from './activity-queries.dto';
+export * from './ranking-queries.dto';

@@ -110,6 +110,10 @@
           </div>
         }
 
+        @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
+          <m-profile-ranks [userID]="user.id" />
+        }
+
         <div class="flex flex-col gap-4 sm:flex-row">
           <div class="min-w-0 flex-grow basis-0">
             <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
@@ -261,6 +265,12 @@
         <m-activity headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" class="h-full" />
       }
     </div>
+    @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
+      <div class="card col-span-full gap-5 p-4">
+        <h3 class="font-display font-bold">Runs</h3>
+        <m-profile-runs [userID]="user.id" />
+      </div>
+    }
   </div>
 } @else {
   <m-spinner />
