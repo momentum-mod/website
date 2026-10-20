@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { beforeEach, describe, it } from 'node:test';
 import { EnumValuePipe } from './enum-value.pipe';
 
 describe('NumberWithCommasPipe', () => {
@@ -14,6 +16,6 @@ describe('NumberWithCommasPipe', () => {
   });
 
   it('should transform a number to a string with commas', () => {
-    expect(pipe.transform(TestEnum)).toStrictEqual([0, 1, 8]);
+    assert.deepStrictEqual(pipe.transform(TestEnum), [0, 1, 8]);
   });
 });

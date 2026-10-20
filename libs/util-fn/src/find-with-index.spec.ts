@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { findWithIndex } from './find-with-index';
 
 describe('findWithIndex', () => {
@@ -5,13 +7,13 @@ describe('findWithIndex', () => {
     const array = [1, 2, 3, 4];
     const findFn = (value: number) => value === 3;
     const result = findWithIndex(array, findFn);
-    expect(result).toEqual([3, 2]);
+    assert.deepEqual(result, [3, 2]);
   });
 
   it('should return [undefined, -1] if not found', () => {
     const array = [1, 2, 3, 4];
     const findFn = (value: number) => value === 5;
     const result = findWithIndex(array, findFn);
-    expect(result).toEqual([undefined, -1]);
+    assert.deepEqual(result, [undefined, -1]);
   });
 });

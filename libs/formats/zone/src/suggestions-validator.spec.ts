@@ -1,5 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
-  DisabledGamemodes,
   Gamemode,
   LeaderboardType,
   MapReviewSuggestion,
@@ -12,13 +13,12 @@ import {
 import { ZonesStub } from './zones.stub';
 import { SuggestionType, validateSuggestions } from './';
 
+const messageIncludes = (message: string) => (error: Error) =>
+  error.message.includes(message);
+
 describe('validateSuggestions', () => {
   // Has a bonus
   const zones = ZonesStub;
-
-  jest
-    .spyOn(DisabledGamemodes, 'has')
-    .mockImplementation((key) => key === Gamemode.CONC);
 
   const ahopTags = MapTags.get(Gamemode.AHOP);
   const validSubmissionSuggestions: MapSubmissionSuggestion[] = [
@@ -78,163 +78,193 @@ describe('validateSuggestions', () => {
   ];
 
   it('should not throw for valid suggestions', () => {
-    expect(() =>
+    assert.doesNotThrow(() =>
       validateSuggestions(
         validSubmissionSuggestions,
         zones,
         SuggestionType.SUBMISSION
       )
-    ).not.toThrow();
-    expect(() =>
+    );
+    assert.doesNotThrow(() =>
       validateSuggestions(validReviewSuggestions, zones, SuggestionType.REVIEW)
-    ).not.toThrow();
-    expect(() =>
+    );
+    assert.doesNotThrow(() =>
       validateSuggestions(validApprovals, zones, SuggestionType.APPROVAL)
-    ).not.toThrow();
+    );
   });
 
   it('should throw for if missing a bonus track and given zones with a bonus', () => {
-    expect(() =>
-      validateSuggestions(
-        [validSubmissionSuggestions[0]],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Bonus track 1 has no suggestions');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [validSubmissionSuggestions[0]],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Bonus track 1 has no suggestions')
+    );
 
-    expect(() =>
-      validateSuggestions([validApprovals[0]], zones, SuggestionType.APPROVAL)
-    ).toThrow('Bonus track 1 has no suggestions');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [validApprovals[0]],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Bonus track 1 has no suggestions')
+    );
 
-    expect(() =>
+    assert.doesNotThrow(() =>
       validateSuggestions(
         [validReviewSuggestions[0]],
         zones,
         SuggestionType.REVIEW
       )
-    ).not.toThrow();
+    );
   });
 
   it('should throw for if a suggested bonus does not correspond to zone', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.BONUS,
-            trackNum: 2,
-            gamemode: Gamemode.BHOP,
-            tier: 1,
-            comment: 'This track doesnt exist',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.BONUS,
+              trackNum: 2,
+              gamemode: Gamemode.BHOP,
+              tier: 1,
+              comment: 'This track doesnt exist',
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes(
+        'Suggestion refers to bonus track (2) that does not exist'
       )
-    ).toThrow('Suggestion refers to bonus track (2) that does not exist');
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.BONUS,
-            trackNum: 2,
-            gamemode: Gamemode.BHOP,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validApprovals,
+            {
+              trackType: TT.BONUS,
+              trackNum: 2,
+              gamemode: Gamemode.BHOP,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes(
+        'Suggestion refers to bonus track (2) that does not exist'
       )
-    ).toThrow('Suggestion refers to bonus track (2) that does not exist');
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validReviewSuggestions,
-          {
-            trackType: TT.BONUS,
-            trackNum: 2,
-            gamemode: Gamemode.BHOP,
-            gameplayRating: 5
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validReviewSuggestions,
+            {
+              trackType: TT.BONUS,
+              trackNum: 2,
+              gamemode: Gamemode.BHOP,
+              gameplayRating: 5
+            }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes(
+        'Suggestion refers to bonus track (2) that does not exist'
       )
-    ).toThrow('Suggestion refers to bonus track (2) that does not exist');
+    );
   });
 
   it('should throw for duplicate suggestions', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          { ...validSubmissionSuggestions[0], comment: 'elephants' }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Duplicate suggestion for Ahop main');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            { ...validSubmissionSuggestions[0], comment: 'elephants' }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Duplicate suggestion for Ahop main')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [...validApprovals, structuredClone(validApprovals[0])],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Duplicate suggestion for Ahop main');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [...validApprovals, structuredClone(validApprovals[0])],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Duplicate suggestion for Ahop main')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validReviewSuggestions,
-          { ...validReviewSuggestions[0], gameplayRating: 1 }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Duplicate suggestion for Ahop main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validReviewSuggestions,
+            { ...validReviewSuggestions[0], gameplayRating: 1 }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes('Duplicate suggestion for Ahop main track')
+    );
   });
 
   it('should throw for missing main track', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            trackType: TT.BONUS,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            tier: 1,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Missing main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              trackType: TT.BONUS,
+              trackNum: 1,
+              gamemode: Gamemode.AHOP,
+              tier: 1,
+              comment: 'someComment',
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Missing main track')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            trackType: TT.BONUS,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Missing main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              trackType: TT.BONUS,
+              trackNum: 1,
+              gamemode: Gamemode.AHOP,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Missing main track')
+    );
 
-    expect(() =>
+    assert.doesNotThrow(() =>
       validateSuggestions(
         [
           {
@@ -248,168 +278,186 @@ describe('validateSuggestions', () => {
         zones,
         SuggestionType.REVIEW
       )
-    ).not.toThrow();
+    );
   });
 
   it('should throw for multiple main tracks', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 2,
-            gamemode: Gamemode.AHOP,
-            tier: 2,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Only one main track allowed, must be track 1');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.MAIN,
+              trackNum: 2,
+              gamemode: Gamemode.AHOP,
+              tier: 2,
+              comment: 'someComment',
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Only one main track allowed, must be track 1')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.MAIN,
-            trackNum: 2,
-            gamemode: Gamemode.AHOP,
-            tier: 2,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Only one main track allowed, must be track 1');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validApprovals,
+            {
+              trackType: TT.MAIN,
+              trackNum: 2,
+              gamemode: Gamemode.AHOP,
+              tier: 2,
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Only one main track allowed, must be track 1')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 2,
-            gamemode: Gamemode.AHOP,
-            tier: 2
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Only one main track allowed, must be track 1');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.MAIN,
+              trackNum: 2,
+              gamemode: Gamemode.AHOP,
+              tier: 2
+            }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes('Only one main track allowed, must be track 1')
+    );
   });
 
   it('should throw error for stages in suggestions', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.STAGE,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            tier: 1,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Suggestions should not include stage tracks');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.STAGE,
+              trackNum: 1,
+              gamemode: Gamemode.AHOP,
+              tier: 1,
+              comment: 'someComment',
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Suggestions should not include stage tracks')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.STAGE,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Suggestions should not include stage tracks');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validApprovals,
+            {
+              trackType: TT.STAGE,
+              trackNum: 1,
+              gamemode: Gamemode.AHOP,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Suggestions should not include stage tracks')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.STAGE,
-            trackNum: 1,
-            gamemode: Gamemode.AHOP,
-            tier: 1,
-            gameplayRating: 6
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Suggestions should not include stage tracks');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.STAGE,
+              trackNum: 1,
+              gamemode: Gamemode.AHOP,
+              tier: 1,
+              gameplayRating: 6
+            }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes('Suggestions should not include stage tracks')
+    );
   });
 
   it('should not allow suggestions for disabled gamemodes', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.CONC,
-            tier: 1,
-            comment: 'someComment',
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Disabled gamemode Conc on main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.CLIMB_MOM,
+              tier: 1,
+              comment: 'someComment',
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Disabled gamemode Climb (Momentum) on main track')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.CONC,
-            tier: 1,
-            type: LeaderboardType.RANKED
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Disabled gamemode Conc on main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validApprovals,
+            {
+              trackType: TT.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.CLIMB_MOM,
+              tier: 1,
+              type: LeaderboardType.RANKED
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Disabled gamemode Climb (Momentum) on main track')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validSubmissionSuggestions,
-          {
-            trackType: TT.MAIN,
-            trackNum: 1,
-            gamemode: Gamemode.CONC,
-            tier: 1,
-            gameplayRating: 6
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Disabled gamemode Conc on main track');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validSubmissionSuggestions,
+            {
+              trackType: TT.MAIN,
+              trackNum: 1,
+              gamemode: Gamemode.CLIMB_MOM,
+              tier: 1,
+              gameplayRating: 6
+            }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes('Disabled gamemode Climb (Momentum) on main track')
+    );
   });
 
   it('should throw for bad tiers, types or gameplayRating', () => {
@@ -420,146 +468,167 @@ describe('validateSuggestions', () => {
     ]) {
       const suggs = structuredClone(data);
       suggs[0].tier = 0;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-      ).toThrow('Invalid tier 0 for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+        messageIncludes('Invalid tier 0 for Ahop main')
+      );
       suggs[0].tier = 11;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-      ).toThrow('Invalid tier 11 for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+        messageIncludes('Invalid tier 11 for Ahop main')
+      );
     }
 
     {
       const suggs = structuredClone(validApprovals);
       suggs[0].type = LeaderboardType.IN_SUBMISSION as any;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-      ).toThrow('Invalid leaderboard type IN_SUBMISSION for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+        messageIncludes('Invalid leaderboard type IN_SUBMISSION for Ahop main')
+      );
     }
 
     {
       const suggs = structuredClone(validSubmissionSuggestions);
       suggs[0].type = LeaderboardType.HIDDEN as any;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.SUBMISSION)
-      ).toThrow('Invalid leaderboard type HIDDEN for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.SUBMISSION),
+        messageIncludes('Invalid leaderboard type HIDDEN for Ahop main')
+      );
     }
 
     {
       const suggs = structuredClone(validReviewSuggestions);
       suggs[0].gameplayRating = 0;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-      ).toThrow('Invalid gameplay rating 0 for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+        messageIncludes('Invalid gameplay rating 0 for Ahop main')
+      );
       suggs[0].gameplayRating = 11;
-      expect(() =>
-        validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-      ).toThrow('Invalid gameplay rating 11 for Ahop main');
+      assert.throws(
+        () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+        messageIncludes('Invalid gameplay rating 11 for Ahop main')
+      );
     }
   });
 
   it('should not allow hidden approval leaderboards have tiers', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          ...validApprovals,
-          {
-            gamemode: Gamemode.RJ,
-            trackType: TrackType.MAIN,
-            trackNum: 1,
-            tier: 1,
-            type: LeaderboardType.HIDDEN
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Hidden leaderboard Rocket Jump main track has a tier');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            ...validApprovals,
+            {
+              gamemode: Gamemode.RJ,
+              trackType: TrackType.MAIN,
+              trackNum: 1,
+              tier: 1,
+              type: LeaderboardType.HIDDEN
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Hidden leaderboard Rocket Jump main track has a tier')
+    );
   });
 
   it('should require each trackType, trackNum combo has a non-hidden leaderboard in at least one mode during approval', () => {
     const suggs = structuredClone(validApprovals);
     suggs[0].type = LeaderboardType.HIDDEN;
     delete suggs[0].tier;
-    expect(() =>
-      validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-    ).toThrow('Missing non-hidden leaderboards for main track');
+    assert.throws(
+      () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+      messageIncludes('Missing non-hidden leaderboards for main track')
+    );
   });
 
   it('should throw for trackNum of 0', () => {
     const suggs = structuredClone(validApprovals);
 
     suggs[0].trackNum = 0;
-    expect(() =>
-      validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-    ).toThrow('Only one main track allowed, must be track 1');
+    assert.throws(
+      () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+      messageIncludes('Only one main track allowed, must be track 1')
+    );
 
     suggs[0].trackNum = 1;
     suggs.push({ ...suggs[1], trackNum: 0 });
-    expect(() =>
-      validateSuggestions(suggs, zones, SuggestionType.APPROVAL)
-    ).toThrow('Suggestion refers to bonus track (0) that does not exist');
+    assert.throws(
+      () => validateSuggestions(suggs, zones, SuggestionType.APPROVAL),
+      messageIncludes(
+        'Suggestion refers to bonus track (0) that does not exist'
+      )
+    );
   });
 
   it('should throw for bad tags', () => {
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            ...validApprovals[0],
-            // @ts-expect-error - deliberately wrong
-            tags: [9999, -1]
-          }
-        ],
-        zones,
-        SuggestionType.APPROVAL
-      )
-    ).toThrow('Invalid tag 9999 for Ahop main');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              ...validApprovals[0],
+              // @ts-expect-error - deliberately wrong
+              tags: [9999, -1]
+            }
+          ],
+          zones,
+          SuggestionType.APPROVAL
+        ),
+      messageIncludes('Invalid tag 9999 for Ahop main')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            ...validReviewSuggestions[0],
-            // @ts-expect-error - deliberately wrong
-            tags: [-1, 'Butter']
-          }
-        ],
-        zones,
-        SuggestionType.REVIEW
-      )
-    ).toThrow('Invalid tag -1 for Ahop main');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              ...validReviewSuggestions[0],
+              // @ts-expect-error - deliberately wrong
+              tags: [-1, 'Butter']
+            }
+          ],
+          zones,
+          SuggestionType.REVIEW
+        ),
+      messageIncludes('Invalid tag -1 for Ahop main')
+    );
 
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            ...validSubmissionSuggestions[0],
-            // @ts-expect-error - deliberately wrong
-            tags: ['Daydreaming', 1337]
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow('Invalid tag Daydreaming for Ahop main');
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              ...validSubmissionSuggestions[0],
+              // @ts-expect-error - deliberately wrong
+              tags: ['Daydreaming', 1337]
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes('Invalid tag Daydreaming for Ahop main')
+    );
 
     const nonAhopTag = MapTags.get(Gamemode.BHOP).find(
       (t) => !ahopTags.includes(t)
     );
-    expect(() =>
-      validateSuggestions(
-        [
-          {
-            ...validSubmissionSuggestions[0],
-            tags: [
-              MapTags.get(Gamemode.BHOP).find((t) => !ahopTags.includes(t))
-            ]
-          }
-        ],
-        zones,
-        SuggestionType.SUBMISSION
-      )
-    ).toThrow(`Invalid tag ${nonAhopTag} for Ahop main`);
+    assert.throws(
+      () =>
+        validateSuggestions(
+          [
+            {
+              ...validSubmissionSuggestions[0],
+              tags: [
+                MapTags.get(Gamemode.BHOP).find((t) => !ahopTags.includes(t))
+              ]
+            }
+          ],
+          zones,
+          SuggestionType.SUBMISSION
+        ),
+      messageIncludes(`Invalid tag ${nonAhopTag} for Ahop main`)
+    );
   });
 });

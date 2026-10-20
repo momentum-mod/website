@@ -1,3 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, afterEach, mock } from 'node:test';
+import { includesPartial } from '@momentum/test-utils';
 import {
   Gamemode,
   DisabledGamemodes,
@@ -8,6 +11,8 @@ import { ZonesStub } from '@momentum/formats/zone';
 import * as LeaderboardHandler from './leaderboard-handler.util';
 
 describe('LeaderboardHandler', () => {
+  afterEach(() => mock.restoreAll());
+
   describe('getCompatibleSuggestions', () => {
     it('should expand an array of suggestions to everything compatible', () => {
       const zones = structuredClone(ZonesStub);
@@ -26,7 +31,7 @@ describe('LeaderboardHandler', () => {
         style: Style.NORMAL
       };
 
-      jest.spyOn(DisabledGamemodes, 'has').mockImplementation((key) => {
+      mock.method(DisabledGamemodes, 'has').mock.mockImplementation((key) => {
         return key === Gamemode.CONC;
       });
 
@@ -35,8 +40,8 @@ describe('LeaderboardHandler', () => {
         zones
       );
 
-      expect(leaderboards).toEqual(
-        expect.arrayContaining([
+      assert.ok(
+        includesPartial(leaderboards, [
           main,
           { ...main, gamemode: Gamemode.BHOP },
           bonus,
@@ -46,10 +51,14 @@ describe('LeaderboardHandler', () => {
       );
 
       // Disabled gamemodes: Fuck conc
-      expect(leaderboards).not.toContainEqual({
-        ...main,
-        gamemode: Gamemode.CONC
-      });
+      assert.ok(
+        !includesPartial(leaderboards, [
+          {
+            ...main,
+            gamemode: Gamemode.CONC
+          }
+        ])
+      );
     });
 
     it('should ignore non-defrag bonuses in defrag with defragModifiers', () => {
@@ -86,8 +95,8 @@ describe('LeaderboardHandler', () => {
         zones
       );
 
-      expect(leaderboards).toEqual(
-        expect.arrayContaining([
+      assert.ok(
+        includesPartial(leaderboards, [
           main,
           { ...main, gamemode: Gamemode.AHOP },
           bonus1,
@@ -96,16 +105,20 @@ describe('LeaderboardHandler', () => {
         ])
       );
 
-      expect(leaderboards).not.toContainEqual({
-        ...bonus2,
-        gamemode: Gamemode.AHOP
-      });
+      assert.ok(
+        !includesPartial(leaderboards, [
+          {
+            ...bonus2,
+            gamemode: Gamemode.AHOP
+          }
+        ])
+      );
     });
   });
 
   describe('getStageLeaderboard', () => {
     it('should return stage leaderboards', () => {
-      expect(
+      assert.partialDeepStrictEqual(
         LeaderboardHandler['getStageLeaderboards'](
           [
             { gamemode: Gamemode.AHOP, trackType: TrackType.MAIN, trackNum: 1 },
@@ -117,24 +130,26 @@ describe('LeaderboardHandler', () => {
             { gamemode: Gamemode.BHOP, trackType: TrackType.MAIN, trackNum: 1 }
           ],
           ZonesStub
-        )
-      ).toMatchObject([
-        { gamemode: Gamemode.AHOP, trackType: TrackType.STAGE, trackNum: 1 },
-        { gamemode: Gamemode.AHOP, trackType: TrackType.STAGE, trackNum: 2 },
-        { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 1 },
-        { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 2 }
-      ]);
+        ),
+        [
+          { gamemode: Gamemode.AHOP, trackType: TrackType.STAGE, trackNum: 1 },
+          { gamemode: Gamemode.AHOP, trackType: TrackType.STAGE, trackNum: 2 },
+          { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 1 },
+          { gamemode: Gamemode.BHOP, trackType: TrackType.STAGE, trackNum: 2 }
+        ]
+      );
     });
 
     it('should return an empty array if there is only one stage', () => {
       const zones = structuredClone(ZonesStub);
       zones.tracks.main.zones.segments = [zones.tracks.main.zones.segments[0]];
-      expect(
+      assert.deepStrictEqual(
         LeaderboardHandler['getStageLeaderboards'](
           [{ gamemode: Gamemode.AHOP, trackType: TrackType.MAIN, trackNum: 1 }],
           zones
-        )
-      ).toEqual([]);
+        ),
+        []
+      );
     });
   });
 });

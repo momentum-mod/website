@@ -1,8 +1,11 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { of, tap } from 'rxjs';
 import { mapHttpError } from './map-http-error';
 
 describe('mapHttpError', () => {
-  it('should map to provided value when status matches', (done) => {
+  it('should map to provided value when status matches', () => {
+    let value: string | undefined;
     of('Original Value')
       .pipe(
         tap(() => {
@@ -10,13 +13,13 @@ describe('mapHttpError', () => {
         }),
         mapHttpError(404, 'Mapped Value')
       )
-      .subscribe({
-        next: (value) => expect(value).toBe('Mapped Value'),
-        complete: () => done()
-      });
+      .subscribe((result) => (value = result));
+
+    assert.equal(value, 'Mapped Value');
   });
 
-  it('should rethrow error when status does not match', (done) => {
+  it('should rethrow error when status does not match', () => {
+    let actualError: unknown;
     of('Original Value')
       .pipe(
         tap(() => {
@@ -26,9 +29,10 @@ describe('mapHttpError', () => {
       )
       .subscribe({
         error: (err) => {
-          expect(err).toEqual({ status: 500 });
-          done();
+          actualError = err;
         }
       });
+
+    assert.deepEqual(actualError, { status: 500 });
   });
 });

@@ -1,23 +1,25 @@
-﻿import { Test, TestingModule } from '@nestjs/testing';
+import * as assert from 'node:assert/strict';
+import { describe, it, before, mock } from 'node:test';
+import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import {
   ServiceUnavailableException,
   UnauthorizedException
 } from '@nestjs/common';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from '@momentum/test-utils';
 import { SteamOpenIDService } from './steam-openid.service';
 
 describe('SteamOpenIDService', () => {
   let service: SteamOpenIDService;
 
-  beforeAll(async () => {
+  before(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [SteamOpenIDService]
     })
       .useMocker((token) => {
         if (token === ConfigService)
           return {
-            getOrThrow: jest.fn((key) => {
+            getOrThrow: mock.fn((key) => {
               switch (key) {
                 case 'url.auth':
                   return 'ratemyowl.com';
@@ -34,63 +36,65 @@ describe('SteamOpenIDService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.notStrictEqual(service, undefined);
   });
 
   describe('getRedirectUrl', () => {
-    let openIDAuthenticateSpy: jest.SpyInstance;
+    let openIDAuthenticateSpy: any;
 
-    beforeAll(() => {
-      openIDAuthenticateSpy = jest.spyOn(
+    before(() => {
+      openIDAuthenticateSpy = mock.method(
         service['relyingParty'],
         'authenticate'
       );
     });
 
     it('should return a valid URL', async () => {
-      openIDAuthenticateSpy.mockImplementationOnce(
+      openIDAuthenticateSpy.mock.mockImplementationOnce(
         (_identifier, _immediate, callback) =>
           callback(undefined, 'https://steamcommunity.com/openid/login')
       );
-      expect(await service.getRedirectUrl()).toBe(
+      assert.strictEqual(
+        await service.getRedirectUrl(),
         'https://steamcommunity.com/openid/login'
       );
     });
 
     it('should throw a ServiceUnavailableException is a Steam OpenID referral URL cannot be generated', async () => {
-      openIDAuthenticateSpy.mockImplementationOnce(
+      openIDAuthenticateSpy.mock.mockImplementationOnce(
         (_identifier, _immediate, callback) =>
           callback(
             new Error('its chewsday init'),
             'https://steamcommunity.com/openid/login'
           )
       );
-      await expect(service.getRedirectUrl()).rejects.toThrow(
+      await assert.rejects(
+        service.getRedirectUrl(),
         ServiceUnavailableException
       );
     });
   });
 
   describe('authenticate', () => {
-    let verifyAssertionSpy: jest.SpyInstance;
+    let verifyAssertionSpy: any;
 
-    beforeAll(() => {
+    before(() => {
       // Using bracket notation to access a private property here. JS is weird!
-      verifyAssertionSpy = jest.spyOn(
+      verifyAssertionSpy = mock.method(
         service['relyingParty'],
         'verifyAssertion'
       );
     });
 
     it('should allow a valid response from Steam', async () => {
-      verifyAssertionSpy.mockImplementationOnce((request, callback) =>
+      verifyAssertionSpy.mock.mockImplementationOnce((request, callback) =>
         callback(undefined, {
           authenticated: true,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/123'
         })
       );
 
-      expect(
+      assert.strictEqual(
         await service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -98,21 +102,22 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
             'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
-        } as any)
-      ).toBe(123n);
+        } as any),
+        123n
+      );
     });
 
     // Note this isn't testing the core part of the security; the real security
     // comes from verifyAssertion, which we're mocking.
     it('should reject requests that cause openID verification to error', async () => {
-      verifyAssertionSpy.mockImplementationOnce((request, callback) =>
+      verifyAssertionSpy.mock.mockImplementationOnce((request, callback) =>
         callback(new Error('this is not a real user'), {
           authenticated: true,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/123'
         })
       );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -120,19 +125,20 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/',
             'openid.identity': 'https://steamcommunity.com/openid/id/'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
     });
 
     it('should reject requests that do not pass openID authentication', async () => {
-      verifyAssertionSpy.mockImplementationOnce((request, callback) =>
+      verifyAssertionSpy.mock.mockImplementationOnce((request, callback) =>
         callback(undefined, {
           authenticated: false,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/123'
         })
       );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -140,19 +146,20 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/',
             'openid.identity': 'https://steamcommunity.com/openid/id/'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
     });
 
     it('should reject requests not from Steam', async () => {
-      verifyAssertionSpy.mockImplementation((request, callback) =>
+      verifyAssertionSpy.mock.mockImplementation((request, callback) =>
         callback(undefined, {
           authenticated: true,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/123'
         })
       );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://g2a.com/openid/login',
@@ -160,10 +167,11 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
             'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -171,10 +179,11 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
             'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -182,10 +191,11 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamedhamns.com/openid/id/123',
             'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -193,21 +203,22 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
             'openid.identity': 'https://ebay.com/openid/id/123'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
 
-      verifyAssertionSpy.mockClear();
+      verifyAssertionSpy.mock.resetCalls();
     });
 
     it('should reject invalid Steam IDs', async () => {
-      verifyAssertionSpy.mockImplementationOnce((request, callback) =>
+      verifyAssertionSpy.mock.mockImplementationOnce((request, callback) =>
         callback(undefined, {
           authenticated: true,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/walrus'
         })
       );
 
-      await expect(
+      await assert.rejects(
         service.authenticate({
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
@@ -215,8 +226,9 @@ describe('SteamOpenIDService', () => {
             'openid.claimed_id': 'https://steamcommunity.com/openid/id/walrus',
             'openid.identity': 'https://steamcommunity.com/openid/id/walrus'
           }
-        } as any)
-      ).rejects.toThrow(UnauthorizedException);
+        } as any),
+        UnauthorizedException
+      );
     });
   });
 });
