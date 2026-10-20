@@ -1,3 +1,3 @@
-import { toBeValidDto, toBeValidPagedDto } from '@momentum/test-utils';
+import { faker } from '@faker-js/faker';
 
-expect.extend({ toBeValidDto, toBeValidPagedDto });
+faker.seed(1);

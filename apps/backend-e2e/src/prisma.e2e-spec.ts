@@ -1,7 +1,11 @@
+import { after, before, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 import { PrismaClient } from '@momentum/db';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ExtendedPrismaClient, getExtendedPrismaClient } from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
+
 import { arrayFrom } from '@momentum/util-fn';
 
 // No, these are not E2E tests, but they need a live DB so they live here. Bite me!
@@ -10,7 +14,7 @@ describe('Prisma Client Extensions', () => {
   let ePrisma: ExtendedPrismaClient;
   let db: DbUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     prisma = new PrismaClient({
       adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
     });
@@ -19,63 +23,73 @@ describe('Prisma Client Extensions', () => {
     ePrisma = getExtendedPrismaClient();
   });
 
-  afterAll(() => Promise.all([prisma.$disconnect, ePrisma.$disconnect()]));
+  after(async () => {
+    await Promise.all([prisma.$disconnect, ePrisma.$disconnect()]);
+  });
 
   describe('findManyAndCount', () => {
-    beforeAll(async () => {
+    before(async () => {
       await prisma.user.createMany({
         data: arrayFrom(10, (i) => ({ alias: 'User', roles: i >= 5 ? 1 : 0 }))
       });
     });
 
-    afterAll(() => db.cleanup('user'));
+    after(async () => {
+      await db.cleanup('user');
+    });
 
     it('should return a tuple of items and their count', async () => {
       const res = await ePrisma.user.findManyAndCount();
-      expect(Array.isArray(res[0])).toBe(true);
-      expect(res[1]).toBe(10);
+      assert.equal(Array.isArray(res[0]), true);
+      assert.equal(res[1], 10);
     });
 
     it('should return a valid count for filtered query', async () => {
       const res = await ePrisma.user.findManyAndCount({ where: { roles: 1 } });
-      expect(Array.isArray(res[0])).toBe(true);
-      expect(res[1]).toBe(5);
+      assert.equal(Array.isArray(res[0]), true);
+      assert.equal(res[1], 5);
     });
 
     it('should return empty array and count = 0 when no matches', async () => {
       const res = await ePrisma.user.findManyAndCount({ where: { roles: 2 } });
-      expect(res).toMatchObject([[], 0]);
+      assert.partialDeepStrictEqual(res, [[], 0]);
     });
   });
 
   describe('exists', () => {
-    beforeAll(() => prisma.user.create({ data: { alias: 'User', roles: 0 } }));
+    before(async () => {
+      await prisma.user.create({ data: { alias: 'User', roles: 0 } });
+    });
 
-    afterAll(() => db.cleanup('user'));
+    after(async () => {
+      await db.cleanup('user');
+    });
 
     it('should return true if item exists', async () => {
-      expect(await ePrisma.user.exists()).toBe(true);
-      expect(await ePrisma.user.exists({ where: { roles: 0 } })).toBe(true);
+      assert.equal(await ePrisma.user.exists(), true);
+      assert.equal(await ePrisma.user.exists({ where: { roles: 0 } }), true);
     });
 
     it('should return false if item does not exist', async () => {
-      expect(await ePrisma.user.exists({ where: { roles: 1 } })).toBe(false);
+      assert.equal(await ePrisma.user.exists({ where: { roles: 1 } }), false);
     });
   });
 
   describe('user.create', () => {
-    afterAll(() => db.cleanup('user'));
+    after(async () => {
+      await db.cleanup('user');
+    });
 
     it('should always create profile and userStats entries', async () => {
-      expect(await prisma.user.findFirst()).toBeNull();
-      expect(await prisma.profile.findFirst()).toBeNull();
-      expect(await prisma.userStats.findFirst()).toBeNull();
+      assert.equal(await prisma.user.findFirst(), null);
+      assert.equal(await prisma.profile.findFirst(), null);
+      assert.equal(await prisma.userStats.findFirst(), null);
 
       const { id: userID } = await ePrisma.user.create({ data: { alias: '' } });
       const profile = await prisma.profile.findFirst();
       const userStats = await prisma.userStats.findFirst();
-      expect(profile.userID).toBe(userID);
-      expect(userStats).toMatchObject({
+      assert.equal(profile.userID, userID);
+      assert.partialDeepStrictEqual(userStats, {
         userID: userID,
         level: 1,
         cosXP: 0n,

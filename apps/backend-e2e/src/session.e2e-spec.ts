@@ -1,8 +1,12 @@
-// noinspection DuplicatedCode
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 
-import { CompletedRunDto } from '../../backend/src/app/dto';
 import {
+  any,
+  arrayContaining,
+  assertValidDto,
   DbUtil,
+  matchesPartial,
+  objectContaining,
   randomHash,
   randomSteamID,
   RequestUtil,
@@ -10,6 +14,12 @@ import {
   RunTester,
   RunTesterProps
 } from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
+// noinspection DuplicatedCode
+
+import { CompletedRunDto } from '../../backend/src/app/dto';
+
 import {
   ActivityType,
   Gamemode,
@@ -37,7 +47,7 @@ describe('Session', () => {
     map,
     valkey: Valkey;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -54,7 +64,7 @@ describe('Session', () => {
     );
   });
 
-  afterAll(async () => {
+  after(async () => {
     await db.cleanup('mMap');
     await teardownE2ETestEnvironment(app, prisma);
   });
@@ -207,11 +217,11 @@ describe('Session', () => {
           const res = await submitRun();
           const completedRun = res.body[0];
 
-          expect(res.statusCode).toBe(200);
-          expect(completedRun).toBeValidDto(CompletedRunDto);
-          expect(completedRun.isNewPersonalBest).toBe(true);
-          expect(completedRun.isNewWorldRecord).toBe(false);
-          expect(completedRun.totalRuns).toBe(11);
+          assert.equal(res.statusCode, 200);
+          assertValidDto(completedRun, CompletedRunDto);
+          assert.equal(completedRun.isNewPersonalBest, true);
+          assert.equal(completedRun.isNewWorldRecord, false);
+          assert.equal(completedRun.totalRuns, 11);
         });
 
         // Note that now we're using a window function the rank column isn't
@@ -219,22 +229,24 @@ describe('Session', () => {
         // function behaves correctly.
         it('should be inserted in leaderboards, shifting other ranks', async () => {
           const ranksBefore = await getRuns();
-          expect(ranksBefore).toHaveLength(10);
+          assert.equal(ranksBefore.length, 10);
 
           await submitRun();
 
           const ranksAfter = await getRuns();
-          expect(ranksAfter).toHaveLength(11);
-          expect(ranksAfter.find((rank) => rank.userID === user.id).rank).toBe(
+          assert.equal(ranksAfter.length, 11);
+          assert.equal(
+            ranksAfter.find((rank) => rank.userID === user.id).rank,
             2
           );
 
           for (const rankBefore of ranksBefore.filter((rank) => rank.rank > 1))
-            expect(
+            assert.equal(
               ranksAfter.find(
                 (rankAfter) => rankAfter.userID === rankBefore.userID
-              ).rank
-            ).toBe(rankBefore.rank + 1);
+              ).rank,
+              rankBefore.rank + 1
+            );
         });
 
         it('if has a PB, only shift ranks between the PB and old run', async () => {
@@ -252,38 +264,35 @@ describe('Session', () => {
           });
 
           const ranksBefore = await getRuns();
-          expect(ranksBefore).toHaveLength(10);
+          assert.equal(ranksBefore.length, 10);
 
           const res = await submitRun();
           const completedRun = res.body[0];
 
-          expect(res.statusCode).toBe(200);
-          expect(completedRun).toBeValidDto(CompletedRunDto);
-          expect(completedRun.isNewPersonalBest).toBe(true);
-          expect(completedRun.totalRuns).toBe(10);
+          assert.equal(res.statusCode, 200);
+          assertValidDto(completedRun, CompletedRunDto);
+          assert.equal(completedRun.isNewPersonalBest, true);
+          assert.equal(completedRun.totalRuns, 10);
 
           const ranksAfter = await getRuns();
 
           // It should have *updated* our existing rank, so this should still
           // be 10
-          expect(ranksAfter).toHaveLength(10);
+          assert.equal(ranksAfter.length, 10);
 
           // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
           // now becoming 2.
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 3).userID
-          );
+          assert.equal(ranksBefore.find((rank) => rank.rank === 2).userID, ranksAfter.find((rank) => rank.rank === 3).userID);
 
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 3).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 4).userID);
+          assert.equal(ranksBefore.find((rank) => rank.rank === 3).userID, ranksAfter.find((rank) => rank.rank === 4).userID);
 
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 2).userID);
+          assert.equal(ranksBefore.find((rank) => rank.rank === 4).userID, ranksAfter.find((rank) => rank.rank === 2).userID);
 
-          expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
+          assert.equal(
+            ranksBefore.find((rank) => rank.rank === 4).userID,
             user.id
           );
         });
@@ -304,19 +313,19 @@ describe('Session', () => {
 
           const ranksBefore = await getRuns();
 
-          expect(ranksBefore).toHaveLength(10);
+          assert.equal(ranksBefore.length, 10);
 
           const res = await submitRun();
           const completedRun = res.body[0];
 
-          expect(res.statusCode).toBe(200);
-          expect(completedRun).toBeValidDto(CompletedRunDto);
-          expect(completedRun.isNewPersonalBest).toBe(false);
-          // expect(completedRun.xp.rankXP).toBe(0);
-          expect(completedRun.totalRuns).toBe(10);
+          assert.equal(res.statusCode, 200);
+          assertValidDto(completedRun, CompletedRunDto);
+          assert.equal(completedRun.isNewPersonalBest, false);
+          // assert.equal(completedRun.xp.rankXP, 0);
+          assert.equal(completedRun.totalRuns, 10);
 
           const ranksAfter = await getRuns();
-          expect(ranksBefore).toEqual(ranksAfter);
+          assert.deepEqual(ranksBefore, ranksAfter);
         });
 
         it('should assign cosmetic and rank XP for the run', async () => {
@@ -324,18 +333,20 @@ describe('Session', () => {
 
           const completedRun = res.body[0];
 
-          expect(res.statusCode).toBe(200);
-          expect(completedRun).toMatchObject({
-            time: expect.any(Number),
-            newPersonalBest: { rank: 2 },
-            xp: {
-              // rankXP: expect.any(Number),
-              cosXP: {
-                oldXP: 0,
-                gainXP: expect.any(Number)
+          assert.equal(res.statusCode, 200);
+          assert.ok(
+            matchesPartial(completedRun, {
+              time: any(Number),
+              newPersonalBest: { rank: 2 },
+              xp: {
+                // rankXP: any(Number),
+                cosXP: {
+                  oldXP: 0,
+                  gainXP: any(Number)
+                }
               }
-            }
-          });
+            })
+          );
         });
 
         it('should update completion stats for the map, track and zones', async () => {
@@ -347,8 +358,8 @@ describe('Session', () => {
           const mapStats = await prisma.mapStats.findUnique({
             where: { mapID: map.id }
           });
-          expect(mapStats.completions).toBe(2);
-          expect(mapStats.uniqueCompletions).toBe(1);
+          assert.equal(mapStats.completions, 2);
+          assert.equal(mapStats.uniqueCompletions, 1);
         });
 
         it('should create an activity if the user achieved a PB', async () => {
@@ -362,7 +373,7 @@ describe('Session', () => {
             }
           });
 
-          expect(numPBs).toBe(1);
+          assert.equal(numPBs, 1);
         });
 
         it('should create an activity if the user achieved a WR', async () => {
@@ -378,7 +389,7 @@ describe('Session', () => {
             }
           });
 
-          expect(numWRs).toBe(1);
+          assert.equal(numWRs, 1);
         });
       });
 
@@ -393,7 +404,7 @@ describe('Session', () => {
           segments: [1]
         });
 
-        expect(res.statusCode).toBe(200);
+        assert.equal(res.statusCode, 200);
       });
 
       it('should accept a valid bonus run', async () => {
@@ -407,7 +418,7 @@ describe('Session', () => {
           segments: [0]
         });
 
-        expect(res.statusCode).toBe(200);
+        assert.equal(res.statusCode, 200);
       });
 
       it('should reject if there is no body', async () => {
@@ -415,8 +426,8 @@ describe('Session', () => {
           beforeSubmit: (self) => (self.replayBuffer = Buffer.from(''))
         });
 
-        expect(res.statusCode).toBe(400);
-        expect(res.body.code).toBe(RunValidationErrorType.BAD_REPLAY_FILE);
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.body.code, RunValidationErrorType.BAD_REPLAY_FILE);
       });
 
       // Test that permissions checks are getting called
@@ -428,7 +439,7 @@ describe('Session', () => {
         });
 
         const res = await submitRun();
-        expect(res.statusCode).toBe(403);
+        assert.equal(res.statusCode, 403);
 
         await prisma.mMap.update({
           where: { id: map.id },
@@ -436,8 +447,9 @@ describe('Session', () => {
         });
       });
 
-      it('should reject if should 401 when no access token is provided', () =>
-        req.unauthorizedTest('session/run/1/end', 'post'));
+      it('should reject if should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('session/run/1/end', 'post');
+      });
 
       it('should 503 if the RUN_SUBMISSION killswitch is active', async () => {
         const adminToken = await db.loginNewUser({
@@ -516,19 +528,22 @@ describe('Session', () => {
             segments: [1, 1]
           });
 
-          expect(res.statusCode).toBe(200);
-          expect(res.body).toHaveLength(2);
-          expect(res.body).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({
-                style: Style.W_ONLY,
-                isNewPersonalBest: true
-              }),
-              expect.objectContaining({
-                style: Style.NORMAL,
-                isNewPersonalBest: true
-              })
-            ])
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.body.length, 2);
+          assert.ok(
+            matchesPartial(
+              res.body,
+              arrayContaining([
+                objectContaining({
+                  style: Style.W_ONLY,
+                  isNewPersonalBest: true
+                }),
+                objectContaining({
+                  style: Style.NORMAL,
+                  isNewPersonalBest: true
+                })
+              ])
+            )
           );
         });
 
@@ -576,10 +591,10 @@ describe('Session', () => {
             )
           );
 
-          expect(wOnlyRun).not.toBeNull();
-          expect(normalRun).not.toBeNull();
-          expect(wOnlyRun.rank).toBe(1);
-          expect(normalRun.rank).toBe(1);
+          assert.notEqual(wOnlyRun, null);
+          assert.notEqual(normalRun, null);
+          assert.equal(wOnlyRun.rank, 1);
+          assert.equal(normalRun.rank, 1);
         });
 
         it('a PRO run should also submit a TELEPORT style run', async () => {
@@ -630,19 +645,22 @@ describe('Session', () => {
             segments: [1, 1]
           });
 
-          expect(res.statusCode).toBe(200);
-          expect(res.body).toHaveLength(2);
-          expect(res.body).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({
-                style: Style.PRO,
-                isNewPersonalBest: true
-              }),
-              expect.objectContaining({
-                style: Style.TELEPORT,
-                isNewPersonalBest: true
-              })
-            ])
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.body.length, 2);
+          assert.ok(
+            matchesPartial(
+              res.body,
+              arrayContaining([
+                objectContaining({
+                  style: Style.PRO,
+                  isNewPersonalBest: true
+                }),
+                objectContaining({
+                  style: Style.TELEPORT,
+                  isNewPersonalBest: true
+                })
+              ])
+            )
           );
         });
       });

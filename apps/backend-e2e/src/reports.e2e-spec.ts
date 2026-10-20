@@ -1,8 +1,12 @@
+import { after, afterEach, before, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { ReportDto } from '../../backend/src/app/dto';
 
 import { DbUtil, RequestUtil } from '@momentum/test-utils';
+
 import {
   MAX_REPORT_MESSAGE_LENGTH,
   ReportCategory,
@@ -18,7 +22,7 @@ import { arrayFrom } from '@momentum/util-fn';
 describe('Reports', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -26,7 +30,9 @@ describe('Reports', () => {
     db = env.db;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('reports/', () => {
     describe('POST', () => {
@@ -39,10 +45,16 @@ describe('Reports', () => {
 
       let user, token;
 
-      beforeAll(async () => ([user, token] = await db.createAndLoginUser()));
+      before(async () => {
+        await ([user, token] = await db.createAndLoginUser());
+      });
 
-      afterAll(() => db.cleanup('user'));
-      afterEach(() => db.cleanup('report'));
+      after(async () => {
+        await db.cleanup('user');
+      });
+      afterEach(async () => {
+        await db.cleanup('report');
+      });
 
       it('should create a new report', async () => {
         const res = await req.post({
@@ -53,7 +65,7 @@ describe('Reports', () => {
           token
         });
 
-        expect(res.body).toMatchObject(report);
+        assert.partialDeepStrictEqual(res.body, report);
       });
 
       it('should 409 if the user has 5 or more pending reports in the last 24 hours', async () => {
@@ -117,11 +129,12 @@ describe('Reports', () => {
         });
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('reports', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('reports', 'post');
+      });
 
-      it('should 400 if the message exceeds the max length', () =>
-        req.post({
+      it('should 400 if the message exceeds the max length', async () => {
+        await req.post({
           url: 'reports',
           status: 400,
           body: {
@@ -129,21 +142,23 @@ describe('Reports', () => {
             message: 'a'.repeat(MAX_REPORT_MESSAGE_LENGTH + 1)
           },
           token
-        }));
+        });
+      });
 
-      it('should create a new report if the message is exactly the max length', () =>
-        req.post({
+      it('should create a new report if the message is exactly the max length', async () => {
+        await req.post({
           url: 'reports',
           status: 201,
           body: { ...report, message: 'a'.repeat(MAX_REPORT_MESSAGE_LENGTH) },
           validate: ReportDto,
           token
-        }));
+        });
+      });
 
       describe('player reports via targetSteamID', () => {
         // Note: don't clean up the `user` table in here — that would delete the
-        // shared reporter created in the parent beforeAll. Target users are
-        // cleaned up by the parent afterAll('user').
+        // shared reporter created in the parent before. Target users are
+        // cleaned up by the parent after('user').
         it('should resolve targetSteamID to the reported user ID', async () => {
           const target = await db.createUser();
 
@@ -160,11 +175,11 @@ describe('Reports', () => {
             token
           });
 
-          expect(res.body.data).toBe(target.id);
+          assert.equal(res.body.data, target.id);
         });
 
-        it('should 404 if targetSteamID matches no user', () =>
-          req.post({
+        it('should 404 if targetSteamID matches no user', async () => {
+          await req.post({
             url: 'reports',
             status: 404,
             body: {
@@ -174,7 +189,8 @@ describe('Reports', () => {
               message: 'nobody home'
             },
             token
-          }));
+          });
+        });
 
         it('should 400 if targetSteamID is used with a non-player report', async () => {
           const target = await db.createUser();
@@ -192,8 +208,8 @@ describe('Reports', () => {
           });
         });
 
-        it('should 400 if neither data nor targetSteamID is provided', () =>
-          req.post({
+        it('should 400 if neither data nor targetSteamID is provided', async () => {
+          await req.post({
             url: 'reports',
             status: 400,
             body: {
@@ -202,7 +218,8 @@ describe('Reports', () => {
               message: 'no target at all'
             },
             token
-          }));
+          });
+        });
 
         it('should 409 if the user already has an unresolved report against the same player', async () => {
           const target = await db.createUser();

@@ -1,13 +1,20 @@
-// noinspection DuplicatedCode
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import {
+  arrayContaining,
   DbUtil,
+  matchesPartial,
   NULL_ID,
   RequestUtil,
   resetKillswitches,
   RunTester,
+  stringMatching,
   WebsocketTestClient
 } from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
+// noinspection DuplicatedCode
+
 import {
   Gamemode,
   MapStatus,
@@ -39,7 +46,7 @@ describe('Game Connection Gateway - run sessions', () => {
 
   let user, token: string, openClients: WebsocketTestClient[];
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment(undefined, { websockets: true });
     app = env.app;
     prisma = env.prisma;
@@ -57,7 +64,7 @@ describe('Game Connection Gateway - run sessions', () => {
     );
   });
 
-  afterAll(async () => {
+  after(async () => {
     await db.cleanup('mMap');
     await teardownE2ETestEnvironment(app, prisma);
   });
@@ -130,20 +137,20 @@ describe('Game Connection Gateway - run sessions', () => {
         trackNum: 1
       });
 
-      expect(res.event).toBe('runsession.create');
-      expect(res.data.error).toBeUndefined();
-      expect(res.data.userID).toBe(user.id);
-      expect(typeof res.data.id).toBe('number');
-      expect(res.data.timestamps).toHaveLength(1);
+      assert.equal(res.event, 'runsession.create');
+      assert.equal(res.data.error, undefined);
+      assert.equal(res.data.userID, user.id);
+      assert.equal(typeof res.data.id, 'number');
+      assert.equal(res.data.timestamps.length, 1);
 
       const stored = await valkey.hgetall(`runsess:dat:${res.data.id}`);
-      expect(Number(stored.userID)).toBe(user.id);
-      expect(Number(stored.mapID)).toBe(map.id);
-      expect(Number(stored.trackType)).toBe(TrackType.MAIN);
-      expect(Number(stored.trackNum)).toBe(1);
+      assert.equal(Number(stored.userID), user.id);
+      assert.equal(Number(stored.mapID), map.id);
+      assert.equal(Number(stored.trackType), TrackType.MAIN);
+      assert.equal(Number(stored.trackNum), 1);
 
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-      expect(ids).toContain(res.data.id.toString());
+      assert.ok(ids.includes(res.data.id.toString()));
     });
 
     it('should delete any existing session on the same track', async () => {
@@ -175,24 +182,24 @@ describe('Game Connection Gateway - run sessions', () => {
         trackNum: 2
       });
 
-      expect(res.data.error).toBeUndefined();
+      assert.equal(res.data.error, undefined);
 
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
       // mainID, stage1ID and the freshly created session (stage2ID was removed)
-      expect(ids).toHaveLength(3);
-      expect(ids).toContain(res.data.id.toString());
-      expect(ids).not.toContain(stage2ID.toString());
+      assert.equal(ids.length, 3);
+      assert.ok(ids.includes(res.data.id.toString()));
+      assert.ok(!ids.includes(stage2ID.toString()));
 
       // Both the data and timestamps of the replaced session must be gone,
       // otherwise the timestamp list is orphaned in Valkey forever.
-      expect(await valkey.exists(`runsess:dat:${stage2ID}`)).toBe(0);
-      expect(await valkey.exists(`runsess:ts:${stage2ID}`)).toBe(0);
+      assert.equal(await valkey.exists(`runsess:dat:${stage2ID}`), 0);
+      assert.equal(await valkey.exists(`runsess:ts:${stage2ID}`), 0);
 
       // Untouched sessions keep both their keys
-      expect(await valkey.exists(`runsess:dat:${mainID}`)).toBe(1);
-      expect(await valkey.exists(`runsess:ts:${mainID}`)).toBe(1);
-      expect(await valkey.exists(`runsess:dat:${stage1ID}`)).toBe(1);
-      expect(await valkey.exists(`runsess:ts:${stage1ID}`)).toBe(1);
+      assert.equal(await valkey.exists(`runsess:dat:${mainID}`), 1);
+      assert.equal(await valkey.exists(`runsess:ts:${mainID}`), 1);
+      assert.equal(await valkey.exists(`runsess:dat:${stage1ID}`), 1);
+      assert.equal(await valkey.exists(`runsess:ts:${stage1ID}`), 1);
     });
 
     it('should return an error if the leaderboard does not exist', async () => {
@@ -205,9 +212,9 @@ describe('Game Connection Gateway - run sessions', () => {
         trackNum: 1
       });
 
-      expect(res.data.error).toBe('Leaderboard does not exist');
+      assert.equal(res.data.error, 'Leaderboard does not exist');
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-      expect(ids).toHaveLength(0);
+      assert.equal(ids.length, 0);
     });
 
     it('should return an error if the RUN_SUBMISSION killswitch is active', async () => {
@@ -227,9 +234,9 @@ describe('Game Connection Gateway - run sessions', () => {
         trackNum: 1
       });
 
-      expect(res.data.error).toBe('Run submission is currently disabled');
+      assert.equal(res.data.error, 'Run submission is currently disabled');
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-      expect(ids).toHaveLength(0);
+      assert.equal(ids.length, 0);
 
       await resetKillswitches(req, adminToken);
     });
@@ -250,15 +257,18 @@ describe('Game Connection Gateway - run sessions', () => {
         time: 510
       });
 
-      expect(res.data).toBeNull();
+      assert.equal(res.data, null);
 
       const timestamps = await valkey.lrange(`runsess:ts:${sessionID}`, 0, -1);
-      expect(timestamps).toHaveLength(2);
-      expect(timestamps).toEqual(
-        expect.arrayContaining([
-          expect.stringMatching(/1,1,0,\d+/),
-          expect.stringMatching(/1,2,510,\d+/)
-        ])
+      assert.equal(timestamps.length, 2);
+      assert.ok(
+        matchesPartial(
+          timestamps,
+          arrayContaining([
+            stringMatching(/1,1,0,\d+/),
+            stringMatching(/1,2,510,\d+/)
+          ])
+        )
       );
     });
 
@@ -277,7 +287,7 @@ describe('Game Connection Gateway - run sessions', () => {
         time: 510
       });
 
-      expect(res.data.error).toBe('Invalid session');
+      assert.equal(res.data.error, 'Invalid session');
     });
 
     it('should error when updating a non-existent session', async () => {
@@ -289,7 +299,7 @@ describe('Game Connection Gateway - run sessions', () => {
         time: 510
       });
 
-      expect(res.data.error).toBe('Invalid session');
+      assert.equal(res.data.error, 'Invalid session');
     });
   });
 
@@ -305,11 +315,11 @@ describe('Game Connection Gateway - run sessions', () => {
         sessionID
       });
 
-      expect(res.data).toBeNull();
-      expect(await valkey.exists(`runsess:dat:${sessionID}`)).toBe(0);
-      expect(await valkey.exists(`runsess:ts:${sessionID}`)).toBe(0);
+      assert.equal(res.data, null);
+      assert.equal(await valkey.exists(`runsess:dat:${sessionID}`), 0);
+      assert.equal(await valkey.exists(`runsess:ts:${sessionID}`), 0);
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-      expect(ids).not.toContain(sessionID.toString());
+      assert.ok(!ids.includes(sessionID.toString()));
     });
 
     it('should error when invalidating a non-existent session', async () => {
@@ -318,7 +328,7 @@ describe('Game Connection Gateway - run sessions', () => {
         sessionID: NULL_ID
       });
 
-      expect(res.data.error).toBe('Invalid session');
+      assert.equal(res.data.error, 'Invalid session');
     });
 
     it("should error when invalidating another user's session", async () => {
@@ -333,9 +343,9 @@ describe('Game Connection Gateway - run sessions', () => {
         sessionID
       });
 
-      expect(res.data.error).toBe('Invalid session');
+      assert.equal(res.data.error, 'Invalid session');
       // Session should be untouched
-      expect(await valkey.exists(`runsess:dat:${sessionID}`)).toBe(1);
+      assert.equal(await valkey.exists(`runsess:dat:${sessionID}`), 1);
     });
   });
 
@@ -349,18 +359,18 @@ describe('Game Connection Gateway - run sessions', () => {
       const client = await connect();
       const res = await client.sendAndAwait('runsession.end', { sessionID });
 
-      expect(res.data).toBeNull();
+      assert.equal(res.data, null);
 
       // Data + timestamps retained (the HTTP upload still needs them)...
       const stored = await valkey.hgetall(`runsess:dat:${sessionID}`);
-      expect(Number(stored.userID)).toBe(user.id);
-      expect(stored.ended).toBe('1');
-      expect(await valkey.exists(`runsess:ts:${sessionID}`)).toBe(1);
+      assert.equal(Number(stored.userID), user.id);
+      assert.equal(stored.ended, '1');
+      assert.equal(await valkey.exists(`runsess:ts:${sessionID}`), 1);
 
       // ...but a TTL is set and it's dropped from the user's active list.
-      expect(await valkey.ttl(`runsess:dat:${sessionID}`)).toBeGreaterThan(0);
+      assert.ok((await valkey.ttl(`runsess:dat:${sessionID}`)) > 0);
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
-      expect(ids).not.toContain(sessionID.toString());
+      assert.ok(!ids.includes(sessionID.toString()));
     });
 
     it('should ack without error when the session is already gone', async () => {
@@ -370,7 +380,7 @@ describe('Game Connection Gateway - run sessions', () => {
         sessionID: NULL_ID
       });
 
-      expect(res.data).toBeNull();
+      assert.equal(res.data, null);
     });
 
     it("should error when ending another user's session", async () => {
@@ -385,21 +395,25 @@ describe('Game Connection Gateway - run sessions', () => {
         sessionID
       });
 
-      expect(res.data.error).toBe('Invalid session');
+      assert.equal(res.data.error, 'Invalid session');
     });
   });
 
   describe('connection auth', () => {
-    it('should reject a connection with no token', async () =>
-      expect(WebsocketTestClient.connect(wsUrl)).rejects.toMatchObject({
-        statusCode: 401
-      }));
+    it('should reject a connection with no token', async () => {
+      await assert.rejects(WebsocketTestClient.connect(wsUrl), (error) =>
+        matchesPartial(error, {
+          statusCode: 401
+        })
+      );
+    });
 
     it('should reject a connection with a non-game token', async () => {
       const webToken = await db.loginNewUser();
-      await expect(
-        WebsocketTestClient.connect(wsUrl, webToken)
-      ).rejects.toMatchObject({ statusCode: 401 });
+      await assert.rejects(
+        WebsocketTestClient.connect(wsUrl, webToken),
+        (error) => matchesPartial(error, { statusCode: 401 })
+      );
     });
   });
 
@@ -438,10 +452,10 @@ describe('Game Connection Gateway - run sessions', () => {
       const endRes = await client.sendAndAwait('runsession.end', {
         sessionID: tester.sessionID
       });
-      expect(endRes.data).toBeNull();
+      assert.equal(endRes.data, null);
 
       const res = await tester.endRun();
-      expect(res.statusCode).toBe(200);
+      assert.equal(res.statusCode, 200);
     });
 
     it('should make runsession.end a no-op when the upload arrives first', async () => {
@@ -450,14 +464,14 @@ describe('Game Connection Gateway - run sessions', () => {
       await tester.doSegment([1, 1]);
 
       const res = await tester.endRun();
-      expect(res.statusCode).toBe(200);
+      assert.equal(res.statusCode, 200);
 
       // Upload consumed the session, so runsession.end finds nothing and acks.
       const client = await connect();
       const endRes = await client.sendAndAwait('runsession.end', {
         sessionID: tester.sessionID
       });
-      expect(endRes.data).toBeNull();
+      assert.equal(endRes.data, null);
     });
   });
 });

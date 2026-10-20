@@ -1,4 +1,7 @@
-﻿// noinspection DuplicatedCode
+import { after, before, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
+// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -15,6 +18,7 @@ import {
   NULL_ID,
   RequestUtil
 } from '@momentum/test-utils';
+
 import {
   ActivityType,
   MapCreditType,
@@ -31,7 +35,7 @@ import {
 describe('Users', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -41,18 +45,22 @@ describe('Users', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('users/', () => {
     describe('GET', () => {
       let users, token;
 
-      beforeAll(async () => {
+      before(async () => {
         users = await db.createUsers(3);
         token = auth.login(users[0]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should respond with paged list of users', async () => {
         const res = await req.get({
@@ -65,14 +73,16 @@ describe('Users', () => {
         // Quick check we're not sending back stuff that wasn't included.
         // Not doing these for all tests, once or twice can't hurt.
         for (const user of res.body.data)
-          expect(user).not.toHaveProperty('profile');
+          assert.ok(!Object.hasOwn(user, 'profile'));
       });
 
-      it('should respond with a paged list of users with take parameter', () =>
-        req.takeTest({ url: 'users', validate: UserDto, token }));
+      it('should respond with a paged list of users with take parameter', async () => {
+        await req.takeTest({ url: 'users', validate: UserDto, token });
+      });
 
-      it('should respond with a paged list of users with skip parameter', async () =>
-        req.skipTest({ url: 'users', validate: UserDto, token }));
+      it('should respond with a paged list of users with skip parameter', async () => {
+        await req.skipTest({ url: 'users', validate: UserDto, token });
+      });
 
       it('should respond with a paged list of users with search by alias parameter', async () => {
         const res = await req.get({
@@ -83,7 +93,7 @@ describe('Users', () => {
           token
         });
 
-        expect(res.body.data[0].id).toBe(users[0].id);
+        assert.equal(res.body.data[0].id, users[0].id);
       });
 
       it('should respond with a paged list of users containing a case-insensitive match on an alias', async () => {
@@ -95,35 +105,38 @@ describe('Users', () => {
           token
         });
 
-        expect(res.body.data[0].id).toBe(users[0].id);
+        assert.equal(res.body.data[0].id, users[0].id);
       });
 
-      it('should respond with an empty a paged list of users using a search by parameter containing a nonexistent alias', () =>
-        req.get({
+      it('should respond with an empty a paged list of users using a search by parameter containing a nonexistent alias', async () => {
+        await req.get({
           url: 'users',
           status: 200,
           query: { search: 'Abstract Barry' },
           validatePaged: { type: UserDto, count: 0 },
           token
-        }));
+        });
+      });
 
-      it('should respond with a paged list of users with expanded profiles when using an expand parameter', () =>
-        req.expandTest({
+      it('should respond with a paged list of users with expanded profiles when using an expand parameter', async () => {
+        await req.expandTest({
           url: 'users',
           expand: 'profile',
           validate: UserDto,
           paged: true,
           token
-        }));
+        });
+      });
 
-      it('should respond with a paged list of users with expanded stats when using an expand parameter', () =>
-        req.expandTest({
+      it('should respond with a paged list of users with expanded stats when using an expand parameter', async () => {
+        await req.expandTest({
           url: 'users',
           expand: 'userStats',
           validate: UserDto,
           paged: true,
           token
-        }));
+        });
+      });
 
       it('should respond with an array of one user for a matching SteamID parameter', async () => {
         const res = await req.get({
@@ -134,17 +147,18 @@ describe('Users', () => {
           token
         });
 
-        expect(res.body.data[0].id).toBe(users[0].id);
+        assert.equal(res.body.data[0].id, users[0].id);
       });
 
-      it('should respond with an empty array for a nonexistent SteamID parameter', () =>
-        req.get({
+      it('should respond with an empty array for a nonexistent SteamID parameter', async () => {
+        await req.get({
           url: 'users',
           status: 200,
           query: { steamID: 3141592612921 },
           validatePaged: { type: UserDto, count: 0 },
           token
-        }));
+        });
+      });
 
       it('should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
         const res = await req.get({
@@ -156,19 +170,20 @@ describe('Users', () => {
         });
 
         for (const user of res.body.data)
-          expect([users[0].steamID, users[1].steamID]).toContain(
-            BigInt(user.steamID)
+          assert.ok(
+            [users[0].steamID, users[1].steamID].includes(BigInt(user.steamID))
           );
       });
 
-      it('should respond with should respond with an empty array for multiple nonexistent SteamID parameters', () =>
-        req.get({
+      it('should respond with should respond with an empty array for multiple nonexistent SteamID parameters', async () => {
+        await req.get({
           url: 'users',
           status: 200,
           query: { steamIDs: 1111111111111111 + ',' + 2222222222222222 },
           validatePaged: { type: UserDto, count: 0 },
           token
-        }));
+        });
+      });
 
       it('should respond with an array of multiple users for multiple matching userID parameters', async () => {
         const res = await req.get({
@@ -180,7 +195,7 @@ describe('Users', () => {
         });
 
         for (const user of res.body.data)
-          expect([users[0].id, users[1].id]).toContain(user.id);
+          assert.ok([users[0].id, users[1].id].includes(user.id));
       });
     });
   });
@@ -189,17 +204,18 @@ describe('Users', () => {
     describe('GET', () => {
       let user, token;
 
-      beforeAll(
-        async () =>
-          ([user, token] = await db.createAndLoginUser({
-            data: {
-              alias: 'Arthur Weasley',
-              avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240'
-            }
-          }))
-      );
+      before(async () => {
+        await ([user, token] = await db.createAndLoginUser({
+          data: {
+            alias: 'Arthur Weasley',
+            avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240'
+          }
+        }));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should respond with the specified user', async () => {
         const res = await req.get({
@@ -209,7 +225,7 @@ describe('Users', () => {
           token
         });
 
-        expect(res.body.alias).toBe('Arthur Weasley');
+        assert.equal(res.body.alias, 'Arthur Weasley');
       });
 
       it('should respond with the specified user with a valid avatarURL', async () => {
@@ -220,35 +236,39 @@ describe('Users', () => {
           token
         });
 
-        expect(res.body.avatarURL).toBe(
+        assert.equal(
+          res.body.avatarURL,
           steamAvatarUrl('ac7305567f93a4c9eec4d857df993191c61fb240')
         );
       });
 
-      it('should respond with the specified user with expanded profile when using an expand parameter', () =>
-        req.expandTest({
+      it('should respond with the specified user with expanded profile when using an expand parameter', async () => {
+        await req.expandTest({
           url: `users/${user.id}`,
           validate: UserDto,
           expand: 'profile',
           token
-        }));
+        });
+      });
 
-      it('should 404 if the user is not found', () =>
-        req.get({ url: `users/${NULL_ID}`, status: 404, token }));
+      it('should 404 if the user is not found', async () => {
+        await req.get({ url: `users/${NULL_ID}`, status: 404, token });
+      });
     });
   });
 
   describe('GET /users/{userID}/profile', () => {
     let user, token;
 
-    beforeAll(
-      async () =>
-        ([user, token] = await db.createAndLoginUser({
-          data: { profile: { create: { bio: 'Sausages' } } }
-        }))
-    );
+    before(async () => {
+      await ([user, token] = await db.createAndLoginUser({
+        data: { profile: { create: { bio: 'Sausages' } } }
+      }));
+    });
 
-    afterAll(() => db.cleanup('user'));
+    after(async () => {
+      await db.cleanup('user');
+    });
 
     it('should respond with the specified users profile info', async () => {
       const res = await req.get({
@@ -258,17 +278,18 @@ describe('Users', () => {
         token
       });
 
-      expect(res.body.bio).toBe('Sausages');
+      assert.equal(res.body.bio, 'Sausages');
     });
 
-    it('should 404 if the profile is not found', () =>
-      req.get({ url: `users/${NULL_ID}/profile`, status: 404, token }));
+    it('should 404 if the profile is not found', async () => {
+      await req.get({ url: `users/${NULL_ID}/profile`, status: 404, token });
+    });
   });
 
   describe('GET /users/{userID}/activities', () => {
     let user, token;
 
-    beforeAll(async () => {
+    before(async () => {
       [user, token] = await db.createAndLoginUser();
       await prisma.activity.createMany({
         data: [
@@ -294,36 +315,42 @@ describe('Users', () => {
       });
     });
 
-    afterAll(() => db.cleanup('user'));
+    after(async () => {
+      await db.cleanup('user');
+    });
 
-    it('should respond with a list of activities related to the specified user', () =>
-      req.get({
+    it('should respond with a list of activities related to the specified user', async () => {
+      await req.get({
         url: `users/${user.id}/activities`,
         status: 200,
         validatePaged: { type: ActivityDto, count: 3 },
         token
-      }));
+      });
+    });
 
-    it('should order the list by descending date', () =>
-      req.sortByDateTest({
+    it('should order the list by descending date', async () => {
+      await req.sortByDateTest({
         url: `users/${user.id}/activities`,
         validate: ActivityDto,
         token
-      }));
+      });
+    });
 
-    it('should respond with a limited list of activities for the user when using the take query param', () =>
-      req.takeTest({
+    it('should respond with a limited list of activities for the user when using the take query param', async () => {
+      await req.takeTest({
         url: `users/${user.id}/activities`,
         validate: ActivityDto,
         token
-      }));
+      });
+    });
 
-    it('should respond with a different list of activities for the user when using the skip query param', () =>
-      req.skipTest({
+    it('should respond with a different list of activities for the user when using the skip query param', async () => {
+      await req.skipTest({
         url: `users/${user.id}/activities`,
         validate: ActivityDto,
         token
-      }));
+      });
+    });
 
     it('should respond with a filtered list of activities for the user when using the type query param', async () => {
       const res = await req.get({
@@ -334,26 +361,28 @@ describe('Users', () => {
         token
       });
 
-      expect(res.body.data[0].type).toBe(ActivityType.MAP_UPLOADED);
+      assert.equal(res.body.data[0].type, ActivityType.MAP_UPLOADED);
     });
 
-    it('should respond with a filtered list of activities for the user when using the data query param', () =>
-      req.get({
+    it('should respond with a filtered list of activities for the user when using the data query param', async () => {
+      await req.get({
         url: `users/${user.id}/activities`,
         status: 200,
         query: { data: 2n },
         validatePaged: { type: ActivityDto, count: 2 },
         token
-      }));
+      });
+    });
 
-    it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', () =>
-      req.get({
+    it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
+      await req.get({
         url: `users/${user.id}/activities`,
         status: 200,
         query: { data: NULL_ID },
         validatePaged: { type: ActivityDto, count: 0 },
         token
-      }));
+      });
+    });
 
     it('should not include REPORT_FILED activities', async () => {
       await prisma.activity.create({
@@ -368,7 +397,7 @@ describe('Users', () => {
       });
 
       for (const act of res.body.data)
-        expect(act.type).not.toBe(ActivityType.REPORT_FILED);
+        assert.notEqual(act.type, ActivityType.REPORT_FILED);
     });
   });
 
@@ -376,7 +405,7 @@ describe('Users', () => {
     describe('GET', () => {
       let u1, u1Token, u2, u3;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2, u3] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser(),
@@ -391,7 +420,9 @@ describe('Users', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should respond with a list of users the specified user follows', async () => {
         const res = await req.get({
@@ -403,32 +434,35 @@ describe('Users', () => {
 
         // Follow users always include profiles
         for (const follow of res.body.data) {
-          expect(follow.followee).toHaveProperty('profile');
-          expect(follow.followed).toHaveProperty('profile');
+          assert.ok(Object.hasOwn(follow.followee, 'profile'));
+          assert.ok(Object.hasOwn(follow.followed, 'profile'));
         }
       });
 
-      it('should respond with a limited list of follows for the user when using the take query param', () =>
-        req.takeTest({
+      it('should respond with a limited list of follows for the user when using the take query param', async () => {
+        await req.takeTest({
           url: `users/${u1.id}/follows`,
           validate: FollowDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with a different list of follows for the user when using the skip query param', () =>
-        req.skipTest({
+      it('should respond with a different list of follows for the user when using the skip query param', async () => {
+        await req.skipTest({
           url: `users/${u1.id}/follows`,
           validate: FollowDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return an empty list for a user who isnt following anyone', () =>
-        req.get({
+      it('should return an empty list for a user who isnt following anyone', async () => {
+        await req.get({
           url: `users/${u2.id}/follows`,
           status: 200,
           validatePaged: { type: FollowDto, count: 0 },
           token: u1Token
-        }));
+        });
+      });
     });
   });
 
@@ -436,7 +470,7 @@ describe('Users', () => {
     describe('GET', () => {
       let u1, u1Token, u2, u3;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2, u3] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser(),
@@ -451,7 +485,9 @@ describe('Users', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       // These are just above, in reverse
       it('should respond with a list of users that follow the specified user', async () => {
@@ -463,40 +499,44 @@ describe('Users', () => {
         });
 
         for (const follow of res.body.data) {
-          expect(follow.followee).toHaveProperty('profile');
-          expect(follow.followed).toHaveProperty('profile');
+          assert.ok(Object.hasOwn(follow.followee, 'profile'));
+          assert.ok(Object.hasOwn(follow.followed, 'profile'));
         }
       });
 
-      it('should respond with a limited list of followers for the user when using the take query param', () =>
-        req.takeTest({
+      it('should respond with a limited list of followers for the user when using the take query param', async () => {
+        await req.takeTest({
           url: `users/${u2.id}/followers`,
           validate: FollowDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with a different list of followers for the user when using the skip query param', () =>
-        req.skipTest({
+      it('should respond with a different list of followers for the user when using the skip query param', async () => {
+        await req.skipTest({
           url: `users/${u2.id}/followers`,
           validate: FollowDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return an empty list for a user who isnt following anyone', () =>
-        req.get({
+      it('should return an empty list for a user who isnt following anyone', async () => {
+        await req.get({
           url: `users/${u2.id}/follows`,
           status: 200,
           validatePaged: { type: FollowDto, count: 0 },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should return an empty list for a user who isnt followed by anyone', () =>
-        req.get({
+      it('should return an empty list for a user who isnt followed by anyone', async () => {
+        await req.get({
           url: `users/${u1.id}/followers`,
           status: 200,
           validatePaged: { type: FollowDto, count: 0 },
           token: u1Token
-        }));
+        });
+      });
     });
   });
 
@@ -504,7 +544,7 @@ describe('Users', () => {
     describe('GET', () => {
       let user, token, modToken;
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
         modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         await db.createMaps(2, {
@@ -516,63 +556,72 @@ describe('Users', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
-      it('should respond with a list of map credits for approved maps for a specific user', () =>
-        req.get({
+      it('should respond with a list of map credits for approved maps for a specific user', async () => {
+        await req.get({
           url: `users/${user.id}/credits`,
           status: 200,
           validatePaged: { type: MapCreditDto, count: 2 }
-        }));
+        });
+      });
 
-      it('should respond with a full list of map credits if local user is the same as requested user', () =>
-        req.get({
+      it('should respond with a full list of map credits if local user is the same as requested user', async () => {
+        await req.get({
           url: `users/${user.id}/credits`,
           status: 200,
           validatePaged: { type: MapCreditDto, count: 3 },
           token
-        }));
+        });
+      });
 
-      it('should respond with a full list of map credits if local user is admin or mod', () =>
-        req.get({
+      it('should respond with a full list of map credits if local user is admin or mod', async () => {
+        await req.get({
           url: `users/${user.id}/credits`,
           status: 200,
           validatePaged: { type: MapCreditDto, count: 3 },
           token: modToken
-        }));
+        });
+      });
 
-      it('should respond with limited list of credits with take parameter', () =>
-        req.takeTest({
+      it('should respond with limited list of credits with take parameter', async () => {
+        await req.takeTest({
           url: `users/${user.id}/credits`,
           validate: MapCreditDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with different list of credits with skip parameter', () =>
-        req.skipTest({
+      it('should respond with different list of credits with skip parameter', async () => {
+        await req.skipTest({
           url: `users/${user.id}/credits`,
           validate: MapCreditDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with list of credits with map expand', () =>
-        req.expandTest({
+      it('should respond with list of credits with map expand', async () => {
+        await req.expandTest({
           url: `users/${user.id}/credits`,
           expand: 'map',
           validate: MapCreditDto,
           paged: true,
           token
-        }));
+        });
+      });
 
-      it('should respond with list of credits with info expand', () =>
-        req.expandTest({
+      it('should respond with list of credits with info expand', async () => {
+        await req.expandTest({
           url: `users/${user.id}/credits`,
           expand: 'info',
           expectedPropertyName: 'map.info',
           validate: MapCreditDto,
           paged: true,
           token
-        }));
+        });
+      });
     });
   });
 });

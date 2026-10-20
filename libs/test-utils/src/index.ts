@@ -9,5 +9,5 @@ export * from './utils/websocket.util';
 export * from './utils/discord.util';
 export * from './utils/node-mock.util';
 export * from './utils/node-test-assert.util';
-export * from './matchers/to-be-valid-dto';
+export * from './utils/assert-valid-dto.util';
 export * from './files-path.const';

@@ -1,8 +1,12 @@
+import { after, before, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { ActivityDto } from '../../backend/src/app/dto';
 
 import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
+
 import { ActivityType, Role } from '@momentum/constants';
 import { PrismaClient } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
@@ -14,7 +18,7 @@ import {
 describe('Activities', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     prisma = env.prisma;
     app = env.app;
@@ -22,13 +26,15 @@ describe('Activities', () => {
     db = env.db;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('activities', () => {
     describe('GET', () => {
       let u1, u1Token, u2, _activity1, _activity2, activity3;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2] = await Promise.all([
           db.createAndLoginUser({
             data: { roles: Bitflags.join(Role.VERIFIED, Role.MAPPER) }
@@ -55,7 +61,9 @@ describe('Activities', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should respond with an array of activities', async () => {
         const res = await req.get({
@@ -65,17 +73,20 @@ describe('Activities', () => {
           validatePaged: { type: ActivityDto, count: 3 }
         });
 
-        expect(
+        assert.equal(
           res.body.data.find(
             (data) => data.userID === u1.id && data.data === 122
-          ).type
-        ).toBe(ActivityType.MAP_APPROVED);
-        expect(
+          ).type,
+          ActivityType.MAP_APPROVED
+        );
+        assert.equal(
           res.body.data.find(
             (data) => data.userID === u1.id && data.data === 123
-          ).type
-        ).toBe(ActivityType.WR_ACHIEVED);
-        expect(res.body.data.find((data) => data.userID === u2.id).type).toBe(
+          ).type,
+          ActivityType.WR_ACHIEVED
+        );
+        assert.equal(
+          res.body.data.find((data) => data.userID === u2.id).type,
           ActivityType.REVIEW_MADE
         );
       });
@@ -88,9 +99,10 @@ describe('Activities', () => {
           token: u1Token,
           validatePaged: { type: ActivityDto, count: 2 }
         });
-
-        expect(res);
-        expect(res.body.data.every((data) => data.userID == u1.id)).toBe(true);
+        assert.equal(
+          res.body.data.every((data) => data.userID == u1.id),
+          true
+        );
       });
 
       it('should respond with array of activities with data parameter', async () => {
@@ -101,9 +113,10 @@ describe('Activities', () => {
           token: u1Token,
           validatePaged: { type: ActivityDto, count: 1 }
         });
-
-        expect(res);
-        expect(res.body.data.every((data) => data.data == '124')).toBe(true);
+        assert.equal(
+          res.body.data.every((data) => data.data == '124'),
+          true
+        );
       });
 
       it('should respond with array of activities with type paramater', async () => {
@@ -114,12 +127,11 @@ describe('Activities', () => {
           token: u1Token,
           validatePaged: { type: ActivityDto, count: 1 }
         });
-
-        expect(res);
-        expect(
+        assert.equal(
           res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
-            .length
-        ).toBe(1);
+            .length,
+          1
+        );
       });
 
       it('should respond with array of all activities with type ALL paramater', async () => {
@@ -130,27 +142,28 @@ describe('Activities', () => {
           token: u1Token,
           validatePaged: { type: ActivityDto, count: 3 }
         });
-
-        expect(res);
-        expect(
+        assert.equal(
           res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
-            .length
-        ).toBe(3);
+            .length,
+          3
+        );
       });
 
-      it('should respond with array of activities with take parameter', () =>
-        req.takeTest({
+      it('should respond with array of activities with take parameter', async () => {
+        await req.takeTest({
           url: 'activities',
           validate: ActivityDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with array of users with skip parameter', async () =>
-        req.skipTest({
+      it('should respond with array of users with skip parameter', async () => {
+        await req.skipTest({
           url: 'activities',
           validate: ActivityDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with an empty array for a nonexistent user', async () => {
         const res = await req.get({
@@ -160,21 +173,21 @@ describe('Activities', () => {
           token: u1Token,
           validatePaged: { type: ActivityDto, count: 0 }
         });
-
-        expect(res);
-        expect(res.body.data).toBeInstanceOf(Array);
+        assert.ok(res.body.data instanceof Array);
       });
 
-      it('should 400 when a bad type is passed', () =>
-        req.get({
+      it('should 400 when a bad type is passed', async () => {
+        await req.get({
           url: 'activities',
           status: 400,
           query: { type: 'POTATO' },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('activities', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('activities', 'get');
+      });
     });
   });
 });

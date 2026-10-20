@@ -6,10 +6,14 @@
   "implicitDependencies": ["backend"],
   "targets": {
     "e2e": {
-      "executor": "@nx/jest:jest",
+      "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
       "options": {
-        "jestConfig": "apps/backend-e2e/jest.config.ts"
+        "command": "node -r ts-node/register -r tsconfig-paths/register apps/backend-e2e/run-tests.ts",
+        "env": {
+          "TS_NODE_PROJECT": "apps/backend-e2e/tsconfig.spec.json",
+          "TS_NODE_TRANSPILE_ONLY": "true"
+        }
       }
     },
     "lint": {
@@ -22,7 +26,11 @@
     "watch": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "nx e2e backend-e2e --watch"
+        "command": "node -r ts-node/register -r tsconfig-paths/register apps/backend-e2e/run-tests.ts --watch",
+        "env": {
+          "TS_NODE_PROJECT": "apps/backend-e2e/tsconfig.spec.json",
+          "TS_NODE_TRANSPILE_ONLY": "true"
+        }
       }
     }
   }

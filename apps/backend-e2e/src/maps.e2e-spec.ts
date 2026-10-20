@@ -1,3 +1,32 @@
+import {
+  mock,
+  after,
+  afterEach,
+  before,
+  beforeEach,
+  describe,
+  it
+} from 'node:test';
+
+import {
+  any,
+  arrayContaining,
+  assertValidDto,
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  FileStoreUtil,
+  matchesPartial,
+  mockDiscordService,
+  NULL_ID,
+  objectContaining,
+  randomString,
+  RequestUtil,
+  resetKillswitches,
+  stringContaining
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { Config } from '../../backend/src/app/config';
@@ -37,17 +66,7 @@ import {
   Style,
   GamemodeStyles
 } from '@momentum/constants';
-import {
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  FileStoreUtil,
-  mockDiscordService,
-  NULL_ID,
-  randomString,
-  RequestUtil,
-  resetKillswitches
-} from '@momentum/test-utils';
+
 import { MapVersion, MMap, Prisma, PrismaClient, User } from '@momentum/db';
 import Zip from 'adm-zip';
 import * as Enum from '@momentum/enum';
@@ -78,7 +97,7 @@ describe('Maps', () => {
     fileStore: FileStoreUtil,
     checkScheduledMapListUpdates: () => Promise<void>;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -91,7 +110,9 @@ describe('Maps', () => {
     ).fireOnTick;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   async function uploadBspToPreSignedUrl(bspBuffer: Buffer, token: string) {
     const preSignedUrlRes = await req.get({
@@ -188,7 +209,9 @@ describe('Maps', () => {
         ]);
       });
 
-      afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      afterEach(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -208,16 +231,16 @@ describe('Maps', () => {
             'updatedAt'
           ]) {
             const match = {
-              small: expect.stringContaining(`${imageID}-small.jpg`),
-              medium: expect.stringContaining(`${imageID}-medium.jpg`),
-              large: expect.stringContaining(`${imageID}-large.jpg`),
-              xl: expect.stringContaining(`${imageID}-xl.jpg`)
+              small: stringContaining(`${imageID}-small.jpg`),
+              medium: stringContaining(`${imageID}-medium.jpg`),
+              large: stringContaining(`${imageID}-large.jpg`),
+              xl: stringContaining(`${imageID}-xl.jpg`)
             };
-            expect(item).toHaveProperty(prop);
-            expect(item.images).toMatchObject([match]);
-            expect(item.thumbnail).toMatchObject(match);
+            assert.ok(Object.hasOwn(item, prop));
+            assert.partialDeepStrictEqual(item.images, [match]);
+            assert.partialDeepStrictEqual(item.thumbnail, match);
           }
-          expect(item).not.toHaveProperty('zones');
+          assert.ok(!Object.hasOwn(item, 'zones'));
         }
       });
 
@@ -230,18 +253,25 @@ describe('Maps', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item.status).toBe(MapStatus.APPROVED);
+          assert.equal(item.status, MapStatus.APPROVED);
         }
       });
 
-      it('should be ordered by date', () =>
-        req.sortByDateTest({ url: 'maps', validate: MapDto, token: u1Token }));
+      it('should be ordered by date', async () => {
+        await req.sortByDateTest({
+          url: 'maps',
+          validate: MapDto,
+          token: u1Token
+        });
+      });
 
-      it('should respond with filtered map data using the take parameter', () =>
-        req.takeTest({ url: 'maps', validate: MapDto, token: u1Token }));
+      it('should respond with filtered map data using the take parameter', async () => {
+        await req.takeTest({ url: 'maps', validate: MapDto, token: u1Token });
+      });
 
-      it('should respond with filtered map data using the skip parameter', () =>
-        req.skipTest({ url: 'maps', validate: MapDto, token: u1Token }));
+      it('should respond with filtered map data using the skip parameter', async () => {
+        await req.skipTest({ url: 'maps', validate: MapDto, token: u1Token });
+      });
 
       it('should respond with filtered map data using the search parameter', async () => {
         mWater = await prisma.mMap.update({
@@ -290,7 +320,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.data[0], {
           submitterID: u1.id,
           id: mWater.id
         });
@@ -319,7 +349,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.data[0], {
           id: mEarth.id,
           credits: [newCredit]
         });
@@ -397,27 +427,29 @@ describe('Maps', () => {
         await prisma.mMap.delete({ where: { id: map.id } });
       });
 
-      it('should respond with expanded submitter data using the currentVersion expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submitter data using the currentVersion expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'currentVersion',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded submitter data using the currentVersionWithZones expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submitter data using the currentVersionWithZones expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'currentVersionWithZones',
           paged: true,
           validate: MapDto,
           expectedPropertyName: 'currentVersion.zones',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded submitter data using the versions expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submitter data using the versions expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'versions',
           // Nested submitter should be included with versions.
@@ -425,26 +457,29 @@ describe('Maps', () => {
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded submitter data using the versionsWithZones expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submitter data using the versionsWithZones expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'versionsWithZones',
           expectedPropertyName: 'versions[0].zones',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded submitter data using the leaderboards expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submitter data using the leaderboards expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'leaderboards',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.createMany({
@@ -482,23 +517,25 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the stats expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the stats expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'stats',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the info expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the info expand parameter', async () => {
+        await req.expandTest({
           url: 'maps',
           expand: 'info',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
@@ -639,7 +676,7 @@ describe('Maps', () => {
         });
 
         for (const r of res.body.data)
-          for (const l of r.leaderboards) expect(l.linear).toBe(false);
+          for (const l of r.leaderboards) assert.equal(l.linear, false);
 
         const res2 = await req.get({
           url: 'maps',
@@ -650,7 +687,7 @@ describe('Maps', () => {
         });
 
         for (const r of res2.body.data)
-          for (const l of r.leaderboards) expect(l.linear).toBe(true);
+          for (const l of r.leaderboards) assert.equal(l.linear, true);
       });
 
       it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and linear filters', async () => {
@@ -691,8 +728,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.totalCount).toBe(1);
-        expect(res.body.returnCount).toBe(1);
+        assert.equal(res.body.totalCount, 1);
+        assert.equal(res.body.returnCount, 1);
       });
 
       it('should respond with maps with a PB when using the PB filter', async () => {
@@ -728,8 +765,11 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data.map(({ id }) => id)).toMatchObject(
-          expect.arrayContaining([mEarth.id, mWater.id])
+        assert.ok(
+          matchesPartial(
+            res.body.data.map(({ id }) => id),
+            arrayContaining([mEarth.id, mWater.id])
+          )
         );
 
         const res2 = await req.get({
@@ -740,8 +780,11 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res2.body.data.map(({ id }) => id)).toMatchObject(
-          expect.arrayContaining([mAir.id, mBeansOnToast.id])
+        assert.ok(
+          matchesPartial(
+            res2.body.data.map(({ id }) => id),
+            arrayContaining([mAir.id, mBeansOnToast.id])
+          )
         );
       });
 
@@ -778,7 +821,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0].id).toBe(mEarth.id);
+        assert.equal(res.body.data[0].id, mEarth.id);
       });
 
       it('should respond with favorited maps when using the favorites filter', async () => {
@@ -794,7 +837,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0].id).toBe(mEarth.id);
+        assert.equal(res.body.data[0].id, mEarth.id);
 
         await req.get({
           url: 'maps',
@@ -934,10 +977,10 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0].name).toBe(mWater.name);
-        expect(res.body.data[1].name).toBe(mEarth.name);
-        expect(res.body.data[2].name).toBe(mBeansOnToast.name);
-        expect(res.body.data[3].name).toBe(mAir.name);
+        assert.equal(res.body.data[0].name, mWater.name);
+        assert.equal(res.body.data[1].name, mEarth.name);
+        assert.equal(res.body.data[2].name, mBeansOnToast.name);
+        assert.equal(res.body.data[3].name, mAir.name);
       });
     });
 
@@ -957,7 +1000,7 @@ describe('Maps', () => {
 
       const zones = structuredClone(ZonesStub);
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
         mapperToken = await db.loginNewUser({
@@ -1015,7 +1058,7 @@ describe('Maps', () => {
         };
       });
 
-      afterAll(async () => {
+      after(async () => {
         await db.cleanup('user', 'mMap');
         await fileStore.deleteDirectory('submissions');
         await fileStore.deleteDirectory('maplist');
@@ -1025,7 +1068,7 @@ describe('Maps', () => {
       describe('should submit a map', () => {
         let res, createdMap;
 
-        beforeAll(async () => {
+        before(async () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
           res = await req.postAttach({
@@ -1065,76 +1108,82 @@ describe('Maps', () => {
           });
         });
 
-        afterAll(() =>
-          Promise.all([
+        after(async () => {
+          await Promise.all([
             db.cleanup('mMap'),
             fileStore.deleteDirectory('maplist')
-          ])
-        );
+          ]);
+        });
 
         it('should respond with a MapDto', () => {
-          expect(res.body).toBeValidDto(MapDto);
+          assertValidDto(res.body, MapDto);
         });
 
         it('should create a map within the database', () => {
-          expect(createdMap).toMatchObject({
-            name: 'surf_map',
-            status: MapStatus.PRIVATE_TESTING,
-            submission: {
-              type: MapSubmissionType.ORIGINAL,
-              placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
-              suggestions: [
+          assert.ok(
+            matchesPartial(createdMap, {
+              name: 'surf_map',
+              status: MapStatus.PRIVATE_TESTING,
+              submission: {
+                type: MapSubmissionType.ORIGINAL,
+                placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 1,
+                    gamemode: Gamemode.SURF,
+                    tier: 1,
+                    type: LeaderboardType.RANKED,
+                    comment: 'I love you',
+                    tags: [MapTag.Unit]
+                  },
+                  {
+                    trackType: TrackType.BONUS,
+                    trackNum: 1,
+                    gamemode: Gamemode.AHOP,
+                    tier: 2,
+                    type: LeaderboardType.RANKED,
+                    comment: 'comment'
+                  }
+                ],
+                dates: [
+                  {
+                    status: MapStatus.PRIVATE_TESTING,
+                    date: any(Date)
+                  }
+                ]
+              },
+              info: {
+                description: 'mampmampmampmampmampmampmampmamp',
+                creationDate: new Date('2022-07-07T00:00:00.000Z')
+              },
+              submitterID: user.id,
+              credits: [
                 {
-                  trackType: TrackType.MAIN,
-                  trackNum: 1,
-                  gamemode: Gamemode.SURF,
-                  tier: 1,
-                  type: LeaderboardType.RANKED,
-                  comment: 'I love you',
-                  tags: [MapTag.Unit]
-                },
-                {
-                  trackType: TrackType.BONUS,
-                  trackNum: 1,
-                  gamemode: Gamemode.AHOP,
-                  tier: 2,
-                  type: LeaderboardType.RANKED,
-                  comment: 'comment'
+                  userID: user.id,
+                  type: MapCreditType.AUTHOR,
+                  description: 'Walrus'
                 }
               ],
-              dates: [
-                {
-                  status: MapStatus.PRIVATE_TESTING,
-                  date: expect.any(Date)
-                }
-              ]
-            },
-            info: {
-              description: 'mampmampmampmampmampmampmampmamp',
-              creationDate: new Date('2022-07-07T00:00:00.000Z')
-            },
-            submitterID: user.id,
-            credits: [
-              {
-                userID: user.id,
-                type: MapCreditType.AUTHOR,
-                description: 'Walrus'
-              }
-            ],
-            reviewStats: {}
-          });
+              reviewStats: {}
+            })
+          );
 
-          expect(
-            Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
-          ).toBeLessThan(1000);
-          expect(JSON.parse(createdMap.currentVersion.zones)).toMatchObject(
+          assert.ok(
+            Date.now() -
+              new Date(createdMap.submission.dates[0].date).getTime() <
+              1000
+          );
+          assert.partialDeepStrictEqual(
+            JSON.parse(createdMap.currentVersion.zones),
             zones
           );
-          expect(createdMap.currentVersion.submitterID).toBe(user.id);
-          expect(createdMap.versions[0]).toMatchObject(
+          assert.equal(createdMap.currentVersion.submitterID, user.id);
+          assert.partialDeepStrictEqual(
+            createdMap.versions[0],
             createdMap.currentVersion
           );
-          expect(createdMap.versions).toHaveLength(1);
+          assert.equal(createdMap.versions.length, 1);
         });
 
         it('should create a ton of leaderboards', async () => {
@@ -1151,15 +1200,15 @@ describe('Maps', () => {
             tags: []
           }));
 
-          expect(leaderboards).toEqual(expect.arrayContaining(expected));
-          expect(leaderboards).toHaveLength(expected.length);
+          assert.ok(matchesPartial(leaderboards, arrayContaining(expected)));
+          assert.equal(leaderboards.length, expected.length);
         });
 
         it('should upload the BSP file', async () => {
-          expect(res.body.downloadURL).toBeUndefined();
+          assert.equal(res.body.downloadURL, undefined);
           const currentVersion = res.body.currentVersion;
 
-          expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
+          assert.deepEqual(currentVersion.downloadURL.split('/').slice(-2), [
             'maps',
             `${createdMap.currentVersion.bspDownloadId}.bsp`
           ]);
@@ -1169,14 +1218,14 @@ describe('Maps', () => {
           );
           const downloadHash = createSha1Hash(downloadBuffer);
 
-          expect(bspHash).toBe(currentVersion.bspHash);
-          expect(downloadHash).toBe(currentVersion.bspHash);
+          assert.equal(bspHash, currentVersion.bspHash);
+          assert.equal(downloadHash, currentVersion.bspHash);
         });
 
         it('should upload the VMF file', async () => {
           const currentVersion = res.body.currentVersion;
 
-          expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
+          assert.deepEqual(currentVersion.vmfDownloadURL.split('/').slice(-2), [
             'maps',
             `${createdMap.currentVersion.vmfDownloadId}_VMFs.zip`
           ]);
@@ -1188,21 +1237,21 @@ describe('Maps', () => {
           const zip = new Zip(downloadBuffer);
 
           const extractedVmf = zip.getEntry('surf_map_main.vmf').getData();
-          expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
+          assert.equal(createSha1Hash(extractedVmf), vmfHash);
         });
 
         it('should create map uploaded activities for the map authors', async () => {
           const activity = await prisma.activity.findFirst();
 
-          expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
-          expect(activity.data).toBe(BigInt(createdMap.id));
+          assert.equal(activity.type, ActivityType.MAP_UPLOADED);
+          assert.equal(activity.data, BigInt(createdMap.id));
         });
 
         it('should create map review invites for the invitees', async () => {
           const invites = await prisma.mapTestInvite.findMany();
           const invitees = invites.map((u) => u.userID);
-          expect(invitees).toEqual(expect.arrayContaining([u2.id, u3.id]));
-          expect(invitees).toHaveLength(2);
+          assert.ok(matchesPartial(invitees, arrayContaining([u2.id, u3.id])));
+          assert.equal(invitees.length, 2);
         });
 
         it('should 503 if killswitch guard is active', async () => {
@@ -1309,12 +1358,12 @@ describe('Maps', () => {
       });
 
       describe('Other tests', () => {
-        afterEach(() =>
-          Promise.all([
+        afterEach(async () => {
+          await Promise.all([
             db.cleanup('mMap'),
             fileStore.deleteDirectory('upload_tmp')
-          ])
-        );
+          ]);
+        });
 
         it("should put a map straight in CONTENT_APPROVAL if user doesn't request private testing", async () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
@@ -1329,16 +1378,17 @@ describe('Maps', () => {
             token
           });
 
-          expect(res.body.status).toBe(MapStatus.CONTENT_APPROVAL);
+          assert.equal(res.body.status, MapStatus.CONTENT_APPROVAL);
 
-          expect(
+          assert.ok(
             Date.now() -
               new Date(
                 (res.body.submission.dates as MapSubmissionDate[]).find(
                   ({ status }) => status === MapStatus.CONTENT_APPROVAL
                 ).date
-              ).getTime()
-          ).toBeLessThan(1000);
+              ).getTime() <
+              1000
+          );
         });
 
         it('should accept a submission with no placeholders or test invites', async () => {
@@ -1657,9 +1707,9 @@ describe('Maps', () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
 
           const dbService: DbService = app.get(EXTENDED_PRISMA_SERVICE);
-          jest
-            .spyOn(dbService.mMap, 'count')
-            .mockResolvedValueOnce(MAX_OPEN_MAP_SUBMISSIONS);
+          mock
+            .method(dbService.mMap, 'count')
+            .mock.mockImplementationOnce(async () => MAX_OPEN_MAP_SUBMISSIONS);
 
           await req.postAttach({
             url: 'maps',
@@ -1683,9 +1733,11 @@ describe('Maps', () => {
           // I know we shouldn't really do this, but creating 100
           // maps for testing it's count limit takes too much time
           const dbService: DbService = app.get(EXTENDED_PRISMA_SERVICE);
-          jest
-            .spyOn(dbService.mMap, 'count')
-            .mockResolvedValueOnce(MAX_MAPPER_OPEN_MAP_SUBMISSIONS);
+          mock
+            .method(dbService.mMap, 'count')
+            .mock.mockImplementationOnce(
+              async () => MAX_MAPPER_OPEN_MAP_SUBMISSIONS
+            );
 
           await req.postAttach({
             url: 'maps',
@@ -1853,8 +1905,9 @@ describe('Maps', () => {
           });
         });
 
-        it('should 401 when no access token is provided', () =>
-          req.unauthorizedTest('maps', 'post'));
+        it('should 401 when no access token is provided', async () => {
+          await req.unauthorizedTest('maps', 'post');
+        });
       });
     });
   });
@@ -1863,7 +1916,7 @@ describe('Maps', () => {
     describe('GET', () => {
       let u1: User, u1Token: string, u2: User, map;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser()
@@ -1928,7 +1981,9 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -1938,16 +1993,17 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).not.toHaveProperty('zones');
+        assert.ok(!Object.hasOwn(res.body, 'zones'));
       });
 
-      it('should search by name when passed a string', () =>
-        req.get({
+      it('should search by name when passed a string', async () => {
+        await req.get({
           url: 'maps/my_epic_map',
           status: 200,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.create({
@@ -1963,13 +2019,14 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the info expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the info expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'info',
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with expanded map data using the submitter expand parameter', async () => {
         await prisma.mMap.update({
@@ -1985,48 +2042,53 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the submission expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the submission expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'submission',
           // Nested dates and author should be included with submission.
           expectedPropertyName: 'submission.dates[0].user',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the stats expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the stats expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'stats',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the leaderboards expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the leaderboards expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'leaderboards',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the currentVersion expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the currentVersion expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'currentVersion',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the testInvites expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the testInvites expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'testInvites',
           expectedPropertyName: 'testInvites[0].user',
           token: u1Token
-        }));
+        });
+      });
 
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
@@ -2058,7 +2120,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           worldRecord: { rank: 1, user: { id: u2.id } }
         });
       });
@@ -2079,7 +2141,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           personalBest: { rank: 2, user: { id: u1.id } }
         });
       });
@@ -2095,56 +2157,61 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           worldRecord: { rank: 1, user: { id: u2.id } },
           personalBest: { rank: 2, user: { id: u1.id } }
         });
       });
 
-      it('should respond with expanded map data using the submission expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the submission expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'submission',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the versions expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the versions expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'versions',
           // Nested submitter should be included with versions.
           expectedPropertyName: 'versions[1].submitter',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the versionsWithZones expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the versionsWithZones expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'versionsWithZones',
           expectedPropertyName: 'versions[1].zones',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the currentVersion expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the currentVersion expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'currentVersion',
           expectedPropertyName: 'currentVersion',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the currentVersionWithZones expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the currentVersionWithZones expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'currentVersionWithZones',
           expectedPropertyName: 'currentVersion.zones',
           token: u1Token
-        }));
+        });
+      });
 
       // This test is sufficient to test that getMapAndCheckReadAccess is being
       // called, so we don't need to test the endless variations of states/perms
@@ -2167,11 +2234,13 @@ describe('Maps', () => {
         });
       });
 
-      it('should 400 if map id is bigger then max 32-bit integer', () =>
-        req.get({ url: `maps/${2 ** 31}`, status: 400, token: u1Token }));
+      it('should 400 if map id is bigger then max 32-bit integer', async () => {
+        await req.get({ url: `maps/${2 ** 31}`, status: 400, token: u1Token });
+      });
 
-      it('should 404 if the map is not found', () =>
-        req.get({ url: `maps/${NULL_ID}`, status: 404, token: u1Token }));
+      it('should 404 if the map is not found', async () => {
+        await req.get({ url: `maps/${NULL_ID}`, status: 404, token: u1Token });
+      });
     });
 
     describe('POST', () => {
@@ -2185,7 +2254,7 @@ describe('Maps', () => {
         vmfBuffer: Buffer,
         vmfHash: string;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser()
@@ -2198,7 +2267,7 @@ describe('Maps', () => {
         vmfHash = createSha1Hash(vmfBuffer);
       });
 
-      afterAll(async () => {
+      after(async () => {
         await db.cleanup('user');
         await fileStore.deleteDirectory('submissions');
         await fileStore.deleteDirectory('upload_tmp');
@@ -2245,13 +2314,13 @@ describe('Maps', () => {
         map = await db.createMap(createInput, true);
       });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('mMap'),
           fileStore.deleteDirectory('maplist'),
           fileStore.deleteDirectory('upload_tmp')
-        ])
-      );
+        ]);
+      });
 
       it('should add a new map version', async () => {
         const changelog = 'Added walls, floors etc...';
@@ -2266,29 +2335,31 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
-          currentVersion: {
-            versionNum: 2,
-            submitterID: u1.id,
-            changelog
-          },
-          versions: expect.arrayContaining([
-            expect.objectContaining({ versionNum: 1 }),
-            expect.objectContaining({
+        assert.ok(
+          matchesPartial(res.body, {
+            currentVersion: {
               versionNum: 2,
-              changelog,
-              submitterID: u1.id
-            })
-          ])
-        });
+              submitterID: u1.id,
+              changelog
+            },
+            versions: arrayContaining([
+              objectContaining({ versionNum: 1 }),
+              objectContaining({
+                versionNum: 2,
+                changelog,
+                submitterID: u1.id
+              })
+            ])
+          })
+        );
 
         const mapDB = await prisma.mMap.findUnique({
           where: { id: map.id },
           include: { currentVersion: true }
         });
 
-        expect(mapDB.currentVersion.versionNum).toBe(2);
-        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
+        assert.equal(mapDB.currentVersion.versionNum, 2);
+        assert.equal(res.body.currentVersion.id, mapDB.currentVersion.id);
       });
 
       it('should upload the BSP and VMF files', async () => {
@@ -2317,11 +2388,12 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
+        assert.deepEqual(currentVersion.downloadURL.split('/').slice(-2), [
           'maps',
           `${newMap.currentVersion.bspDownloadId}.bsp`
         ]);
-        expect(newMap.currentVersion.bspDownloadId).not.toEqual(
+        assert.notDeepEqual(
+          newMap.currentVersion.bspDownloadId,
           oldVersion.bspDownloadId
         );
 
@@ -2330,14 +2402,15 @@ describe('Maps', () => {
         );
         const bspDownloadHash = createSha1Hash(bspDownloadBuffer);
 
-        expect(bspHash).toBe(currentVersion.bspHash);
-        expect(bspDownloadHash).toBe(currentVersion.bspHash);
+        assert.equal(bspHash, currentVersion.bspHash);
+        assert.equal(bspDownloadHash, currentVersion.bspHash);
 
-        expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
+        assert.deepEqual(currentVersion.vmfDownloadURL.split('/').slice(-2), [
           'maps',
           `${newMap.currentVersion.vmfDownloadId}_VMFs.zip`
         ]);
-        expect(newMap.currentVersion.vmfDownloadId).not.toEqual(
+        assert.notDeepEqual(
+          newMap.currentVersion.vmfDownloadId,
           oldVersion.vmfDownloadId
         );
 
@@ -2348,7 +2421,7 @@ describe('Maps', () => {
         const zip = new Zip(vmfDownloadBuffer);
 
         const extractedVmf = zip.getEntry('surf_map.vmf').getData();
-        expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
+        assert.equal(createSha1Hash(extractedVmf), vmfHash);
       });
 
       it('should generate new leaderboards for new zones', async () => {
@@ -2381,21 +2454,31 @@ describe('Maps', () => {
           style: Style.NORMAL
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.RJ, style: Style.NORMAL }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.RJ,
+                style: Style.NORMAL
+              }
+            })
+          ).length,
+          1
+        );
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.CONC,
-              style: Style.NORMAL
-            }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.CONC,
+                style: Style.NORMAL
+              }
+            })
+          ).length,
+          1
+        );
 
         // Add a third major CP, setting end zone to end of major CP 3 - a
         // mapper could very realistically do this!
@@ -2482,24 +2565,34 @@ describe('Maps', () => {
           }
         });
 
-        expect(leaderboards).toEqual(expect.arrayContaining(expected));
-        expect(leaderboards).toHaveLength(expected.length);
+        assert.ok(matchesPartial(leaderboards, arrayContaining(expected)));
+        assert.equal(leaderboards.length, expected.length);
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.RJ, style: Style.NORMAL }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.RJ,
+                style: Style.NORMAL
+              }
+            })
+          ).length,
+          1
+        );
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.CONC,
-              style: Style.NORMAL
-            }
-          })
-        ).toHaveLength(0);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.CONC,
+                style: Style.NORMAL
+              }
+            })
+          ).length,
+          0
+        );
       });
 
       it('should 503 if killswitch guard is active for maps/{mapID}', async () => {
@@ -2554,8 +2647,12 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions
         );
       });
@@ -2590,8 +2687,12 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions + 1
         );
 
@@ -2599,11 +2700,11 @@ describe('Maps', () => {
           FlatMapList.SUBMISSION,
           newListVersion.body.submissions
         );
-        expect(ident).toBe('MSML');
-        expect(numMaps).toBe(1);
-        expect(data).toHaveLength(1);
-        expect(data[0].id).toBe(map.id);
-        expect(data[0]).not.toHaveProperty('zones');
+        assert.equal(ident, 'MSML');
+        assert.equal(numMaps, 1);
+        assert.equal(data.length, 1);
+        assert.equal(data[0].id, map.id);
+        assert.ok(!Object.hasOwn(data[0], 'zones'));
       });
 
       it('should retry map list update if it fails', async () => {
@@ -2628,11 +2729,13 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const storeFileMock = jest.spyOn(
+        const storeFileMock = mock.method(
           app.get(FileStoreService),
           'storeFile'
         );
-        storeFileMock.mockRejectedValue('Your storage no worky (((');
+        storeFileMock.mock.mockImplementation(() =>
+          Promise.reject('Your storage no worky (((')
+        );
 
         await checkScheduledMapListUpdates();
 
@@ -2642,12 +2745,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions
         );
 
-        storeFileMock.mockRestore();
+        storeFileMock.mock.restore();
 
         await checkScheduledMapListUpdates();
 
@@ -2657,8 +2764,12 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions + 1
         );
       });
@@ -2686,23 +2797,25 @@ describe('Maps', () => {
         });
       });
 
-      it('should 404 if the map does not exist', () =>
-        req.postAttach({
+      it('should 404 if the map does not exist', async () => {
+        await req.postAttach({
           url: `maps/${NULL_ID}`,
           status: 404,
           data: { changelog: 'what is this' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u2Token
-        }));
+        });
+      });
 
-      it('should 403 if the user is not the map submitter', () =>
-        req.postAttach({
+      it('should 403 if the user is not the map submitter', async () => {
+        await req.postAttach({
           url: `maps/${map.id}`,
           status: 403,
           data: { changelog: 'let me touch your map' },
           files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
           token: u2Token
-        }));
+        });
+      });
 
       it('should 403 if the user has a MAP_SUBMISSION ban', async () => {
         await prisma.user.update({
@@ -2743,8 +2856,8 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
-        expect(oldVersion.vmfDownloadId).not.toEqual(newVersion.vmfDownloadId);
+        assert.deepEqual(oldVersion.bspDownloadId, newVersion.bspDownloadId);
+        assert.notDeepEqual(oldVersion.vmfDownloadId, newVersion.vmfDownloadId);
       });
 
       it('should succeed if only the BSP file is provided', async () => {
@@ -2767,8 +2880,8 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(oldVersion.bspDownloadId).not.toEqual(newVersion.bspDownloadId);
-        expect(newVersion.vmfDownloadId).toBeFalsy();
+        assert.notDeepEqual(oldVersion.bspDownloadId, newVersion.bspDownloadId);
+        assert.ok(!newVersion.vmfDownloadId);
       });
 
       it('should succeed if only zones are provided', async () => {
@@ -2793,8 +2906,8 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
-        expect(oldVersion.vmfDownloadId).toEqual(newVersion.vmfDownloadId);
+        assert.deepEqual(oldVersion.bspDownloadId, newVersion.bspDownloadId);
+        assert.deepEqual(oldVersion.vmfDownloadId, newVersion.vmfDownloadId);
       });
 
       it('should allow updating zones when in testing and was approved', async () => {
@@ -2950,10 +3063,12 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(oldMap.currentVersion.bspHash).toEqual(
+        assert.deepEqual(
+          oldMap.currentVersion.bspHash,
           newMap.currentVersion.bspHash
         );
-        expect(oldMap.currentVersion.bspDownloadId).toEqual(
+        assert.deepEqual(
+          oldMap.currentVersion.bspDownloadId,
           newMap.currentVersion.bspDownloadId
         );
       });
@@ -3030,11 +3145,14 @@ describe('Maps', () => {
           }
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          1
+        );
 
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -3050,11 +3168,14 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(0);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          0
+        );
       });
 
       it('should wipe leaderboards if resetLeaderboards is false or undefined', async () => {
@@ -3076,11 +3197,14 @@ describe('Maps', () => {
           }
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          1
+        );
 
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -3106,11 +3230,14 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          1
+        );
       });
 
       it('should block resetting leaderboards if the map has previously been approved', async () => {
@@ -3169,11 +3296,14 @@ describe('Maps', () => {
           }
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          1
+        );
 
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -3188,18 +3318,23 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id }
+            })
+          ).length,
+          1
+        );
       });
 
-      it('should 400 if map id is bigger then max 32-bit integer', () =>
-        req.post({ url: `maps/${2 ** 31}`, status: 400, token: u1Token }));
+      it('should 400 if map id is bigger then max 32-bit integer', async () => {
+        await req.post({ url: `maps/${2 ** 31}`, status: 400, token: u1Token });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/1', 'post');
+      });
     });
 
     describe('PATCH', () => {
@@ -3212,7 +3347,7 @@ describe('Maps', () => {
         modToken: string;
       let createMapData = undefined satisfies Partial<Prisma.MMapCreateInput>;
 
-      beforeAll(async () => {
+      before(async () => {
         [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
           await Promise.all([
             db.createAndLoginUser(),
@@ -3273,11 +3408,16 @@ describe('Maps', () => {
         };
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
-      afterEach(() =>
-        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('maplist')])
-      );
+      afterEach(async () => {
+        await Promise.all([
+          db.cleanup('mMap'),
+          fileStore.deleteDirectory('maplist')
+        ]);
+      });
 
       for (const status of MapStatuses.IN_SUBMISSION) {
         it(`should allow the submitter to change most data during ${MapStatus[status]}`, async () => {
@@ -3321,7 +3461,7 @@ describe('Maps', () => {
             include: { info: true, submission: true }
           });
 
-          expect(updatedMap).toMatchObject({
+          assert.partialDeepStrictEqual(updatedMap, {
             name: 'surf_ostrich',
             info: {
               description:
@@ -3463,7 +3603,7 @@ describe('Maps', () => {
               const updatedMap = await prisma.mMap.findUnique({
                 where: { id: map.id }
               });
-              expect(updatedMap.status).toBe(s2);
+              assert.equal(updatedMap.status, s2);
             }
           });
         }
@@ -3508,12 +3648,12 @@ describe('Maps', () => {
             mapID: map.id
           }
         });
-        expect(notifs).toHaveLength(0);
+        assert.equal(notifs.length, 0);
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id },
           include: { testInvites: true }
         });
-        expect(updatedMap.testInvites).toMatchObject([
+        assert.partialDeepStrictEqual(updatedMap.testInvites, [
           { userID: mod.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
@@ -3574,7 +3714,7 @@ describe('Maps', () => {
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatus.FINAL_APPROVAL);
+        assert.equal(updatedMap.status, MapStatus.FINAL_APPROVAL);
       });
 
       it("should not allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
@@ -3867,23 +4007,29 @@ describe('Maps', () => {
         // which *does* support bhop, check leaderboards are created.
         // Bonus is CPM, so we should have 1 LB before, 4 after.
 
-        expect(
-          await prisma.leaderboard.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.BHOP,
-              style: Style.NORMAL
-            }
-          })
-        ).toHaveLength(4);
+        assert.equal(
+          (
+            await prisma.leaderboard.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.BHOP,
+                style: Style.NORMAL
+              }
+            })
+          ).length,
+          4
+        );
 
         // Conc LBs shouldn't change
 
-        expect(
-          await prisma.leaderboard.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
-          })
-        ).toHaveLength(4);
+        assert.equal(
+          (
+            await prisma.leaderboard.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.CONC }
+            })
+          ).length,
+          4
+        );
 
         await req.patch({
           url: `maps/${map.id}`,
@@ -3912,35 +4058,44 @@ describe('Maps', () => {
           token
         });
 
-        expect(
-          await prisma.leaderboard.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.BHOP,
-              style: Style.NORMAL,
-              type: LeaderboardType.IN_SUBMISSION
-            }
-          })
-        ).toHaveLength(4);
+        assert.equal(
+          (
+            await prisma.leaderboard.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.BHOP,
+                style: Style.NORMAL,
+                type: LeaderboardType.IN_SUBMISSION
+              }
+            })
+          ).length,
+          4
+        );
 
-        expect(
-          await prisma.leaderboard.findMany({
-            where: {
-              mapID: map.id,
-              gamemode: Gamemode.CONC,
-              style: Style.NORMAL,
-              type: LeaderboardType.IN_SUBMISSION
-            }
-          })
-        ).toHaveLength(4);
+        assert.equal(
+          (
+            await prisma.leaderboard.findMany({
+              where: {
+                mapID: map.id,
+                gamemode: Gamemode.CONC,
+                style: Style.NORMAL,
+                type: LeaderboardType.IN_SUBMISSION
+              }
+            })
+          ).length,
+          4
+        );
 
         // Check existing runs weren't deleted
 
-        expect(
-          await prisma.leaderboardRun.findMany({
-            where: { mapID: map.id, gamemode: Gamemode.CONC }
-          })
-        ).toHaveLength(1);
+        assert.equal(
+          (
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.CONC }
+            })
+          ).length,
+          1
+        );
       });
 
       it('should not allow updating live leaderabords even when in testing', async () => {
@@ -3994,8 +4149,12 @@ describe('Maps', () => {
           token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions + 1
         );
       });
@@ -4032,8 +4191,12 @@ describe('Maps', () => {
           token
         });
 
-        expect(newListVersion.body.approved).toBe(oldListVersion.body.approved);
-        expect(newListVersion.body.submissions).toBe(
+        assert.equal(
+          newListVersion.body.approved,
+          oldListVersion.body.approved
+        );
+        assert.equal(
+          newListVersion.body.submissions,
           oldListVersion.body.submissions
         );
       });
@@ -4202,16 +4365,18 @@ describe('Maps', () => {
         });
       });
 
-      it('should 404 when the map is not found', () =>
-        req.patch({
+      it('should 404 when the map is not found', async () => {
+        await req.patch({
           url: `maps/${NULL_ID}`,
           status: 404,
           body: { status: MapStatus.CONTENT_APPROVAL },
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
@@ -4221,7 +4386,7 @@ describe('Maps', () => {
           currentVersion: MapVersion;
         };
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
       });
 
@@ -4243,14 +4408,16 @@ describe('Maps', () => {
         });
       });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('mMap', 'leaderboardRun'),
           fileStore.deleteDirectory('/maplist')
-        ])
-      );
+        ]);
+      });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'user', 'mMap');
+      });
 
       it('should successfully delete a map and all related stored data if map is in submission', async () => {
         const imgID = db.uuid();
@@ -4287,7 +4454,7 @@ describe('Maps', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeTruthy();
+          assert.ok(await fileStore.exists(sizePath(imgID)));
         }
 
         const run = await db.createLbRun({
@@ -4310,20 +4477,20 @@ describe('Maps', () => {
           where: { mapID: map.id }
         });
 
-        expect(updated).toBeNull();
-        expect(versions).toHaveLength(0);
-        expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
-        ).toBeFalsy();
-        expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
-        ).toBeFalsy();
+        assert.equal(updated, null);
+        assert.equal(versions.length, 0);
+        assert.ok(
+          !(await fileStore.exists(bspPath(map.currentVersion.bspDownloadId)))
+        );
+        assert.ok(
+          !(await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId)))
+        );
 
         const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: map.id }
         });
-        expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        assert.equal(relatedRuns.length, 0);
+        assert.ok(!(await fileStore.exists(runPath(run.replayHash))));
 
         for (const sizePath of [
           imgSmallPath,
@@ -4331,7 +4498,7 @@ describe('Maps', () => {
           imgLargePath,
           imgXlPath
         ]) {
-          expect(await fileStore.exists(sizePath(imgID))).toBeFalsy();
+          assert.ok(!(await fileStore.exists(sizePath(imgID))));
         }
       });
 
@@ -4358,18 +4525,19 @@ describe('Maps', () => {
           token
         });
 
-        expect(newVersion.body.submissions).toBe(
+        assert.equal(
+          newVersion.body.submissions,
           oldVersion.body.submissions + 1
         );
-        expect(newVersion.body.approved).toBe(oldVersion.body.approved);
+        assert.equal(newVersion.body.approved, oldVersion.body.approved);
 
         const { ident, numMaps, data } = await fileStore.getMapListVersion(
           FlatMapList.SUBMISSION,
           newVersion.body.submissions
         );
-        expect(ident).toBe('MSML');
-        expect(numMaps).toBe(0);
-        expect(data).toHaveLength(0);
+        assert.equal(ident, 'MSML');
+        assert.equal(numMaps, 0);
+        assert.equal(data.length, 0);
       });
 
       it('should 403 if map is approved', async () => {
@@ -4411,15 +4579,17 @@ describe('Maps', () => {
         });
       });
 
-      it('should 404 when the map is not found', () =>
-        req.del({
+      it('should 404 when the map is not found', async () => {
+        await req.del({
           url: `maps/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/1', 'del');
+      });
     });
   });
 
@@ -4435,7 +4605,7 @@ describe('Maps', () => {
         faMap,
         mapCreate: Partial<Prisma.MMapCreateInput>;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser()
@@ -4523,8 +4693,12 @@ describe('Maps', () => {
         );
       });
 
-      afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
-      afterEach(() => db.cleanup('mapTestInvite', 'mapCredit'));
+      after(async () => {
+        await db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap');
+      });
+      afterEach(async () => {
+        await db.cleanup('mapTestInvite', 'mapCredit');
+      });
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -4543,30 +4717,33 @@ describe('Maps', () => {
             'submitterID',
             'createdAt',
             'updatedAt'
-          ].forEach((prop) => expect(item).toHaveProperty(prop));
+          ].forEach((prop) => assert.ok(Object.hasOwn(item, prop)));
         }
       });
 
-      it('should be ordered by date', () =>
-        req.sortByDateTest({
+      it('should be ordered by date', async () => {
+        await req.sortByDateTest({
           url: 'maps/submissions',
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the take parameter', () =>
-        req.takeTest({
+      it('should respond with filtered map data using the take parameter', async () => {
+        await req.takeTest({
           url: 'maps/submissions',
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the skip parameter', () =>
-        req.skipTest({
+      it('should respond with filtered map data using the skip parameter', async () => {
+        await req.skipTest({
           url: 'maps/submissions',
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with filtered map data using the search parameter', async () => {
         const map = await db.createMap({
@@ -4635,7 +4812,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.data[0], {
           submitterID: u2.id,
           id: pubMap1.id
         });
@@ -4646,24 +4823,26 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded current version data using the currentVersion expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded current version data using the currentVersion expand parameter', async () => {
+        await req.expandTest({
           url: 'maps/submissions',
           expand: 'currentVersion',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded current version data using the currentVersionWithZones expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded current version data using the currentVersionWithZones expand parameter', async () => {
+        await req.expandTest({
           url: 'maps/submissions',
           expand: 'currentVersionWithZones',
           expectedPropertyName: 'currentVersion.zones',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with expanded versions data using the version expand parameter', async () => {
         const res = await req.expandTest({
@@ -4677,14 +4856,14 @@ describe('Maps', () => {
 
         for (const item of res.body.data) {
           for (const version of item.versions) {
-            expect(version).toHaveProperty('id');
-            expect(version).toHaveProperty('downloadURL');
-            expect(version).toHaveProperty('bspHash');
-            expect(version).toHaveProperty('zoneHash');
-            expect(version).toHaveProperty('versionNum');
-            expect(version).toHaveProperty('createdAt');
-            expect(version).toHaveProperty('changelog');
-            expect(version).not.toHaveProperty('zones');
+            assert.ok(Object.hasOwn(version, 'id'));
+            assert.ok(Object.hasOwn(version, 'downloadURL'));
+            assert.ok(Object.hasOwn(version, 'bspHash'));
+            assert.ok(Object.hasOwn(version, 'zoneHash'));
+            assert.ok(Object.hasOwn(version, 'versionNum'));
+            assert.ok(Object.hasOwn(version, 'createdAt'));
+            assert.ok(Object.hasOwn(version, 'changelog'));
+            assert.ok(!Object.hasOwn(version, 'zones'));
           }
         }
       });
@@ -4701,27 +4880,28 @@ describe('Maps', () => {
 
         for (const item of res.body.data) {
           for (const version of item.versions) {
-            expect(version).toHaveProperty('id');
-            expect(version).toHaveProperty('downloadURL');
-            expect(version).toHaveProperty('bspHash');
-            expect(version).toHaveProperty('zoneHash');
-            expect(version).toHaveProperty('versionNum');
-            expect(version).toHaveProperty('createdAt');
-            expect(version).toHaveProperty('changelog');
-            expect(version).toHaveProperty('zones');
+            assert.ok(Object.hasOwn(version, 'id'));
+            assert.ok(Object.hasOwn(version, 'downloadURL'));
+            assert.ok(Object.hasOwn(version, 'bspHash'));
+            assert.ok(Object.hasOwn(version, 'zoneHash'));
+            assert.ok(Object.hasOwn(version, 'versionNum'));
+            assert.ok(Object.hasOwn(version, 'createdAt'));
+            assert.ok(Object.hasOwn(version, 'changelog'));
+            assert.ok(Object.hasOwn(version, 'zones'));
           }
         }
       });
 
-      it('should respond with expanded review data using the reviews expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded review data using the reviews expand parameter', async () => {
+        await req.expandTest({
           url: 'maps/submissions',
           expand: 'reviews',
           paged: true,
           some: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.createMany({
@@ -4763,23 +4943,25 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with expanded map data using the stats expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the stats expand parameter', async () => {
+        await req.expandTest({
           url: 'maps/submissions',
           expand: 'stats',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with expanded map data using the info expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded map data using the info expand parameter', async () => {
+        await req.expandTest({
           url: 'maps/submissions',
           expand: 'info',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
       it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
@@ -4805,12 +4987,15 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id })
+            ])
+          )
         );
       });
 
@@ -4830,13 +5015,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: privMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: privMap.id })
+            ])
+          )
         );
       });
 
@@ -4856,12 +5044,15 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id })
+            ])
+          )
         );
       });
 
@@ -4881,13 +5072,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: privMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: privMap.id })
+            ])
+          )
         );
       });
 
@@ -4904,13 +5098,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: privMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: privMap.id })
+            ])
+          )
         );
 
         await prisma.mMap.update({
@@ -4935,13 +5132,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: caMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: caMap.id })
+            ])
+          )
         );
       });
 
@@ -4961,12 +5161,15 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id })
+            ])
+          )
         );
       });
 
@@ -4986,13 +5189,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: caMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: caMap.id })
+            ])
+          )
         );
       });
 
@@ -5009,13 +5215,16 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id }),
-            expect.objectContaining({ id: faMap.id }),
-            expect.objectContaining({ id: caMap.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id }),
+              objectContaining({ id: faMap.id }),
+              objectContaining({ id: caMap.id })
+            ])
+          )
         );
 
         await prisma.mMap.update({
@@ -5033,11 +5242,14 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: pubMap1.id }),
-            expect.objectContaining({ id: pubMap2.id })
-          ])
+        assert.ok(
+          matchesPartial(
+            res.body.data,
+            arrayContaining([
+              objectContaining({ id: pubMap1.id }),
+              objectContaining({ id: pubMap2.id })
+            ])
+          )
         );
       });
 
@@ -5058,8 +5270,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toEqual(
-          expect.objectContaining({ id: privMap.id })
+        assert.ok(
+          matchesPartial(res.body.data[0], objectContaining({ id: privMap.id }))
         );
       });
 
@@ -5077,8 +5289,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toEqual(
-          expect.objectContaining({ id: caMap.id })
+        assert.ok(
+          matchesPartial(res.body.data[0], objectContaining({ id: caMap.id }))
         );
 
         await prisma.user.update({
@@ -5096,8 +5308,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data[0]).toEqual(
-          expect.objectContaining({ id: faMap.id })
+        assert.ok(
+          matchesPartial(res.body.data[0], objectContaining({ id: faMap.id }))
         );
       });
 
@@ -5185,19 +5397,22 @@ describe('Maps', () => {
         });
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/submissions', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/submissions', 'get');
+      });
     });
   });
 
   describe('maps/getMapUploadUrl', () => {
     describe('GET', () => {
       let user, token;
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
       });
 
-      afterAll(() => fileStore.deleteDirectory('upload_tmp'));
+      after(async () => {
+        await fileStore.deleteDirectory('upload_tmp');
+      });
 
       it('should create pre-signed url for file in upload_tmp directory', async () => {
         const fileBuf = crypto.randomBytes(10);
@@ -5214,10 +5429,10 @@ describe('Maps', () => {
         await fileStore.putToPreSignedUrl(preSignedUrlRes.body.url, fileBuf);
 
         const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
-        expect(userIDObjects.length).toBe(1);
+        assert.equal(userIDObjects.length, 1);
 
         const storedObject = await fileStore.get(userIDObjects[0]);
-        expect(storedObject).toEqual(fileBuf);
+        assert.deepEqual(storedObject, fileBuf);
       });
 
       it('should delete old file when new url created', async () => {
@@ -5231,25 +5446,27 @@ describe('Maps', () => {
         });
 
         const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
-        expect(userIDObjects.length).toBe(0);
+        assert.equal(userIDObjects.length, 0);
       });
 
-      it('should 400 for too big files', () =>
-        req.get({
+      it('should 400 for too big files', async () => {
+        await req.get({
           url: 'maps/getMapUploadUrl',
           query: {
             fileSize: Config.limits.bspSize + 1
           },
           status: 400,
           token
-        }));
+        });
+      });
 
-      it('should 400 if file size is not specified', () =>
-        req.get({
+      it('should 400 if file size is not specified', async () => {
+        await req.get({
           url: 'maps/getMapUploadUrl',
           status: 400,
           token
-        }));
+        });
+      });
 
       it('should delete old file with next request errored', async () => {
         const fileBuf = crypto.randomBytes(10);
@@ -5272,11 +5489,12 @@ describe('Maps', () => {
         });
 
         const userIDObjects = await fileStore.list(`upload_tmp/${user.id}`);
-        expect(userIDObjects.length).toBe(0);
+        assert.equal(userIDObjects.length, 0);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/getMapUploadUrl', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/getMapUploadUrl', 'get');
+      });
     });
   });
 
@@ -5286,10 +5504,10 @@ describe('Maps', () => {
       adminToken: string,
       createMapData,
       bspBuffer: Buffer,
-      restPostMock: jest.SpyInstance,
+      restPostMock: ReturnType<typeof mock.method>,
       restPostObservable: rxjs.Subject<void>;
 
-    beforeAll(async () => {
+    before(async () => {
       [[user, token], adminToken] = await Promise.all([
         db.createAndLoginUser(),
         db.loginNewUser({ data: { roles: Role.ADMIN } })
@@ -5356,11 +5574,13 @@ describe('Maps', () => {
       restPostObservable = discordMock.restPostObservable;
     });
 
-    afterAll(() => jest.restoreAllMocks());
+    after(async () => {
+      await mock.restoreAll();
+    });
 
-    afterEach(() =>
-      Promise.all([db.cleanup('mMap'), restPostMock.mockClear()])
-    );
+    afterEach(async () => {
+      await Promise.all([db.cleanup('mMap'), restPostMock.mock.resetCalls()]);
+    });
 
     it('should send discord notification when map gets submitted to content approval', async () => {
       await uploadBspToPreSignedUrl(bspBuffer, token);
@@ -5410,12 +5630,13 @@ describe('Maps', () => {
         await rxjs.firstValueFrom(restPostObservable);
       }
 
-      const requestBody = restPostMock.mock.lastCall[1];
+      const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
 
       const embed = requestBody.body.embeds[0];
 
-      expect(embed.title).toBe(createMapData.name);
-      expect(embed.description).toBe(
+      assert.equal(embed.title, createMapData.name);
+      assert.equal(
+        embed.description,
         `By ${[user.alias, 'The Map Author']
           .sort()
           .map((a) => `**${a}**`)
@@ -5441,12 +5662,13 @@ describe('Maps', () => {
         await rxjs.firstValueFrom(restPostObservable);
       }
 
-      const requestBody = restPostMock.mock.lastCall[1];
+      const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
 
       const embed = requestBody.body.embeds[0];
 
-      expect(embed.title).toBe(map.name);
-      expect(embed.description).toBe(
+      assert.equal(embed.title, map.name);
+      assert.equal(
+        embed.description,
         `By ${[user.alias, 'The Map Author']
           .sort()
           .map((a) => `**${a}**`)
@@ -5472,13 +5694,14 @@ describe('Maps', () => {
         await rxjs.firstValueFrom(restPostObservable);
       }
 
-      const requestBody = restPostMock.mock.lastCall[1];
-      expect(requestBody.body.content).toContain('123/9121003'); // guild id/message id, see test util discord.util.ts
+      const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
+      assert.ok(requestBody.body.content.includes('123/9121003')); // guild id/message id, see test util discord.util.ts
 
       const embed = requestBody.body.embeds[0];
 
-      expect(embed.title).toBe(map.name);
-      expect(embed.description).toBe(
+      assert.equal(embed.title, map.name);
+      assert.equal(
+        embed.description,
         `By ${[user.alias, 'The Map Author']
           .sort()
           .map((a) => `**${a}**`)
@@ -5526,11 +5749,12 @@ describe('Maps', () => {
         await rxjs.firstValueFrom(restPostObservable);
       }
 
-      const requestBody = restPostMock.mock.lastCall[1];
+      const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
       const embed = requestBody.body.embeds[0];
 
-      expect(embed.title).toBe(map.name);
-      expect(embed.description).toBe(
+      assert.equal(embed.title, map.name);
+      assert.equal(
+        embed.description,
         `By ${[user.alias, 'The Map Author']
           .sort()
           .map((a) => `**${a}**`)
@@ -5608,18 +5832,22 @@ describe('Maps', () => {
         await rxjs.firstValueFrom(restPostObservable);
       }
 
-      const requestUrls = restPostMock.mock.calls.map((call) => call[0]);
-      expect(requestUrls.sort()).toEqual(
+      const requestUrls = restPostMock.mock.calls.map(
+        (call) => call.arguments[0]
+      );
+      assert.deepEqual(
+        requestUrls.sort(),
         [Gamemode.CONC, Gamemode.RJ].map((gm) =>
           Routes.channelMessages(gm.toString())
         )
       );
 
-      const requestBody = restPostMock.mock.lastCall[1];
+      const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
       const embed = requestBody.body.embeds[0];
 
-      expect(embed.title).toBe(map.name);
-      expect(embed.description).toBe(
+      assert.equal(embed.title, map.name);
+      assert.equal(
+        embed.description,
         `By ${[user.alias, 'The Map Author']
           .sort()
           .map((a) => `**${a}**`)

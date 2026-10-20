@@ -1,4 +1,23 @@
-﻿// noinspection DuplicatedCode
+import {
+  mock,
+  after,
+  afterEach,
+  before,
+  beforeEach,
+  describe,
+  it
+} from 'node:test';
+
+import {
+  assertValidDto,
+  DbUtil,
+  ParsedResponse,
+  RequestUtil,
+  resetKillswitches
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
+// noinspection DuplicatedCode
 
 // Note that by importing and mocking these services service we're breaking a
 // major rule of E2E testing. But we need to test code that relies on Steam's
@@ -12,12 +31,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { PrismaClient } from '@momentum/db';
-import {
-  DbUtil,
-  ParsedResponse,
-  RequestUtil,
-  resetKillswitches
-} from '@momentum/test-utils';
+
 import {
   JWTResponseGameDto,
   JWTResponseWebDto
@@ -39,7 +53,7 @@ describe('Auth', () => {
     db: DbUtil,
     req: RequestUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     db = env.db;
@@ -47,7 +61,7 @@ describe('Auth', () => {
     req = env.req;
   });
 
-  afterAll(async () => {
+  after(async () => {
     await db.cleanup('user');
     await teardownE2ETestEnvironment(app, prisma);
   });
@@ -64,9 +78,9 @@ describe('Auth', () => {
       };
 
       let response: ParsedResponse,
-        verifyAssertionSpy: jest.SpyInstance,
-        steamSummarySpy: jest.SpyInstance,
-        steamIsLimitedSpy: jest.SpyInstance,
+        verifyAssertionSpy: ReturnType<typeof mock.method>,
+        steamSummarySpy: ReturnType<typeof mock.method>,
+        steamIsLimitedSpy: ReturnType<typeof mock.method>,
         configService: ConfigService;
 
       const request = () =>
@@ -81,62 +95,70 @@ describe('Auth', () => {
           }
         });
 
-      beforeAll(() => {
+      before(() => {
         configService = app.get(ConfigService);
 
-        verifyAssertionSpy = jest.spyOn(
+        verifyAssertionSpy = mock.method(
           app.get(SteamOpenIDService)['relyingParty'],
           'verifyAssertion'
         );
-        verifyAssertionSpy.mockImplementation((request, callback) =>
+        verifyAssertionSpy.mock.mockImplementation((request, callback) =>
           callback(undefined, {
             authenticated: true,
             claimedIdentifier: `https://steamcommunity.com/openid/id/${steamID}`
           })
         );
-        steamSummarySpy = jest.spyOn(
+        steamSummarySpy = mock.method(
           app.get(SteamService),
           'getSteamUserSummaryData'
         );
-        steamSummarySpy.mockResolvedValue(steamData as any);
+        steamSummarySpy.mock.mockImplementation(() =>
+          Promise.resolve(steamData as any)
+        );
 
-        steamIsLimitedSpy = jest.spyOn(
+        steamIsLimitedSpy = mock.method(
           app.get(SteamService),
           'isAccountLimited'
         );
-        steamIsLimitedSpy.mockResolvedValue(false);
+        steamIsLimitedSpy.mock.mockImplementation(() => Promise.resolve(false));
 
-        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
-          switch (key) {
-            case 'steam.preventLimited':
-              return true;
-            case 'jwt.expTime':
-              return '1m';
-            case 'jwt.refreshExpTime':
-              return '5m';
-            case 'url.frontend':
-              return 'dashboard.momentum-mod.org';
-          }
-        });
+        mock
+          .method(configService, 'getOrThrow')
+          .mock.mockImplementation((key) => {
+            switch (key) {
+              case 'steam.preventLimited':
+                return true;
+              case 'jwt.expTime':
+                return '1m';
+              case 'jwt.refreshExpTime':
+                return '5m';
+              case 'url.frontend':
+                return 'dashboard.momentum-mod.org';
+            }
+          });
       });
 
-      afterAll(() => jest.restoreAllMocks());
+      after(async () => {
+        await mock.restoreAll();
+      });
 
       describe('when given a valid login for a new user', () => {
-        beforeAll(async () => {
+        before(async () => {
           response = await request();
         });
 
-        afterAll(() => db.cleanup('user'));
+        after(async () => {
+          await db.cleanup('user');
+        });
 
         it('should succeed and redirect to dashboard', () => {
-          expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('dashboard.momentum-mod.org');
+          assert.equal(response.statusCode, 302);
+          assert.equal(response.headers.location, 'dashboard.momentum-mod.org');
         });
 
         it('should create a new user', async () => {
           const userDB = await prisma.user.findFirst();
-          expect(userDB).toMatchObject({
+          assert.partialDeepStrictEqual(userDB, {
             steamID: BigInt(steamID),
             alias: steamData.personaname,
             avatar: steamData.avatarhash,
@@ -154,7 +176,7 @@ describe('Auth', () => {
           const userDB = await prisma.user.findFirst();
 
           const decodedAccessToken = testJwtService.decode(cookies.accessToken);
-          expect(decodedAccessToken).toMatchObject({
+          assert.partialDeepStrictEqual(decodedAccessToken, {
             id: userDB.id,
             steamID: userDB.steamID.toString(),
             gameAuth: false
@@ -163,14 +185,14 @@ describe('Auth', () => {
           const decodedRefreshToken = testJwtService.decode(
             cookies.refreshToken
           ) as any;
-          expect(decodedRefreshToken.id).toBe(userDB.id);
+          assert.equal(decodedRefreshToken.id, userDB.id);
         });
       });
 
       describe('when given a valid login for an existing user user', () => {
         let user;
 
-        beforeAll(async () => {
+        before(async () => {
           user = await db.createUser({
             data: {
               steamID: steamID,
@@ -183,16 +205,18 @@ describe('Auth', () => {
           response = await request();
         });
 
-        afterAll(() => db.cleanup('user', 'deletedUser'));
+        after(async () => {
+          await db.cleanup('user', 'deletedUser');
+        });
 
         it('should succeed and redirect to dashboard', () => {
-          expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('dashboard.momentum-mod.org');
+          assert.equal(response.statusCode, 302);
+          assert.equal(response.headers.location, 'dashboard.momentum-mod.org');
         });
 
         it('should create a new user', async () => {
           const updatedUser = await prisma.user.findFirst();
-          expect(updatedUser).toMatchObject({
+          assert.partialDeepStrictEqual(updatedUser, {
             id: user.id,
             steamID: BigInt(steamID),
             alias: steamData.personaname,
@@ -211,7 +235,7 @@ describe('Auth', () => {
           const userDB = await prisma.user.findFirst();
 
           const decodedAccessToken = testJwtService.decode(cookies.accessToken);
-          expect(decodedAccessToken).toMatchObject({
+          assert.partialDeepStrictEqual(decodedAccessToken, {
             id: userDB.id,
             steamID: userDB.steamID.toString(),
             gameAuth: false
@@ -220,17 +244,17 @@ describe('Auth', () => {
           const decodedRefreshToken = testJwtService.decode(
             cookies.refreshToken
           ) as any;
-          expect(decodedRefreshToken.id).toBe(userDB.id);
+          assert.equal(decodedRefreshToken.id, userDB.id);
         });
       });
 
       it('should throw a ForbiddenException if the user has not set up their profile', async () => {
-        steamSummarySpy.mockResolvedValueOnce({
+        steamSummarySpy.mock.mockImplementationOnce(async () => ({
           ...steamData,
           profilestate: 0
-        });
+        }));
         const res = await request();
-        expect(res.statusCode).toBe(403);
+        assert.equal(res.statusCode, 403);
       });
 
       it('should throw a ForbiddenException if account with this steamID was deleted', async () => {
@@ -243,7 +267,7 @@ describe('Auth', () => {
         });
 
         const res = await request();
-        expect(res.statusCode).toBe(403);
+        assert.equal(res.statusCode, 403);
 
         await prisma.deletedUser.delete({
           where: { steamIDHash }
@@ -251,11 +275,11 @@ describe('Auth', () => {
       });
 
       it('should create an account with a limited role if the user is a limited account and preventLimited is true', async () => {
-        steamIsLimitedSpy.mockResolvedValueOnce(true);
+        steamIsLimitedSpy.mock.mockImplementationOnce(async () => true);
 
         await request();
 
-        expect(await prisma.user.findFirst()).toMatchObject({
+        assert.partialDeepStrictEqual(await prisma.user.findFirst(), {
           roles: Role.LIMITED
         });
 
@@ -275,7 +299,7 @@ describe('Auth', () => {
 
         await request();
 
-        expect(await prisma.user.findFirst()).toMatchObject({
+        assert.partialDeepStrictEqual(await prisma.user.findFirst(), {
           roles: 0
         });
 
@@ -283,10 +307,10 @@ describe('Auth', () => {
       });
 
       it('should create an account if the user is a limited account and preventLimited is false', async () => {
-        steamIsLimitedSpy.mockResolvedValueOnce(true);
-        jest
-          .spyOn(configService, 'getOrThrow')
-          .mockImplementationOnce((key) => {
+        steamIsLimitedSpy.mock.mockImplementationOnce(async () => true);
+        mock
+          .method(configService, 'getOrThrow')
+          .mock.mockImplementationOnce((key) => {
             switch (key) {
               case 'steam.preventLimited':
                 return false;
@@ -297,11 +321,11 @@ describe('Auth', () => {
             }
           });
 
-        steamIsLimitedSpy.mockResolvedValueOnce(true);
+        steamIsLimitedSpy.mock.mockImplementationOnce(async () => true);
 
         await request();
 
-        expect(await prisma.user.findFirst()).toMatchObject({
+        assert.partialDeepStrictEqual(await prisma.user.findFirst(), {
           steamID: steamID
         });
 
@@ -325,7 +349,7 @@ describe('Auth', () => {
 
           response = await request();
 
-          expect(response.statusCode).toBe(409);
+          assert.equal(response.statusCode, 409);
 
           await resetKillswitches(req, adminToken);
 
@@ -341,26 +365,32 @@ describe('Auth', () => {
 
     let steamService: SteamService, configService: ConfigService;
 
-    beforeAll(async () => {
+    before(async () => {
       steamService = app.get(SteamService);
       configService = app.get(ConfigService);
     });
 
     describe('Online API', () => {
-      beforeEach(() =>
-        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
-          switch (key) {
-            case 'steam.useSteamTicketLibrary':
-              return false;
-            case 'jwt.gameExpTime':
-              return '1m';
-          }
-        })
-      );
+      beforeEach(async () => {
+        await mock
+          .method(configService, 'getOrThrow')
+          .mock.mockImplementation((key) => {
+            switch (key) {
+              case 'steam.useSteamTicketLibrary':
+                return false;
+              case 'jwt.gameExpTime':
+                return '1m';
+            }
+          });
+      });
 
-      afterEach(() => db.cleanup('user'));
+      afterEach(async () => {
+        await db.cleanup('user');
+      });
 
-      afterAll(() => jest.resetAllMocks());
+      after(async () => {
+        await mock.restoreAll();
+      });
 
       it('should create a new user and respond with a game JWT', async () => {
         const userSteamID = 1n;
@@ -372,12 +402,12 @@ describe('Auth', () => {
           loccountrycode: 'AQ'
         };
 
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockResolvedValueOnce(userSteamID);
-        jest
-          .spyOn(steamService, 'getSteamUserSummaryData')
-          .mockResolvedValueOnce(userSteamSummary as any);
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketOnline')
+          .mock.mockImplementationOnce(async () => userSteamID);
+        mock
+          .method(steamService, 'getSteamUserSummaryData')
+          .mock.mockImplementationOnce(async () => userSteamSummary as any);
 
         const res = await app.inject({
           method: 'post',
@@ -390,19 +420,19 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(201);
+        assert.equal(res.statusCode, 201);
         const body = JSON.parse(res.body);
-        expect(body).toBeValidDto(JWTResponseGameDto);
+        assertValidDto(body, JWTResponseGameDto);
 
         const decrypted = testJwtService.decode(body.token) as Record<
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userSteamID.toString());
-        expect(decrypted.exp - decrypted.iat).toBe(60);
+        assert.equal(decrypted.steamID, userSteamID.toString());
+        assert.equal(decrypted.exp - decrypted.iat, 60);
 
         const userDB = await prisma.user.findFirst();
-        expect(userDB).toMatchObject({
+        assert.partialDeepStrictEqual(userDB, {
           steamID: userSteamID,
           alias: userSteamSummary.personaname,
           country: userSteamSummary.loccountrycode,
@@ -426,12 +456,12 @@ describe('Auth', () => {
           loccountrycode: 'QA'
         };
 
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockResolvedValueOnce(userDB.steamID);
-        jest
-          .spyOn(steamService, 'getSteamUserSummaryData')
-          .mockResolvedValueOnce(userSteamSummary as any);
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketOnline')
+          .mock.mockImplementationOnce(async () => userDB.steamID);
+        mock
+          .method(steamService, 'getSteamUserSummaryData')
+          .mock.mockImplementationOnce(async () => userSteamSummary as any);
 
         const res = await app.inject({
           method: 'post',
@@ -444,17 +474,17 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(201);
+        assert.equal(res.statusCode, 201);
         const body = JSON.parse(res.body);
-        expect(body).toBeValidDto(JWTResponseGameDto);
+        assertValidDto(body, JWTResponseGameDto);
 
         const decrypted = testJwtService.decode(body.token) as Record<
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userDB.steamID.toString());
+        assert.equal(decrypted.steamID, userDB.steamID.toString());
 
-        expect(decrypted.exp - decrypted.iat).toBe(60);
+        assert.equal(decrypted.exp - decrypted.iat, 60);
       });
 
       it('should 400 when header is missing ID', async () => {
@@ -468,7 +498,7 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 400 when body is not a buffer', async () => {
@@ -483,7 +513,7 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 400 when body is missing', async () => {
@@ -497,17 +527,17 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 401 when Steam does not return a valid user ticket', async () => {
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockRejectedValueOnce(
-            new UnauthorizedException(
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketOnline')
+          .mock.mockImplementationOnce(async () => {
+            throw new UnauthorizedException(
               'hi uhhhhh sorry its a tuesday you cant login'
-            )
-          );
+            );
+          });
 
         const res = await app.inject({
           method: 'post',
@@ -520,13 +550,13 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(401);
+        assert.equal(res.statusCode, 401);
       });
 
       it("should 401 when Steam returns a SteamID that doesn't match the ID in the header", async () => {
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockResolvedValueOnce(2n);
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketOnline')
+          .mock.mockImplementationOnce(async () => 2n);
 
         const res = await app.inject({
           method: 'post',
@@ -539,27 +569,33 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(401);
+        assert.equal(res.statusCode, 401);
       });
     });
 
     describe('Local Library', () => {
-      beforeEach(() =>
-        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
-          switch (key) {
-            case 'steam.useSteamTicketLibrary':
-              return true;
-            case 'jwt.gameExpTime':
-              return '1m';
-            case 'appIDs':
-              return [appID];
-          }
-        })
-      );
+      beforeEach(async () => {
+        await mock
+          .method(configService, 'getOrThrow')
+          .mock.mockImplementation((key) => {
+            switch (key) {
+              case 'steam.useSteamTicketLibrary':
+                return true;
+              case 'jwt.gameExpTime':
+                return '1m';
+              case 'appIDs':
+                return [appID];
+            }
+          });
+      });
 
-      afterEach(async () => db.cleanup('user'));
+      afterEach(async () => {
+        await db.cleanup('user');
+      });
 
-      afterAll(() => jest.restoreAllMocks());
+      after(async () => {
+        await mock.restoreAll();
+      });
 
       it('should create a new user and respond with a game JWT', async () => {
         const userSteamID = 1n;
@@ -571,15 +607,15 @@ describe('Auth', () => {
           loccountrycode: 'AQ'
         };
 
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketLocal')
-          .mockReturnValueOnce({
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketLocal')
+          .mock.mockImplementationOnce(() => ({
             steamID: userSteamID,
             appID: appID
-          });
-        jest
-          .spyOn(steamService, 'getSteamUserSummaryData')
-          .mockResolvedValueOnce(userSteamSummary as any);
+          }));
+        mock
+          .method(steamService, 'getSteamUserSummaryData')
+          .mock.mockImplementationOnce(async () => userSteamSummary as any);
 
         const res = await app.inject({
           method: 'post',
@@ -592,19 +628,19 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(201);
+        assert.equal(res.statusCode, 201);
         const body = JSON.parse(res.body);
-        expect(body).toBeValidDto(JWTResponseGameDto);
+        assertValidDto(body, JWTResponseGameDto);
 
         const decrypted = testJwtService.decode(body.token) as Record<
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userSteamID.toString());
-        expect(decrypted.exp - decrypted.iat).toBe(60);
+        assert.equal(decrypted.steamID, userSteamID.toString());
+        assert.equal(decrypted.exp - decrypted.iat, 60);
 
         const userDB = await prisma.user.findFirst();
-        expect(userDB).toMatchObject({
+        assert.partialDeepStrictEqual(userDB, {
           steamID: userSteamID,
           alias: userSteamSummary.personaname,
           country: userSteamSummary.loccountrycode,
@@ -628,15 +664,15 @@ describe('Auth', () => {
           loccountrycode: 'US'
         };
 
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketLocal')
-          .mockReturnValueOnce({
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketLocal')
+          .mock.mockImplementationOnce(() => ({
             steamID: userDB.steamID,
             appID: appID
-          });
-        jest
-          .spyOn(steamService, 'getSteamUserSummaryData')
-          .mockResolvedValueOnce(userSteamSummary as any);
+          }));
+        mock
+          .method(steamService, 'getSteamUserSummaryData')
+          .mock.mockImplementationOnce(async () => userSteamSummary as any);
 
         const res = await app.inject({
           method: 'post',
@@ -649,17 +685,17 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(201);
+        assert.equal(res.statusCode, 201);
         const body = JSON.parse(res.body);
-        expect(body).toBeValidDto(JWTResponseGameDto);
+        assertValidDto(body, JWTResponseGameDto);
 
         const decrypted = testJwtService.decode(body.token) as Record<
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userDB.steamID.toString());
+        assert.equal(decrypted.steamID, userDB.steamID.toString());
 
-        expect(decrypted.exp - decrypted.iat).toBe(60);
+        assert.equal(decrypted.exp - decrypted.iat, 60);
       });
 
       it('should 400 when header is missing ID', async () => {
@@ -673,7 +709,7 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 400 when body is not a buffer', async () => {
@@ -688,7 +724,7 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 400 when body is missing', async () => {
@@ -702,13 +738,13 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(400);
+        assert.equal(res.statusCode, 400);
       });
 
       it('should 401 when Steam does not return a valid user ticket', async () => {
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketLocal')
-          .mockImplementationOnce(() => {
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketLocal')
+          .mock.mockImplementationOnce(() => {
             throw new UnauthorizedException(
               "hi its still tuesday. no we can't hire a competent devops person"
             );
@@ -725,13 +761,13 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(401);
+        assert.equal(res.statusCode, 401);
       });
 
       it("should 401 when Steam returns a SteamID that doesn't match the ID in the header", async () => {
-        jest
-          .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockResolvedValueOnce(2n);
+        mock
+          .method(steamService, 'tryAuthenticateUserTicketOnline')
+          .mock.mockImplementationOnce(async () => 2n);
 
         const res = await app.inject({
           method: 'post',
@@ -744,13 +780,15 @@ describe('Auth', () => {
           }
         });
 
-        expect(res.statusCode).toBe(401);
+        assert.equal(res.statusCode, 401);
       });
     });
   });
 
   describe('auth/refresh', () => {
-    afterEach(() => db.cleanup('user'));
+    afterEach(async () => {
+      await db.cleanup('user');
+    });
 
     it('should respond with a new token pair', async () => {
       const [user, token] = await db.createAndLoginUser();
@@ -766,18 +804,20 @@ describe('Auth', () => {
         validate: JWTResponseWebDto
       });
 
-      expect(
-        testJwtService.decode(res.body.accessToken) as Record<string, any>
-      ).toMatchObject({
-        id: user.id,
-        steamID: user.steamID.toString()
-      });
+      assert.partialDeepStrictEqual(
+        testJwtService.decode(res.body.accessToken) as Record<string, any>,
+        {
+          id: user.id,
+          steamID: user.steamID.toString()
+        }
+      );
 
-      expect(
-        testJwtService.decode(res.body.refreshToken) as Record<string, any>
-      ).toMatchObject({
-        id: user.id
-      });
+      assert.partialDeepStrictEqual(
+        testJwtService.decode(res.body.refreshToken) as Record<string, any>,
+        {
+          id: user.id
+        }
+      );
     });
   });
 
@@ -790,7 +830,8 @@ describe('Auth', () => {
           status: 302
         });
 
-        expect(res.headers.location).toMatch(
+        assert.match(
+          res.headers.location,
           /^https:\/\/steamcommunity.com\/openid\/login.+/
         );
       });
