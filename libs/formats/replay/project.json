@@ -27,7 +27,7 @@
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "command": "node --test -r ts-node/register -r tsconfig-paths/register libs/formats/replay/src/*.test.ts",
+        "command": "node --test --test-reporter=spec -r ts-node/register -r tsconfig-paths/register libs/formats/replay/src/*.test.ts",
         "env": {
           "TS_NODE_PROJECT": "libs/formats/replay/tsconfig.spec.json"
         }
