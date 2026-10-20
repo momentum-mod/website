@@ -1,20 +1,14 @@
-import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
-
+import { afterEach, before, beforeEach, describe, it } from 'node:test';
 import {
   arrayContaining,
-  DbUtil,
   matchesPartial,
   NULL_ID,
-  RequestUtil,
   resetKillswitches,
   RunTester,
   stringMatching,
   WebsocketTestClient
 } from '@momentum/test-utils';
-
 import * as assert from 'node:assert/strict';
-// noinspection DuplicatedCode
-
 import {
   Gamemode,
   MapStatus,
@@ -22,39 +16,29 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
-import {
-  setupE2ETestEnvironment,
-  teardownE2ETestEnvironment
-} from './support/environment';
 import * as ReplayFile from '@momentum/formats/replay';
-import Valkey from 'iovalkey';
 
 // E2E tests for the game connection WebSocket gateway, which owns the run
 // session lifecycle (create/update/invalidate/end). The HTTP run-submission
 // endpoint (session/run/:id/end) is tested in session.e2e-spec.ts. Scenarios
 // here mirror the run-session tests that used to live there as HTTP routes
 // before the move to WebSockets.
+import {
+  prisma,
+  valkey,
+  req,
+  db,
+  wsUrl,
+  registerE2ETestFile
+} from './support/test-environment';
+
 describe('Game Connection Gateway - run sessions', () => {
-  let app,
-    prisma: PrismaClient,
-    req: RequestUtil,
-    db: DbUtil,
-    valkey: Valkey,
-    wsUrl: string,
-    map;
+  registerE2ETestFile();
+  let map;
 
   let user, token: string, openClients: WebsocketTestClient[];
 
   before(async () => {
-    const env = await setupE2ETestEnvironment(undefined, { websockets: true });
-    app = env.app;
-    prisma = env.prisma;
-    valkey = env.valkey;
-    req = env.req;
-    db = env.db;
-    wsUrl = env.wsUrl;
-
     map = await db.createMapWithFullLeaderboards(
       {
         name: ReplayFile.Stubs.ReplayHeaderStub.mapName,
@@ -62,11 +46,6 @@ describe('Game Connection Gateway - run sessions', () => {
       },
       [Gamemode.AHOP, Gamemode.BHOP]
     );
-  });
-
-  after(async () => {
-    await db.cleanup('mMap');
-    await teardownE2ETestEnvironment(app, prisma);
   });
 
   beforeEach(async () => {

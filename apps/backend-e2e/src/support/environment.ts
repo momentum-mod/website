@@ -114,7 +114,7 @@ export async function setupE2ETestEnvironment(
   }
 
   for (const job of app.get(SchedulerRegistry).getCronJobs().values()) {
-    job.stop();
+    await job.stop();
   }
 
   const server = app.getHttpServer();
