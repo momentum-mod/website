@@ -10,12 +10,8 @@ import path from 'node:path';
 import Valkey from 'iovalkey';
 
 export default async function globalSetup() {
-  // Load the root .env when invoked from an IDE with the project as its cwd.
-  if (/apps([/\\])backend-e2e/.test(path.resolve(process.cwd()))) {
-    dotenv.config({ path: '../../.env' });
-  } else {
-    dotenv.config({ path: './.env' });
-  }
+  const envPath = path.resolve(__dirname, '../../../../.env');
+  dotenv.config({ path: envPath });
 
   // Nuke the current DB (Bye)
   const prisma = new PrismaClient({
