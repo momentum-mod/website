@@ -67,13 +67,13 @@ export function expandToIncludes<
   ModelInclude extends object,
   Expansions extends string[] = string[]
 >(
-  expansions?: Expansions,
+  expansions?: Expansions | null,
   options?: ExpandToIncludesOptions<Expansions, ModelInclude>
 ): ModelInclude | undefined {
   if (!expansions || !Array.isArray(expansions) || expansions.length === 0)
     return undefined;
 
-  const includes: Partial<ModelInclude> = {};
+  const includes: Record<string, unknown> = {};
 
   for (const expansion of expansions) {
     if (
