@@ -81,11 +81,13 @@ export class BspHeader {
    * If it's zipped then every lump containing data will have a non-zero fourCC
    */
   isCompressed(): boolean {
-    return this.lumps.every(
-      ({ length, fourCC }, index) =>
-        BspHeader.UNCOMPRESSED_LUMP_TYPES.includes(index) ||
-        length === 0 ||
-        fourCC > 0
+    return (
+      this.lumps?.every(
+        ({ length, fourCC }, index) =>
+          BspHeader.UNCOMPRESSED_LUMP_TYPES.includes(index) ||
+          length === 0 ||
+          fourCC > 0
+      ) ?? false
     );
   }
 }
