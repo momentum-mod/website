@@ -105,16 +105,13 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "apps/frontend/jest.config.ts",
-        "passWithNoTests": false,
-        "tsConfig": "apps/frontend/tsconfig.spec.json"
-      },
-      "configurations": {
-        "ci": {
-          "codeCoverage": false
+        "command": "node --test -r ts-node/register -r tsconfig-paths/register -r ./apps/frontend/src/test-setup.ts \"apps/frontend/src/**/*.spec.ts\"",
+        "env": {
+          "TS_NODE_PROJECT": "apps/frontend/tsconfig.spec.json"
         }
       }
     },

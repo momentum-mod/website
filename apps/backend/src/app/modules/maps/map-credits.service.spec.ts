@@ -1,5 +1,7 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach } from 'node:test';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep } from '@momentum/test-utils';
 import { PRISMA_MOCK_PROVIDER } from '../../../../test/prisma-mock.const';
 import { MapCreditsService } from './map-credits.service';
 
@@ -17,6 +19,6 @@ describe('MapCreditsService', () => {
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    assert.notStrictEqual(service, undefined);
   });
 });

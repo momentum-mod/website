@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TwitchDataComponent } from './twitch-data.component';
 import { TwitchStream } from '@momentum/constants';
@@ -26,49 +28,59 @@ describe('TwitchDataComponent', () => {
   };
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TwitchDataComponent]
-    }).compileComponents();
+    // Templates and styles referenced by URL can't be resolved without the
+    // Angular CLI, and none of these tests need them.
+    TestBed.configureTestingModule({}).overrideComponent(TwitchDataComponent, {
+      set: { template: '', styleUrls: [], imports: [] }
+    });
+
+    await TestBed.compileComponents();
 
     fixture = TestBed.createComponent(TwitchDataComponent);
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
   it('should create', () => {
-    expect(component).toBeTruthy();
+    assert.ok(component);
   });
 
   it('should compute high-resolution 16:9 thumbnail URL', () => {
     component.stream = mockStream;
-    expect(component.thumbnailUrl).toBe(
+    assert.equal(
+      component.thumbnailUrl,
       'https://static-cdn.jtvnw.net/previews-ttv/live_user_momentumrunner-640x360.jpg'
     );
-    expect(component.getImage()).toBe(component.thumbnailUrl);
+    assert.equal(component.getImage(), component.thumbnailUrl);
   });
 
   it('should compute stream URL using user_login or user_name', () => {
     component.stream = mockStream;
-    expect(component.streamUrl).toBe('https://twitch.tv/momentumrunner');
-    expect(component.getURL()).toBe('https://twitch.tv/momentumrunner');
+    assert.equal(component.streamUrl, 'https://twitch.tv/momentumrunner');
+    assert.equal(component.getURL(), 'https://twitch.tv/momentumrunner');
   });
 
   it('should return helper values correctly', () => {
     component.stream = mockStream;
-    expect(component.getUserName()).toBe('MomentumRunner');
-    expect(component.getTitle()).toBe(
+    assert.equal(component.getUserName(), 'MomentumRunner');
+    assert.equal(
+      component.getTitle(),
       'Surfing fast and breaking records | Momentum Mod'
     );
-    expect(component.getViewCount()).toBe('42 viewers');
+    assert.equal(component.getViewCount(), '42 viewers');
   });
 
   it('should handle null stream gracefully', () => {
     component.stream = null;
-    expect(component.thumbnailUrl).toBe('');
-    expect(component.streamUrl).toBe('#');
-    expect(component.getImage()).toBe('NULL');
-    expect(component.getUserName()).toBe('NULL');
-    expect(component.getTitle()).toBe('NULL');
-    expect(component.getViewCount()).toBe('NULL');
-    expect(component.getURL()).toBe('#');
+    assert.equal(component.thumbnailUrl, '');
+    assert.equal(component.streamUrl, '#');
+    assert.equal(component.getImage(), 'NULL');
+    assert.equal(component.getUserName(), 'NULL');
+    assert.equal(component.getTitle(), 'NULL');
+    assert.equal(component.getViewCount(), 'NULL');
+    assert.equal(component.getURL(), '#');
   });
 });

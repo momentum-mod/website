@@ -1,36 +1,44 @@
-import { SteamService } from './steam.service';
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { SteamService } from './steam.service';
 
 describe('SteamService', () => {
   let service: SteamService;
-  const fetchMock = jest.fn();
+  let responses: Array<{ text: () => Promise<string>; json: () => unknown }>;
 
+  // Each call to fetch gets the next response queued here, in order
   const setFetchMockResponse = (data: string | object) => {
-    fetchMock.mockResolvedValueOnce({
+    responses.push({
       text: () => Promise.resolve(data.toString()),
       json: () => Promise.resolve(data)
     });
   };
 
   beforeEach(async () => {
+    responses = [];
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SteamService,
         {
           provide: ConfigService,
-          useValue: { get: jest.fn(), getOrThrow: jest.fn(() => 'whatever') }
+          useValue: {
+            get: mock.fn<(...args: any[]) => any>(),
+            getOrThrow: mock.fn(() => 'whatever')
+          }
         }
       ]
     }).compile();
 
-    jest.spyOn(global, 'fetch').mockImplementation(fetchMock);
+    mock.method(globalThis, 'fetch', () => Promise.resolve(responses.shift()));
 
     service = module.get(SteamService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    mock.restoreAll();
   });
 
   describe('isAccountLimited', () => {
@@ -38,7 +46,7 @@ describe('SteamService', () => {
       setFetchMockResponse({ response: { player_level: 34 } });
       const result = await service.isAccountLimited(76561198039308694n);
 
-      expect(result).toBe(false);
+      assert.strictEqual(result, false);
     });
 
     it('should return true for a limited account', async () => {
@@ -46,7 +54,7 @@ describe('SteamService', () => {
 
       const result = await service.isAccountLimited(76561198039308694n);
 
-      expect(result).toBe(true);
+      assert.strictEqual(result, true);
     });
 
     describe('should fallback to steamcommunity logic', () => {
@@ -67,7 +75,7 @@ describe('SteamService', () => {
 
         const result = await service.isAccountLimited(76561198039308694n);
 
-        expect(result).toBe(false);
+        assert.strictEqual(result, false);
       });
 
       it('should return true for a limited account', async () => {
@@ -83,7 +91,7 @@ describe('SteamService', () => {
 
         const result = await service.isAccountLimited(76561198039308694n);
 
-        expect(result).toBe(true);
+        assert.strictEqual(result, true);
       });
 
       it('should return true for an account without a profile setup', async () => {
@@ -100,7 +108,7 @@ describe('SteamService', () => {
 
         const result = await service.isAccountLimited(76561199511085543n);
 
-        expect(result).toBe(true);
+        assert.strictEqual(result, true);
       });
     });
   });

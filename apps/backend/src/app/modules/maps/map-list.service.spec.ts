@@ -1,3 +1,6 @@
+import * as assert from 'node:assert/strict';
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
+import { wasCalledWith } from '@momentum/test-utils';
 import { FlatMapList, Style } from '@momentum/constants';
 import { MapListService } from './map-list.service';
 import { ConfigService } from '@nestjs/config';
@@ -6,7 +9,12 @@ import {
   PRISMA_MOCK_PROVIDER,
   PrismaMock
 } from '../../../../test/prisma-mock.const';
-import { mockDeep } from 'jest-mock-extended';
+import {
+  mockDeep,
+  mockImplementationOnce,
+  resetDeepMockCalls,
+  resetMockCalls
+} from '@momentum/test-utils';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { promisify } from 'node:util';
@@ -19,14 +27,14 @@ describe('MapListService', () => {
     let service: MapListService, db: PrismaMock, module: TestingModule;
 
     const fileStoreMock = {
-      listFileKeys: jest.fn(() => Promise.resolve([])),
-      storeFile: jest.fn(),
-      deleteFiles: jest.fn(),
-      deleteFile: jest.fn()
+      listFileKeys: mock.fn(() => Promise.resolve([])),
+      storeFile: mock.fn<(...args: any[]) => any>(),
+      deleteFiles: mock.fn<(...args: any[]) => any>(),
+      deleteFile: mock.fn<(...args: any[]) => any>()
     };
 
     const valkeyMock = {
-      set: jest.fn(),
+      set: mock.fn<(...args: any[]) => any>(),
       get: async () => '0',
       incr: () => {},
       mget: () => Promise.resolve([null, null])
@@ -55,60 +63,71 @@ describe('MapListService', () => {
     });
 
     afterEach(async () => {
-      jest.clearAllMocks();
+      mock.restoreAll();
+      resetDeepMockCalls();
+      resetMockCalls(
+        fileStoreMock.listFileKeys,
+        fileStoreMock.storeFile,
+        fileStoreMock.deleteFiles,
+        fileStoreMock.deleteFile,
+        valkeyMock.set
+      );
       await module.close();
     });
 
     describe('onModuleInit', () => {
       it('should set version values based on files in storage', async () => {
-        fileStoreMock.listFileKeys.mockResolvedValueOnce([
-          'maplist/approved/1.dat'
-        ]);
-        fileStoreMock.listFileKeys.mockResolvedValueOnce([
-          'maplist/submissions/15012024.dat'
-        ]);
+        mockImplementationOnce(fileStoreMock.listFileKeys, () =>
+          Promise.resolve(['maplist/approved/1.dat'])
+        );
+        mockImplementationOnce(fileStoreMock.listFileKeys, () =>
+          Promise.resolve(['maplist/submissions/15012024.dat'])
+        );
 
         await service.onModuleInit();
 
-        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
-        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 1);
-        expect(valkeyMock.set).toHaveBeenCalledWith(
-          'maplistver:submission',
-          15012024
+        assert.strictEqual(valkeyMock.set.mock.calls.length, 2);
+        assert.ok(wasCalledWith(valkeyMock.set, 'maplistver:approved', 1));
+        assert.ok(
+          wasCalledWith(valkeyMock.set, 'maplistver:submission', 15012024)
         );
 
-        expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
+        assert.strictEqual(fileStoreMock.deleteFiles.mock.calls.length, 0);
       });
 
       it('should set version to 0 when no versions exist in storage', async () => {
         await service.onModuleInit();
 
-        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
-        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 0);
-        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:submission', 0);
+        assert.strictEqual(valkeyMock.set.mock.calls.length, 2);
+        assert.ok(wasCalledWith(valkeyMock.set, 'maplistver:approved', 0));
+        assert.ok(wasCalledWith(valkeyMock.set, 'maplistver:submission', 0));
 
-        expect(fileStoreMock.deleteFiles).not.toHaveBeenCalled();
+        assert.strictEqual(fileStoreMock.deleteFiles.mock.calls.length, 0);
       });
 
       it('should pick most recent when multiple versions exist in storage, and wipe old versions', async () => {
-        fileStoreMock.listFileKeys.mockResolvedValueOnce([
-          'maplist/approved/4.dat',
-          'maplist/approved/5.dat',
-          'maplist/approved/3.dat',
-          'maplist/approved/1.dat'
-        ]);
+        fileStoreMock.listFileKeys.mock.mockImplementationOnce(() =>
+          Promise.resolve([
+            'maplist/approved/4.dat',
+            'maplist/approved/5.dat',
+            'maplist/approved/3.dat',
+            'maplist/approved/1.dat'
+          ])
+        );
 
         await service.onModuleInit();
 
-        expect(valkeyMock.set).toHaveBeenCalledTimes(2);
-        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:approved', 5);
-        expect(valkeyMock.set).toHaveBeenCalledWith('maplistver:submission', 0);
+        assert.strictEqual(valkeyMock.set.mock.calls.length, 2);
+        assert.ok(wasCalledWith(valkeyMock.set, 'maplistver:approved', 5));
+        assert.ok(wasCalledWith(valkeyMock.set, 'maplistver:submission', 0));
 
-        expect(fileStoreMock.deleteFiles).toHaveBeenCalledWith([
-          'maplist/approved/4.dat',
-          'maplist/approved/3.dat',
-          'maplist/approved/1.dat'
-        ]);
+        assert.ok(
+          wasCalledWith(fileStoreMock.deleteFiles, [
+            'maplist/approved/4.dat',
+            'maplist/approved/3.dat',
+            'maplist/approved/1.dat'
+          ])
+        );
       });
     });
 
@@ -127,23 +146,27 @@ describe('MapListService', () => {
       };
 
       it('should generate a Momentum Static Map List file and send to filestore', async () => {
-        db.mMap.findMany.mockResolvedValueOnce([storedMap as any]);
+        db.mMap.findMany.mock.mockImplementationOnce(() =>
+          Promise.resolve([storedMap as any])
+        );
 
         await (service as any)['updateMapList'](FlatMapList.APPROVED);
 
-        const buffer: Buffer = fileStoreMock.storeFile.mock.calls[0][0];
-        expect(buffer.subarray(0, 4)).toMatchObject(
+        const buffer: Buffer =
+          fileStoreMock.storeFile.mock.calls[0].arguments[0];
+        assert.partialDeepStrictEqual(
+          buffer.subarray(0, 4),
           Buffer.from('MSML', 'utf8')
         );
-        expect(buffer.readUInt32LE(8)).toBe(1);
+        assert.strictEqual(buffer.readUInt32LE(8), 1);
 
         const decompressed = await promisify(zlib.inflate)(buffer.subarray(12));
-        expect(buffer.readUInt32LE(4)).toBe(decompressed.length);
+        assert.strictEqual(buffer.readUInt32LE(4), decompressed.length);
 
         const parsed = JSON.parse(decompressed.toString('utf8'));
 
         // Can't do full toMatchObject, we've run through class-transformer.
-        expect(parsed[0]).toMatchObject({
+        assert.partialDeepStrictEqual(parsed[0], {
           id: storedMap.id,
           name: storedMap.name
         });

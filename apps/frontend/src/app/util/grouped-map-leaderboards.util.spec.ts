@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
   Gamemode,
   GamemodeInfo,
@@ -79,27 +81,27 @@ describe('grouped-map-leaderboards', () => {
   describe('getSpecificGroupedLeaderboard', () => {
     it('should find the correct leaderboard if it exists', () => {
       const lb = getSpecificGroupedLeaderboard(testLbs(), Gamemode.RJ);
-      expect(lb).toBeDefined();
-      expect(lb.gamemode).toBe(Gamemode.RJ);
+      assert.ok(lb);
+      assert.equal(lb.gamemode, Gamemode.RJ);
     });
 
     it('should return undefined if leaderboard not found', () => {
       const lb = getSpecificGroupedLeaderboard(testLbs(), Gamemode.AHOP);
-      expect(lb).toBeUndefined();
+      assert.equal(lb, undefined);
     });
   });
 
   describe('findMainGamemodeIndex', () => {
     it('should find a leaderboard based on mapname prefix if available', () => {
-      expect(findMainGamemodeIndex(testLbs(), 'surf_the_dog')).toBe(3);
+      assert.equal(findMainGamemodeIndex(testLbs(), 'surf_the_dog'), 3);
     });
 
     it('should find first ranked leaderboard if no prefix exists', () => {
-      expect(findMainGamemodeIndex(testLbs(), 'pls_play_this')).toBe(2);
+      assert.equal(findMainGamemodeIndex(testLbs(), 'pls_play_this'), 2);
     });
 
     it('should find first ranked leaderboard if no prefix exists for existing leaderboards', () => {
-      expect(findMainGamemodeIndex(testLbs(), 'ahop_coast_improved')).toBe(2);
+      assert.equal(findMainGamemodeIndex(testLbs(), 'ahop_coast_improved'), 2);
     });
 
     it('should find first unranked leaderboard if no prefix nor ranked leaderboard exists', () => {
@@ -108,7 +110,7 @@ describe('grouped-map-leaderboards', () => {
           lb.type = LeaderboardType.HIDDEN;
         return lb;
       });
-      expect(findMainGamemodeIndex(lbs, 'mr_blobby_horrorhouse')).toBe(1);
+      assert.equal(findMainGamemodeIndex(lbs, 'mr_blobby_horrorhouse'), 1);
     });
 
     it('should default to 0 when no prefix, no ranked, no unranked maintrack', () => {
@@ -120,7 +122,7 @@ describe('grouped-map-leaderboards', () => {
           lb.type = LeaderboardType.HIDDEN;
         return lb;
       });
-      expect(findMainGamemodeIndex(lbs, 'twas_a_thrupence')).toBe(0);
+      assert.equal(findMainGamemodeIndex(lbs, 'twas_a_thrupence'), 0);
     });
   });
 });

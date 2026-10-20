@@ -1,4 +1,6 @@
-﻿import { readFileSync } from 'node:fs';
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readHeader, readRunSplits, ReplayReadError } from './replay-reader';
 import { REPLAY_MAGIC, REPLAY_VERSION, ReplayHeader } from './index';
@@ -7,7 +9,7 @@ import { Gamemode, Style, TrackType } from '@momentum/constants';
 describe('Replay Reader', () => {
   let buffer: Buffer;
 
-  beforeAll(() => {
+  before(() => {
     // replay.mtv is a I did on bhop_eazy on a build from red feat/mom-0.10
     // on 30/03/2025
     const filePath = join(__dirname, '../test/replay.mtv');
@@ -34,21 +36,22 @@ describe('Replay Reader', () => {
       };
 
       const header = readHeader(buffer);
-      expect(header).toEqual(expectedHeader);
+      assert.deepEqual(header, expectedHeader);
     });
 
     it('should throw ReplayReadError on invalid buffer', () => {
       const invalidBuffer = Buffer.alloc(10);
-      expect(() => readHeader(invalidBuffer)).toThrow(ReplayReadError);
+      assert.throws(() => readHeader(invalidBuffer), ReplayReadError);
     });
   });
 
   it("shouldn't throw when parsing run splits", () => {
     const splits = readRunSplits(buffer);
-    expect(
+    assert.equal(
       splits.segments.every(({ subsegments }) =>
         subsegments.every(({ minorNum }) => minorNum === 1)
-      )
-    ).toBe(true);
+      ),
+      true
+    );
   });
 });

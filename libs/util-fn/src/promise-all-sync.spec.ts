@@ -1,3 +1,5 @@
+import * as assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import { promiseAllSync } from './promise-all-sync';
 
 describe('promiseAllSync', () => {
@@ -8,7 +10,7 @@ describe('promiseAllSync', () => {
       () => Promise.resolve(3)
     ];
     const result = await promiseAllSync(resolvables);
-    expect(result).toEqual([1, 2, 3]);
+    assert.deepEqual(result, [1, 2, 3]);
   });
 
   it('should resolve each async function before calling the next (using setTimeout)', async () => {
@@ -37,6 +39,6 @@ describe('promiseAllSync', () => {
         )
     ];
     await promiseAllSync(resolvables);
-    expect(order).toEqual('123');
+    assert.equal(order, '123');
   });
 });
