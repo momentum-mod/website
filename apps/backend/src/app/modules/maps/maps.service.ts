@@ -104,6 +104,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
+import { RankingService } from '../ranking/ranking.service';
 
 @Injectable()
 export class MapsService {
@@ -121,7 +122,8 @@ export class MapsService {
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
-    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
+    private readonly rankingService: RankingService
   ) {}
 
   //#region Gets
@@ -538,25 +540,11 @@ export class MapsService {
       include
     });
 
-    if (query.personalBest) {
-      if (!userID) {
-        throw new ForbiddenException(
-          'personalBest query is invalid without a login'
-        );
-      }
-
-      map.personalBest = await this.leaderboardRunsDbService.getRankedRun({
-        mapID: map.id,
-        userID: userID,
-        gamemode: query.personalBest[0],
-        trackType: query.personalBest[1],
-        trackNum: query.personalBest[2],
-        style: query.personalBest[3]
-      });
-    }
-
     if (query.worldRecord) {
-      map.worldRecord = (
+      // The WR is just the fastest run on the leaderboard. Only the time (+ its
+      // leaderboard coordinates, and who set it) is consumed, so project to the slim
+      // shape rather than returning the full run with rank/user.
+      const wr = (
         await this.leaderboardRunsDbService.getRankedRuns({
           mapID: map.id,
           gamemode: query.worldRecord[0],
@@ -567,6 +555,33 @@ export class MapsService {
           take: 1
         })
       )[0];
+
+      map.worldRecord = wr
+        ? {
+            gamemode: wr.gamemode,
+            trackType: wr.trackType,
+            trackNum: wr.trackNum,
+            style: wr.style,
+            time: wr.time,
+            // The game identifies the holder for the WR-holder achievement. Already
+            // on the row getRankedRuns returns, so this costs no extra query.
+            steamID: wr.user.steamID.toString()
+          }
+        : undefined;
+    }
+
+    if (query.personalBests) {
+      if (!userID) {
+        throw new ForbiddenException(
+          'personalBests query is invalid without a login'
+        );
+      }
+
+      map.personalBests =
+        await this.leaderboardRunsDbService.getMapUserPersonalBests({
+          mapID: map.id,
+          userID
+        });
     }
 
     return DtoFactory(MapDto, map);
@@ -849,6 +864,14 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
+    // A new version of an approved map can add or remove stages and bonuses
+    // (which changes what each is worth) or reset runs, so rank points need
+    // recomputing for its leaderboards before and after the change.
+    const rankedLeaderboardsBefore =
+      map.status === MapStatus.APPROVED
+        ? await this.rankingService.getMapLeaderboards(mapID)
+        : [];
+
     const newVersion = await this.db.$transaction(async (tx) => {
       const newVersion = await tx.mapVersion.create({
         data: {
@@ -921,6 +944,13 @@ export class MapsService {
 
       return newVersion;
     });
+
+    if (map.status === MapStatus.APPROVED) {
+      await this.rankingService.queueLeaderboardUpdates([
+        ...rankedLeaderboardsBefore,
+        ...(await this.rankingService.getMapLeaderboards(mapID))
+      ]);
+    }
 
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
@@ -1511,6 +1541,13 @@ export class MapsService {
     if (newStatus === MapStatus.APPROVED || oldStatus === MapStatus.APPROVED) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
+
+    // Status changes and leaderboard type/tier changes both affect which runs
+    // earn rank points and how many. Queued after the transaction so the
+    // worker sees the committed state.
+    if (newStatus !== oldStatus || dto.leaderboards) {
+      await this.rankingService.queueMapUpdates(mapID);
+    }
   }
 
   private getGeneralMapDataUpdate(
@@ -2013,6 +2050,10 @@ export class MapsService {
 
     await this.deleteMapFiles(mapID);
 
+    // Grab these before anything is deleted; disabling or deleting the map
+    // removes its runs from the rank points ladders either way.
+    const leaderboards = await this.rankingService.getMapLeaderboards(mapID);
+
     if (map.info.approvedDate) {
       // Disable map without touching leaderboards
 
@@ -2075,6 +2116,8 @@ export class MapsService {
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
     );
+
+    await this.rankingService.queueLeaderboardUpdates(leaderboards);
   }
 
   private async deleteMapFiles(mapID: number) {

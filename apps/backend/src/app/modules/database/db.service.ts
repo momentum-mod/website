@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaClient } from '@momentum/db';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Config } from '../../config';
 
 @Injectable()
 export class DbService
@@ -16,7 +17,10 @@ export class DbService
 
   constructor() {
     super({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+      adapter: new PrismaPg({
+        connectionString: process.env.DATABASE_URL,
+        max: Config.db.poolSize
+      })
     });
   }
 

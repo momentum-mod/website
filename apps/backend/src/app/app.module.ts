@@ -27,6 +27,7 @@ import { HealthcheckModule } from './modules/healthcheck/healthcheck.module';
 import { GameConnectionModule } from './modules/game-connection/game-connection.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
+import { RankingModule } from './modules/ranking/ranking.module';
 import { WebsocketsModule } from './modules/websockets/websockets.module';
 
 @Module({
@@ -184,7 +185,8 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
     XpSystemsModule,
     KillswitchModule,
     HealthcheckModule,
-    GameConnectionModule
+    GameConnectionModule,
+    RankingModule
   ],
   providers: [
     {

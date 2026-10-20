@@ -1,0 +1,52 @@
+<ng-template #gm let-mode="mode" let-name="name">
+  <button type="button" class="shrink-0" (click)="select(mode)">
+    <p
+      class="whitespace-nowrap text-left font-display text-28 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50 md:text-36"
+      [ngClass]="{ 'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': value === mode }"
+    >
+      {{ name }}
+    </p>
+  </button>
+</ng-template>
+
+<!-- Horizontally scrolling strip on mobile (bleeding to the screen edges), wrapping block on desktop. -->
+<div
+  class="scroll-thin flex items-end gap-x-4 gap-y-1 overflow-x-auto pb-1 max-md:-mx-4 max-md:px-4 md:flex-wrap md:overflow-visible md:pb-0"
+>
+  @if (allowNull) {
+    <ng-container *ngTemplateOutlet="gm; context: { mode: null, name: 'All modes' }" />
+  }
+  <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SURF, name: 'Surf' }" />
+  <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
+    <p
+      class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+    >
+      Bhop
+    </p>
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP, name: 'CSS' }" />
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.BHOP_HL1, name: 'HL1' }" />
+  </div>
+  <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
+    <p
+      class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+    >
+      Climb
+    </p>
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_KZT, name: 'KZT' }" />
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CLIMB_16, name: '1.6' }" />
+  </div>
+  <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.RJ, name: 'Rocket Jump' }" />
+  <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SJ, name: 'Sticky Jump' }" />
+  <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.AHOP, name: 'Ahop' }" />
+  <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CONC, name: 'Conc' }" />
+  <div class="grid shrink-0 grid-cols-3 grid-rows-1 gap-x-2">
+    <p
+      class="pointer-events-none col-span-3 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+    >
+      Defrag
+    </p>
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_CPM, name: 'CPM' }" />
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VQ3, name: 'VQ3' }" />
+    <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.DEFRAG_VTG, name: 'VTG' }" />
+  </div>
+</div>

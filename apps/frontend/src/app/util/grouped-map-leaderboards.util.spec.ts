@@ -1,12 +1,16 @@
 import {
   Gamemode,
   GamemodeInfo,
+  Leaderboard,
   LeaderboardType,
-  Style
+  MapTag,
+  Style,
+  TrackType
 } from '@momentum/constants';
 import {
   findMainGamemodeIndex,
   getSpecificGroupedLeaderboard,
+  groupMapLeaderboards,
   GroupedMapLeaderboards
 } from './grouped-map-leaderboards.util';
 
@@ -121,6 +125,54 @@ describe('grouped-map-leaderboards', () => {
         return lb;
       });
       expect(findMainGamemodeIndex(lbs, 'twas_a_thrupence')).toBe(0);
+    });
+  });
+  describe('groupMapLeaderboards', () => {
+    const lb = (overrides: Partial<Leaderboard>): Leaderboard => ({
+      gamemode: Gamemode.CLIMB_KZT,
+      trackType: TrackType.MAIN,
+      trackNum: 1,
+      style: Style.TELEPORT,
+      tier: 4,
+      type: LeaderboardType.RANKED,
+      tags: [MapTag.Bhop],
+      linear: true,
+      ...overrides
+    });
+
+    it("should describe a gamemode using its default UI style's leaderboards", () => {
+      const [group] = groupMapLeaderboards([
+        lb({ style: Style.PRO, tier: 9, type: LeaderboardType.UNRANKED }),
+        lb({ style: Style.TELEPORT, tier: 4 }),
+        lb({ style: Style.TELEPORT, trackType: TrackType.BONUS, tier: 2 })
+      ]);
+
+      expect(group).toMatchObject({
+        gamemode: Gamemode.CLIMB_KZT,
+        style: Style.TELEPORT,
+        styles: [Style.PRO, Style.TELEPORT],
+        tier: 4,
+        type: LeaderboardType.RANKED,
+        tags: [MapTag.Bhop],
+        bonuses: [expect.objectContaining({ num: 1, tier: 2 })]
+      });
+    });
+
+    it('should fall back to an available style when the default UI style is missing', () => {
+      // e.g. a KZT map with only NORMAL leaderboards. Previously the group
+      // ended up with no tier/type/tags at all.
+      const [group] = groupMapLeaderboards([
+        lb({ style: Style.NORMAL, trackType: TrackType.STAGE, tier: null }),
+        lb({ style: Style.NORMAL, tier: 6, tags: [] })
+      ]);
+
+      expect(group).toMatchObject({
+        style: Style.NORMAL,
+        tier: 6,
+        type: LeaderboardType.RANKED,
+        tags: [],
+        stages: 1
+      });
     });
   });
 });
