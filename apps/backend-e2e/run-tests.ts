@@ -10,6 +10,7 @@ async function runTests(): Promise<void> {
     process.execPath,
     [
       '--test',
+      '--test-reporter=spec',
       ...(watchMode ? ['--watch'] : []),
       '--test-concurrency=1',
       '-r',
