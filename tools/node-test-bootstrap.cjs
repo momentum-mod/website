@@ -21,13 +21,14 @@ const { isMainThread } = require('node:worker_threads');
 // Node Test Runner configuration with:
 //    Language: TypeScript
 //    Loader: ts-node
-//    Node Options: --test --test-concurrency=1 -r ts-node/register -r tsconfig-paths/register -r reflect-metadata -r ./apps/backend-e2e/src/support/test-setup.ts
+//    Node Options: --test-concurrency=1 -r ts-node/register -r tsconfig-paths/register -r reflect-metadata -r ./src/support/e2e-setup.ts
 //    Working Directory: <path to your repo root>
+//    Environment Variables: TS_NODE_PROJECT=tsconfig.spec.json;TS_NODE_TRANSPILE_ONLY=true
 
 const workspaceRoot = path.resolve(__dirname, '..');
 const testFiles = process.argv
   .slice(1)
-  .filter((argument) => /\.(?:e2e-)?spec\.ts$/i.test(argument))
+  .filter((argument) => /\.test\.ts$/i.test(argument))
   .map((argument) => path.resolve(process.cwd(), argument))
   .filter(existsSync);
 
@@ -35,7 +36,7 @@ if (testFiles.length === 0) {
   // Worker threads inherit --require options but not the test-file argument.
   if (isMainThread) {
     throw new Error(
-      'Could not find a .spec.ts test target in the Node arguments.'
+      'Could not find a .test.ts test target in the Node arguments.'
     );
   }
 } else {
@@ -72,7 +73,7 @@ if (testFiles.length === 0) {
     require(path.join(workspaceRoot, 'apps/backend/test/test-setup.ts'));
   } else if (isBackendE2E) {
     require(
-      path.join(workspaceRoot, 'apps/backend-e2e/src/support/test-setup.ts')
+      path.join(workspaceRoot, 'apps/backend-e2e/src/support/e2e-setup.ts')
     );
   } else if (isFrontend) {
     require(path.join(workspaceRoot, 'apps/frontend/src/test-setup.ts'));
