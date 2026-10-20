@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
@@ -16,6 +17,7 @@ describe('CommunityTwitchStreamComponent', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         {
           provide: TwitchAPIService,
           useValue: { getGameStreams: mock.fn() }

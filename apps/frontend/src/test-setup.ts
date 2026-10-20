@@ -25,13 +25,6 @@ Object.defineProperties(globalThis, {
   }
 });
 
-require('zone.js');
-const zone = (globalThis as any).Zone;
-// Zone's testing bundle selects jsdom's window and expects its original timers here.
-dom.window[zone.__symbol__('setTimeout')] = dom.window.setTimeout;
-dom.window[zone.__symbol__('clearTimeout')] = dom.window.clearTimeout;
-require('zone.js/testing');
-
 const { getTestBed } = require('@angular/core/testing');
 const {
   BrowserDynamicTestingModule,
