@@ -4,11 +4,11 @@ export default [
   ...baseConfig,
   {
     files: ['**/*.ts'],
-    ignores: ['*.spec.ts'],
+    ignores: ['*.test.ts'],
     rules: { 'no-console': ['error'] }
   },
   {
-    files: ['**/*.spec.ts'],
+    files: ['**/*.test.ts'],
     rules: { 'no-console': ['off'] }
   }
 ];

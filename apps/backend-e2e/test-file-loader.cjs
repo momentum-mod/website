@@ -5,7 +5,7 @@ const sourcePath = path.join(__dirname, 'src');
 const files = process.env['MOMENTUM_E2E_TEST_FILES']
   ? JSON.parse(process.env['MOMENTUM_E2E_TEST_FILES'])
   : readdirSync(sourcePath)
-      .filter((file) => file.endsWith('.e2e-spec.ts'))
+      .filter((file) => file.endsWith('.test.ts'))
       .sort()
       .map((file) => path.join(sourcePath, file));
 
@@ -18,7 +18,7 @@ process.env['MOMENTUM_E2E_TEST_FILES'] = JSON.stringify(files);
 
 const {
   registerE2ETestRunnerHooks
-} = require('./src/support/test-environment.ts');
+} = require('./src/support/e2e-environment.ts');
 registerE2ETestRunnerHooks();
 
 // Load every spec into this worker so they share one module cache and app.

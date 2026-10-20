@@ -5,7 +5,7 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    'apps/frontend/src/**/!(*.spec).{ts,html}',
+    'apps/frontend/src/**/!(*.test).{ts,html}',
     ...createGlobPatternsForDependencies(__dirname)
   ],
   theme: {
