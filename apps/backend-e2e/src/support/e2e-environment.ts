@@ -1,8 +1,11 @@
 import { after, before, mock } from 'node:test';
 import { faker } from '@faker-js/faker';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { MAPLIST_UPDATE_JOB_NAME } from 'apps/backend/src/app/modules/maps/map-list.service';
-import globalSetup, { nukeDb } from './global-setup';
+import {
+  MAPLIST_UPDATE_JOB_NAME,
+  MapListService
+} from 'apps/backend/src/app/modules/maps/map-list.service';
+import globalSetup, { nukeDb, nukeS3, nukeValkey } from './global-setup';
 import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
@@ -56,6 +59,7 @@ export interface E2ESetupOptions {
   websockets?: boolean;
 }
 
+// This needs to mirror backend's main.ts!!
 export async function setupE2ETestEnvironment(
   moduleOverrides?: (
     moduleBuilder: TestingModuleBuilder
@@ -195,9 +199,12 @@ export function registerE2ETestFile(): void {
     try {
       // We could reset nuke after every individual test file but slows us down,
       // not that hard to clean up after ourselves.
-      // const env = await getSharedE2ETestEnvironment();
+      const env = await getSharedE2ETestEnvironment();
       mock.restoreAll();
-      // await nukeDb(env.prisma);
+      await nukeDb(env.prisma);
+      await nukeValkey();
+      await nukeS3();
+      await env.app.get(MapListService)['updateVersionsFromFileStore']();
     } finally {
       if (process.env['MOMENTUM_E2E_TEST_FILES'] === undefined) {
         await closeSharedE2ETestEnvironment();
@@ -227,9 +234,10 @@ export async function getSharedE2ETestEnvironment(): Promise<E2EUtils> {
     throw new Error('WebSocket test environment did not provide a URL');
   }
   wsUrl = environment.wsUrl;
-  checkScheduledMapListUpdates = environment.app
+  const mapListUpdateJob = environment.app
     .get(SchedulerRegistry)
-    .getCronJob(MAPLIST_UPDATE_JOB_NAME).fireOnTick;
+    .getCronJob(MAPLIST_UPDATE_JOB_NAME);
+  checkScheduledMapListUpdates = () => mapListUpdateJob.fireOnTick();
 
   return environment;
 }

@@ -1,12 +1,4 @@
-import {
-  mock,
-  after,
-  afterEach,
-  before,
-  beforeEach,
-  describe,
-  it
-} from 'node:test';
+import { mock, after, afterEach, before, describe, it } from 'node:test';
 import { assertValidDto } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 
@@ -45,8 +37,8 @@ describe('Auth', () => {
     });
 
     describe('Online API', () => {
-      beforeEach(async () => {
-        await mock
+      before(async () => {
+        mock
           .method(configService, 'getOrThrow')
           .mock.mockImplementation((key) => {
             switch (key) {
@@ -248,8 +240,8 @@ describe('Auth', () => {
     });
 
     describe('Local Library', () => {
-      beforeEach(async () => {
-        await mock
+      before(async () => {
+        mock
           .method(configService, 'getOrThrow')
           .mock.mockImplementation((key) => {
             switch (key) {
