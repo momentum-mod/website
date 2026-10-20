@@ -22,8 +22,8 @@
       <!-- Column layout needs real width; the profile card is narrow below lg, so rows stack there instead. -->
       <div class="flex gap-2 px-4 text-sm text-gray-300 max-lg:hidden">
         <p class="min-w-0 grow basis-auto">Map</p>
-        <p class="w-10 shrink-0 text-center">Tier</p>
         <p class="w-24 shrink-0 text-center">Rank</p>
+        <p class="w-16 shrink-0 text-center">Group</p>
         <p class="w-20 shrink-0 text-right">Points</p>
         <p class="w-24 shrink-0 text-right">Time</p>
       </div>
@@ -44,30 +44,35 @@
               @if (trackName(run); as track) {
                 · {{ track }}
               }
-              @if (rankGroup(run); as group) {
-                · {{ group }}
+              @if (run.leaderboard?.tier; as tier) {
+                · Tier {{ tier }}
               }
               · {{ run.createdAt | timeAgo }}
             </p>
           </div>
           <div class="flex items-center gap-3 lg:contents">
-            @if (run.leaderboard?.tier; as tier) {
-              <div class="shrink-0 lg:w-10 lg:text-center">
-                <span
-                  class="rounded px-1.5 py-0.5 font-display text-lg"
-                  [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + tier + ') / 0.7)' }"
-                >
-                  T{{ tier }}
-                </span>
-              </div>
-            } @else {
-              <!-- No tier (e.g. a stage on an untiered map); only keep the column's slot in the wide layout. -->
-              <div class="shrink-0 text-center text-gray-400 max-lg:hidden lg:w-10">—</div>
-            }
             <p class="text-shadow pointer-events-none shrink-0 font-display text-xl lg:w-24 lg:text-center">
               <span class="font-sans text-sm text-gray-300 lg:hidden">Rank </span>{{ run.rank }}
               <span class="font-light text-gray-300">/ {{ run.totalRuns }}</span>
             </p>
+            @if (rankGroup(run); as group) {
+              <div class="shrink-0 lg:w-16 lg:text-center">
+                <span
+                  class="rounded px-1.5 py-0.5 font-display text-lg font-bold"
+                  [title]="group.title"
+                  [class.text-shadow]="group.color !== 'top10'"
+                  [ngStyle]="{
+                    color: 'var(--group-' + group.color + '-text)',
+                    'background-color': 'var(--group-' + group.color + '-bg)'
+                  }"
+                >
+                  {{ group.label }}
+                </span>
+              </div>
+            } @else {
+              <!-- Past the last group's cutoff; only keep the column's slot in the wide layout. -->
+              <div class="shrink-0 text-center text-gray-400 max-lg:hidden lg:w-16">—</div>
+            }
             <p class="text-shadow pointer-events-none shrink-0 font-display text-xl lg:w-20 lg:text-right">
               @if (run.points != null) {
                 {{ run.points | numberWithCommas }}<span class="font-sans text-sm text-gray-300 lg:hidden"> pts</span>
