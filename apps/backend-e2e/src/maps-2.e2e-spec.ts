@@ -1,3 +1,32 @@
+import {
+  mock,
+  after,
+  afterEach,
+  before,
+  beforeEach,
+  describe,
+  it
+} from 'node:test';
+
+import {
+  any,
+  assertValidDto,
+  AuthUtil,
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  FileStoreUtil,
+  futureDateOffset,
+  matchesPartial,
+  mockDiscordService,
+  NULL_ID,
+  randomString,
+  RequestUtil,
+  resetKillswitches,
+  stringContaining
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 // See auth.e2e-spec.ts for justification of this sin
@@ -13,19 +42,7 @@ import {
 } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
 import { MMap, PrismaClient, User } from '@momentum/db';
-import {
-  AuthUtil,
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  FileStoreUtil,
-  futureDateOffset,
-  mockDiscordService,
-  NULL_ID,
-  randomString,
-  RequestUtil,
-  resetKillswitches
-} from '@momentum/test-utils';
+
 import {
   ActivityType,
   AdminActivityType,
@@ -65,7 +82,7 @@ describe('Maps Part 2', () => {
     fileStore: FileStoreUtil,
     auth: AuthUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -75,13 +92,19 @@ describe('Maps Part 2', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('maps/maplist', () => {
     describe('GET', () => {
       let token;
-      beforeAll(async () => (token = await db.loginNewUser()));
-      afterAll(() => db.cleanup('user'));
+      before(async () => {
+        await (token = await db.loginNewUser());
+      });
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should respond with map lists', async () => {
         // We really don't have to test much here, since these values are just
@@ -94,14 +117,17 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
-          approved: expect.any(Number),
-          submissions: expect.any(Number)
-        });
+        assert.ok(
+          matchesPartial(res.body, {
+            approved: any(Number),
+            submissions: any(Number)
+          })
+        );
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/maplistversion', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/maplistversion', 'get');
+      });
     });
   });
 
@@ -109,23 +135,25 @@ describe('Maps Part 2', () => {
     describe('GET', () => {
       let token, map;
 
-      beforeAll(
-        async () =>
-          ([token, map] = await Promise.all([
-            db.loginNewUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([token, map] = await Promise.all([
+          db.loginNewUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
-      it('should respond with map info', () =>
-        req.get({
+      it('should respond with map info', async () => {
+        await req.get({
           url: `maps/${map.id}/info`,
           status: 200,
           validate: MapInfoDto,
           token
-        }));
+        });
+      });
 
       // Test that permissions checks are getting called
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -146,8 +174,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return 404 if the map is not found', () =>
-        req.get({ url: `maps/${NULL_ID}/info`, status: 404, token }));
+      it('should return 404 if the map is not found', async () => {
+        await req.get({ url: `maps/${NULL_ID}/info`, status: 404, token });
+      });
     });
   });
 
@@ -155,7 +184,7 @@ describe('Maps Part 2', () => {
     describe('GET', () => {
       let u1, u1Token, u2, u3Token, map;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2, u3Token] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser(),
@@ -173,7 +202,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should respond with the specified maps credits', async () => {
         const res = await req.get({
@@ -182,9 +213,8 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        for (const credit of res.body)
-          expect(credit).toBeValidDto(MapCreditDto);
-        expect(res.body).toHaveLength(2);
+        for (const credit of res.body) assertValidDto(credit, MapCreditDto);
+        assert.equal(res.body.length, 2);
       });
 
       it('should respond with the specified maps credits with the user expand parameter', async () => {
@@ -196,8 +226,8 @@ describe('Maps Part 2', () => {
         });
 
         for (const credit of res.body) {
-          expect(credit).toBeValidDto(MapCreditDto);
-          expect(credit.user).toBeValidDto(UserDto);
+          assertValidDto(credit, MapCreditDto);
+          assertValidDto(credit.user, UserDto);
         }
       });
 
@@ -210,8 +240,8 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        expect(res.body).toBeInstanceOf(Array);
-        expect(res.body).toHaveLength(0);
+        assert.ok(res.body instanceof Array);
+        assert.equal(res.body.length, 0);
       });
 
       // Test that permissions checks are getting called
@@ -233,12 +263,13 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return 404 when the map does not exist', () =>
-        req.get({
+      it('should return 404 when the map does not exist', async () => {
+        await req.get({
           url: `maps/${NULL_ID}/credits`,
           status: 404,
           token: u1Token
-        }));
+        });
+      });
     });
 
     describe('PUT', () => {
@@ -277,7 +308,9 @@ describe('Maps Part 2', () => {
         ];
       });
 
-      afterEach(() => db.cleanup('user', 'mMap'));
+      afterEach(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should create a map credit', async () => {
         const res = await req.put({
@@ -288,7 +321,7 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject([
+        assert.partialDeepStrictEqual(res.body, [
           {
             userID: u2.id,
             mapID: map.id,
@@ -297,7 +330,7 @@ describe('Maps Part 2', () => {
         ]);
 
         const credit = await prisma.mapCredit.findFirst();
-        expect(credit).toMatchObject({ userID: u2.id, mapID: map.id });
+        assert.partialDeepStrictEqual(credit, { userID: u2.id, mapID: map.id });
       });
 
       it('should 503 if killswitch guard is active for maps/{mapID}/credits PUT', async () => {
@@ -334,8 +367,8 @@ describe('Maps Part 2', () => {
         });
 
         const credits = await prisma.mapCredit.findMany();
-        expect(credits).toHaveLength(1);
-        expect(credits[0].userID).toBe(u2.id);
+        assert.equal(credits.length, 1);
+        assert.equal(credits[0].userID, u2.id);
       });
 
       it('should create multiple map credit and store in order', async () => {
@@ -361,7 +394,7 @@ describe('Maps Part 2', () => {
         });
 
         const credits = await prisma.mapCredit.findMany();
-        expect(credits).toMatchObject([
+        assert.partialDeepStrictEqual(credits, [
           { userID: u4.id, mapID: map.id },
           { userID: u2.id, mapID: map.id },
           { userID: u3.id, mapID: map.id },
@@ -374,10 +407,10 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        expect(got.body[0].userID).toBe(u4.id);
-        expect(got.body[1].userID).toBe(u2.id);
-        expect(got.body[2].userID).toBe(u3.id);
-        expect(got.body[3].userID).toBe(u1.id);
+        assert.equal(got.body[0].userID, u4.id);
+        assert.equal(got.body[1].userID, u2.id);
+        assert.equal(got.body[2].userID, u3.id);
+        assert.equal(got.body[3].userID, u1.id);
       });
 
       // Exact same as above but we swap the order of the body, just to check
@@ -405,7 +438,7 @@ describe('Maps Part 2', () => {
         });
 
         const credits = await prisma.mapCredit.findMany();
-        expect(credits).toMatchObject([
+        assert.partialDeepStrictEqual(credits, [
           { userID: u1.id, mapID: map.id },
           { userID: u2.id, mapID: map.id },
           { userID: u3.id, mapID: map.id },
@@ -418,10 +451,10 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        expect(got.body[0].userID).toBe(u1.id);
-        expect(got.body[1].userID).toBe(u2.id);
-        expect(got.body[2].userID).toBe(u3.id);
-        expect(got.body[3].userID).toBe(u4.id);
+        assert.equal(got.body[0].userID, u1.id);
+        assert.equal(got.body[1].userID, u2.id);
+        assert.equal(got.body[2].userID, u3.id);
+        assert.equal(got.body[3].userID, u4.id);
       });
 
       it('should 409 if the request contains duplicate credits', async () => {
@@ -442,7 +475,7 @@ describe('Maps Part 2', () => {
         });
 
         const activity = await prisma.activity.findFirst();
-        expect(activity).toMatchObject({
+        assert.partialDeepStrictEqual(activity, {
           data: BigInt(map.id),
           userID: u2.id,
           type: ActivityType.MAP_UPLOADED
@@ -461,21 +494,22 @@ describe('Maps Part 2', () => {
         });
 
         const activity = await prisma.activity.findFirst();
-        expect(activity).toMatchObject({
+        assert.partialDeepStrictEqual(activity, {
           data: BigInt(map.id),
           userID: u2.id,
           type: ActivityType.MAP_UPLOADED
         });
       });
 
-      it('should allow an admin to create a credit', () =>
-        req.put({
+      it('should allow an admin to create a credit', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
           validateArray: MapCreditDto,
           token: adminToken
-        }));
+        });
+      });
 
       it('should allow an admin to update a credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
@@ -497,14 +531,15 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should allow a mod to create a credit', () =>
-        req.put({
+      it('should allow a mod to create a credit', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
           validateArray: MapCreditDto,
           token: modToken
-        }));
+        });
+      });
 
       it('should allow a mod to update the credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
@@ -526,21 +561,23 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 404 if the map is not found', () =>
-        req.post({
+      it('should 404 if the map is not found', async () => {
+        await req.post({
           url: `maps/${NULL_ID}/credits`,
           status: 404,
           body: newMapCredit,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 if the user is not the map submitter', () =>
-        req.put({
+      it('should 403 if the user is not the map submitter', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 403,
           body: newMapCredit,
           token: u2Token
-        }));
+        });
+      });
 
       it('should 400 if the map credit object is invalid', async () => {
         await req.put({
@@ -565,29 +602,32 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 400 if a user ID is missing on a credit', () =>
-        req.put({
+      it('should 400 if a user ID is missing on a credit', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
           body: [{ type: MapCreditType.TESTER }],
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 400 if a type is missing on a credit', () =>
-        req.put({
+      it('should 400 if a type is missing on a credit', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
           body: [{ userID: u2.id }],
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 400 if theres no AUTHOR credits', () =>
-        req.put({
+      it('should 400 if theres no AUTHOR credits', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
           body: [{ userID: u2.id, type: MapCreditType.TESTER }],
           token: u1Token
-        }));
+        });
+      });
 
       it('should allow if no AUTHOR credits if has a AUTHOR placeholder suggestion', async () => {
         await prisma.mapSubmission.update({
@@ -605,8 +645,8 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 400 if the description is too long', () =>
-        req.put({
+      it('should 400 if the description is too long', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
           body: [
@@ -618,7 +658,8 @@ describe('Maps Part 2', () => {
             }
           ],
           token: u1Token
-        }));
+        });
+      });
 
       for (const [term, forbidden] of [
         ['regular user', [MapStatus.DISABLED, MapStatus.APPROVED]],
@@ -701,16 +742,18 @@ describe('Maps Part 2', () => {
         });
       }
 
-      it('should 400 if the credited user does not exist', () =>
-        req.put({
+      it('should 400 if the credited user does not exist', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
           body: { type: MapCreditType.AUTHOR, userID: NULL_ID },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/credits`, 'put'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest(`maps/${map.id}/credits`, 'put');
+      });
     });
   });
 
@@ -719,7 +762,7 @@ describe('Maps Part 2', () => {
       let user, token, map, u2Token;
       const creditType = MapCreditType.AUTHOR;
 
-      beforeAll(async () => {
+      before(async () => {
         [[user, token], map, u2Token] = await Promise.all([
           db.createAndLoginUser(),
           db.createMap(),
@@ -727,15 +770,19 @@ describe('Maps Part 2', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
-      beforeEach(() =>
-        prisma.mapCredit.create({
+      beforeEach(async () => {
+        await prisma.mapCredit.create({
           data: { mapID: map.id, userID: user.id, type: creditType }
-        })
-      );
+        });
+      });
 
-      afterEach(() => prisma.mapCredit.deleteMany());
+      afterEach(async () => {
+        await prisma.mapCredit.deleteMany();
+      });
 
       it('should return the specified map credit', async () => {
         const res = await req.get({
@@ -745,20 +792,21 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           type: creditType,
           userID: user.id,
           mapID: map.id
         });
       });
 
-      it('should return the specified map credit with the user expand parameter', () =>
-        req.expandTest({
+      it('should return the specified map credit with the user expand parameter', async () => {
+        await req.expandTest({
           url: `maps/${map.id}/credits/${user.id}`,
           expand: 'user',
           validate: MapCreditDto,
           token
-        }));
+        });
+      });
 
       // Test that permissions checks are getting called
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -779,19 +827,21 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return a 404 if the map is not found', () =>
-        req.get({
+      it('should return a 404 if the map is not found', async () => {
+        await req.get({
           url: `maps/${NULL_ID}/credits/${user.id}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should return a 404 if the user is not found', () =>
-        req.get({
+      it('should return a 404 if the user is not found', async () => {
+        await req.get({
           url: `maps/${map.id}/credits/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
     });
   });
 
@@ -800,23 +850,24 @@ describe('Maps Part 2', () => {
       const zones = ZonesStub;
 
       let token, map;
-      beforeAll(
-        async () =>
-          ([token, map] = await Promise.all([
-            db.loginNewUser(),
-            db.createMap({
-              versions: {
-                create: {
-                  zones: ZonesStubString,
-                  versionNum: 1,
-                  submitter: db.getNewUserCreateData()
-                }
+      before(async () => {
+        await ([token, map] = await Promise.all([
+          db.loginNewUser(),
+          db.createMap({
+            versions: {
+              create: {
+                zones: ZonesStubString,
+                versionNum: 1,
+                submitter: db.getNewUserCreateData()
               }
-            })
-          ]))
-      );
+            }
+          })
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should respond with the map zones', async () => {
         const res = await req.get({
@@ -826,19 +877,20 @@ describe('Maps Part 2', () => {
         });
 
         const parsed = JSON.parse(res.body);
-        expect(parsed).toMatchObject(zones);
-        expect(() => validateZoneFile(parsed)).not.toThrow();
+        assert.partialDeepStrictEqual(parsed, zones);
+        assert.doesNotThrow(() => validateZoneFile(parsed));
       });
 
-      it('should 404 if the map does not exist', () =>
-        req.get({ url: `maps/${NULL_ID}/zones`, status: 404, token }));
+      it('should 404 if the map does not exist', async () => {
+        await req.get({ url: `maps/${NULL_ID}/zones`, status: 404, token });
+      });
     });
   });
 
   describe('maps/{mapID}/images', () => {
     describe('GET', () => {
       let token, map, id1, id2;
-      beforeAll(async () => {
+      before(async () => {
         [id1, id2] = [db.uuid(), db.uuid()];
         [token, map] = await Promise.all([
           db.loginNewUser(),
@@ -846,7 +898,9 @@ describe('Maps Part 2', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should respond with a list of images', async () => {
         const res = await req.get({
@@ -856,20 +910,22 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject([
-          {
-            small: expect.stringContaining(`${id2}-small.jpg`),
-            medium: expect.stringContaining(`${id2}-medium.jpg`),
-            large: expect.stringContaining(`${id2}-large.jpg`),
-            xl: expect.stringContaining(`${id2}-xl.jpg`)
-          },
-          {
-            small: expect.stringContaining(`${id1}-small.jpg`),
-            medium: expect.stringContaining(`${id1}-medium.jpg`),
-            large: expect.stringContaining(`${id1}-large.jpg`),
-            xl: expect.stringContaining(`${id1}-xl.jpg`)
-          }
-        ]);
+        assert.ok(
+          matchesPartial(res.body, [
+            {
+              small: stringContaining(`${id2}-small.jpg`),
+              medium: stringContaining(`${id2}-medium.jpg`),
+              large: stringContaining(`${id2}-large.jpg`),
+              xl: stringContaining(`${id2}-xl.jpg`)
+            },
+            {
+              small: stringContaining(`${id1}-small.jpg`),
+              medium: stringContaining(`${id1}-medium.jpg`),
+              large: stringContaining(`${id1}-large.jpg`),
+              xl: stringContaining(`${id1}-xl.jpg`)
+            }
+          ])
+        );
       });
 
       // Test that permissions checks are getting called
@@ -891,8 +947,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 404 if map does not exist', () =>
-        req.get({ url: `maps/${NULL_ID}/images`, status: 404, token }));
+      it('should 404 if map does not exist', async () => {
+        await req.get({ url: `maps/${NULL_ID}/images`, status: 404, token });
+      });
     });
 
     describe('PUT', () => {
@@ -900,7 +957,7 @@ describe('Maps Part 2', () => {
 
       const imageBuffer = readFileSync(path.join(FILES_PATH, '2560_1440.png'));
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.MAPPER }
         });
@@ -913,14 +970,16 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
-      afterEach(() =>
-        Promise.all([
+      afterEach(async () => {
+        await Promise.all([
           db.cleanup('mMap', 'adminActivity'),
           fileStore.deleteDirectory('img')
-        ])
-      );
+        ]);
+      });
 
       it('should create a map image for the specified map', async () => {
         const res = await req.putAttach({
@@ -936,10 +995,11 @@ describe('Maps Part 2', () => {
 
         const updatedMap = await prisma.mMap.findFirst();
         for (const size of ['small', 'medium', 'large', 'xl']) {
-          expect(res.body[0][size]).toBeDefined();
-          expect(
-            await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`)
-          ).toBe(true);
+          assert.notEqual(res.body[0][size], undefined);
+          assert.equal(
+            await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`),
+            true
+          );
         }
       });
 
@@ -985,7 +1045,7 @@ describe('Maps Part 2', () => {
 
         for (const id of [id1, id2])
           for (const size of ['small', 'medium', 'large', 'xl'])
-            expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
+            assert.equal(await fileStore.exists(`img/${id}-${size}.jpg`), true);
 
         const res = await req.putAttach({
           url: `maps/${map.id}/images`,
@@ -1000,26 +1060,29 @@ describe('Maps Part 2', () => {
         });
 
         const { images } = await prisma.mMap.findFirst();
-        expect(res.body).toMatchObject(
-          images.map((id) => ({
-            id,
-            small: expect.stringContaining(`${id}-small.jpg`),
-            medium: expect.stringContaining(`${id}-medium.jpg`),
-            large: expect.stringContaining(`${id}-large.jpg`),
-            xl: expect.stringContaining(`${id}-xl.jpg`)
-          }))
+        assert.ok(
+          matchesPartial(
+            res.body,
+            images.map((id) => ({
+              id,
+              small: stringContaining(`${id}-small.jpg`),
+              medium: stringContaining(`${id}-medium.jpg`),
+              large: stringContaining(`${id}-large.jpg`),
+              xl: stringContaining(`${id}-xl.jpg`)
+            }))
+          )
         );
-        expect(images).toHaveLength(3);
-        expect(images[0][8]).toBe('-'); // World's laziest uuid validation, whatever
-        expect(images[1]).toBe(id1);
-        expect(images[2][8]).toBe('-');
+        assert.equal(images.length, 3);
+        assert.equal(images[0][8], '-'); // World's laziest uuid validation, whatever
+        assert.equal(images[1], id1);
+        assert.equal(images[2][8], '-');
 
         for (const id of images)
           for (const size of ['small', 'medium', 'large', 'xl'])
-            expect(await fileStore.exists(`img/${id}-${size}.jpg`)).toBe(true);
+            assert.equal(await fileStore.exists(`img/${id}-${size}.jpg`), true);
 
         for (const size of ['small', 'medium', 'large', 'xl'])
-          expect(await fileStore.exists(`img/${id2}-${size}.jpg`)).toBe(false);
+          assert.equal(await fileStore.exists(`img/${id2}-${size}.jpg`), false);
       });
 
       it('should reorder with no files provided', async () => {
@@ -1038,13 +1101,13 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body[0].id).toBe(id2);
-        expect(res.body[1].id).toBe(id1);
+        assert.equal(res.body[0].id, id2);
+        assert.equal(res.body[1].id, id1);
 
         const { images } = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(images).toEqual([id2, id1]);
+        assert.deepEqual(images, [id2, id1]);
       });
 
       it('should 400 when the map image limit has been reached', async () => {
@@ -1064,35 +1127,38 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 400 if the map image has bad extension', () =>
-        req.putAttach({
+      it('should 400 if the map image has bad extension', async () => {
+        await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: 'map.zon', field: 'images' }],
           data: { imageIDs: ['0'] },
           token
-        }));
+        });
+      });
 
-      it('should 400 for PNG with wrong dimensions', () =>
-        req.putAttach({
+      it('should 400 for PNG with wrong dimensions', async () => {
+        await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: '1920_1080.png', field: 'images' }],
           data: { imageIDs: ['0'] },
           token
-        }));
+        });
+      });
 
-      it('should 400 for JPG with correct dimensions', () =>
-        req.putAttach({
+      it('should 400 for JPG with correct dimensions', async () => {
+        await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           files: [{ file: '2560_1440.jpg', field: 'images' }],
           data: { imageIDs: ['0'] },
           token
-        }));
+        });
+      });
 
-      it("should 400 when the image file is greater than the config's max image file size", () =>
-        req.putAttach({
+      it("should 400 when the image file is greater than the config's max image file size", async () => {
+        await req.putAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           data: { imageIDs: ['0'] },
@@ -1100,7 +1166,8 @@ describe('Maps Part 2', () => {
             { file: Buffer.alloc(Config.limits.imageSize + 1), field: 'images' }
           ],
           token
-        }));
+        });
+      });
 
       it('should 403 if the user is not the submitter of the map', async () => {
         await prisma.mMap.update({
@@ -1161,7 +1228,7 @@ describe('Maps Part 2', () => {
         });
 
         const activity = await prisma.adminActivity.findFirst();
-        expect(activity).toMatchObject({
+        assert.partialDeepStrictEqual(activity, {
           userID: mod.id,
           type: AdminActivityType.MAP_UPDATE
         });
@@ -1210,8 +1277,9 @@ describe('Maps Part 2', () => {
         });
       }
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/images', 'put'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/1/images', 'put');
+      });
     });
   });
 
@@ -1219,7 +1287,7 @@ describe('Maps Part 2', () => {
     describe('GET', () => {
       let u1, token, u2, u3, map;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, token], u2, u3, map] = await Promise.all([
           db.createAndLoginUser({
             data: { steamID: BigInt(Number.MAX_SAFE_INTEGER) * 2n }
@@ -1262,7 +1330,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it("should return a list of a leaderboard's runs", async () => {
         const res = await req.get({
@@ -1274,14 +1344,14 @@ describe('Maps Part 2', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item).toHaveProperty('user');
-          expect(item).toHaveProperty('downloadURL');
-          expect(item).not.toHaveProperty('splits');
+          assert.ok(Object.hasOwn(item, 'user'));
+          assert.ok(Object.hasOwn(item, 'downloadURL'));
+          assert.ok(!Object.hasOwn(item, 'splits'));
         }
       });
 
-      it("should return a list of a leaderboard's runs for a non-default trackType/Num", () =>
-        req.get({
+      it("should return a list of a leaderboard's runs for a non-default trackType/Num", async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard`,
           status: 200,
           query: {
@@ -1291,39 +1361,44 @@ describe('Maps Part 2', () => {
           },
           validatePaged: { type: LeaderboardRunDto, count: 1 },
           token
-        }));
+        });
+      });
 
-      it('should 400 if missing a gamemode', () =>
-        req.get({
+      it('should 400 if missing a gamemode', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard`,
           status: 400,
           token
-        }));
+        });
+      });
 
-      it('should be ordered by rank', () =>
-        req.sortTest({
+      it('should be ordered by rank', async () => {
+        await req.sortTest({
           url: `maps/${map.id}/leaderboard`,
           validate: LeaderboardRunDto,
           query: { gamemode: Gamemode.AHOP },
           sortFn: (a, b) => a.time - b.time,
           token
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the skip parameter', () =>
-        req.skipTest({
+      it('should respond with filtered map data using the skip parameter', async () => {
+        await req.skipTest({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP },
           validate: LeaderboardRunDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with filtered map data using the take parameter', () =>
-        req.takeTest({
+      it('should respond with filtered map data using the take parameter', async () => {
+        await req.takeTest({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP },
           validate: LeaderboardRunDto,
           token
-        }));
+        });
+      });
 
       it('should respond with filtered runs given using the userIDs param', async () => {
         const res = await req.get({
@@ -1336,8 +1411,8 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body.data[0].userID).toBe(u1.id);
-        expect(res.body.data[1].userID).toBe(u3.id);
+        assert.equal(res.body.data[0].userID, u1.id);
+        assert.equal(res.body.data[1].userID, u3.id);
       });
 
       it('should respond with filtered runs given using the steamIDs param', async () => {
@@ -1351,8 +1426,8 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body.data[0].userID).toBe(u1.id);
-        expect(res.body.data[1].userID).toBe(u3.id);
+        assert.equal(res.body.data[0].userID, u1.id);
+        assert.equal(res.body.data[1].userID, u3.id);
       });
 
       // Test that permissions checks are getting called
@@ -1376,19 +1451,20 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return 404 for a nonexistent map', () =>
-        req.get({
+      it('should return 404 for a nonexistent map', async () => {
+        await req.get({
           url: `maps/${NULL_ID}/leaderboard`,
           query: { gamemode: Gamemode.AHOP },
           status: 404,
           token
-        }));
+        });
+      });
     });
 
     describe("GET - 'around' filter", () => {
       let map, u7, u7Token, runs;
 
-      beforeAll(async () => {
+      before(async () => {
         map = await db.createMap();
         runs = await Promise.all(
           arrayFrom(20, (i) =>
@@ -1399,7 +1475,9 @@ describe('Maps Part 2', () => {
         u7Token = auth.login(u7);
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it('should return a list of ranks around your rank', async () => {
         const res = await req.get({
@@ -1414,28 +1492,29 @@ describe('Maps Part 2', () => {
         // 3, 4, 5, 6, our rank, 8, 9, 10, 11
         let rankIndex = 3;
         for (const rank of res.body.data) {
-          expect(rank).toBeValidDto(LeaderboardRunDto);
-          expect(rank.rank).toBe(rankIndex);
+          assertValidDto(rank, LeaderboardRunDto);
+          assert.equal(rank.rank, rankIndex);
           rankIndex++;
         }
         // Last tested was 11, then incremented once more, should be sitting on
         // 12.
-        expect(rankIndex).toBe(12);
+        assert.equal(rankIndex, 12);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.get({
+      it('should 401 when no access token is provided', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'around' },
           status: 401
-        }));
+        });
+      });
     });
 
     describe("GET - 'friends' filter", () => {
-      const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
+      const mockSteamIDs: bigint[] = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n];
       let map, user, token, steamService: SteamService;
 
-      beforeAll(async () => {
+      before(async () => {
         steamService = app.get(SteamService);
         [[user, token], map] = await Promise.all([
           db.createAndLoginUser(),
@@ -1462,13 +1541,15 @@ describe('Maps Part 2', () => {
 
       it("should return a list of the user's Steam friend's ranks", async () => {
         // Mock the call to Steam's API
-        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
-          mockSteamIDs.map((id) => ({
-            steamid: id.toString(),
-            relationship: 'friend',
-            friend_since: 0
-          }))
-        );
+        mock
+          .method(steamService, 'getSteamFriends')
+          .mock.mockImplementationOnce(async () =>
+            mockSteamIDs.map((id) => ({
+              steamid: id.toString(),
+              relationship: 'friend',
+              friend_since: 0
+            }))
+          );
 
         const res = await req.get({
           url: `maps/${map.id}/leaderboard`,
@@ -1479,13 +1560,15 @@ describe('Maps Part 2', () => {
         });
 
         for (const run of res.body.data)
-          expect(mockSteamIDs).toContain(BigInt(run.user.steamID));
+          assert.ok(mockSteamIDs.includes(BigInt(run.user.steamID)));
       });
 
       it('should 410 if the user has no Steam friends', async () => {
-        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
+        mock
+          .method(steamService, 'getSteamFriends')
+          .mock.mockImplementationOnce(async () => []);
 
-        return req.get({
+        await req.get({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 410,
@@ -1493,12 +1576,13 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.get({
+      it('should 401 when no access token is provided', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 401
-        }));
+        });
+      });
     });
   });
 
@@ -1506,7 +1590,7 @@ describe('Maps Part 2', () => {
     describe('GET', () => {
       let u1, token, u2, map;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, token], u2, map] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser(),
@@ -1534,7 +1618,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
 
       it('should return a run for a specific userID', async () => {
         const res = await req.get({
@@ -1545,7 +1631,7 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           rank: 1,
           mapID: map.id,
           userID: u1.id
@@ -1566,7 +1652,7 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           rank: 1,
           mapID: map.id,
           userID: u2.id
@@ -1582,28 +1668,30 @@ describe('Maps Part 2', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           rank: 2,
           mapID: map.id,
           userID: u2.id
         });
       });
 
-      it('should 400 if given both userID and rank', async () =>
-        req.get({
+      it('should 400 if given both userID and rank', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard/run`,
           status: 400,
           query: { gamemode: Gamemode.AHOP, rank: 1, userID: u1.id },
           token
-        }));
+        });
+      });
 
-      it('should 400 if given neither userID or rank', async () =>
-        req.get({
+      it('should 400 if given neither userID or rank', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard/run`,
           status: 400,
           query: { gamemode: Gamemode.AHOP },
           token
-        }));
+        });
+      });
 
       // Test that permissions checks are getting called
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -1625,27 +1713,29 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 404 for a nonexistent map', () =>
-        req.get({
+      it('should 404 for a nonexistent map', async () => {
+        await req.get({
           url: `maps/${NULL_ID}/leaderboard/run`,
           query: { gamemode: Gamemode.AHOP, userID: u1.id },
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 404 for a nonexistent rank', () =>
-        req.get({
+      it('should 404 for a nonexistent rank', async () => {
+        await req.get({
           url: `maps/${map.id}/leaderboard/${NULL_ID}/run`,
           status: 404,
           token
-        }));
+        });
+      });
     });
   });
 
   describe('maps/{mapID}/leaderboardStats', () => {
     describe('GET', () => {
       let user, token, map;
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
         map = await db.createMapWithFullLeaderboards();
         await db.createLbRun({
@@ -1658,7 +1748,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should return leaderboard stats for a map', async () => {
         const res = await req.get({
@@ -1673,9 +1765,9 @@ describe('Maps Part 2', () => {
           totalRuns
         } of res.body) {
           if (trackType === TrackType.MAIN && trackNum === 1) {
-            expect(totalRuns).toBe(1);
+            assert.equal(totalRuns, 1);
           } else {
-            expect(totalRuns).toBe(0);
+            assert.equal(totalRuns, 0);
           }
         }
       });
@@ -1685,7 +1777,7 @@ describe('Maps Part 2', () => {
   describe('maps/{mapID}/reviews', () => {
     describe('GET', () => {
       let u1, u1Token, u2, u2Token, map, reviewOfficial, reviewUnofficial;
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
           db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
@@ -1750,7 +1842,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should return all reviews associated to the given map', async () => {
         const response = await req.get({
@@ -1759,7 +1853,7 @@ describe('Maps Part 2', () => {
           validatePaged: { type: MapReviewDto, count: 2 },
           token: u1Token
         });
-        expect(response.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(response.body.data[0], {
           mainText: 'Wow, what a shit map.',
           mapID: map.id
         });
@@ -1774,7 +1868,7 @@ describe('Maps Part 2', () => {
           token: u1Token
         });
 
-        expect(response.body.data).toMatchObject([
+        assert.partialDeepStrictEqual(response.body.data, [
           {
             mainText: 'Wow, what a shit map.',
             numComments: 5,
@@ -1836,7 +1930,7 @@ describe('Maps Part 2', () => {
           query: { official: true },
           token: u1Token
         });
-        expect(response.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(response.body.data[0], {
           mainText: reviewOfficial.mainText,
           mapID: reviewOfficial.mapID
         });
@@ -1850,7 +1944,7 @@ describe('Maps Part 2', () => {
           query: { official: false },
           token: u2Token
         });
-        expect(response.body.data[0]).toMatchObject({
+        assert.partialDeepStrictEqual(response.body.data[0], {
           mainText: reviewUnofficial.mainText,
           mapID: reviewUnofficial.mapID
         });
@@ -1864,8 +1958,8 @@ describe('Maps Part 2', () => {
           query: { official: true, expand: 'reviewer' },
           token: u1Token
         });
-        expect(response.body.data[0]).toHaveProperty('reviewer');
-        expect(response.body.data[0]).toMatchObject({
+        assert.ok(Object.hasOwn(response.body.data[0], 'reviewer'));
+        assert.partialDeepStrictEqual(response.body.data[0], {
           mainText: reviewOfficial.mainText,
           mapID: reviewOfficial.mapID
         });
@@ -1890,12 +1984,13 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return 404 for a nonexistent map', () =>
-        req.get({
+      it('should return 404 for a nonexistent map', async () => {
+        await req.get({
           url: `maps/${NULL_ID}/reviews`,
           status: 404,
           token: u1Token
-        }));
+        });
+      });
     });
 
     describe('POST', () => {
@@ -1906,7 +2001,7 @@ describe('Maps Part 2', () => {
         pubTestMap: MMap,
         privTestMap: MMap;
 
-      beforeAll(async () => {
+      before(async () => {
         [[normalUser, normalToken], reviewerToken, miscUser] =
           await Promise.all([
             db.createAndLoginUser(),
@@ -1930,9 +2025,13 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
-      afterEach(() => db.cleanup('mMap', 'notification'));
+      afterEach(async () => {
+        await db.cleanup('mMap', 'notification');
+      });
 
       it('should successfully create a review', async () => {
         const imageBuffer = readFileSync(
@@ -1964,7 +2063,7 @@ describe('Maps Part 2', () => {
 
         const imageUrl = res.body.images[0];
         const image = await fileStore.downloadHttp(imageUrl);
-        expect(createSha1Hash(image)).toBe(imageHash);
+        assert.equal(createSha1Hash(image), imageHash);
       });
 
       it('should create a MAP_REVIEW_POSTED notification for the submitter', async () => {
@@ -1996,7 +2095,7 @@ describe('Maps Part 2', () => {
             reviewID: res.body.id
           }
         });
-        expect(notifs).toMatchObject([
+        assert.partialDeepStrictEqual(notifs, [
           {
             notifiedUserID: miscUser.id,
             type: NotificationType.MAP_REVIEW_POSTED,
@@ -2049,8 +2148,8 @@ describe('Maps Part 2', () => {
         await resetKillswitches(req, adminToken);
       });
 
-      it('should succeed with no images', async () =>
-        req.postAttach({
+      it('should succeed with no images', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 201,
           data: {
@@ -2067,10 +2166,11 @@ describe('Maps Part 2', () => {
           },
           validate: MapReviewDto,
           token: normalToken
-        }));
+        });
+      });
 
-      it('should 400 for bad suggestions', async () =>
-        req.postAttach({
+      it('should 400 for bad suggestions', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 400,
           data: {
@@ -2086,47 +2186,52 @@ describe('Maps Part 2', () => {
             ]
           },
           token: normalToken
-        }));
+        });
+      });
 
-      it('should not allow a regular user to set needsResolving', async () =>
-        req.postAttach({
+      it('should not allow a regular user to set needsResolving', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 403,
           data: { mainText: 'Please add conc', needsResolving: true },
           token: normalToken
-        }));
+        });
+      });
 
-      it('should allow a reviewer user to set needsResolving', async () =>
-        req.postAttach({
+      it('should allow a reviewer user to set needsResolving', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 201,
           data: { mainText: 'Please add conc', needsResolving: true },
           validate: MapReviewDto,
           token: reviewerToken
-        }));
+        });
+      });
 
-      it('should not allow a regular user to set approves', async () =>
-        req.postAttach({
+      it('should not allow a regular user to set approves', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 403,
           data: { mainText: 'Please add gronc', approves: true },
           token: normalToken
-        }));
+        });
+      });
 
-      it('should allow a reviewer user to set approves', async () =>
-        req.postAttach({
+      it('should allow a reviewer user to set approves', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 201,
           data: { mainText: 'Please add gronc', approves: true },
           validate: MapReviewDto,
           token: reviewerToken
-        }));
+        });
+      });
 
       it('should update stats', async () => {
         const before = await prisma.mapReviewStats.findUnique({
           where: { mapID: pubTestMap.id }
         });
-        expect(before).toMatchObject({
+        assert.partialDeepStrictEqual(before, {
           total: 0,
           approvals: 0,
           resolved: 0,
@@ -2144,7 +2249,7 @@ describe('Maps Part 2', () => {
         const after1 = await prisma.mapReviewStats.findUnique({
           where: { mapID: pubTestMap.id }
         });
-        expect(after1).toMatchObject({
+        assert.partialDeepStrictEqual(after1, {
           total: 1,
           approvals: 1,
           resolved: 0,
@@ -2162,7 +2267,7 @@ describe('Maps Part 2', () => {
         const after2 = await prisma.mapReviewStats.findUnique({
           where: { mapID: pubTestMap.id }
         });
-        expect(after2).toMatchObject({
+        assert.partialDeepStrictEqual(after2, {
           total: 2,
           approvals: 1,
           resolved: 0,
@@ -2170,8 +2275,8 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 400 if image is too large', async () =>
-        req.postAttach({
+      it('should 400 if image is too large', async () => {
+        await req.postAttach({
           url: `maps/${pubTestMap.id}/reviews`,
           status: 400,
           files: [
@@ -2183,40 +2288,48 @@ describe('Maps Part 2', () => {
           ],
           data: { mainText: 'Please add conc' },
           token: normalToken
-        }));
+        });
+      });
 
-      it('should return 404 for trying to post a review for a nonexistent map', () =>
-        req.postAttach({
+      it('should return 404 for trying to post a review for a nonexistent map', async () => {
+        await req.postAttach({
           url: `maps/${NULL_ID}/reviews`,
           status: 404,
           data: { mainText: 'let me iiiiiin' },
           token: normalToken
-        }));
+        });
+      });
 
       // Sufficient to test getMapAndCheckReadAccess is being called
-      it('should return 403 for a review on a map in private testing without an invite', () =>
-        req.postAttach({
+      it('should return 403 for a review on a map in private testing without an invite', async () => {
+        await req.postAttach({
           url: `maps/${privTestMap.id}/reviews`,
           status: 403,
           data: { mainText: 'PLEAAAASE LET ME INNN' },
           token: normalToken
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/reviews', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('maps/1/reviews', 'post');
+      });
 
       describe('Discord notifications', () => {
-        let restPostMock: jest.SpyInstance,
+        let restPostMock: ReturnType<typeof mock.method>,
           restPostObservable: rxjs.Subject<void>;
 
-        beforeAll(async () => {
+        before(async () => {
           const discordMock = await mockDiscordService(app);
           restPostMock = discordMock.restPostMock;
           restPostObservable = discordMock.restPostObservable;
         });
 
-        afterAll(() => jest.restoreAllMocks());
-        afterEach(() => restPostMock.mockClear());
+        after(async () => {
+          await mock.restoreAll();
+        });
+        afterEach(async () => {
+          await restPostMock.mock.resetCalls();
+        });
 
         it('should send a review to discord thread', async () => {
           await prisma.mapSubmission.update({
@@ -2247,11 +2360,11 @@ describe('Maps Part 2', () => {
           });
 
           await rxjs.firstValueFrom(restPostObservable);
-          expect(restPostMock).toHaveBeenCalledTimes(1);
+          assert.equal(restPostMock.mock.callCount(), 1);
 
-          const requestBody = restPostMock.mock.lastCall[1];
+          const requestBody = restPostMock.mock.calls.at(-1)!.arguments[1];
           const embed = requestBody.body.embeds[0];
-          expect(embed.description).toBe(reviewDesctiption);
+          assert.equal(embed.description, reviewDesctiption);
         });
       });
     });
@@ -2280,7 +2393,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mMap', 'user', 'notification'));
+      afterEach(async () => {
+        await db.cleanup('mMap', 'user', 'notification');
+      });
 
       it('should create MapTestInvites', async () => {
         await req.put({
@@ -2291,7 +2406,7 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        expect(createdRequests).toMatchObject([
+        assert.partialDeepStrictEqual(createdRequests, [
           { userID: u2.id, state: MapTestInviteState.UNREAD },
           { userID: u3.id, state: MapTestInviteState.UNREAD },
           { userID: u4.id, state: MapTestInviteState.UNREAD }
@@ -2315,7 +2430,7 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        expect(createdRequests).toMatchObject([
+        assert.partialDeepStrictEqual(createdRequests, [
           { userID: u3.id, state: MapTestInviteState.UNREAD }
         ]);
       });
@@ -2337,7 +2452,7 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        expect(createdRequests).toHaveLength(0);
+        assert.equal(createdRequests.length, 0);
       });
 
       it('should leave any existing MapTestInvites contained in the userIDs unaffected', async () => {
@@ -2364,7 +2479,7 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        expect(createdRequests).toMatchObject([
+        assert.partialDeepStrictEqual(createdRequests, [
           { userID: u3.id, state: MapTestInviteState.ACCEPTED },
           { userID: u4.id, state: MapTestInviteState.UNREAD }
         ]);
@@ -2381,7 +2496,7 @@ describe('Maps Part 2', () => {
         const notifs = await prisma.notification.findMany({
           where: { type: NotificationType.MAP_TESTING_INVITE }
         });
-        expect(notifs).toMatchObject([
+        assert.partialDeepStrictEqual(notifs, [
           {
             notifiedUserID: u3.id,
             type: NotificationType.MAP_TESTING_INVITE,
@@ -2413,7 +2528,7 @@ describe('Maps Part 2', () => {
         const notifs = await prisma.notification.findMany({
           where: { type: NotificationType.MAP_TESTING_INVITE }
         });
-        expect(notifs).toMatchObject([
+        assert.partialDeepStrictEqual(notifs, [
           {
             notifiedUserID: u4.id,
             type: NotificationType.MAP_TESTING_INVITE,
@@ -2423,37 +2538,41 @@ describe('Maps Part 2', () => {
         ]);
       });
 
-      it('should 404 in the map does not exist', () =>
-        req.put({
+      it('should 404 in the map does not exist', async () => {
+        await req.put({
           url: `maps/${NULL_ID}/testInvite`,
           status: 404,
           body: { userIDs: [] },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 400 if userIDs array is missing', () =>
-        req.put({
+      it('should 400 if userIDs array is missing', async () => {
+        await req.put({
           url: `maps/${map.id}/testInvite`,
           status: 400,
           body: {},
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 if the user is not the submitter of the map', () =>
-        req.put({
+      it('should 403 if the user is not the submitter of the map', async () => {
+        await req.put({
           url: `maps/${map.id}/testInvite`,
           status: 403,
           body: { userIDs: [u3.id] },
           token: u2Token
-        }));
+        });
+      });
 
-      it('should 400 if the userIDs contains an ID that does not exist', () =>
-        req.put({
+      it('should 400 if the userIDs contains an ID that does not exist', async () => {
+        await req.put({
           url: `maps/${map.id}/testInvite`,
           status: 400,
           body: { userIDs: [NULL_ID] },
           token: u1Token
-        }));
+        });
+      });
 
       for (const status of difference(Enum.values(MapStatus), [
         MapStatus.PRIVATE_TESTING
@@ -2472,8 +2591,9 @@ describe('Maps Part 2', () => {
           });
         });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/testInvite`, 'put'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest(`maps/${map.id}/testInvite`, 'put');
+      });
     });
   });
 
@@ -2503,7 +2623,9 @@ describe('Maps Part 2', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mMap', 'user', 'notification'));
+      afterEach(async () => {
+        await db.cleanup('mMap', 'user', 'notification');
+      });
 
       it('should successfully accept a test invite', async () => {
         await req.patch({
@@ -2514,18 +2636,19 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestInvite.findMany();
-        expect(createdRequests).toMatchObject([
+        assert.partialDeepStrictEqual(createdRequests, [
           { userID: user.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
 
-      it('should successfully decline a test invite', () =>
-        req.patch({
+      it('should successfully decline a test invite', async () => {
+        await req.patch({
           url: `maps/${map.id}/testInviteResponse`,
           status: 204,
           body: { accept: false },
           token
-        }));
+        });
+      });
 
       it('should delete the notification corresponding to the testing request', async () => {
         await req.patch({
@@ -2535,7 +2658,7 @@ describe('Maps Part 2', () => {
           token
         });
         const notifs = await prisma.notification.findMany();
-        expect(notifs).toHaveLength(0);
+        assert.equal(notifs.length, 0);
       });
 
       it('should 404 if the user does not have a test invite', async () => {
@@ -2549,21 +2672,23 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it("should 400 if body does not contain an 'accept' value", () =>
-        req.patch({
+      it("should 400 if body does not contain an 'accept' value", async () => {
+        await req.patch({
           url: `maps/${map.id}/testInviteResponse`,
           status: 400,
           body: {},
           token
-        }));
+        });
+      });
 
-      it('should 404 in the map does not exist', () =>
-        req.patch({
+      it('should 404 in the map does not exist', async () => {
+        await req.patch({
           url: `maps/${NULL_ID}/testInviteResponse`,
           status: 404,
           body: { accept: true },
           token
-        }));
+        });
+      });
 
       for (const status of difference(Enum.values(MapStatus), [
         MapStatus.PRIVATE_TESTING
@@ -2582,8 +2707,12 @@ describe('Maps Part 2', () => {
           });
         });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest(`maps/${map.id}/testInviteResponse`, 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest(
+          `maps/${map.id}/testInviteResponse`,
+          'patch'
+        );
+      });
     });
   });
 });

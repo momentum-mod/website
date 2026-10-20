@@ -1,4 +1,17 @@
-﻿// noinspection DuplicatedCode
+import { mock, after, before, beforeEach, describe, it } from 'node:test';
+
+import {
+  assertValidDto,
+  AuthUtil,
+  DbUtil,
+  futureDateOffset,
+  NULL_ID,
+  randomString,
+  RequestUtil
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
+// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -11,14 +24,6 @@ import {
   UserDto
 } from '../../backend/src/app/dto';
 
-import {
-  AuthUtil,
-  DbUtil,
-  futureDateOffset,
-  NULL_ID,
-  randomString,
-  RequestUtil
-} from '@momentum/test-utils';
 import {
   ActivityType,
   Ban,
@@ -41,7 +46,7 @@ import { createHash } from 'node:crypto';
 describe('User', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -50,19 +55,23 @@ describe('User', () => {
     auth = env.auth;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('user', () => {
     describe('GET', () => {
       let user, token;
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { profile: { create: { bio: randomString() } } },
           include: { profile: true }
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should respond with user data', async () => {
         const res = await req.get({
@@ -72,32 +81,37 @@ describe('User', () => {
           token
         });
 
-        expect(res.body.alias).toBe(user.alias);
-        expect(res.body).not.toHaveProperty('profile');
+        assert.equal(res.body.alias, user.alias);
+        assert.ok(!Object.hasOwn(res.body, 'profile'));
       });
 
-      it('should respond with user data and expand profile data', () =>
-        req.expandTest({
+      it('should respond with user data and expand profile data', async () => {
+        await req.expandTest({
           url: 'user',
           validate: UserDto,
           expand: 'profile',
           token
-        }));
+        });
+      });
 
-      it('should respond with user data and expand userStats data', () =>
-        req.expandTest({
+      it('should respond with user data and expand userStats data', async () => {
+        await req.expandTest({
           url: 'user',
           validate: UserDto,
           expand: 'userStats',
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user', 'get');
+      });
     });
 
     describe('PATCH', () => {
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it("should update the authenticated user's alias", async () => {
         const [user, token] = await db.createAndLoginUser();
@@ -115,7 +129,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.alias).toBe(newAlias);
+        assert.equal(updatedUser.alias, newAlias);
       });
 
       it("should fail to update the authenticated user's alias", async () => {
@@ -134,17 +148,19 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.alias).not.toBe(newAlias);
+        assert.notEqual(updatedUser.alias, newAlias);
       });
 
       it("should reset the authenticated user's alias to steam alias", async () => {
         const steamAlias = 'Bork';
 
-        const steamSummarySpy = jest.spyOn(
+        const steamSummarySpy = mock.method(
           app.get(SteamService),
           'getSteamUserSummaryData'
         );
-        steamSummarySpy.mockResolvedValue({ personaname: steamAlias });
+        steamSummarySpy.mock.mockImplementation(() =>
+          Promise.resolve({ personaname: steamAlias })
+        );
 
         const [user, token] = await db.createAndLoginUser({
           data: { alias: 'Not Bork' }
@@ -157,13 +173,13 @@ describe('User', () => {
           token
         });
 
-        steamSummarySpy.mockRestore();
+        steamSummarySpy.mock.restore();
 
         const updatedUser = await prisma.user.findFirst({
           where: { id: user.id }
         });
 
-        expect(updatedUser.alias).toBe(steamAlias);
+        assert.equal(updatedUser.alias, steamAlias);
       });
 
       it("should update the authenticated user's bio", async () => {
@@ -182,7 +198,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.profile.bio).toBe(newBio);
+        assert.equal(updatedUser.profile.bio, newBio);
       });
 
       it("should update the authenticated user's socials", async () => {
@@ -216,7 +232,7 @@ describe('User', () => {
 
         const socials = updatedUser.profile.socials as Socials;
 
-        expect(socials).toMatchObject(socialNames);
+        assert.partialDeepStrictEqual(socials, socialNames);
       });
 
       it('should delete any social not on the update object', async () => {
@@ -242,7 +258,7 @@ describe('User', () => {
 
         const socials = updatedUser.profile.socials as Socials;
 
-        expect(socials.YouTube).toBeUndefined();
+        assert.equal(socials.YouTube, undefined);
       });
 
       it("should update the both authenticated user's bio and profile", async () => {
@@ -263,9 +279,9 @@ describe('User', () => {
         });
 
         const socials = updatedUser.profile.socials as Socials;
-        expect(socials.Discord).toBe(discordUsername);
+        assert.equal(socials.Discord, discordUsername);
 
-        expect(updatedUser.profile.bio).toBe(newBio);
+        assert.equal(updatedUser.profile.bio, newBio);
       });
 
       it('should 400 for an invalid social', async () => {
@@ -349,8 +365,9 @@ describe('User', () => {
         });
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user', 'patch');
+      });
 
       it("should update the authenticated user's country code", async () => {
         const [user, token] = await db.createAndLoginUser();
@@ -368,7 +385,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.country).toBe(newCountryCode);
+        assert.equal(updatedUser.country, newCountryCode);
       });
 
       it('should 400 since countryCode is not ISO Alpha-2 (verified by class-validator)', async () => {
@@ -385,16 +402,16 @@ describe('User', () => {
     });
 
     describe('DELETE', () => {
-      afterAll(() =>
-        db.cleanup(
+      after(async () => {
+        await db.cleanup(
           'leaderboardRun',
           'pastRun',
           'mMap',
           'report',
           'activity',
           'deletedUser'
-        )
-      );
+        );
+      });
 
       it('should delete user data, leaving user with Role.DELETED', async () => {
         const steamID = 12345;
@@ -538,7 +555,7 @@ describe('User', () => {
           where: { steamIDHash }
         });
 
-        expect(deletedUser).toMatchObject({
+        assert.partialDeepStrictEqual(deletedUser, {
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
           steamID: null,
@@ -562,11 +579,12 @@ describe('User', () => {
           reportResolved: userBeforeDeletion.reportResolved
         });
 
-        expect(deletedSteamIDEntry).toBeTruthy();
+        assert.ok(deletedSteamIDEntry);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user', 'del');
+      });
     });
   });
 
@@ -585,13 +603,14 @@ describe('User', () => {
           validate: ProfileDto
         });
 
-        expect(res.body.bio).toBe((user as any).profile.bio);
+        assert.equal(res.body.bio, (user as any).profile.bio);
 
         await prisma.user.deleteMany();
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/profile', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/profile', 'get');
+      });
     });
   });
 
@@ -599,16 +618,17 @@ describe('User', () => {
     describe('POST', () => {
       let u1, u1Token, u2, u3;
 
-      beforeAll(
-        async () =>
-          ([[u1, u1Token], u2, u3] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser(),
-            db.createUser()
-          ]))
-      );
+      before(async () => {
+        await ([[u1, u1Token], u2, u3] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createUser()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should follow multiple users', async () => {
         await req.post({
@@ -622,7 +642,7 @@ describe('User', () => {
           where: { followeeID: u1.id }
         });
 
-        expect(userFollows).toHaveLength(2);
+        assert.equal(userFollows.length, 2);
       });
 
       it('should 400 for invalid body', async () => {
@@ -641,13 +661,14 @@ describe('User', () => {
         });
       });
 
-      it('should 404 if any of the target users do not exist', () =>
-        req.post({
+      it('should 404 if any of the target users do not exist', async () => {
+        await req.post({
           url: 'user/follow',
           status: 404,
           body: { targetUserIDs: [u2.id, NULL_ID] },
           token: u1Token
-        }));
+        });
+      });
     });
   });
 
@@ -655,15 +676,16 @@ describe('User', () => {
     describe('GET', () => {
       let u1, u1Token, u2;
 
-      beforeEach(
-        async () =>
-          ([[u1, u1Token], u2] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser()
-          ]))
-      );
+      beforeEach(async () => {
+        await ([[u1, u1Token], u2] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should return relationships of the given and local user who follow each other', async () => {
         await prisma.follow.createMany({
@@ -680,7 +702,7 @@ describe('User', () => {
           validate: FollowStatusDto
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           local: { followed: { id: u2.id }, followee: { id: u1.id } },
           target: { followed: { id: u1.id }, followee: { id: u2.id } }
         });
@@ -698,11 +720,11 @@ describe('User', () => {
           validate: FollowStatusDto
         });
 
-        expect(res.body.local).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.local, {
           followed: { id: u2.id },
           followee: { id: u1.id }
         });
-        expect(res.body.target).toBeNull();
+        assert.equal(res.body.target, null);
       });
 
       it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
@@ -717,11 +739,11 @@ describe('User', () => {
           validate: FollowStatusDto
         });
 
-        expect(res.body.target).toMatchObject({
+        assert.partialDeepStrictEqual(res.body.target, {
           followee: { id: u2.id },
           followed: { id: u1.id }
         });
-        expect(res.body.local).toBeNull();
+        assert.equal(res.body.local, null);
       });
 
       it('should have neither sides of relationship if their neither relationship exists', async () => {
@@ -732,33 +754,36 @@ describe('User', () => {
           validate: FollowStatusDto
         });
 
-        expect(res.body.local).toBeNull();
-        expect(res.body.target).toBeNull();
+        assert.equal(res.body.local, null);
+        assert.equal(res.body.target, null);
       });
 
-      it('should 404 if the target user does not exist', () =>
-        req.get({
+      it('should 404 if the target user does not exist', async () => {
+        await req.get({
           url: `user/follow/${NULL_ID}`,
           status: 404,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/follow/1', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/follow/1', 'get');
+      });
     });
 
     describe('POST', () => {
       let u1, u1Token, u2;
 
-      beforeEach(
-        async () =>
-          ([[u1, u1Token], u2] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser()
-          ]))
-      );
+      beforeEach(async () => {
+        await ([[u1, u1Token], u2] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it("should 204 and add user to authenticated user's follow list", async () => {
         const res = await req.post({
@@ -767,7 +792,7 @@ describe('User', () => {
           validate: FollowDto,
           token: u1Token
         });
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           followedID: u2.id,
           followeeID: u1.id,
           notifyOn: 0
@@ -777,15 +802,16 @@ describe('User', () => {
           where: { followeeID: u1.id }
         });
 
-        expect(follow.followedID).toBe(u2.id);
+        assert.equal(follow.followedID, u2.id);
       });
 
-      it('should 404 if the target user does not exist', () =>
-        req.post({
+      it('should 404 if the target user does not exist', async () => {
+        await req.post({
           url: `user/follow/${NULL_ID}`,
           status: 404,
           token: u1Token
-        }));
+        });
+      });
 
       it('should 400 if the authenticated user is already following the target user', async () => {
         await prisma.follow.create({
@@ -807,27 +833,30 @@ describe('User', () => {
         });
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/follow/1', 'post'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/follow/1', 'post');
+      });
     });
 
     describe('PATCH', () => {
       let u1, u1Token, u2;
 
-      beforeAll(async () => {
+      before(async () => {
         u2 = await db.createUser();
         [u1, u1Token] = await db.createAndLoginUser({
           data: { follows: { create: { followedID: u2.id } } }
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should update the following status of the local user and the followed user', async () => {
         let follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id }
         });
-        expect(follow.notifyOn).toBe(0);
+        assert.equal(follow.notifyOn, 0);
 
         await req.patch({
           url: `user/follow/${u2.id}`,
@@ -839,41 +868,45 @@ describe('User', () => {
         follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id }
         });
-        expect(follow.notifyOn).toBe(ActivityType.REVIEW_MADE);
+        assert.equal(follow.notifyOn, ActivityType.REVIEW_MADE);
       });
 
-      it('should 400 if the body is invalid', () =>
-        req.patch({
+      it('should 400 if the body is invalid', async () => {
+        await req.patch({
           url: `user/follow/${u2.id}`,
           status: 400,
           body: { notifyOn: 'burger' },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 404 if the target user does not exist', () =>
-        req.patch({
+      it('should 404 if the target user does not exist', async () => {
+        await req.patch({
           url: `user/follow/${NULL_ID}`,
           status: 404,
           body: { notifyOn: ActivityType.REVIEW_MADE },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/follow/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/follow/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
       let u1, u1Token, u2;
 
-      beforeAll(
-        async () =>
-          ([[u1, u1Token], u2] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser()
-          ]))
-      );
+      before(async () => {
+        await ([[u1, u1Token], u2] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should remove the user from the local users follow list', async () => {
         await prisma.follow.create({
@@ -889,23 +922,30 @@ describe('User', () => {
         const follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id }
         });
-        expect(follow).toBeNull();
+        assert.equal(follow, null);
 
         await prisma.follow.deleteMany();
       });
 
-      it('should 404 if the target user is not followed by the local user ', () =>
-        req.del({ url: `user/follow/${u2.id}`, status: 404, token: u1Token }));
+      it('should 404 if the target user is not followed by the local user ', async () => {
+        await req.del({
+          url: `user/follow/${u2.id}`,
+          status: 404,
+          token: u1Token
+        });
+      });
 
-      it('should 404 if the target user does not exist', () =>
-        req.del({
+      it('should 404 if the target user does not exist', async () => {
+        await req.del({
           url: `user/follow/${NULL_ID}`,
           status: 404,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/follow/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/follow/1', 'del');
+      });
     });
   });
 
@@ -913,15 +953,16 @@ describe('User', () => {
     describe('GET ', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should return a MapNotify DTO for a given user and map', async () => {
         const activityType = ActivityType.WR_ACHIEVED;
@@ -936,41 +977,45 @@ describe('User', () => {
           validate: MapNotifyDto
         });
 
-        expect(res.body.notifyOn).toBe(activityType);
+        assert.equal(res.body.notifyOn, activityType);
 
         await prisma.mapNotify.deleteMany();
       });
 
-      it('should 404 if the user does not have mapnotify for given map', () =>
-        req.get({
+      it('should 404 if the user does not have mapnotify for given map', async () => {
+        await req.get({
           url: `user/notifyMap/${map.id}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 404 if the target map does not exist', () =>
-        req.get({
+      it('should 404 if the target map does not exist', async () => {
+        await req.get({
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifyMap/1', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/notifyMap/1', 'get');
+      });
     });
 
     describe('PUT ', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should update map notification status with existing notifications', async () => {
         await prisma.mapNotify.create({
@@ -992,7 +1037,7 @@ describe('User', () => {
         const mapNotify = await prisma.mapNotify.findFirst({
           where: { userID: user.id }
         });
-        expect(mapNotify.notifyOn).toBe(newActivityType);
+        assert.equal(mapNotify.notifyOn, newActivityType);
 
         await prisma.mapNotify.deleteMany();
       });
@@ -1009,7 +1054,7 @@ describe('User', () => {
         const mapNotify = await prisma.mapNotify.findFirst({
           where: { userID: user.id }
         });
-        expect(mapNotify.notifyOn).toBe(activityType);
+        assert.equal(mapNotify.notifyOn, activityType);
 
         await prisma.mapNotify.deleteMany();
       });
@@ -1023,30 +1068,33 @@ describe('User', () => {
         });
       });
 
-      it('should 404 if the target map does not exist', () =>
-        req.put({
+      it('should 404 if the target map does not exist', async () => {
+        await req.put({
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
           body: { notifyOn: ActivityType.PB_ACHIEVED },
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifyMap/1', 'put'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/notifyMap/1', 'put');
+      });
     });
 
     describe('DELETE', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should remove the user from map notifications list', async () => {
         await prisma.mapNotify.create({
@@ -1066,25 +1114,28 @@ describe('User', () => {
         const mapNotify = await prisma.mapNotify.findFirst({
           where: { userID: user.id }
         });
-        expect(mapNotify).toBeNull();
+        assert.equal(mapNotify, null);
       });
 
-      it('should 404 if the user is not following the map', () =>
-        req.del({
+      it('should 404 if the user is not following the map', async () => {
+        await req.del({
           url: `user/notifyMap/${map.id}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 404 if the target map does not exist', () =>
-        req.del({
+      it('should 404 if the target map does not exist', async () => {
+        await req.del({
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/notifyMap/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/notifyMap/1', 'del');
+      });
     });
   });
 
@@ -1092,7 +1143,7 @@ describe('User', () => {
     describe('GET', () => {
       let user, token;
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
         await prisma.activity.createMany({
           data: [
@@ -1103,7 +1154,9 @@ describe('User', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should retrieve the local users activities', async () => {
         const res = await req.get({
@@ -1113,24 +1166,26 @@ describe('User', () => {
           validatePaged: ActivityDto
         });
 
-        for (const r of res.body.data) expect(r.user.alias).toBe(user.alias);
-        expect(res.body.totalCount).toBe(3);
-        expect(res.body.returnCount).toBe(3);
+        for (const r of res.body.data) assert.equal(r.user.alias, user.alias);
+        assert.equal(res.body.totalCount, 3);
+        assert.equal(res.body.returnCount, 3);
       });
 
-      it('should respond with a limited list of activities for the local user when using the take query param', () =>
-        req.takeTest({
+      it('should respond with a limited list of activities for the local user when using the take query param', async () => {
+        await req.takeTest({
           url: 'user/activities',
           validate: ActivityDto,
           token
-        }));
+        });
+      });
 
-      it('should respond with a different list of activities for the local user when using the skip query param', () =>
-        req.skipTest({
+      it('should respond with a different list of activities for the local user when using the skip query param', async () => {
+        await req.skipTest({
           url: 'user/activities',
           validate: ActivityDto,
           token
-        }));
+        });
+      });
 
       it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
         const res = await req.get({
@@ -1141,7 +1196,7 @@ describe('User', () => {
           token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           totalCount: 1,
           returnCount: 1,
           data: [{ type: ActivityType.MAP_UPLOADED }]
@@ -1157,7 +1212,10 @@ describe('User', () => {
           token
         });
 
-        expect(res.body).toMatchObject({ totalCount: 2, returnCount: 2 });
+        assert.partialDeepStrictEqual(res.body, {
+          totalCount: 2,
+          returnCount: 2
+        });
       });
 
       it('should respond with an empty list of activities for the local user when using the data query param with nonexistent data', async () => {
@@ -1168,12 +1226,16 @@ describe('User', () => {
           token
         });
 
-        expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.data).toBeInstanceOf(Array);
+        assert.partialDeepStrictEqual(res.body, {
+          totalCount: 0,
+          returnCount: 0
+        });
+        assert.ok(res.body.data instanceof Array);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/activities', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/activities', 'get');
+      });
     });
   });
 
@@ -1181,7 +1243,7 @@ describe('User', () => {
     describe('GET', () => {
       let u1, u1Token, u2, u2Token;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser()
@@ -1207,7 +1269,9 @@ describe('User', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       it('should retrieve a list of activities from the local users followed users', async () => {
         const res = await req.get({
@@ -1217,33 +1281,36 @@ describe('User', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           totalCount: 2,
           returnCount: 2,
           data: [{ user: { alias: u2.alias } }, { user: { alias: u2.alias } }]
         });
       });
 
-      it('should order the list by descending date', () =>
-        req.sortByDateTest({
+      it('should order the list by descending date', async () => {
+        await req.sortByDateTest({
           url: 'user/activities/followed',
           validate: ActivityDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with a limited list of activities for the u1 when using the take query param', () =>
-        req.takeTest({
+      it('should respond with a limited list of activities for the u1 when using the take query param', async () => {
+        await req.takeTest({
           url: 'user/activities/followed',
           validate: ActivityDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should respond with a different list of activities for the u1 when using the skip query param', () =>
-        req.skipTest({
+      it('should respond with a different list of activities for the u1 when using the skip query param', async () => {
+        await req.skipTest({
           url: 'user/activities/followed',
           validate: ActivityDto,
           token: u1Token
-        }));
+        });
+      });
 
       it('should respond with a filtered list of activities for the u1 when using the type query param', async () => {
         const res = await req.get({
@@ -1254,7 +1321,7 @@ describe('User', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           totalCount: 1,
           returnCount: 1,
           data: [{ userID: u2.id, type: ActivityType.WR_ACHIEVED, data: 1 }]
@@ -1270,7 +1337,7 @@ describe('User', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({
+        assert.partialDeepStrictEqual(res.body, {
           totalCount: 1,
           returnCount: 1,
           data: [{ userID: u2.id, data: 2, type: ActivityType.REVIEW_MADE }]
@@ -1285,8 +1352,11 @@ describe('User', () => {
           token: u1Token
         });
 
-        expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.data).toBeInstanceOf(Array);
+        assert.partialDeepStrictEqual(res.body, {
+          totalCount: 0,
+          returnCount: 0
+        });
+        assert.ok(res.body.data instanceof Array);
       });
 
       it('should respond with an empty list of activities for a u1 that is not following anyone', async () => {
@@ -1296,12 +1366,16 @@ describe('User', () => {
           token: u2Token
         });
 
-        expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.data).toBeInstanceOf(Array);
+        assert.partialDeepStrictEqual(res.body, {
+          totalCount: 0,
+          returnCount: 0
+        });
+        assert.ok(res.body.data instanceof Array);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/activities/followed', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/activities/followed', 'get');
+      });
     });
   });
 
@@ -1309,15 +1383,16 @@ describe('User', () => {
     describe('GET', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should return 204 if the map is not in favorites', async () => {
         await prisma.mapFavorite.create({
@@ -1333,43 +1408,47 @@ describe('User', () => {
         await prisma.mapFavorite.deleteMany();
       });
 
-      it('should return 410 if the map is not in favorites', () =>
-        req.get({
+      it('should return 410 if the map is not in favorites', async () => {
+        await req.get({
           url: `user/maps/favorites/${map.id}`,
           token,
           status: 410
-        }));
+        });
+      });
 
-      it("should return 410 if the map doesn't exist", () =>
-        req.get({
+      it("should return 410 if the map doesn't exist", async () => {
+        await req.get({
           url: `user/maps/favorites/${NULL_ID}`,
           token,
           status: 410
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/favorites/1', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/maps/favorites/1', 'get');
+      });
     });
 
     describe('PUT', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should add a new map to the local users favorites', async () => {
         let stats = await prisma.mapStats.findUnique({
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(0);
+        assert.equal(stats.favorites, 0);
 
         await req.put({
           url: `user/maps/favorites/${map.id}`,
@@ -1380,45 +1459,49 @@ describe('User', () => {
         const favorite = await prisma.mapFavorite.findFirst({
           where: { userID: user.id }
         });
-        expect(favorite.mapID).toBe(map.id);
+        assert.equal(favorite.mapID, map.id);
 
         stats = await prisma.mapStats.findUnique({
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(1);
+        assert.equal(stats.favorites, 1);
       });
 
-      it("should 404 if the map doesn't exist", () =>
-        req.put({
+      it("should 404 if the map doesn't exist", async () => {
+        await req.put({
           url: `user/maps/favorites/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 400 if the map is already in users favorites', () =>
-        req.put({
+      it('should 400 if the map is already in users favorites', async () => {
+        await req.put({
           url: `user/maps/favorites/${map.id}`,
           status: 400,
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/favorites/1', 'put'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/maps/favorites/1', 'put');
+      });
     });
 
     describe('DELETE', () => {
       let user, token, map;
 
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createMap()
-          ]))
-      );
+      before(async () => {
+        await ([[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]));
+      });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should delete a map from the local users favorites', async () => {
         await prisma.mapFavorite.create({
@@ -1439,31 +1522,34 @@ describe('User', () => {
         const favorite = await prisma.mapFavorite.findFirst({
           where: { userID: user.id, mapID: map.id }
         });
-        expect(favorite).toBeNull();
+        assert.equal(favorite, null);
 
         const stats = await prisma.mapStats.findUnique({
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(0);
+        assert.equal(stats.favorites, 0);
       });
 
-      it('should 400 if the map is not in the local users favorites', () =>
-        req.del({
+      it('should 400 if the map is not in the local users favorites', async () => {
+        await req.del({
           url: `user/maps/favorites/${map.id}`,
           status: 400,
           token
-        }));
+        });
+      });
 
-      it('should 404 if the map is not in the database', () =>
-        req.del({
+      it('should 404 if the map is not in the database', async () => {
+        await req.del({
           url: `user/maps/favorites/${NULL_ID}`,
           status: 404,
           token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/favorites/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/maps/favorites/1', 'del');
+      });
     });
   });
 
@@ -1471,7 +1557,7 @@ describe('User', () => {
     describe('GET', () => {
       let u1: User, u1Token: string, u2Token: string;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser()
@@ -1494,15 +1580,18 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
-      it('should retrieve the list of maps that the user submitted', () =>
-        req.get({
+      it('should retrieve the list of maps that the user submitted', async () => {
+        await req.get({
           url: 'user/maps',
           status: 200,
           token: u1Token,
           validatePaged: { type: MapDto, count: 2 }
-        }));
+        });
+      });
 
       it('should retrieve an empty map list if the user has not submitted any maps', async () => {
         const res = await req.get({
@@ -1511,63 +1600,73 @@ describe('User', () => {
           token: u2Token
         });
 
-        expect(res.body).toMatchObject({ returnCount: 0, totalCount: 0 });
+        assert.partialDeepStrictEqual(res.body, {
+          returnCount: 0,
+          totalCount: 0
+        });
       });
 
-      it('should retrieve the users submitted maps when using the skip query parameter', () =>
-        req.skipTest({
+      it('should retrieve the users submitted maps when using the skip query parameter', async () => {
+        await req.skipTest({
           url: 'user/maps',
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should retrieve the users submitted maps when using the take query parameter', () =>
-        req.takeTest({
+      it('should retrieve the users submitted maps when using the take query parameter', async () => {
+        await req.takeTest({
           url: 'user/maps',
           validate: MapDto,
           token: u1Token
-        }));
+        });
+      });
 
-      it('should retrieve the submitted maps with expanded info', () =>
-        req.expandTest({
+      it('should retrieve the submitted maps with expanded info', async () => {
+        await req.expandTest({
           url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'info',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should retrieve the submitted maps with expanded submitter', () =>
-        req.expandTest({
+      it('should retrieve the submitted maps with expanded submitter', async () => {
+        await req.expandTest({
           url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'submitter',
           token: u1Token
-        }));
+        });
+      });
 
-      it('should retrieve the submitted maps with expanded credits', () =>
-        req.expandTest({
+      it('should retrieve the submitted maps with expanded credits', async () => {
+        await req.expandTest({
           url: 'user/maps',
           validate: MapDto,
           paged: true,
           expand: 'credits',
           token: u1Token,
           some: true
-        }));
+        });
+      });
 
-      it('should retrieve a map specified by a search query parameter', () =>
-        req.searchTest({
+      it('should retrieve a map specified by a search query parameter', async () => {
+        await req.searchTest({
           url: 'user/maps',
           token: u1Token,
           validate: { type: MapDto, count: 1 },
           searchPropertyName: 'name',
           searchMethod: 'contains',
           searchString: 'bbb'
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/maps', 'get');
+      });
     });
   });
 
@@ -1575,7 +1674,7 @@ describe('User', () => {
     describe('GET', () => {
       let u1, u1Token, u2Token;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser()
@@ -1592,7 +1691,9 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      after(async () => {
+        await db.cleanup('user', 'mMap');
+      });
 
       it('should retrieve an array of objects that each contain a status and its count', async () => {
         const res = await req.get({
@@ -1601,8 +1702,8 @@ describe('User', () => {
           token: u1Token
         });
 
-        expect(res.body).toBeInstanceOf(Array);
-        for (const item of res.body) expect(item).toBeValidDto(MapSummaryDto);
+        assert.ok(res.body instanceof Array);
+        for (const item of res.body) assertValidDto(item, MapSummaryDto);
       });
 
       it('should retrieve an empty summary list', async () => {
@@ -1612,12 +1713,13 @@ describe('User', () => {
           token: u2Token
         });
 
-        expect(res.body).toBeInstanceOf(Array);
-        expect(res.body).toHaveLength(0);
+        assert.ok(res.body instanceof Array);
+        assert.equal(res.body.length, 0);
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('user/maps/summary', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('user/maps/summary', 'get');
+      });
     });
   });
 });

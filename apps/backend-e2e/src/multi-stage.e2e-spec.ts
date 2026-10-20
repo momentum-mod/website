@@ -1,3 +1,17 @@
+import { after, afterEach, before, describe, it } from 'node:test';
+
+import {
+  arrayContaining,
+  createSha1Hash,
+  DbUtil,
+  FILES_PATH,
+  FileStoreUtil,
+  matchesPartial,
+  objectContaining,
+  RequestUtil
+} from '@momentum/test-utils';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { readFileSync } from 'node:fs';
@@ -14,13 +28,7 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import {
-  createSha1Hash,
-  DbUtil,
-  FILES_PATH,
-  FileStoreUtil,
-  RequestUtil
-} from '@momentum/test-utils';
+
 import Zip from 'adm-zip';
 import { BabyZonesStub } from '@momentum/formats/zone';
 import { MapDto, MapReviewDto } from '../../backend/src/app/dto';
@@ -36,7 +44,7 @@ describe('Multi-stage E2E tests', () => {
     db: DbUtil,
     fileStore: FileStoreUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     prisma = env.prisma;
     app = env.app;
@@ -45,9 +53,13 @@ describe('Multi-stage E2E tests', () => {
     fileStore = env.fileStore;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
-  afterEach(() => db.cleanup('mMap', 'user'));
+  afterEach(async () => {
+    await db.cleanup('mMap', 'user');
+  });
 
   it('Map submission', async () => {
     const [user, token] = await db.createAndLoginUser();
@@ -118,14 +130,17 @@ describe('Multi-stage E2E tests', () => {
       token
     });
 
-    expect(await prisma.leaderboard.findMany({ where: { mapID } })).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          gamemode: Gamemode.SURF,
-          trackType: TrackType.MAIN,
-          trackNum: 1
-        })
-      ])
+    assert.ok(
+      matchesPartial(
+        await prisma.leaderboard.findMany({ where: { mapID } }),
+        arrayContaining([
+          objectContaining({
+            gamemode: Gamemode.SURF,
+            trackType: TrackType.MAIN,
+            trackNum: 1
+          })
+        ])
+      )
     );
 
     await req.patch({
@@ -273,7 +288,7 @@ describe('Multi-stage E2E tests', () => {
       include: { currentVersion: true }
     });
 
-    expect(mapRes).toMatchObject({
+    assert.partialDeepStrictEqual(mapRes, {
       status: MapStatus.APPROVED,
       name: 'surf_todd_howard',
       credits: [
@@ -342,26 +357,30 @@ describe('Multi-stage E2E tests', () => {
       ]
     });
 
-    expect(bsp2Hash).not.toBe(bspHash);
-    expect(vmf2Hash).not.toBe(vmfHash);
-    expect(
+    assert.notEqual(bsp2Hash, bspHash);
+    assert.notEqual(vmf2Hash, vmfHash);
+    assert.ok(
       (mapRes.currentVersion.downloadURL as string).endsWith(
         `${map.currentVersion.bspDownloadId}.bsp`
       )
-    ).toBeTruthy();
+    );
     const bspDownloadBuffer = await fileStore.downloadHttp(
       mapRes.currentVersion.downloadURL
     );
-    expect(createSha1Hash(bspDownloadBuffer)).toBe(bsp2Hash);
+    assert.equal(createSha1Hash(bspDownloadBuffer), bsp2Hash);
 
     const vmfZip = new Zip(
       await fileStore.downloadHttp(mapRes.currentVersion.vmfDownloadURL)
     );
-    expect(
-      createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData())
-    ).toBe(vmf2Hash);
-    expect(
-      createSha1Hash(vmfZip.getEntry('surf_todd_howard_instance.vmf').getData())
-    ).toBe(vmf2Hash);
+    assert.equal(
+      createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData()),
+      vmf2Hash
+    );
+    assert.equal(
+      createSha1Hash(
+        vmfZip.getEntry('surf_todd_howard_instance.vmf').getData()
+      ),
+      vmf2Hash
+    );
   }, 1231123123);
 });

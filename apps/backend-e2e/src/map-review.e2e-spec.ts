@@ -1,3 +1,6 @@
+import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
+
+import * as assert from 'node:assert/strict';
 // noinspection DuplicatedCode
 
 import { MapReviewCommentDto, MapReviewDto } from '../../backend/src/app/dto';
@@ -16,6 +19,7 @@ import {
   RequestUtil,
   resetKillswitches
 } from '@momentum/test-utils';
+
 import {
   Gamemode,
   mapReviewAssetPath,
@@ -37,7 +41,7 @@ describe('Map Reviews', () => {
     db: DbUtil,
     fileStore: FileStoreUtil;
 
-  beforeAll(async () => {
+  before(async () => {
     const env = await setupE2ETestEnvironment();
     app = env.app;
     prisma = env.prisma;
@@ -46,12 +50,14 @@ describe('Map Reviews', () => {
     fileStore = env.fileStore;
   });
 
-  afterAll(() => teardownE2ETestEnvironment(app, prisma));
+  after(async () => {
+    await teardownE2ETestEnvironment(app, prisma);
+  });
 
   describe('map-review/{reviewID}', () => {
     describe('GET', () => {
       let user, token, map, review;
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.REVIEWER }
         });
@@ -79,7 +85,9 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should return the requested review', async () => {
         const response = await req.get({
@@ -88,7 +96,7 @@ describe('Map Reviews', () => {
           validate: MapReviewDto,
           token: token
         });
-        expect(response.body).toMatchObject({
+        assert.partialDeepStrictEqual(response.body, {
           mainText: review.mainText,
           mapID: map.id,
           id: review.id
@@ -132,28 +140,32 @@ describe('Map Reviews', () => {
         });
       });
 
-      it('should return 404 for a nonexistent review', () =>
-        req.get({
+      it('should return 404 for a nonexistent review', async () => {
+        await req.get({
           url: `map-review/${NULL_ID}`,
           status: 404,
           token: token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('map-review/1', 'get'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('map-review/1', 'get');
+      });
     });
 
     describe('PATCH', () => {
       let u1, u1Token, u2, u2Token, map, review1, review2;
 
-      beforeAll(async () => {
+      before(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
           db.createAndLoginUser(),
           db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
         ]);
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       beforeEach(async () => {
         map = await db.createMap({
@@ -198,7 +210,9 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterEach(() => db.cleanup('mMap'));
+      afterEach(async () => {
+        await db.cleanup('mMap');
+      });
 
       it('should successfully update a review', async () => {
         const res = await req.patch({
@@ -221,12 +235,12 @@ describe('Map Reviews', () => {
           token: u2Token
         });
 
-        expect(res.body.mainText).toBe('actually i like this stage');
-        expect(res.body.approves).toBe(true);
+        assert.equal(res.body.mainText, 'actually i like this stage');
+        assert.equal(res.body.approves, true);
       });
 
-      it('should 400 for bad update data', () =>
-        req.patch({
+      it('should 400 for bad update data', async () => {
+        await req.patch({
           url: `map-review/${review1.id}`,
           status: 400,
           body: {
@@ -241,53 +255,59 @@ describe('Map Reviews', () => {
             ]
           },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 403 if not the reviewer', () =>
-        req.patch({
+      it('should 403 if not the reviewer', async () => {
+        await req.patch({
           url: `map-review/${review1.id}`,
           status: 403,
           body: { mainText: 'i dont like this review' },
           token: u2Token
-        }));
+        });
+      });
 
-      it('should allow official reviewer to resolve their review', () =>
-        req.patch({
+      it('should allow official reviewer to resolve their review', async () => {
+        await req.patch({
           url: `map-review/${review2.id}`,
           status: 200,
           body: { resolved: true },
           token: u2Token
-        }));
+        });
+      });
 
-      it('should allow unofficial reviewer to resolve their review', () =>
-        req.patch({
+      it('should allow unofficial reviewer to resolve their review', async () => {
+        await req.patch({
           url: `map-review/${review1.id}`,
           status: 200,
           body: { resolved: true },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should allow official reviewer to mark their review as approves', () =>
-        req.patch({
+      it('should allow official reviewer to mark their review as approves', async () => {
+        await req.patch({
           url: `map-review/${review2.id}`,
           status: 200,
           body: { approves: true },
           token: u2Token
-        }));
+        });
+      });
 
-      it('should not allow unofficial reviewer mark their review as approved', () =>
-        req.patch({
+      it('should not allow unofficial reviewer mark their review as approved', async () => {
+        await req.patch({
           url: `map-review/${review1.id}`,
           status: 403,
           body: { approves: true },
           token: u1Token
-        }));
+        });
+      });
 
       it('should update review stats', async () => {
         const before = await prisma.mapReviewStats.findUnique({
           where: { mapID: map.id }
         });
-        expect(before).toMatchObject({
+        assert.partialDeepStrictEqual(before, {
           total: 2,
           approvals: 0,
           resolved: 0,
@@ -304,7 +324,7 @@ describe('Map Reviews', () => {
         const after = await prisma.mapReviewStats.findUnique({
           where: { mapID: map.id }
         });
-        expect(after).toMatchObject({
+        assert.partialDeepStrictEqual(after, {
           total: 2,
           approvals: 1,
           resolved: 1,
@@ -312,16 +332,18 @@ describe('Map Reviews', () => {
         });
       });
 
-      it('should return 404 for missing review', () =>
-        req.patch({
+      it('should return 404 for missing review', async () => {
+        await req.patch({
           url: `map-review/${NULL_ID}`,
           status: 404,
           body: { mainText: 'what' },
           token: u1Token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('map-review/1', 'patch'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('map-review/1', 'patch');
+      });
     });
 
     describe('DELETE', () => {
@@ -334,7 +356,7 @@ describe('Map Reviews', () => {
         _notif: Notification;
       const assetPath = mapReviewAssetPath('1');
 
-      beforeAll(async () => {
+      before(async () => {
         [[user, token], u2Token, modToken] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser({ data: { roles: Role.REVIEWER } }),
@@ -342,7 +364,9 @@ describe('Map Reviews', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user'));
+      after(async () => {
+        await db.cleanup('user');
+      });
 
       beforeEach(async () => {
         map = await db.createMap({
@@ -391,12 +415,13 @@ describe('Map Reviews', () => {
         await db.cleanup('mMap', 'notification');
       });
 
-      it('should allow a user to delete their own review', () =>
-        req.del({
+      it('should allow a user to delete their own review', async () => {
+        await req.del({
           url: `map-review/${review.id}`,
           status: 204,
           token: token
-        }));
+        });
+      });
 
       it('should 503 if the killswitch is true', async () => {
         const adminToken = await db.loginNewUser({
@@ -421,23 +446,25 @@ describe('Map Reviews', () => {
         await resetKillswitches(req, adminToken);
       });
 
-      it("should not allow another user to delete someone else's review", () =>
-        req.del({
+      it("should not allow another user to delete someone else's review", async () => {
+        await req.del({
           url: `map-review/${review.id}`,
           status: 403,
           token: u2Token
-        }));
+        });
+      });
 
       // needs to use admin endpoint
-      it('should not allow a mod to delete a review', () =>
-        req.del({
+      it('should not allow a mod to delete a review', async () => {
+        await req.del({
           url: `map-review/${review.id}`,
           status: 403,
           token: modToken
-        }));
+        });
+      });
 
       it('should delete any stored assets', async () => {
-        expect(await fileStore.exists(assetPath)).toBe(true);
+        assert.equal(await fileStore.exists(assetPath), true);
 
         await req.del({
           url: `map-review/${review.id}`,
@@ -445,14 +472,14 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        expect(await fileStore.exists(assetPath)).toBe(false);
+        assert.equal(await fileStore.exists(assetPath), false);
       });
 
       it('should update stats', async () => {
         const before = await prisma.mapReviewStats.findUnique({
           where: { mapID: map.id }
         });
-        expect(before).toMatchObject({
+        assert.partialDeepStrictEqual(before, {
           total: 1,
           approvals: 1,
           resolved: 1,
@@ -468,7 +495,7 @@ describe('Map Reviews', () => {
         const after = await prisma.mapReviewStats.findUnique({
           where: { mapID: map.id }
         });
-        expect(after).toMatchObject({
+        assert.partialDeepStrictEqual(after, {
           total: 0,
           approvals: 0,
           resolved: 0,
@@ -483,18 +510,20 @@ describe('Map Reviews', () => {
           token: token
         });
         const notifs = await prisma.notification.findMany();
-        expect(notifs).toHaveLength(0);
+        assert.equal(notifs.length, 0);
       });
 
-      it('should return 404 for trying to delete a nonexistent review for a map', () =>
-        req.del({
+      it('should return 404 for trying to delete a nonexistent review for a map', async () => {
+        await req.del({
           url: `map-review/${NULL_ID}`,
           status: 404,
           token: token
-        }));
+        });
+      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('map-review/1', 'del'));
+      it('should 401 when no access token is provided', async () => {
+        await req.unauthorizedTest('map-review/1', 'del');
+      });
     });
   });
 
@@ -502,7 +531,7 @@ describe('Map Reviews', () => {
     describe('GET', () => {
       let user: User, token: string, map: MMap, reviewID: number;
 
-      beforeAll(async () => {
+      before(async () => {
         [user, token] = await db.createAndLoginUser();
 
         map = await db.createMap({ status: MapStatus.PUBLIC_TESTING });
@@ -526,7 +555,9 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should fetch a paginated list of comments', async () => {
         const res = await req.get({
@@ -536,7 +567,7 @@ describe('Map Reviews', () => {
           token
         });
 
-        expect(res.body.data[0]).toHaveProperty('user');
+        assert.ok(Object.hasOwn(res.body.data[0], 'user'));
       });
     });
 
@@ -550,7 +581,7 @@ describe('Map Reviews', () => {
         map: MMap,
         reviewID: number;
 
-      beforeAll(async () => {
+      before(async () => {
         [[user1, u1Token], [user2, u2Token], [admin, adminToken]] =
           await Promise.all([
             db.createAndLoginUser(),
@@ -581,10 +612,12 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
-      it('should 400 if commenting on non-existing review', () =>
-        req.post({
+      it('should 400 if commenting on non-existing review', async () => {
+        await req.post({
           url: `map-review/${NULL_ID}/comments`,
           status: 400,
           body: {
@@ -593,7 +626,8 @@ describe('Map Reviews', () => {
             }
           },
           token: u1Token
-        }));
+        });
+      });
 
       it('should 503 if the killswitch is true', async () => {
         await req.patch({
@@ -636,12 +670,14 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(
-          notifs.find((notif) => notif.notifiedUserID === user1.id)
-        ).toMatchObject({ userID: user2.id });
-        expect(
-          notifs.find((notif) => notif.notifiedUserID === map.submitterID)
-        ).toMatchObject({ userID: user2.id });
+        assert.partialDeepStrictEqual(
+          notifs.find((notif) => notif.notifiedUserID === user1.id),
+          { userID: user2.id }
+        );
+        assert.partialDeepStrictEqual(
+          notifs.find((notif) => notif.notifiedUserID === map.submitterID),
+          { userID: user2.id }
+        );
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
@@ -667,7 +703,8 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.some((notif) => notif.notifiedUserID === user1.id)).toBe(
+        assert.equal(
+          notifs.some((notif) => notif.notifiedUserID === user1.id),
           false
         );
 
@@ -698,8 +735,8 @@ describe('Map Reviews', () => {
             reviewID: review.id
           }
         });
-        expect(notifs.length).toBe(1);
-        expect(notifs[0].notifiedUserID).toBe(map.submitterID);
+        assert.equal(notifs.length, 1);
+        assert.equal(notifs[0].notifiedUserID, map.submitterID);
 
         await prisma.notification.deleteMany({
           where: { type: NotificationType.MAP_REVIEW_COMMENT_POSTED }
@@ -723,11 +760,21 @@ describe('Map Reviews', () => {
             reviewID
           }
         });
-        expect(notifs.length).toBe(4);
-        expect(notifs.some((n) => n.notifiedUserID === user1.id)).toBe(true);
-        expect(notifs.some((n) => n.notifiedUserID === user2.id)).toBe(true);
-        expect(notifs.some((n) => n.notifiedUserID === admin.id)).toBe(true);
-        expect(notifs.some((n) => n.notifiedUserID === map.submitterID)).toBe(
+        assert.equal(notifs.length, 4);
+        assert.equal(
+          notifs.some((n) => n.notifiedUserID === user1.id),
+          true
+        );
+        assert.equal(
+          notifs.some((n) => n.notifiedUserID === user2.id),
+          true
+        );
+        assert.equal(
+          notifs.some((n) => n.notifiedUserID === admin.id),
+          true
+        );
+        assert.equal(
+          notifs.some((n) => n.notifiedUserID === map.submitterID),
           true
         );
 
@@ -744,7 +791,7 @@ describe('Map Reviews', () => {
         map: MMap,
         reviewID: number;
 
-      beforeAll(async () => {
+      before(async () => {
         [[user, token], adminToken] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser({ data: { roles: Role.ADMIN } })
@@ -771,7 +818,9 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should 503 if the killswitch is true', async () => {
         await req.patch({
@@ -801,7 +850,7 @@ describe('Map Reviews', () => {
     describe('DELETE', () => {
       let user, token, adminToken, map, reviewID;
 
-      beforeAll(async () => {
+      before(async () => {
         [[user, token], adminToken] = await Promise.all([
           db.createAndLoginUser(),
           db.loginNewUser({ data: { roles: Role.ADMIN } })
@@ -828,7 +877,9 @@ describe('Map Reviews', () => {
         });
       });
 
-      afterAll(() => db.cleanup('mMap', 'user'));
+      after(async () => {
+        await db.cleanup('mMap', 'user');
+      });
 
       it('should 503 if the killswitch is true', async () => {
         await req.patch({
