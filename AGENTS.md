@@ -104,8 +104,10 @@ import { describe, it, beforeEach, mock } from 'node:test';
 For assertions and mocks that `node:assert` does not cover, use the shared
 helpers from `@momentum/test-utils` rather than writing local copies:
 
-- `node-test-assert.util.ts` — `matchesPartial`, `includesPartial`,
-  `wasCalledWith`, `arrayContaining`, `stringContaining`
+- `node-test-assert.util.ts` — `matchesPartial` (like `toMatchObject`),
+  `matchesExact` (like `toEqual`), `includesPartial`, `wasCalledWith` (exact,
+  like `toHaveBeenCalledWith`), `objectContaining`, `arrayContaining`,
+  `stringContaining`
 - `node-mock.util.ts` — `mockDeep`, `resetDeepMockCalls`, `resetMockCalls`,
   `mockImplementationOnce`, `spyOnNestedMethod`
 
@@ -137,9 +139,10 @@ additionally preload `reflect-metadata` and `apps/backend/test/test-setup.ts`,
 which installs `BigInt.prototype.toJSON` so DTO assertions serialize BigInts the
 same way the API does. Frontend tests preload `apps/frontend/src/test-setup.ts`,
 which builds a JSDOM document, installs the browser globals Angular expects, and
-initializes Zone.js and `TestBed`. Projects select their own
-`tsconfig.spec.json` via `TS_NODE_PROJECT`, with `TS_NODE_TRANSPILE_ONLY=true`
-on backend and E2E.
+initializes `TestBed` with zoneless change detection. The app is zoneless and
+zone.js is not installed, so zone-based helpers like `fakeAsync` are
+unavailable. Projects select their own `tsconfig.spec.json` via
+`TS_NODE_PROJECT`, with `TS_NODE_TRANSPILE_ONLY=true` on backend and E2E.
 
 ### The E2E suite is one shared process
 
