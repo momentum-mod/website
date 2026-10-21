@@ -1,11 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it, before, mock } from 'node:test';
-import { assertValidDto } from '../../../../../test/dto-assert';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
-import { mockDeep } from '@momentum/test-utils';
+import { assertValidDto, mockDeep } from '@momentum/test-utils';
 import { JWTResponseGameDto, JWTResponseWebDto } from '../../../dto';
 import {
   UserJwtAccessPayloadVerified,
