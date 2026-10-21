@@ -11,6 +11,9 @@ import { FILES_PATH } from '../files-path.const';
 import { isEmpty, isObject } from '@momentum/util-fn';
 import { MergeExclusive, Primitive } from 'type-fest';
 import { assertValidDto, assertValidPagedDto } from './assert-valid-dto.util';
+import type Valkey from 'iovalkey';
+import { KillswitchType } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 
 export const URL_PREFIX = '/v1/';
 
@@ -394,22 +397,12 @@ export class RequestUtil {
 //#endregion
 //#region Misc utils
 
-// TODO: This is a very ugly lil util for using a HTTP request to reset
-// killswitches, since the state is currently stored directly in the Node app
-// at runtime. In the future this will be in Redis, so should add a function to
-// DbUtil instead.
-export function resetKillswitches(req: RequestUtil, adminToken: string) {
-  return req.patch({
-    url: 'admin/killswitch',
-    status: 204,
-    body: {
-      NEW_SIGNUPS: false,
-      RUN_SUBMISSION: false,
-      MAP_SUBMISSION: false,
-      MAP_REVIEWS: false
-    },
-    token: adminToken
-  });
+// Reset the shared killswitch state directly in Valkey.
+export function resetKillswitches(valkey: Valkey): Promise<number> {
+  return valkey.hset(
+    'momentum:killswitches',
+    Enum.values(KillswitchType).flatMap((type) => [type, 'false'])
+  );
 }
 
 //#endregion
