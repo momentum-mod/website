@@ -3,7 +3,6 @@ import {
   arrayContaining,
   matchesPartial,
   NULL_ID,
-  resetKillswitches,
   RunTester,
   stringMatching,
   WebsocketTestClient
@@ -29,7 +28,8 @@ import {
   req,
   db,
   wsUrl,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Game Connection Gateway - run sessions', () => {
@@ -217,7 +217,7 @@ describe('Game Connection Gateway - run sessions', () => {
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
       assert.equal(ids.length, 0);
 
-      await resetKillswitches(valkey);
+      await resetKillswitches();
     });
   });
 

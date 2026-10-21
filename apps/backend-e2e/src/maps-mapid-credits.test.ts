@@ -1,10 +1,5 @@
 import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
-import {
-  assertValidDto,
-  NULL_ID,
-  randomString,
-  resetKillswitches
-} from '@momentum/test-utils';
+import { assertValidDto, NULL_ID, randomString } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 
 // See auth.e2e-spec.ts for justification of this sin
@@ -22,8 +17,8 @@ import {
   prisma,
   req,
   db,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Maps', () => {
@@ -199,7 +194,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it('should delete an credits for the map not on the new DTO', async () => {
