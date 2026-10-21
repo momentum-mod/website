@@ -10,13 +10,15 @@ import { ReportType } from '@momentum/constants';
 import { CreateReportDto, DtoFactory, ReportDto } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { ReportDiscordNotifications } from './report-discord-notifications.service';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
 
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly discordNotifications: ReportDiscordNotifications
   ) {}
 
   async createReport(submitterID: number, input: CreateReportDto) {
@@ -93,17 +95,18 @@ export class ReportsService {
         );
     }
 
-    return DtoFactory(
-      ReportDto,
-      await this.db.report.create({
-        data: {
-          data,
-          type: input.type,
-          category: input.category,
-          message: input.message,
-          submitter: { connect: { id: submitterID } }
-        }
-      })
-    );
+    const report = await this.db.report.create({
+      data: {
+        data,
+        type: input.type,
+        category: input.category,
+        message: input.message,
+        submitter: { connect: { id: submitterID } }
+      }
+    });
+
+    void this.discordNotifications.sendReportNotification(report);
+
+    return DtoFactory(ReportDto, report);
   }
 }

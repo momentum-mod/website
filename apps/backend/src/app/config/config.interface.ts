@@ -71,6 +71,7 @@ export interface ConfigInterface {
     reviewChannel: string;
     statusChannels: Record<Gamemode, string>;
     unrankedNotifications: boolean;
+    reportsWebhook: string;
   };
   mapListUpdateSchedule: string;
   sitemapMaxAge: string;

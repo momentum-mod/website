@@ -107,7 +107,10 @@ export const ConfigFactory = (): ConfigInterface => {
         ])
       ) as Record<Gamemode, string>,
       unrankedNotifications:
-        process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true'
+        process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true',
+      reportsWebhook: isTest
+        ? ''
+        : (process.env['DISCORD_REPORTS_WEBHOOK'] ?? '')
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
