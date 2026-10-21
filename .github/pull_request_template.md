@@ -6,6 +6,10 @@ Closes #<!--(issue number here)-->
 
 <!-- Attach screenshots here, if your PR contains any visual changes, e.g. frontend work -->
 
+### AI Usage (if applicable)
+
+<!-- If you've used AI in any way, please describe how (_not using AI!_) -->
+
 ### Checks
 
 - [ ] __!! DONT IGNORE ME !! I have ran `nx run db:create-migration <name>` and committed the migration if I've made DB schema changes__
