@@ -26,6 +26,7 @@ import {
   req,
   db,
   fileStore,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -172,7 +173,7 @@ describe('Maps', () => {
           token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       it('should reorder images correctly, and delete any unused ones', async () => {

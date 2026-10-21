@@ -451,7 +451,7 @@ describe('Session', () => {
           token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       describe('compatible styles', () => {

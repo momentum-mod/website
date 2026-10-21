@@ -15,14 +15,14 @@ export class KillswitchGuard implements CanActivate {
     private readonly killswitchService: KillswitchService
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const type = this.reflector.get(Killswitch, context.getHandler());
 
     if (type === undefined) {
       return true;
     }
 
-    if (this.killswitchService.checkKillswitch(type)) {
+    if (await this.killswitchService.checkKillswitch(type)) {
       const exception = new ServiceUnavailableException(
         'Endpoint is currently disabled'
       );
