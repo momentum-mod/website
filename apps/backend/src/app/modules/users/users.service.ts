@@ -159,7 +159,7 @@ export class UsersService {
 
       return user;
     } else if (
-      this.killswitchService.checkKillswitch(KillswitchType.NEW_SIGNUPS)
+      await this.killswitchService.checkKillswitch(KillswitchType.NEW_SIGNUPS)
     ) {
       throw new ConflictException('New signups are disabled temporarily');
     } else {

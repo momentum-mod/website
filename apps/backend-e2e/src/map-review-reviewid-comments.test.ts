@@ -8,6 +8,7 @@ import {
   prisma,
   req,
   db,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -137,7 +138,7 @@ describe('Map Reviews', () => {
           token: u1Token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       it('should send a notification to the reviewer and map submitter on created comment', async () => {
@@ -330,7 +331,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
     });
 
@@ -384,7 +385,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
     });
   });

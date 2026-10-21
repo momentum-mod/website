@@ -19,28 +19,43 @@ import { User } from '@momentum/db';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { createHash } from 'node:crypto';
-import { Role } from '@momentum/constants';
+import { KillswitchType, Role } from '@momentum/constants';
 
-describe('UserService', () => {
+type MockedKillswitchService = {
+  checkKillswitch: any;
+};
+
+describe('UsersService', () => {
   let usersService: UsersService;
-  let killswitchService: KillswitchService;
+  let killswitchService: MockedKillswitchService;
   let db: PrismaMock;
 
   before(async () => {
+    const killswitchServiceMock = mockDeep<MockedKillswitchService>();
+    killswitchServiceMock.checkKillswitch.mock.mockImplementation(
+      async () => false
+    );
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService, PRISMA_MOCK_PROVIDER, KillswitchService]
+      providers: [
+        UsersService,
+        PRISMA_MOCK_PROVIDER,
+        { provide: KillswitchService, useValue: killswitchServiceMock }
+      ]
     })
       .useMocker(mockDeep)
       .compile();
+
     usersService = module.get(UsersService);
-    killswitchService = module.get(KillswitchService);
-    await killswitchService.onModuleInit();
+    killswitchService = killswitchServiceMock;
     db = module.get(EXTENDED_PRISMA_SERVICE);
   });
 
   afterEach(() => {
     mock.restoreAll();
     resetDeepMockCalls();
+    killswitchService.checkKillswitch.mock.mockImplementation(
+      async () => false
+    );
   });
 
   it('should be defined', () => {
@@ -68,12 +83,9 @@ describe('UserService', () => {
     });
 
     it('should not create a new user if the killswitch is active', async () => {
-      await killswitchService.updateKillswitches({
-        NEW_SIGNUPS: true,
-        MAP_REVIEWS: false,
-        MAP_SUBMISSION: false,
-        RUN_SUBMISSION: false
-      });
+      killswitchService.checkKillswitch.mock.mockImplementationOnce(
+        async () => true
+      );
 
       const fakeUser: User = undefined;
       db.user.findUnique.mock.mockImplementationOnce(() =>
@@ -84,14 +96,10 @@ describe('UserService', () => {
         usersService.findOrCreateUser(BigInt(123456789)),
         ConflictException
       );
-
-      // reset killswitches
-      await killswitchService.updateKillswitches({
-        NEW_SIGNUPS: false,
-        MAP_REVIEWS: false,
-        MAP_SUBMISSION: false,
-        RUN_SUBMISSION: false
-      });
+      assert.deepEqual(
+        killswitchService.checkKillswitch.mock.calls[0].arguments,
+        [KillswitchType.NEW_SIGNUPS]
+      );
     });
 
     it('should allow existing users to login if killswitch is active', async () => {
@@ -110,22 +118,15 @@ describe('UserService', () => {
         Promise.resolve(existingUser as any)
       );
 
-      await killswitchService.updateKillswitches({
-        NEW_SIGNUPS: true,
-        MAP_REVIEWS: false,
-        MAP_SUBMISSION: false,
-        RUN_SUBMISSION: false
-      });
+      // Not mockImplementationOnce: this should never be called, and Node keeps
+      // unconsumed once-implementations across resetCalls(), so it would leak
+      // into the next test.
+      killswitchService.checkKillswitch.mock.mockImplementation(
+        async () => true
+      );
 
       await usersService.findOrCreateUser(BigInt(123456799n));
-
-      // reset killswitches
-      await killswitchService.updateKillswitches({
-        NEW_SIGNUPS: false,
-        MAP_REVIEWS: false,
-        MAP_SUBMISSION: false,
-        RUN_SUBMISSION: false
-      });
+      assert.equal(killswitchService.checkKillswitch.mock.calls.length, 0);
     });
 
     it('should create a new user', async () => {
