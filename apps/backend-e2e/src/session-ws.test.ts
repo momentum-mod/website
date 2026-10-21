@@ -217,7 +217,7 @@ describe('Game Connection Gateway - run sessions', () => {
       const ids = await valkey.lrange(`runsess:id:${user.id}`, 0, -1);
       assert.equal(ids.length, 0);
 
-      await resetKillswitches(req, adminToken);
+      await resetKillswitches(valkey);
     });
   });
 
