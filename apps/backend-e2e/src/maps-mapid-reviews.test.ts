@@ -16,7 +16,6 @@ import {
   resetKillswitches
 } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
-
 // See auth.e2e-spec.ts for justification of this sin
 import { MapReviewDto } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
@@ -37,6 +36,7 @@ import {
   req,
   db,
   fileStore,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -414,7 +414,7 @@ describe('Maps', () => {
           token: normalToken
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       it('should succeed with no images', async () => {

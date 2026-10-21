@@ -5,91 +5,137 @@ import {
   Logger,
   OnModuleInit
 } from '@nestjs/common';
-import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import { ExtendedPrismaService } from '../database/prisma.extension';
 import { KillswitchType, Killswitches } from '@momentum/constants';
 import * as Enum from '@momentum/enum';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
+import { ValkeyService } from '../valkey/valkey.service';
+import { isFirstWorker } from '../../../clustered';
 
 export const KILLSWITCH_CONFIG_ID = 'Killswitches';
+export const KILLSWITCH_VALKEY_KEY = 'momentum:killswitches';
 
 @Injectable()
 export class KillswitchService implements OnModuleInit {
-  constructor(
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
-  ) {}
-
-  private switches: Killswitches;
   private readonly logger = new Logger('Killswitch Service');
 
-  public async onModuleInit() {
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly valkey: ValkeyService
+  ) {}
+
+  /**
+   * Pull killswitch state from Postgres and push to Valkey.
+   * Postgres is our ultimate source of truth, so fine to overwrite any
+   * existing Valkey state.
+   */
+  public async onModuleInit(): Promise<void> {
+    if (!isFirstWorker()) {
+      return;
+    }
+
     const dbResponse = await this.db.config.findUnique({
       where: { id: KILLSWITCH_CONFIG_ID }
     });
 
-    const storedSwitches = dbResponse?.value as Killswitches;
-    if (storedSwitches) {
-      const areValidSwitches = this.validateKillswitches(storedSwitches);
-      if (areValidSwitches) {
-        this.switches = storedSwitches;
-        this.logger.log(
-          `Killswitches found, current killswitches are: ${JSON.stringify(storedSwitches)}`
-        );
-      } else {
-        this.logger.error('Stored killswitches failed validation.');
-        this.switches = {} as Killswitches;
-        await this.updateKillswitches(
-          Object.fromEntries(
-            Enum.values(KillswitchType).map((type: KillswitchType) => [
-              type,
-              false
-            ])
-          ) as Killswitches
-        );
-      }
-    } else {
-      this.logger.log(
-        'No killswitches found, creating default switches as disabled.'
+    const storedSwitches = dbResponse?.value as Killswitches | undefined;
+
+    let switches = {
+      ...this.getDefaultSwitches(),
+      ...storedSwitches
+    };
+
+    if (!this.validateKillswitches(switches)) {
+      this.logger.error(
+        'Stored killswitches failed validation, data state is invalid somehow! Using defaults (all disabled).'
       );
-      this.switches = {} as Killswitches;
-      await this.updateKillswitches(
-        Object.fromEntries(
-          Enum.values(KillswitchType).map((type: KillswitchType) => [
-            type,
-            false
-          ])
-        ) as Killswitches
-      );
+      switches = this.getDefaultSwitches();
     }
+
+    await this.valkey.hset(
+      KILLSWITCH_VALKEY_KEY,
+      ...Object.entries(switches).flatMap(([type, value]) => [
+        type,
+        value.toString()
+      ])
+    );
   }
 
-  public checkKillswitch(type: KillswitchType): boolean {
-    return this.switches[type];
+  public async checkKillswitch(type: KillswitchType): Promise<boolean> {
+    const value = await this.valkey.hget(KILLSWITCH_VALKEY_KEY, type);
+    return this.parseSwitchValue(type, value);
   }
 
-  public async updateKillswitches(switches: Killswitches): Promise<void> {
+  public async updateKillswitches(
+    switches: Partial<Killswitches>
+  ): Promise<void> {
     if (!this.validateKillswitches(switches)) {
       throw new BadRequestException();
     }
 
-    for (const [type, value] of Object.entries(switches)) {
-      this.switches[type] = value;
+    const updates = Enum.values(KillswitchType).flatMap((type) => {
+      const value = switches[type];
+      return value !== undefined ? [type, value.toString()] : [];
+    });
+
+    if (updates.length === 0) {
+      return;
     }
 
+    await this.valkey.hset(KILLSWITCH_VALKEY_KEY, ...updates);
+
+    // Valkey is the live state, but Postgres is what we restore from on boot,
+    // so write the full merged state back there too.
+    const value = await this.getKillSwitches();
     await this.db.config.upsert({
       where: { id: KILLSWITCH_CONFIG_ID },
-      update: { value: this.switches },
-      create: { id: KILLSWITCH_CONFIG_ID, value: this.switches }
+      update: { value },
+      create: { id: KILLSWITCH_CONFIG_ID, value }
     });
   }
 
-  public async getKillSwitches() {
-    const dbResponse = await this.db.config.findUnique({
-      where: { id: KILLSWITCH_CONFIG_ID }
-    });
-    return dbResponse.value as Killswitches;
+  public async getKillSwitches(): Promise<Killswitches> {
+    const storedSwitches = await this.valkey.hgetall(KILLSWITCH_VALKEY_KEY);
+    return Object.fromEntries(
+      Enum.values(KillswitchType).map((type) => [
+        type,
+        this.parseSwitchValue(type, storedSwitches[type])
+      ])
+    ) as Killswitches;
   }
 
-  private validateKillswitches(switches: Killswitches): boolean {
+  public async resetAllKillswitches(): Promise<void> {
+    await this.updateKillswitches(this.getDefaultSwitches());
+  }
+
+  private getDefaultSwitches(): Killswitches {
+    return Object.fromEntries(
+      Enum.values(KillswitchType).map((type) => [type, false])
+    ) as Killswitches;
+  }
+
+  private parseSwitchValue(
+    type: KillswitchType,
+    value: string | null | undefined
+  ): boolean {
+    if (value == null || value === 'false') return false;
+    if (value === 'true') return true;
+
+    this.logger.error(`Invalid Valkey value for ${type}: ${value}`);
+    return false;
+  }
+
+  private validateKillswitches(
+    switches: unknown
+  ): switches is Partial<Killswitches> {
+    if (
+      typeof switches !== 'object' ||
+      switches == null ||
+      Array.isArray(switches)
+    ) {
+      return false;
+    }
+
     const switchTypes = Enum.values(KillswitchType);
     return Object.entries(switches).every(
       ([type, value]) =>

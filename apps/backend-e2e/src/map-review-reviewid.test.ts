@@ -17,6 +17,7 @@ import {
   req,
   db,
   fileStore,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -412,7 +413,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       it("should not allow another user to delete someone else's review", async () => {

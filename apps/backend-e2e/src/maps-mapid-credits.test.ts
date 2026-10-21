@@ -22,6 +22,7 @@ import {
   prisma,
   req,
   db,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -198,7 +199,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await resetKillswitches(req, adminToken);
+        await resetKillswitches(valkey);
       });
 
       it('should delete an credits for the map not on the new DTO', async () => {

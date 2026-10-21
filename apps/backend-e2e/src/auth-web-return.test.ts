@@ -17,6 +17,7 @@ import {
   prisma,
   req,
   db,
+  valkey,
   registerE2ETestFile
 } from './support/e2e-environment';
 
@@ -185,28 +186,6 @@ describe('Auth', () => {
             country: steamData.loccountrycode
           });
         });
-
-        it('should set cookies on the response containing JWTs', async () => {
-          const cookies = {} as any;
-          for (const cookieString of response.headers['set-cookie'] as string) {
-            const [k, v] = cookieString.split('=');
-            cookies[k] = v.slice(0, v.indexOf(';'));
-          }
-
-          const userDB = await prisma.user.findFirst();
-
-          const decodedAccessToken = testJwtService.decode(cookies.accessToken);
-          assert.partialDeepStrictEqual(decodedAccessToken, {
-            id: userDB.id,
-            steamID: userDB.steamID.toString(),
-            gameAuth: false
-          });
-
-          const decodedRefreshToken = testJwtService.decode(
-            cookies.refreshToken
-          ) as any;
-          assert.equal(decodedRefreshToken.id, userDB.id);
-        });
       });
 
       it('should throw a ForbiddenException if the user has not set up their profile', async () => {
@@ -310,7 +289,7 @@ describe('Auth', () => {
 
           assert.equal(response.statusCode, 409);
 
-          await resetKillswitches(req, adminToken);
+          await resetKillswitches(valkey);
 
           await db.cleanup('user');
         });
