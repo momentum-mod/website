@@ -3,7 +3,6 @@ import {
   FILES_PATH,
   matchesPartial,
   NULL_ID,
-  resetKillswitches,
   stringContaining
 } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
@@ -26,8 +25,8 @@ import {
   req,
   db,
   fileStore,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Maps', () => {
@@ -173,7 +172,7 @@ describe('Maps', () => {
           token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it('should reorder images correctly, and delete any unused ones', async () => {
