@@ -65,7 +65,7 @@ export class DbUtil {
             .deleteMany();
         }
       },
-      { maxWait: 10_000 }
+      { maxWait: 10_000, timeout: 60_000 }
     );
   }
 
