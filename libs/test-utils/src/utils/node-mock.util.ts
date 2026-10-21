@@ -66,7 +66,7 @@ export function resetDeepMockCalls(): void {
 export function resetMockCalls(...functions: any[]): void {
   for (const fn of functions) {
     fn.mock.resetCalls();
-    nextImplementationIndexes.delete(fn);
+    nextImplementationIndexes.delete(mockFunctionTargets.get(fn) ?? fn);
   }
 }
 
