@@ -1,5 +1,5 @@
 import { mock, after, before, describe, it } from 'node:test';
-import { ParsedResponse, resetKillswitches } from '@momentum/test-utils';
+import { ParsedResponse } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 
 // Note that by importing and mocking these services service we're breaking a
@@ -17,8 +17,8 @@ import {
   prisma,
   req,
   db,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Auth', () => {
@@ -289,7 +289,7 @@ describe('Auth', () => {
 
           assert.equal(response.statusCode, 409);
 
-          await resetKillswitches(valkey);
+          await resetKillswitches();
 
           await db.cleanup('user');
         });

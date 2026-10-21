@@ -14,8 +14,7 @@ import {
   matchesPartial,
   NULL_ID,
   objectContaining,
-  randomString,
-  resetKillswitches
+  randomString
 } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 import { Config } from '../../backend/src/app/config';
@@ -65,9 +64,9 @@ import {
   req,
   db,
   fileStore,
-  valkey,
   checkScheduledMapListUpdates,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Maps', () => {
@@ -793,7 +792,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it('should not update the map list version for private submissions', async () => {

@@ -2,14 +2,14 @@ import { after, before, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { MapReviewCommentDto } from '../../backend/src/app/dto';
 import { MMap, User } from '@momentum/db';
-import { NULL_ID, resetKillswitches } from '@momentum/test-utils';
+import { NULL_ID } from '@momentum/test-utils';
 import { MapStatus, NotificationType, Role } from '@momentum/constants';
 import {
   prisma,
   req,
   db,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Map Reviews', () => {
@@ -138,7 +138,7 @@ describe('Map Reviews', () => {
           token: u1Token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it('should send a notification to the reviewer and map submitter on created comment', async () => {
@@ -331,7 +331,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
     });
 
@@ -385,7 +385,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
     });
   });

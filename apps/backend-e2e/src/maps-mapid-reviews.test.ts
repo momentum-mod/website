@@ -12,8 +12,7 @@ import {
   FILES_PATH,
   futureDateOffset,
   mockDiscordService,
-  NULL_ID,
-  resetKillswitches
+  NULL_ID
 } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 // See auth.e2e-spec.ts for justification of this sin
@@ -36,8 +35,8 @@ import {
   req,
   db,
   fileStore,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Maps', () => {
@@ -414,7 +413,7 @@ describe('Maps', () => {
           token: normalToken
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it('should succeed with no images', async () => {

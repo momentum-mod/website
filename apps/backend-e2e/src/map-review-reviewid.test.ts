@@ -2,7 +2,7 @@ import { after, afterEach, before, beforeEach, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { MapReviewDto } from '../../backend/src/app/dto';
 import { MapReview, MMap, Notification, User } from '@momentum/db';
-import { NULL_ID, resetKillswitches } from '@momentum/test-utils';
+import { NULL_ID } from '@momentum/test-utils';
 import {
   Gamemode,
   mapReviewAssetPath,
@@ -17,8 +17,8 @@ import {
   req,
   db,
   fileStore,
-  valkey,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Map Reviews', () => {
@@ -413,7 +413,7 @@ describe('Map Reviews', () => {
           token: token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       it("should not allow another user to delete someone else's review", async () => {

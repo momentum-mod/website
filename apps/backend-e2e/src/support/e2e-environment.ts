@@ -36,6 +36,7 @@ import { AppModule } from '../../../backend/src/app/app.module';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { WebsocketAdapter } from '../../../backend/src/app/modules/websockets/websocket.adapter';
 import { WebsocketService } from '../../../backend/src/app/modules/websockets/websocket.service';
+import { KillswitchService } from '../../../backend/src/app/modules/killswitch/killswitch.service';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 export interface E2EUtils {
@@ -240,6 +241,12 @@ export async function getSharedE2ETestEnvironment(): Promise<E2EUtils> {
   checkScheduledMapListUpdates = () => mapListUpdateJob.fireOnTick();
 
   return environment;
+}
+
+// Reset killswitches through the service so tests stay in sync with however it
+// stores them.
+export function resetKillswitches(): Promise<void> {
+  return app.get(KillswitchService).resetAllKillswitches();
 }
 
 async function ensureGlobalSetup(): Promise<void> {
