@@ -20,7 +20,7 @@ import cluster from 'node:cluster';
 import { Config, Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
-import { FIRST_WORKER_ENV_VAR, initalizeClusterMessaging } from './clustered';
+import { FIRST_WORKER_ENV_VAR, initializeClusterMessaging } from './clustered';
 import { JwtService } from '@nestjs/jwt';
 import { WebsocketAdapter } from './app/modules/websockets/websocket.adapter';
 import { WebsocketService } from './app/modules/websockets/websocket.service';
@@ -150,7 +150,7 @@ function startSingle(): void {
   console.log('Starting in single-process mode');
   process.env[FIRST_WORKER_ENV_VAR] = 'true';
   bootstrap().catch((error) => console.error(error));
-  initalizeClusterMessaging();
+  initializeClusterMessaging();
 }
 
 // Clustered mode. Forks multiple processes that share the same port, and
@@ -175,7 +175,7 @@ function startClustered(): void {
       process.exit(1);
     });
 
-    initalizeClusterMessaging();
+    initializeClusterMessaging();
   } else {
     bootstrap().catch((error) => console.error(error));
     console.log(`Worker process ${process.pid} started`);
