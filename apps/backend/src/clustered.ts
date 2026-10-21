@@ -18,7 +18,7 @@ export interface ClusterMessage {
  *
  * Must be called from the primary in both single- and clustered-process modes.
  */
-export function initalizeClusterMessaging(): void {
+export function initializeClusterMessaging(): void {
   if (!cluster.isPrimary) return;
 
   cluster.on('message', (_worker, message: ClusterMessage) => {
