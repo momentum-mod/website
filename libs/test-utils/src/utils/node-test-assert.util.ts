@@ -1,4 +1,5 @@
 import * as assert from 'node:assert/strict';
+import { isDeepStrictEqual } from 'node:util';
 
 export function includesPartial(
   actual: readonly unknown[],
@@ -42,35 +43,14 @@ export function stringMatching(expected: RegExp) {
   return asymmetricMatcher('stringMatching', expected);
 }
 
+/**
+ * Recursive partial match, like Jest's `toMatchObject`: objects in `expected`
+ * only need to be a subset of `actual` (inherited properties such as prototype
+ * getters count), whilst arrays must match in length.
+ */
 export function matchesPartial(actual: unknown, expected: unknown): boolean {
   if (isAsymmetricMatcher(expected)) {
-    const { kind, expected: matcherExpected } = expected[ASYMMETRIC_MATCHER];
-    switch (kind) {
-      case 'arrayContaining':
-        return (
-          Array.isArray(actual) &&
-          includesPartial(actual, matcherExpected as readonly unknown[])
-        );
-      case 'objectContaining':
-        return matchesPartial(actual, matcherExpected);
-      case 'anything':
-        return actual !== null && actual !== undefined;
-      case 'any':
-        return matchesType(actual, matcherExpected as Constructor);
-      case 'stringContaining':
-        return (
-          typeof actual === 'string' &&
-          actual.includes(matcherExpected as string)
-        );
-      case 'stringMatching':
-        return (
-          typeof actual === 'string' &&
-          new RegExp(
-            (matcherExpected as RegExp).source,
-            (matcherExpected as RegExp).flags
-          ).test(actual)
-        );
-    }
+    return matchesAsymmetric(actual, expected);
   }
 
   if (Array.isArray(expected)) {
@@ -85,7 +65,7 @@ export function matchesPartial(actual: unknown, expected: unknown): boolean {
     if (!isObject(actual)) return false;
     return Reflect.ownKeys(expected).every(
       (key) =>
-        Object.hasOwn(actual, key) &&
+        key in actual &&
         matchesPartial(actual[key as keyof typeof actual], expected[key])
     );
   }
@@ -96,6 +76,81 @@ export function matchesPartial(actual: unknown, expected: unknown): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Recursive exact match, like Jest's `toEqual`: objects must have the same
+ * set of keys (ignoring those with `undefined` values) and arrays must match in
+ * length. Asymmetric matchers such as `objectContaining` can be nested to
+ * relax this for specific values.
+ */
+export function matchesExact(actual: unknown, expected: unknown): boolean {
+  if (isAsymmetricMatcher(expected)) {
+    return matchesAsymmetric(actual, expected);
+  }
+
+  if (Array.isArray(expected)) {
+    return (
+      Array.isArray(actual) &&
+      actual.length === expected.length &&
+      expected.every((item, index) => matchesExact(actual[index], item))
+    );
+  }
+
+  if (isPlainObject(expected)) {
+    if (!isObject(actual) || Array.isArray(actual)) return false;
+    const expectedKeys = definedKeys(expected);
+    const actualKeys = definedKeys(actual);
+    return (
+      expectedKeys.length === actualKeys.length &&
+      expectedKeys.every(
+        (key) =>
+          Object.hasOwn(actual, key) && matchesExact(actual[key], expected[key])
+      )
+    );
+  }
+
+  return isDeepStrictEqual(actual, expected);
+}
+
+function matchesAsymmetric(
+  actual: unknown,
+  matcher: { [ASYMMETRIC_MATCHER]: { kind: string; expected?: unknown } }
+): boolean {
+  const { kind, expected } = matcher[ASYMMETRIC_MATCHER];
+  switch (kind) {
+    case 'arrayContaining':
+      return (
+        Array.isArray(actual) &&
+        includesPartial(actual, expected as readonly unknown[])
+      );
+    case 'objectContaining':
+      return matchesPartial(actual, expected);
+    case 'anything':
+      return actual !== null && actual !== undefined;
+    case 'any':
+      return matchesType(actual, expected as Constructor);
+    case 'stringContaining':
+      return typeof actual === 'string' && actual.includes(expected as string);
+    case 'stringMatching':
+      return (
+        typeof actual === 'string' &&
+        new RegExp(
+          (expected as RegExp).source,
+          (expected as RegExp).flags
+        ).test(actual)
+      );
+    default:
+      throw new Error(`Unknown asymmetric matcher ${kind}`);
+  }
+}
+
+function definedKeys(value: Record<PropertyKey, unknown>): PropertyKey[] {
+  return Reflect.ownKeys(value).filter(
+    (key) =>
+      Object.prototype.propertyIsEnumerable.call(value, key) &&
+      value[key] !== undefined
+  );
 }
 
 function asymmetricMatcher(kind: string, expected?: unknown) {
@@ -141,11 +196,15 @@ function isObject(value: unknown): value is Record<PropertyKey, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+/**
+ * Whether any call to the mock exactly matched the given arguments, like Jest's
+ * `toHaveBeenCalledWith`. Use `objectContaining` etc. for partial arguments.
+ */
 export function wasCalledWith(
   mockFunction: any,
   ...expected: unknown[]
 ): boolean {
   return mockFunction.mock.calls.some(({ arguments: actual }: any) =>
-    matchesPartial(actual, expected)
+    matchesExact(actual, expected)
   );
 }
