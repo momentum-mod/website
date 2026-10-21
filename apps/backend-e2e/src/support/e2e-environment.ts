@@ -234,9 +234,10 @@ export async function getSharedE2ETestEnvironment(): Promise<E2EUtils> {
     throw new Error('WebSocket test environment did not provide a URL');
   }
   wsUrl = environment.wsUrl;
-  checkScheduledMapListUpdates = environment.app
+  const mapListUpdateJob = environment.app
     .get(SchedulerRegistry)
-    .getCronJob(MAPLIST_UPDATE_JOB_NAME).fireOnTick;
+    .getCronJob(MAPLIST_UPDATE_JOB_NAME);
+  checkScheduledMapListUpdates = () => mapListUpdateJob.fireOnTick();
 
   return environment;
 }
