@@ -25,13 +25,21 @@ Object.defineProperties(globalThis, {
   }
 });
 
+const { NgModule, provideZonelessChangeDetection } = require('@angular/core');
 const { getTestBed } = require('@angular/core/testing');
 const {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } = require('@angular/platform-browser-dynamic/testing');
 
+// The app runs zoneless and zone.js isn't installed, so every TestBed must be
+// zoneless too, otherwise Angular throws NG0908.
+class ZonelessTestingModule {}
+NgModule({ providers: [provideZonelessChangeDetection()] })(
+  ZonelessTestingModule
+);
+
 getTestBed().initTestEnvironment(
-  [BrowserDynamicTestingModule],
+  [BrowserDynamicTestingModule, ZonelessTestingModule],
   platformBrowserDynamicTesting()
 );

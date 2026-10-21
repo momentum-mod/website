@@ -1,6 +1,5 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
@@ -25,7 +24,6 @@ describe('AuthInterceptor', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
-        provideZonelessChangeDetection(),
         {
           provide: HTTP_INTERCEPTORS,
           useClass: AuthInterceptor,
