@@ -7,7 +7,6 @@ import {
   objectContaining,
   randomHash,
   randomSteamID,
-  resetKillswitches,
   RunTester,
   RunTesterProps
 } from '@momentum/test-utils';
@@ -31,7 +30,8 @@ import {
   valkey,
   req,
   db,
-  registerE2ETestFile
+  registerE2ETestFile,
+  resetKillswitches
 } from './support/e2e-environment';
 
 describe('Session', () => {
@@ -451,7 +451,7 @@ describe('Session', () => {
           token
         });
 
-        await resetKillswitches(valkey);
+        await resetKillswitches();
       });
 
       describe('compatible styles', () => {

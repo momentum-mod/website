@@ -11,9 +11,6 @@ import { FILES_PATH } from '../files-path.const';
 import { isEmpty, isObject } from '@momentum/util-fn';
 import { MergeExclusive, Primitive } from 'type-fest';
 import { assertValidDto, assertValidPagedDto } from './assert-valid-dto.util';
-import type Valkey from 'iovalkey';
-import { KillswitchType } from '@momentum/constants';
-import * as Enum from '@momentum/enum';
 
 export const URL_PREFIX = '/v1/';
 
@@ -392,17 +389,6 @@ export class RequestUtil {
       body: ['post', 'put', 'patch'].includes(methodType) ? {} : undefined
     });
   }
-}
-
-//#endregion
-//#region Misc utils
-
-// Reset the shared killswitch state directly in Valkey.
-export function resetKillswitches(valkey: Valkey): Promise<number> {
-  return valkey.hset(
-    'momentum:killswitches',
-    Enum.values(KillswitchType).flatMap((type) => [type, 'false'])
-  );
 }
 
 //#endregion
