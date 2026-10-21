@@ -78,9 +78,20 @@ export class KillswitchService implements OnModuleInit {
       return value !== undefined ? [type, value.toString()] : [];
     });
 
-    if (updates.length > 0) {
-      await this.valkey.hset(KILLSWITCH_VALKEY_KEY, ...updates);
+    if (updates.length === 0) {
+      return;
     }
+
+    await this.valkey.hset(KILLSWITCH_VALKEY_KEY, ...updates);
+
+    // Valkey is the live state, but Postgres is what we restore from on boot,
+    // so write the full merged state back there too.
+    const value = await this.getKillSwitches();
+    await this.db.config.upsert({
+      where: { id: KILLSWITCH_CONFIG_ID },
+      update: { value },
+      create: { id: KILLSWITCH_CONFIG_ID, value }
+    });
   }
 
   public async getKillSwitches(): Promise<Killswitches> {

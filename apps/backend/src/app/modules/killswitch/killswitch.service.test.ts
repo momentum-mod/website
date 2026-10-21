@@ -16,6 +16,7 @@ import {
 type MockedDatabase = {
   config: {
     findUnique: any;
+    upsert: any;
   };
 };
 
@@ -204,16 +205,55 @@ describe('KillswitchService', () => {
     ]);
   });
 
-  it('does not write to Valkey for an empty update', async () => {
-    const { service, valkey } = createFixture();
+  it('persists the full merged state to Postgres on update', async () => {
+    const { service, state, db } = createFixture();
+    state.set(KillswitchType.NEW_SIGNUPS, 'true');
+
+    await service.updateKillswitches({ RUN_SUBMISSION: true });
+
+    const expected = {
+      ...defaultSwitches,
+      NEW_SIGNUPS: true,
+      RUN_SUBMISSION: true
+    };
+    assert.equal(db.config.upsert.mock.calls.length, 1);
+    assert.deepEqual(db.config.upsert.mock.calls[0].arguments, [
+      {
+        where: { id: KILLSWITCH_CONFIG_ID },
+        update: { value: expected },
+        create: { id: KILLSWITCH_CONFIG_ID, value: expected }
+      }
+    ]);
+  });
+
+  it('restores updated state from Postgres after a restart', async () => {
+    await withWorkerFlag(undefined, async () => {
+      const first = createFixture();
+      await first.service.updateKillswitches({ RUN_SUBMISSION: true });
+      const persisted = first.db.config.upsert.mock.calls[0].arguments[0].update
+        .value as Killswitches;
+
+      const second = createFixture(persisted);
+      await second.service.onModuleInit();
+
+      assert.equal(
+        await second.service.checkKillswitch(KillswitchType.RUN_SUBMISSION),
+        true
+      );
+    });
+  });
+
+  it('does not write anywhere for an empty update', async () => {
+    const { service, valkey, db } = createFixture();
 
     await service.updateKillswitches({});
 
     assert.equal(valkey.hset.mock.calls.length, 0);
+    assert.equal(db.config.upsert.mock.calls.length, 0);
   });
 
   it('rejects unknown switch names and non-boolean values', async () => {
-    const { service, valkey } = createFixture();
+    const { service, valkey, db } = createFixture();
     const invalidUpdates: unknown[] = [
       { UNKNOWN_SWITCH: true },
       { MAP_SUBMISSION: 'true' },
@@ -230,6 +270,7 @@ describe('KillswitchService', () => {
     }
 
     assert.equal(valkey.hset.mock.calls.length, 0);
+    assert.equal(db.config.upsert.mock.calls.length, 0);
   });
 
   it('resets all switches to disabled', async () => {
