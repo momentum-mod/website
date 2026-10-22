@@ -526,6 +526,18 @@ export class AdminService {
     return DtoFactory(ChatBanDto, created);
   }
 
+  /**
+   * Must run in the same transaction as the change to the user's bans, so game
+   * clients can order the snapshots they're sent of them.
+   */
+  private bumpChatBansRevision(userID: number) {
+    return this.db.user.update({
+      where: { id: userID },
+      data: { chatBansRevision: { increment: 1 } },
+      select: { id: true }
+    });
+  }
+
   /** Doesn't broadcast the change, so several bans can be sent as one update. */
   private async issueChatBan(
     adminID: number,
@@ -533,18 +545,21 @@ export class AdminService {
     ban: CreateChatBan,
     reportID?: number
   ) {
-    const created = await this.db.chatBan.create({
-      data: {
-        type: ban.type,
-        expiresAt: ban.expiresAt ?? null,
-        reason: ban.reason ?? null,
-        target: { connect: { id: targetID } },
-        issuer: { connect: { id: adminID } },
-        ...(reportID !== undefined
-          ? { report: { connect: { id: reportID } } }
-          : {})
-      }
-    });
+    const [created] = await this.db.$transaction([
+      this.db.chatBan.create({
+        data: {
+          type: ban.type,
+          expiresAt: ban.expiresAt ?? null,
+          reason: ban.reason ?? null,
+          target: { connect: { id: targetID } },
+          issuer: { connect: { id: adminID } },
+          ...(reportID !== undefined
+            ? { report: { connect: { id: reportID } } }
+            : {})
+        }
+      }),
+      this.bumpChatBansRevision(targetID)
+    ]);
 
     await this.adminActivityService.create(
       adminID,
@@ -585,10 +600,13 @@ export class AdminService {
 
     if (!ban) throw new NotFoundException('Ban not found');
 
-    const updated = await this.db.chatBan.update({
-      where: { id: banID },
-      data: { expiresAt: dto.expiresAt, reason: dto.reason }
-    });
+    const [updated] = await this.db.$transaction([
+      this.db.chatBan.update({
+        where: { id: banID },
+        data: { expiresAt: dto.expiresAt, reason: dto.reason }
+      }),
+      this.bumpChatBansRevision(ban.targetID)
+    ]);
 
     await this.adminActivityService.create(
       adminID,
@@ -606,7 +624,10 @@ export class AdminService {
 
     if (!ban) throw new NotFoundException('Ban not found');
 
-    await this.db.chatBan.delete({ where: { id: banID } });
+    await this.db.$transaction([
+      this.db.chatBan.delete({ where: { id: banID } }),
+      this.bumpChatBansRevision(ban.targetID)
+    ]);
 
     await this.adminActivityService.create(
       adminID,

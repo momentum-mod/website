@@ -26,6 +26,10 @@ export class ChatBansService {
   /**
    * Active bans of each player, including an empty entry for every player with
    * no bans or no account, so clients know they've been checked.
+   *
+   * Each entry has the player's revision, which orders it against other
+   * snapshots of the same player: this response can reach a client after a
+   * newer {@link broadcastPlayerBans} update.
    */
   async getPlayerBans(
     steamIDs: string[]
@@ -34,21 +38,20 @@ export class ChatBansService {
 
     const users = await this.db.user.findMany({
       where: { steamID: { in: uniqueIDs.map(BigInt) } },
-      select: {
-        steamID: true,
-        chatBans: { where: activeBanFilter(), select: banSelect }
-      }
+      select: playerBansSelect()
     });
 
     const bansBySteamID = new Map(
-      users.map(({ steamID, chatBans }) => [steamID.toString(), chatBans])
+      users.map((user) => [user.steamID!.toString(), user])
     );
 
     return {
-      players: uniqueIDs.map((steamID) => ({
-        steamID,
-        bans: (bansBySteamID.get(steamID) ?? []).map(toPlayerBan)
-      }))
+      players: uniqueIDs.map((steamID) => {
+        const user = bansBySteamID.get(steamID);
+        return user
+          ? toPlayerChatBans(user)
+          : { steamID, revision: 0, bans: [] };
+      })
     };
   }
 
@@ -63,19 +66,14 @@ export class ChatBansService {
     try {
       const user = await this.db.user.findUnique({
         where: { id: userID },
-        select: {
-          steamID: true,
-          chatBans: { where: activeBanFilter(), select: banSelect }
-        }
+        select: playerBansSelect()
       });
       if (!user?.steamID) return;
 
-      // Not annotated, as an interface type isn't assignable to JsonValue
-      const data = {
-        steamID: user.steamID.toString(),
-        bans: user.chatBans.map(toPlayerBan)
-      } satisfies PlayerChatBans;
-      this.wsService.broadcastToAll({ event: 'chatbans.update', data });
+      this.wsService.broadcastToAll({
+        event: 'chatbans.update',
+        data: toPlayerChatBans(user)
+      });
     } catch (error) {
       // The ban change itself succeeded, so don't fail the request over this.
       // Clients that missed it pick it up the next time they look the user up.
@@ -85,6 +83,20 @@ export class ChatBansService {
       );
     }
   }
+}
+
+/**
+ * Prisma reads the user row, with its revision, before the bans. A ban change
+ * landing in between makes the snapshot newer than its revision, which is safe:
+ * the change's own update has a higher revision still, and so isn't discarded
+ * as stale by clients that already applied this one.
+ */
+function playerBansSelect() {
+  return {
+    steamID: true,
+    chatBansRevision: true,
+    chatBans: { where: activeBanFilter(), select: banSelect }
+  } satisfies Prisma.UserSelect;
 }
 
 const banSelect = { type: true, expiresAt: true } as const;
@@ -101,4 +113,17 @@ function toPlayerBan({
   expiresAt: Date | null;
 }): PlayerChatBans['bans'][number] {
   return { type, expiresAt: expiresAt?.toISOString() ?? null };
+}
+
+function toPlayerChatBans(user: {
+  steamID: bigint | null;
+  chatBansRevision: number;
+  chatBans: { type: number; expiresAt: Date | null }[];
+}) {
+  // Not annotated, as an interface type isn't assignable to JsonValue
+  return {
+    steamID: user.steamID!.toString(),
+    revision: user.chatBansRevision,
+    bans: user.chatBans.map(toPlayerBan)
+  } satisfies PlayerChatBans;
 }

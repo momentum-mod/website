@@ -194,6 +194,12 @@ export type ActiveChatBan = Pick<ChatBan, 'type' | 'expiresAt' | 'reason'>;
  */
 export interface PlayerChatBans {
   steamID: string;
+  /**
+   * Increases with every change to the player's bans. Lookups and updates can
+   * arrive out of order, so clients should ignore any snapshot that isn't
+   * higher than the last one they applied.
+   */
+  revision: number;
   bans: Pick<ChatBan, 'type' | 'expiresAt'>[];
 }
 
