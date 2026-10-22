@@ -18,9 +18,16 @@
             Ban from voice chat
           </label>
         </div>
-        <label>Duration</label>
-        <p-select formControlName="banDuration" [options]="BanDurations" optionLabel="label" optionValue="value" appendTo="body" />
-        <label
+        <label for="banDuration">Duration</label>
+        <p-select
+          inputId="banDuration"
+          formControlName="banDuration"
+          [options]="BanDurations"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+        />
+        <label for="banReason"
           >Reason
           <m-icon
             class="ml-1 pt-0.5 text-sm"
@@ -28,7 +35,7 @@
             mTooltip="This is shown to the player in-game when they try to chat or use voice while banned"
           />
         </label>
-        <textarea rows="2" class="textinput" [maxLength]="MAX_REPORT_MESSAGE_LENGTH" formControlName="banReason"></textarea>
+        <textarea id="banReason" rows="2" class="textinput" [maxLength]="MAX_REPORT_MESSAGE_LENGTH" formControlName="banReason"></textarea>
         <div class="flex gap-2">
           <button type="button" class="btn" (click)="toggleIssueChatBan()">Cancel</button>
           <button
