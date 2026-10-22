@@ -68,16 +68,27 @@ export class WebsocketService implements OnModuleInit {
   }
 
   /**
-   * Register a user's new connection, closing any older one they have open.
+   * Register a user's new connection, closing the older of it and any other
+   * they have open.
    *
    * The older one may be on another worker, which is told to close it too.
    * Otherwise both stay open, and whatever the old one still reports (e.g. its
    * lobby) overwrites the new one's.
+   *
+   * Connections are ordered the same way here as in {@link closeOlderConnection},
+   * rather than by arrival, so that every worker agrees on which survives.
    */
   addClient(userID: number, client: Client) {
-    this.activeClients
-      .get(userID)
-      ?.close(REPLACED_CLOSE_CODE, REPLACED_CLOSE_REASON);
+    const existing = this.activeClients.get(userID);
+    if (existing && isNewerConnection(existing, client)) {
+      // Already superseded, e.g. two sockets opened in the same millisecond.
+      // `existing` was announced when it registered, which is all that other
+      // workers need to close their older connections, so announce nothing.
+      client.close(REPLACED_CLOSE_CODE, REPLACED_CLOSE_REASON);
+      return;
+    }
+
+    existing?.close(REPLACED_CLOSE_CODE, REPLACED_CLOSE_REASON);
     this.activeClients.set(userID, client);
 
     if (cluster.isWorker) {
@@ -153,11 +164,7 @@ export class WebsocketService implements OnModuleInit {
     const existing = this.activeClients.get(payload.userID);
     if (!existing || existing.connectionID === payload.connectionID) return;
 
-    const isOlder =
-      existing.connectedAt !== payload.connectedAt
-        ? existing.connectedAt < payload.connectedAt
-        : existing.connectionID < payload.connectionID;
-    if (isOlder) {
+    if (isNewerConnection(payload, existing)) {
       existing.close(REPLACED_CLOSE_CODE, REPLACED_CLOSE_REASON);
     }
   }
@@ -167,4 +174,17 @@ export class WebsocketService implements OnModuleInit {
       client.send(data);
     }
   }
+}
+
+/**
+ * Whether `a` is the newer of two connections. Opening time, with the
+ * connection ID breaking ties, so it's the same on every worker.
+ */
+export function isNewerConnection(
+  a: Pick<Client, 'connectedAt' | 'connectionID'>,
+  b: Pick<Client, 'connectedAt' | 'connectionID'>
+): boolean {
+  return a.connectedAt !== b.connectedAt
+    ? a.connectedAt > b.connectedAt
+    : a.connectionID > b.connectionID;
 }
