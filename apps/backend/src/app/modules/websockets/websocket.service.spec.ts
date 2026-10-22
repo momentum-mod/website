@@ -80,5 +80,36 @@ describe('WebsocketService', () => {
 
       expect(onA.close.mock.calls.length + onB.close.mock.calls.length).toBe(1);
     });
+
+    it('should keep the newer of two connections registered out of order on one worker', () => {
+      const worker = new WebsocketService();
+      // Opened in the same millisecond, but registered in the opposite order
+      // to the one the workers agree on.
+      const z = socket('z', 1000);
+      const a = socket('a', 1000);
+      worker.addClient(1, z);
+      worker.addClient(1, a);
+
+      // The announcement of z reaches the worker only now.
+      announce(worker, 1, z);
+      announce(worker, 1, a);
+
+      expect(z.close).not.toHaveBeenCalled();
+      expect(a.close).toHaveBeenCalledWith(1008, expect.any(String));
+      expect(worker.getClient(1)).toBe(z);
+    });
+
+    it('should close a connection registered after a newer one', () => {
+      const worker = new WebsocketService();
+      const newer = socket('b', 2000);
+      const older = socket('a', 1000);
+      worker.addClient(1, newer);
+
+      worker.addClient(1, older);
+
+      expect(older.close).toHaveBeenCalledWith(1008, expect.any(String));
+      expect(newer.close).not.toHaveBeenCalled();
+      expect(worker.getClient(1)).toBe(newer);
+    });
   });
 });
