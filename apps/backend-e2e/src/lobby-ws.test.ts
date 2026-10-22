@@ -14,6 +14,8 @@ import {
   registerE2ETestFile
 } from './support/e2e-environment';
 import { LobbyService } from '../../backend/src/app/modules/lobby/lobby.service';
+import { WebsocketService } from '../../backend/src/app/modules/websockets/websocket.service';
+import { AuthenticatedWebSocket } from '../../backend/src/app/modules/websockets/websocket.adapter';
 
 // E2E tests for the lobby tracking half of the game connection WebSocket
 // gateway (lobby.update/leave/mapcounts), and the LobbyService queries built on
@@ -236,6 +238,92 @@ describe('Game Connection Gateway - lobbies', () => {
       assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
         lobbyID: LOBBY_A
       });
+    });
+  });
+
+  // A replaced connection stays open until its worker hears about the
+  // replacement, so it can still send messages that must not clobber the new
+  // connection's lobby. The replacement announcement can't be delayed here, so
+  // stand in for the replaced connection with one that's just older.
+  describe('replaced connections', () => {
+    let staleClient: AuthenticatedWebSocket;
+
+    beforeEach(async () => {
+      await connect();
+      const { connectedAt } = app.get(WebsocketService).getClient(user.id);
+      staleClient = {
+        userId: user.id,
+        connectionID: 'stale',
+        connectedAt: connectedAt - 1000
+      } as AuthenticatedWebSocket;
+    });
+
+    it("should not overwrite the newer connection's lobby", async () => {
+      const client = openClients[0];
+      await client.sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: false
+      });
+
+      await lobbyService.updateStatus(staleClient, {
+        lobbyID: LOBBY_B,
+        isMapLobby: false
+      });
+
+      assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
+        lobbyID: LOBBY_A
+      });
+      assert.deepEqual(await lobbyService.getLobbyMembers(LOBBY_B), []);
+    });
+
+    it("should not clear the newer connection's lobby", async () => {
+      const client = openClients[0];
+      await client.sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: false
+      });
+
+      await lobbyService.leaveLobby(staleClient);
+      await lobbyService.handleDisconnect(staleClient);
+
+      assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
+        lobbyID: LOBBY_A
+      });
+    });
+
+    it('should not take over after the newer connection left its lobby', async () => {
+      const client = openClients[0];
+      await client.sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: false
+      });
+      await client.sendAndAwait('lobby.leave');
+
+      await lobbyService.updateStatus(staleClient, {
+        lobbyID: LOBBY_B,
+        isMapLobby: false
+      });
+
+      assert.equal(await lobbyService.getStatus(user.id), null);
+      assert.deepEqual(await lobbyService.getLobbyMembers(LOBBY_B), []);
+      assert.equal(lobbyService['localStatuses'].has(user.id), false);
+    });
+
+    it("should be replaced by a newer connection's lobby", async () => {
+      await lobbyService.updateStatus(staleClient, {
+        lobbyID: LOBBY_B,
+        isMapLobby: false
+      });
+
+      await openClients[0].sendAndAwait('lobby.update', {
+        lobbyID: LOBBY_A,
+        isMapLobby: false
+      });
+
+      assert.partialDeepStrictEqual(await lobbyService.getStatus(user.id), {
+        lobbyID: LOBBY_A
+      });
+      assert.deepEqual(await lobbyService.getLobbyMembers(LOBBY_B), []);
     });
   });
 
