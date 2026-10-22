@@ -85,5 +85,36 @@ describe('WebsocketService', () => {
 
       assert.equal(onA.close.mock.callCount() + onB.close.mock.callCount(), 1);
     });
+
+    it('should keep the newer of two connections registered out of order on one worker', () => {
+      const worker = new WebsocketService();
+      // Opened in the same millisecond, but registered in the opposite order
+      // to the one the workers agree on.
+      const z = socket('z', 1000);
+      const a = socket('a', 1000);
+      worker.addClient(1, z);
+      worker.addClient(1, a);
+
+      // The announcement of z reaches the worker only now.
+      announce(worker, 1, z);
+      announce(worker, 1, a);
+
+      assert.equal(z.close.mock.callCount(), 0);
+      assert.ok(wasCalledWith(a.close, 1008, any(String)));
+      assert.equal(worker.getClient(1), z);
+    });
+
+    it('should close a connection registered after a newer one', () => {
+      const worker = new WebsocketService();
+      const newer = socket('b', 2000);
+      const older = socket('a', 1000);
+      worker.addClient(1, newer);
+
+      worker.addClient(1, older);
+
+      assert.ok(wasCalledWith(older.close, 1008, any(String)));
+      assert.equal(newer.close.mock.callCount(), 0);
+      assert.equal(worker.getClient(1), newer);
+    });
   });
 });
