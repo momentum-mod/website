@@ -9,7 +9,10 @@ import { ClientContext, Result } from 'iovalkey';
 import { Gamemode, MapLobbyPlayerCount } from '@momentum/constants';
 import { LobbyStatusDto } from '../../dto';
 import { ValkeyService } from '../valkey/valkey.service';
-import { WebsocketService } from '../websockets/websocket.service';
+import {
+  isNewerConnection,
+  WebsocketService
+} from '../websockets/websocket.service';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 
 /**
@@ -26,6 +29,12 @@ import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
  * and while it stays open its worker keeps refreshing the entry's expiry, so a
  * worker that dies without running close handlers leaves state behind for at
  * most {@link STATUS_TTL_SECONDS}.
+ *
+ * Only the user's newest connection (see {@link isNewerConnection}) may write.
+ * A replaced connection stays open until its worker hears it's been replaced,
+ * and can't be allowed to overwrite the new one's state in the meantime. So
+ * clearing an entry leaves behind who owned it, until the entry expires, to
+ * fence off those late writes even after the user has left their lobby.
  */
 @Injectable()
 export class LobbyService implements OnModuleInit, OnModuleDestroy {
@@ -89,10 +98,20 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     client: AuthenticatedWebSocket,
     status: LobbyStatusDto
   ): Promise<null> {
-    const { userId: userID, connectionID } = client;
+    const { userId: userID, connectionID, connectedAt } = client;
 
-    this.localStatuses.set(userID, { connectionID, status });
-    await this.writeStatus(userID, connectionID, status, Ownership.ANY);
+    // A stale connection's write is rejected by Valkey, which the check below
+    // then undoes. Don't let it displace a newer one's status meanwhile.
+    if (!this.hasNewerLocalStatus(client)) {
+      this.localStatuses.set(userID, { connectionID, connectedAt, status });
+    }
+    const written = await this.writeStatus(client, status, Ownership.ANY);
+    if (
+      !written &&
+      this.localStatuses.get(userID)?.connectionID === connectionID
+    ) {
+      this.localStatuses.delete(userID);
+    }
 
     this.logger.debug(
       `updateStatus: (userID=${userID}, lobbyID=${status.lobbyID}, isMapLobby=${status.isMapLobby}, mapID=${status.mapID}, gamemode=${status.gamemode})`
@@ -104,10 +123,12 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * Clear the client's lobby, after it has left one.
    */
   async leaveLobby(client: AuthenticatedWebSocket): Promise<null> {
-    const { userId: userID, connectionID } = client;
+    const { userId: userID } = client;
 
-    this.localStatuses.delete(userID);
-    await this.writeStatus(userID, connectionID, null, Ownership.ANY);
+    if (!this.hasNewerLocalStatus(client)) {
+      this.localStatuses.delete(userID);
+    }
+    await this.writeStatus(client, null, Ownership.ANY);
 
     this.logger.debug(`leaveLobby: (userID=${userID})`);
     return null;
@@ -125,7 +146,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      await this.writeStatus(userID, connectionID, null, Ownership.OWNED);
+      await this.writeStatus(client, null, Ownership.OWNED);
     } catch (error) {
       // Nothing awaits this, and the TTL reaps the entry regardless.
       this.logger.error(
@@ -242,21 +263,27 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
 
   //#region Storage
 
+  /** Whether a newer connection than the client's has a local status. */
+  private hasNewerLocalStatus(client: AuthenticatedWebSocket): boolean {
+    const local = this.localStatuses.get(client.userId);
+    return !!local && isNewerConnection(local, client);
+  }
+
   /**
    * Atomically replace a user's status (or clear it, if `status` is null),
    * moving them between the lobby/map indexes as needed.
    *
-   * Does nothing if `ownership` doesn't allow `connectionID` to replace the
-   * user's current status. Returns whether anything was written.
+   * Does nothing if `ownership` doesn't allow the client's connection to
+   * replace the user's current status, or if a newer connection has written
+   * one since. Returns whether anything was written.
    */
   private async writeStatus(
-    userID: number,
-    connectionID: string,
+    client: Connection & { userId: number },
     status: LobbyStatusDto | null,
     ownership: Ownership
   ): Promise<boolean> {
     const result = await this.valkey.writeLobbyStatus(
-      ...writeStatusArgs(userID, connectionID, status, ownership)
+      ...writeStatusArgs(client.userId, client, status, ownership)
     );
     return result === 1;
   }
@@ -281,11 +308,11 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     if (entries.length === 0) return;
 
     const pipeline = this.valkey.pipeline();
-    for (const [userID, { connectionID, status }] of entries) {
+    for (const [userID, { connectionID, connectedAt, status }] of entries) {
       pipeline.writeLobbyStatus(
         ...writeStatusArgs(
           userID,
-          connectionID,
+          { connectionID, connectedAt },
           status,
           Ownership.OWNED_OR_NONE
         )
@@ -321,7 +348,10 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
 
 /** Whose status a write may replace. Values are checked by WRITE_STATUS_SCRIPT. */
 enum Ownership {
-  /** Anyone's, as the connection is reporting where its user is now. */
+  /**
+   * Anyone's older than the connection, as it's reporting where its user is
+   * now.
+   */
   ANY = 0,
   /** Only the connection's own. */
   OWNED = 1,
@@ -329,8 +359,9 @@ enum Ownership {
   OWNED_OR_NONE = 2
 }
 
-interface LocalStatus {
-  connectionID: string;
+type Connection = Pick<AuthenticatedWebSocket, 'connectionID' | 'connectedAt'>;
+
+interface LocalStatus extends Connection {
   status: LobbyStatusDto;
 }
 
@@ -362,7 +393,11 @@ const MAP_MEMBERS_PREFIX = 'lobby:map:';
 /** Sorted set of map IDs with anyone in their lobbies, suffixed `<gamemode>`. */
 const ACTIVE_MAPS_PREFIX = 'lobby:maps:';
 
-/** Hash of the user's lobby status, plus the connection that owns it. */
+/**
+ * Hash of the user's lobby status, plus the connection that owns it. Outlives
+ * the status itself, with only the owner left, as described on
+ * {@link LobbyService}.
+ */
 function userKey(userID: number): string {
   return `lobby:user:${userID}`;
 }
@@ -381,7 +416,7 @@ function activeMapsKey(gamemode: Gamemode): string {
 
 function writeStatusArgs(
   userID: number,
-  connectionID: string,
+  { connectionID, connectedAt }: Connection,
   status: LobbyStatusDto | null,
   ownership: Ownership
 ): [string, ...(string | number)[]] {
@@ -390,6 +425,7 @@ function writeStatusArgs(
     userKey(userID),
     userID,
     connectionID,
+    connectedAt,
     ownership,
     status?.lobbyID ?? '',
     status?.isMapLobby ? 1 : 0,
@@ -403,9 +439,12 @@ function writeStatusArgs(
 
 /**
  * KEYS[1]: user key
- * ARGV: userID, connectionID, ownership (see Ownership), lobbyID ('' to clear),
- *       isMapLobby (1/0), mapID (or ''), gamemode (or ''), expiresAt (ms),
- *       ttl (s), now (ms)
+ * ARGV: userID, connectionID, connectedAt (ms), ownership (see Ownership),
+ *       lobbyID ('' to clear), isMapLobby (1/0), mapID (or ''), gamemode (or ''),
+ *       expiresAt (ms), ttl (s), now (ms)
+ *
+ * Connections are ordered by connectedAt, then connectionID, as in
+ * isNewerConnection.
  *
  * Expired members are pruned from each index set it adds to. Readers already
  * ignore them, but a set that keeps being written to never expires as a whole,
@@ -416,30 +455,43 @@ function writeStatusArgs(
  */
 const WRITE_STATUS_SCRIPT = `
 local userKey = KEYS[1]
-local userID, connectionID, ownership = ARGV[1], ARGV[2], ARGV[3]
-local lobbyID, isMapLobby, mapID, gamemode = ARGV[4], ARGV[5], ARGV[6], ARGV[7]
-local expiresAt, ttl, now = ARGV[8], ARGV[9], ARGV[10]
+local userID, connectionID, connectedAt, ownership = ARGV[1], ARGV[2], ARGV[3], ARGV[4]
+local lobbyID, isMapLobby, mapID, gamemode = ARGV[5], ARGV[6], ARGV[7], ARGV[8]
+local expiresAt, ttl, now = ARGV[9], ARGV[10], ARGV[11]
 
-local old = redis.call('HMGET', userKey, 'connectionID', 'lobbyID', 'isMapLobby', 'mapID', 'gamemode')
+local old = redis.call('HMGET', userKey, 'connectionID', 'connectedAt', 'lobbyID', 'isMapLobby', 'mapID', 'gamemode')
 local owner = old[1]
-if (ownership == '1' and owner ~= connectionID)
-  or (ownership == '2' and owner and owner ~= connectionID) then
-  return 0
+if owner ~= connectionID then
+  if ownership == '1' then
+    return 0
+  end
+  if owner then
+    if ownership == '2' then
+      return 0
+    end
+    local ownerAt = tonumber(old[2]) or 0
+    if ownerAt > tonumber(connectedAt)
+      or (ownerAt == tonumber(connectedAt) and owner > connectionID) then
+      return 0
+    end
+  end
 end
 
-if old[2] then
-  redis.call('ZREM', '${LOBBY_MEMBERS_PREFIX}' .. old[2], userID)
+if old[3] then
+  redis.call('ZREM', '${LOBBY_MEMBERS_PREFIX}' .. old[3], userID)
 end
-if old[3] == '1' and old[4] and old[5] then
-  redis.call('ZREM', '${MAP_MEMBERS_PREFIX}' .. old[5] .. ':' .. old[4], userID)
+if old[4] == '1' and old[5] and old[6] then
+  redis.call('ZREM', '${MAP_MEMBERS_PREFIX}' .. old[6] .. ':' .. old[5], userID)
 end
 
 redis.call('DEL', userKey)
+redis.call('HSET', userKey, 'connectionID', connectionID, 'connectedAt', connectedAt)
 if lobbyID == '' then
+  redis.call('EXPIRE', userKey, ttl)
   return 1
 end
 
-redis.call('HSET', userKey, 'connectionID', connectionID, 'lobbyID', lobbyID, 'isMapLobby', isMapLobby)
+redis.call('HSET', userKey, 'lobbyID', lobbyID, 'isMapLobby', isMapLobby)
 if mapID ~= '' then
   redis.call('HSET', userKey, 'mapID', mapID, 'gamemode', gamemode)
 end
