@@ -15,6 +15,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsDateString,
+  IsInt,
   IsOptional,
   IsString
 } from 'class-validator';
@@ -125,6 +126,14 @@ export class PlayerChatBansDto implements PlayerChatBans {
   @ApiProperty({ type: String, description: 'Steam ID of the player' })
   @IsSteamCommunityID()
   readonly steamID: string;
+
+  @ApiProperty({
+    type: Number,
+    description:
+      "Increases with every change to the player's bans. Ignore snapshots that aren't higher than the last one applied, as lookups and updates can arrive out of order"
+  })
+  @IsInt()
+  readonly revision: number;
 
   @NestedProperty(PlayerChatBanDto, {
     isArray: true,

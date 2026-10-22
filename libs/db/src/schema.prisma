@@ -23,6 +23,9 @@ model User {
   avatar  String?
   country String? @db.Char(2)
 
+  /// Bumped in the same transaction as every change to the user's chat bans, so game clients can order snapshots of them
+  chatBansRevision Int @default(0)
+
   profile              Profile?
   userStats            UserStats?
   submittedMaps        MMap[]

@@ -82,6 +82,7 @@ describe('Game Connection Gateway - chat bans', () => {
       expect(res.event).toBe('chatbans.get');
       expect(res.data.players).toHaveLength(1);
       expect(res.data.players[0].steamID).toBe(target.steamID.toString());
+      expect(res.data.players[0].revision).toBe(0);
       expect(res.data.players[0].bans).toEqual(
         expect.arrayContaining([
           { type: ChatBanType.CHAT, expiresAt: expiresAt.toISOString() },
@@ -100,7 +101,7 @@ describe('Game Connection Gateway - chat bans', () => {
       });
 
       expect(res.data.players).toEqual([
-        { steamID: target.steamID.toString(), bans: [] }
+        { steamID: target.steamID.toString(), revision: 0, bans: [] }
       ]);
     });
 
@@ -113,8 +114,8 @@ describe('Game Connection Gateway - chat bans', () => {
       });
 
       expect(res.data.players).toEqual([
-        { steamID: target.steamID.toString(), bans: [] },
-        { steamID: unknownSteamID, bans: [] }
+        { steamID: target.steamID.toString(), revision: 0, bans: [] },
+        { steamID: unknownSteamID, revision: 0, bans: [] }
       ]);
     });
 
@@ -126,7 +127,7 @@ describe('Game Connection Gateway - chat bans', () => {
         steamIDs: [steamID, steamID]
       });
 
-      expect(res.data.players).toEqual([{ steamID, bans: [] }]);
+      expect(res.data.players).toEqual([{ steamID, revision: 0, bans: [] }]);
     });
 
     it('should return an error for an invalid Steam ID', async () => {
@@ -190,6 +191,8 @@ describe('Game Connection Gateway - chat bans', () => {
         const msg = await client.next();
         expect(msg.event).toBe('chatbans.update');
         expect(msg.data.steamID).toBe(target.steamID.toString());
+        // Once per ban issued
+        expect(msg.data.revision).toBe(2);
         expect(msg.data.bans).toEqual(
           expect.arrayContaining([
             { type: ChatBanType.CHAT, expiresAt: null },
@@ -216,6 +219,7 @@ describe('Game Connection Gateway - chat bans', () => {
         event: 'chatbans.update',
         data: {
           steamID: target.steamID.toString(),
+          revision: 1,
           bans: [{ type: ChatBanType.VOICE, expiresAt: null }]
         }
       });
@@ -250,6 +254,7 @@ describe('Game Connection Gateway - chat bans', () => {
         event: 'chatbans.update',
         data: {
           steamID: target.steamID.toString(),
+          revision: 1,
           bans: [{ type: ChatBanType.CHAT, expiresAt: newExpiry.toISOString() }]
         }
       });
@@ -270,9 +275,50 @@ describe('Game Connection Gateway - chat bans', () => {
         event: 'chatbans.update',
         data: {
           steamID: target.steamID.toString(),
+          revision: 1,
           bans: [{ type: ChatBanType.VOICE, expiresAt: null }]
         }
       });
+    });
+
+    it('should be ordered by revision when bans change at the same time', async () => {
+      const client = await connect();
+
+      // As when the profile form issues a text and a voice ban in parallel
+      await Promise.all(
+        [ChatBanType.CHAT, ChatBanType.VOICE].map((type) =>
+          req.post({
+            url: 'admin/chat-bans',
+            status: 201,
+            body: { targetID: target.id, type },
+            token: adminToken
+          })
+        )
+      );
+
+      const updates = [await client.next(), await client.next()];
+
+      // Either update may have been read after both bans were issued, but none
+      // can be older than its revision says.
+      for (const { data } of updates) {
+        expect(data.revision).toBeGreaterThanOrEqual(1);
+        expect(data.bans.length).toBeGreaterThanOrEqual(data.revision);
+      }
+
+      // Whichever order they arrived in, the highest revision has both bans, so
+      // a client ignoring older revisions ends up with the full set.
+      const latest = updates.reduce((a, b) =>
+        b.data.revision > a.data.revision ? b : a
+      );
+      expect(latest.data.revision).toBe(2);
+      expect(latest.data.bans).toHaveLength(2);
+
+      // A lookup is ordered against those updates by the same revisions
+      const res = await client.sendAndAwait('chatbans.get', {
+        steamIDs: [target.steamID.toString()]
+      });
+      expect(res.data.players[0].revision).toBe(2);
+      expect(res.data.players[0].bans).toHaveLength(2);
     });
   });
 });
