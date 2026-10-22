@@ -10,6 +10,7 @@ import { LeaderboardRun, Prisma } from '@momentum/db';
 import * as Bitflags from '@momentum/bitflags';
 import {
   AdminActivityType,
+  CreateChatBan,
   NotificationType,
   ReportType,
   Role,
@@ -18,6 +19,7 @@ import {
 } from '@momentum/constants';
 import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import {
+  AdminCreateChatBanDto,
   AdminDeleteRunDto,
   AdminGetChatBansQueryDto,
   AdminUpdateUserDto,
@@ -36,6 +38,7 @@ import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
+import { ChatBansService } from '../chat-bans/chat-bans.service';
 
 @Injectable()
 export class AdminService {
@@ -44,7 +47,8 @@ export class AdminService {
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
-    private readonly fileStore: FileStoreService
+    private readonly fileStore: FileStoreService,
+    private readonly chatBans: ChatBansService
   ) {}
 
   async createPlaceholderUser(
@@ -397,14 +401,49 @@ export class AdminService {
     expand?: string[],
     resolved?: boolean
   ) {
-    const dbResponse = await this.db.report.findManyAndCount({
+    const [reports, count] = await this.db.report.findManyAndCount({
       where: { resolved },
-      include: expandToIncludes(expand),
+      include: expandToIncludes(expand, { without: ['target'] }),
       orderBy: { createdAt: 'desc' },
       skip,
       take
     });
-    return new PagedResponseDto(ReportDto, dbResponse);
+
+    if (!expand?.includes('target'))
+      return new PagedResponseDto(ReportDto, [reports, count]);
+
+    // `data` points into a different table depending on `type`, so there's no
+    // relation Prisma can include.
+    const isUserReport = (type: number) =>
+      type === ReportType.USER_PROFILE_REPORT ||
+      type === ReportType.PLAYER_REPORT;
+    const userIDs = reports
+      .filter(({ type }) => isUserReport(type))
+      .map(({ data }) => Number(data));
+    const mapIDs = reports
+      .filter(({ type }) => type === ReportType.MAP_REPORT)
+      .map(({ data }) => Number(data));
+
+    const [users, maps] = await Promise.all([
+      this.db.user.findMany({ where: { id: { in: userIDs } } }),
+      this.db.mMap.findMany({ where: { id: { in: mapIDs } } })
+    ]);
+    const usersByID = new Map(users.map((user) => [user.id, user]));
+    const mapsByID = new Map(maps.map((map) => [map.id, map]));
+
+    return new PagedResponseDto(ReportDto, [
+      reports.map((report) => ({
+        ...report,
+        targetUser: isUserReport(report.type)
+          ? usersByID.get(Number(report.data))
+          : undefined,
+        targetMap:
+          report.type === ReportType.MAP_REPORT
+            ? mapsByID.get(Number(report.data))
+            : undefined
+      })),
+      count
+    ]);
   }
 
   async updateReport(
@@ -460,25 +499,74 @@ export class AdminService {
       // For a player report, `data` is the reported user's ID.
       const targetID = Number(report.data);
       for (const ban of reportDto.chatBans!) {
-        const created = await this.db.chatBan.create({
-          data: {
-            type: ban.type,
-            expiresAt: ban.expiresAt ?? null,
-            reason: ban.reason ?? null,
-            target: { connect: { id: targetID } },
-            issuer: { connect: { id: userID } },
-            report: { connect: { id: reportID } }
-          }
-        });
-
-        await this.adminActivityService.create(
-          userID,
-          AdminActivityType.CHAT_BAN_CREATE,
-          created.id,
-          created
-        );
+        await this.issueChatBan(userID, targetID, ban, reportID);
       }
+
+      await this.chatBans.broadcastPlayerBans(targetID);
     }
+  }
+
+  async createChatBan(
+    adminID: number,
+    dto: AdminCreateChatBanDto
+  ): Promise<ChatBanDto> {
+    const target = await this.db.user.findUnique({
+      where: { id: dto.targetID },
+      select: { id: true }
+    });
+
+    if (!target) throw new NotFoundException('User not found');
+
+    const created = await this.issueChatBan(adminID, dto.targetID, dto);
+
+    await this.chatBans.broadcastPlayerBans(dto.targetID);
+
+    return DtoFactory(ChatBanDto, created);
+  }
+
+  /**
+   * Must run in the same transaction as the change to the user's bans, so game
+   * clients can order the snapshots they're sent of them.
+   */
+  private bumpChatBansRevision(userID: number) {
+    return this.db.user.update({
+      where: { id: userID },
+      data: { chatBansRevision: { increment: 1 } },
+      select: { id: true }
+    });
+  }
+
+  /** Doesn't broadcast the change, so several bans can be sent as one update. */
+  private async issueChatBan(
+    adminID: number,
+    targetID: number,
+    ban: CreateChatBan,
+    reportID?: number
+  ) {
+    const [created] = await this.db.$transaction([
+      this.db.chatBan.create({
+        data: {
+          type: ban.type,
+          expiresAt: ban.expiresAt ?? null,
+          reason: ban.reason ?? null,
+          target: { connect: { id: targetID } },
+          issuer: { connect: { id: adminID } },
+          ...(reportID !== undefined
+            ? { report: { connect: { id: reportID } } }
+            : {})
+        }
+      }),
+      this.bumpChatBansRevision(targetID)
+    ]);
+
+    await this.adminActivityService.create(
+      adminID,
+      AdminActivityType.CHAT_BAN_CREATE,
+      created.id,
+      created
+    );
+
+    return created;
   }
 
   async getChatBans(query: AdminGetChatBansQueryDto) {
@@ -510,10 +598,13 @@ export class AdminService {
 
     if (!ban) throw new NotFoundException('Ban not found');
 
-    const updated = await this.db.chatBan.update({
-      where: { id: banID },
-      data: { expiresAt: dto.expiresAt, reason: dto.reason }
-    });
+    const [updated] = await this.db.$transaction([
+      this.db.chatBan.update({
+        where: { id: banID },
+        data: { expiresAt: dto.expiresAt, reason: dto.reason }
+      }),
+      this.bumpChatBansRevision(ban.targetID)
+    ]);
 
     await this.adminActivityService.create(
       adminID,
@@ -522,6 +613,8 @@ export class AdminService {
       updated,
       ban
     );
+
+    await this.chatBans.broadcastPlayerBans(ban.targetID);
   }
 
   async revokeChatBan(adminID: number, banID: number): Promise<void> {
@@ -529,7 +622,10 @@ export class AdminService {
 
     if (!ban) throw new NotFoundException('Ban not found');
 
-    await this.db.chatBan.delete({ where: { id: banID } });
+    await this.db.$transaction([
+      this.db.chatBan.delete({ where: { id: banID } }),
+      this.bumpChatBansRevision(ban.targetID)
+    ]);
 
     await this.adminActivityService.create(
       adminID,
@@ -538,6 +634,8 @@ export class AdminService {
       null,
       ban
     );
+
+    await this.chatBans.broadcastPlayerBans(ban.targetID);
   }
 
   async createAdminAnnouncement(

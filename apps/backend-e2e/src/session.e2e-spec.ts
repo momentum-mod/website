@@ -436,6 +436,55 @@ describe('Session', () => {
         });
       });
 
+      // E.g. a client retrying an upload that timed out
+      describe('should count a session submitted twice at once only once', () => {
+        const submitTwice = async () => {
+          let second: Promise<{ statusCode: number }>;
+          const first = await submitWithOverrides({
+            beforeSubmit: (self) => {
+              second = req.postOctetStream({
+                url: `session/run/${self.sessionID}/end`,
+                body: Buffer.from(self.replayBuffer),
+                token
+              });
+            }
+          });
+          return [first.statusCode, (await second).statusCode].sort();
+        };
+
+        it('for a first completion', async () => {
+          expect(await submitTwice()).toEqual([200, 400]);
+
+          const stats = await prisma.userStats.findUnique({
+            where: { userID: user.id }
+          });
+          expect(stats.runsSubmitted).toBe(1);
+          expect(
+            await prisma.pastRun.count({ where: { userID: user.id } })
+          ).toBe(1);
+        });
+
+        it('for a PB improvement', async () => {
+          // A slower run first, so the duplicated one below is a PB
+          await submitRun(300);
+
+          expect(await submitTwice()).toEqual([200, 400]);
+
+          const stats = await prisma.userStats.findUnique({
+            where: { userID: user.id }
+          });
+          expect(stats.runsSubmitted).toBe(2);
+          expect(
+            await prisma.pastRun.count({ where: { userID: user.id } })
+          ).toBe(2);
+          expect(
+            await prisma.activity.count({
+              where: { userID: user.id, type: ActivityType.PB_ACHIEVED }
+            })
+          ).toBe(2);
+        });
+      });
+
       it('should reject if should 401 when no access token is provided', () =>
         req.unauthorizedTest('session/run/1/end', 'post'));
 

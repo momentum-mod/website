@@ -57,7 +57,7 @@ export class ReportQueueComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap(() =>
           this.adminService.getReports({
-            expand: ['submitter', 'resolver'],
+            expand: ['submitter', 'resolver', 'target'],
             resolved: this.filters.resolved,
             take: this.rows,
             skip: this.first
