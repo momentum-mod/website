@@ -660,8 +660,10 @@ export class MapsService {
 
     let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
 
-    const tasks: Promise<any>[] = [
-      this.db.$transaction(async (tx) => {
+    const uploads: Promise<unknown>[] = [];
+
+    try {
+      await this.db.$transaction(async (tx) => {
         map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
 
         await tx.leaderboard.createMany({
@@ -683,7 +685,7 @@ export class MapsService {
         // We need the generated map ID from the above query for S3, but do NOT
         // want to block our transaction on S3 operations - so push to promise
         // array then await everything below.
-        tasks.push(
+        uploads.push(
           (async () => {
             const zippedVmf = hasVmf
               ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
@@ -708,10 +710,17 @@ export class MapsService {
             dto.testInvites
           );
         }
-      })
-    ];
+      });
+    } catch (error) {
+      // Don't leave the uploads dangling as unhandled rejections.
+      await Promise.allSettled(uploads);
+      throw error;
+    }
 
-    await Promise.all(tasks);
+    // These are pushed from inside the transaction callback, so they only
+    // exist once the transaction has run; wait for them before responding or
+    // the files can be missing when the client goes to download them.
+    await Promise.all(uploads);
 
     if (!dto.wantsPrivateTesting) {
       void this.discordNotificationService.sendMapContentApprovalNotification(
@@ -1137,7 +1146,7 @@ export class MapsService {
     zones: MapZones
   ): Promise<void> {
     const existingLeaderboards: LeaderboardHandler.LeaderboardProps[] =
-      await this.db.leaderboard.findMany({
+      await tx.leaderboard.findMany({
         where: { mapID },
         select: { gamemode: true, trackNum: true, trackType: true, style: true }
       });
@@ -1384,7 +1393,7 @@ export class MapsService {
       const update: Prisma.MMapUpdateInput = {};
 
       if (dto.submitterID) {
-        const newUser = await this.db.user.findUnique({
+        const newUser = await tx.user.findUnique({
           where: { id: dto.submitterID }
         });
         if (!newUser)
@@ -1495,7 +1504,9 @@ export class MapsService {
           AdminActivityType.MAP_UPDATE,
           mapID,
           updatedMap,
-          map
+          map,
+          undefined,
+          tx
         );
     });
 
@@ -1600,15 +1611,15 @@ export class MapsService {
       oldStatus === MapStatus.PRIVATE_TESTING &&
       newStatus === MapStatus.CONTENT_APPROVAL
     ) {
-      await this.deletePrivateTestingInviteNotifications(map.id);
-      await this.db.mapTestInvite.deleteMany({
+      await this.deletePrivateTestingInviteNotifications(map.id, tx);
+      await tx.mapTestInvite.deleteMany({
         where: { state: MapTestInviteState.UNREAD, mapID: map.id }
       });
     } else if (
       oldStatus === MapStatus.PUBLIC_TESTING &&
       newStatus === MapStatus.FINAL_APPROVAL
     ) {
-      await this.updateStatusFromPublicToFA(map, user.roles);
+      await this.updateStatusFromPublicToFA(tx, map, user.roles);
     } else if (
       oldStatus === MapStatus.FINAL_APPROVAL &&
       newStatus === MapStatus.APPROVED
@@ -1650,6 +1661,7 @@ export class MapsService {
    * Public Testing -> Final Approval
    */
   private async updateStatusFromPublicToFA(
+    tx: ExtendedPrismaServiceTransaction,
     map: MapWithSubmission,
     roles: number
   ) {
@@ -1696,7 +1708,7 @@ export class MapsService {
     // All "required resolving" reviews must have been resolved.
     // Only reviewers and above can create these, however they can also
     // mark a non-reviewer review as needing resolving.
-    const hasUnresolvedReview = await this.db.mapReview.exists({
+    const hasUnresolvedReview = await tx.mapReview.exists({
       where: { mapID: map.id, resolved: false }
     });
 
@@ -1705,7 +1717,7 @@ export class MapsService {
     }
 
     // Must have at least one approving review unless you're mod/admin
-    const hasApprovingReview = await this.db.mapReview.exists({
+    const hasApprovingReview = await tx.mapReview.exists({
       where: { mapID: map.id, approves: true }
     });
 
@@ -1748,7 +1760,7 @@ export class MapsService {
       )
     });
 
-    const { currentVersion, versions } = await this.db.mMap.findFirst({
+    const { currentVersion, versions } = await tx.mMap.findFirst({
       where: { id: map.id },
       include: {
         currentVersion: true,
@@ -1771,15 +1783,18 @@ export class MapsService {
       );
 
       // Send a notification to the submitter.
-      await this.notificationService.sendNotifications({
-        data: {
-          type: NotificationType.MAP_STATUS_CHANGE,
-          notifiedUserID: map.submitterID,
-          json: { oldStatus: map.status, newStatus: dto.status },
-          mapID: map.id,
-          userID: adminID
-        }
-      });
+      await this.notificationService.sendNotifications(
+        {
+          data: {
+            type: NotificationType.MAP_STATUS_CHANGE,
+            notifiedUserID: map.submitterID,
+            json: { oldStatus: map.status, newStatus: dto.status },
+            mapID: map.id,
+            userID: adminID
+          }
+        },
+        tx
+      );
 
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
@@ -1853,7 +1868,7 @@ export class MapsService {
     });
 
     // Update map approve date
-    await this.db.mapInfo.update({
+    await tx.mapInfo.update({
       where: { mapID: map.id },
       data: { approvedDate: new Date() }
     });
@@ -1906,7 +1921,7 @@ export class MapsService {
     zones: MapZones,
     allowCreation = false
   ) {
-    const existingLeaderboards = await this.db.leaderboard.findMany({
+    const existingLeaderboards = await tx.leaderboard.findMany({
       where: { mapID },
       select: {
         gamemode: true,
@@ -2296,8 +2311,11 @@ export class MapsService {
     throw new ForbiddenException('User not authorized to access map data');
   }
 
-  async deletePrivateTestingInviteNotifications(mapID: number) {
-    await this.db.notification.deleteMany({
+  async deletePrivateTestingInviteNotifications(
+    mapID: number,
+    tx: ExtendedPrismaServiceTransaction = this.db
+  ) {
+    await tx.notification.deleteMany({
       where: { mapID, type: NotificationType.MAP_TESTING_INVITE }
     });
   }

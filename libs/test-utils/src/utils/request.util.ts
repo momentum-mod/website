@@ -5,10 +5,12 @@ import { InjectOptions, Response } from 'light-my-request';
 import FormData from 'form-data';
 import * as fs from 'node:fs';
 import * as http from 'node:http';
+import * as assert from 'node:assert/strict';
 import path from 'node:path';
 import { FILES_PATH } from '../files-path.const';
 import { isEmpty, isObject } from '@momentum/util-fn';
 import { MergeExclusive, Primitive } from 'type-fest';
+import { assertValidDto, assertValidPagedDto } from './assert-valid-dto.util';
 
 export const URL_PREFIX = '/v1/';
 
@@ -152,7 +154,7 @@ export class RequestUtil {
     if (options.status) {
       if (response.statusCode === 400 && response.statusCode !== options.status)
         console.log(response.body);
-      expect(response.statusCode).toBe(options.status);
+      assert.equal(response.statusCode, options.status);
     }
 
     let contentTypeMatcher;
@@ -165,7 +167,7 @@ export class RequestUtil {
         contentTypeMatcher = options.contentType as RegExp;
       }
 
-      expect(response.headers['content-type']).toMatch(contentTypeMatcher);
+      assert.match(response.headers['content-type'], contentTypeMatcher);
     }
 
     const parsedResponse: ParsedResponse =
@@ -182,34 +184,36 @@ export class RequestUtil {
 
   private validate({ body }: ParsedResponse, options: RequestOptions) {
     if (options.validate) {
-      expect(body).toBeValidDto(options.validate);
+      assertValidDto(body, options.validate);
     } else if (options.validatePaged) {
       if ('type' in options.validatePaged) {
         if ('returnCount' in options.validatePaged) {
-          expect(body).toBeValidPagedDto(
+          assertValidPagedDto(
+            body,
             options.validatePaged.type,
             options.validatePaged.returnCount,
             options.validatePaged.totalCount
           );
         } else if ('count' in options.validatePaged) {
-          expect(body).toBeValidPagedDto(
+          assertValidPagedDto(
+            body,
             options.validatePaged.type,
             options.validatePaged.count,
             options.validatePaged.count
           );
         }
       } else {
-        expect(body).toBeValidPagedDto(options.validatePaged);
+        assertValidPagedDto(body, options.validatePaged);
       }
     } else if (options.validateArray) {
-      expect(body).toBeInstanceOf(Array);
+      assert.ok(Array.isArray(body));
       if ('type' in options.validateArray) {
         for (const item of body as unknown as unknown[]) {
-          expect(item).toBeValidDto(options.validateArray.type);
+          assertValidDto(item, options.validateArray.type);
         }
       } else {
         for (const item of body as unknown as unknown[]) {
-          expect(item).toBeValidDto(options.validateArray);
+          assertValidDto(item, options.validateArray);
         }
       }
     }
@@ -228,7 +232,7 @@ export class RequestUtil {
       validatePaged: options.validate
     });
 
-    expect(res.body.returnCount).toBe(1);
+    assert.equal(res.body.returnCount, 1);
   }
 
   async skipTest(options: E2ETestOptions): Promise<void> {
@@ -248,9 +252,9 @@ export class RequestUtil {
       validatePaged: options.validate
     });
 
-    expect(res.body.returnCount).toBe(1);
-    expect(res2.body.returnCount).toBe(1);
-    expect(res.body.data[0]).not.toEqual(res2.body.data[0]);
+    assert.equal(res.body.returnCount, 1);
+    assert.equal(res2.body.returnCount, 1);
+    assert.notDeepEqual(res.body.data[0], res2.body.data[0]);
   }
 
   async expandTest(
@@ -275,9 +279,9 @@ export class RequestUtil {
 
     if (options.validate)
       if (options.paged) {
-        expect(res.body).toBeValidPagedDto(options.validate);
+        assertValidPagedDto(res.body, options.validate);
       } else {
-        expect(res.body).toBeValidDto(options.validate);
+        assertValidDto(res.body, options.validate);
       }
 
     const test = (item) =>
@@ -297,14 +301,12 @@ export class RequestUtil {
         getDeep(x, options.expectedPropertyName)
       );
       if (options.some ?? false) {
-        expect(propertyNames.some(test)).toBeTruthy();
+        assert.ok(propertyNames.some(test));
       } else {
-        expect(propertyNames.every(test)).toBeTruthy();
+        assert.ok(propertyNames.every(test));
       }
     } else {
-      expect(
-        test(getDeep(res.body, options.expectedPropertyName))
-      ).toBeTruthy();
+      assert.ok(test(getDeep(res.body, options.expectedPropertyName)));
     }
 
     return res;
@@ -324,7 +326,8 @@ export class RequestUtil {
       token: options.token
     });
 
-    expect(res.body.data).toEqual(
+    assert.deepEqual(
+      res.body.data,
       structuredClone(res.body.data).sort(options.sortFn)
     );
   }
@@ -371,7 +374,7 @@ export class RequestUtil {
         options.searchMethod === 'startsWith'
           ? propertyValue?.startsWith(options.searchString)
           : propertyValue?.includes(options.searchString);
-      expect(stringCheck).toBe(true);
+      assert.equal(stringCheck, true);
     }
   }
 
@@ -386,27 +389,6 @@ export class RequestUtil {
       body: ['post', 'put', 'patch'].includes(methodType) ? {} : undefined
     });
   }
-}
-
-//#endregion
-//#region Misc utils
-
-// TODO: This is a very ugly lil util for using a HTTP request to reset
-// killswitches, since the state is currently stored directly in the Node app
-// at runtime. In the future this will be in Redis, so should add a function to
-// DbUtil instead.
-export function resetKillswitches(req: RequestUtil, adminToken: string) {
-  return req.patch({
-    url: 'admin/killswitch',
-    status: 204,
-    body: {
-      NEW_SIGNUPS: false,
-      RUN_SUBMISSION: false,
-      MAP_SUBMISSION: false,
-      MAP_REVIEWS: false
-    },
-    token: adminToken
-  });
 }
 
 //#endregion

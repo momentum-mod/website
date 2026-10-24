@@ -346,8 +346,6 @@ export class MapsController {
 
   //#region Credits
   @Get('/:mapID/credits')
-  @UseGuards(KillswitchGuard)
-  @Killswitch(KillswitchType.MAP_SUBMISSION)
   @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a single map's credits" })
   @ApiParam({

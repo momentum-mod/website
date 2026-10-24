@@ -7,7 +7,6 @@ import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { MapReviewComponent } from './map-review.component';
 import { MapReviewFormComponent } from './map-review-form.component';
-
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';

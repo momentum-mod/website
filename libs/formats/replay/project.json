@@ -23,9 +23,14 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "libs/formats/replay/jest.config.ts"
+        "command": "node --test --test-reporter=spec -r ts-node/register -r tsconfig-paths/register libs/formats/replay/src/*.test.ts",
+        "env": {
+          "TS_NODE_PROJECT": "libs/formats/replay/tsconfig.spec.json"
+        }
       }
     }
   }

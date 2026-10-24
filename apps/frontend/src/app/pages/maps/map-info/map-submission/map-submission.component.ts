@@ -9,7 +9,6 @@ import {
   MapVersion,
   mapTagEnglishName
 } from '@momentum/constants';
-
 import {
   GroupedMapSubmissionSuggestions,
   groupMapSuggestions

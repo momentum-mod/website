@@ -20,10 +20,14 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "libs/xp-systems/jest.config.ts"
+        "command": "node --test --test-reporter=spec -r ts-node/register -r tsconfig-paths/register libs/xp-systems/src/*.test.ts",
+        "env": {
+          "TS_NODE_PROJECT": "libs/xp-systems/tsconfig.spec.json"
+        }
       }
     }
   }

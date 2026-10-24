@@ -72,7 +72,7 @@ export class RunSessionService {
     data: CreateRunSessionDto
   ): Promise<(RunSession & { id: number }) | { error: string }> {
     // When run submission is disabled, refuse to start new sessions
-    if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
+    if (await this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
       this.logger.warn(
         `createSession: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
       );
@@ -577,7 +577,7 @@ export class RunSessionService {
       totalRuns++;
     }
 
-    const pastRun = await this.db.pastRun.create({
+    const pastRun = await tx.pastRun.create({
       data: {
         userID: submittedRun.userID,
         mapID: submittedRun.mapID,

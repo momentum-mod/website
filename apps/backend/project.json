@@ -48,14 +48,14 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "apps/backend/jest.config.ts"
-      },
-      "configurations": {
-        "ci": {
-          "codeCoverage": false
+        "command": "node -r ts-node/register -r tsconfig-paths/register -r reflect-metadata -r ./apps/backend/test/test-setup.ts --test --test-reporter=spec \"apps/backend/src/**/*.test.ts\"",
+        "env": {
+          "TS_NODE_PROJECT": "apps/backend/tsconfig.spec.json",
+          "TS_NODE_TRANSPILE_ONLY": "true"
         }
       }
     }
