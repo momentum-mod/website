@@ -73,7 +73,9 @@ export const ConfigFactory = (): ConfigInterface => {
     valkey: {
       port:
         process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'],
-      host: process.env['VALKEY_HOST'] || 'localhost'
+      host: process.env['VALKEY_HOST'] || 'localhost',
+      // Logical database index; E2E workers use one each to run in parallel.
+      db: +(process.env['VALKEY_DB'] || 0)
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,

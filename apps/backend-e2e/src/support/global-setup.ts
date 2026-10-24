@@ -1,5 +1,8 @@
 import { PrismaClient } from '@momentum/db';
 import {
+  BucketAlreadyOwnedByYou,
+  CreateBucketCommand,
+  PutBucketPolicyCommand,
   DeleteObjectsCommand,
   ListObjectsV2Command,
   S3Client
@@ -18,6 +21,9 @@ export default async function globalSetup() {
   // Postgres runs in-memory (PGlite), freshly migrated, so there's nothing to
   // nuke. DATABASE_URL from .env (for dev) is unused.
   testDb = await startTestDatabase();
+
+  // Parallel workers each get their own bucket, which doesn't exist yet.
+  if (process.env['MOMENTUM_E2E_WORKER'] !== undefined) await ensureBucket();
 
   // Clear out the S3 bucket
   await nukeS3();
@@ -57,8 +63,8 @@ export async function nukeDb(prisma: PrismaClient) {
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
 }
 
-export async function nukeS3(): Promise<void> {
-  const s3 = new S3Client({
+function createS3Client(): S3Client {
+  return new S3Client({
     region: process.env.STORAGE_REGION,
     endpoint: process.env.STORAGE_ENDPOINT_URL,
     credentials: {
@@ -67,6 +73,45 @@ export async function nukeS3(): Promise<void> {
     },
     forcePathStyle: true
   });
+}
+
+/**
+ * Create this worker's bucket if needed, readable by anyone: downloads in the
+ * tests go over plain HTTP via CDN_URL, as with the shared bucket that
+ * docker-compose creates (`createbuckets`).
+ */
+async function ensureBucket(): Promise<void> {
+  const Bucket = process.env.STORAGE_BUCKET_NAME;
+  const s3 = createS3Client();
+  try {
+    try {
+      await s3.send(new CreateBucketCommand({ Bucket }));
+    } catch (error) {
+      if (!(error instanceof BucketAlreadyOwnedByYou)) throw error;
+    }
+    await s3.send(
+      new PutBucketPolicyCommand({
+        Bucket,
+        Policy: JSON.stringify({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: { AWS: ['*'] },
+              Action: ['s3:GetObject'],
+              Resource: [`arn:aws:s3:::${Bucket}/*`]
+            }
+          ]
+        })
+      })
+    );
+  } finally {
+    s3.destroy();
+  }
+}
+
+export async function nukeS3(): Promise<void> {
+  const s3 = createS3Client();
 
   try {
     let continuationToken: string | undefined;
@@ -100,10 +145,12 @@ export async function nukeS3(): Promise<void> {
 export async function nukeValkey() {
   const valkey = new Valkey({
     port: +process.env.VALKEY_PORT,
-    host: process.env.VALKEY_HOST || 'localhost'
+    host: process.env.VALKEY_HOST || 'localhost',
+    db: +(process.env.VALKEY_DB || 0)
   });
   try {
-    await valkey.flushall();
+    // Only this worker's logical database, other workers may be mid-test.
+    await valkey.flushdb();
   } finally {
     await valkey.quit();
   }
