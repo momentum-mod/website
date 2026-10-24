@@ -14,24 +14,24 @@ import { RunSessionTimestampDto } from './run-session-timestamp.dto';
 
 export class RunSessionDto implements RunSession {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @IdProperty({
     description: 'ID of the map the run is on'
   })
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @EnumProperty(Gamemode, {
     description: 'Gamemode the run is on',
     required: true
   })
-  readonly gamemode: Gamemode;
+  readonly gamemode!: Gamemode;
 
   @EnumProperty(TrackType, {
     description: 'The number of the track the run is on, relative to trackType',
     required: true
   })
-  readonly trackType: TrackType;
+  readonly trackType!: TrackType;
 
   @ApiProperty({
     description: 'The number of the track the run is on, relative to trackType',
@@ -41,15 +41,15 @@ export class RunSessionDto implements RunSession {
   @IsInt()
   @Min(1)
   @Max(MAX_TRACK_SEGMENTS + 1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @IdProperty({
     description: 'The ID of the user submitting the run'
   })
-  readonly userID: number;
+  readonly userID!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 /**
@@ -71,7 +71,7 @@ export class CreateRunSessionDto
  */
 export class RunSessionIdDto {
   @IdProperty({ description: 'The ID of the run session' })
-  readonly sessionID: number;
+  readonly sessionID!: number;
 }
 
 /**
@@ -83,13 +83,13 @@ export class UpdateRunSessionDto
   implements UpdateRunSession
 {
   @IsInt()
-  readonly majorNum: number;
+  readonly majorNum!: number;
 
   @IsInt()
-  readonly minorNum: number;
+  readonly minorNum!: number;
 
   @IsPositive()
-  readonly time: number;
+  readonly time!: number;
 }
 
 /**
@@ -111,5 +111,5 @@ export class RunSessionResponseDto extends RunSessionDto {
     isArray: true,
     description: 'Timestamps recorded for the session so far'
   })
-  readonly timestamps: RunSessionResponseTimestampDto[];
+  readonly timestamps!: RunSessionResponseTimestampDto[];
 }

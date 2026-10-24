@@ -22,24 +22,24 @@ export class FollowDto implements Follow {
     description:
       'The flags for the activities that the followee will be notified of when they are performed by the user they follow'
   })
-  readonly notifyOn: Flags<ActivityType>;
+  readonly notifyOn!: Flags<ActivityType>;
 
   @IdProperty({ description: 'ID of the user being followed' })
-  readonly followedID: number;
+  readonly followedID!: number;
 
   @IdProperty({ description: 'ID of the user doing the following' })
-  readonly followeeID: number;
+  readonly followeeID!: number;
 
   @NestedProperty(UserDto, { description: 'The user that is being followed' })
-  readonly followed: UserDto;
+  readonly followed!: UserDto;
 
   @NestedProperty(UserDto, {
     description: 'The user that is doing the following'
   })
-  readonly followee: UserDto;
+  readonly followee!: UserDto;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 export class FollowStatusDto implements FollowStatus {
@@ -63,7 +63,7 @@ export class CreateFollowsDto implements CreateFollows {
   @ArrayMinSize(1)
   @ArrayMaxSize(500)
   @IsInt({ each: true })
-  targetUserIDs: number[];
+  targetUserIDs!: number[];
 }
 
 export class UpdateFollowStatusDto

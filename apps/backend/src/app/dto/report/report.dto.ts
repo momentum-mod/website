@@ -21,19 +21,19 @@ import {
 
 export class ReportDto implements Report {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @IdProperty({
     description: 'The ID of the object being referred to by the report',
     bigint: true
   })
-  readonly data: number;
+  readonly data!: number;
 
   @EnumProperty(ReportType, { description: 'The type of the report' })
-  readonly type: ReportType;
+  readonly type!: ReportType;
 
   @EnumProperty(ReportCategory, { description: 'The category of the report' })
-  readonly category: ReportCategory;
+  readonly category!: ReportCategory;
 
   @ApiProperty({
     description: 'The main text of the report',
@@ -41,14 +41,14 @@ export class ReportDto implements Report {
   })
   @IsString()
   @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
-  readonly message: string;
+  readonly message!: string;
 
   @ApiProperty({
     description: 'Whether the report has been resolved or not',
     type: Boolean
   })
   @IsBoolean()
-  readonly resolved: boolean;
+  readonly resolved!: boolean;
 
   @ApiPropertyOptional({
     description: 'The reason the report was resolved, if it was',
@@ -57,28 +57,28 @@ export class ReportDto implements Report {
   @IsString()
   @IsOptional()
   @MaxLength(MAX_REPORT_MESSAGE_LENGTH)
-  readonly resolutionMessage: string;
+  readonly resolutionMessage!: string;
 
   @IdProperty({ description: 'The user ID of the submitter' })
-  readonly submitterID: number;
+  readonly submitterID!: number;
 
   @NestedProperty(UserDto)
-  readonly submitter: UserDto;
+  readonly submitter!: UserDto;
 
   @IdProperty({
     required: false,
     description: 'The user ID of the resolver, if its been resolved'
   })
-  readonly resolverID: number;
+  readonly resolverID!: number;
 
   @NestedProperty(UserDto)
-  readonly resolver: UserDto;
+  readonly resolver!: UserDto;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }
 
 export class CreateReportDto

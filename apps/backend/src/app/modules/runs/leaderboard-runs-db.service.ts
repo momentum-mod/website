@@ -44,8 +44,8 @@ export class LeaderboardRunsDbService {
       ? LeaderboardRun[]
       : Omit<LeaderboardRun, 'splits'>[]
   > {
-    const skip = args.skip === undefined ? 0 : args.skip;
-    const take = args.take === undefined ? 10 : args.take;
+    const skip = args.skip ?? 0;
+    const take = args.take ?? 10;
 
     let sql;
     if (args.steamIDs) {

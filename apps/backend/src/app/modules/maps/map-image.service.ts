@@ -5,7 +5,8 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException
+  InternalServerErrorException,
+  NotFoundException
 } from '@nestjs/common';
 import {
   AdminActivityType,
@@ -65,6 +66,7 @@ export class MapImageService {
     });
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
+    if (!user) throw new NotFoundException('User not found');
 
     // Reviewers can update images on maps in public testing, mods and admins can update always
     const canUpdate =
@@ -94,7 +96,7 @@ export class MapImageService {
 
     // Buffer fs tasks in case validation fails
     const fsTasks: Array<() => Promise<any>> = [];
-    const newArray = [];
+    const newArray: string[] = [];
     for (const id of imageIDs) {
       const numberified = Number(id);
       if (Number.isNaN(numberified)) {
@@ -105,12 +107,17 @@ export class MapImageService {
 
       const newID = uuidv4();
       const file = files[numberified];
-      if (!(file && file.size > 0 && Buffer.isBuffer(file.buffer)))
+      if (
+        !file ||
+        file.size === 0 ||
+        !file.buffer ||
+        !Buffer.isBuffer(file.buffer)
+      )
         throw new BadRequestException(
           'Image place does not refer to valid file'
         );
 
-      fsTasks.push(() => this.storeMapImage(file.buffer, newID));
+      fsTasks.push(() => this.storeMapImage(file.buffer!, newID));
       newArray.push(newID);
     }
 

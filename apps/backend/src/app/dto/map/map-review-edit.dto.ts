@@ -5,15 +5,15 @@ import { CreatedAtProperty, IdProperty } from '../decorators';
 export class MapReviewEditDto implements MapReviewEdit {
   @IsString()
   @IsOptional()
-  readonly mainText: string;
+  readonly mainText!: string;
 
   @CreatedAtProperty()
-  readonly date: DateString;
+  readonly date!: DateString;
 
   @IdProperty()
-  editorID: number;
+  editorID!: number;
 
   @IsBoolean()
   @IsOptional()
-  resolved: boolean | null;
+  resolved!: boolean | null;
 }

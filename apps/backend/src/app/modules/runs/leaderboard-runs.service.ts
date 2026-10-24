@@ -55,7 +55,7 @@ export class LeaderboardRunsService {
       );
     }
 
-    let dbCall: Promise<any>;
+    let dbCall!: Promise<any>;
     let steamIDs = query.steamIDs?.map(BigInt);
 
     const filter = query.filter?.[0];
@@ -81,9 +81,10 @@ export class LeaderboardRunsService {
         }
 
         // Start at your rank, then backtrack by half of `take`, then 1 for your rank
-        const skip = Math.max(rank - Math.floor(query.take / 2) - 1, 0);
+        const queryTake = query.take ?? 20;
+        const skip = Math.max(rank - Math.floor(queryTake / 2) - 1, 0);
         // We include your rank, so increment `take` by 1.
-        const take = query.take + 1;
+        const take = queryTake + 1;
 
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
@@ -100,6 +101,10 @@ export class LeaderboardRunsService {
 
         // Fetch Steam friends, leave errors uncaught, this function will throw
         // an appropriate response.
+        if (!loggedInUserSteamID) {
+          throw new UnauthorizedException('Steam login required');
+        }
+
         const steamFriends =
           await this.steamService.getSteamFriends(loggedInUserSteamID);
 
@@ -204,9 +209,11 @@ export class LeaderboardRunsService {
     });
 
     await Promise.all(
-      runs.map((run) =>
-        this.fileStoreService.deleteFile(runPath(run.replayHash))
-      )
+      runs
+        .filter((run): run is typeof run & { replayHash: string } =>
+          Boolean(run.replayHash)
+        )
+        .map((run) => this.fileStoreService.deleteFile(runPath(run.replayHash)))
     );
   }
 }

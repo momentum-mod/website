@@ -48,7 +48,7 @@ import { MapReviewStatsDto } from './map-review-stats.dto';
 
 export class MapDto implements MMap {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @ApiProperty({
     type: String,
@@ -58,25 +58,25 @@ export class MapDto implements MMap {
   @IsMapName()
   @MinLength(MIN_MAP_NAME_LENGTH)
   @MaxLength(MAX_MAP_NAME_LENGTH)
-  readonly name: string;
+  readonly name!: string;
 
   @EnumProperty(MapStatus)
-  readonly status: MapStatus;
+  readonly status!: MapStatus;
 
   @IdProperty({ required: false })
-  readonly submitterID: number;
+  readonly submitterID!: number;
 
   @NestedProperty(MapInfoDto)
-  readonly info: MapInfoDto;
+  readonly info!: MapInfoDto;
 
   @NestedProperty(UserDto, {
     lazy: true,
     description: 'The user the submitted the map'
   })
-  readonly submitter: UserDto;
+  readonly submitter!: UserDto;
 
   @NestedProperty(MapSubmissionDto)
-  readonly submission: MapSubmissionDto;
+  readonly submission!: MapSubmissionDto;
 
   @ApiProperty({
     description: 'Array of urls to map images',
@@ -88,13 +88,13 @@ export class MapDto implements MMap {
     // correctly. It only works because my DtoFactory setup is ridiculous and
     // seems to transform TWICE. We're going to rework/replace CT/CV in future
     // anyway so leaving for now. UUUUGH
-    value?.map((image) =>
+    value?.map((image: any) =>
       typeof image == 'string'
         ? { id: image }
         : plainToInstance(MapImageDto, image)
     )
   )
-  readonly images: MapImageDto[];
+  readonly images!: MapImageDto[];
 
   @ApiProperty({ description: 'Primary image for the map', type: MapImageDto })
   @Expose()
@@ -103,32 +103,32 @@ export class MapDto implements MMap {
   }
 
   @NestedProperty(MapStatsDto)
-  readonly stats: MapStatsDto;
+  readonly stats!: MapStatsDto;
 
   @NestedProperty(MapVersionDto, { required: false })
-  readonly currentVersion: MapVersionDto;
+  readonly currentVersion!: MapVersionDto;
 
   @ApiProperty()
   @IsUUID()
-  readonly currentVersionID: string;
+  readonly currentVersionID!: string;
 
   @NestedProperty(MapVersionDto, { required: false, isArray: true })
-  readonly versions: MapVersionDto[];
+  readonly versions!: MapVersionDto[];
 
   @NestedProperty(MapCreditDto, { isArray: true })
-  readonly credits: MapCreditDto[];
+  readonly credits!: MapCreditDto[];
 
   @NestedProperty(MapFavoriteDto, { isArray: true })
-  readonly favorites: MapFavoriteDto[];
+  readonly favorites!: MapFavoriteDto[];
 
   @NestedProperty(LeaderboardDto, { isArray: true })
-  readonly leaderboards: LeaderboardDto[];
+  readonly leaderboards!: LeaderboardDto[];
 
   @NestedProperty(LeaderboardRunDto, { lazy: true })
-  readonly worldRecord: LeaderboardRunDto;
+  readonly worldRecord!: LeaderboardRunDto;
 
   @NestedProperty(LeaderboardRunDto, { lazy: true })
-  readonly personalBest: LeaderboardRunDto;
+  readonly personalBest!: LeaderboardRunDto;
 
   @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
   readonly testInvites?: MapTestInviteDto[];
@@ -137,10 +137,10 @@ export class MapDto implements MMap {
   readonly reviewStats?: MapReviewStatsDto;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }
 
 export class CreateMapDto
@@ -151,18 +151,18 @@ export class CreateMapDto
     description:
       'Whether the submission is an original map, a port, or something unusual'
   })
-  readonly submissionType: MapSubmissionType;
+  readonly submissionType!: MapSubmissionType;
 
   @NestedProperty(MapSubmissionSuggestionDto, { required: true, isArray: true })
   @IsArray()
   @ArrayMinSize(1)
-  readonly suggestions: MapSubmissionSuggestionDto[];
+  readonly suggestions!: MapSubmissionSuggestionDto[];
 
   @ApiProperty({
     description: 'Whether the map should go into private testing'
   })
   @IsBoolean()
-  readonly wantsPrivateTesting: boolean;
+  readonly wantsPrivateTesting!: boolean;
 
   @ApiProperty({
     description: 'Aliases for which new placeholder users should be made'
@@ -173,7 +173,7 @@ export class CreateMapDto
   })
   @IsArray()
   @IsOptional()
-  readonly placeholders: MapSubmissionPlaceholderDto[];
+  readonly placeholders!: MapSubmissionPlaceholderDto[];
 
   @ApiProperty({
     description: 'Array of user IDs to invite to private testing',
@@ -185,18 +185,18 @@ export class CreateMapDto
   readonly testInvites?: number[];
 
   @NestedProperty(CreateMapInfoDto, { required: true })
-  readonly info: CreateMapInfoDto;
+  readonly info!: CreateMapInfoDto;
 
   @NestedProperty(MapZonesDto, {
     required: true,
     description: 'The contents of the map zone file as JSON'
   })
-  readonly zones: MapZonesDto;
+  readonly zones!: MapZonesDto;
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()
   @IsOptional()
-  readonly credits: CreateMapCreditDto[];
+  readonly credits!: CreateMapCreditDto[];
 
   @ApiProperty({
     type: String,
@@ -205,7 +205,7 @@ export class CreateMapDto
   })
   @ApiProperty({ description: 'Porting Changelog for the map' })
   @IsOptional()
-  readonly portingChangelog: string;
+  readonly portingChangelog!: string;
 }
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
@@ -216,12 +216,12 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
       'VMFs for the map. Usually a single file, but takes an array to allow instances.'
   })
   @IsOptional()
-  readonly vmfs: any[];
+  readonly vmfs!: any[];
 
   @NestedProperty(CreateMapDto, {
     description: 'The JSON part of the body'
   })
-  readonly data: CreateMapDto;
+  readonly data!: CreateMapDto;
 }
 
 export class UpdateMapDto
@@ -231,28 +231,28 @@ export class UpdateMapDto
   implements UpdateMap
 {
   @NestedProperty(MapSubmissionPlaceholderDto)
-  readonly placeholders: MapSubmissionPlaceholderDto[];
+  readonly placeholders!: MapSubmissionPlaceholderDto[];
 
   @NestedProperty(UpdateMapInfoDto)
   @IsOptional()
-  readonly info: UpdateMapInfoDto;
+  readonly info!: UpdateMapInfoDto;
 
   @EnumProperty(MapStatus)
   @IsOptional()
-  readonly status: MapStatus;
+  readonly status!: MapStatus;
 
   @EnumProperty(MapSubmissionType, {
     description:
       'Whether the submission is an original map, a port, or something unusual',
     required: false
   })
-  readonly submissionType: MapSubmissionType;
+  readonly submissionType!: MapSubmissionType;
 
   @IdProperty({
     required: false,
     description: 'UserID to update the submitter to'
   })
-  readonly submitterID: number;
+  readonly submitterID!: number;
 
   @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
   @ArrayMinSize(1)

@@ -215,12 +215,12 @@ export class MapDiscordNotifications {
         url: `${cdnUrl}/${imgLargePath(extendedMap.images[0])}`
       },
       fields: gamemodes.map((gm: MapSubmissionSuggestion | Leaderboard) => ({
-        name: GamemodeInfo.get(gm.gamemode).name,
+        name: GamemodeInfo.get(gm.gamemode)?.name ?? '',
         value: `Tier ${gm.tier}${gm.type === LeaderboardType.UNRANKED ? ' (Unranked)' : ''}`,
         inline: true
       })),
       footer: {
-        icon_url: steamAvatarUrl(extendedMap.submitter.avatar),
+        icon_url: steamAvatarUrl(extendedMap.submitter.avatar ?? ''),
         text: extendedMap.submitter.alias
       }
     };
@@ -229,14 +229,14 @@ export class MapDiscordNotifications {
   createReviewEmbed(review: ReviewWithInfo) {
     const frontendUrl = this.config.getOrThrow('url.frontend');
 
-    const embed = {
+    const embed: any = {
       title: 'A new review was posted',
       description: review.mainText,
       url: `${frontendUrl}/maps/${review.mmap.name}`,
       timestamp: review.createdAt.toISOString(),
       color: 1611475,
       author: {
-        icon_url: steamAvatarUrl(review.reviewer.avatar),
+        icon_url: steamAvatarUrl(review.reviewer.avatar ?? ''),
         name: review.reviewer.alias
       }
     };
@@ -251,7 +251,7 @@ export class MapDiscordNotifications {
     if (suggestions.length > 0) {
       let suggestionsText = suggestions
         .map((sugg) => {
-          const title = `${GamemodeInfo.get(sugg.gamemode).name} - ${TrackTypeName.get(sugg.trackType)}`;
+          const title = `${GamemodeInfo.get(sugg.gamemode)?.name ?? ''} - ${TrackTypeName.get(sugg.trackType)}`;
           const tier = sugg.tier ? 'Tier ' + sugg.tier : null;
           const rating = sugg.gameplayRating
             ? 'Rating ' + sugg.gameplayRating
@@ -327,17 +327,17 @@ export class MapDiscordNotifications {
       .map(({ user }) => user.alias);
 
     let leaderboards: MapSubmissionSuggestion[] | Leaderboard[] =
-      extendedMap.leaderboards?.filter(
+      (extendedMap.leaderboards?.filter(
         ({ trackType, type, gamemode }, i, a) =>
           trackType === TrackType.MAIN &&
           type !== LeaderboardType.HIDDEN &&
           a.findIndex((lb) => lb.gamemode === gamemode) === i
-      );
+      ) ?? []) as Leaderboard[];
 
     if (MapStatuses.IN_SUBMISSION.includes(extendedMap.status)) {
       const suggestions =
         (extendedMap.submission
-          .suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
+          ?.suggestions as unknown as MapSubmissionSuggestion[]) ?? []; // TODO: #855
 
       leaderboards = suggestions.filter(
         ({ trackType }) => trackType === TrackType.MAIN
@@ -345,7 +345,7 @@ export class MapDiscordNotifications {
 
       const placeholders =
         (extendedMap.submission
-          .placeholders as unknown as MapSubmissionPlaceholder[]) ?? []; // TODO: #855
+          ?.placeholders as unknown as MapSubmissionPlaceholder[]) ?? []; // TODO: #855
 
       authors.push(
         ...placeholders

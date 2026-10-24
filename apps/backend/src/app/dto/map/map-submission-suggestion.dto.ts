@@ -20,26 +20,26 @@ import { JsonValue } from 'type-fest';
 import { EnumProperty } from '../decorators';
 
 export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
-  [k: string]: JsonValue;
+  [k: string]: JsonValue | undefined;
 
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
   @Min(1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @EnumProperty(TrackType, {
     description: 'Type of track the suggestion refers to'
   })
-  readonly trackType: number;
+  readonly trackType!: number;
 
   @EnumProperty(Gamemode, { description: 'Gamemode the suggestion is for' })
-  readonly gamemode: Gamemode;
+  readonly gamemode!: Gamemode;
 
   @ApiProperty({ description: 'Suggested tier for the track and gamemode' })
   @IsInt()
   @Min(1)
   @Max(10)
-  readonly tier: number;
+  readonly tier!: number;
 
   @EnumProperty(
     {
@@ -50,7 +50,7 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
       description: 'Type of leaderboard, ranked, unranked or hidden'
     }
   )
-  readonly type: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
+  readonly type!: LeaderboardType.RANKED | LeaderboardType.UNRANKED;
 
   @ApiProperty({
     description: 'General comments about the track on this gamemode'

@@ -13,7 +13,7 @@ import { MapDto } from './map.dto';
 
 export class MapCreditDto implements MapCredit {
   @EnumProperty(MapCreditType)
-  readonly type: MapCreditType;
+  readonly type!: MapCreditType;
 
   @ApiProperty({
     description: "Description of the user's contribution",
@@ -22,16 +22,16 @@ export class MapCreditDto implements MapCredit {
   @IsString()
   @IsOptional()
   @MaxLength(MAX_CREDIT_DESCRIPTION_LENGTH)
-  readonly description: string;
+  readonly description!: string;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly user: UserDto;
+  readonly user!: UserDto;
 
   @IdProperty()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @NestedProperty(MapDto, { lazy: true, required: false })
   @Expose()
@@ -40,7 +40,7 @@ export class MapCreditDto implements MapCredit {
   }
 
   @Exclude()
-  readonly mmap: MapDto;
+  readonly mmap!: MapDto;
 }
 
 export class CreateMapCreditDto

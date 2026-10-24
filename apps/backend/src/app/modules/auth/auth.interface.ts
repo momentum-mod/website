@@ -1,4 +1,4 @@
-﻿import { User } from '@momentum/db';
+import { User } from '@momentum/db';
 import { JwtPayload } from 'jsonwebtoken';
 
 declare module 'fastify' {
@@ -20,7 +20,7 @@ export interface UserJwtPayload {
  * Access tokens also stores SteamID and if it's an ingame auth
  */
 export interface UserJwtAccessPayload extends UserJwtPayload {
-  steamID: bigint;
+  steamID: bigint | null;
   gameAuth: boolean;
 }
 

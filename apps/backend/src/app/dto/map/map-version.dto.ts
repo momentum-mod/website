@@ -30,20 +30,20 @@ const CDN_URL = Config.url.cdn;
 export class MapVersionDto implements MapVersion {
   @ApiProperty()
   @IsUUID()
-  readonly id: string;
+  readonly id!: string;
 
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly versionNum: number;
+  readonly versionNum!: number;
 
   @ApiProperty()
   @IsString()
   @MaxLength(MAX_CHANGELOG_LENGTH)
   @IsOptional()
-  readonly changelog: string;
+  readonly changelog!: string;
 
   @NestedProperty(MapZonesDto, {
     required: true,
@@ -59,13 +59,13 @@ export class MapVersionDto implements MapVersion {
     )
   )
   @IsOptional() // We don't include this on /submissions GET expand=zones due to size
-  readonly zones: MapZonesDto;
+  readonly zones!: MapZonesDto;
 
   @Exclude({ toPlainOnly: true })
-  readonly bspDownloadId: string;
+  readonly bspDownloadId!: string;
 
   @Exclude({ toPlainOnly: true })
-  readonly vmfDownloadId: string;
+  readonly vmfDownloadId!: string;
 
   @ApiProperty({ type: String, description: 'URL to BSP in cloud storage' })
   @Expose()
@@ -82,12 +82,12 @@ export class MapVersionDto implements MapVersion {
   @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
   @IsHash('sha1')
   @IsOptional()
-  readonly bspHash: string;
+  readonly bspHash!: string;
 
   @ApiProperty({ description: 'SHA1 hash of the zones', type: String })
   @IsHash('sha1')
   @IsOptional()
-  readonly zoneHash: string;
+  readonly zoneHash!: string;
 
   @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
   @Expose()
@@ -101,13 +101,13 @@ export class MapVersionDto implements MapVersion {
   }
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly submitter: User;
+  readonly submitter!: User;
 
   @IdProperty()
-  readonly submitterID: number;
+  readonly submitterID!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 export class CreateMapVersionDto implements CreateMapVersion {
@@ -115,11 +115,11 @@ export class CreateMapVersionDto implements CreateMapVersion {
     required: false,
     description: 'The contents of the map zone file as JSON'
   })
-  readonly zones: MapZonesDto;
+  readonly zones!: MapZonesDto;
 
   @ApiProperty()
   @IsString()
-  readonly changelog: string;
+  readonly changelog!: string;
 
   @ApiProperty({ description: 'Clear any existing leaderboards' })
   @IsBoolean()

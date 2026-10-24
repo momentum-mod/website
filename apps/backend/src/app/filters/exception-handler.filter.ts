@@ -29,7 +29,9 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
       const path = httpAdapter.getRequestUrl(context.getRequest());
       const env = this.configService.get('env');
 
-      let status: number, responseBody: Record<string, any>, eventID: string;
+      let status: number,
+        responseBody: Record<string, any>,
+        eventID: string | undefined;
 
       if (exception instanceof HttpException) {
         status = exception.getStatus();

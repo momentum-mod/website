@@ -12,16 +12,19 @@ class FormDataJsonInterceptorClass implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
+    const body = request.body as Record<string, any> | undefined;
     try {
-      if (Array.isArray(this.keys)) {
-        for (const k of this.keys) {
-          request.body[k] = JSON.parse(request.body[k]);
+      if (body) {
+        if (Array.isArray(this.keys)) {
+          for (const k of this.keys) {
+            body[k] = JSON.parse(body[k]);
+          }
+        } else {
+          body[this.keys] = JSON.parse(body[this.keys]);
         }
-      } else {
-        request.body[this.keys] = JSON.parse(request.body[this.keys]);
       }
-    } catch (error) {
-      throw new BadRequestException(error.message);
+    } catch (error: any) {
+      throw new BadRequestException(error?.message ?? String(error));
     }
 
     return next.handle();

@@ -18,7 +18,7 @@ export class KillswitchService implements OnModuleInit {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
   ) {}
 
-  private switches: Killswitches;
+  private switches!: Killswitches;
   private readonly logger = new Logger('Killswitch Service');
 
   public async onModuleInit() {
@@ -72,7 +72,7 @@ export class KillswitchService implements OnModuleInit {
     }
 
     for (const [type, value] of Object.entries(switches)) {
-      this.switches[type] = value;
+      this.switches[type as KillswitchType] = value;
     }
 
     await this.db.config.upsert({
@@ -86,7 +86,7 @@ export class KillswitchService implements OnModuleInit {
     const dbResponse = await this.db.config.findUnique({
       where: { id: KILLSWITCH_CONFIG_ID }
     });
-    return dbResponse.value as Killswitches;
+    return (dbResponse?.value ?? {}) as Killswitches;
   }
 
   private validateKillswitches(switches: Killswitches): boolean {

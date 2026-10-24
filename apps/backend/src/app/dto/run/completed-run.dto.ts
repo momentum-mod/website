@@ -7,21 +7,21 @@ import { LeaderboardRunDto } from './leaderboard-run.dto';
 class CosXpGain {
   @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
   @IsInt()
-  readonly gainLvl: number;
+  readonly gainLvl!: number;
 
   @ApiProperty({
     type: Number,
     description: 'Cosmetic XP of player before the run'
   })
   @IsInt()
-  readonly oldXP: number;
+  readonly oldXP!: number;
 
   @ApiProperty({
     type: Number,
     description: 'Cosmetic XP of player after the run'
   })
   @IsInt()
-  readonly gainXP: number;
+  readonly gainXP!: number;
 }
 
 export class XpGainDto implements XpGain {
@@ -30,7 +30,7 @@ export class XpGainDto implements XpGain {
   // readonly rankXP: number;
 
   @NestedProperty(CosXpGain)
-  readonly cosXP: CosXpGain;
+  readonly cosXP!: CosXpGain;
 }
 
 export class CompletedRunDto implements CompletedRun {
@@ -39,17 +39,17 @@ export class CompletedRunDto implements CompletedRun {
     description: 'The overall time of the run (ticks * tickRate)'
   })
   @IsNumber()
-  readonly time: number;
+  readonly time!: number;
 
   @EnumProperty(Style, { description: 'The style of the run' })
-  readonly style: number;
+  readonly style!: number;
 
   @ApiProperty({
     description: 'Whether the run is the new world record for this track',
     type: Boolean
   })
   @IsBoolean()
-  readonly isNewWorldRecord: boolean;
+  readonly isNewWorldRecord!: boolean;
 
   @ApiProperty({
     description:
@@ -57,16 +57,16 @@ export class CompletedRunDto implements CompletedRun {
     type: Boolean
   })
   @IsBoolean()
-  readonly isNewPersonalBest: boolean;
+  readonly isNewPersonalBest!: boolean;
 
   @NestedProperty(XpGainDto)
-  readonly xp: XpGainDto;
+  readonly xp!: XpGainDto;
 
   @ApiProperty({
     description: 'Total runs on the leaderboard, including the submitted run'
   })
   @IsInt()
-  readonly totalRuns: number;
+  readonly totalRuns!: number;
 
   @NestedProperty(LeaderboardRunDto, { required: false })
   readonly newPersonalBest?: LeaderboardRunDto;
@@ -80,5 +80,5 @@ export class CompletedRunDto implements CompletedRun {
   @NestedProperty(LeaderboardRunDto, {
     description: 'World record for the leaderboard, could be this run'
   })
-  readonly worldRecord: LeaderboardRunDto;
+  readonly worldRecord!: LeaderboardRunDto;
 }

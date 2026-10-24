@@ -89,7 +89,7 @@ export class MapCreditsService {
     if (MapStatuses.IN_SUBMISSION.includes(map.status)) {
       const placeholders =
         (map.submission
-          .placeholders as unknown as MapSubmissionPlaceholder[]) ?? [];
+          ?.placeholders as unknown as MapSubmissionPlaceholder[]) ?? [];
 
       this.mapsService.checkCredits([...body, ...placeholders]);
 
@@ -103,10 +103,12 @@ export class MapCreditsService {
       }
     }
 
-    const { roles } = await this.db.user.findUnique({
+    const user = await this.db.user.findUnique({
       where: { id: loggedInUserID },
       select: { roles: true }
     });
+    if (!user) throw new NotFoundException('User not found');
+    const { roles } = user;
 
     // Let admins/mods update in any state, and reviewers in public testing
     const isReviewerInPublicTesting =

@@ -29,7 +29,7 @@ import { WebsocketService } from './app/modules/websockets/websocket.service';
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
   // been explicitly transformed to numbers using @NumberifyBigInt() https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
-  BigInt.prototype['toJSON'] = function () {
+  (BigInt.prototype as any).toJSON = function () {
     return this.toString();
   };
 

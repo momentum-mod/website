@@ -71,8 +71,7 @@ export const ConfigFactory = (): ConfigInterface => {
       secretAccessKey: process.env['RUN_STORAGE_SECRET_ACCESS_KEY'] || ''
     },
     valkey: {
-      port:
-        process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'],
+      port: +(process.env['VALKEY_PORT'] ?? 6379),
       host: process.env['VALKEY_HOST'] || 'localhost'
     },
     limits: {

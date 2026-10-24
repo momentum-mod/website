@@ -42,10 +42,7 @@ const HEARTBEAT_INTERVAL_MS = 30_000;
  * Doesn't support Nest DI, so {@link WebsocketService} and {@link JwtService}
  * are injected manually from `main.ts`.
  */
-export class WebsocketAdapter extends AbstractWsAdapter<
-  WebSocket.Server,
-  WebSocket.WebSocket
-> {
+export class WebsocketAdapter extends AbstractWsAdapter<any, any> {
   protected readonly logger = new Logger('WebsocketAdapter');
   private heartbeatInterval?: NodeJS.Timeout;
 

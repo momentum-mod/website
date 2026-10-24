@@ -1,4 +1,4 @@
-﻿import { User } from '@momentum/db';
+import { User } from '@momentum/db';
 import { Logger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import {
@@ -28,9 +28,9 @@ export class RunProcessor {
   readonly buffer: Buffer;
   readonly session: CompletedRunSession;
   readonly user: User;
-  readonly zones: MapZones;
-  readonly replayHeader: ReplayFile.ReplayHeader;
-  readonly splits: Splits;
+  readonly zones!: MapZones;
+  readonly replayHeader!: ReplayFile.ReplayHeader;
+  readonly splits!: Splits;
 
   // Could pull out to config file/env if needed
   static readonly Constants = {
@@ -57,11 +57,14 @@ export class RunProcessor {
     this.session = session;
     this.user = user;
     try {
+      if (!session.mmap.currentVersion?.zones) {
+        throw new Error('Map version zones are missing');
+      }
       this.zones = JSON.parse(session.mmap.currentVersion.zones);
       this.replayHeader = ReplayFile.Reader.readHeader(this.buffer);
       this.splits = ReplayFile.Reader.readRunSplits(this.buffer) as Splits;
     } catch (error) {
-      this.reject(ErrorType.BAD_REPLAY_FILE, error);
+      this.reject(ErrorType.BAD_REPLAY_FILE, error as Error);
     }
   }
 
@@ -127,11 +130,12 @@ export class RunProcessor {
 
       let segment: Segment | undefined;
       if (trackType === TrackType.STAGE) {
-        segment = this.zones.tracks.main.zones.segments[trackNum - 1];
-      } else if (this.zones.tracks.bonuses[trackNum - 1]?.defragModifiers) {
-        segment = this.zones.tracks.main.zones.segments[0];
+        segment = this.zones.tracks?.main?.zones.segments[trackNum - 1];
+      } else if (this.zones.tracks?.bonuses?.[trackNum - 1]?.defragModifiers) {
+        segment = this.zones.tracks?.main?.zones.segments[0];
       } else {
-        segment = this.zones.tracks.bonuses[trackNum - 1]?.zones?.segments?.[0];
+        segment =
+          this.zones.tracks?.bonuses?.[trackNum - 1]?.zones?.segments?.[0];
       }
 
       if (!segment) {
@@ -139,6 +143,7 @@ export class RunProcessor {
           ErrorType.BAD_TIMESTAMPS,
           'no segment for stage or bonus track'
         );
+        return;
       }
 
       this.validateSegment(segment, timestamps);
@@ -147,7 +152,12 @@ export class RunProcessor {
 
     // Main track runs from here on out.
     // Segments are always ordered and required!
-    const { zones } = this.zones.tracks.main;
+    const mainTrack = this.zones.tracks?.main;
+    if (!mainTrack) {
+      this.reject(ErrorType.BAD_TIMESTAMPS, 'Missing main track in zones');
+      return;
+    }
+    const { zones } = mainTrack;
 
     // trackNum must always be 1
     if (trackNum !== 1) {
@@ -159,7 +169,7 @@ export class RunProcessor {
       this.reject(ErrorType.BAD_TIMESTAMPS, 'first timestamp majorNum != 1');
     }
 
-    if (timestamps.at(-1).majorNum !== zones.segments.length) {
+    if (timestamps.at(-1)?.majorNum !== zones.segments.length) {
       this.reject(ErrorType.BAD_TIMESTAMPS, 'last timestamp majorNum != last');
     }
 
@@ -190,7 +200,7 @@ export class RunProcessor {
 
     // Validate last segment
     this.validateSegment(
-      zones.segments.at(-1),
+      zones.segments.at(-1)!,
       timestamps.slice(majorStartIndex)
     );
 
@@ -248,9 +258,9 @@ export class RunProcessor {
 
     if (this.session.trackType === TrackType.STAGE) {
       const isLastSegment =
-        this.session.trackNum === this.zones.tracks.main.zones.segments.length;
+        this.session.trackNum === this.zones.tracks.main?.zones.segments.length;
 
-      if (this.zones.tracks.main.stagesEndAtStageStarts || isLastSegment) {
+      if (this.zones.tracks.main?.stagesEndAtStageStarts || isLastSegment) {
         if (timestamps.length !== checkpoints.length) {
           this.reject(
             ErrorType.BAD_TIMESTAMPS,
@@ -306,7 +316,7 @@ export class RunProcessor {
 
     if (
       header.mapHash.toUpperCase() !==
-      session.mmap.currentVersion.bspHash.toUpperCase()
+      session.mmap.currentVersion?.bspHash?.toUpperCase()
     ) {
       this.reject(ErrorType.BAD_META, 'header.mapHash != our bspHash');
     }
@@ -425,17 +435,20 @@ export class RunProcessor {
         this.reject(ErrorType.OUT_OF_SYNC, 'missing timestamp for subseg', {
           subseg
         });
+        return;
       }
 
       if (tsIdx === 0) return;
 
       const lastTs = this.session.timestamps[tsIdx - 1];
+      if (!lastTs) return;
       const tsDiff = ts.createdAt.getTime() - lastTs.createdAt.getTime();
 
       const lastSubseg = subsegs.find(
         ({ majorNum, minorNum }) =>
           majorNum === lastTs.majorNum && minorNum === lastTs.minorNum
       );
+      if (!lastSubseg) return;
       const subsegDiff = (subseg.timeReached - lastSubseg.timeReached) * 1000;
       const timestampDelay = tsDiff - subsegDiff;
 

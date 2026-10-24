@@ -12,26 +12,26 @@ import { PickType } from '@nestjs/swagger';
 
 export class MapReviewCommentDto implements MapReviewComment {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @IdProperty()
-  readonly reviewID: number;
+  readonly reviewID!: number;
 
   @IsString()
   @MaxLength(MAX_REVIEW_COMMENT_LENGTH)
-  readonly text: string;
+  readonly text!: string;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly user: UserDto;
+  readonly user!: UserDto;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @CreatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }
 
 export class CreateMapReviewCommentDto

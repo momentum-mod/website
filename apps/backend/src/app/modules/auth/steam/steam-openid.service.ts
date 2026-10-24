@@ -36,7 +36,7 @@ export class SteamOpenIDService {
       this.relyingParty.authenticate(
         'https://steamcommunity.com/openid',
         false,
-        (error: unknown, authUrl: string) => {
+        (error: openid.OpenIdError | null, authUrl: string | null) => {
           if (error || !authUrl)
             throw new ServiceUnavailableException(
               'Could not start Steam authenication session'
@@ -50,8 +50,10 @@ export class SteamOpenIDService {
 
   async authenticate(request: FastifyRequest): Promise<bigint> {
     const { error, result } = await new Promise<{
-      error: openid.OpenIdError;
-      result: { authenticated: boolean; claimedIdentifier?: string };
+      error: openid.OpenIdError | null;
+      result:
+        | { authenticated: boolean; claimedIdentifier?: string }
+        | undefined;
     }>((resolve) =>
       this.relyingParty.verifyAssertion(request, (error, result) =>
         resolve({ error, result })
@@ -61,8 +63,9 @@ export class SteamOpenIDService {
     if (error || !result || !result.authenticated)
       throw new UnauthorizedException('Failed to authenticate user with Steam');
 
-    const query = request.query;
+    const query = (request.query || {}) as Record<string, string>;
     if (
+      !result.claimedIdentifier ||
       query['openid.op_endpoint'] !==
         'https://steamcommunity.com/openid/login' ||
       query['openid.ns'] !== 'http://specs.openid.net/auth/2.0' ||
@@ -70,8 +73,10 @@ export class SteamOpenIDService {
         result.claimedIdentifier,
         query['openid.claimed_id'],
         query['openid.identity']
-      ].every((x) =>
-        /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(x)
+      ].every(
+        (x) =>
+          typeof x === 'string' &&
+          /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(x)
       )
     )
       throw new UnauthorizedException('Claimed identity is invalid');

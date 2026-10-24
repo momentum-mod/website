@@ -185,6 +185,10 @@ export class AdminService {
         where: { id: userID }
       });
 
+      if (!mergedUserDbResponse) {
+        throw new NotFoundException('Merged user not found');
+      }
+
       await this.adminActivityService.create(
         adminID,
         AdminActivityType.USER_MERGE,
@@ -224,6 +228,10 @@ export class AdminService {
         where: { id: adminID },
         select: { roles: true }
       });
+
+      if (!admin) {
+        throw new NotFoundException('Admin user not found');
+      }
 
       if (Bitflags.has(admin.roles, Role.MODERATOR)) {
         if (
@@ -355,12 +363,16 @@ export class AdminService {
 
     // Copy all replay files to the deleted-runs location with bounded
     // concurrency, then bulk-delete all sources in one request.
-    const copies = runs.map((run) => ({
-      fromKey: runPath(run.replayHash),
-      toKey: deletedRunPath(
-        `${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
+    const copies = runs
+      .filter((run): run is typeof run & { replayHash: string } =>
+        Boolean(run.replayHash)
       )
-    }));
+      .map((run) => ({
+        fromKey: runPath(run.replayHash),
+        toKey: deletedRunPath(
+          `${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`
+        )
+      }));
 
     await Promise.all([
       this.fileStore
@@ -382,6 +394,7 @@ export class AdminService {
   private async deleteRunFiles(
     run: Omit<LeaderboardRun, 'splits'>
   ): Promise<void> {
+    if (!run.replayHash) return;
     const sourcePath = runPath(run.replayHash);
     const destPath = deletedRunPath(
       `${run.userID}-${run.mapID}-${run.gamemode}-${run.trackType}-${run.trackNum}-${run.style}`

@@ -75,17 +75,17 @@ export class UsersGetActivitiesQueryDto
   implements UsersGetActivitiesQuery
 {
   @IntQueryProperty({ description: 'Filter by user ID' })
-  readonly userID: number;
+  readonly userID!: number;
 
   @EnumQueryProperty(ActivityType, {
     description: 'Types of activities to include'
   })
-  readonly type: ActivityType;
+  readonly type!: ActivityType;
 
   @IntQueryProperty({
     description: 'The ID into the table of the corresponding activity'
   })
-  readonly data: number;
+  readonly data!: number;
 }
 
 export class UsersGetCreditsQueryDto
@@ -93,7 +93,7 @@ export class UsersGetCreditsQueryDto
   implements UsersGetCreditsQuery
 {
   @ExpandQueryProperty(['map', 'info'])
-  expand: UsersGetCreditsExpand;
+  expand!: UsersGetCreditsExpand;
 }
 
 class UserMapsBaseGetQuery extends PagedQueryDto {
@@ -105,7 +105,7 @@ class UserMapsBaseGetQuery extends PagedQueryDto {
   })
   @IsString()
   @IsOptional()
-  readonly search: string;
+  readonly search!: string;
 }
 
 export class UserMapFavoritesGetQueryDto
@@ -119,5 +119,5 @@ export class UserMapFavoritesGetQueryDto
     'submitter',
     'personalBest'
   ])
-  readonly expand: UserMapFavoritesGetExpand;
+  readonly expand!: UserMapFavoritesGetExpand;
 }

@@ -10,19 +10,19 @@ import {
 
 export class MapNotifyDto implements MapNotify {
   @EnumProperty(ActivityType)
-  readonly notifyOn: ActivityType;
+  readonly notifyOn!: ActivityType;
 
   @IdProperty()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }
 
 export class UpdateMapNotifyDto

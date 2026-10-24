@@ -76,7 +76,7 @@ export class TwitchService {
       };
 
       return data ?? [];
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(
         `Failed to fetch Twitch streams: ${error?.message ?? error}`
       );

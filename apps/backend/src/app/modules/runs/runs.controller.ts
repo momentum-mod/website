@@ -36,8 +36,8 @@ export class RunsController {
     description: 'Paginated list of runs'
   })
   getRuns(
-    @LoggedInUser('id') userID?: number,
-    @Query() query?: PastRunsGetAllQueryDto
+    @Query() query: PastRunsGetAllQueryDto,
+    @LoggedInUser('id') userID?: number
   ): Promise<PagedResponseDto<PastRunDto>> {
     return this.pastRunsService.getAll(query, userID);
   }

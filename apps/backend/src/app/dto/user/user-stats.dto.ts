@@ -6,24 +6,24 @@ import { UserStats } from '@momentum/constants';
 
 export class UserStatsDto implements UserStats {
   @Exclude()
-  readonly userID: number;
+  readonly userID!: number;
 
   @ApiProperty({ type: Number, description: "The user's total cosmetic XP" })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly cosXP: number;
+  readonly cosXP!: number;
 
   @ApiProperty({ type: Number, description: "The user's level" })
   @IsInt()
-  readonly level: number;
+  readonly level!: number;
 
   @ApiProperty({ type: Number, description: 'Total maps completed' })
   @IsInt()
-  readonly mapsCompleted: number;
+  readonly mapsCompleted!: number;
 
   @ApiProperty({ type: Number, description: 'Total runs submitted' })
   @IsInt()
-  readonly runsSubmitted: number;
+  readonly runsSubmitted!: number;
 
   @ApiProperty({
     type: Number,
@@ -31,7 +31,7 @@ export class UserStatsDto implements UserStats {
   })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly totalJumps: number;
+  readonly totalJumps!: number;
 
   @ApiProperty({
     type: Number,
@@ -39,5 +39,5 @@ export class UserStatsDto implements UserStats {
   })
   @SafeBigIntToNumber()
   @IsInt()
-  readonly totalStrafes: number;
+  readonly totalStrafes!: number;
 }

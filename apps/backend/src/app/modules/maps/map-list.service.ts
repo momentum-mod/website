@@ -57,7 +57,7 @@ export class MapListService implements OnModuleInit {
     this.schedulerRegistry.addCronJob(
       MAPLIST_UPDATE_JOB_NAME,
       CronJob.from({
-        cronTime: this.config.get('mapListUpdateSchedule'),
+        cronTime: this.config.get('mapListUpdateSchedule') ?? '*/5 * * * *',
         onTick: this.checkScheduledUpdates.bind(this),
         waitForCompletion: true,
         start: true,
@@ -178,7 +178,8 @@ export class MapListService implements OnModuleInit {
 
     const outBuf = Buffer.concat([header, compressed]);
 
-    const oldVersion = await this.valkey.get(versionKeys[type]).then(parseInt);
+    const oldVersionVal = await this.valkey.get(versionKeys[type]);
+    const oldVersion = oldVersionVal ? Number.parseInt(oldVersionVal) : 0;
     const newVersion = oldVersion + 1;
 
     const oldKey = mapListPath(type, oldVersion);
@@ -248,6 +249,6 @@ export class MapListService implements OnModuleInit {
   }
 
   private extractVersionFromFileKey(key: string): number {
-    return Number(/(?<=\/)\d+(?=.dat)/.exec(key)[0]);
+    return Number(/(?<=\/)\d+(?=.dat)/.exec(key)?.[0] ?? 0);
   }
 }

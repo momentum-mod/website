@@ -33,10 +33,10 @@ export class ConfigValidation {
     message:
       'A valid (dev, prod, test) NODE_ENV environment variable must be set'
   })
-  readonly NODE_ENV: Environment;
+  readonly NODE_ENV!: Environment;
 
   @IsInt()
-  readonly NEST_PORT: number;
+  readonly NEST_PORT!: number;
 
   @IsString()
   @IsOptionalWithEmptyString()
@@ -88,7 +88,7 @@ export class ConfigValidation {
   readonly SESSION_SECRET?: string;
 
   @IsNumberString()
-  readonly VALKEY_PORT: string;
+  readonly VALKEY_PORT!: string;
 
   @IsString()
   @IsOptionalWithEmptyString()

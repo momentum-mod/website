@@ -6,31 +6,31 @@ import { SafeBigIntToNumber } from '../decorators';
 
 export class MapStatsDto implements MapStats {
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly reviews: number;
+  readonly reviews!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly subscriptions: number;
+  readonly subscriptions!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly plays: number;
+  readonly plays!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly favorites: number;
+  readonly favorites!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly completions: number;
+  readonly completions!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly uniqueCompletions: number;
+  readonly uniqueCompletions!: number;
 
   @ApiProperty({
     description: 'The total time played on the map',
@@ -38,5 +38,5 @@ export class MapStatsDto implements MapStats {
   })
   @IsInt()
   @SafeBigIntToNumber()
-  readonly timePlayed: number;
+  readonly timePlayed!: number;
 }

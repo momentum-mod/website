@@ -125,6 +125,7 @@ export class MapTestInviteService {
     });
 
     const map = await tx.mMap.findUnique({ where: { id: mapID } });
+    if (!map) throw new NotFoundException('Map not found');
 
     await this.notifsService.sendNotifications(
       {

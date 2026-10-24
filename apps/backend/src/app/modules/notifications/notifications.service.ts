@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   ExtendedPrismaService,
@@ -112,6 +117,8 @@ export class NotificationsService {
               reviewCommenter: item.user
             });
           }
+          default:
+            throw new InternalServerErrorException('Invalid notification type');
         }
       })
     };

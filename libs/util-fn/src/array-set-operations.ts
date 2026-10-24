@@ -4,24 +4,21 @@
 /**
  * Take the intersection being two arrays `A` and `B`.
  */
-export function intersection<Element>(
-  a: Element[],
-  b: unknown[]
-): (Element | undefined)[] {
+export function intersection<Element>(a: Element[], b: unknown[]): Element[] {
   return a.filter((x: Element) => b.includes(x));
 }
 
 /**
  * Take the difference being arrays `A` and `B`.
  */
-export function difference<E1, E2>(a: E1[], b: E2[]): (E1 | E2 | undefined)[] {
-  return a.filter((x: E1 | E2) => !b.includes(x as E2));
+export function difference<E1, E2>(a: E1[], b: E2[]): E1[] {
+  return a.filter((x: E1) => !b.includes(x as unknown as E2));
 }
 
 /**
  * Take the symmetrical difference being arrays `A` and `B`.
  */
-export function symDiff<E1, E2>(a: E1[], b: E2[]): (E1 | E2 | undefined)[] {
+export function symDiff<E1, E2>(a: E1[], b: E2[]): (E1 | E2)[] {
   return [...difference(a, b), ...difference(b, a)];
 }
 

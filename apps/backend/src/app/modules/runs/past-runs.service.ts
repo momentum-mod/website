@@ -81,7 +81,7 @@ export class PastRunsService {
       include,
       skip: query.skip,
       take: query.take,
-      orderBy: { [query.orderBy]: query.order }
+      orderBy: query.orderBy ? { [query.orderBy]: query.order } : undefined
     });
 
     const includeMap = query?.expand?.includes('map');
@@ -123,9 +123,10 @@ export class PastRunsService {
     }
 
     (dbResponse as PastRunWithPbData).isPB = Boolean(dbResponse.leaderboardRun);
-    if (!query?.expand?.includes('map')) delete dbResponse.mmap;
+    if (!query?.expand?.includes('map'))
+      delete (dbResponse as Partial<typeof dbResponse>).mmap;
     if (!query?.expand?.includes('leaderboardRun'))
-      delete dbResponse.leaderboardRun;
+      delete (dbResponse as Partial<typeof dbResponse>).leaderboardRun;
 
     return DtoFactory(PastRunDto, dbResponse);
   }

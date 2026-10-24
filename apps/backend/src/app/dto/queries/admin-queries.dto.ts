@@ -19,7 +19,7 @@ export class AdminGetReportsQueryDto
   implements AdminGetReportsQuery
 {
   @ExpandQueryProperty(['submitter', 'resolver'])
-  readonly expand: AdminGetReportsExpand;
+  readonly expand!: AdminGetReportsExpand;
 
   @BooleanQueryProperty({
     required: false,

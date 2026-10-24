@@ -19,22 +19,22 @@ import { UserDto } from '../user/user.dto';
 
 export class MapTestInviteDto implements MapTestInvite {
   @IdProperty()
-  mapID: number;
+  mapID!: number;
 
   @IdProperty()
-  userID: number;
+  userID!: number;
 
   @NestedProperty(UserDto, { lazy: true })
   user?: UserDto;
 
   @EnumProperty(MapTestInviteState)
-  state: number;
+  state!: number;
 
   @CreatedAtProperty()
-  createdAt: DateString;
+  createdAt!: DateString;
 
   @UpdatedAtProperty()
-  updatedAt: DateString;
+  updatedAt!: DateString;
 }
 
 export class CreateMapTestInviteDto implements CreateMapTestInvite {
@@ -48,11 +48,11 @@ export class CreateMapTestInviteDto implements CreateMapTestInvite {
   @IsArray()
   @ArrayMaxSize(MAX_TEST_INVITES)
   @IsInt({ each: true })
-  readonly userIDs: number[];
+  readonly userIDs!: number[];
 }
 
 export class UpdateMapTestInviteDto implements UpdateMapTestInvite {
   @ApiProperty({ description: 'Whether to accept the request or not' })
   @IsBoolean()
-  readonly accept: boolean;
+  readonly accept!: boolean;
 }

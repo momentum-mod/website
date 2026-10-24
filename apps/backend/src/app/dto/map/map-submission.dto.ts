@@ -12,24 +12,24 @@ export class MapSubmissionDto implements MapSubmission {
     description:
       'Whether the submission is an original map, a port, or something unusual'
   })
-  readonly type: MapSubmissionType;
+  readonly type!: MapSubmissionType;
 
   @NestedProperty(MapSubmissionSuggestionDto, { isArray: true })
-  readonly suggestions: MapSubmissionSuggestionDto[];
+  readonly suggestions!: MapSubmissionSuggestionDto[];
 
   @NestedProperty(MapSubmissionPlaceholderDto, { isArray: true })
   @IsArray()
   @IsOptional()
-  readonly placeholders: MapSubmissionPlaceholderDto[];
+  readonly placeholders!: MapSubmissionPlaceholderDto[];
 
   @NestedProperty(MapSubmissionDateDto, { isArray: true })
   @IsArray()
   @IsOptional()
-  readonly dates: MapSubmissionDateDto[];
+  readonly dates!: MapSubmissionDateDto[];
 
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @Exclude()
-  readonly discordReviewThread: string | null;
+  readonly discordReviewThread!: string | null;
 }

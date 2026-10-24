@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { MapsService } from '../maps/maps.service';
 import { LeaderboardStatsDto } from '../../dto/run/leaderboard-stats.dto';
-import { Leaderboard } from '@momentum/db';
 import { DtoFactory } from '../../dto';
 
 @Injectable()
@@ -25,12 +24,10 @@ export class LeaderboardService {
       }
     });
 
-    return map.leaderboards.map(
-      (leaderboard: Leaderboard & { _count: { runs: number } }) => {
-        const obj = { leaderboard, totalRuns: leaderboard._count.runs };
-        delete obj.leaderboard._count;
-        return DtoFactory(LeaderboardStatsDto, obj);
-      }
-    );
+    return map.leaderboards.map((leaderboard: any) => {
+      const totalRuns = leaderboard._count?.runs ?? 0;
+      delete leaderboard._count;
+      return DtoFactory(LeaderboardStatsDto, { leaderboard, totalRuns });
+    });
   }
 }

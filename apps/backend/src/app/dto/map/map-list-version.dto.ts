@@ -9,7 +9,7 @@ const CDN_URL = Config.url.cdn;
 export class MapListVersionDto implements MapListVersion {
   @ApiProperty({ description: 'Latest version of the main map list' })
   @IsInt()
-  approved: number;
+  approved!: number;
 
   @ApiProperty({
     description: 'URL to the latest version of the main map list in file store'
@@ -21,7 +21,7 @@ export class MapListVersionDto implements MapListVersion {
 
   @ApiProperty({ description: 'Latest version of the submission map list' })
   @IsInt()
-  submissions: number;
+  submissions!: number;
 
   @ApiProperty({
     description:

@@ -34,8 +34,9 @@ export class SteamGameGuard implements CanActivate {
     // With playtest ongoing we want to check we have the right appID for the
     // online Steam API request. The game includes this in user-agent (e.g.
     // `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
+    const userAgent = request.headers['user-agent'] ?? '';
     const appID = Number.parseInt(
-      /(?!=\()\d+(?=\))/.exec(request.headers['user-agent'])?.[0]
+      /(?!=\()\d+(?=\))/.exec(userAgent)?.[0] ?? ''
     );
 
     if (!steamID)
