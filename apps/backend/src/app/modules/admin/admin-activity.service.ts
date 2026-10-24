@@ -2,7 +2,10 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
-import { ExtendedPrismaService } from '../database/prisma.extension';
+import {
+  ExtendedPrismaService,
+  ExtendedPrismaServiceTransaction
+} from '../database/prisma.extension';
 import { AdminActivityDto, PagedResponseDto } from '../../dto';
 
 @Injectable()
@@ -17,10 +20,11 @@ export class AdminActivityService {
     target: number,
     newData: object,
     oldData?: object,
-    comment?: string
+    comment?: string,
+    tx: ExtendedPrismaServiceTransaction = this.db
   ) {
     if (!Array.isArray(types)) types = [types];
-    await this.db.adminActivity.createMany({
+    await tx.adminActivity.createMany({
       data: types.map((type) => ({
         type,
         target,

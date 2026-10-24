@@ -577,7 +577,7 @@ export class RunSessionService {
       totalRuns++;
     }
 
-    const pastRun = await this.db.pastRun.create({
+    const pastRun = await tx.pastRun.create({
       data: {
         userID: submittedRun.userID,
         mapID: submittedRun.mapID,
