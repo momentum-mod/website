@@ -10,13 +10,13 @@ monorepo managed with **npm** (not pnpm/yarn). Node 24 is the CI baseline.
 
 Four deployables plus shared libraries:
 
-| Project                | Path                        | What it is                                                       |
-| ---------------------- | --------------------------- | ---------------------------------------------------------------- |
-| `frontend`             | `apps/frontend`             | Angular 20 dashboard site, deployed to Cloudflare Pages          |
-| `backend`              | `apps/backend`              | NestJS + Fastify REST API used by the game client and frontend   |
-| `backend-e2e`          | `apps/backend-e2e`          | End-to-end suite against a real backend + Postgres + Valkey + S3 |
-| `discord-bot-internal` | `apps/discord-bot-internal` | "Momentum Man" bot for the project's own Discord                 |
-| `scripts`              | `scripts`                   | Seeding, admin promotion, zone generation, benchmarks            |
+| Project                | Path                        | What it is                                                                 |
+| ---------------------- | --------------------------- | -------------------------------------------------------------------------- |
+| `frontend`             | `apps/frontend`             | Angular 20 dashboard site, deployed to Cloudflare Pages                    |
+| `backend`              | `apps/backend`              | NestJS + Fastify REST API used by the game client and frontend             |
+| `backend-e2e`          | `apps/backend-e2e`          | End-to-end suite against a real backend + in-memory Postgres + Valkey + S3 |
+| `discord-bot-internal` | `apps/discord-bot-internal` | "Momentum Man" bot for the project's own Discord                           |
+| `scripts`              | `scripts`                   | Seeding, admin promotion, zone generation, benchmarks                      |
 
 Shared libraries in `libs/`, consumed via TS path aliases (see `tsconfig.json`):
 
@@ -116,10 +116,11 @@ and `PRISMA_MOCK_PROVIDER` from `apps/backend/test/prisma-mock.const.ts`.
 
 E2E tests are preferred to testing complex logic involving Postgres and Valkey;
 superfluous unit tests should be avoided. E2E tests run against a real NestJS
-app, Postgres, Valkey, and S3, and are seeded with a known state. Use
-`registerE2ETestFile()` at the top of each E2E test file's root `describe` to
-get consistent Faker seeding and per-file cleanup of database, Valkey, and S3
-state. See `apps/backend-e2e/src/support/e2e-environment.ts` for details.
+app, an in-memory Postgres (PGlite), Valkey, and S3, and are seeded with a known
+state. Use `registerE2ETestFile()` at the top of each E2E test file's root
+`describe` to get consistent Faker seeding and per-file cleanup of database,
+Valkey, and S3 state. See `apps/backend-e2e/src/support/e2e-environment.ts` for
+details.
 
 ### Running tests
 
@@ -127,7 +128,7 @@ state. See `apps/backend-e2e/src/support/e2e-environment.ts` for details.
 npx nx run backend:test         # backend unit tests
 npx nx run frontend:test        # frontend unit tests
 npx nx run util-fn:test         # a library's tests (also bitflags, enum, xp-systems)
-npx nx run backend-e2e:e2e      # full E2E suite (needs services up)
+npx nx run backend-e2e:e2e      # full E2E suite (needs valkey + rustfs up)
 npx nx run backend-e2e:watch    # E2E in watch mode
 npx nx run constants:test-types # type-level test build
 ```
@@ -144,13 +145,14 @@ zone.js is not installed, so zone-based helpers like `fakeAsync` are
 unavailable. Projects select their own `tsconfig.spec.json` via
 `TS_NODE_PROJECT`, with `TS_NODE_TRANSPILE_ONLY=true` on backend and E2E.
 
-### The E2E suite is one shared process
+### The E2E suite is one shared process per worker
 
-`apps/backend-e2e/run-tests.ts` launches a single Node test process with
-`--test-concurrency=1`, preloads `src/support/e2e-setup.ts`, and uses
-`test-file-loader.cjs` as the entry point. The loader sorts and imports all E2E
-`.test.ts` files into **one worker**, so there is one module cache and one live
-NestJS application for the entire suite instead of a fresh app per file.
+`apps/backend-e2e/run-tests.ts` splits the E2E files (balanced by file size)
+across workers, each a Node test process with `--test-concurrency=1` that
+preloads `src/support/e2e-setup.ts` and uses `test-file-loader.cjs` as the entry
+point. The loader sorts and imports that worker's `.test.ts` files into **one
+process**, so there is one module cache and one live NestJS application for all
+the worker's files instead of a fresh app per file.
 
 `src/support/e2e-environment.ts` compiles the backend `AppModule`, configures
 Fastify, validation and serialization, and installs a WebSocket adapter on a

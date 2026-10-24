@@ -1,33 +1,30 @@
+# Shared by every service. There's no Postgres here: the E2E tests start their
+# own in-memory database (PGlite), so DATABASE_URL below is never connected to;
+# it's only there because the backend's config validation requires one.
+x-env: &env
+  NODE_ENV: test
+  NEST_PORT: 3003
+  BACKEND_URL: http://localhost:3000
+  FRONTEND_URL: http://localhost:4200
+  CDN_URL: http://rustfs:9000/momtest
+  DATABASE_URL: postgresql://unused:unused@localhost/unused
+  RUSTFS_REGION: us-west-1
+  RUSTFS_ADDRESS: :9000
+  RUSTFS_CONSOLE_ADDRESS: :9001
+  RUSTFS_ACCESS_KEY: rustfs
+  RUSTFS_SECRET_KEY: rustfs123
+  STORAGE_REGION: us-west-1
+  STORAGE_BUCKET_NAME: momtest
+  STORAGE_ACCESS_KEY_ID: rustfs
+  STORAGE_SECRET_ACCESS_KEY: rustfs123
+  STORAGE_ENDPOINT_URL: http://rustfs:9000
+  VALKEY_PORT: 6379
+  VALKEY_HOST: valkey
+  STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
+  SESSION_SECRET: thisisashitsecretdontuseitinprod
+  JWT_SECRET: thisisalsonotasecure
+
 services:
-  postgres:
-    environment: &env
-      NODE_ENV: test
-      NEST_PORT: 3003
-      BACKEND_URL: http://localhost:3000
-      FRONTEND_URL: http://localhost:4200
-      CDN_URL: http://rustfs:9000/momtest
-      POSTGRES_USER: root
-      POSTGRES_DB: momentum
-      POSTGRES_PASSWORD: root
-      POSTGRES_PORT: 5432
-      DATABASE_URL: postgresql://root:root@postgres/momentum?schema=public
-      RUSTFS_REGION: us-west-1
-      RUSTFS_ADDRESS: :9000
-      RUSTFS_CONSOLE_ADDRESS: :9001
-      RUSTFS_ACCESS_KEY: rustfs
-      RUSTFS_SECRET_KEY: rustfs123
-      STORAGE_REGION: us-west-1
-      STORAGE_BUCKET_NAME: momtest
-      STORAGE_ACCESS_KEY_ID: rustfs
-      STORAGE_SECRET_ACCESS_KEY: rustfs123
-      STORAGE_ENDPOINT_URL: http://rustfs:9000
-      VALKEY_PORT: 6379
-      VALKEY_HOST: valkey
-      STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
-      SESSION_SECRET: thisisashitsecretdontuseitinprod
-      JWT_SECRET: thisisalsonotasecure
-    ports:
-      - "5432:5432"
   valkey:
     environment:
       <<: *env
@@ -70,7 +67,6 @@ services:
     # simpler.
     image: node:24.22.0
     depends_on:
-      - postgres
       - valkey
       - rustfs
       - createbuckets
@@ -84,6 +80,5 @@ services:
     command: >
       sh -c "
         npm install &&
-        npx nx run db:deploy &&
         npx nx run backend-e2e:e2e
       "
