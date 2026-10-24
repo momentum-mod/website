@@ -49,6 +49,7 @@ export interface ConfigInterface {
   valkey: {
     port: number;
     host: string;
+    db: number;
   };
   limits: {
     dailyReports: number;

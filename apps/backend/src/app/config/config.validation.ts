@@ -90,6 +90,10 @@ export class ConfigValidation {
   @IsNumberString()
   readonly VALKEY_PORT: string;
 
+  @IsNumberString()
+  @IsOptional()
+  readonly VALKEY_DB?: string;
+
   @IsString()
   @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
   @IsOptional()

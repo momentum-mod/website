@@ -72,6 +72,8 @@ services:
       - createbuckets
     environment:
       <<: *env
+      # This is CI, use every CPU the machine has.
+      MOMENTUM_E2E_WORKERS: max
     working_dir: /app/
     volumes:
       - ./:/app/
