@@ -190,7 +190,9 @@ export class AdminService {
         AdminActivityType.USER_MERGE,
         userID,
         { user: mergedUserDbResponse, placeholder: null },
-        { user, placeholder }
+        { user, placeholder },
+        undefined,
+        tx
       );
 
       return DtoFactory(UserDto, mergedUserDbResponse);
