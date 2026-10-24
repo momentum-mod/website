@@ -5,7 +5,13 @@ import {
   MAPLIST_UPDATE_JOB_NAME,
   MapListService
 } from 'apps/backend/src/app/modules/maps/map-list.service';
-import globalSetup, { nukeDb, nukeS3, nukeValkey } from './global-setup';
+import globalSetup, {
+  createDbAdapter,
+  nukeDb,
+  nukeS3,
+  nukeValkey,
+  stopDb
+} from './global-setup';
 import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
@@ -37,7 +43,8 @@ import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { WebsocketAdapter } from '../../../backend/src/app/modules/websockets/websocket.adapter';
 import { WebsocketService } from '../../../backend/src/app/modules/websockets/websocket.service';
 import { KillswitchService } from '../../../backend/src/app/modules/killswitch/killswitch.service';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { EXTENDED_PRISMA_SERVICE } from '../../../backend/src/app/modules/database/db.constants';
+import { extendedNestJsPrismaClientFactory } from '../../../backend/src/app/modules/database/prisma.extension';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -71,9 +78,18 @@ export async function setupE2ETestEnvironment(
     return this.toString();
   };
 
+  // The backend would otherwise build a PrismaPg client from DATABASE_URL, but
+  // tests run against an in-memory PGlite database instead.
   let moduleBuilder = Test.createTestingModule({
     imports: [AppModule]
-  });
+  })
+    .overrideProvider(EXTENDED_PRISMA_SERVICE)
+    .useFactory({
+      factory: () =>
+        extendedNestJsPrismaClientFactory(
+          new PrismaClient({ adapter: createDbAdapter() })
+        )
+    });
   if (moduleOverrides) moduleBuilder = moduleOverrides(moduleBuilder);
   const moduleRef = await moduleBuilder.compile();
 
@@ -129,7 +145,7 @@ export async function setupE2ETestEnvironment(
   const server = app.getHttpServer();
 
   const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+    adapter: createDbAdapter(),
     log: [
       {
         level: 'error', // change to 'query' to debug queries!
@@ -186,7 +202,11 @@ export function registerE2ETestRunnerHooks(): void {
   });
 
   after(async () => {
-    await closeSharedE2ETestEnvironment();
+    try {
+      await closeSharedE2ETestEnvironment();
+    } finally {
+      await stopDb();
+    }
   });
 }
 
