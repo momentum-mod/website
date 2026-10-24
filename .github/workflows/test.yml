@@ -4,10 +4,7 @@ on:
     branches:
       - main
 env:
-  # Pinned exactly, otherwise setup-node resolves from each runner's tool cache
-  # and jobs in the same run can end up on different patch versions. Keep in
-  # sync with the other workflows, the prod/ Dockerfiles and the backend-e2e
-  # image in docker-compose.test.yml.
+  # Pinned exactly so every job uses the same Node.js version.
   NODE_VERSION: 24.22.1
 jobs:
   install-deps:
@@ -206,12 +203,48 @@ jobs:
             echo "affected=false" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker
+      - name: Start Valkey and RustFS
         if: env.affected == 'true'
-        run:
-          docker compose
-            -f docker-compose.yml -f docker-compose.test.yml
-            run backend-e2e
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: momentum
+          POSTGRES_PORT: 5432
+          STORAGE_REGION: us-west-1
+          STORAGE_BUCKET_NAME: momtest
+          RUSTFS_SERVER_PORT: 9000
+          RUSTFS_CONSOLE_PORT: 9001
+          RUSTFS_ACCESS_KEY: rustfs
+          RUSTFS_SECRET_KEY: rustfs123
+          VALKEY_PORT: 6379
+        run: |
+          printf 'RUSTFS_ACCESS_KEY=%s\nRUSTFS_SECRET_KEY=%s\n' \
+            "$RUSTFS_ACCESS_KEY" "$RUSTFS_SECRET_KEY" > .env
+          docker compose up -d --wait valkey rustfs
+          docker compose run --rm createbuckets
+
+      - name: Run tests
+        if: env.affected == 'true'
+        env:
+          NODE_ENV: test
+          NEST_PORT: 3003
+          BACKEND_URL: http://localhost:3000
+          FRONTEND_URL: http://localhost:4200
+          CDN_URL: http://localhost:9000/momtest
+          DATABASE_URL: postgresql://unused:unused@localhost/unused
+          STORAGE_REGION: us-west-1
+          STORAGE_BUCKET_NAME: momtest
+          STORAGE_ACCESS_KEY_ID: rustfs
+          STORAGE_SECRET_ACCESS_KEY: rustfs123
+          STORAGE_ENDPOINT_URL: http://localhost:9000
+          VALKEY_PORT: 6379
+          VALKEY_HOST: localhost
+          STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
+          SESSION_SECRET: thisisashitsecretdontuseitinprod
+          JWT_SECRET: thisisalsonotasecure
+          # Use every CPU available
+          MOMENTUM_E2E_WORKERS: max
+        run: npx nx run backend-e2e:e2e
 
   type-test:
     name: Type Tests
