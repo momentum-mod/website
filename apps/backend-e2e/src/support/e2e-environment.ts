@@ -156,7 +156,8 @@ export async function setupE2ETestEnvironment(
 
   const valkey = new Valkey({
     port: configService.getOrThrow('valkey.port'),
-    host: configService.getOrThrow('valkey.host')
+    host: configService.getOrThrow('valkey.host'),
+    db: configService.getOrThrow('valkey.db')
   });
 
   const auth = new AuthUtil();
