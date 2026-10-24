@@ -1,4 +1,5 @@
-import { startPrismaDevServer } from '@prisma/dev';
+import { startDBServer } from '@prisma/dev/internal/db';
+import { ServerState } from '@prisma/dev/internal/state';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Client } from 'pg';
 import { readdir, readFile } from 'node:fs/promises';
@@ -17,8 +18,13 @@ export interface TestDatabase {
 }
 
 /**
- * Start an in-memory Postgres (PGlite, via the local `prisma dev` server) with
- * all Prisma migrations applied.
+ * Start an in-memory Postgres (PGlite, via `prisma dev`) with all Prisma
+ * migrations applied.
+ *
+ * This starts just the database server from @prisma/dev, not the whole `prisma
+ * dev` server (`startPrismaDevServer`): that also starts a shadow database
+ * and an HTTP server we have no use for, and every PGlite instance costs about
+ * 250MB per worker. These are internal APIs, so mind the version when updating.
  *
  * PGlite has a single session, so the server only lets one client connection
  * be active at a time and holds the rest pending until it disconnects. Pools
@@ -27,20 +33,30 @@ export interface TestDatabase {
  * finish; backend code must use the `tx` it's given inside `$transaction`.
  */
 export async function startTestDatabase(): Promise<TestDatabase> {
-  const server = await startPrismaDevServer({
+  // The state also checks the ports it's configured with are free, including
+  // the ones for servers we don't start, so they all need to be unique.
+  const state = await ServerState.createExclusively({
     name: `e2e-${process.pid}`,
     persistenceMode: 'stateless',
     port: await getFreePort(),
     databasePort: await getFreePort(),
     shadowDatabasePort: await getFreePort()
   });
+  const server = await startDBServer('database', state);
+  const stop = async () => {
+    try {
+      await server.close();
+    } finally {
+      await state.close();
+    }
+  };
 
-  const connectionString = server.database.connectionString;
+  const { connectionString } = server;
 
   try {
     await applyMigrations(connectionString);
   } catch (error) {
-    await server.close();
+    await stop();
     throw error;
   }
 
@@ -53,7 +69,7 @@ export async function startTestDatabase(): Promise<TestDatabase> {
         max: 1,
         idleTimeoutMillis: 1
       }),
-    stop: () => server.close()
+    stop
   };
 }
 

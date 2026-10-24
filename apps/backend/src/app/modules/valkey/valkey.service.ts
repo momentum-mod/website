@@ -17,7 +17,8 @@ export class ValkeyService
   constructor(readonly configService: ConfigService) {
     const options: RedisOptions = {
       lazyConnect: true,
-      disconnectTimeout: 5000
+      disconnectTimeout: 5000,
+      db: configService.getOrThrow('valkey.db')
     };
     const port = configService.getOrThrow('valkey.port');
     if (port === 0) {
