@@ -192,10 +192,11 @@ Other `db` targets: `db:format`, `db:create-migration`, `db:studio`, and
 `scripts:seed`, `scripts:makemeadmin`, `scripts:generate-zones`,
 `scripts:maptags-poeditor`, `scripts:scratchpad`, `scripts:bench-run-ranks`.
 
-E2E in Docker, the way CI runs it:
+E2E tests run on the host; CI starts their dependencies with:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.test.yml run backend-e2e
+docker compose up -d --wait valkey rustfs
+npx nx run backend-e2e:e2e
 ```
 
 ## Code style and conventions
