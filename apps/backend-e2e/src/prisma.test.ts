@@ -1,25 +1,27 @@
 import { after, before, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { PrismaClient } from '@momentum/db';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { ExtendedPrismaClient, getExtendedPrismaClient } from '@momentum/db';
+import {
+  ExtendedPrismaClient,
+  PrismaClient,
+  prismaExtensionFactory
+} from '@momentum/db';
 import { DbUtil } from '@momentum/test-utils';
 import { arrayFrom } from '@momentum/util-fn';
-import { nukeDb } from './support/global-setup';
+import { createDbAdapter, nukeDb } from './support/global-setup';
 
-// No, these are not E2E tests, but they need a live DB so they live here. Bite me!
+// No, these are not E2E tests, but they need a DB so they live here. Bite me!
 describe('Prisma Client Extensions', () => {
   let prisma: PrismaClient;
   let ePrisma: ExtendedPrismaClient;
   let db: DbUtil;
 
   before(async () => {
-    prisma = new PrismaClient({
-      adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-    });
+    prisma = new PrismaClient({ adapter: createDbAdapter() });
     db = new DbUtil(prisma);
     await db.nuke();
-    ePrisma = getExtendedPrismaClient();
+    ePrisma = prismaExtensionFactory(
+      new PrismaClient({ adapter: createDbAdapter() })
+    );
   });
 
   after(async () => {

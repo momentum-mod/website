@@ -4,25 +4,20 @@ import {
   ListObjectsV2Command,
   S3Client
 } from '@aws-sdk/client-s3';
-import { PrismaPg } from '@prisma/adapter-pg';
 import * as dotenv from 'dotenv';
 import path from 'node:path';
 import Valkey from 'iovalkey';
+import { TestDatabase, startTestDatabase } from './test-db';
+
+let testDb: TestDatabase | undefined;
 
 export default async function globalSetup() {
   const envPath = path.resolve(__dirname, '../../../../.env');
   dotenv.config({ path: envPath });
 
-  // Nuke the current DB (Bye)
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-  });
-
-  try {
-    await nukeDb(prisma);
-  } finally {
-    await prisma.$disconnect();
-  }
+  // Postgres runs in-memory (PGlite), freshly migrated, so there's nothing to
+  // nuke. DATABASE_URL from .env (for dev) is unused.
+  testDb = await startTestDatabase();
 
   // Clear out the S3 bucket
   await nukeS3();
@@ -34,6 +29,18 @@ export default async function globalSetup() {
   // probably because it's loading .env later. So it probably doesn't matter in
   // CI, just in local dev.
   process.env['NODE_ENV'] = 'test';
+}
+
+/** A driver adapter for the in-memory test database. */
+export function createDbAdapter() {
+  if (!testDb) throw new Error('Test database has not been started');
+  return testDb.createAdapter();
+}
+
+export async function stopDb(): Promise<void> {
+  const db = testDb;
+  testDb = undefined;
+  await db?.stop();
 }
 
 export async function nukeDb(prisma: PrismaClient) {
