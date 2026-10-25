@@ -87,7 +87,11 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
                 },
                 transport: {
                   target: 'pino-pretty',
-                  options: { singleLine: true }
+                  options: { singleLine: true },
+                  // The transport runs in a worker thread, which would
+                  // otherwise repeat our `node -r ...` preloads (e.g. loading
+                  // the whole TypeScript compiler a second time with ts-node).
+                  worker: { execArgv: [] }
                 }
               }
             : {
