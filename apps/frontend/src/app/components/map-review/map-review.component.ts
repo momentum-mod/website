@@ -90,7 +90,7 @@ export class MapReviewComponent {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  private _review: MapReview;
+  private _review!: MapReview;
   get review() {
     return this._review;
   }
@@ -99,14 +99,15 @@ export class MapReviewComponent {
   set review(review: MapReview) {
     this._review = review;
     this.suggestions = groupMapSuggestions(review.suggestions);
-    this.images = review.images.map((image) => ({
-      type: 'image',
-      full: image,
-      thumbnail: image
-    }));
+    this.images =
+      review.images?.map((image) => ({
+        type: 'image',
+        full: image,
+        thumbnail: image
+      })) ?? [];
   }
 
-  protected suggestions: GroupedMapReviewSuggestions;
+  protected suggestions?: GroupedMapReviewSuggestions;
   protected images: GalleryImageItem[] = [];
   protected activeImageDialogIndex = 0;
 
@@ -164,7 +165,7 @@ export class MapReviewComponent {
   }
 
   @ViewChild(MapReviewFormComponent)
-  editForm: MapReviewFormComponent;
+  editForm?: MapReviewFormComponent;
 
   enableEditing(): void {
     if (this.editing) return;
@@ -175,9 +176,9 @@ export class MapReviewComponent {
     // values after that's completed.
     this.cdRef.detectChanges();
 
-    this.editForm.mainText.setValue(this._review.mainText);
-    this.editForm.suggestions.setValue(this._review.suggestions);
-    this.editForm.form.markAsPristine();
+    this.editForm?.mainText.setValue(this._review.mainText);
+    this.editForm?.suggestions.setValue(this._review.suggestions);
+    this.editForm?.form.markAsPristine();
   }
 
   disableEditing(): void {
@@ -233,7 +234,7 @@ export class MapReviewComponent {
     this.mapsService
       .postMapReviewComment(
         this._review.id,
-        this.commentInput.get('textInput').value
+        this.commentInput.controls.textInput.value
       )
       .pipe(
         take(1),
@@ -264,7 +265,7 @@ export class MapReviewComponent {
       commentID,
       this.nnfb.group({
         textInput: this.nnfb.control<string>(
-          this._review.comments.find(({ id }) => id === commentID).text,
+          this._review.comments.find(({ id }) => id === commentID)?.text ?? '',
           {
             validators: [
               Validators.minLength(1),
@@ -278,13 +279,12 @@ export class MapReviewComponent {
 
   editComment(commentID: number): void {
     if (this.loadingComments) return;
+    const commentGroup = this.editModeComments.get(commentID);
+    if (!commentGroup) return;
     this.loadingComments = true;
 
     this.mapsService
-      .updateMapReviewComment(
-        commentID,
-        this.editModeComments.get(commentID).get('textInput').value
-      )
+      .updateMapReviewComment(commentID, commentGroup.controls.textInput.value)
       .pipe(
         take(1),
         finalize(() => (this.loadingComments = false))
@@ -292,8 +292,12 @@ export class MapReviewComponent {
       .subscribe({
         next: (res) => {
           this.editModeComments.delete(commentID);
-          this._review.comments.find(({ id }) => id === commentID).text =
-            res.text;
+          const comment = this._review.comments.find(
+            ({ id }) => id === commentID
+          );
+          if (comment) {
+            comment.text = res.text;
+          }
         },
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({

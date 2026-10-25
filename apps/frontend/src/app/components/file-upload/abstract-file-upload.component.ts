@@ -18,8 +18,9 @@ import { Icon } from '../../icons';
  * set to false.
  */
 @Directive()
-export abstract class AbstractFileUploadComponent<T extends File | File[]>
-  implements ControlValueAccessor
+export abstract class AbstractFileUploadComponent<
+  T extends File | File[] | null
+> implements ControlValueAccessor
 {
   protected abstract value: T;
   protected abstract readonly multiple: boolean;
@@ -40,7 +41,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
    *
    * 'Add from clipboard' button will be disabled if this is not provided.
    */
-  @Input() acceptMimeTypes: string[];
+  @Input() acceptMimeTypes: string[] = [];
 
   @Input() enableClipboard = false;
 
@@ -76,7 +77,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
     return this.hasSelection();
   }
 
-  @ViewChild('fileInput') private input: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') private input!: ElementRef<HTMLInputElement>;
 
   abstract onDrop(event: DragEvent): void;
 
@@ -119,6 +120,8 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
   removeDragData(event: DragEvent) {
     this.dragOverCounter = 0;
 
+    if (!event.dataTransfer) return;
+
     if (event.dataTransfer.items) {
       event.dataTransfer.items.clear();
     } else {
@@ -139,7 +142,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => {};
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

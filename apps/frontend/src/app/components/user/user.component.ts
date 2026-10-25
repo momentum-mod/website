@@ -44,7 +44,7 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
   ]
 })
 export class UserComponent {
-  @Input({ required: true }) user!: User;
+  @Input() user?: User | null;
   @Input() aliasClass?: string;
   @Input() avatarClass?: string;
   @Input() badges = false;

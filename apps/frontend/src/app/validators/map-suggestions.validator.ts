@@ -12,7 +12,7 @@ import {
 } from '@momentum/formats/zone';
 
 export function suggestionsValidator(
-  zoneGet: () => MapZones,
+  zoneGet: () => MapZones | undefined,
   type: SuggestionType
 ): ValidatorFn {
   return (

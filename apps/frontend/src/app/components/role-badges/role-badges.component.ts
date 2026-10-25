@@ -27,7 +27,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
 export class RoleBadgesComponent implements OnChanges {
   @Input({ required: true }) roles!: Flags<Role>;
 
-  @Input() ignored: Role[];
+  @Input() ignored?: Role[];
 
   @Input() classes = '';
 
@@ -51,6 +51,7 @@ export class RoleBadgesComponent implements OnChanges {
         (role) =>
           Bitflags.has(this.roles, role) && !this.ignored?.includes(role)
       )
-      .map((role) => RoleNames.get(role));
+      .map((role) => RoleNames.get(role) ?? '')
+      .filter(Boolean);
   }
 }

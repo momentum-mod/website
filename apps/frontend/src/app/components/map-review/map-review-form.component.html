@@ -22,13 +22,13 @@
       />
     }
   </div>
-  @if (MAX_REVIEW_LENGTH / 2 < mainText.value?.length) {
-    <span class="ml-2 text-sm">{{ MAX_REVIEW_LENGTH - mainText.value?.length | plural: 'character' }} remaining</span>
+  @if (MAX_REVIEW_LENGTH / 2 < mainText.value.length) {
+    <span class="ml-2 text-sm">{{ MAX_REVIEW_LENGTH - mainText.value.length | plural: 'character' }} remaining</span>
   }
 
   <m-map-review-suggestions-form #suggs [formControl]="suggestions" [map]="map" />
   @if (suggestions.invalid) {
-    <p class="medium mb-2 ml-auto font-medium italic text-red-500">{{ suggestions.errors['error'] }}</p>
+    <p class="medium mb-2 ml-auto font-medium italic text-red-500">{{ suggestions.errors?.['error'] }}</p>
   }
 
   <div class="flex flex-wrap items-center justify-end gap-2">

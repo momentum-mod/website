@@ -22,7 +22,7 @@ import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { GroupedLeaderboards } from './map-status-form.component';
 import { Select } from 'primeng/select';
-import { KeyValuePipe, NgClass } from '@angular/common';
+import { KeyValue, KeyValuePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ChipsComponent } from '../../chips/chips.component';
@@ -78,7 +78,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
             gamemode,
             trackType,
             trackNum,
-            tier,
+            tier: tier ?? undefined,
             type,
             tags
           }))
@@ -88,15 +88,17 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
 
   protected disabled = false;
 
-  @Input({ required: true }) groupedLeaderboards: GroupedLeaderboards;
+  @Input({ required: true }) groupedLeaderboards!: GroupedLeaderboards;
 
   constructor() {
     this.TierChartOptions = this.chartOptions('Reviewer Tiers');
     this.RatingChartOptions = this.chartOptions('Reviewer Gameplay Ratings');
   }
 
-  protected groupLbSortFn = (a, b): number =>
-    b.value.totalRuns - a.value.totalRuns;
+  protected groupLbSortFn = (
+    a: KeyValue<any, any>,
+    b: KeyValue<any, any>
+  ): number => b.value.totalRuns - a.value.totalRuns;
 
   protected leaderboardKey = leaderboardKey;
 
@@ -104,7 +106,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     // Doesn't have an actual value as value, just a getter.
   }
 
-  updateTags(leaderboard: MapSubmissionApproval, tags: MapTag[]) {
+  updateTags(leaderboard: { tags: MapTag[] }, tags: MapTag[]) {
     leaderboard.tags = tags;
     this.onChange(this.value);
   }
@@ -118,7 +120,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => {};
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

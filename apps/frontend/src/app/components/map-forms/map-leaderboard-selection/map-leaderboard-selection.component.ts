@@ -43,7 +43,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     .filter((gamemode) => !DisabledGamemodes.has(gamemode))
     .map((gamemode) => ({
       gamemode,
-      label: GamemodeInfo.get(gamemode).name
+      label: GamemodeInfo.get(gamemode)?.name ?? ''
     }));
 
   protected readonly TrackType = TrackType;
@@ -154,7 +154,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
   }
 
   getTrackGamemodes(trackType: TrackType, trackNum: number) {
-    const existingLbs = this.mapLeaderboards
+    const existingLbs = (this.mapLeaderboards ?? [])
       .filter(
         (lb) =>
           lb.trackType === trackType &&
@@ -164,7 +164,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
       )
       .map(({ gamemode }) => ({
         gamemode,
-        label: GamemodeInfo.get(gamemode).name
+        label: GamemodeInfo.get(gamemode)?.name ?? ''
       }));
     if (existingLbs.length === 0) return this.Gamemodes;
     return existingLbs;
@@ -175,7 +175,7 @@ export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

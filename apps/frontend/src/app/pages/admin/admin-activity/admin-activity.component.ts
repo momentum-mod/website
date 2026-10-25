@@ -73,7 +73,7 @@ export class AdminActivityComponent implements OnInit {
     user: new FormControl<User | null>(null)
   });
 
-  protected loading: boolean;
+  protected loading = false;
 
   protected readonly pageChange = new Subject<PaginatorState>();
   protected first = 0;
@@ -84,7 +84,7 @@ export class AdminActivityComponent implements OnInit {
     merge(
       of(null),
       this.filters.valueChanges,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => (this.first = first ?? 0)))
     )
       .pipe(
         tap(() => (this.loading = true)),
@@ -93,7 +93,7 @@ export class AdminActivityComponent implements OnInit {
           const query = {
             take: this.rows,
             skip: this.first,
-            filter: types.length > 0 ? types : undefined
+            filter: (types?.length ?? 0) > 0 ? types : undefined
           };
 
           return (

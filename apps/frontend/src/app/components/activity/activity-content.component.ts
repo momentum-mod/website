@@ -19,17 +19,17 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
   templateUrl: './activity-content.component.html'
 })
 export class ActivityContentComponent implements OnInit {
-  @Input() activity: Activity;
+  @Input({ required: true }) activity!: Activity;
   /**
    * Whether the date should have display property set to none
    * and limit content width on md media query (for notifications)
    */
   @Input() dateNone = false;
-  activityIcon: Icon;
+  activityIcon: Icon = 'panorama-outline';
   actionText = '';
   eventText = '';
-  eventColor: string;
-  eventLink = null;
+  eventColor = '';
+  eventLink: string | null = null;
 
   ngOnInit() {
     switch (this.activity.type) {

@@ -36,7 +36,7 @@ export class ReportQueueComponent implements OnInit {
   protected totalRecords = 0;
   protected first = 0;
 
-  protected loading: boolean;
+  protected loading = false;
   protected readonly pageChange = new Subject<PaginatorState>();
   protected readonly refresh = new Subject<void>();
   protected readonly filterChange = new Subject<void>();
@@ -51,7 +51,7 @@ export class ReportQueueComponent implements OnInit {
           this.totalRecords = 0;
         })
       ),
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => (this.first = first ?? 0)))
     )
       .pipe(
         tap(() => (this.loading = true)),

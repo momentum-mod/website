@@ -32,15 +32,15 @@ import { TooltipDirective } from '../../../../directives/tooltip.directive';
 export class QueuedReportComponent implements OnInit, AfterViewInit {
   private readonly dialogService = inject(DialogService);
 
-  @Input() report: Report;
+  @Input({ required: true }) report!: Report;
   @Output() reportUpdate = new EventEmitter<Report>();
 
-  @ViewChild('messageText') messageText: ElementRef<HTMLElement>;
+  @ViewChild('messageText') messageText?: ElementRef<HTMLElement>;
   @ViewChild('resolutionMessageText')
-  resolutionMessageText: ElementRef<HTMLElement>;
+  resolutionMessageText?: ElementRef<HTMLElement>;
 
-  typeText: string;
-  categoryText: string;
+  typeText = '';
+  categoryText = '';
   reportedResourceURL = '';
 
   messageExpanded = false;
@@ -96,7 +96,7 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private isOverflowing(ref: ElementRef<HTMLElement>): boolean {
+  private isOverflowing(ref?: ElementRef<HTMLElement>): boolean {
     const el = ref?.nativeElement;
     return !!el && el.scrollHeight > el.clientHeight;
   }
@@ -118,7 +118,7 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
         data: { report: this.report },
         style: { 'min-width': 'min(600px, 95vw)' }
       })
-      .onClose.subscribe((report) => {
+      ?.onClose.subscribe((report) => {
         if (report) this.reportUpdate.emit(report);
       });
   }

@@ -30,10 +30,10 @@ export type NStateButtonStates = Array<{
 }>;
 
 @Component({
-  template: `@if (currentState.text; as text) {
+  template: `@if (currentState?.text; as text) {
       <p [ngClass]="textClass">{{ text }}</p>
     }
-    @if (currentState.icon; as icon) {
+    @if (currentState?.icon; as icon) {
       <m-icon [ngClass]="iconClass" [icon]="icon" />
     }`,
   host: {
@@ -53,11 +53,11 @@ export type NStateButtonStates = Array<{
 export class NStateButtonComponent implements ControlValueAccessor {
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  @Input({ required: true }) states: NStateButtonStates;
+  @Input({ required: true }) states!: NStateButtonStates;
 
   @Input() type: 'button' | 'submit' = 'button';
-  @Input() textClass: string;
-  @Input() iconClass: string;
+  @Input() textClass = '';
+  @Input() iconClass = '';
 
   @HostBinding('class') get classes() {
     return `btn btn-${this.currentState?.color ?? ''}`;
@@ -74,7 +74,7 @@ export class NStateButtonComponent implements ControlValueAccessor {
   }
 
   protected value = 0;
-  protected currentState: (typeof this.states)[number];
+  protected currentState?: (typeof this.states)[number];
 
   @HostBinding('attr.disabled')
   protected disabled = false;
@@ -84,7 +84,7 @@ export class NStateButtonComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => {};
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
@@ -95,7 +95,7 @@ export class NStateButtonComponent implements ControlValueAccessor {
 
   writeValue(value: number = 0) {
     this.value = value;
-    this.currentState = this.states[value];
+    this.currentState = this.states?.[value];
     this.cdRef.markForCheck();
   }
 }

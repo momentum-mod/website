@@ -11,9 +11,9 @@ import { SpinnerComponent } from '../spinner/spinner.component';
   imports: [MapListItemComponent, InfiniteScrollDirective, SpinnerComponent]
 })
 export class MapListComponent {
-  @Input({ required: true }) maps: MMap[];
-  @Input({ required: true }) loading: boolean;
-  @Input({ required: true }) loadMore: Subject<void>;
+  @Input({ required: true }) maps!: MMap[];
+  @Input({ required: true }) loading = false;
+  @Input({ required: true }) loadMore!: Subject<void>;
   @Input() isSubmissionPage = false;
   @Input() isAdminPage = false;
   @Input() showApprovedDate = false;

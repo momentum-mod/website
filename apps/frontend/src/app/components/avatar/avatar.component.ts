@@ -9,9 +9,13 @@ import { STEAM_MISSING_AVATAR_URL } from '@momentum/constants';
 @Component({
   selector: 'm-avatar',
   template: `
-    <img [src]="url" class="aspect-square h-full rounded shadow-md" />
+    <img
+      [src]="url || defaultUrl"
+      class="aspect-square h-full rounded shadow-md"
+    />
   `
 })
 export class AvatarComponent {
-  @Input() url: string = STEAM_MISSING_AVATAR_URL;
+  protected readonly defaultUrl = STEAM_MISSING_AVATAR_URL;
+  @Input() url?: string | null = STEAM_MISSING_AVATAR_URL;
 }

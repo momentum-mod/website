@@ -31,14 +31,14 @@ export class PopoverComponent {
    * Each name must be unique, if you need to dynamically generate anchor names, you can do the following:
    * protected readonly anchorName = `--someMenu-${Math.random().toString(36).substring(2, 12)}`;
    */
-  @Input() anchorName: string;
+  @Input() anchorName?: string;
 
   // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onShow = new EventEmitter();
   // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onHide = new EventEmitter();
 
-  @ViewChild('popover') popover: ElementRef<HTMLElement>;
+  @ViewChild('popover') popover!: ElementRef<HTMLElement>;
 
   private active = false;
 

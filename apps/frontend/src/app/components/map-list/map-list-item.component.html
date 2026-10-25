@@ -1,8 +1,8 @@
 <!-- Some styling in CSS due to complex borders + radial gradients -->
-<a [routerLink]="'/maps/' + map?.name" class="group flex h-full flex-col shadow">
+<a [routerLink]="'/maps/' + map.name" class="group flex h-full flex-col shadow">
   <div class="stack aspect-video">
     <img
-      [src]="map.thumbnail?.small"
+      [src]="map.thumbnail.small"
       class="h-full w-full rounded-t border-b border-black border-opacity-5 transition-all group-hover:brightness-110"
     />
     @if (localUserService.user | async) {
@@ -33,11 +33,11 @@
           <p
           class="text-shadow-strong m-auto font-display font-bold text-28 leading-none">T{{ lb.tier }}</p>
         </div>
-          @if (lb.bonuses?.length > 0) {
+          @if ((lb.bonuses?.length ?? 0) > 0) {
             <p
               class="text-shadow-strong flex h-10 items-center rounded border border-white border-opacity-10 bg-gray-400 bg-opacity-50 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
             >
-              {{ lb.bonuses?.length | plural: 'bonus' : 'bonuses' }}
+              {{ lb.bonuses?.length ?? 0 | plural: 'bonus' : 'bonuses' }}
             </p>
           }
           @if (lb.type === LeaderboardType.UNRANKED) {
@@ -67,8 +67,8 @@
               <img
                 class="h-8 drop-shadow-sm"
                 [ngClass]="{ 'ml-auto': $first }"
-                [mTooltip]="GamemodeInfo.get(leaderboard.gamemode).name"
-                [src]="'assets/images/gamemodes/' + GamemodeInfo.get(leaderboard.gamemode).icon + '.png'"
+                [mTooltip]="GamemodeInfo.get(leaderboard.gamemode)?.name"
+                [src]="'assets/images/gamemodes/' + GamemodeInfo.get(leaderboard.gamemode)?.icon + '.png'"
               />
             }
           }
@@ -80,7 +80,7 @@
     class="border-t-none flex grow flex-col rounded-b border border-white border-opacity-5 bg-white bg-opacity-5 p-4 pt-3.5 backdrop-blur-xl transition-colors group-hover:bg-opacity-10"
   >
     <div class="mb-2 flex min-h-[2rem] flex-wrap items-center gap-y-2">
-      <p class="contents min-h-[2rem]" [fontSizeLerp]="{ chars: name.length + prefix?.length, startAt: 26, baseRem: 2 }">
+      <p class="contents min-h-[2rem]" [fontSizeLerp]="{ chars: name.length + prefix.length, startAt: 26, baseRem: 2 }">
         @if (prefix) {
           <span class="mr-1 font-display font-bold leading-none text-gray-250">{{ prefix }}</span>
         }
@@ -123,14 +123,14 @@
           } @else {
             <span class="text-gray-300">Current Status: </span>
             <span class="font-medium text-red-200">{{ MapStatusName.get(map.status) }}</span>
-            @if (!map.currentVersion?.bspHash) {
+            @if (!map.currentVersion.bspHash) {
               <span class="ml-2 font-bold text-red-500">Files deleted!</span>
             }
           }
         </p>
       }
-      @if (showApprovedDate && map.info?.approvedDate) {
-        <p class="mt-auto text-right text-gray-100">Released {{ map.info?.approvedDate | timeAgo }}</p>
+      @if (showApprovedDate && map.info.approvedDate; as approvedDate) {
+        <p class="mt-auto text-right text-gray-100">Released {{ approvedDate | timeAgo }}</p>
       } @else {
         <p class="mt-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
       }

@@ -21,7 +21,7 @@ import { RouterOutlet } from '@angular/router';
   ]
 })
 export class AppComponent implements AfterViewInit {
-  protected sideNavState: SidenavState;
+  protected sideNavState: SidenavState = SidenavState.CLOSED;
   protected customBackgroundImage = '';
   protected customBackgroundOpacity = 0;
 

@@ -49,33 +49,38 @@ export class ConfirmWithReasonDialogComponent implements OnInit {
   >(DynamicDialogConfig);
   private sanitizer = inject(DomSanitizer);
 
-  @Input({ required: true }) message: SafeHtml;
-  @Input({ required: false }) abortMessage: SafeHtml;
-  @Input({ required: false }) proceedMessage: SafeHtml;
+  @Input({ required: true }) message!: SafeHtml;
+  @Input({ required: false }) abortMessage?: SafeHtml;
+  @Input({ required: false }) proceedMessage?: SafeHtml;
 
   protected reason = '';
 
   ngOnInit() {
+    const data = this.config.data;
+    if (!data) return;
+
     const sanitizedMessage = this.sanitizer.sanitize(
       SecurityContext.HTML,
-      this.config.data.message.replaceAll('\n', '<br/>')
+      data.message.replaceAll('\n', '<br/>')
     );
-    this.message = this.sanitizer.bypassSecurityTrustHtml(sanitizedMessage);
+    this.message = this.sanitizer.bypassSecurityTrustHtml(
+      sanitizedMessage ?? ''
+    );
 
     const sanitizedAbortMessage = this.sanitizer.sanitize(
       SecurityContext.HTML,
-      this.config.data.abortMessage ?? 'Close'
+      data.abortMessage ?? 'Close'
     );
     this.abortMessage = this.sanitizer.bypassSecurityTrustHtml(
-      sanitizedAbortMessage
+      sanitizedAbortMessage ?? ''
     );
 
     const sanitizedProceedMessage = this.sanitizer.sanitize(
       SecurityContext.HTML,
-      this.config.data.proceedMessage ?? 'Confirm'
+      data.proceedMessage ?? 'Confirm'
     );
     this.proceedMessage = this.sanitizer.bypassSecurityTrustHtml(
-      sanitizedProceedMessage
+      sanitizedProceedMessage ?? ''
     );
   }
 

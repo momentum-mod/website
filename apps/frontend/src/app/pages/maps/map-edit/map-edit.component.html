@@ -69,7 +69,7 @@
 <div
   [mSpinner]="loading"
   class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
-  [ngClass]="isSubmitter && map.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
+  [ngClass]="isSubmitter && map?.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
 >
   <p class="card-title -mb-4 -mt-9 text-4xl md:text-5xl">Invite Testers</p>
   <m-map-test-invite-selection [formControl]="testInviteForm" />
@@ -139,7 +139,7 @@
   <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || (isSubmitter && !wasApproved) ? '!block' : '!hidden'">
     @let formControl = wasApproved ? leaderboards : suggestions;
     <legend class="font-display text-4xl font-bold">Leaderboards</legend>
-    <m-map-leaderboards-selection [wasApproved]="wasApproved" [mapLeaderboards]="map.leaderboards" [formControl]="formControl" />
+    <m-map-leaderboards-selection [wasApproved]="wasApproved" [mapLeaderboards]="map?.leaderboards ?? []" [formControl]="formControl" />
     @if (formControl.dirty && formControl.errors) {
       <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ formControl.errors['error'] }}</p>
     } @else if (formControl.pristine && formControl.errors) {
@@ -153,7 +153,9 @@
 
   <fieldset class="card-inset flex flex-col gap-2">
     <legend class="font-display text-4xl font-bold">Status Update</legend>
-    <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" />
+    @if (map) {
+      <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" />
+    }
   </fieldset>
 
   <div class="-mt-4 flex flex-wrap gap-4">
@@ -167,10 +169,10 @@
   </div>
 </form>
 
-@if (isAdmin && map.info.approvedDate) {
+@if (isAdmin && map?.info?.approvedDate) {
   <button class="btn btn-red ml-auto" type="button" (click)="disableMap()">Disable map and delete files</button>
 }
 
-@if (inSubmission && !map.info.approvedDate && (isSubmitter || isAdmin)) {
+@if (inSubmission && !map?.info?.approvedDate && (isSubmitter || isAdmin)) {
   <button class="btn btn-red mr-auto" type="button" (click)="deleteMap()">Delete map</button>
 }

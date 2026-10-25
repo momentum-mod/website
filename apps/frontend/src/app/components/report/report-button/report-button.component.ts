@@ -18,8 +18,8 @@ import { IconComponent } from '../../../icons';
 export class ReportButtonComponent {
   private readonly dialogService = inject(DialogService);
 
-  @Input() reportType: ReportType;
-  @Input() reportData: string;
+  @Input({ required: true }) reportType!: ReportType;
+  @Input({ required: true }) reportData!: string;
 
   @HostBinding('class') get classes() {
     return 'btn btn-red';

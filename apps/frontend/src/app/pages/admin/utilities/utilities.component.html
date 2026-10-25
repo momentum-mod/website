@@ -16,9 +16,9 @@
           dynamicTextareaHeight
           formControlName="message"
         ></textarea>
-        @if (announcementForm.value.message.length > 0) {
+        @if ((announcementForm.value.message?.length ?? 0) > 0) {
           <span class="ml-2 mt-1 text-sm"
-            >{{ MAX_ADMIN_ANNOUNCEMENT_LENGTH - announcementForm.value.message.length | plural: 'character' }} remaining</span
+            >{{ MAX_ADMIN_ANNOUNCEMENT_LENGTH - (announcementForm.value.message?.length ?? 0) | plural: 'character' }} remaining</span
           >
         }
       </div>

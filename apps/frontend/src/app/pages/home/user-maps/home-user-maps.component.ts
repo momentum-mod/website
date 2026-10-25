@@ -16,8 +16,8 @@ export class HomeUserMapsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly MapStatus = MapStatus;
-  protected approved: number;
-  protected submission: number;
+  protected approved = 0;
+  protected submission = 0;
 
   protected loading = true;
 

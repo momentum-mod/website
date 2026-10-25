@@ -1,30 +1,29 @@
 import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  FormsModule,
-  ReactiveFormsModule
-} from '@angular/forms';
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+  transferArrayItem
+} from '@angular/cdk/drag-drop';
+import { KeyValuePipe } from '@angular/common';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
-  MAX_USER_ALIAS_LENGTH,
   MapCreditNames,
   MapCreditType,
+  MAX_USER_ALIAS_LENGTH,
   User
 } from '@momentum/constants';
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem,
-  CdkDropList,
-  CdkDrag
-} from '@angular/cdk/drag-drop';
 import * as Enum from '@momentum/enum';
-import { KeyValuePipe } from '@angular/common';
 import { UserSearchComponent } from '../../search/user-search.component';
-import { GroupedMapCredits } from '../../../util';
-import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { IconComponent } from '../../../icons';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AvatarComponent } from '../../avatar/avatar.component';
+import {
+  EditableMapCredit,
+  GroupedMapCredits
+} from '../../../util/grouped-map-credits.class';
 
 @Component({
   selector: 'm-map-credits-selection',
@@ -49,7 +48,7 @@ import { AvatarComponent } from '../../avatar/avatar.component';
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {
-  protected value: GroupedMapCredits;
+  protected value!: GroupedMapCredits;
 
   protected readonly MapCreditType = MapCreditType;
   protected readonly MapCreditNames = MapCreditNames;
@@ -57,7 +56,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
   protected readonly connectedTo = Enum.values(MapCreditType).map(String);
 
   @ViewChildren(TooltipDirective)
-  tooltips: QueryList<TooltipDirective>;
+  tooltips!: QueryList<TooltipDirective>;
 
   addUser(
     type: MapCreditType,
@@ -68,7 +67,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       .getAll()
       .find((userEntry) => userEntry.userID === user.id);
     if (existingUserCredit) {
-      TooltipDirective.findByContext(this.tooltips, type).setAndShow(
+      TooltipDirective.findByContext(this.tooltips, type)?.setAndShow(
         `User is already in the "${MapCreditNames.get(
           existingUserCredit.type
         )}" credits, just drag the credit instead!`,
@@ -81,13 +80,13 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     }
   }
 
-  removeUser(type: MapCreditType, userID: number, alias: string) {
+  removeUser(type: MapCreditType, userID: number | undefined, alias: string) {
     const userIndex = this.value.get(type).findIndex(
       // Also check for alias to remove the correct placeholder.
       (credit) => credit.userID === userID && credit.alias === alias
     );
     if (userIndex === -1) return;
-    this.value[type].splice(userIndex, 1);
+    this.value.get(type).splice(userIndex, 1);
     this.onChange(this.value);
   }
 
@@ -99,7 +98,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
           placeholderEntry.alias === searchComponent.search.value
       );
     if (existingPlaceholderCredit) {
-      TooltipDirective.findByContext(this.tooltips, type).setAndShow(
+      TooltipDirective.findByContext(this.tooltips, type)?.setAndShow(
         `Placeholder is already in the "${MapCreditNames.get(
           existingPlaceholderCredit.type
         )}" credits, just drag the credit instead!`,
@@ -120,7 +119,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     this.onChange(this.value);
   }
 
-  drop(event: CdkDragDrop<any[]>) {
+  drop(event: CdkDragDrop<EditableMapCredit[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -150,7 +149,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

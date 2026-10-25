@@ -8,5 +8,5 @@ import { CardComponent } from '../../../components/card/card.component';
   templateUrl: './home-stats.component.html'
 })
 export class HomeStatsComponent {
-  @Input() userStats: UserStats;
+  @Input() userStats?: UserStats;
 }

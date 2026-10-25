@@ -13,7 +13,7 @@ export class BackendValidators {
   // services into.
   static uniqueMapName(
     mapsService: MapsService,
-    allow?: () => string
+    allow?: () => string | undefined
   ): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
       if (

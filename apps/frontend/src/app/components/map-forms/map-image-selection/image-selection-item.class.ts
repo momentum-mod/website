@@ -1,6 +1,6 @@
 export class ImageSelectionItem {
   file?: File;
-  dataUrl: string;
+  dataUrl!: string;
   existingID?: string;
 
   private constructor() {}

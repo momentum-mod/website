@@ -52,19 +52,19 @@ export class MapSubmissionComponent {
   protected readonly downloadZoneFile = downloadZoneFile;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  protected suggestions: GroupedMapSubmissionSuggestions;
-  protected versions: MapVersion[];
-  protected visibleVersions: number;
+  protected suggestions!: GroupedMapSubmissionSuggestions;
+  protected versions: MapVersion[] = [];
+  protected visibleVersions = 2;
   protected hasComments = false;
 
-  private _map: MMap;
+  private _map!: MMap;
   get map() {
     return this._map;
   }
   @Input({ required: true }) set map(map: MMap) {
     this._map = map;
-    this.suggestions = groupMapSuggestions(map.submission.suggestions);
-    this.versions = map?.versions.sort(
+    this.suggestions = groupMapSuggestions(map.submission?.suggestions ?? []);
+    this.versions = (map?.versions ?? []).sort(
       (v1, v2) => v2.versionNum - v1.versionNum
     );
     this.visibleVersions = 2;

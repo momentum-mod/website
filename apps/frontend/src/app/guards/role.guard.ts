@@ -1,19 +1,20 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
+import { Role } from '@momentum/constants';
 import { LocalUserService } from '../services/data/local-user.service';
 
 export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const userService = inject(LocalUserService);
   const router = inject(Router);
 
-  const allowedRoles = route?.data?.['roles'];
-  if (!allowedRoles && !Array.isArray(allowedRoles))
+  const allowedRoles = route?.data?.['roles'] as Role[] | undefined;
+  if (!allowedRoles || !Array.isArray(allowedRoles))
     throw new Error('RoleGuard applied on route without `roles` arrays');
 
   // Passes iff user logged in and has one of the roles in data.roles.
   if (
     userService.isLoggedIn &&
-    allowedRoles.some((role) => userService.hasRole(role))
+    allowedRoles.some((role: Role) => userService.hasRole(role))
   ) {
     return true;
   } else {

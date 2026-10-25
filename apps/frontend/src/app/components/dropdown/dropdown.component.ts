@@ -20,9 +20,9 @@ export class DropdownComponent implements ControlValueAccessor {
   @Input({ required: true }) entries: number[] = [];
 
   // If you're adding support for string entries, use the same strategy as chips component does
-  @Input({ required: true }) nameFn: (entry: number) => string;
+  @Input({ required: true }) nameFn!: (entry: number) => string;
 
-  protected selectedEntry: number;
+  protected selectedEntry!: number;
 
   // HTML id needed for popover usage, can't use a class.
   protected readonly id = `dropdown-${Math.random().toString(36).substring(2, 12)}`;
@@ -49,7 +49,7 @@ export class DropdownComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => {};
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }

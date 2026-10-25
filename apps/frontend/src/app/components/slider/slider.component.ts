@@ -93,7 +93,7 @@ export interface SliderSlideEndEvent {
           role="slider"
           [attr.tabindex]="disabled ? null : tabindex"
           [attr.aria-valuemin]="min"
-          [attr.aria-valuenow]="value ? value[0] : null"
+          [attr.aria-valuenow]="values ? values[0] : null"
           [attr.aria-valuemax]="max"
           [attr.aria-labelledby]="ariaLabelledBy"
           [attr.aria-label]="ariaLabel"
@@ -110,7 +110,7 @@ export interface SliderSlideEndEvent {
           (touchend)="onDragEnd($event)"
           [attr.tabindex]="disabled ? null : tabindex"
           [attr.aria-valuemin]="min"
-          [attr.aria-valuenow]="value ? value[1] : null"
+          [attr.aria-valuenow]="values ? values[1] : null"
           [attr.aria-valuemax]="max"
           [attr.aria-labelledby]="ariaLabelledBy"
           [attr.aria-label]="ariaLabel"
@@ -166,7 +166,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   readonly cd = inject(ChangeDetectorRef);
 
   /** When present, it specifies that the element should be disabled */
-  @Input() disabled: boolean;
+  @Input() disabled = false;
 
   /**  Mininum boundary value */
   @Input() min = 0;
@@ -175,10 +175,10 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   @Input() max = 100;
 
   /**  Step factor to increment/decrement the value */
-  @Input() step: number;
+  @Input() step = 1;
 
   /**  When specified, allows two boundary values to be picked */
-  @Input() range: boolean;
+  @Input() range = false;
 
   @Input() markers?: number[];
 

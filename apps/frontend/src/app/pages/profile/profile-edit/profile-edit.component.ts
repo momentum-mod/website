@@ -27,7 +27,7 @@ import { TitleService } from '../../../services/title.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { UsersService } from '../../../services/data/users.service';
 import { AdminService } from '../../../services/data/admin.service';
-import { EMPTY, switchMap } from 'rxjs';
+import { EMPTY, filter, switchMap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgClass } from '@angular/common';
 import { CardComponent } from '../../../components/card/card.component';
@@ -103,7 +103,7 @@ export class ProfileEditComponent implements OnInit {
   protected readonly MAX_BIO_LENGTH = MAX_BIO_LENGTH;
 
   constructor() {
-    const socialsForm = {};
+    const socialsForm: Record<string, any> = {};
     for (const [name, { regex }] of Object.entries(SocialsData)) {
       socialsForm[name] = ['', [Validators.pattern(regex)]];
     }
@@ -150,7 +150,8 @@ export class ProfileEditComponent implements OnInit {
 
           this.isLocal = true;
           return this.localUserService.user;
-        })
+        }),
+        filter((user): user is User => user != null)
       )
       .subscribe((user) => this.setUser(user));
   }
@@ -167,6 +168,7 @@ export class ProfileEditComponent implements OnInit {
   }
 
   updateUser() {
+    if (!this.user) return;
     this.usersService
       .getUser(this.user.id, {
         expand: ['profile', 'userStats']
@@ -175,14 +177,16 @@ export class ProfileEditComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.form.valid) return;
+    if (!this.form.valid || !this.user) return;
 
     const update: UpdateUser = this.form.value;
 
     // Don't include empty values on update input (they'd fail backend
     // validation!)
-    for (const [k, v] of Object.entries(update.socials)) {
-      if (v === '') delete update.socials[k];
+    if (update.socials) {
+      for (const [k, v] of Object.entries(update.socials)) {
+        if (v === '') delete (update.socials as Record<string, string>)[k];
+      }
     }
 
     // We log /admin queries separately so really worth using the /user endpoint
@@ -223,11 +227,11 @@ export class ProfileEditComponent implements OnInit {
   }
 
   hasBan(ban: Ban) {
-    return this.localUserService.hasBan(ban, this.user);
+    return this.user ? this.localUserService.hasBan(ban, this.user) : false;
   }
 
   hasRole(role: Role) {
-    return this.localUserService.hasRole(role, this.user);
+    return this.user ? this.localUserService.hasRole(role, this.user) : false;
   }
 
   checkUserPermissions() {
@@ -244,10 +248,13 @@ export class ProfileEditComponent implements OnInit {
   }
 
   returnToProfile() {
-    this.router.navigate([`/profile/${this.user.id}`]);
+    if (this.user) {
+      this.router.navigate([`/profile/${this.user.id}`]);
+    }
   }
 
   resetAlias() {
+    if (!this.user) return;
     (this.isLocal
       ? this.localUserService.resetAliasToSteamAlias()
       : this.adminService.resetUserAliasToSteamAlias(this.user.id)
@@ -270,6 +277,7 @@ export class ProfileEditComponent implements OnInit {
   }
 
   resetAvatar() {
+    if (!this.user) return;
     (this.isLocal
       ? this.localUserService.updateAvatarFromSteam()
       : this.adminService.updateUserAvatarFromSteam(this.user.id)
@@ -309,7 +317,7 @@ export class ProfileEditComponent implements OnInit {
             </p>`
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
         this.deleteLocalUser();
       });

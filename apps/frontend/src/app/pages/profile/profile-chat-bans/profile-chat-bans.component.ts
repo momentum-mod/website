@@ -20,7 +20,7 @@ export class ProfileChatBansComponent implements OnChanges {
   private readonly adminService = inject(AdminService);
   protected readonly localUserService = inject(LocalUserService);
 
-  @Input({ required: true }) user: User;
+  @Input({ required: true }) user!: User;
   @Input() isLocal = false;
 
   protected readonly ChatBanTypeNames = ChatBanTypeNames;

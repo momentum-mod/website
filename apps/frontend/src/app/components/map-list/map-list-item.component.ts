@@ -64,13 +64,13 @@ export class MapListItemComponent implements OnChanges {
 
   @Output() favoriteUpdate = new EventEmitter();
 
-  inFavorites: boolean;
+  inFavorites = false;
   statusName = '';
-  authors: Array<{ id?: number; alias: string }>;
-  name: string;
-  prefix: string;
-  tierStyle: string;
-  tags: MapTag[];
+  authors: Array<{ id?: number; alias: string }> = [];
+  name = '';
+  prefix = '';
+  tierStyle = '';
+  tags: MapTag[] = [];
 
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['map']) return;
@@ -78,12 +78,12 @@ export class MapListItemComponent implements OnChanges {
     // This isn't well-documented (or designed), but `favorites` here is an
     // of MapFavorite entries that match the LU id. So if > 0, user has it
     // favourited.
-    this.inFavorites = this.map.favorites?.length > 0;
-    this.statusName = MapStatusName.get(this.map.status as any);
+    this.inFavorites = (this.map.favorites?.length ?? 0) > 0;
+    this.statusName = MapStatusName.get(this.map.status as any) ?? '';
 
     const [name, prefix] = extractPrefixFromMapName(this.map.name);
     this.name = name;
-    this.prefix = prefix;
+    this.prefix = prefix ?? '';
     this.authors = [
       ...this.map.credits,
       ...(MapStatuses.IN_SUBMISSION.includes(this.map.status) ||
@@ -94,7 +94,7 @@ export class MapListItemComponent implements OnChanges {
       .filter(({ type }) => type === MapCreditType.AUTHOR)
       .map((credit) =>
         'userID' in credit
-          ? { alias: credit.user.alias, id: credit.userID }
+          ? { alias: credit.user?.alias ?? '', id: credit.userID }
           : { alias: credit.alias }
       );
   }

@@ -6,7 +6,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
   selector: 'm-tos-dialog',
   template: `
     <div>
-      @if (config.data.isFirstTime) {
+      @if (config.data?.isFirstTime) {
         <p>Welcome to Momentum Mod!</p>
         <p>
           If this is your first time signing in to our system, and you haven't

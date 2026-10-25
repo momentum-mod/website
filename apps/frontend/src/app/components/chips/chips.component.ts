@@ -33,7 +33,7 @@ export type Chip = unknown;
 })
 export class ChipsComponent implements ControlValueAccessor {
   // The chips picked by the user
-  selected: Chip[] | null = [];
+  selected: Chip[] = [];
 
   // Available chips
   private _chips: Chip[] = [];
@@ -43,9 +43,9 @@ export class ChipsComponent implements ControlValueAccessor {
   @Input({ required: true }) set chips(chips: Chip[]) {
     this._chips = chips;
 
-    this.selected =
-      this.selected?.filter((selected) => this.includesFn(chips, selected)) ??
-      [];
+    this.selected = this.selected.filter((selected) =>
+      this.includesFn(chips, selected)
+    );
   }
 
   get available() {
@@ -64,19 +64,19 @@ export class ChipsComponent implements ControlValueAccessor {
   /**
    * You can provide a function that maps values to strings.
    */
-  @Input() nameFn?: (chip: Chip) => string;
+  @Input() nameFn?: (chip: any) => string;
 
   /**
    * Function to provide image urls for chips.
    */
-  @Input() imageFn?: (chip: Chip) => string | null;
+  @Input() imageFn?: (chip: any) => string | null;
 
   /**
    * Check that a collection of chips includes the given chip.
    * This defaults to .includes() array method, so needs to be set if chips
    * are of an object type.
    */
-  @Input() includesFn = (collection: Chip[], chip: Chip) =>
+  @Input() includesFn = (collection: any[], chip: any) =>
     collection.includes(chip);
 
   /**
@@ -125,7 +125,7 @@ export class ChipsComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => {};
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

@@ -19,8 +19,8 @@ export class IconComponent implements OnChanges {
   private readonly iconService = inject(IconService);
   private readonly sanitzer = inject(DomSanitizer);
 
-  @Input({ required: true }) icon!: Icon | null;
-  @Input() pack: IconPack = DEFAULT_ICON_PACK;
+  @Input() icon?: Icon | null = null;
+  @Input() pack?: IconPack = DEFAULT_ICON_PACK;
 
   @HostBinding('innerHtml')
   html: SafeHtml = '';
@@ -35,7 +35,10 @@ export class IconComponent implements OnChanges {
       return;
     }
 
-    const svg = this.iconService.getIcon(this.icon, this.pack);
+    const svg = this.iconService.getIcon(
+      this.icon,
+      this.pack ?? DEFAULT_ICON_PACK
+    );
 
     if (!svg) {
       this.html = '';

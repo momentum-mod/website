@@ -19,7 +19,7 @@ import { NgClass } from '@angular/common';
   `
 })
 export class CardHeaderComponent {
-  @Input() title: string;
+  @Input() title?: string;
   @Input({ required: true }) titleSize!: string | number;
 
   /**

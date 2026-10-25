@@ -29,10 +29,12 @@ export class TooltipDirective extends PTooltip {
   /**
    * Content of the tooltip.
    */
-  @Input('mTooltip') override content:
-    | string
-    | TemplateRef<HTMLElement>
-    | undefined = undefined;
+  @Input({
+    alias: 'mTooltip',
+    transform: (value: string | TemplateRef<HTMLElement> | null | undefined) =>
+      value ?? undefined
+  })
+  override content: string | TemplateRef<HTMLElement> | undefined = undefined;
 
   /**
    * String by which to distuingish multiple instances in a QueryList
