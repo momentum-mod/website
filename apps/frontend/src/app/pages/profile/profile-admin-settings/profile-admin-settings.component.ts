@@ -59,9 +59,7 @@ interface BanView extends ChatBan {
 export class ProfileAdminSettingsComponent implements OnInit {
   private readonly ref = inject(DynamicDialogRef);
   private readonly config =
-    inject<DynamicDialogConfig<{ user: User; isLocal: boolean }>>(
-      DynamicDialogConfig
-    );
+    inject<DynamicDialogConfig<{ user: User }>>(DynamicDialogConfig);
   private readonly adminService = inject(AdminService);
   private readonly localUserService = inject(LocalUserService);
   private readonly authService = inject(AuthService);
@@ -75,7 +73,6 @@ export class ProfileAdminSettingsComponent implements OnInit {
   protected readonly ChatBanTypeNames = ChatBanTypeNames;
 
   protected user: User;
-  protected isLocal = false;
   protected isAdmin = false;
 
   protected chatBans: BanView[] = [];
@@ -107,7 +104,6 @@ export class ProfileAdminSettingsComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.config.data.user;
-    this.isLocal = this.config.data.isLocal;
     this.isAdmin = this.localUserService.isAdmin;
 
     this.pendingRoles = this.user.roles;
@@ -361,19 +357,16 @@ export class ProfileAdminSettingsComponent implements OnInit {
         data: {
           message: `
             <p>
-              This will <b>permanently</b> and <b>irrevocably</b> delete ${this.isLocal ? 'your' : "this user's"} account.
-              ${this.isLocal ? 'If you do so, you will <b><i>never</i></b> be able to sign up from the same Steam account.' : ''}
+              This will <b>permanently</b> this user's account, making it impossible for that Steam account to ever sign up again.
             </p>
             <p>
-              This feature only exists for privacy reasons, to give users the ability to delete all data identifiable to them from our systems.
-              Unless you really want to do that, don't use this feature!
+              You almost certainly don't want to do this, bans are usually sufficient.
             </p>`
         }
       })
       .onClose.subscribe((response) => {
         if (!response) return;
-        if (this.isLocal) this.deleteLocalUser();
-        else this.deleteUserAsAdmin();
+        this.deleteUserAsAdmin();
       });
   }
 

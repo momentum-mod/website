@@ -16,7 +16,8 @@ import {
   ISOCountryCode,
   Socials,
   SocialsData,
-  NON_WHITESPACE_REGEXP
+  NON_WHITESPACE_REGEXP,
+  Role
 } from '@momentum/constants';
 import { omit } from '@momentum/util-fn';
 import { MessageService } from 'primeng/api';
@@ -34,6 +35,9 @@ import { Select } from 'primeng/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { UnsortedKeyvaluePipe } from '../../../pipes/unsorted-keyvalue.pipe';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { AuthService } from '../../../services/data/auth.service';
+import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
+import { DialogService } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'm-profile-edit',
@@ -56,6 +60,8 @@ export class ProfileEditComponent implements OnInit {
   private readonly localUserService = inject(LocalUserService);
   private readonly usersService = inject(UsersService);
   private readonly adminService = inject(AdminService);
+  private readonly authService = inject(AuthService);
+  private readonly dialogService = inject(DialogService);
   private readonly messageService = inject(MessageService);
   private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
@@ -65,6 +71,7 @@ export class ProfileEditComponent implements OnInit {
     .sort(([_, a], [__, b]) => a.localeCompare(b))
     .map(([code, label]) => ({ code, label }));
   protected readonly Ban = Ban;
+  protected readonly Role = Role;
   protected readonly SocialsData = SocialsData as Readonly<
     Record<
       keyof Socials,
@@ -219,6 +226,10 @@ export class ProfileEditComponent implements OnInit {
     return this.localUserService.hasBan(ban, this.user);
   }
 
+  hasRole(role: Role) {
+    return this.localUserService.hasRole(role, this.user);
+  }
+
   checkUserPermissions() {
     if (this.hasBan(Ban.ALIAS) && !this.isModOrAdmin) {
       this.alias.disable();
@@ -274,6 +285,43 @@ export class ProfileEditComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to update avatar!',
+          detail: httpError.error.message
+        })
+    });
+  }
+
+  deleteUser() {
+    this.dialogService
+      .open(CodeVerifyDialogComponent, {
+        header: 'Delete user account',
+        data: {
+          message: `
+            <p>
+              This will <b>permanently</b> and <b>irrevocably</b> delete your account. If you do so, you will <b><i>never</i></b> be able to sign up
+              from the same Steam account.
+            </p>
+            <p>
+              This feature only exists for privacy reasons, to give users the ability to delete all data identifiable to them from our systems. Unless
+              you really want to do that, don't use this feature!
+            </p>
+            <p>
+              Again, we are <b><i>not</i></b> going to help you recover your account if you do this.
+            </p>`
+        }
+      })
+      .onClose.subscribe((response) => {
+        if (!response) return;
+        this.deleteLocalUser();
+      });
+  }
+
+  deleteLocalUser() {
+    this.localUserService.deleteUser().subscribe({
+      next: () => this.authService.logout(),
+      error: (httpError: HttpErrorResponse) =>
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Failed to delete user account!',
           detail: httpError.error.message
         })
     });
