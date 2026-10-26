@@ -15,8 +15,8 @@ import { WebsocketService } from '../websockets/websocket.service';
  * banned player can't fake, and is sent any later changes to their bans.
  */
 @Injectable()
-export class ChatBansService {
-  private readonly logger = new Logger(ChatBansService.name);
+export class BansService {
+  private readonly logger = new Logger(BansService.name);
 
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
@@ -34,21 +34,18 @@ export class ChatBansService {
 
     const users = await this.db.user.findMany({
       where: { steamID: { in: uniqueIDs.map(BigInt) } },
-      select: {
-        steamID: true,
-        chatBans: { where: activeBanFilter(), select: banSelect }
-      }
+      select: playerBansSelect()
     });
 
     const bansBySteamID = new Map(
-      users.map(({ steamID, chatBans }) => [steamID.toString(), chatBans])
+      users.map((user) => [user.steamID!.toString(), user])
     );
 
     return {
-      players: uniqueIDs.map((steamID) => ({
-        steamID,
-        bans: (bansBySteamID.get(steamID) ?? []).map(toPlayerBan)
-      }))
+      players: uniqueIDs.map((steamID) => {
+        const user = bansBySteamID.get(steamID);
+        return user ? toPlayerChatBans(user) : { steamID, bans: [] };
+      })
     };
   }
 
@@ -63,19 +60,14 @@ export class ChatBansService {
     try {
       const user = await this.db.user.findUnique({
         where: { id: userID },
-        select: {
-          steamID: true,
-          chatBans: { where: activeBanFilter(), select: banSelect }
-        }
+        select: playerBansSelect()
       });
-      if (!user?.steamID) return;
+      if (!user) return;
 
-      // Not annotated, as an interface type isn't assignable to JsonValue
-      const data = {
-        steamID: user.steamID.toString(),
-        bans: user.chatBans.map(toPlayerBan)
-      } satisfies PlayerChatBans;
-      this.wsService.broadcastToAll({ event: 'chatbans.update', data });
+      this.wsService.broadcastToAll({
+        event: 'chatbans.update',
+        data: toPlayerChatBans(user)
+      });
     } catch (error) {
       // The ban change itself succeeded, so don't fail the request over this.
       // Clients that missed it pick it up the next time they look the user up.
@@ -87,7 +79,15 @@ export class ChatBansService {
   }
 }
 
-const banSelect = { type: true, expiresAt: true } as const;
+function playerBansSelect() {
+  return {
+    steamID: true,
+    chatBans: {
+      where: activeBanFilter(),
+      select: { type: true, expiresAt: true }
+    }
+  } satisfies Prisma.UserSelect;
+}
 
 function activeBanFilter(): Prisma.ChatBanWhereInput {
   return { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] };
@@ -101,4 +101,14 @@ function toPlayerBan({
   expiresAt: Date | null;
 }): PlayerChatBans['bans'][number] {
   return { type, expiresAt: expiresAt?.toISOString() ?? null };
+}
+
+function toPlayerChatBans(user: {
+  steamID: bigint | null;
+  chatBans: { type: number; expiresAt: Date | null }[];
+}) {
+  return {
+    steamID: user.steamID!.toString(),
+    bans: user.chatBans.map(toPlayerBan)
+  } satisfies PlayerChatBans;
 }
