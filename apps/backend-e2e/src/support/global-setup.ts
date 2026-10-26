@@ -22,8 +22,8 @@ export default async function globalSetup() {
   // nuke. DATABASE_URL from .env (for dev) is unused.
   testDb = await startTestDatabase();
 
-  // Parallel workers each get their own bucket, which doesn't exist yet.
-  if (process.env['MOMENTUM_E2E_WORKER'] !== undefined) await ensureBucket();
+  // Each worker has its own bucket (see e2e-setup.ts), which may not exist yet.
+  await ensureBucket();
 
   // Clear out the S3 bucket
   await nukeS3();
@@ -89,6 +89,7 @@ async function ensureBucket(): Promise<void> {
     } catch (error) {
       if (!(error instanceof BucketAlreadyOwnedByYou)) throw error;
     }
+
     await s3.send(
       new PutBucketPolicyCommand({
         Bucket,
@@ -111,6 +112,14 @@ async function ensureBucket(): Promise<void> {
 }
 
 export async function nukeS3(): Promise<void> {
+  // Never wipe a bucket that isn't one of ours, say if this is run without the
+  // setup in e2e-setup.ts and `.env` points at the dev bucket.
+  if (!/-e2e-w\d+$/.test(process.env.STORAGE_BUCKET_NAME ?? '')) {
+    throw new Error(
+      `Refusing to empty bucket "${process.env.STORAGE_BUCKET_NAME}", it isn't an E2E bucket`
+    );
+  }
+
   const s3 = createS3Client();
 
   try {
@@ -143,10 +152,18 @@ export async function nukeS3(): Promise<void> {
 }
 
 export async function nukeValkey() {
+  // Database 0 is the dev backend's, don't flush it.
+  const db = +(process.env.VALKEY_DB || 0);
+  if (db === 0) {
+    throw new Error(
+      "Refusing to flush Valkey database 0, it isn't an E2E database"
+    );
+  }
+
   const valkey = new Valkey({
     port: +process.env.VALKEY_PORT,
     host: process.env.VALKEY_HOST || 'localhost',
-    db: +(process.env.VALKEY_DB || 0)
+    db
   });
   try {
     // Only this worker's logical database, other workers may be mid-test.

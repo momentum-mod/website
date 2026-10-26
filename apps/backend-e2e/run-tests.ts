@@ -13,8 +13,9 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const sourcePath = path.join(__dirname, 'src');
 
-// Valkey has 16 logical databases by default, one per worker.
-const MAX_WORKERS = 16;
+// Valkey has 16 logical databases by default, one per worker, and database 0 is
+// left for development (see support/e2e-setup.ts).
+const MAX_WORKERS = 15;
 const DEFAULT_MAX_WORKERS = 4;
 
 // The reporter colours its output when run under Nx.
@@ -39,9 +40,8 @@ async function runTests(): Promise<void> {
     return;
   }
 
-  // Single worker (or watch mode): everything in this process tree, using the
-  // environment as-is, with live output.
-  const env = { ...process.env };
+  // Single worker (or watch mode): all the files, with live output.
+  const env = { ...process.env, MOMENTUM_E2E_WORKER: '0' };
   delete env['MOMENTUM_E2E_TEST_FILES'];
   const child = spawn(process.execPath, getTestArgs(watchMode), {
     stdio: 'inherit',
@@ -214,25 +214,18 @@ function partitionFiles(files: string[], count: number): string[][] {
 }
 
 /**
- * Everything a worker shares with the others needs its own copy: the in-memory
- * Postgres is already per-process, the rest (Valkey, S3) is separated here.
+ * The environment for a worker. Its Postgres is already its own (it's
+ * in-memory, per-process), and the Valkey database and S3 bucket are picked
+ * from its index by support/e2e-setup.ts.
  */
 function getWorkerEnv(
   index: number,
   files: string[]
 ): Record<string, string | undefined> {
-  const bucket = process.env['STORAGE_BUCKET_NAME'] || 'momtest';
-  const cdn = process.env['CDN_URL'] || 'http://localhost:9000/momtest';
-  const workerBucket = `${bucket}-w${index}`;
-
   return {
     ...process.env,
     MOMENTUM_E2E_TEST_FILES: JSON.stringify(files),
-    MOMENTUM_E2E_WORKER: String(index),
-    VALKEY_DB: String(index),
-    STORAGE_BUCKET_NAME: workerBucket,
-    // CDN_URL includes the bucket as its last path segment.
-    CDN_URL: cdn.replace(/\/[^/]*$/, `/${workerBucket}`)
+    MOMENTUM_E2E_WORKER: String(index)
   };
 }
 

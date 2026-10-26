@@ -209,8 +209,7 @@ jobs:
       - name: Start Valkey and RustFS
         if: env.affected == 'true'
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.test.yml             up -d --wait valkey rustfs
-          docker compose -f docker-compose.yml -f docker-compose.test.yml             run --rm createbuckets
+          docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --wait valkey rustfs
 
       # Keep these in sync with the environment in docker-compose.test.yml,
       # which has the same values but with the hostnames of the containers.
