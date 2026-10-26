@@ -9,7 +9,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
-import { ReportCategory, ReportType, Report } from '@momentum/constants';
+import { ReportCategoryNames, ReportType, Report } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { RouterLink } from '@angular/router';
@@ -67,20 +67,7 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
         this.reportedResourceURL = '/profile/' + this.report.data;
         break;
     }
-    switch (this.report.category) {
-      case ReportCategory.INAPPROPRIATE_CONTENT:
-        this.categoryText = 'Inappropriate Content';
-        break;
-      case ReportCategory.SPAM:
-        this.categoryText = 'Spam';
-        break;
-      case ReportCategory.PLAGIARISM:
-        this.categoryText = 'Plagiarism';
-        break;
-      case ReportCategory.OTHER:
-        this.categoryText = 'Other';
-        break;
-    }
+    this.categoryText = ReportCategoryNames.get(this.report.category);
   }
 
   ngAfterViewInit() {

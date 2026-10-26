@@ -5,7 +5,6 @@ import { MessageService } from 'primeng/api';
 import { PaginatorModule } from 'primeng/paginator';
 import { merge, of, Subject } from 'rxjs';
 import { PaginatorState } from 'primeng/paginator';
-
 import { QueuedReportComponent } from './queued-report/queued-report.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { AdminService } from '../../../services/data/admin.service';
@@ -57,7 +56,7 @@ export class ReportQueueComponent implements OnInit {
         tap(() => (this.loading = true)),
         switchMap(() =>
           this.adminService.getReports({
-            expand: ['submitter', 'resolver'],
+            expand: ['submitter', 'resolver', 'target'],
             resolved: this.filters.resolved,
             take: this.rows,
             skip: this.first

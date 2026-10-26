@@ -49,6 +49,7 @@ export interface ConfigInterface {
   valkey: {
     port: number;
     host: string;
+    db: number;
   };
   limits: {
     dailyReports: number;
@@ -70,6 +71,7 @@ export interface ConfigInterface {
     reviewChannel: string;
     statusChannels: Record<Gamemode, string>;
     unrankedNotifications: boolean;
+    reportsWebhook: string;
   };
   mapListUpdateSchedule: string;
   sitemapMaxAge: string;

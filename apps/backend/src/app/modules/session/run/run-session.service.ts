@@ -72,7 +72,7 @@ export class RunSessionService {
     data: CreateRunSessionDto
   ): Promise<(RunSession & { id: number }) | { error: string }> {
     // When run submission is disabled, refuse to start new sessions
-    if (this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
+    if (await this.killswitch.checkKillswitch(KillswitchType.RUN_SUBMISSION)) {
       this.logger.warn(
         `createSession: blocked by RUN_SUBMISSION killswitch (userID=${userID})`
       );
@@ -258,26 +258,51 @@ export class RunSessionService {
     sessionID: number,
     replay?: Buffer
   ): Promise<CompletedRunDto[]> {
-    const [storedUserID, storedSession, storedTimestamps] = await Promise.all([
-      this.valkey.hget(dataKey(sessionID), 'userID'),
-      this.valkey.hgetall(dataKey(sessionID)),
-      this.valkey.lrange(timestampKey(sessionID), 0, -1)
-    ]);
+    const [storedUserID, storedMapID] = await this.valkey.hmget(
+      dataKey(sessionID),
+      'userID',
+      'mapID'
+    );
 
     if (Sentry.isInitialized()) {
       Sentry.setTag('session_id', sessionID);
     }
 
-    if (
-      !storedUserID ||
-      !storedSession ||
-      !storedTimestamps ||
-      Number(storedUserID) !== userID
-    ) {
+    if (!storedUserID || Number(storedUserID) !== userID) {
       if (Sentry.isInitialized()) {
         Sentry.getCurrentScope().setLevel('log');
         Sentry.captureException('Invalid session ID on run end');
       }
+      throw new BadRequestException('Invalid session');
+    }
+
+    // Check user has read permissions for this map. Someone *could* actually
+    // start/update a session on this map through weird API calls, but that'd be
+    // completely pointless since we block actual submission here.
+    const map = await this.mapsService.getMapAndCheckReadAccess({
+      mapID: Number(storedMapID),
+      userID,
+      include: { currentVersion: true }
+    });
+
+    const user = await this.db.user.findUnique({ where: { id: userID } });
+
+    // Reads and deletes the session in one transaction, so if the same session
+    // is submitted twice at once (e.g. a client retrying an upload that timed
+    // out), only one gets its data and the run isn't counted twice.
+    const [[hashErr, storedSession], [listErr, storedTimestamps]] =
+      (await this.valkey
+        .multi()
+        .hgetall(dataKey(sessionID))
+        .lrange(timestampKey(sessionID), 0, -1)
+        .del(dataKey(sessionID), timestampKey(sessionID))
+        .lrem(idKey(userID), 0, sessionID)
+        .exec()) as [
+        [Error | null, Record<string, string>],
+        [Error | null, string[]]
+      ];
+    if (hashErr || listErr) throw hashErr ?? listErr;
+    if (!storedSession.userID) {
       throw new BadRequestException('Invalid session');
     }
 
@@ -296,25 +321,8 @@ export class RunSessionService {
       createdAt: new Date(storedSession.createdAt)
     };
 
-    // Check user has read permissions for this map. Someone *could* actually
-    // start/update a session on this map through weird API calls, but that'd be
-    // completely pointless since we block actual submission here.
-    const map = await this.mapsService.getMapAndCheckReadAccess({
-      mapID: Number(storedSession.mapID),
-      userID,
-      include: { currentVersion: true }
-    });
-
-    const user = await this.db.user.findUnique({ where: { id: userID } });
-
     session.mmap = map;
     session.user = user;
-
-    await Promise.all([
-      this.valkey.lrem(idKey(userID), 0, sessionID),
-      this.valkey.del(dataKey(sessionID)),
-      this.valkey.del(timestampKey(sessionID))
-    ]);
 
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
@@ -577,7 +585,7 @@ export class RunSessionService {
       totalRuns++;
     }
 
-    const pastRun = await this.db.pastRun.create({
+    const pastRun = await tx.pastRun.create({
       data: {
         userID: submittedRun.userID,
         mapID: submittedRun.mapID,

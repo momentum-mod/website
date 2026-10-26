@@ -162,6 +162,8 @@ export interface Report {
   submitter: User;
   resolverID: number | null;
   resolver?: User;
+  targetUser?: User;
+  targetMap?: MMap;
   createdAt: DateString;
   updatedAt: DateString;
 }
@@ -185,6 +187,29 @@ export interface ChatBan {
 }
 
 export type ActiveChatBan = Pick<ChatBan, 'type' | 'expiresAt' | 'reason'>;
+
+/**
+ * A player's active chat/voice bans as other players' game clients see them,
+ * so they can mute the player. Has no reason, which is only for the player.
+ */
+export interface PlayerChatBans {
+  steamID: string;
+  /**
+   * Increases with every change to the player's bans. Lookups and updates can
+   * arrive out of order, so clients should ignore any snapshot that isn't
+   * higher than the last one they applied.
+   */
+  revision: number;
+  bans: Pick<ChatBan, 'type' | 'expiresAt'>[];
+}
+
+export interface PlayerChatBansQuery {
+  steamIDs: string[];
+}
+
+export interface PlayerChatBansList {
+  players: PlayerChatBans[];
+}
 
 //#endregion
 //#region Maps
@@ -529,6 +554,27 @@ export interface RunSession {
   trackNum: number;
   userID: number;
   createdAt: DateString;
+}
+
+/**
+ * A game client's current Steam lobby, as reported over the game WebSocket.
+ * `mapID`/`gamemode` are only set while the player is on a map.
+ */
+export interface LobbyStatus {
+  lobbyID: string;
+  isMapLobby: boolean;
+  mapID?: number;
+  gamemode?: Gamemode;
+}
+
+export interface MapLobbyPlayerCount {
+  mapID: number;
+  count: number;
+}
+
+export interface MapLobbyPlayerCounts {
+  gamemode: Gamemode;
+  counts: MapLobbyPlayerCount[];
 }
 
 export interface RunSessionTimestamp {

@@ -18,7 +18,7 @@ export class AdminGetReportsQueryDto
   extends PagedQueryDto
   implements AdminGetReportsQuery
 {
-  @ExpandQueryProperty(['submitter', 'resolver'])
+  @ExpandQueryProperty(['submitter', 'resolver', 'target'])
   readonly expand: AdminGetReportsExpand;
 
   @BooleanQueryProperty({

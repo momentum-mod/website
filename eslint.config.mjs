@@ -122,7 +122,7 @@ export default [
   },
   // Test-specific
   {
-    files: ['**/*.spec.ts', '**/*.spec.js', '**/*.e2e-spec.ts'],
+    files: ['**/*.test.ts', '**/*.spec.js'],
     rules: {
       // Sometimes we want things like `mockResolvedValue(undefined)` in
       // tests. Rule below this handles the actually bad cases.

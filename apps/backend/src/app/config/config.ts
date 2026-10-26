@@ -73,7 +73,9 @@ export const ConfigFactory = (): ConfigInterface => {
     valkey: {
       port:
         process.env['VALKEY_PORT'] === '' ? 6379 : +process.env['VALKEY_PORT'],
-      host: process.env['VALKEY_HOST'] || 'localhost'
+      host: process.env['VALKEY_HOST'] || 'localhost',
+      // Logical database index; E2E workers use one each to run in parallel.
+      db: +(process.env['VALKEY_DB'] || 0)
     },
     limits: {
       dailyReports: MAX_DAILY_REPORTS,
@@ -105,7 +107,10 @@ export const ConfigFactory = (): ConfigInterface => {
         ])
       ) as Record<Gamemode, string>,
       unrankedNotifications:
-        process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true'
+        process.env['DISCORD_UNRANKED_NOTIFICATIONS'] === 'true',
+      reportsWebhook: isTest
+        ? ''
+        : (process.env['DISCORD_REPORTS_WEBHOOK'] ?? '')
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',

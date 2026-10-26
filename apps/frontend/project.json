@@ -13,7 +13,6 @@
         "outputPath": "dist/apps/frontend",
         "index": "apps/frontend/src/index.html",
         "main": "apps/frontend/src/main.ts",
-        "polyfills": ["zone.js"],
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "assets": ["apps/frontend/src/favicon.ico", "apps/frontend/src/assets"],
         "styles": ["apps/frontend/src/app/theme/styles.css"],
@@ -105,16 +104,13 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.json"],
       "options": {
-        "jestConfig": "apps/frontend/jest.config.ts",
-        "passWithNoTests": false,
-        "tsConfig": "apps/frontend/tsconfig.spec.json"
-      },
-      "configurations": {
-        "ci": {
-          "codeCoverage": false
+        "command": "node --test --test-reporter=spec -r ts-node/register -r tsconfig-paths/register -r ./apps/frontend/src/test-setup.ts \"apps/frontend/src/**/*.test.ts\"",
+        "env": {
+          "TS_NODE_PROJECT": "apps/frontend/tsconfig.spec.json"
         }
       }
     },

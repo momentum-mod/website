@@ -23,6 +23,7 @@
           "scripts/src/generate-zones.script.ts",
           "scripts/src/maptags-poeditor.script.ts",
           "scripts/src/scratchpad.script.ts",
+          "scripts/src/fake-lobby-players.script.ts",
           "scripts/src/benchmarks/leaderboardrun-rank.bench.ts"
         ]
       }
@@ -60,6 +61,13 @@
       "dependsOn": ["build"],
       "options": {
         "command": "node dist/scripts/scratchpad.script.cjs"
+      }
+    },
+    "fake-lobby-players": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/scripts/fake-lobby-players.script.cjs"
       }
     },
     "bench-run-ranks": {
