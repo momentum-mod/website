@@ -217,7 +217,7 @@ export class LocalUserService {
   }
 
   public resetAliasToSteamAlias(): Observable<void> {
-    return this.http.patch('user', { body: { alias: '' } });
+    return this.http.patch('user', { body: { customAlias: null } });
   }
 
   public updateAvatarFromSteam(): Observable<void> {

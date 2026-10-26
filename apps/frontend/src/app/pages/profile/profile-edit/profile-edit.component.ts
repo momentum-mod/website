@@ -177,7 +177,14 @@ export class ProfileEditComponent implements OnInit {
   onSubmit(): void {
     if (!this.form.valid) return;
 
-    const update: UpdateUser = this.form.value;
+    const { alias, ...update }: UpdateUser & { alias?: string } =
+      this.form.value;
+
+    // Only set a custom alias if it's actually been changed, otherwise we'd
+    // stop the user's alias following their Steam name.
+    if (alias !== undefined && alias !== this.user.alias) {
+      update.customAlias = alias;
+    }
 
     // Don't include empty values on update input (they'd fail backend
     // validation!)

@@ -4,7 +4,10 @@
     <form class="m-2 sm:m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
       <div class="mb-4 flex flex-col gap-4">
         <div [ngClass]="{ 'has-error': !alias.valid }">
-          <p class="text-lg">Alias</p>
+          <p class="text-lg">Custom Alias</p>
+          <p class="mb-2 text-sm text-gray-400">
+            Alternative to your Steam name, displayed on your profile and leaderboards. Not used in lobbies!
+          </p>
           <div class="relative flex w-full flex-wrap items-stretch gap-2">
             <input class="textinput mb-1 min-w-0 max-sm:w-full" formControlName="alias" type="text" />
             @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
