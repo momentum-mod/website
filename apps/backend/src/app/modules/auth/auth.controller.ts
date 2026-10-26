@@ -104,6 +104,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Assigns a JWT using user ticket from the Momentum client'
   })
+  // TODO: bleeeeehhhh we're gonna have to pass alias here as well to save steam calls. steamhttp multipart form time?
   @ApiBody({
     type: 'application/octet-stream',
     description: 'Octet-stream of a Steam user auth ticket from Steam',
