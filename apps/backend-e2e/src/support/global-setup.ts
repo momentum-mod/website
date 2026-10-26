@@ -1,31 +1,29 @@
-// Jest isn't resolving TS paths here, yuck!
-import { PrismaClient } from '../../../../libs/db/src/generated/client';
+import { PrismaClient } from '@momentum/db';
 import {
+  BucketAlreadyOwnedByYou,
+  CreateBucketCommand,
+  PutBucketPolicyCommand,
   DeleteObjectsCommand,
   ListObjectsV2Command,
   S3Client
 } from '@aws-sdk/client-s3';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { faker } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
 import path from 'node:path';
 import Valkey from 'iovalkey';
+import { TestDatabase, startTestDatabase } from './test-db';
+
+let testDb: TestDatabase | undefined;
 
 export default async function globalSetup() {
-  // Load .env file in project root. Nx does this automatically, but this helps
-  // in cases where running the Jest config directly (e.g. through WebStorm Jest
-  // plugin). Annoyingly, WebStorm likes to set the cwd to /apps/backend-e2e.
-  if (/apps([/\\])backend-e2e/.test(path.resolve(process.cwd()))) {
-    dotenv.config({ path: '../../.env' });
-  } else {
-    dotenv.config({ path: './.env' });
-  }
+  const envPath = path.resolve(__dirname, '../../../../.env');
+  dotenv.config({ path: envPath });
 
-  // Seed faker for consistent random number generation
-  faker.seed(1);
+  // Postgres runs in-memory (PGlite), freshly migrated, so there's nothing to
+  // nuke. DATABASE_URL from .env (for dev) is unused.
+  testDb = await startTestDatabase();
 
-  // Nuke the current DB (Bye)
-  await nukeDB();
+  // Each worker has its own bucket (see e2e-setup.ts), which may not exist yet.
+  await ensureBucket();
 
   // Clear out the S3 bucket
   await nukeS3();
@@ -39,11 +37,19 @@ export default async function globalSetup() {
   process.env['NODE_ENV'] = 'test';
 }
 
-async function nukeDB() {
-  const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
-  });
+/** A driver adapter for the in-memory test database. */
+export function createDbAdapter() {
+  if (!testDb) throw new Error('Test database has not been started');
+  return testDb.createAdapter();
+}
 
+export async function stopDb(): Promise<void> {
+  const db = testDb;
+  testDb = undefined;
+  await db?.stop();
+}
+
+export async function nukeDb(prisma: PrismaClient) {
   const tablenames = await prisma.$queryRaw<
     Array<{ tablename: string }>
   >`SELECT tablename::text FROM pg_tables WHERE schemaname='public'`;
@@ -55,12 +61,10 @@ async function nukeDB() {
     .join(', ');
 
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
-
-  await prisma.$disconnect();
 }
 
-async function nukeS3() {
-  const s3 = new S3Client({
+function createS3Client(): S3Client {
+  return new S3Client({
     region: process.env.STORAGE_REGION,
     endpoint: process.env.STORAGE_ENDPOINT_URL,
     credentials: {
@@ -69,25 +73,102 @@ async function nukeS3() {
     },
     forcePathStyle: true
   });
-
-  const objects = await s3.send(
-    new ListObjectsV2Command({ Bucket: process.env.STORAGE_BUCKET_NAME })
-  );
-  if (objects?.Contents?.length > 0)
-    await s3.send(
-      new DeleteObjectsCommand({
-        Bucket: process.env.STORAGE_BUCKET_NAME,
-        Delete: {
-          Objects: objects.Contents.map((object) => ({ Key: object.Key }))
-        }
-      })
-    );
 }
 
-async function nukeValkey() {
+/**
+ * Create this worker's bucket if needed, readable by anyone: downloads in the
+ * tests go over plain HTTP via CDN_URL, as with the shared bucket that
+ * docker-compose creates (`createbuckets`).
+ */
+async function ensureBucket(): Promise<void> {
+  const Bucket = process.env.STORAGE_BUCKET_NAME;
+  const s3 = createS3Client();
+  try {
+    try {
+      await s3.send(new CreateBucketCommand({ Bucket }));
+    } catch (error) {
+      if (!(error instanceof BucketAlreadyOwnedByYou)) throw error;
+    }
+
+    await s3.send(
+      new PutBucketPolicyCommand({
+        Bucket,
+        Policy: JSON.stringify({
+          Version: '2012-10-17',
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: { AWS: ['*'] },
+              Action: ['s3:GetObject'],
+              Resource: [`arn:aws:s3:::${Bucket}/*`]
+            }
+          ]
+        })
+      })
+    );
+  } finally {
+    s3.destroy();
+  }
+}
+
+export async function nukeS3(): Promise<void> {
+  // Never wipe a bucket that isn't one of ours, say if this is run without the
+  // setup in e2e-setup.ts and `.env` points at the dev bucket.
+  if (!/-e2e-w\d+$/.test(process.env.STORAGE_BUCKET_NAME ?? '')) {
+    throw new Error(
+      `Refusing to empty bucket "${process.env.STORAGE_BUCKET_NAME}", it isn't an E2E bucket`
+    );
+  }
+
+  const s3 = createS3Client();
+
+  try {
+    let continuationToken: string | undefined;
+    do {
+      const objects = await s3.send(
+        new ListObjectsV2Command({
+          Bucket: process.env.STORAGE_BUCKET_NAME,
+          ContinuationToken: continuationToken
+        })
+      );
+      const keys = objects.Contents?.flatMap(({ Key }) =>
+        Key ? [{ Key }] : []
+      );
+      if (keys?.length) {
+        await s3.send(
+          new DeleteObjectsCommand({
+            Bucket: process.env.STORAGE_BUCKET_NAME,
+            Delete: { Objects: keys }
+          })
+        );
+      }
+      continuationToken = objects.IsTruncated
+        ? objects.NextContinuationToken
+        : undefined;
+    } while (continuationToken);
+  } finally {
+    s3.destroy();
+  }
+}
+
+export async function nukeValkey() {
+  // Database 0 is the dev backend's, don't flush it.
+  const db = +(process.env.VALKEY_DB || 0);
+  if (db === 0) {
+    throw new Error(
+      "Refusing to flush Valkey database 0, it isn't an E2E database"
+    );
+  }
+
   const valkey = new Valkey({
     port: +process.env.VALKEY_PORT,
-    host: process.env.VALKEY_HOST || 'localhost'
+    host: process.env.VALKEY_HOST || 'localhost',
+    db
   });
-  await valkey.flushall();
+  try {
+    // Only this worker's logical database, other workers may be mid-test.
+    await valkey.flushdb();
+  } finally {
+    await valkey.quit();
+  }
 }

@@ -1,6 +1,5 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { MapStatuses, MapStatus } from '@momentum/constants';
-
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { filter, switchMap } from 'rxjs';

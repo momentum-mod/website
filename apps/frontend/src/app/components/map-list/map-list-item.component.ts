@@ -22,7 +22,6 @@ import { MessageService } from 'primeng/api';
 import { MapWithSpecificLeaderboard } from '../../util';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
-
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';

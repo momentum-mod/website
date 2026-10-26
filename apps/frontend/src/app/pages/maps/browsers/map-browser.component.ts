@@ -23,7 +23,6 @@ import {
   FormsModule,
   NonNullableFormBuilder
 } from '@angular/forms';
-
 import { PaginatorModule } from 'primeng/paginator';
 import { MessageService } from 'primeng/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';

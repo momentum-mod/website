@@ -3,6 +3,12 @@ on:
   pull_request:
     branches:
       - main
+env:
+  # Pinned exactly, otherwise setup-node resolves from each runner's tool cache
+  # and jobs in the same run can end up on different patch versions. Keep in
+  # sync with the other workflows, the prod/ Dockerfiles and the backend-e2e
+  # image in docker-compose.test.yml.
+  NODE_VERSION: 24.22.0
 jobs:
   install-deps:
     name: Install Dependencies
@@ -31,7 +37,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: npm install
@@ -66,7 +72,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: commitlint
@@ -112,7 +118,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Test Affected
@@ -148,7 +154,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Build Affected
@@ -183,7 +189,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Check affected
@@ -200,12 +206,35 @@ jobs:
             echo "affected=false" >> $GITHUB_ENV
           fi
 
-      - name: Run tests in Docker
+      - name: Start Valkey and RustFS
         if: env.affected == 'true'
-        run:
-          docker compose
-            -f docker-compose.yml -f docker-compose.test.yml
-            run backend-e2e
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --wait valkey rustfs
+
+      # Keep these in sync with the environment in docker-compose.test.yml,
+      # which has the same values but with the hostnames of the containers.
+      - name: Run tests
+        if: env.affected == 'true'
+        env:
+          NODE_ENV: test
+          NEST_PORT: 3003
+          BACKEND_URL: http://localhost:3000
+          FRONTEND_URL: http://localhost:4200
+          CDN_URL: http://localhost:9000/momtest
+          DATABASE_URL: postgresql://unused:unused@localhost/unused
+          STORAGE_REGION: us-west-1
+          STORAGE_BUCKET_NAME: momtest
+          STORAGE_ACCESS_KEY_ID: rustfs
+          STORAGE_SECRET_ACCESS_KEY: rustfs123
+          STORAGE_ENDPOINT_URL: http://localhost:9000
+          VALKEY_PORT: 6379
+          VALKEY_HOST: localhost
+          STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
+          SESSION_SECRET: thisisashitsecretdontuseitinprod
+          JWT_SECRET: thisisalsonotasecure
+          # Use every CPU available
+          MOMENTUM_E2E_WORKERS: max
+        run: npx nx run backend-e2e:e2e
 
   type-test:
     name: Type Tests
@@ -233,7 +262,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Test Build @momentum/constants

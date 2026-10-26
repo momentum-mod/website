@@ -1,0 +1,57 @@
+import * as assert from 'node:assert/strict';
+import { before, describe, it } from 'node:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { readHeader, readRunSplits, ReplayReadError } from './replay-reader';
+import { REPLAY_MAGIC, REPLAY_VERSION, ReplayHeader } from './index';
+import { Gamemode, Style, TrackType } from '@momentum/constants';
+
+describe('Replay Reader', () => {
+  let buffer: Buffer;
+
+  before(() => {
+    // replay.mtv is a I did on bhop_eazy on a build from red feat/mom-0.10
+    // on 30/03/2025
+    const filePath = join(__dirname, '../test/replay.mtv');
+    buffer = readFileSync(filePath);
+  });
+
+  describe('readHeader', () => {
+    it('should correctly parse the replay header', () => {
+      const expectedHeader: Partial<ReplayHeader> = {
+        magic: REPLAY_MAGIC,
+        formatVersion: REPLAY_VERSION,
+        timestamp: 1743356618301,
+        mapName: 'bhop_eazy',
+        mapHash: '07320480E9245C2363D806BC4D1661F8034709B5',
+        gamemode: Gamemode.BHOP,
+        compression: 1, // lzma
+        playerSteamID: 76561198039308694n,
+        playerName: 'fingerprince',
+        tickInterval: Math.fround(0.01),
+        trackType: TrackType.MAIN,
+        trackNum: 1,
+        style: Style.BHOP_HALF_SIDEWAYS,
+        runTime: 33.62499924842268
+      };
+
+      const header = readHeader(buffer);
+      assert.deepEqual(header, expectedHeader);
+    });
+
+    it('should throw ReplayReadError on invalid buffer', () => {
+      const invalidBuffer = Buffer.alloc(10);
+      assert.throws(() => readHeader(invalidBuffer), ReplayReadError);
+    });
+  });
+
+  it("shouldn't throw when parsing run splits", () => {
+    const splits = readRunSplits(buffer);
+    assert.equal(
+      splits.segments.every(({ subsegments }) =>
+        subsegments.every(({ minorNum }) => minorNum === 1)
+      ),
+      true
+    );
+  });
+});
