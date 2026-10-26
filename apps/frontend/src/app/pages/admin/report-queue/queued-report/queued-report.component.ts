@@ -9,7 +9,7 @@ import {
   signal,
   viewChild
 } from '@angular/core';
-import { ReportCategory, ReportType, Report } from '@momentum/constants';
+import { ReportCategoryNames, ReportType, Report } from '@momentum/constants';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 import { RouterLink } from '@angular/router';
@@ -56,20 +56,9 @@ export class QueuedReportComponent implements AfterViewInit {
     }
   });
 
-  protected readonly categoryText = computed(() => {
-    switch (this.report().category) {
-      case ReportCategory.INAPPROPRIATE_CONTENT:
-        return 'Inappropriate Content';
-      case ReportCategory.SPAM:
-        return 'Spam';
-      case ReportCategory.PLAGIARISM:
-        return 'Plagiarism';
-      case ReportCategory.OTHER:
-        return 'Other';
-      default:
-        return '';
-    }
-  });
+  protected readonly categoryText = computed(() =>
+    ReportCategoryNames.get(this.report().category)
+  );
 
   protected readonly messageExpanded = signal(false);
   protected readonly resolutionMessageExpanded = signal(false);
