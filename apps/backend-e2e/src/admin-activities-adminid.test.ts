@@ -36,7 +36,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { alias: 'Update Alias' },
+          body: { customAlias: 'Update Alias' },
           token: adminToken
         });
 

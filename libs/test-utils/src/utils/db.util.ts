@@ -96,7 +96,7 @@ export class DbUtil {
     return {
       create: {
         steamID: randomSteamID(),
-        alias: `User ${++this.users}`,
+        realAlias: `User ${++this.users}`,
         profile: { create: {} },
         userStats: { create: {} }
       }

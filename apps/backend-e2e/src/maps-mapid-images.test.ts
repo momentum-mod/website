@@ -317,7 +317,7 @@ describe('Maps', () => {
       it('should 403 if the user is not the submitter of the map', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { submitter: { create: { alias: 'George Weasley' } } }
+          data: { submitter: { create: { realAlias: 'George Weasley' } } }
         });
 
         await req.putAttach({

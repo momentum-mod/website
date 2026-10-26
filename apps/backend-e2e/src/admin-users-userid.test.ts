@@ -61,9 +61,11 @@ describe('Admin', () => {
           db.createUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
           db.createUser({ data: { roles: Role.MODERATOR } }),
-          db.createAndLoginUser({ data: { alias: 'JoeFromAccounting' } }),
-          db.createUser({ data: { roles: Role.VERIFIED, alias: 'DanTheMan' } }),
-          db.createUser({ data: { roles: Role.VERIFIED, alias: 'jef' } })
+          db.createAndLoginUser({ data: { realAlias: 'JoeFromAccounting' } }),
+          db.createUser({
+            data: { roles: Role.VERIFIED, realAlias: 'DanTheMan' }
+          }),
+          db.createUser({ data: { roles: Role.VERIFIED, realAlias: 'jef' } })
         ]);
 
         adminGameToken = auth.gameLogin(admin);
@@ -81,7 +83,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { alias: 'Barry 2' },
+          body: { customAlias: 'Barry 2' },
           token: adminToken
         });
 
@@ -102,7 +104,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u2.id}`,
           status: 409,
-          body: { alias: u3.alias },
+          body: { customAlias: u3.alias },
           token: adminToken
         });
       });
@@ -111,7 +113,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { alias: mod.alias },
+          body: { customAlias: mod.alias },
           token: adminToken
         });
       });
@@ -120,7 +122,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
-          body: { alias: u2.alias },
+          body: { customAlias: u2.alias },
           token: adminToken
         });
       });
@@ -189,7 +191,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { alias: u1.alias, roles: Role.VERIFIED },
+          body: { customAlias: u1.alias, roles: Role.VERIFIED },
           token: adminToken
         });
 
@@ -198,7 +200,7 @@ describe('Admin', () => {
       });
 
       it('should fail to verify a user if they share alias with another verified user', async () => {
-        const imitator = await db.createUser({ data: { alias: u2.alias } });
+        const imitator = await db.createUser({ data: { realAlias: u2.alias } });
 
         assert.equal(Bitflags.has(imitator.roles, Role.VERIFIED), false);
         assert.equal(Bitflags.has(u2.roles, Role.VERIFIED), true);
@@ -228,7 +230,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 409,
-          body: { alias: u2.alias, roles: Role.VERIFIED },
+          body: { customAlias: u2.alias, roles: Role.VERIFIED },
           token: adminToken
         });
 
@@ -360,7 +362,7 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
-          body: { alias: 'Barry 2' },
+          body: { customAlias: 'Barry 2' },
           token: u1Token
         });
       });

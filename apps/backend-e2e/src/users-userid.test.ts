@@ -15,7 +15,7 @@ describe('Users', () => {
       before(async () => {
         await ([user, token] = await db.createAndLoginUser({
           data: {
-            alias: 'Arthur Weasley',
+            realAlias: 'Arthur Weasley',
             avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240'
           }
         }));

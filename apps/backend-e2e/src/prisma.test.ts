@@ -32,7 +32,10 @@ describe('Prisma Client Extensions', () => {
   describe('findManyAndCount', () => {
     before(async () => {
       await prisma.user.createMany({
-        data: arrayFrom(10, (i) => ({ alias: 'User', roles: i >= 5 ? 1 : 0 }))
+        data: arrayFrom(10, (i) => ({
+          realAlias: 'User',
+          roles: i >= 5 ? 1 : 0
+        }))
       });
     });
 
@@ -60,7 +63,7 @@ describe('Prisma Client Extensions', () => {
 
   describe('exists', () => {
     before(async () => {
-      await prisma.user.create({ data: { alias: 'User', roles: 0 } });
+      await prisma.user.create({ data: { realAlias: 'User', roles: 0 } });
     });
 
     after(async () => {
@@ -87,7 +90,9 @@ describe('Prisma Client Extensions', () => {
       assert.equal(await prisma.profile.findFirst(), null);
       assert.equal(await prisma.userStats.findFirst(), null);
 
-      const { id: userID } = await ePrisma.user.create({ data: { alias: '' } });
+      const { id: userID } = await ePrisma.user.create({
+        data: { realAlias: '' }
+      });
       const profile = await prisma.profile.findFirst();
       const userStats = await prisma.userStats.findFirst();
       assert.equal(profile.userID, userID);

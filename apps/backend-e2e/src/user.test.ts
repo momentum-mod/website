@@ -89,7 +89,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 204,
-          body: { alias: newAlias },
+          body: { customAlias: newAlias },
           token
         });
 
@@ -143,7 +143,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 400,
-          body: { alias: newAlias },
+          body: { customAlias: newAlias },
           token
         });
 
@@ -331,7 +331,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 403,
-          body: { alias: 'Gamer Words' },
+          body: { customAlias: 'Gamer Words' },
           token
         });
       });
@@ -389,7 +389,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 204,
-          body: { alias: u2.alias },
+          body: { customAlias: u2.alias },
           token: u1Token
         });
       });
@@ -403,7 +403,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 204,
-          body: { alias: u2.alias },
+          body: { customAlias: u2.alias },
           token: u1Token
         });
       });

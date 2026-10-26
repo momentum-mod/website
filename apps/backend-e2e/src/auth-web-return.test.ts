@@ -270,7 +270,7 @@ describe('Auth', () => {
         await db.createUser({
           data: {
             steamID: steamID,
-            alias: steamData.personaname,
+            realAlias: steamData.personaname,
             avatar: steamData.avatarhash,
             country: steamData.loccountrycode,
             roles: Role.LIMITED

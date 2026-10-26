@@ -81,7 +81,7 @@ describe('Session', () => {
         for (let i = 0; i < 10; i++) {
           const user = await prisma.user.create({
             data: {
-              alias: `RunSessions Test User ${i + 1}`,
+              realAlias: `RunSessions Test User ${i + 1}`,
               steamID: randomSteamID()
             }
           });

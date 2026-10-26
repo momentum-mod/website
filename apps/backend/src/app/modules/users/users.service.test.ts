@@ -70,6 +70,8 @@ describe('UsersService', () => {
         roles: 0,
         bans: 0,
         steamID: BigInt(123456789),
+        realAlias: 'old alias',
+        customAlias: null,
         alias: 'old alias',
         avatar: '',
         country: 'QA',
@@ -108,6 +110,8 @@ describe('UsersService', () => {
         roles: 0,
         bans: 0,
         steamID: BigInt(123456789),
+        realAlias: 'old alias',
+        customAlias: null,
         alias: 'old alias',
         avatar: '',
         country: 'AQ',
@@ -166,7 +170,7 @@ describe('UsersService', () => {
       assert.ok(
         wasCalledWith(spy, {
           data: {
-            alias: steamUserSummaryData.personaname,
+            realAlias: steamUserSummaryData.personaname,
             avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
             country: steamUserSummaryData.loccountrycode,
             steamID: BigInt(123456789)
@@ -222,7 +226,7 @@ describe('UsersService', () => {
       assert.ok(
         wasCalledWith(spy, {
           data: {
-            alias: steamUserSummaryData.personaname,
+            realAlias: steamUserSummaryData.personaname,
             avatar: steamUserSummaryData.avatarhash.replace('_full.jpg', ''),
             country: steamUserSummaryData.loccountrycode,
             steamID: BigInt(123456789),

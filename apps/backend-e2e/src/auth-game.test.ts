@@ -112,7 +112,7 @@ describe('Auth', () => {
         const userDB = await prisma.user.create({
           data: {
             steamID: 1,
-            alias: 'Dogathan',
+            realAlias: 'Dogathan',
             avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240',
             country: 'QA'
           }
@@ -330,7 +330,7 @@ describe('Auth', () => {
         const userDB = await prisma.user.create({
           data: {
             steamID: 1,
-            alias: 'Dogathan',
+            realAlias: 'Dogathan',
             avatar: 'bbbbb5567f93a4c9eec4d857df993191c61fb240',
             country: 'QA'
           }
