@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Report } from '@momentum/db';
 import {
-  ReportCategory,
+  ReportCategoryNames,
   ReportType,
   steamAvatarUrl
 } from '@momentum/constants';
@@ -15,13 +15,6 @@ const ReportTypeText: Record<ReportType, string> = {
   [ReportType.MAP_REPORT]: 'Map Report',
   [ReportType.MAP_COMMENT_REPORT]: 'Map Comment Report',
   [ReportType.PLAYER_REPORT]: 'Player Report'
-};
-
-const ReportCategoryText: Record<ReportCategory, string> = {
-  [ReportCategory.OTHER]: 'Other',
-  [ReportCategory.INAPPROPRIATE_CONTENT]: 'Inappropriate Content',
-  [ReportCategory.PLAGIARISM]: 'Plagiarism',
-  [ReportCategory.SPAM]: 'Spam'
 };
 
 @Injectable()
@@ -76,8 +69,7 @@ export class ReportDiscordNotifications {
       fields: [
         {
           name: 'Category',
-          value:
-            ReportCategoryText[report.category as ReportCategory] ?? 'Unknown',
+          value: ReportCategoryNames.get(report.category) ?? 'Unknown',
           inline: true
         },
         {
