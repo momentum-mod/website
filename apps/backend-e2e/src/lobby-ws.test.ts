@@ -252,7 +252,7 @@ describe('Game Connection Gateway - lobbies', () => {
       await connect();
       const { connectedAt } = app.get(WebsocketService).getClient(user.id);
       staleClient = {
-        userId: user.id,
+        userID: user.id,
         connectionID: 'stale',
         connectedAt: connectedAt - 1000
       } as AuthenticatedWebSocket;
