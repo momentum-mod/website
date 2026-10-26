@@ -122,6 +122,8 @@ describe('Auth', () => {
           const userDB = await prisma.user.findFirst();
           assert.partialDeepStrictEqual(userDB, {
             steamID: BigInt(steamID),
+            realAlias: steamData.personaname,
+            customAlias: null,
             alias: steamData.personaname,
             avatar: steamData.avatarhash,
             country: steamData.loccountrycode
@@ -158,7 +160,8 @@ describe('Auth', () => {
           user = await db.createUser({
             data: {
               steamID: steamID,
-              alias: steamData.personaname,
+              realAlias: 'Old Steam Name',
+              customAlias: 'Custom Name',
               avatar: steamData.avatarhash,
               country: steamData.loccountrycode
             }
@@ -176,16 +179,53 @@ describe('Auth', () => {
           assert.equal(response.headers.location, 'dashboard.momentum-mod.org');
         });
 
-        it('should create a new user', async () => {
+        it("should update the user's Steam alias, keeping their custom alias", async () => {
           const updatedUser = await prisma.user.findFirst();
           assert.partialDeepStrictEqual(updatedUser, {
             id: user.id,
             steamID: BigInt(steamID),
-            alias: steamData.personaname,
+            realAlias: steamData.personaname,
+            customAlias: 'Custom Name',
+            alias: 'Custom Name',
             avatar: steamData.avatarhash,
             country: steamData.loccountrycode
           });
         });
+      });
+
+      it("should update an existing user's alias to their Steam alias if they have no custom alias", async () => {
+        await db.createUser({
+          data: { steamID: steamID, realAlias: 'Old Steam Name' }
+        });
+
+        await request();
+
+        assert.partialDeepStrictEqual(await prisma.user.findFirst(), {
+          realAlias: steamData.personaname,
+          customAlias: null,
+          alias: steamData.personaname
+        });
+
+        await db.cleanup('user');
+      });
+
+      it('should still login an existing user if fetching their Steam alias fails', async () => {
+        await db.createUser({
+          data: { steamID: steamID, realAlias: 'Old Steam Name' }
+        });
+        steamSummarySpy.mock.mockImplementationOnce(async () => {
+          throw new Error('Steam is down');
+        });
+
+        const res = await request();
+
+        assert.equal(res.statusCode, 302);
+        assert.partialDeepStrictEqual(await prisma.user.findFirst(), {
+          realAlias: 'Old Steam Name',
+          alias: 'Old Steam Name'
+        });
+
+        await db.cleanup('user');
       });
 
       it('should throw a ForbiddenException if the user has not set up their profile', async () => {

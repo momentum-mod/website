@@ -100,6 +100,8 @@ describe('Auth', () => {
         const userDB = await prisma.user.findFirst();
         assert.partialDeepStrictEqual(userDB, {
           steamID: userSteamID,
+          realAlias: userSteamSummary.personaname,
+          customAlias: null,
           alias: userSteamSummary.personaname,
           country: userSteamSummary.loccountrycode,
           avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240'
@@ -151,6 +153,14 @@ describe('Auth', () => {
         assert.equal(decrypted.steamID, userDB.steamID.toString());
 
         assert.equal(decrypted.exp - decrypted.iat, 60);
+
+        assert.partialDeepStrictEqual(
+          await prisma.user.findUnique({ where: { id: userDB.id } }),
+          {
+            realAlias: userSteamSummary.personaname,
+            alias: userSteamSummary.personaname
+          }
+        );
       });
 
       it('should 400 when header is missing ID', async () => {
@@ -308,6 +318,8 @@ describe('Auth', () => {
         const userDB = await prisma.user.findFirst();
         assert.partialDeepStrictEqual(userDB, {
           steamID: userSteamID,
+          realAlias: userSteamSummary.personaname,
+          customAlias: null,
           alias: userSteamSummary.personaname,
           country: userSteamSummary.loccountrycode,
           avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240'
@@ -362,6 +374,14 @@ describe('Auth', () => {
         assert.equal(decrypted.steamID, userDB.steamID.toString());
 
         assert.equal(decrypted.exp - decrypted.iat, 60);
+
+        assert.partialDeepStrictEqual(
+          await prisma.user.findUnique({ where: { id: userDB.id } }),
+          {
+            realAlias: userSteamSummary.personaname,
+            alias: userSteamSummary.personaname
+          }
+        );
       });
 
       it('should 400 when header is missing ID', async () => {

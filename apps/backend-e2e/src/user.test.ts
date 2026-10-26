@@ -1,4 +1,4 @@
-import { mock, after, before, describe, it } from 'node:test';
+import { after, before, describe, it } from 'node:test';
 import { randomString } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
 import { UserDto } from '../../backend/src/app/dto';
@@ -13,7 +13,6 @@ import {
   Socials,
   TrackType
 } from '@momentum/constants';
-import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import { createHash } from 'node:crypto';
 import {
   app,
@@ -81,8 +80,10 @@ describe('User', () => {
         await db.cleanup('user');
       });
 
-      it("should update the authenticated user's alias", async () => {
-        const [user, token] = await db.createAndLoginUser();
+      it("should update the authenticated user's custom alias", async () => {
+        const [user, token] = await db.createAndLoginUser({
+          data: { realAlias: 'Steam Name' }
+        });
         const newAlias = 'Donkey Kong';
 
         await req.patch({
@@ -93,14 +94,49 @@ describe('User', () => {
         });
 
         const updatedUser = await prisma.user.findFirst({
-          where: { id: user.id },
-          include: { profile: true }
+          where: { id: user.id }
         });
 
-        assert.equal(updatedUser.alias, newAlias);
+        assert.partialDeepStrictEqual(updatedUser, {
+          customAlias: newAlias,
+          realAlias: 'Steam Name',
+          alias: newAlias
+        });
       });
 
-      it("should fail to update the authenticated user's alias", async () => {
+      it('should respond with the custom alias as alias, without exposing customAlias or realAlias', async () => {
+        const [_, token] = await db.createAndLoginUser({
+          data: { realAlias: 'Steam Name', customAlias: 'Custom Name' }
+        });
+
+        const res = await req.get({
+          url: 'user',
+          status: 200,
+          validate: UserDto,
+          token
+        });
+
+        assert.equal(res.body.alias, 'Custom Name');
+        assert.ok(!Object.hasOwn(res.body, 'customAlias'));
+        assert.ok(!Object.hasOwn(res.body, 'realAlias'));
+      });
+
+      it('should respond with the real alias as alias when no custom alias is set', async () => {
+        const [_, token] = await db.createAndLoginUser({
+          data: { realAlias: 'Steam Name' }
+        });
+
+        const res = await req.get({
+          url: 'user',
+          status: 200,
+          validate: UserDto,
+          token
+        });
+
+        assert.equal(res.body.alias, 'Steam Name');
+      });
+
+      it("should fail to update the authenticated user's custom alias to whitespace", async () => {
         const [user, token] = await db.createAndLoginUser();
         const newAlias = '    ';
 
@@ -112,43 +148,54 @@ describe('User', () => {
         });
 
         const updatedUser = await prisma.user.findFirst({
-          where: { id: user.id },
-          include: { profile: true }
+          where: { id: user.id }
         });
 
+        assert.equal(updatedUser.customAlias, null);
         assert.notEqual(updatedUser.alias, newAlias);
       });
 
-      it("should reset the authenticated user's alias to steam alias", async () => {
-        const steamAlias = 'Bork';
-
-        const steamSummarySpy = mock.method(
-          app.get(SteamService),
-          'getSteamUserSummaryData'
-        );
-        steamSummarySpy.mock.mockImplementation(() =>
-          Promise.resolve({ personaname: steamAlias })
-        );
-
-        const [user, token] = await db.createAndLoginUser({
-          data: { alias: 'Not Bork' }
-        });
+      it('should 400 when trying to update alias directly', async () => {
+        const [user, token] = await db.createAndLoginUser();
 
         await req.patch({
           url: 'user',
-          status: 204,
-          body: { alias: '' },
+          status: 400,
+          body: { alias: 'Donkey Kong' },
           token
         });
-
-        steamSummarySpy.mock.restore();
 
         const updatedUser = await prisma.user.findFirst({
           where: { id: user.id }
         });
 
-        assert.equal(updatedUser.alias, steamAlias);
+        assert.equal(updatedUser.alias, user.alias);
       });
+
+      for (const reset of [null, '']) {
+        it(`should reset the authenticated user's alias to steam alias when customAlias is ${JSON.stringify(reset)}`, async () => {
+          const [user, token] = await db.createAndLoginUser({
+            data: { realAlias: 'Bork', customAlias: 'Not Bork' }
+          });
+
+          await req.patch({
+            url: 'user',
+            status: 204,
+            body: { customAlias: reset },
+            token
+          });
+
+          const updatedUser = await prisma.user.findFirst({
+            where: { id: user.id }
+          });
+
+          assert.partialDeepStrictEqual(updatedUser, {
+            customAlias: null,
+            realAlias: 'Bork',
+            alias: 'Bork'
+          });
+        });
+      }
 
       it("should update the authenticated user's bio", async () => {
         const [user, token] = await db.createAndLoginUser();
@@ -300,7 +347,35 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 409,
-          body: { alias: u1.alias },
+          body: { customAlias: u1.alias },
+          token: u2Token
+        });
+      });
+
+      it("should only reserve a verified user's displayed alias, not their Steam alias", async () => {
+        const [u1] = await db.createAndLoginUser({
+          data: {
+            roles: Role.VERIFIED,
+            realAlias: 'Original Steam Name',
+            customAlias: 'Custom Name'
+          }
+        });
+        const [_, u2Token] = await db.createAndLoginUser({
+          data: { roles: Role.VERIFIED }
+        });
+
+        // Only the effective alias is reserved, so this is fine
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { customAlias: u1.realAlias },
+          token: u2Token
+        });
+
+        await req.patch({
+          url: 'user',
+          status: 409,
+          body: { customAlias: u1.customAlias },
           token: u2Token
         });
       });
@@ -394,7 +469,8 @@ describe('User', () => {
             roles: Role.MAPPER,
             bans: Ban.BIO,
             steamID,
-            alias: 'User to be deleted',
+            realAlias: 'User to be deleted',
+            customAlias: 'Custom alias to be deleted',
             avatar: 'yeeeee',
             country: 'NA',
             profile: {
@@ -527,6 +603,7 @@ describe('User', () => {
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
           steamID: null,
+          customAlias: null,
           alias: 'Deleted User',
           avatar: null,
           country: null,

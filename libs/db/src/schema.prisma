@@ -18,10 +18,19 @@ model User {
   bans  Int @default(0) @db.SmallInt /// Flags of bans.enum.ts
 
   /// Optional because placeholders don't have SteamIDs
-  steamID BigInt? @unique(map: "user_steamID") @db.BigInt
-  alias   String
-  avatar  String?
-  country String? @db.Char(2)
+  steamID     BigInt? @unique(map: "user_steamID") @db.BigInt
+  /// The user's current Steam name, updated whenever they authenticate.
+  /// For placeholders, the name they were created with.
+  realAlias   String
+  /// Alias set by the user themselves, overrides realAlias if non-null
+  customAlias String?
+  /// Generated column (COALESCE("customAlias", "realAlias")), never write to
+  /// this! Prisma doesn't support generated columns, so this is defined in the
+  /// add_custom_alias migration, the default here is just so Prisma doesn't
+  /// require it on create.
+  alias       String  @default(dbgenerated("COALESCE(\"customAlias\", \"realAlias\")"))
+  avatar      String?
+  country     String? @db.Char(2)
 
   profile              Profile?
   userStats            UserStats?

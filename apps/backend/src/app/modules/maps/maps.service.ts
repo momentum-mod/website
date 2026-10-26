@@ -1858,7 +1858,7 @@ export class MapsService {
     for (const placeholder of map.submission.placeholders ?? []) {
       await tx.user.create({
         data: {
-          alias: placeholder.alias,
+          realAlias: placeholder.alias,
           roles: Role.PLACEHOLDER,
           mapCredits: {
             create: {

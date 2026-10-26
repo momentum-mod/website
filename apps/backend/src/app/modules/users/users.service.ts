@@ -43,7 +43,6 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from '../admin/admin-activity.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
-import { SteamUserSummaryData } from '../steam/steam.interface';
 import { createHash } from 'node:crypto';
 
 @Injectable()
@@ -139,7 +138,7 @@ export class UsersService {
       select: {
         id: true,
         steamID: true,
-        alias: true,
+        realAlias: true,
         avatar: true,
         country: true,
         roles: true
@@ -147,6 +146,25 @@ export class UsersService {
     });
 
     if (user) {
+      // Keep realAlias in sync with their current Steam name. Don't block
+      // logging in if Steam is having issues, just keep the stale name.
+      try {
+        const userData =
+          await this.steamService.getSteamUserSummaryData(steamID);
+        if (
+          steamID === BigInt(userData.steamid) &&
+          userData.personaname &&
+          userData.personaname !== user.realAlias
+        ) {
+          await this.db.user.update({
+            where: { steamID },
+            data: { realAlias: userData.personaname }
+          });
+        }
+      } catch {
+        // Nothing to do, they'll get updated next time they log in.
+      }
+
       if (Bitflags.has(user.roles, Role.LIMITED)) {
         const isLimited = await this.steamService.isAccountLimited(steamID);
         if (!isLimited) {
@@ -191,7 +209,7 @@ export class UsersService {
       return await this.db.user.create({
         data: {
           steamID,
-          alias: userData.personaname,
+          realAlias: userData.personaname,
           avatar: userData.avatarhash.replace('_full.jpg', ''),
           country: userData.loccountrycode,
           roles
@@ -211,34 +229,27 @@ export class UsersService {
     });
 
     const updateInput: Prisma.UserUpdateInput = {};
-    let userData: SteamUserSummaryData;
 
-    // Strict check - we want to handle if alias is empty string
-    if (update.alias !== undefined) {
+    // Strict check - null or empty string resets to Steam alias
+    if (update.customAlias !== undefined) {
       if (Bitflags.has(user.bans, Ban.ALIAS) && !asAdmin) {
         throw new ForbiddenException(
           'User is banned from updating their alias'
         );
       }
 
-      // Reset alias to steam name
-      if (update.alias === '') {
-        if (!userData)
-          userData = await this.steamService.getSteamUserSummaryData(
-            user.steamID
-          );
-        update.alias = userData.personaname;
-      }
+      const customAlias = update.customAlias || null;
 
-      if (!NON_WHITESPACE_REGEXP.test(update.alias)) {
+      if (customAlias !== null && !NON_WHITESPACE_REGEXP.test(customAlias)) {
         throw new BadRequestException('Invalid alias');
       }
 
-      updateInput.alias = update.alias;
+      updateInput.customAlias = customAlias;
 
       if (Bitflags.has(user.roles, Role.VERIFIED)) {
         const sameNameMatches = await this.db.user.findMany({
-          where: { alias: update.alias, NOT: { id: userID } },
+          // `alias` is generated from customAlias ?? realAlias
+          where: { alias: customAlias ?? user.realAlias, NOT: { id: userID } },
           select: { roles: true }
         });
         if (
@@ -262,10 +273,9 @@ export class UsersService {
     }
 
     if (update.resetAvatar) {
-      if (!userData)
-        userData = await this.steamService.getSteamUserSummaryData(
-          user.steamID
-        );
+      const userData = await this.steamService.getSteamUserSummaryData(
+        user.steamID
+      );
       updateInput.avatar = userData.avatarhash.replace('_full.jpg', '');
     }
 
@@ -307,7 +317,8 @@ export class UsersService {
     const updateInputToClean: Prisma.UserUpdateInput = {
       roles: Role.DELETED,
       steamID: null,
-      alias: 'Deleted User',
+      realAlias: 'Deleted User',
+      customAlias: null,
       avatar: null,
       country: null,
       profile: { update: { bio: '', socials: {} } },

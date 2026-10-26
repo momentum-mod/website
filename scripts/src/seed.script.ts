@@ -230,7 +230,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
           prisma.user.create({
             data: {
               steamID: Random.int(1000000000, 99999999999),
-              alias: faker.internet.username(),
+              realAlias: faker.internet.username(),
               avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
               country: faker.location.countryCode(),
               roles: Bitflags.join(
@@ -718,7 +718,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               placeholders: arrayFrom(
                 randRange(vars.submissionPlaceholders),
                 () => ({
-                  alias: faker.internet.username(),
+                  realAlias: faker.internet.username(),
                   type: Random.enumValue(MapCreditType),
                   description: faker.lorem.words({ min: 1, max: 4 })
                 })
@@ -1008,7 +1008,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             newData = await prisma.user.update({
               where: { id: oldData.id },
               data: {
-                alias: faker.internet.username()
+                customAlias: faker.internet.username()
               }
             });
             break;
@@ -1035,7 +1035,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       case AdminActivityType.USER_CREATE_PLACEHOLDER:
         newData = await prisma.user.create({
           data: {
-            alias: faker.internet.username(),
+            realAlias: faker.internet.username(),
             roles: Role.PLACEHOLDER,
             profile: { create: {} },
             userStats: { create: {} }
@@ -1220,7 +1220,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         create: {
           steamID: BigInt(steamID),
           roles: Role.ADMIN,
-          alias: `Admin User ${i + 1}`,
+          realAlias: `Admin User ${i + 1}`,
           profile: { create: {} },
           userStats: {
             create: randomLevelAndXp()

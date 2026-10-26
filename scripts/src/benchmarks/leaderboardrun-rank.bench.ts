@@ -128,7 +128,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
     console.log(`Preparing DB with ${NUM_RUNS} runs...`);
     await prisma.$executeRawUnsafe(`
-      INSERT INTO "User" ("alias", "steamID")
+      INSERT INTO "User" ("realAlias", "steamID")
       SELECT 'User' || i, i
       FROM generate_series(0, ${NUM_RUNS - 1}) AS i;
     `);
@@ -504,7 +504,7 @@ function windowFunctionFindOffsetQuery(userID: number): string {
 async function analyzeInsertCost(prisma: PrismaClient) {
   const newUser = await prisma.user.create({
     data: {
-      alias: 'bozo',
+      realAlias: 'bozo',
       steamID:
         BigInt(NUM_RUNS * 100) * BigInt(Math.floor(Math.random() * 100000000))
     }
@@ -596,13 +596,13 @@ async function materializedRankStuff(prisma: PrismaClient) {
 
   const newUser1 = await prisma.user.create({
     data: {
-      alias: 'TriggerTestUser1',
+      realAlias: 'TriggerTestUser1',
       steamID: BigInt(NUM_RUNS * Math.floor(Math.random() * 100000))
     }
   });
   const newUser2 = await prisma.user.create({
     data: {
-      alias: 'TriggerTestUser2',
+      realAlias: 'TriggerTestUser2',
       steamID: BigInt(NUM_RUNS * Math.floor(Math.random() * 100000))
     }
   });

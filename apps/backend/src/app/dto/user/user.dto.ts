@@ -52,6 +52,12 @@ export class UserDto implements User {
   @Matches(NON_WHITESPACE_REGEXP)
   readonly alias: string;
 
+  @Exclude({ toPlainOnly: true })
+  readonly realAlias: string;
+
+  @Exclude({ toPlainOnly: true })
+  readonly customAlias: string | null;
+
   @ApiPropertyOptional({
     type: String,
     description: 'Two-letter (ISO 3166-1 Alpha-2) country code for the user'
@@ -112,13 +118,16 @@ export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}
 export class UpdateUserDto {
   @ApiPropertyOptional({
     type: String,
-    description: 'The new alias to set'
+    nullable: true,
+    description:
+      'The new custom alias to set. Null or empty string resets to Steam alias'
   })
   @IsString()
-  // Must allow empty string, as it's used for resetting to steam alias.
+  // Must allow empty string and null, as they're used for resetting to steam
+  // alias. IsOptional allows null.
   @MaxLength(MAX_USER_ALIAS_LENGTH)
   @IsOptional()
-  alias?: string;
+  customAlias?: string | null;
 
   @ApiPropertyOptional({
     type: String,

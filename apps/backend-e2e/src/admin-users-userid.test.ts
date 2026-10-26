@@ -426,7 +426,8 @@ describe('Admin', () => {
             roles: Role.MAPPER,
             bans: Ban.BIO,
             steamID,
-            alias: 'User to be deleted',
+            realAlias: 'User to be deleted',
+            customAlias: 'Custom alias to be deleted',
             avatar: 'yeeeee',
             country: 'NA',
             profile: {
@@ -553,6 +554,7 @@ describe('Admin', () => {
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
           steamID: null,
+          customAlias: null,
           alias: 'Deleted User',
           avatar: null,
           country: null,

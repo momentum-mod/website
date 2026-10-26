@@ -5,7 +5,8 @@ import { Role, Ban, Flags, User, Socials, Follow } from '../../';
 export type CreateUser = Pick<User, 'alias'>;
 
 export interface UpdateUser {
-  alias?: string;
+  // Null or empty string resets to Steam alias
+  customAlias?: string | null;
   bio?: string;
   socials?: Socials;
   resetAvatar?: boolean;

@@ -1,7 +1,13 @@
 ﻿import { after, before, describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { UserDto } from '../../backend/src/app/dto';
-import { req, db, auth, registerE2ETestFile } from './support/e2e-environment';
+import {
+  prisma,
+  req,
+  db,
+  auth,
+  registerE2ETestFile
+} from './support/e2e-environment';
 
 describe('Users', () => {
   registerE2ETestFile();
@@ -63,6 +69,37 @@ describe('Users', () => {
         });
 
         assert.equal(res.body.data[0].id, users[0].id);
+      });
+
+      it('should search by custom alias rather than Steam alias when a user has a custom alias', async () => {
+        const user = await db.createUser({
+          data: { realAlias: 'Zeppelin Steam', customAlias: 'Blimp Custom' }
+        });
+
+        const res = await req.get({
+          url: 'users',
+          status: 200,
+          query: { search: 'Blimp' },
+          validatePaged: { type: UserDto, count: 1 },
+          token
+        });
+
+        assert.partialDeepStrictEqual(res.body.data[0], {
+          id: user.id,
+          alias: 'Blimp Custom'
+        });
+        assert.ok(!Object.hasOwn(res.body.data[0], 'customAlias'));
+        assert.ok(!Object.hasOwn(res.body.data[0], 'realAlias'));
+
+        await req.get({
+          url: 'users',
+          status: 200,
+          query: { search: 'Zeppelin' },
+          validatePaged: { type: UserDto, count: 0 },
+          token
+        });
+
+        await prisma.user.delete({ where: { id: user.id } });
       });
 
       it('should respond with an empty a paged list of users using a search by parameter containing a nonexistent alias', async () => {
