@@ -1,9 +1,5 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { JsonValue } from 'type-fest';
 import { ClientContext, Result } from 'iovalkey';
 import { Gamemode, MapLobbyPlayerCount } from '@momentum/constants';
@@ -37,7 +33,7 @@ import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
  * fence off those late writes even after the user has left their lobby.
  */
 @Injectable()
-export class LobbyService implements OnModuleInit, OnModuleDestroy {
+export class LobbyService implements OnModuleInit {
   private readonly logger = new Logger(LobbyService.name);
 
   /**
@@ -49,8 +45,6 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * refresh can never land after a newer write and reinstate an old status.
    */
   private readonly localStatuses = new Map<number, LocalStatus>();
-
-  private refreshInterval?: NodeJS.Timeout;
 
   /** Which slice of {@link localStatuses} the next refresh tick handles. */
   private refreshBucket = 0;
@@ -77,16 +71,6 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
       numberOfKeys: 1,
       lua: WRITE_STATUS_SCRIPT
     });
-
-    this.refreshInterval = setInterval(
-      () => void this.refreshLocalStatuses(),
-      REFRESH_TICK_MS
-    );
-    this.refreshInterval.unref();
-  }
-
-  onModuleDestroy() {
-    clearInterval(this.refreshInterval);
   }
 
   //#region Game WebSocket
@@ -98,7 +82,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     client: AuthenticatedWebSocket,
     status: LobbyStatusDto
   ): Promise<null> {
-    const { userId: userID, connectionID, connectedAt } = client;
+    const { userID, connectionID, connectedAt } = client;
 
     // A stale connection's write is rejected by Valkey, which the check below
     // then undoes. Don't let it displace a newer one's status meanwhile.
@@ -123,7 +107,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * Clear the client's lobby, after it has left one.
    */
   async leaveLobby(client: AuthenticatedWebSocket): Promise<null> {
-    const { userId: userID } = client;
+    const { userID } = client;
 
     if (!this.hasNewerLocalStatus(client)) {
       this.localStatuses.delete(userID);
@@ -139,7 +123,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * connection for the same user has since taken it over.
    */
   async handleDisconnect(client: AuthenticatedWebSocket): Promise<void> {
-    const { userId: userID, connectionID } = client;
+    const { userID, connectionID } = client;
 
     if (this.localStatuses.get(userID)?.connectionID === connectionID) {
       this.localStatuses.delete(userID);
@@ -251,9 +235,10 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
     message: JsonValue,
     { excludeUserID }: { excludeUserID?: number } = {}
   ): Promise<void> {
-    const recipients = (await this.getLobbyMembers(lobbyID)).filter(
-      (id) => id !== excludeUserID
-    );
+    let recipients = await this.getLobbyMembers(lobbyID);
+    if (excludeUserID !== undefined) {
+      recipients = recipients.filter((id) => id !== excludeUserID);
+    }
     if (recipients.length > 0) {
       this.wsService.broadcastToUsers(recipients, message);
     }
@@ -265,7 +250,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
 
   /** Whether a newer connection than the client's has a local status. */
   private hasNewerLocalStatus(client: AuthenticatedWebSocket): boolean {
-    const local = this.localStatuses.get(client.userId);
+    const local = this.localStatuses.get(client.userID);
     return !!local && isNewerConnection(local, client);
   }
 
@@ -278,12 +263,12 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * one since. Returns whether anything was written.
    */
   private async writeStatus(
-    client: Connection & { userId: number },
+    client: Connection & { userID: number },
     status: LobbyStatusDto | null,
     ownership: Ownership
   ): Promise<boolean> {
     const result = await this.valkey.writeLobbyStatus(
-      ...writeStatusArgs(client.userId, client, status, ownership)
+      ...writeStatusArgs(client.userID, client, status, ownership)
     );
     return result === 1;
   }
@@ -298,6 +283,7 @@ export class LobbyService implements OnModuleInit, OnModuleDestroy {
    * worker's statuses, rather than all of them landing on Valkey at once. Each
    * slice comes round once per {@link REFRESH_INTERVAL_MS}.
    */
+  @Cron(CronExpression.EVERY_5_SECONDS)
   private async refreshLocalStatuses(): Promise<void> {
     const bucket = this.refreshBucket;
     this.refreshBucket = (bucket + 1) % REFRESH_BUCKETS;
@@ -376,7 +362,7 @@ const STATUS_TTL_SECONDS = 3 * 60;
 /** How often each status is refreshed. */
 const REFRESH_INTERVAL_MS = 60_000;
 
-/** How often a slice of the statuses is refreshed. */
+/** How often a slice of the statuses is refreshed, as in refreshLocalStatuses's cron. */
 const REFRESH_TICK_MS = 5000;
 
 const REFRESH_BUCKETS = REFRESH_INTERVAL_MS / REFRESH_TICK_MS;
