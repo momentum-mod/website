@@ -38,7 +38,7 @@ import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
-import { ChatBansService } from '../chat-bans/chat-bans.service';
+import { BansService } from '../reports/bans.service';
 
 @Injectable()
 export class AdminService {
@@ -48,7 +48,7 @@ export class AdminService {
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService,
-    private readonly chatBans: ChatBansService
+    private readonly bans: BansService
   ) {}
 
   async createPlaceholderUser(
@@ -504,7 +504,7 @@ export class AdminService {
         await this.issueChatBan(userID, targetID, ban, reportID);
       }
 
-      await this.chatBans.broadcastPlayerBans(targetID);
+      await this.bans.broadcastPlayerBans(targetID);
     }
   }
 
@@ -521,7 +521,7 @@ export class AdminService {
 
     const created = await this.issueChatBan(adminID, dto.targetID, dto);
 
-    await this.chatBans.broadcastPlayerBans(dto.targetID);
+    await this.bans.broadcastPlayerBans(dto.targetID);
 
     return DtoFactory(ChatBanDto, created);
   }
@@ -616,7 +616,7 @@ export class AdminService {
       ban
     );
 
-    await this.chatBans.broadcastPlayerBans(ban.targetID);
+    await this.bans.broadcastPlayerBans(ban.targetID);
   }
 
   async revokeChatBan(adminID: number, banID: number): Promise<void> {
@@ -637,7 +637,7 @@ export class AdminService {
       ban
     );
 
-    await this.chatBans.broadcastPlayerBans(ban.targetID);
+    await this.bans.broadcastPlayerBans(ban.targetID);
   }
 
   async createAdminAnnouncement(

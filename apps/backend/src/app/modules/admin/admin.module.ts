@@ -10,7 +10,7 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
-import { ChatBansModule } from '../chat-bans/chat-bans.module';
+import { ReportsModule } from '../reports/reports.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { ChatBansModule } from '../chat-bans/chat-bans.module';
     KillswitchModule,
     NotificationsModule,
     FileStoreModule,
-    ChatBansModule
+    ReportsModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService, NotificationsService],

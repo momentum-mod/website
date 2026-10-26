@@ -15,8 +15,8 @@ import { WebsocketService } from '../websockets/websocket.service';
  * banned player can't fake, and is sent any later changes to their bans.
  */
 @Injectable()
-export class ChatBansService {
-  private readonly logger = new Logger(ChatBansService.name);
+export class BansService {
+  private readonly logger = new Logger(BansService.name);
 
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
@@ -68,7 +68,7 @@ export class ChatBansService {
         where: { id: userID },
         select: playerBansSelect()
       });
-      if (!user?.steamID) return;
+      if (!user) return;
 
       this.wsService.broadcastToAll({
         event: 'chatbans.update',
@@ -95,11 +95,12 @@ function playerBansSelect() {
   return {
     steamID: true,
     chatBansRevision: true,
-    chatBans: { where: activeBanFilter(), select: banSelect }
+    chatBans: {
+      where: activeBanFilter(),
+      select: { type: true, expiresAt: true }
+    }
   } satisfies Prisma.UserSelect;
 }
-
-const banSelect = { type: true, expiresAt: true } as const;
 
 function activeBanFilter(): Prisma.ChatBanWhereInput {
   return { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] };
@@ -120,7 +121,6 @@ function toPlayerChatBans(user: {
   chatBansRevision: number;
   chatBans: { type: number; expiresAt: Date | null }[];
 }) {
-  // Not annotated, as an interface type isn't assignable to JsonValue
   return {
     steamID: user.steamID!.toString(),
     revision: user.chatBansRevision,
