@@ -24,9 +24,9 @@ import { UserJwtAccessPayloadVerified } from '../auth/auth.interface';
  * Gateways can read it via `@ConnectedSocket()`.
  */
 export type AuthenticatedWebSocket = WebSocket.WebSocket & {
-  userId: number;
+  userID: number;
   /**
-   * Unique per connection, unlike `userId`. State written on behalf of a socket
+   * Unique per connection, unlike `userID`. State written on behalf of a socket
    * can be tagged with this so a stale socket's close (e.g. one replaced by a
    * reconnect, possibly on another worker) doesn't clobber the new one's state.
    */
@@ -189,7 +189,7 @@ export class WebsocketAdapter extends AbstractWsAdapter<
 
       wsServer.handleUpgrade(request, socket, head, (ws) => {
         const client = ws as AuthenticatedWebSocket;
-        client.userId = payload.id;
+        client.userID = payload.id;
         client.connectionID = randomUUID();
         client.connectedAt = Date.now();
         this.wsService.addClient(payload.id, client);
