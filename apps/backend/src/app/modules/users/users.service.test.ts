@@ -73,6 +73,7 @@ describe('UsersService', () => {
         alias: 'old alias',
         avatar: '',
         country: 'QA',
+        chatBansRevision: 0,
         createdAt: undefined
       };
       db.user.findUnique.mock.mockImplementationOnce(() =>
@@ -111,6 +112,7 @@ describe('UsersService', () => {
         alias: 'old alias',
         avatar: '',
         country: 'AQ',
+        chatBansRevision: 0,
         createdAt: undefined
       };
 
