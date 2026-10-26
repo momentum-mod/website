@@ -1,3 +1,4 @@
+import { UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -16,13 +17,14 @@ import {
   RunSessionIdDto,
   RunSessionResponseDto,
   UpdateRunSessionDto,
-  validateWsBody,
+  VALIDATION_PIPE_CONFIG,
   WsResponseDto
 } from '../../dto';
+import { WsExceptionFilter } from '../../filters/ws-exception.filter';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { RunSessionService } from '../session/run/run-session.service';
 import { LobbyService } from '../lobby/lobby.service';
-import { ChatBansService } from '../chat-bans/chat-bans.service';
+import { BansService } from '../reports/bans.service';
 
 /**
  * Game client WebSocket entrypoint (`/game`).
@@ -31,16 +33,18 @@ import { ChatBansService } from '../chat-bans/chat-bans.service';
  * it to the relevant subsystem service, and wraps the result back into a
  * `{ event, data }` response. Business logic lives in the services (run sessions
  * in {@link RunSessionService}, lobby tracking in {@link LobbyService}, chat ban
- * lookups in {@link ChatBansService}), so new
+ * lookups in {@link BansService}), so new
  * subsystems are added as a new service plus a handful of delegating handlers
  * here.
  */
+@UsePipes(new ValidationPipe(VALIDATION_PIPE_CONFIG))
+@UseFilters(WsExceptionFilter)
 @WebSocketGateway({ path: '/game' })
 export class GameConnectionGateway implements OnGatewayDisconnect {
   constructor(
     private readonly runSession: RunSessionService,
     private readonly lobby: LobbyService,
-    private readonly chatBans: ChatBansService
+    private readonly bans: BansService
   ) {}
 
   handleDisconnect(client: AuthenticatedWebSocket) {
@@ -55,7 +59,7 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
     return new WsResponseDto(
       RunSessionResponseDto,
       'runsession.create',
-      await this.runSession.createSession(client.userId, data)
+      await this.runSession.createSession(client.userID, data)
     );
   }
 
@@ -66,7 +70,7 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
   ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.update',
-      data: await this.runSession.updateSession(client.userId, data)
+      data: await this.runSession.updateSession(client.userID, data)
     };
   }
 
@@ -77,7 +81,7 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
   ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.invalidate',
-      data: await this.runSession.invalidateSession(client.userId, data)
+      data: await this.runSession.invalidateSession(client.userID, data)
     };
   }
 
@@ -88,22 +92,18 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
   ): Promise<WsResponse<null | { error: string }>> {
     return {
       event: 'runsession.end',
-      data: await this.runSession.endSession(client.userId, data)
+      data: await this.runSession.endSession(client.userID, data)
     };
   }
 
   @SubscribeMessage('lobby.update')
   async updateLobbyStatus(
     @ConnectedSocket() client: AuthenticatedWebSocket,
-    @MessageBody() body: unknown
-  ): Promise<WsResponse<null | { error: string }>> {
-    const validated = await validateWsBody(LobbyStatusDto, body);
+    @MessageBody() data: LobbyStatusDto
+  ): Promise<WsResponse<null>> {
     return {
       event: 'lobby.update',
-      data:
-        'error' in validated
-          ? validated
-          : await this.lobby.updateStatus(client, validated.data)
+      data: await this.lobby.updateStatus(client, data)
     };
   }
 
@@ -119,29 +119,23 @@ export class GameConnectionGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('lobby.mapcounts')
   async getMapLobbyPlayerCounts(
-    @MessageBody() body: unknown
+    @MessageBody() data: MapLobbyPlayerCountsQueryDto
   ): Promise<WsResponseDto<MapLobbyPlayerCountsDto>> {
-    const validated = await validateWsBody(MapLobbyPlayerCountsQueryDto, body);
     return new WsResponseDto(
       MapLobbyPlayerCountsDto,
       'lobby.mapcounts',
-      'error' in validated
-        ? validated
-        : await this.lobby.getMapPlayerCounts(validated.data.gamemode)
+      await this.lobby.getMapPlayerCounts(data.gamemode)
     );
   }
 
   @SubscribeMessage('chatbans.get')
   async getPlayerChatBans(
-    @MessageBody() body: unknown
+    @MessageBody() data: PlayerChatBansQueryDto
   ): Promise<WsResponseDto<PlayerChatBansListDto>> {
-    const validated = await validateWsBody(PlayerChatBansQueryDto, body);
     return new WsResponseDto(
       PlayerChatBansListDto,
       'chatbans.get',
-      'error' in validated
-        ? validated
-        : await this.chatBans.getPlayerBans(validated.data.steamIDs)
+      await this.bans.getPlayerBans(data.steamIDs)
     );
   }
 }

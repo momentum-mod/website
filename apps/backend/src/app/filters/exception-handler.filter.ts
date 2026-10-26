@@ -29,7 +29,7 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
       const path = httpAdapter.getRequestUrl(context.getRequest());
       const env = this.configService.get('env');
 
-      let status: number, responseBody: Record<string, any>, eventID: string;
+      let status: number, responseBody: Record<string, any>;
 
       if (exception instanceof HttpException) {
         status = exception.getStatus();
@@ -47,48 +47,13 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         };
       }
 
-      let isActualError = !status || status >= 500;
-      if (
-        exception instanceof ServiceUnavailableException &&
-        exception.cause === 'Killswitch'
-      )
-        isActualError = false;
-
-      if (env === Environment.PRODUCTION) {
-        // Don't do anything for 4xxs in prod, they're not actual errors and
-        // they'll get logged by pino-http like any other response.
-        if (isActualError) {
-          // Dupe code, but don't want to make a pointless object for 4xxs in prod (very common)
-          const msg: any = {
-            path,
-            name: exception.name,
-            message: exception.message
-          };
-
-          // In production, send to Sentry so long as it's enabled
-          if (Sentry.isInitialized()) {
-            eventID = Sentry.captureException(exception);
-            msg.eventID = eventID;
-          }
-
-          this.logger.error(msg);
-        }
-      } else {
-        const msg: any = {
-          path,
-          name: exception.name,
-          message: exception.message,
-          stack: exception.stack // Stack is useful in dev, waste in prod, Sentry has all that.
-        };
-        if (env === Environment.DEVELOPMENT) {
-          // In development, print actual errors (non-HttpException and 500s)
-          // as errors and the rest as debug.
-          this.logger.error(msg);
-        } else {
-          // In E2E tests, print everything as debug.
-          this.logger.debug(msg);
-        }
-      }
+      const eventID = reportException(
+        exception,
+        status,
+        { path },
+        env,
+        this.logger
+      );
 
       // Add timestamp, path to response body
       responseBody.timestamp = new Date().toISOString();
@@ -105,4 +70,67 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
       });
     }
   }
+}
+
+/**
+ * Log an exception thrown while handling a request or message, and send it to
+ * Sentry if it's an actual error. Shared by the HTTP and WebSocket filters.
+ *
+ * @param status - The HTTP-style status the exception is being responded with
+ * @param context - Where it happened, e.g. the path or WebSocket event
+ * @returns The Sentry event ID, if it was sent there
+ */
+export function reportException(
+  exception: Error,
+  status: number,
+  context: Record<string, unknown>,
+  env: Environment,
+  logger: Logger
+): string | undefined {
+  let isActualError = !status || status >= 500;
+  if (
+    exception instanceof ServiceUnavailableException &&
+    exception.cause === 'Killswitch'
+  )
+    isActualError = false;
+
+  let eventID: string | undefined;
+
+  if (env === Environment.PRODUCTION) {
+    // Don't do anything for 4xxs in prod, they're not actual errors and
+    // they'll get logged by pino-http like any other response.
+    if (isActualError) {
+      // Dupe code, but don't want to make a pointless object for 4xxs in prod (very common)
+      const msg: any = {
+        ...context,
+        name: exception.name,
+        message: exception.message
+      };
+
+      // In production, send to Sentry so long as it's enabled
+      if (Sentry.isInitialized()) {
+        eventID = Sentry.captureException(exception);
+        msg.eventID = eventID;
+      }
+
+      logger.error(msg);
+    }
+  } else {
+    const msg: any = {
+      ...context,
+      name: exception.name,
+      message: exception.message,
+      stack: exception.stack // Stack is useful in dev, waste in prod, Sentry has all that.
+    };
+    if (env === Environment.DEVELOPMENT) {
+      // In development, print actual errors (non-HttpException and 500s)
+      // as errors and the rest as debug.
+      logger.error(msg);
+    } else {
+      // In E2E tests, print everything as debug.
+      logger.debug(msg);
+    }
+  }
+
+  return eventID;
 }
