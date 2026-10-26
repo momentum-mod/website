@@ -32,7 +32,7 @@
     "generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node with-pg-lite.js \"prisma db push && prisma generate --no-hints --sql\"",
+        "command": "node with-pg-lite.js \"prisma migrate deploy && prisma generate --no-hints --sql\"",
         "cwd": "libs/db/src"
       }
     },
