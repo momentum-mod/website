@@ -228,6 +228,9 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml run backend-e2e
 - A husky `pre-commit` hook runs `lint-staged`, which only runs
   `nx format:write` on staged files — ESLint is deliberately kept out of the
   hook because it is too slow. Run lint yourself before pushing.
+- Don't add speculative logging. Nobody reads logs for things that aren't
+  broken: either handle an error properly, or deliberately swallow it with a
+  comment saying why. Serious errors are what Sentry is for, not log lines.
 
 ## CI
 
