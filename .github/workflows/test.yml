@@ -221,7 +221,6 @@ jobs:
           printf 'RUSTFS_ACCESS_KEY=%s\nRUSTFS_SECRET_KEY=%s\n' \
             "$RUSTFS_ACCESS_KEY" "$RUSTFS_SECRET_KEY" > .env
           docker compose up -d --wait valkey rustfs
-          docker compose run --rm createbuckets
 
       - name: Run tests
         if: env.affected == 'true'
