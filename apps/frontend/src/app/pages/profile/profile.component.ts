@@ -110,7 +110,9 @@ export class ProfileComponent implements OnInit {
   avatarLoaded: boolean;
   countryDisplayName = '';
   followingUsers: Follow[] = [];
+  followingUsersCount: number;
   followedByUsers: Follow[] = [];
+  followedByUsersCount: number;
   localFollowStatus = new BehaviorSubject<Follow>(null);
   level: number;
   xp: number;
@@ -165,7 +167,10 @@ export class ProfileComponent implements OnInit {
           );
 
           this.usersService.getUserFollows(this.user).subscribe({
-            next: (response) => (this.followingUsers = response.data),
+            next: (response) => {
+              this.followingUsers = response.data;
+              this.followingUsersCount = response.totalCount;
+            },
             error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
@@ -205,7 +210,10 @@ export class ProfileComponent implements OnInit {
               takeUntilDestroyed(this.destroyRef)
             )
             .subscribe({
-              next: (response) => (this.followedByUsers = response.data),
+              next: (response) => {
+                this.followedByUsers = response.data;
+                this.followedByUsersCount = response.totalCount;
+              },
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
@@ -363,7 +371,10 @@ export class ProfileComponent implements OnInit {
         this.steamFriendsToAdd.clear();
 
         this.usersService.getUserFollows(this.user).subscribe({
-          next: (response) => (this.followingUsers = response.data),
+          next: (response) => {
+            this.followingUsers = response.data;
+            this.followingUsersCount = response.totalCount;
+          },
           error: (httpError: HttpErrorResponse) =>
             this.messageService.add({
               severity: 'error',

@@ -112,8 +112,8 @@
 
         <div class="flex flex-col gap-4 sm:flex-row">
           <div class="min-w-0 flex-grow basis-0">
-            <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
-            @if (followedByUsers.length === 0) {
+            <h3 class="font-display font-bold">Followers ({{ followedByUsersCount }})</h3>
+            @if (followedByUsersCount === 0) {
               <h5 class="m-0">
                 <i>No followers</i>
               </h5>
@@ -136,8 +136,8 @@
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
             <div class="h-[1px] bg-gray-400 sm:h-auto sm:w-[1px]"></div>
             <div class="min-w-0 flex-grow basis-0">
-              <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
-              @if (followingUsers.length === 0) {
+              <h3 class="font-display font-bold">Following ({{ followingUsersCount }})</h3>
+              @if (followingUsersCount === 0) {
                 <h5 class="m-0">
                   <i>Not following anyone</i>
                 </h5>
