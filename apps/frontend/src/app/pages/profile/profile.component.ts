@@ -109,7 +109,9 @@ export class ProfileComponent implements OnInit {
   protected readonly avatarLoaded = signal(false);
   protected readonly countryDisplayName = signal('');
   protected readonly followingUsers = signal<Follow[]>([]);
+  protected readonly followingUsersCount = signal(0);
   protected readonly followedByUsers = signal<Follow[]>([]);
+  protected readonly followedByUsersCount = signal(0);
   readonly localFollowStatus = new BehaviorSubject<Follow>(null);
   protected readonly localFollow = toSignal(this.localFollowStatus);
   protected readonly localUser = toSignal(this.localUserService.user);
@@ -167,7 +169,10 @@ export class ProfileComponent implements OnInit {
           this.nextLevelXp.set(this.xpService.getCosmeticXpForLevel(level + 1));
 
           this.usersService.getUserFollows(user).subscribe({
-            next: (response) => this.followingUsers.set(response.data),
+            next: (response) => {
+              this.followingUsers.set(response.data);
+              this.followingUsersCount.set(response.totalCount);
+            },
             error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
@@ -209,7 +214,10 @@ export class ProfileComponent implements OnInit {
               takeUntilDestroyed(this.destroyRef)
             )
             .subscribe({
-              next: (response) => this.followedByUsers.set(response.data),
+              next: (response) => {
+                this.followedByUsers.set(response.data);
+                this.followedByUsersCount.set(response.totalCount);
+              },
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
@@ -372,7 +380,10 @@ export class ProfileComponent implements OnInit {
         this.steamFriendsToAdd.set(new Set());
 
         this.usersService.getUserFollows(this.user()).subscribe({
-          next: (response) => this.followingUsers.set(response.data),
+          next: (response) => {
+            this.followingUsers.set(response.data);
+            this.followingUsersCount.set(response.totalCount);
+          },
           error: (httpError: HttpErrorResponse) =>
             this.messageService.add({
               severity: 'error',
