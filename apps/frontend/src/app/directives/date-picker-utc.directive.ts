@@ -51,6 +51,22 @@ export class DatePickerUTC {
     // Set before inputs are applied, so an explicit `dateFormat` still wins.
     this.host.dateFormat = getLocaleDateFormat(navigator.languages);
     this.host.updateModel = (value: any) => this.updateModel(this.host, value);
+
+    const writeControlValue = this.host.writeControlValue.bind(this.host);
+    this.host.writeControlValue = (value) =>
+      writeControlValue(this.utcToLocal(value));
+  }
+
+  // Model values are midnight UTC, but the picker displays in local time, so
+  // rebuild the same calendar date locally to avoid showing the day before.
+  utcToLocal(value: any) {
+    return value instanceof Date
+      ? new Date(
+          value.getUTCFullYear(),
+          value.getUTCMonth(),
+          value.getUTCDate()
+        )
+      : value;
   }
 
   // All changes (popup click, typed input, clear) go through here.
