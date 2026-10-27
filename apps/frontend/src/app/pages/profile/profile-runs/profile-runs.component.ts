@@ -13,9 +13,11 @@ import {
   LeaderboardRun,
   LeaderboardType,
   TrackType,
-  TrackTypeName
+  TrackTypeName,
+  CompletionGroup,
+  getRankGroupEnds,
+  getCompletionGroup
 } from '@momentum/constants';
-import { getRankGroup, RANK_GROUP_TOP_RANKS } from '@momentum/xp-systems';
 import { UsersService } from '../../../services/data/users.service';
 import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
@@ -141,16 +143,20 @@ export class ProfileRunsComponent implements OnChanges {
   protected rankGroup(
     run: LeaderboardRun
   ): { label: string; title: string; color: string } | null {
-    if (run.rank === 1)
+    const group = getCompletionGroup(
+      run.rank,
+      run.totalRuns ? getRankGroupEnds(run.totalRuns) : []
+    );
+    if (group === null) return null;
+    if (group === CompletionGroup.WORLD_RECORD)
       return { label: 'WR', title: 'World record', color: 'wr' };
-    if (run.rank <= RANK_GROUP_TOP_RANKS)
+    if (group === CompletionGroup.TOP_10)
       return { label: 'TOP 10', title: 'Top 10', color: 'top10' };
-    const group = run.totalRuns ? getRankGroup(run.rank, run.totalRuns) : null;
-    if (!group) return null;
+    const groupNumber = group - CompletionGroup.GROUP_1 + 1;
     return {
-      label: `G${group.group}`,
-      title: `Group ${group.group}`,
-      color: `${group.group}`
+      label: `G${groupNumber}`,
+      title: `Group ${groupNumber}`,
+      color: `${groupNumber}`
     };
   }
 

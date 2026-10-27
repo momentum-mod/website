@@ -1,7 +1,6 @@
 export * from './constants';
 export * from './xp-systems.class';
 export * from './rank-points';
-export * from './rank-groups';
 
 export interface CosXpParams {
   levels: {

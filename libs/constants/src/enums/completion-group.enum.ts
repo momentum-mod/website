@@ -3,8 +3,8 @@
  * game's map selector to summarise a player's standing per track.
  *
  * WORLD_RECORD and TOP_10 take priority over the numbered groups. The numbered
- * groups (1-6) are the display-only rank groups (`getRankGroup` in
- * @momentum/xp-systems), so a run shows the same group here as on the
+ * groups (1-6) are the display-only rank groups (`getCompletionGroup` in
+ * @momentum/constants), so a run shows the same group here as on the
  * leaderboards. NO_GROUP is a completion past the last group's cutoff.
  */
 export enum CompletionGroup {

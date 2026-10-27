@@ -24,7 +24,7 @@ import {
   getRankGroupEnds,
   RANK_GROUP_COUNT,
   RANK_GROUP_TOP_RANKS
-} from '@momentum/xp-systems';
+} from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
 import {
   GroupedMapLeaderboard,

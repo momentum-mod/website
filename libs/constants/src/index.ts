@@ -67,3 +67,4 @@ export * from './consts/limits.const';
 export * from './consts/socials.const';
 export * from './consts/steam-avatar.const';
 export * from './consts/tos-version.const';
+export * from './consts/rank-groups.const';
