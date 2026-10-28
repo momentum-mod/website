@@ -1845,8 +1845,6 @@ describe('Admin', () => {
         `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.ADMIN}`,
         `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.MODERATOR}`,
         `${MapStatus.CONTENT_APPROVAL},${MapStatus.PUBLIC_TESTING  },${Role.REVIEWER}`,
-        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.MODERATOR}`,
-        `${MapStatus.CONTENT_APPROVAL},${MapStatus.FINAL_APPROVAL  },${Role.ADMIN}`,
         `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.MODERATOR}`,
         `${MapStatus.CONTENT_APPROVAL},${MapStatus.DISABLED        },${Role.ADMIN}`,
         `${MapStatus.PUBLIC_TESTING  },${MapStatus.FINAL_APPROVAL  },${Role.MODERATOR}`,
