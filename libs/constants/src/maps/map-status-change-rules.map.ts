@@ -10,7 +10,7 @@ import { Role } from '../enums/role.enum';
  * | ---------------------- | -------- | --------------- | ---------------- | -------------- | -------------- | -------- |
  * | Approved               |          |                 |                  |                |                | AM       |
  * | Private Testing        |          |                 | S                |                |                | AM       |
- * | Content Approval       |          | S               |                  | RAM            | AM             | AM       |
+ * | Content Approval       |          | S               |                  | RAM            |                | AM       |
  * | Public Testing         |          |                 | AM               |                | S              | AM       |
  * | Final Approval         | AM       |                 |                  | S              |                | AM       |
  * | Disabled               | A†       | A               | A                | A              | A              |          |
@@ -37,7 +37,7 @@ export const MapStatusChangeRules: ReadonlyArray<{from: MapStatus; to: MapStatus
   { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.PRIVATE_TESTING,  roles: ['submitter']},
   { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.CONTENT_APPROVAL, roles: []},
   { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.PUBLIC_TESTING,   roles: [Role.REVIEWER, Role.ADMIN, Role.MODERATOR]},
-  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.FINAL_APPROVAL,   roles: [Role.ADMIN, Role.MODERATOR]},
+  { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.FINAL_APPROVAL,   roles: []},
   { from: MapStatus.CONTENT_APPROVAL, to: MapStatus.DISABLED,         roles: [Role.ADMIN, Role.MODERATOR]},
 
   { from: MapStatus.PUBLIC_TESTING,   to: MapStatus.APPROVED,         roles: []},
