@@ -111,52 +111,10 @@
         }
 
         <div class="flex flex-col gap-4 sm:flex-row">
-          <div class="min-w-0 flex-grow basis-0">
-            <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
-            @if (followedByUsers.length === 0) {
-              <h5 class="m-0">
-                <i>No followers</i>
-              </h5>
-            } @else {
-              <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
-                @for (usr of followedByUsers; track usr) {
-                  <li class="py-1">
-                    <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
-                      <m-avatar class="mr-2 h-12" [url]="usr.followee?.avatarURL" />
-                      <p>
-                        {{ usr.followee?.alias }}<br />
-                        <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
-                      </p>
-                    </a>
-                  </li>
-                }
-              </ul>
-            }
-          </div>
+          <m-follow [userSubject]="userSubject" followFetchType="follower" class="min-w-0 flex-grow basis-0" />
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
             <div class="h-[1px] bg-gray-400 sm:h-auto sm:w-[1px]"></div>
-            <div class="min-w-0 flex-grow basis-0">
-              <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
-              @if (followingUsers.length === 0) {
-                <h5 class="m-0">
-                  <i>Not following anyone</i>
-                </h5>
-              } @else {
-                <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
-                  @for (usr of followingUsers; track usr) {
-                    <li class="py-1">
-                      <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
-                        <m-avatar class="mr-2 h-12" [url]="usr.followed?.avatarURL" />
-                        <p>
-                          {{ usr.followed?.alias }}<br />
-                          <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
-                        </p>
-                      </a>
-                    </li>
-                  }
-                </ul>
-              }
-            </div>
+            <m-follow #followingList [userSubject]="userSubject" followFetchType="following" class="min-w-0 flex-grow basis-0" />
           }
         </div>
 

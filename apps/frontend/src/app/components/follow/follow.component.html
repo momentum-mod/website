@@ -1,0 +1,38 @@
+<div class="min-w-0 flex-grow basis-0">
+  <h3 class="font-display font-bold">
+    {{ followFetchType === 'follower' ? 'Followers' : 'Following' }}
+    ({{ followCount }})
+  </h3>
+
+  @if (followCount === 0) {
+    <h5 class="m-0">
+      <i>
+        {{ followFetchType === 'follower' ? 'No followers' : 'Not following anyone' }}
+      </i>
+    </h5>
+  } @else {
+    <ul
+      class="scroll-thin max-h-[17.5rem] overflow-y-auto"
+      infinite-scroll
+      [scrollWindow]="false"
+      [infiniteScrollDistance]="2"
+      [infiniteScrollThrottle]="100"
+      [mSpinner]="loading"
+      (scrolled)="load.next()"
+    >
+      @for (follow of follows; track follow) {
+        @if (followFetchType === 'follower' ? follow.followee : follow.followed; as usr) {
+          <li class="py-1">
+            <a [routerLink]="'/profile/' + usr.id" class="flex items-center">
+              <m-avatar class="mr-2 h-12" [url]="usr.avatarURL" />
+              <p>
+                {{ usr.alias }}<br />
+                <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
+              </p>
+            </a>
+          </li>
+        }
+      }
+    </ul>
+  }
+</div>
