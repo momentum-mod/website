@@ -36,29 +36,29 @@ const CDN_URL = Config.runStorage.bucketName
 
 export class LeaderboardRunDto implements LeaderboardRun {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })
-  readonly gamemode: number;
+  readonly gamemode!: number;
 
   @EnumProperty(TrackType, {
     description: 'The trackNum the run took place on'
   })
-  readonly trackType: number;
+  readonly trackType!: number;
 
   @ApiProperty({
     type: Number,
     description: 'The trackNum the run took place on'
   })
   @Min(1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @EnumProperty(Style, { description: 'The style of the run' })
-  readonly style: number;
+  readonly style!: number;
 
   @ApiProperty({
     type: Number,
     description: 'The overall time of the run (ticks * tickRate)'
   })
   @IsNumber()
-  readonly time: number;
+  readonly time!: number;
 
   @ApiProperty({
     type: String,
@@ -79,7 +79,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
   })
   @IsHash('sha1')
   @IsOptional()
-  readonly replayHash: string;
+  readonly replayHash!: string;
 
   @ApiProperty({
     type: Number,
@@ -87,7 +87,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
     description: 'Array of all the style flags that run qualified for'
   })
   @IsInt({ each: true })
-  readonly flags: number[];
+  readonly flags!: number[];
 
   @ApiProperty()
   @IsOptional()
@@ -98,7 +98,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
     description: 'Rank on the corresponding leaderboard'
   })
   @IsInt()
-  readonly rank: number;
+  readonly rank!: number;
 
   // @ApiProperty({
   //   type: Number,
@@ -108,13 +108,13 @@ export class LeaderboardRunDto implements LeaderboardRun {
   // readonly rankXP: number;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @NestedProperty(UserDto, { required: false, lazy: true })
-  readonly user: UserDto;
+  readonly user!: UserDto;
 
   @IdProperty({ required: false })
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @NestedProperty(MapDto, { required: false })
   @Expose()
@@ -123,28 +123,28 @@ export class LeaderboardRunDto implements LeaderboardRun {
   }
 
   @IdProperty({ bigint: true })
-  readonly pastRunID: number;
+  readonly pastRunID!: number;
 
   @Exclude()
-  readonly mmap: MapDto;
+  readonly mmap!: MapDto;
 
   @NestedProperty(LeaderboardDto, { required: false })
-  readonly leaderboard: LeaderboardDto;
+  readonly leaderboard!: LeaderboardDto;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 export class AdminDeleteRunDto {
   @IdProperty()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @ApiProperty()
   @IsEnum(Gamemode)
-  gamemode: Gamemode;
+  gamemode!: Gamemode;
 
   @ApiProperty()
   @IsEnum(TrackType)

@@ -85,7 +85,7 @@ export class UserMapsBrowserComponent implements OnInit {
     MapSortType.ALPHABETICAL_REVERSE
   ];
   protected readonly MapSortNameFn = (type: MapSortType): string =>
-    MapSortTypeName.get(type);
+    MapSortTypeName.get(type) ?? '';
 
   protected hasSubmissionBan = false;
 
@@ -98,7 +98,7 @@ export class UserMapsBrowserComponent implements OnInit {
   });
 
   protected maps: MMap[] = [];
-  protected summary: MapSummary[];
+  protected summary: MapSummary[] = [];
   protected summaryLoading = true;
 
   private skip = 0;

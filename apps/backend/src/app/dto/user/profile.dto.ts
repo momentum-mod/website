@@ -7,12 +7,12 @@ import { SocialsDto } from './socials.dto';
 export class ProfileDto implements Profile {
   @ApiProperty({ type: Number, description: 'The ID of the user' })
   @IsInt()
-  readonly userID: number;
+  readonly userID!: number;
 
   @ApiProperty({ type: String, description: 'The text-based bio of the user' })
   @IsString()
-  readonly bio: string;
+  readonly bio!: string;
 
   @NestedProperty(SocialsDto)
-  readonly socials: SocialsDto;
+  readonly socials!: SocialsDto;
 }

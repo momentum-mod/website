@@ -1,3 +1,5 @@
+import { KeyValue } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   Input,
@@ -83,25 +85,25 @@ export class MapStatusFormComponent implements OnChanges {
   protected readonly MapStatus = MapStatus;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MIN_PUBLIC_TESTING_DURATION = MIN_PUBLIC_TESTING_DURATION;
-  @Input({ required: true }) map: MMap;
-  @Input({ required: true }) sub: boolean;
+  @Input({ required: true }) map!: MMap;
+  @Input({ required: true }) sub!: boolean;
 
-  @Input({ required: true }) formGroup: FormGroup<{
+  @Input({ required: true }) formGroup!: FormGroup<{
     status: FormControl<MapStatus>;
     finalLeaderboards: FormControl<MapSubmissionApproval[]>;
   }>;
 
-  protected status: MapStatus;
+  protected status: MapStatus = MapStatus.APPROVED;
   protected possibleStatuses: Array<{
     label: string;
     value: MapStatus | -1; // PrimeNG component behaves weirdly for `null`
   }> = [];
 
-  protected firstEnteredPublicTesting: number;
-  protected isBlockedForUnresolvedReviews: boolean;
-  protected isBlockedForSubmissionTimeGate: boolean;
-  protected isBlockedForNoApprovingReview: boolean;
-  protected hasBeenApprovedBefore: boolean;
+  protected firstEnteredPublicTesting = 0;
+  protected isBlockedForUnresolvedReviews = false;
+  protected isBlockedForSubmissionTimeGate = false;
+  protected isBlockedForNoApprovingReview = false;
+  protected hasBeenApprovedBefore = false;
 
   protected loading = false;
 
@@ -135,24 +137,27 @@ export class MapStatusFormComponent implements OnChanges {
           this.leaderboardsService.getLeaderboardStats(this.map.id)
         ])
       );
-    } catch (httpError) {
+    } catch (httpError: any) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error fetching map summary data!!',
-        detail: httpError.error.message
+        detail:
+          (httpError as HttpErrorResponse)?.error?.message ??
+          (httpError as Error)?.message
       });
       this.loading = false;
       return;
     }
 
     this.setupFinalApprovalForm(leaderboardStats, reviews.data);
-    this.hasBeenApprovedBefore = Boolean(this.map.info.approvedDate);
+    this.hasBeenApprovedBefore = Boolean(this.map.info?.approvedDate);
 
-    this.firstEnteredPublicTesting = new Date(
-      this.map.submission.dates.findLast(
-        ({ status }) => status === MapStatus.PUBLIC_TESTING
-      )?.date
-    ).getTime();
+    const lastTestingDate = this.map.submission?.dates?.findLast(
+      ({ status }) => status === MapStatus.PUBLIC_TESTING
+    )?.date;
+    this.firstEnteredPublicTesting = lastTestingDate
+      ? new Date(lastTestingDate).getTime()
+      : 0;
     this.isBlockedForSubmissionTimeGate =
       !(this.mod || this.adm) &&
       Date.now() - this.firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION;
@@ -188,7 +193,7 @@ export class MapStatusFormComponent implements OnChanges {
     leaderboardStats: LeaderboardStats[],
     reviews: MapReview[]
   ) {
-    const subSuggs = this.map.submission.suggestions;
+    const subSuggs = this.map.submission?.suggestions ?? [];
     const reviewSuggs = reviews.flatMap(({ suggestions }) => suggestions);
     const arr10 = arrayFrom(10, (i) => i + 1);
     const style = getComputedStyle(document.documentElement);
@@ -200,7 +205,15 @@ export class MapStatusFormComponent implements OnChanges {
     const leaderboards = leaderboardStats
       .filter((stats) => !DisabledGamemodes.has(stats.leaderboard.gamemode))
       .map(({ leaderboard, totalRuns }) => {
-        const matchTrack = ({ gamemode, trackType, trackNum }) =>
+        const matchTrack = ({
+          gamemode,
+          trackType,
+          trackNum
+        }: {
+          gamemode: Gamemode;
+          trackType: TrackType;
+          trackNum: number;
+        }) =>
           leaderboard.gamemode === gamemode &&
           leaderboard.trackType === trackType &&
           leaderboard.trackNum === trackNum;
@@ -259,27 +272,34 @@ export class MapStatusFormComponent implements OnChanges {
 
         if (reviews.length > 0) {
           // Mean including submitter, i.e.
-          let sumTiers = reviews.reduce((acc, { tier }) => acc + tier, 0);
-          let totalTiers = reviews.filter(({ tier }) => tier > 0).length;
-          if (subSugg?.tier > 0) {
+          let sumTiers = reviews.reduce(
+            (acc, { tier }) => acc + (tier ?? 0),
+            0
+          );
+          let totalTiers = reviews.filter(
+            ({ tier }) => tier != null && tier > 0
+          ).length;
+          if (subSugg?.tier != null && subSugg.tier > 0) {
             sumTiers += subSugg.tier;
             totalTiers++;
           }
-          r.averageTier = +(sumTiers / totalTiers).toFixed(2);
+          r.averageTier =
+            totalTiers > 0 ? +(sumTiers / totalTiers).toFixed(2) : 0;
 
           const sumRatings = reviewSuggs.reduce(
-            (acc, { gameplayRating }) => acc + gameplayRating,
+            (acc, { gameplayRating }) => acc + (gameplayRating ?? 0),
             0
           );
           const totalRatings = reviewSuggs.filter(
             ({ gameplayRating }) => gameplayRating != null
           ).length;
 
-          r.averageRating = +(sumRatings / totalRatings).toFixed(2);
+          r.averageRating =
+            totalRatings > 0 ? +(sumRatings / totalRatings).toFixed(2) : 0;
 
           r.reviewTags = reviews
-            .flatMap(({ tags }) => tags)
-            .reduce((arr, tag) => {
+            .flatMap(({ tags }) => tags ?? [])
+            .reduce<[MapTag, number][]>((arr, tag) => {
               if (!tag) return arr;
               const tuple = arr.find(([t]) => t === tag);
               if (tuple) {
@@ -326,7 +346,7 @@ export class MapStatusFormComponent implements OnChanges {
             (roles.includes(Role.MODERATOR) && this.mod) ||
             (roles.includes(Role.REVIEWER) && this.rev) ||
             (roles.includes('submitter') && this.sub))
-      ).map(({ to }) => ({ value: to, label: MapStatusName.get(to) }))
+      ).map(({ to }) => ({ value: to, label: MapStatusName.get(to) ?? '' }))
     ];
   }
 
@@ -334,7 +354,10 @@ export class MapStatusFormComponent implements OnChanges {
     return this.possibleStatuses.some(({ value }) => value === status);
   }
 
-  protected groupLbSortFn = (a, b) => a.value.totalRuns > b.value.totalRuns;
+  protected groupLbSortFn = (
+    a: KeyValue<any, any>,
+    b: KeyValue<any, any>
+  ): boolean => a.value.totalRuns > b.value.totalRuns;
   protected leaderboardKey = leaderboardKey;
 
   get statusControl() {

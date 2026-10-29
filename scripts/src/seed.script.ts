@@ -205,8 +205,8 @@ prismaWrapper(async (prisma: PrismaClient) => {
     region: process.env['STORAGE_REGION'],
     endpoint: s3EndpointUrl,
     credentials: {
-      accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'],
-      secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY']
+      accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'] ?? '',
+      secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] ?? ''
     },
     forcePathStyle: true
   });
@@ -466,7 +466,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const submissionsDates = () => {
         const dates: MapSubmissionDateCreateWithoutSubmissionInput[] = [];
 
-        let currStatus: MapStatus = Random.chance()
+        let currStatus: MapStatus | null = Random.chance()
           ? MapStatus.PRIVATE_TESTING
           : MapStatus.CONTENT_APPROVAL;
         let currDate = Random.pastDateSince(1e6);
@@ -509,7 +509,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       //#region Leaderboards, suggestions, etc...
 
-      const zones = JSON.parse(versions.at(-1).zones);
+      const zones = JSON.parse(versions.at(-1)!.zones);
       const numModes = randRange(vars.modesPerLeaderboard);
       const modesSet = new Set<Gamemode>();
       while (modesSet.size < numModes) {
@@ -559,10 +559,10 @@ prismaWrapper(async (prisma: PrismaClient) => {
                 ? Random.chance()
                   ? LeaderboardType.RANKED
                   : LeaderboardType.UNRANKED
-                : rankedMainTracks.get(m),
+                : rankedMainTracks.get(m)!,
             tags:
               trackType === TrackType.MAIN && !inSubmission
-                ? Random.elements(MapTags.get(m), Random.int(4))
+                ? Random.elements(MapTags.get(m) ?? [], Random.int(4))
                 : []
           };
 
@@ -590,7 +590,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             type: Random.chance()
               ? LeaderboardType.RANKED
               : LeaderboardType.UNRANKED,
-            tags: Random.elements(MapTags.get(gamemode), Random.int(3))
+            tags: Random.elements(MapTags.get(gamemode) ?? [], Random.int(3))
           }));
 
       const review = async () => ({
@@ -666,7 +666,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
               // Could be fancy and bubble up all the promises here to do in parallel
               // but not worth the insane code
               await Promise.all(
-                ['small', 'medium', 'large', 'xl'].map((size) =>
+                (['small', 'medium', 'large', 'xl'] as const).map((size) =>
                   s3.send(
                     new PutObjectCommand({
                       Bucket: s3BucketName,
@@ -736,7 +736,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         }
       });
 
-      const lastVersion = map.versions.at(-1);
+      const lastVersion = map.versions.at(-1)!;
       await prisma.mMap.update({
         where: { id: map.id },
         data: { currentVersion: { connect: { id: lastVersion.id } } }
@@ -745,7 +745,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       await s3.send(
         new PutObjectCommand({
           Bucket: s3BucketName,
-          Key: bspPath(lastVersion.bspDownloadId),
+          Key: bspPath(lastVersion.bspDownloadId!),
           Body: mapBuffer
         })
       );
@@ -760,17 +760,17 @@ prismaWrapper(async (prisma: PrismaClient) => {
         });
       }
 
-      const { roles } = await prisma.user.findUnique({
-        where: { id: map.submitterID },
+      const { roles } = await prisma.user.findUniqueOrThrow({
+        where: { id: map.submitterID! },
         select: { roles: true }
       });
 
       await prisma.user.update({
-        where: { id: map.submitterID },
+        where: { id: map.submitterID! },
         data: {
           roles: Bitflags.add(
             roles,
-            map.submission.type === MapSubmissionType.PORT
+            map.submission!.type === MapSubmissionType.PORT
               ? Role.PORTER
               : Role.MAPPER
           )
@@ -779,7 +779,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
 
       await prisma.activity.create({
         data: {
-          userID: map.submitterID,
+          userID: map.submitterID!,
           type: ActivityType.MAP_UPLOADED,
           data: map.id,
           ...Random.createdUpdatedDates()
@@ -789,7 +789,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       if (map.status === MapStatus.APPROVED) {
         await prisma.activity.create({
           data: {
-            userID: map.submitterID,
+            userID: map.submitterID!,
             type: ActivityType.MAP_APPROVED,
             data: map.id,
             ...Random.createdUpdatedDates()
@@ -818,7 +818,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         );
 
         const possibleUserIDs = Random.shuffle(userIDs);
-        const usedUserIDs = [];
+        const usedUserIDs: number[] = [];
 
         let time = Random.float(5, 30);
 
@@ -829,7 +829,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
             const createLbRun = i < numRuns;
             let userID: number;
             if (createLbRun) {
-              userID = possibleUserIDs.pop();
+              userID = possibleUserIDs.pop()!;
               usedUserIDs.push(userID);
             } else {
               userID = Random.element(usedUserIDs);
@@ -899,9 +899,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       const unusedUserIDs = Random.shuffle(userIDs);
       await parallel(
         // A map should always have at least one author
-        () => createCredit(map.id, unusedUserIDs.pop(), MapCreditType.AUTHOR),
+        () => createCredit(map.id, unusedUserIDs.pop()!, MapCreditType.AUTHOR),
         ...arrayFrom(randRange(vars.credits) - 1, () =>
-          createCredit(map.id, unusedUserIDs.pop())
+          createCredit(map.id, unusedUserIDs.pop()!)
         )
       );
 
@@ -939,7 +939,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
       //#endregion
     }
   } catch (error) {
-    console.warn(`Failed creating a map: ${error.message}`);
+    console.warn(
+      `Failed creating a map: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
 
   //#region Admin Activity
@@ -1149,7 +1151,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
         map.currentVersion.bspDownloadId
       )}`;
 
-      map.images = map.images.map((image) => ({
+      map.images = map.images.map((image: string) => ({
         id: image,
         small: s3Url(imgSmallPath(image)),
         medium: s3Url(imgMediumPath(image)),

@@ -1,4 +1,4 @@
-﻿import {
+import {
   REPLAY_HEADER_SIZE,
   REPLAY_SPLITS_OFFSET,
   ReplayHeader
@@ -26,7 +26,8 @@ export function writeHeader(header: ReplayHeader, buffer: Buffer): void {
     buffer.writeDoubleLE(header.runTime, 169);
     buffer.writeUInt8(header.style, 194);
   } catch (error) {
-    throw new ReplayWriteError(error.code, error.message);
+    const err = error as Error & { code?: string };
+    throw new ReplayWriteError(err.message, err.code);
   }
 }
 
@@ -41,17 +42,17 @@ export function writeRunSplits(splits: RunSplits.Splits, buffer: Buffer): void {
     buffer.write(splitsStr, REPLAY_SPLITS_OFFSET, splitsStr.length, 'utf8');
     buffer.writeUInt8(0x00, REPLAY_SPLITS_OFFSET + splitsStr.length);
   } catch (error) {
-    throw new ReplayWriteError(error.code, error.message);
+    const err = error as Error & { code?: string };
+    throw new ReplayWriteError(err.message, err.code);
   }
 }
 
 export class ReplayWriteError extends Error {
   /** Node error code https://nodejs.org/api/errors.html#nodejs-error-codes */
-  code: string;
+  code?: string;
 
   constructor(message: string, code?: string) {
-    super();
-    this.message = message;
+    super(message);
     this.code = code;
     this.name = 'ReplayWriteError';
   }

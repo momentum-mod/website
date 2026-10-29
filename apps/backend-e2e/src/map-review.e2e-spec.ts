@@ -1,6 +1,7 @@
 // noinspection DuplicatedCode
 
 import { MapReviewCommentDto, MapReviewDto } from '../../backend/src/app/dto';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 import {
   MapReview,
@@ -14,7 +15,8 @@ import {
   FileStoreUtil,
   NULL_ID,
   RequestUtil,
-  resetKillswitches
+  resetKillswitches,
+  E2ETestMMap
 } from '@momentum/test-utils';
 import {
   Gamemode,
@@ -31,7 +33,7 @@ import {
 } from './support/environment';
 
 describe('Map Reviews', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
@@ -50,7 +52,7 @@ describe('Map Reviews', () => {
 
   describe('map-review/{reviewID}', () => {
     describe('GET', () => {
-      let user, token, map, review;
+      let user: User, token: string, map: E2ETestMMap, review: MapReview;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.REVIEWER }
@@ -144,7 +146,13 @@ describe('Map Reviews', () => {
     });
 
     describe('PATCH', () => {
-      let u1, u1Token, u2, u2Token, map, review1, review2;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        u2Token: string,
+        map: E2ETestMMap,
+        review1: MapReview,
+        review2: MapReview;
 
       beforeAll(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
@@ -376,7 +384,7 @@ describe('Map Reviews', () => {
         _notif = await prisma.notification.create({
           data: {
             type: NotificationType.MAP_REVIEW_POSTED,
-            notifiedUserID: map.submitterID,
+            notifiedUserID: map.submitterID!,
             userID: review.reviewerID,
             mapID: map.id,
             reviewID: review.id
@@ -681,7 +689,7 @@ describe('Map Reviews', () => {
           data: {
             mainText: 'I forgot zones! :(',
             mmap: { connect: { id: map.id } },
-            reviewer: { connect: { id: map.submitterID } }
+            reviewer: { connect: { id: map.submitterID! } }
           }
         });
         await req.post({
@@ -799,7 +807,11 @@ describe('Map Reviews', () => {
     });
 
     describe('DELETE', () => {
-      let user, token, adminToken, map, reviewID;
+      let user: User,
+        token: string,
+        adminToken: string,
+        map: E2ETestMMap,
+        reviewID: number;
 
       beforeAll(async () => {
         [[user, token], adminToken] = await Promise.all([

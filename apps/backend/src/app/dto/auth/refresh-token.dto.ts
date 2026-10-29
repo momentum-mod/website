@@ -5,5 +5,5 @@ import { RefreshToken } from '@momentum/constants';
 export class RefreshTokenDto implements RefreshToken {
   @ApiProperty({ type: String, description: 'A JWT refresh token' })
   @IsJWT()
-  readonly refreshToken: string;
+  readonly refreshToken!: string;
 }

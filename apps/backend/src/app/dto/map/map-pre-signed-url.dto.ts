@@ -5,5 +5,5 @@ import { IsUrl } from 'class-validator';
 export class MapPreSignedUrlDto implements MapPreSignedUrl {
   @ApiProperty()
   @IsUrl()
-  readonly url: string;
+  readonly url!: string;
 }

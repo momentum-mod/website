@@ -15,7 +15,7 @@ export class HomeComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly router = inject(Router);
 
-  user: User;
+  user?: User;
 
   constructor() {
     this.localUserService.user.subscribe({

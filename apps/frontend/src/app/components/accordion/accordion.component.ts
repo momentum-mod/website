@@ -39,7 +39,7 @@ export class AccordionComponent implements AfterContentInit {
   @Input() startAllOpen = false;
 
   @ContentChildren(AccordionItemComponent)
-  private items: QueryList<AccordionItemComponent>;
+  private items!: QueryList<AccordionItemComponent>;
 
   ngAfterContentInit() {
     this.itemOpened.subscribe((key) => this.onItemOpened(key));

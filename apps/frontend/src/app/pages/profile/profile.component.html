@@ -52,14 +52,14 @@
                     [icon]="(localFollowStatus | async) ? 'heart-broken' : 'heart'"
                   />
                 </button>
-                @if (localFollowStatus | async) {
+                @if (localFollowStatus | async; as followStatus) {
                   <button
                     type="button"
                     class="btn btn-blue aspect-square p-2"
                     mTooltip="Edit Notifications"
                     (click)="editFollowNotifications()"
                   >
-                    <m-icon [icon]="(localFollowStatus | async).notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
+                    <m-icon [icon]="followStatus.notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
                   </button>
                 }
               }
@@ -83,31 +83,35 @@
                 <p class="pb-1 leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
                 <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)" />
               </div>
-              <m-level-indicator class="mt-auto" [totalLevel]="user.userStats.level" />
+              <m-level-indicator class="mt-auto" [totalLevel]="user.userStats?.level ?? 1" />
             </div>
           }
         </div>
       </div>
       <div class="card gap-5 p-4 [&>*:not(.card-inset)]:px-2">
-        @if (user.profile?.bio?.length > 0) {
-          <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
+        @if (user.profile?.bio; as bio) {
+          @if (bio.length > 0) {
+            <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ bio }}</p>
+          }
         }
-        @if ((user.profile?.socials | unsortedKeyvalue)?.length) {
-          <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
-            @for (social of user.profile.socials | unsortedKeyvalue; track social) {
-              @if (social.value) {
-                <a
-                  class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
-                  href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
-                  target="_blank"
-                  [mTooltip]="social.key"
-                >
-                  <m-icon class="mr-1 h-7 w-7 align-middle text-white" [icon]="SocialsData[social.key].icon" pack="si" />
-                  {{ social.value }}
-                </a>
+        @if (user.profile?.socials; as socials) {
+          @if ((socials | unsortedKeyvalue).length > 0) {
+            <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+              @for (social of socials | unsortedKeyvalue; track social.key) {
+                @if (social.value) {
+                  <a
+                    class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
+                    href="https://{{ getSocialData(social.key).url }}/{{ social.value }}"
+                    target="_blank"
+                    [mTooltip]="social.key"
+                  >
+                    <m-icon class="mr-1 h-7 w-7 align-middle text-white" [icon]="getSocialData(social.key).icon" pack="si" />
+                    {{ social.value }}
+                  </a>
+                }
               }
-            }
-          </div>
+            </div>
+          }
         }
 
         <div class="flex flex-col gap-4 sm:flex-row">

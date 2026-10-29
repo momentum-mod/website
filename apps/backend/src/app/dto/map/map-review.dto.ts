@@ -27,31 +27,31 @@ const CDN_URL = Config.url.cdn;
 
 export class MapReviewDto implements MapReview {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @IsString()
-  readonly mainText: string;
+  readonly mainText!: string;
 
   @NestedProperty(MapReviewCommentDto, {
     lazy: true,
     required: false,
     isArray: true
   })
-  readonly comments: MapReviewCommentDto[];
+  readonly comments!: MapReviewCommentDto[];
 
   @IsInt()
   @IsOptional()
-  numComments: number;
+  numComments!: number;
 
   @NestedProperty(MapReviewSuggestionDto, {
     lazy: true,
     required: false,
     isArray: true
   })
-  readonly suggestions: MapReviewSuggestionDto[];
+  readonly suggestions!: MapReviewSuggestionDto[];
 
   @NestedProperty(MapReviewEditDto, { lazy: true, isArray: true })
-  readonly editHistory: MapReviewEditDto[];
+  readonly editHistory!: MapReviewEditDto[];
 
   @NestedProperty(MapDto, { lazy: true, required: true })
   @Expose()
@@ -60,13 +60,13 @@ export class MapReviewDto implements MapReview {
   }
 
   @Exclude()
-  readonly mmap: MapDto;
+  readonly mmap!: MapDto;
 
   @IdProperty()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @Exclude()
-  readonly imageIDs: string[];
+  readonly imageIDs!: string[];
 
   @Expose()
   get images(): string[] {
@@ -76,30 +76,30 @@ export class MapReviewDto implements MapReview {
   }
 
   @NestedProperty(UserDto, { lazy: true, required: true })
-  readonly reviewer: UserDto;
+  readonly reviewer!: UserDto;
 
   @IdProperty()
-  readonly reviewerID: number;
+  readonly reviewerID!: number;
 
   @IsBoolean()
   @IsOptional()
-  readonly resolved: boolean | null;
+  readonly resolved!: boolean | null;
 
   @NestedProperty(UserDto, { lazy: true })
   readonly resolver?: UserDto;
 
   @IdProperty()
   @IsOptional()
-  readonly resolverID: number;
+  readonly resolverID!: number;
 
   @IsBoolean()
-  readonly approves: boolean;
+  readonly approves!: boolean;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }
 
 export class CreateMapReviewDto
@@ -130,12 +130,12 @@ export class CreateMapReviewWithFilesDto implements CreateMapReviewWithFiles {
     description: 'Array of image files'
   })
   @IsOptional()
-  readonly images: any[];
+  readonly images!: any[];
 
   @NestedProperty(CreateMapReviewDto, {
     description: 'The JSON part of the body'
   })
-  readonly data: CreateMapReviewDto;
+  readonly data!: CreateMapReviewDto;
 }
 
 export class UpdateMapReviewDto

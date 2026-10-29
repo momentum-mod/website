@@ -27,11 +27,11 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
   protected totalRecords = 0;
   protected first = 0;
 
-  protected error: string;
+  protected error = '';
 
   ngOnInit() {
     merge(
-      this.pageChange.pipe(tap(({ first }) => (this.first = first))),
+      this.pageChange.pipe(tap(({ first }) => (this.first = first ?? 0))),
       this.search.valueChanges.pipe(
         distinctUntilChanged(),
         filter((value) => {
@@ -52,7 +52,7 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
       .subscribe(this.onResponse);
   }
 
-  onResponse: Partial<Observer<T | PagedResponse<T>>> = {
+  onResponse: Partial<Observer<PagedResponse<T> | null>> = {
     next: (response: PagedResponse<T> | null) => {
       if (!response) {
         this.resetSearchData();
@@ -73,7 +73,7 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
 
   abstract searchRequest(
     searchString: string
-  ): Observable<T | PagedResponse<T>>;
+  ): Observable<PagedResponse<T> | null>;
 
   public resetSearchBox() {
     this.resetSearchData();
@@ -91,6 +91,8 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
   }
 
   protected getFirstError() {
-    return Object.values(this.search.errors)[0] ?? 'Unknown error';
+    return this.search.errors
+      ? (Object.values(this.search.errors)[0] ?? 'Unknown error')
+      : 'Unknown error';
   }
 }

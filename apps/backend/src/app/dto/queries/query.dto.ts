@@ -3,5 +3,6 @@ export class QueryDto {
     | string
     | number
     | boolean
-    | ReadonlyArray<string | number | boolean>;
+    | ReadonlyArray<string | number | boolean>
+    | undefined;
 }

@@ -64,7 +64,7 @@ export class JwtAuthService {
 
   private async generateWebTokenPair(
     id: number,
-    steamID: bigint
+    steamID: bigint | null
   ): Promise<JWTResponseWebDto> {
     const [accessToken, refreshToken] = await parallel(
       this.generateAccessToken({ id, steamID: steamID, gameAuth: false }),
@@ -96,7 +96,7 @@ export class JwtAuthService {
   private verifyJwt(token: string): UserJwtPayloadVerified {
     try {
       return this.jwtService.verify(token);
-    } catch (error) {
+    } catch (error: any) {
       throw [
         'TokenExpiredError',
         'JsonWebTokenError',

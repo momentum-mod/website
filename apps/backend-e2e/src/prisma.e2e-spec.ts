@@ -74,7 +74,7 @@ describe('Prisma Client Extensions', () => {
       const { id: userID } = await ePrisma.user.create({ data: { alias: '' } });
       const profile = await prisma.profile.findFirst();
       const userStats = await prisma.userStats.findFirst();
-      expect(profile.userID).toBe(userID);
+      expect(profile!.userID).toBe(userID);
       expect(userStats).toMatchObject({
         userID: userID,
         level: 1,

@@ -72,7 +72,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
   protected readonly Ban = Ban;
   protected readonly ChatBanTypeNames = ChatBanTypeNames;
 
-  protected user: User;
+  protected user!: User;
   protected isAdmin = false;
 
   protected chatBans: BanView[] = [];
@@ -103,7 +103,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.user = this.config.data.user;
+    this.user = this.config.data!.user;
     this.isAdmin = this.localUserService.isAdmin;
 
     this.pendingRoles = this.user.roles;
@@ -293,15 +293,15 @@ export class ProfileAdminSettingsComponent implements OnInit {
         Are you sure you want to proceed?`
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
-        this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
+        this.adminService.mergeUsers(this.user, this.mergeUser!).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
               detail: 'Successfully merged the two users!'
             });
-            const mergedID = this.mergeUser.id;
+            const mergedID = this.mergeUser?.id;
             this.mergeUser = null;
             this.ref.close();
             this.router.navigate([`/profile/${mergedID}`]);
@@ -329,7 +329,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
           abortMessage: 'Cancel'
         }
       })
-      .onClose.subscribe(
+      ?.onClose.subscribe(
         ({ confirmed, reason }: ConfirmWithReasonDialogResult) => {
           if (!confirmed) return;
           this.adminService.deleteAllRuns(this.user.id, reason).subscribe({
@@ -364,7 +364,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
             </p>`
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
         this.deleteUserAsAdmin();
       });

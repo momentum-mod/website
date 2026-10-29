@@ -38,8 +38,8 @@ export class CreateReportDialogComponent implements OnInit {
     { value: ReportCategory.OTHER, label: 'Other' }
   ];
 
-  @Input() reportType: ReportType;
-  @Input() reportData: number;
+  @Input() reportType!: ReportType;
+  @Input() reportData!: number;
 
   protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
 

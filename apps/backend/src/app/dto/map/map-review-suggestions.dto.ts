@@ -12,28 +12,28 @@ export class MapReviewSuggestionDto implements MapReviewSuggestion {
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
   @Min(1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @ApiProperty({ description: 'Track type the suggestion refers to' })
   @IsInt()
-  readonly trackType: TrackType;
+  readonly trackType!: TrackType;
 
   @EnumProperty(Gamemode, { description: 'Gamemode the suggestion is for' })
-  readonly gamemode: Gamemode;
+  readonly gamemode!: Gamemode;
 
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
   @IsOptional()
   @Min(1)
   @Max(10)
-  readonly tier: number;
+  readonly tier!: number;
 
   @ApiProperty({ description: 'Gameplay rating out of 10' })
   @IsInt()
   @IsOptional()
   @Min(1)
   @Max(10)
-  readonly gameplayRating: number;
+  readonly gameplayRating!: number;
 
   @ApiProperty({ description: 'Array of tags' })
   @IsEnum(MapTag, { each: true })

@@ -22,7 +22,7 @@ import { SpinnerComponent } from '../spinner/spinner.component';
 })
 export class CardComponent {
   @HostBinding('class') classes = 'card';
-  @Input() title: string;
+  @Input() title?: string;
   @Input() titleSize: string | number = 2;
   @Input() cardClass = '';
 

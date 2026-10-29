@@ -5,23 +5,23 @@ import { CreatedAtProperty, IdProperty } from '../decorators';
 
 export class RunSessionTimestampDto implements RunSessionTimestamp {
   @IdProperty({ bigint: true })
-  readonly id: number;
+  readonly id!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly majorNum: number;
+  readonly majorNum!: number;
 
   @ApiProperty()
   @IsInt()
-  readonly minorNum: number;
+  readonly minorNum!: number;
 
   @ApiProperty()
   @IsNumber()
-  readonly time: number;
+  readonly time!: number;
 
   @IdProperty({ bigint: true })
-  readonly sessionID: number;
+  readonly sessionID!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }

@@ -108,7 +108,7 @@ export class MapBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (sortType: MapSortType): string =>
     MapSortTypeName.get(sortType) ?? '';
 
-  protected currentAllowedTAndQs = [];
+  protected currentAllowedTAndQs: TagAndQualifier[] = [];
   protected readonly TagQualifier = TagQualifier;
   protected readonly MapTagNameFn = (tagAndQualifier: TagAndQualifier) =>
     mapTagEnglishName(tagAndQualifier[0]);
@@ -297,12 +297,12 @@ export class MapBrowserComponent implements OnInit {
   }
 
   updateTagsAndQualifiers(gamemode: Gamemode | 0 | undefined | null) {
-    this.currentAllowedTAndQs = (gamemode ? MapTags.get(gamemode) : []).map(
-      (tag: MapTag) => [
-        tag,
-        TagQualifier.INCLUDE // Default to include.
-      ]
-    );
+    this.currentAllowedTAndQs = (
+      gamemode ? (MapTags.get(gamemode) ?? []) : []
+    ).map((tag: MapTag) => [
+      tag,
+      TagQualifier.INCLUDE // Default to include.
+    ]);
 
     this.tagsAndQualifiers.setValue(
       this.tagsAndQualifiers

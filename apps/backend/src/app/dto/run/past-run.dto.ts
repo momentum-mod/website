@@ -19,15 +19,15 @@ import {
 
 export class PastRunDto implements PastRun {
   @IdProperty({ bigint: true })
-  readonly id: number;
+  readonly id!: number;
 
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })
-  readonly gamemode: number;
+  readonly gamemode!: number;
 
   @EnumProperty(TrackType, {
     description: 'The trackNum the run took place on'
   })
-  readonly trackType: number;
+  readonly trackType!: number;
 
   @ApiProperty({
     type: Number,
@@ -35,17 +35,17 @@ export class PastRunDto implements PastRun {
   })
   @IsInt()
   @Min(1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @EnumProperty(Style, { description: 'The trackNum the run took place on' })
-  readonly style: number;
+  readonly style!: number;
 
   @ApiProperty({
     type: Number,
     description: 'The overall time of the run (ticks * tickRate)'
   })
   @IsNumber()
-  readonly time: number;
+  readonly time!: number;
 
   @ApiProperty({
     type: Number,
@@ -54,23 +54,23 @@ export class PastRunDto implements PastRun {
   })
   @Type(() => Number)
   @IsInt({ each: true })
-  readonly flags: number[];
+  readonly flags!: number[];
 
   @ApiProperty({
     type: Boolean,
     description: 'Whether the run is a personal best'
   })
   @IsBoolean()
-  readonly isPB: boolean;
+  readonly isPB!: boolean;
 
   @IdProperty()
-  readonly userID: number;
+  readonly userID!: number;
 
   @NestedProperty(UserDto, { required: false, lazy: true })
-  readonly user: UserDto;
+  readonly user!: UserDto;
 
   @IdProperty()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @NestedProperty(MapDto, { required: false })
   @Expose()
@@ -79,8 +79,8 @@ export class PastRunDto implements PastRun {
   }
 
   @Exclude()
-  readonly mmap: MapDto;
+  readonly mmap!: MapDto;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }

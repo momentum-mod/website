@@ -1,4 +1,4 @@
-﻿import {
+import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
   GetObjectCommand,
@@ -65,7 +65,8 @@ export class FileStoreUtil {
         })
       );
 
-      if (listedObjects.Contents.length === 0) return;
+      if (!listedObjects.Contents || listedObjects.Contents.length === 0)
+        return;
 
       await this.s3.send(
         new DeleteObjectsCommand({
@@ -90,9 +91,11 @@ export class FileStoreUtil {
           Key: key
         })
       );
-      return Buffer.from(await output.Body.transformToByteArray());
+      return output.Body
+        ? Buffer.from(await output.Body.transformToByteArray())
+        : undefined;
     } catch {
-      return null;
+      return undefined;
     }
   }
 
@@ -107,9 +110,9 @@ export class FileStoreUtil {
       );
 
       if (response.KeyCount === 0 || !response.Contents) return [];
-      return response.Contents.map(({ Key }) => Key);
+      return response.Contents.flatMap(({ Key }) => (Key ? [Key] : []));
     } catch {
-      return null;
+      return [];
     }
   }
 
@@ -124,7 +127,7 @@ export class FileStoreUtil {
   async getHash(key: string): Promise<string | undefined> {
     try {
       const buffer = await this.get(key);
-      return createSha1Hash(buffer);
+      return buffer ? createSha1Hash(buffer) : undefined;
     } catch {
       return undefined;
     }
@@ -133,6 +136,7 @@ export class FileStoreUtil {
   async checkHash(key: string, hash: string): Promise<boolean> {
     try {
       const buffer = await this.get(key);
+      if (!buffer) return false;
       const fileHash = createSha1Hash(buffer);
       return fileHash === hash;
     } catch {
@@ -156,6 +160,11 @@ export class FileStoreUtil {
         type === FlatMapList.APPROVED ? 'approved' : 'submissions'
       }/${version}.dat`
     );
+    if (!file) {
+      throw new Error(
+        `Failed to get map list version file for ${type}/${version}`
+      );
+    }
     return {
       ident: file.subarray(0, 4).toString(),
       uncompressedLength: file.readUInt32LE(4),

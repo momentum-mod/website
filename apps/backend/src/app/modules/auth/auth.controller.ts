@@ -37,6 +37,7 @@ import { JwtAuthService } from './jwt/jwt-auth.service';
 import { SteamOpenIDService } from './steam/steam-openid.service';
 import { SteamWebGuard } from './steam/steam-web.guard';
 import { SteamGameGuard } from './steam/steam-game.guard';
+import { AuthenticatedUser } from './auth.interface';
 
 @Controller({
   path: 'auth',
@@ -87,7 +88,7 @@ export class AuthController {
   async steamWebAuthReturn(
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
-    @LoggedInUser() user
+    @LoggedInUser() user: AuthenticatedUser
   ) {
     const jwt = await this.authService.loginWeb(user);
 
@@ -136,7 +137,7 @@ export class AuthController {
   })
   async steamGameAuth(
     @Req() req: RawBodyRequest<FastifyRequest>,
-    @LoggedInUser() user
+    @LoggedInUser() user: AuthenticatedUser
   ): Promise<JWTResponseGameDto> {
     return this.authService.loginGame(user);
   }

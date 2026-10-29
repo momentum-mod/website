@@ -7,7 +7,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
-import { map, mergeAll, switchMap, tap } from 'rxjs/operators';
+import { filter, map, mergeAll, switchMap, tap } from 'rxjs/operators';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   FormControl,
@@ -140,9 +140,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
   protected loading = false;
 
-  wasApproved: boolean;
-  isSubmitter: boolean;
-  inSubmission: boolean;
+  wasApproved = false;
+  isSubmitter = false;
+  inSubmission = false;
 
   private readonly reload = new Subject<void>();
 
@@ -162,7 +162,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           Validators.maxLength(MAX_MAP_NAME_LENGTH)
         ],
         asyncValidators: [
-          BackendValidators.uniqueMapName(this.mapsService, () => this.map.name)
+          BackendValidators.uniqueMapName(
+            this.mapsService,
+            () => this.map?.name
+          )
         ]
       }),
       description: this.nnfb.control<string>('', {
@@ -204,7 +207,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     suggestions: this.nnfb.control<MapSubmissionSuggestion[]>([], {
       validators: suggestionsValidator(
-        () => this.map?.currentVersion.zones,
+        () => this.map?.currentVersion?.zones,
         SuggestionType.SUBMISSION
       )
     }),
@@ -248,10 +251,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   testInviteForm = this.nnfb.control<number[] | User[]>([]);
 
   @ViewChild(MapImageSelectionComponent, { static: true })
-  imageSelection: MapImageSelectionComponent;
+  imageSelection!: MapImageSelectionComponent;
 
   @ViewChild(MapLeaderboardSelectionComponent, { static: true })
-  lbSelection: MapLeaderboardSelectionComponent;
+  lbSelection!: MapLeaderboardSelectionComponent;
 
   ngOnInit() {
     this.layoutService.reserveBackgroundUrl(/\/map-edit\/(?!submit)[\w-]+\/?$/);
@@ -262,6 +265,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     ])
       .pipe(
         mergeAll(),
+        filter((mapName): mapName is string => Boolean(mapName)),
         tap(() => (this.loading = true)),
         switchMap((mapName) =>
           this.mapsService.getMap(mapName, {
@@ -301,29 +305,37 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   }
 
   private async setupMainForm() {
+    if (!this.map || !this.map.info) return;
+
     this.name.setValue(this.map.name);
-    this.submissionType.setValue(this.map.submission.type);
+    if (this.map.submission) {
+      this.submissionType.setValue(this.map.submission.type);
+    }
     this.description.setValue(this.map.info.description);
     this.creationDate.setValue(new Date(this.map.info.creationDate));
-    this.youtubeID.setValue(this.map.info.youtubeID);
+    this.youtubeID.setValue(this.map.info.youtubeID ?? '');
     this.requiredGames.setValue(this.map.info.requiredGames);
     this.portingChangelog.setValue(
-      this.map.versions.find((v) => v.versionNum === 1)?.changelog ?? ''
+      this.map.versions?.find((v) => v.versionNum === 1)?.changelog ?? ''
     );
 
     this.images.reset();
 
-    if (this.map.images.length > 0) {
-      this.imageSelection.items[ImageSelectionType.THUMBNAIL] = [
-        await ImageSelectionItem.create(
-          this.map.images[0]?.large,
-          this.map.images[0]?.id
-        )
-      ];
-      this.imageSelection.items[ImageSelectionType.EXTRA] = await Promise.all(
+    if (this.map.images && this.map.images.length > 0) {
+      const first = await ImageSelectionItem.create(
+        this.map.images[0]?.large,
+        this.map.images[0]?.id
+      );
+      this.imageSelection.items[ImageSelectionType.THUMBNAIL] = first
+        ? [first]
+        : [];
+      const extraItems = await Promise.all(
         this.map.images
           .slice(1)
           .map(({ id, large }) => ImageSelectionItem.create(large, id))
+      );
+      this.imageSelection.items[ImageSelectionType.EXTRA] = extraItems.filter(
+        (item): item is ImageSelectionItem => item != null
       );
     }
 
@@ -333,19 +345,19 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     this.credits.setValue(
       new GroupedMapCredits(
         this.map.credits,
-        this.map?.submission?.placeholders
+        this.map.submission?.placeholders ?? []
       )
     );
 
-    this.lbSelection.zones = this.map?.currentVersion?.zones;
-    this.suggestions.setValue(this.map.submission.suggestions);
+    this.lbSelection.zones = this.map.currentVersion?.zones ?? null;
+    this.suggestions.setValue(this.map.submission?.suggestions ?? []);
     if (this.wasApproved) {
       // Setup validatiors for approved maps
       this.suggestions.setValidators(null);
       this.suggestions.updateValueAndValidity();
 
       this.leaderboards.setValue(
-        this.map.leaderboards
+        (this.map.leaderboards ?? [])
           .filter(
             (lb) =>
               lb.type !== LeaderboardType.HIDDEN &&
@@ -353,16 +365,18 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
               lb.style === GamemodeDefaultUIStyle.get(lb.gamemode)
           )
           .map((lb) => ({
-            ...lb,
+            trackType: lb.trackType,
+            trackNum: lb.trackNum,
+            gamemode: lb.gamemode,
+            tier: lb.tier ?? 1,
             type: lb.type as LeaderboardType.RANKED | LeaderboardType.UNRANKED,
-            style: undefined,
-            linear: undefined
+            tags: lb.tags
           }))
       );
 
       this.leaderboards.setValidators([
         suggestionsValidator(
-          () => this.map?.currentVersion.zones,
+          () => this.map?.currentVersion?.zones,
           SuggestionType.APPROVAL
         )
       ]);
@@ -370,7 +384,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
       this.zon.addAsyncValidators(
         FileValidators.hasZonesChange(
-          () => this.map.currentVersion.zones,
+          () => this.map!.currentVersion!.zones,
           this.inSubmission && this.isAdmin
         )
       );
@@ -407,7 +421,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     const body: UpdateMap = {};
 
     if (this.name.dirty) body.name = this.name.value;
-    if (this.submissionType.dirty)
+    if (this.submissionType.dirty && this.submissionType.value != null)
       body.submissionType = this.submissionType.value;
     if (this.description.dirty) {
       body.info ??= {};
@@ -427,7 +441,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     if (this.youtubeID.dirty) {
       body.info ??= {};
       body.info.youtubeID =
-        this.youtubeID.value.length > 0 ? this.youtubeID.value : null;
+        this.youtubeID.value.length > 0 ? this.youtubeID.value : undefined;
     }
     if (this.requiredGames.dirty) {
       body.info ??= {};
@@ -453,8 +467,8 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
       !deepEquals(
         this.credits.value,
         new GroupedMapCredits(
-          this.map.credits,
-          this.map?.submission?.placeholders
+          this.map?.credits ?? [],
+          this.map?.submission?.placeholders ?? []
         )
       );
 
@@ -466,36 +480,38 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     if (hasImages) {
       // See docs for /maps/:id/images PUT for explanation
       let fileIndex = 0;
-      const imageIDs = [];
-      const files = [];
+      const imageIDs: string[] = [];
+      const files: File[] = [];
       for (const image of Object.values(this.imageSelection.items).flat()) {
         if (image.file) {
           files.push(image.file);
           imageIDs.push(fileIndex.toString());
           fileIndex++;
-        } else {
+        } else if (image.existingID) {
           imageIDs.push(image.existingID);
         }
       }
       try {
         await firstValueFrom(
-          this.mapsService.updateMapImages(this.map.id, {
+          this.mapsService.updateMapImages(this.map!.id, {
             data: { imageIDs },
-            images: files?.length > 0 ? files : undefined
+            images: files
           })
         );
-      } catch (error) {
+      } catch (error: any) {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to update images!',
-          detail: JSON.stringify(error.error.message)
+          detail: JSON.stringify(
+            error?.error?.message ?? error?.message ?? error
+          )
         });
         this.loading = false;
         return;
       }
     }
 
-    if (hasCredits) {
+    if (hasCredits && this.credits.value) {
       try {
         const real = this.credits.value.getSubmittableRealUsers();
         const placeholders = this.credits.value.getSubmittablePlaceholders();
@@ -506,7 +522,7 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           ({ type }) => type === MapCreditType.AUTHOR
         );
         const realChanged = !deepEquals(
-          this.map.credits.map(({ userID, type, description }) => ({
+          (this.map?.credits ?? []).map(({ userID, type, description }) => ({
             userID,
             type,
             description
@@ -514,20 +530,20 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           real
         );
         const placeholdersChanged = !deepEquals(
-          this.map.submission.placeholders,
+          this.map?.submission?.placeholders,
           placeholders
         );
         const updateReal = async () =>
           await firstValueFrom(
-            this.mapsService.updateMapCredits(this.map.id, real)
+            this.mapsService.updateMapCredits(this.map!.id, real)
           );
 
         const updatePlaceholders = async () =>
           await firstValueFrom(
             (this.canEdit ? this.adminService : this.mapsService).updateMap(
-              this.map.id,
+              this.map!.id,
               {
-                placeholders: this.credits.value.getSubmittablePlaceholders()
+                placeholders: this.credits.value!.getSubmittablePlaceholders()
               }
             )
           );
@@ -558,11 +574,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
         if (placeholdersChanged && !(realChanged && !realHasAuthors)) {
           await updatePlaceholders();
         }
-      } catch (error) {
+      } catch (error: any) {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to update credits!',
-          detail: error.error.message
+          detail:
+            error?.error?.message ?? error?.message ?? JSON.stringify(error)
         });
         this.loading = false;
         return;
@@ -579,20 +596,22 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
           !(
             this.isModOrAdmin &&
             (body.status === MapStatus.APPROVED ||
-              this.map.status === MapStatus.APPROVED ||
-              this.map.status === MapStatus.DISABLED ||
+              this.map?.status === MapStatus.APPROVED ||
+              this.map?.status === MapStatus.DISABLED ||
               body.leaderboards)
           )
         ) {
-          await firstValueFrom(this.mapsService.updateMap(this.map.id, body));
+          await firstValueFrom(this.mapsService.updateMap(this.map!.id, body));
         } else {
-          await firstValueFrom(this.adminService.updateMap(this.map.id, body));
+          await firstValueFrom(this.adminService.updateMap(this.map!.id, body));
         }
-      } catch (httpError) {
+      } catch (httpError: any) {
         this.messageService.add({
           severity: 'error',
           summary: 'Failed to update map!',
-          detail: JSON.stringify(httpError.error.message)
+          detail: JSON.stringify(
+            httpError?.error?.message ?? httpError?.message ?? httpError
+          )
         });
         this.loading = false;
         return;
@@ -626,16 +645,18 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             observe: 'events'
           })
           .pipe(
-            tap((event: HttpEvent<string>) => {
+            tap((event: HttpEvent<unknown>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
                   this.uploadStatusDescription = 'Uploading BSP file...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage = Math.round(
-                    (event['loaded'] / event['total']) * 85
-                  );
+                  if (event.total) {
+                    this.uploadPercentage = Math.round(
+                      (event.loaded / event.total) * 85
+                    );
+                  }
                   break;
               }
             })
@@ -646,12 +667,12 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     try {
       await lastValueFrom(
         (this.isSubmitter ? this.mapsService : this.adminService)
-          .submitMapVersion(this.map.id, {
+          .submitMapVersion(this.map!.id, {
             vmfs: this.vmfs.value,
             data: {
-              zones: this.zon.value
+              zones: (this.zon.value
                 ? (JSON.parse(await this.zon.value.text()) as MapZones)
-                : undefined,
+                : this.map?.currentVersion?.zones)!,
               changelog: this.changelog.value,
               resetLeaderboards: this.resetLbs.value,
               hasBSP: Boolean(this.bsp.value)
@@ -665,8 +686,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
                   this.uploadStatusDescription = 'Submitting map version...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage =
-                    85 + Math.round((event['loaded'] / event['total']) * 15);
+                  if (event.total) {
+                    this.uploadPercentage =
+                      85 + Math.round((event.loaded / event.total) * 15);
+                  }
                   break;
                 case HttpEventType.Response:
                   this.uploadStatusDescription = 'Upload complete!';
@@ -676,11 +699,11 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             })
           )
       );
-    } catch (error) {
+    } catch (error: any) {
       this.messageService.add({
         severity: 'error',
         summary: 'Failed to post version!',
-        detail: JSON.stringify(error.error.message)
+        detail: JSON.stringify(error?.error?.message ?? error?.message ?? error)
       });
       this.isUploading = false;
       this.uploadPercentage = 0;
@@ -704,12 +727,13 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
   setupTestInviteForm() {
     this.versionForm.reset();
 
-    if (this.map.status !== MapStatus.PRIVATE_TESTING) return;
+    if (this.map?.status !== MapStatus.PRIVATE_TESTING) return;
 
     this.testInviteForm.setValue(
-      this.map.testInvites
+      (this.map?.testInvites ?? [])
         .filter(({ state }) => state !== MapTestInviteState.DECLINED)
         .map(({ user }) => user)
+        .filter((user): user is User => user != null)
     );
   }
 
@@ -720,15 +744,15 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
 
     try {
       await firstValueFrom(
-        this.mapsService.updateMapTestInvites(this.map.id, {
+        this.mapsService.updateMapTestInvites(this.map!.id, {
           userIDs: this.testInviteForm.value as number[]
         })
       );
-    } catch (error) {
+    } catch (error: any) {
       this.messageService.add({
         severity: 'error',
         summary: 'Failed to update test invites!',
-        detail: error.message
+        detail: error?.error?.message ?? error?.message ?? JSON.stringify(error)
       });
       this.isSubmittingTestInviteForm = false;
       return;
@@ -780,9 +804,9 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             </p>`
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
-        this.adminService.deleteMap(this.map.id).subscribe({
+        this.adminService.deleteMap(this.map!.id).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -790,11 +814,11 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             });
             this.reload.next();
           },
-          error: (error) =>
+          error: (error: any) =>
             this.messageService.add({
               severity: 'error',
               summary: 'Failed to disable the map',
-              detail: error.message
+              detail: error?.message ?? JSON.stringify(error)
             })
         });
       });
@@ -809,10 +833,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
             '<p>This will completly delete the map and all related files and data.</p>'
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
         (this.isSubmitter ? this.mapsService : this.adminService)
-          .deleteMap(this.map.id)
+          .deleteMap(this.map!.id)
           .subscribe({
             next: () => {
               this.messageService.add({
@@ -821,11 +845,11 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
               });
               this.router.navigate(['/maps']);
             },
-            error: (error) =>
+            error: (error: any) =>
               this.messageService.add({
                 severity: 'error',
                 summary: 'Failed to delete the map',
-                detail: error.message
+                detail: error?.message ?? JSON.stringify(error)
               })
           });
       });
@@ -840,10 +864,10 @@ export class MapEditComponent implements OnInit, ConfirmDeactivate {
     const items = Object.values(this.imageSelection.items).flat();
 
     return (
-      items.length !== this.map.images.length ||
+      items.length !== (this.map?.images?.length ?? 0) ||
       items.some(
         (item, i) =>
-          !item.existingID || item.existingID !== this.map.images[i]?.id
+          !item.existingID || item.existingID !== this.map?.images?.[i]?.id
       )
     );
   }

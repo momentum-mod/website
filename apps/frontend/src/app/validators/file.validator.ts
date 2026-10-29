@@ -174,7 +174,7 @@ export class FileValidators {
           const parsed = JSON.parse(text);
           validateZoneDiff(parsed, oldZones, allowCreation);
           return null;
-        } catch (error) {
+        } catch (error: any) {
           switch (error?.constructor) {
             case ZoneDiffValidationError:
               return {

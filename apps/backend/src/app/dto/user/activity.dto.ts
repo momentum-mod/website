@@ -11,31 +11,31 @@ import { UserDto } from './user.dto';
 
 export class ActivityDto implements Activity {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @IdProperty({
     description: 'The ID of the user the activity is associated with'
   })
-  readonly userID: number;
+  readonly userID!: number;
 
   @NestedProperty(UserDto, {
     description: 'The ID of the user the activity is associated with'
   })
-  readonly user: UserDto;
+  readonly user!: UserDto;
 
   @EnumProperty(ActivityType)
-  readonly type: ActivityType;
+  readonly type!: ActivityType;
 
   @IdProperty({
     bigint: true,
     description:
       'ID of into the table of the relevant activity type e.g. Map, Run, User'
   })
-  readonly data: number;
+  readonly data!: number;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 
   @UpdatedAtProperty()
-  readonly updatedAt: DateString;
+  readonly updatedAt!: DateString;
 }

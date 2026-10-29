@@ -36,7 +36,7 @@ export class UpdateReportDialogComponent implements OnInit {
 
   // Populated from the dialog config in ngOnInit. PrimeNG's DynamicDialog passes
   // data via DynamicDialogConfig.data, not @Input.
-  protected report: Report;
+  protected report!: Report;
 
   protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
 
@@ -68,7 +68,7 @@ export class UpdateReportDialogComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.report = this.config.data.report;
+    this.report = this.config.data!.report;
 
     if (this.isPlayerReport) {
       // Player reports are handled entirely through the ban section: submitting

@@ -1,4 +1,4 @@
-﻿import { Role } from '@momentum/constants';
+import { Role } from '@momentum/constants';
 import {
   Injectable,
   CanActivate,
@@ -43,6 +43,8 @@ export class RolesGuard implements CanActivate {
       where: { id: request.user.id },
       select: { roles: true }
     });
+
+    if (!user) return false;
 
     // If you're not familiar with bit flags, they're just a bunch of booleans
     // encoded into a single integer. Always think of them in terms of binary

@@ -3,7 +3,7 @@ import { IsOptional, IsString } from 'class-validator';
 import { Socials } from '@momentum/constants';
 
 export class SocialsDto implements Socials {
-  [k: string]: string;
+  [k: string]: string | undefined;
   @ApiProperty({ description: 'Discord Username', type: String })
   @IsString()
   @IsOptional()

@@ -34,7 +34,7 @@
           class="flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 font-medium text-gray-200 backdrop-blur-sm"
           mTooltip="Stream started"
         >
-          {{ stream.started_at | timeAgo }}
+          {{ stream!.started_at | timeAgo }}
         </span>
       } @else {
         <span></span>
@@ -69,9 +69,9 @@
     </p>
 
     <!-- Stream Tags (if any) -->
-    @if (stream?.tags && stream.tags.length > 0) {
+    @if (stream?.tags && stream!.tags.length > 0) {
       <div class="mt-auto flex flex-wrap gap-1.5 pt-3">
-        @for (tag of stream.tags.slice(0, 3); track tag) {
+        @for (tag of stream!.tags.slice(0, 3); track tag) {
           <span class="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-11 font-medium text-gray-300">
             {{ tag }}
           </span>

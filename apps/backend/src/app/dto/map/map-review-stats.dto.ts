@@ -4,17 +4,17 @@ import { IsInt } from 'class-validator';
 
 export class MapReviewStatsDto implements MapReviewStats {
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @IsInt()
-  readonly total: number;
+  readonly total!: number;
 
   @IsInt()
-  readonly approvals: number;
+  readonly approvals!: number;
 
   @IsInt()
-  readonly resolved: number;
+  readonly resolved!: number;
 
   @IsInt()
-  readonly unresolved: number;
+  readonly unresolved!: number;
 }

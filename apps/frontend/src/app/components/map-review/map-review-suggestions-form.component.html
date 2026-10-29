@@ -88,7 +88,7 @@
             <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Tags</p>
             <m-chips
               typeName="Tags"
-              [chips]="MapTags.get(item.gamemode)"
+              [chips]="MapTags.get(item.gamemode) ?? []"
               [nameFn]="mapTagEnglishName"
               [ngModel]="item.tags"
               (ngModelChange)="updateTags(item, $event)"

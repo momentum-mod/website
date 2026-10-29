@@ -38,12 +38,12 @@
     @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
       @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
         <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
-          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
+          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key)?.name }} - Main</p>
           <p
             class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
             [class]="mainSugg.tier == null ? 'max-md:hidden' : ''"
           >
-            {{ mainSugg.tier ?? '' }}
+            {{ mainSugg.tier }}
           </p>
           <m-icon class="justify-self-center text-xl" [icon]="mainSugg.type === LeaderboardType.RANKED ? 'check' : 'close'" />
           <p
@@ -63,12 +63,12 @@
 
       @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
         <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
-          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
+          <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key)?.name }} - Bonus {{ bonus.trackNum }}</p>
           <p
             class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
             [class]="bonus.tier == null ? 'max-md:hidden' : ''"
           >
-            {{ bonus.tier ?? '' }}
+            {{ bonus.tier }}
           </p>
           <m-icon class="justify-self-center text-xl" [icon]="bonus.type === LeaderboardType.RANKED ? 'check' : 'close'" />
           <p

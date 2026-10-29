@@ -93,7 +93,7 @@ export function NestedProperty<T>(
     TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.
     ValidateNested(),
     conditionalDecorator(!required, IsOptional),
-    conditionalDecorator(options.isArray, IsArray)
+    conditionalDecorator(options?.isArray ?? false, IsArray)
   );
 }
 
@@ -423,10 +423,9 @@ export function StringCsvQueryProperty(
       ...options,
       type: String,
       required: required,
-      description:
-        '[CSV list of strings]' + options?.description
-          ? ' ' + options.description
-          : ''
+      description: options?.description
+        ? `[CSV list of strings] ${options.description}`
+        : '[CSV list of strings]'
     }),
     Transform(({ value }) => value.split(',')),
     IsArray(),
@@ -450,13 +449,14 @@ export function IntCsvQueryProperty(
       ...options,
       type: String,
       required: required,
-      description:
-        '[CSV list of integers]' + options?.description
-          ? ' ' + options.description
-          : ''
+      description: options?.description
+        ? `[CSV list of integers] ${options.description}`
+        : '[CSV list of integers]'
     }),
     Transform(({ value }) =>
-      value.split(',').map((v) => (bigint ? BigInt(v) : Number.parseInt(v)))
+      value
+        .split(',')
+        .map((v: string) => (bigint ? BigInt(v) : Number.parseInt(v)))
     ),
     IsArray(),
     IsInt({ each: true }),

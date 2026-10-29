@@ -64,7 +64,9 @@ export class AuthService {
 
   public isAccessTokenExpired(): boolean {
     const accessToken = this.getAccessToken();
+    if (!accessToken) return true;
     const jwtPayload = accessToken.split('.')[1];
+    if (!jwtPayload) return true;
     const base64Payload = jwtPayload
       .replace(/-/g, '+')
       .replace(/_/g, '/')

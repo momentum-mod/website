@@ -12,6 +12,7 @@ import {
 } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
@@ -56,7 +57,7 @@ export class MapReviewFormComponent {
   protected readonly MAX_REVIEW_IMAGES = MAX_REVIEW_IMAGES;
   protected readonly MAX_REVIEW_LENGTH = MAX_REVIEW_LENGTH;
 
-  @Input({ required: true }) map: MMap;
+  @Input({ required: true }) map!: MMap;
   @Input() editing = false;
   @Input() reviewID?: number; // Only applicable if editing
   @Output() public readonly reviewPosted = new EventEmitter<void>();
@@ -92,14 +93,16 @@ export class MapReviewFormComponent {
       })
     },
     {
-      validators: (group: FormGroup) =>
-        Object.entries(group.controls)
+      validators: (control: AbstractControl) => {
+        const group = control as FormGroup;
+        return Object.entries(group.controls)
           .filter(([k]) => ['mainText', 'suggestions'].includes(k))
           .some(([, { dirty, value }]) =>
             dirty && Array.isArray(value) ? value.length > 0 : value != null
           )
           ? null
-          : { noChanges: true }
+          : { noChanges: true };
+      }
     }
   );
 
@@ -155,7 +158,7 @@ export class MapReviewFormComponent {
     }
 
     const req = this.editing
-      ? this.mapsService.updateMapReview(this.reviewID, {
+      ? this.mapsService.updateMapReview(this.reviewID!, {
           mainText: this.mainText.value,
           suggestions
         })

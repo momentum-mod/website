@@ -72,7 +72,7 @@ export class MapReviewController {
   getReview(
     @Param('reviewID', ParseInt32SafePipe) reviewID: number,
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapReviewGetIdDto
+    @Query() query: MapReviewGetIdDto
   ): Promise<MapReviewDto> {
     return this.reviewService.getReview(reviewID, userID, query);
   }

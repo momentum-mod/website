@@ -286,7 +286,7 @@ export class MapLeaderboardGetQueryDto
   implements MapLeaderboardGetQuery
 {
   @EnumQueryProperty(Gamemode, { required: true })
-  gamemode: Gamemode;
+  gamemode!: Gamemode;
 
   @EnumQueryProperty(TrackType, { required: false })
   trackType = TrackType.MAIN;
@@ -319,7 +319,7 @@ export class MapLeaderboardGetRunQueryDto
   implements MapLeaderboardGetRunQuery
 {
   @EnumQueryProperty(Gamemode, { required: true })
-  gamemode: Gamemode;
+  gamemode!: Gamemode;
 
   @EnumQueryProperty(TrackType, { required: false })
   trackType = TrackType.MAIN;

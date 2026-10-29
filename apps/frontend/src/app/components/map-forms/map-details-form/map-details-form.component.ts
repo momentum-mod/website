@@ -15,9 +15,10 @@ import {
   MIN_MAP_DESCRIPTION_LENGTH,
   MIN_MAP_NAME_LENGTH,
   SteamGame,
-  SteamGamesNames,
-  SteamGamesImages
+  SteamGamesImages,
+  SteamGamesNames
 } from '@momentum/constants';
+import * as Enum from '@momentum/enum';
 import {
   FormControl,
   FormControlStatus,
@@ -25,34 +26,30 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
-import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import * as Enum from '@momentum/enum';
-
-import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DatePicker } from 'primeng/datepicker';
-import { IconComponent } from '../../../icons';
+import { DatePickerUTC } from '../../../directives/date-picker-utc.directive';
+import { TooltipDirective } from '../../../directives/tooltip.directive';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Select } from 'primeng/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ChipsComponent } from '../../chips/chips.component';
-import { DatePickerUTC } from '../../../directives/date-picker-utc.directive';
+import { IconComponent } from '../../../icons';
+import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 
 @Component({
   selector: 'm-map-details-form',
-  templateUrl: 'map-details-form.component.html',
+  templateUrl: './map-details-form.component.html',
   imports: [
-    SelectModule,
-    SubmissionTypeInfoComponent,
-    IconComponent,
-    FormsModule,
     DatePicker,
     DatePickerUTC,
+    FormsModule,
     ReactiveFormsModule,
     TooltipDirective,
     Select,
     PluralPipe,
-    ChipsComponent
+    ChipsComponent,
+    IconComponent,
+    SubmissionTypeInfoComponent
   ]
 })
 export class MapDetailsFormComponent implements OnInit {
@@ -67,9 +64,9 @@ export class MapDetailsFormComponent implements OnInit {
   protected mapSubmissionTypeOptions: Array<{
     type: MapSubmissionType;
     label: string;
-  }>;
+  }> = [];
 
-  @Input({ required: true }) formGroup: FormGroup<{
+  @Input({ required: true }) formGroup!: FormGroup<{
     name: FormControl<string>;
     description: FormControl<string>;
     portingChangelog: FormControl<string>;
@@ -79,7 +76,7 @@ export class MapDetailsFormComponent implements OnInit {
     requiredGames: FormControl<SteamGame[]>;
   }>;
 
-  private _isModOrAdmin: boolean;
+  private _isModOrAdmin = false;
   get isModOrAdmin() {
     return this._isModOrAdmin;
   }
@@ -98,7 +95,7 @@ export class MapDetailsFormComponent implements OnInit {
   }
 
   @ViewChildren(TooltipDirective)
-  tooltips: QueryList<TooltipDirective>;
+  tooltips!: QueryList<TooltipDirective>;
 
   ngOnInit() {
     this.name.statusChanges
@@ -112,12 +109,12 @@ export class MapDetailsFormComponent implements OnInit {
       'mapNameError'
     );
     if (status !== 'INVALID') {
-      tooltip.hide();
+      tooltip?.hide();
       return;
     }
 
     const errors = this.name.errors;
-    if (Object.values(errors).length > 0) {
+    if (errors && Object.keys(errors).length > 0) {
       let str = JSON.stringify(Object.values(errors)[0]);
       if (errors['uniqueMapName']) {
         str = 'Map name is in use!';
@@ -127,9 +124,9 @@ export class MapDetailsFormComponent implements OnInit {
         str =
           'Name must consist of lowercase letters, _ and -, and cannot start with a number.';
       }
-      tooltip.setAndShow(str);
+      tooltip?.setAndShow(str);
     } else {
-      tooltip.hide();
+      tooltip?.hide();
     }
   }
 
@@ -140,14 +137,16 @@ export class MapDetailsFormComponent implements OnInit {
   stripYoutubeUrl() {
     const url = this.youtubeID.value;
     if (/.*youtube\.com\/watch\?v=[\w-]{11}.*/.test(url)) {
-      this.youtubeID.setValue(/(?<=v=)[\w-]{11}/.exec(url)[0]);
+      const match = /(?<=v=)[\w-]{11}/.exec(url);
+      if (match) this.youtubeID.setValue(match[0]);
     } else if (/youtu\.be\/[\w-]{11}.*/.test(url)) {
-      this.youtubeID.setValue(/(?<=youtu\.be\/)[\w-]{11}/.exec(url)[0]);
+      const match = /(?<=youtu\.be\/)[\w-]{11}/.exec(url);
+      if (match) this.youtubeID.setValue(match[0]);
     }
   }
 
-  steamGameName = (game: SteamGame) => SteamGamesNames.get(game);
-  steamGameImage = (game: SteamGame) => SteamGamesImages.get(game);
+  steamGameName = (game: SteamGame) => SteamGamesNames.get(game) ?? '';
+  steamGameImage = (game: SteamGame) => SteamGamesImages.get(game) ?? null;
 
   get youtubeID() {
     return this.formGroup.get('youtubeID') as FormControl<string>;

@@ -7,9 +7,11 @@ import {
   futureDateOffset,
   DbUtil,
   NULL_ID,
-  RequestUtil
+  RequestUtil,
+  E2ETestMMap
 } from '@momentum/test-utils';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   Gamemode,
   MapStatus,
@@ -24,7 +26,11 @@ import {
 } from './support/environment';
 
 describe('Runs', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
+  let app: NestFastifyApplication,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    auth: AuthUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -39,7 +45,10 @@ describe('Runs', () => {
 
   describe('runs', () => {
     describe('GET', () => {
-      let users, token, maps, testingMap;
+      let users: User[],
+        token: string,
+        maps: E2ETestMMap[],
+        testingMap: E2ETestMMap;
 
       beforeAll(async () => {
         [users, maps, testingMap] = await Promise.all([
@@ -111,8 +120,10 @@ describe('Runs', () => {
         });
 
         for (const x of data) expect(x).toHaveProperty('isPB');
-        expect(data.filter((x) => x.isPB === true)).toHaveLength(2);
-        expect(data.filter((x) => x.isPB === false)).toHaveLength(3);
+        expect(data.filter((x: PastRunDto) => x.isPB === true)).toHaveLength(2);
+        expect(data.filter((x: PastRunDto) => x.isPB === false)).toHaveLength(
+          3
+        );
       });
 
       it('should respond with a list of runs with take parameter', () =>
@@ -320,7 +331,7 @@ describe('Runs', () => {
 
   describe('runs/{runID}', () => {
     describe('GET', () => {
-      let user, token, map, run1, run2;
+      let user: User, token: string, map: E2ETestMMap, run1: any, run2: any;
 
       beforeAll(async () => {
         run1 = await db.createPastRun({

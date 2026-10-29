@@ -13,8 +13,8 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
   template: `
     <div class="flex min-h-[40px] flex-wrap items-center gap-1 py-1">
       <a routerLink="/profile/{{ activity.userID }}" class="contents">
-        <m-avatar [url]="activity.user.avatarURL" class="mr-2 !h-7" />
-        <p>{{ activity.user.alias }}</p>
+        <m-avatar [url]="activity.user?.avatarURL" class="mr-2 !h-7" />
+        <p>{{ activity.user?.alias }}</p>
       </a>
       <p>{{ activityData.actionText }}</p>
       <a
@@ -31,6 +31,6 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
   imports: [TimeAgoPipe, RouterLink, NgStyle, AvatarComponent, NgClass]
 })
 export class AdminActivityEntryHeaderComponent {
-  @Input({ required: true }) activity: AdminActivity;
-  @Input({ required: true }) activityData: AdminActivityEntryData;
+  @Input({ required: true }) activity!: AdminActivity;
+  @Input({ required: true }) activityData!: AdminActivityEntryData;
 }

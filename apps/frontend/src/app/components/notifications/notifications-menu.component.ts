@@ -73,7 +73,7 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
   ngOnInit() {
     merge(
       this.refresh,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => (this.first = first ?? 0)))
     )
       .pipe(
         tap(() => (this.loading = true)),

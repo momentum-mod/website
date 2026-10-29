@@ -123,8 +123,8 @@ export class MapsController {
   @ApiOperation({ summary: 'Retrieve a paginated list of approved maps' })
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
-    @LoggedInUser('id') userID?: number,
-    @Query() query?: MapsGetAllQueryDto
+    @Query() query: MapsGetAllQueryDto,
+    @LoggedInUser('id') userID?: number
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(query, userID);
   }
@@ -397,7 +397,7 @@ export class MapsController {
       mapID,
       userID,
       loggedInUserID,
-      query.expand
+      query?.expand
     );
   }
 
@@ -576,7 +576,7 @@ export class MapsController {
       userID,
       mapID,
       data.imageIDs,
-      files.images
+      files?.images ?? []
     );
   }
 
@@ -620,10 +620,15 @@ export class MapsController {
   })
   getLeaderboards(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
-    @LoggedInUser() user?: UserJwtAccessPayload,
-    @Query() query?: MapLeaderboardGetQueryDto
+    @Query() query: MapLeaderboardGetQueryDto,
+    @LoggedInUser() user?: UserJwtAccessPayload
   ): Promise<PagedResponseDto<LeaderboardRunDto>> {
-    return this.runsService.getRuns(mapID, query, user?.id, user?.steamID);
+    return this.runsService.getRuns(
+      mapID,
+      query,
+      user?.id,
+      user?.steamID ?? undefined
+    );
   }
 
   @Get('/:mapID/leaderboard/run')
@@ -640,8 +645,9 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Run not found' })
   getLeaderboardRun(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
-    @LoggedInUser('id') userID?: number,
-    @Query() query?: MapLeaderboardGetRunQueryDto
+    @Query()
+    query: MapLeaderboardGetRunQueryDto,
+    @LoggedInUser('id') userID?: number
   ): Promise<LeaderboardRunDto> {
     return this.runsService.getRun(mapID, query, userID);
   }
@@ -677,7 +683,7 @@ export class MapsController {
   getReviews(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapReviewsGetQueryDto
+    @Query() query: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
     return this.mapReviewService.getAllReviews(mapID, userID, query);
   }

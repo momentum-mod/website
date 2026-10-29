@@ -60,7 +60,7 @@
                 <p>
                   <a class="link cursor-pointer" (click)="downloadZoneFile(map)">Download Zones</a>
                 </p>
-                @if (map.currentVersion?.vmfDownloadURL; as vmf) {
+                @if (map.currentVersion.vmfDownloadURL; as vmf) {
                   <p><a class="link" [href]="vmf">Download VMF</a></p>
                 }
               </div>
@@ -136,17 +136,17 @@
         <div
           class="flex flex-wrap justify-between gap-4 bg-black bg-opacity-10 px-3.5 py-2 [border-bottom:1px_solid_rgb(0_0_0/0.1)] [border-inline:1px_solid_rgb(255_255_255/0.05)] [border-top:1px_solid_rgb(255_255_255/0.1)]"
         >
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats.plays | plural: 'Play' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats.plays | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats.favorites | plural: 'Favorite' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.favorites | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats.favorites | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.uniqueCompletions | plural: 'Unique Completion' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ map.stats.uniqueCompletions | plural: 'Unique Completion' }}">
             <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.stats.uniqueCompletions | thousandsSuffix: 1 }}</p>
           </div>
           <div class="ml-auto"></div>
           @if (map.info.requiredGames.length > 0) {
@@ -169,16 +169,16 @@
             </ng-template>
           }
           <div class="flex items-center gap-1" [mTooltip]="dateTooltip">
-            <p class="font-display text-24 drop-shadow-md">{{ map.info?.creationDate || map.createdAt | date }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ map.info.creationDate || map.createdAt | date }}</p>
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>
           <ng-template #dateTooltip>
-            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
+            <p class="text-right"><b>Created On - </b>{{ map.info.creationDate | date }}</p>
             <p class="text-right"><b>Added in Momentum - </b>{{ map.createdAt | date }}</p>
-            @if (map.info?.approvedDate) {
-              <p class="text-right"><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
+            @if (map.info.approvedDate) {
+              <p class="text-right"><b>Released in Momentum - </b>{{ map.info.approvedDate | date }}</p>
             }
-            <p class="text-right"><b>Submitted By - </b>{{ map.submitter?.alias }}</p>
+            <p class="text-right"><b>Submitted By - </b>{{ map.submitter.alias }}</p>
           </ng-template>
         </div>
 
@@ -197,7 +197,7 @@
         } @else if (map.status === MapStatus.DISABLED) {
           <div class="flex flex-col items-center gap-2 border border-red-500 bg-red-500 bg-opacity-50 p-3 text-center">
             <b>Map Disabled</b>
-            @if (map.currentVersion?.bspHash) {
+            @if (map.currentVersion.bspHash) {
               <i>This map is currently disabled. It's only visible to moderators and admins, and can only be re-enabled by admins.</i>
             } @else {
               <i>
@@ -214,39 +214,41 @@
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
                if we ever decide to change layout (see #website Jan 3rd 24) -->
             <ng-template #creditBlock let-type="type">
-              @if (credits?.get(type).length > 0) {
-                <div>
-                  <p class="font-sm mb-1 font-bold uppercase text-gray-200">
-                    {{ MapCreditNames.get(type) }}
-                  </p>
-                  <div class="grid grid-cols-2 place-items-start gap-1">
-                    @for (credit of credits.get(type); track $index) {
-                      @if (!credit.placeholder) {
-                        <a routerLink="/profile/{{ credit.userID }}" class="flex">
-                          <m-avatar class="mr-4 size-8 shrink-0" [url]="credit.avatarURL" />
-                          <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
-                            <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
-                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
-                              {{ credit.description }}
-                            </p>
+              @if (credits.get(type); as creditList) {
+                @if (creditList.length > 0) {
+                  <div>
+                    <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                      {{ MapCreditNames.get(type) }}
+                    </p>
+                    <div class="grid grid-cols-2 place-items-start gap-1">
+                      @for (credit of creditList; track $index) {
+                        @if (!credit.placeholder) {
+                          <a routerLink="/profile/{{ credit.userID }}" class="flex">
+                            <m-avatar class="mr-4 size-8 shrink-0" [url]="credit.avatarURL" />
+                            <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
+                              <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
+                              <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
+                                {{ credit.description }}
+                              </p>
+                            </div>
+                          </a>
+                        } @else {
+                          <div class="flex">
+                            <div class="mr-4 inline-grid size-8 shrink-0 place-content-center" mTooltip="Placeholder user">
+                              <p class="text-shadow-strong pointer-events-none font-display text-32 font-bold">?</p>
+                            </div>
+                            <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
+                              <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
+                              <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
+                                {{ credit.description }}
+                              </p>
+                            </div>
                           </div>
-                        </a>
-                      } @else {
-                        <div class="flex">
-                          <div class="mr-4 inline-grid size-8 shrink-0 place-content-center" mTooltip="Placeholder user">
-                            <p class="text-shadow-strong pointer-events-none font-display text-32 font-bold">?</p>
-                          </div>
-                          <div class="flex flex-col" [ngClass]="!credit.description ? 'justify-center' : null">
-                            <p class="text-shadow font-medium leading-none [overflow-wrap:anywhere]">{{ credit.alias }}</p>
-                            <p class="font-gray-100 text-shadow col-start-2 text-sm italic [overflow-wrap:anywhere]">
-                              {{ credit.description }}
-                            </p>
-                          </div>
-                        </div>
+                        }
                       }
-                    }
+                    </div>
                   </div>
-                </div>
+                }
               }
             </ng-template>
             <div class="flex flex-col gap-2">

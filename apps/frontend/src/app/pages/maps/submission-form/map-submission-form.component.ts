@@ -108,7 +108,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
 
   @ViewChild(MapLeaderboardSelectionComponent)
-  lbSelection: MapLeaderboardSelectionComponent;
+  lbSelection!: MapLeaderboardSelectionComponent;
 
   isUploading = false;
   uploadPercentage = 0;
@@ -116,9 +116,9 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
   protected zones: MapZones | null = null;
 
-  isMapperOrPorter: boolean;
-  isModOrAdmin: boolean;
-  hasMapInSubmission: boolean;
+  isMapperOrPorter = false;
+  isModOrAdmin = false;
+  hasMapInSubmission = false;
 
   form = this.nnfb.group({
     files: this.nnfb.group({
@@ -184,7 +184,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       { value: [], disabled: true },
       {
         validators: [
-          suggestionsValidator(() => this.zones, SuggestionType.SUBMISSION)
+          suggestionsValidator(
+            () => this.zones ?? undefined,
+            SuggestionType.SUBMISSION
+          )
         ]
       }
     ),
@@ -248,12 +251,13 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     const name = this.bsp.value?.name.replaceAll('.bsp', '').toLowerCase();
 
     // Fill name field with map name if pristine
-    if (this.name.pristine || this.name.value === '') {
+    if ((this.name.pristine || this.name.value === '') && name) {
       this.name.setValue(name, { emitEvent: true });
     }
   }
 
   async onValidZoneFileSelected() {
+    if (!this.zon.value) return;
     // This has been validated already
     this.zones = JSON.parse(await this.zon.value.text()) as MapZones;
     this.lbSelection.zones = this.zones;
@@ -263,7 +267,9 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     const mapName = this.bsp.value?.name ?? this.zon.value?.name;
     // Guess at the mode(s). Using Ahop if there's no prefix since it's first
     // alphabetically.
-    const inferredModes = this.inferGamemode(mapName) ?? [Gamemode.AHOP];
+    const inferredModes = (mapName ? this.inferGamemode(mapName) : null) ?? [
+      Gamemode.AHOP
+    ];
 
     if (!this.suggestions.pristine) return;
 
@@ -277,7 +283,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
           tier: 1,
           tags: []
         },
-        ...(this.zones.tracks.bonuses?.map((_, i) => ({
+        ...(this.zones?.tracks.bonuses?.map((_, i) => ({
           gamemode,
           trackType: TrackType.BONUS,
           trackNum: i + 1,
@@ -307,11 +313,18 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
   async onSubmit() {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    if (
+      this.form.invalid ||
+      !this.bsp.value ||
+      !this.zon.value ||
+      !this.zones ||
+      !this.credits.value
+    )
+      return;
 
     this.isUploading = true;
-    let mapID: number;
-    let mapName: string;
+    let mapID: number | undefined;
+    let mapName: string | undefined;
 
     try {
       const { url: preSignedUrl } = await lastValueFrom(
@@ -325,16 +338,18 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
             observe: 'events'
           })
           .pipe(
-            tap((event: HttpEvent<string>) => {
+            tap((event: HttpEvent<unknown>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
                   this.isUploading = true;
                   this.uploadStatusDescription = 'Uploading BSP file...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage = Math.round(
-                    (event['loaded'] / event['total']) * 80
-                  );
+                  if (event.total) {
+                    this.uploadPercentage = Math.round(
+                      (event.loaded / event.total) * 80
+                    );
+                  }
                   break;
               }
             })
@@ -359,9 +374,10 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
               suggestions: this.suggestions.value,
               info: {
                 description: this.description.value,
-                youtubeID: this.youtubeID.value || undefined,
-                creationDate:
-                  this.creationDate.value.toISOString() as DateString,
+                youtubeID: (this.youtubeID.value || undefined) as string,
+                creationDate: (this.creationDate.value
+                  ? this.creationDate.value.toISOString()
+                  : new Date().toISOString()) as DateString,
                 requiredGames: this.requiredGames.value
               }
             },
@@ -375,11 +391,13 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
                   this.uploadStatusDescription = 'Submitting map...';
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage =
-                    80 + Math.round((event['loaded'] / event['total']) * 10);
+                  if (event.total) {
+                    this.uploadPercentage =
+                      80 + Math.round((event.loaded / event.total) * 10);
+                  }
                   break;
                 case HttpEventType.Response: {
-                  const dto: MMap = event.body;
+                  const dto = event.body as MMap;
                   mapID = dto.id;
                   mapName = dto.name;
                   this.uploadStatusDescription = 'Uploading images...';
@@ -390,11 +408,12 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
             })
           )
       );
-    } catch (error) {
+    } catch (error: any) {
       this.messageService.add({
         severity: 'error',
         summary: 'Map upload failed!',
-        detail: error.error.message,
+        detail:
+          error?.error?.message ?? error?.message ?? JSON.stringify(error),
         sticky: true
       });
 
@@ -402,23 +421,25 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       return;
     }
 
-    try {
-      await lastValueFrom(
-        this.mapsService.updateMapImages(mapID, {
-          images: this.images.value,
-          data: { imageIDs: this.images.value.map((_, i) => i.toString()) }
-        })
-      );
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Image upload failed!',
-        detail: `You may need to edit resubmit some images on the Map Edit page. ${error.message}`,
-        sticky: true
-      });
-      // Don't return if this fails, we don't want the user trying to resubmit
-      // the same map. Just take to map page and they can edit images if
-      // needed.
+    if (mapID != null) {
+      try {
+        await lastValueFrom(
+          this.mapsService.updateMapImages(mapID, {
+            images: this.images.value,
+            data: { imageIDs: this.images.value.map((_, i) => i.toString()) }
+          })
+        );
+      } catch (error: any) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Image upload failed!',
+          detail: `You may need to edit resubmit some images on the Map Edit page. ${error?.error?.message ?? error?.message ?? JSON.stringify(error)}`,
+          sticky: true
+        });
+        // Don't return if this fails, we don't want the user trying to resubmit
+        // the same map. Just take to map page and they can edit images if
+        // needed.
+      }
     }
 
     this.uploadPercentage = 100;

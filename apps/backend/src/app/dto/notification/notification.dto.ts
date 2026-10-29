@@ -33,23 +33,23 @@ export class NotificationDto<T = NotificationType>
   implements AbstractNotification<T>
 {
   @IdProperty()
-  readonly id: number;
+  readonly id!: number;
 
   @EnumProperty(NotificationType, {
     description:
       'Determines which notification variation it is. ' +
       'Used for determining which accompanying data fields exist'
   })
-  readonly type: T;
+  readonly type!: T;
 
   @ApiProperty({
     description: 'Whether the user has seen (read) the notification'
   })
   @IsBoolean()
-  readonly isRead: boolean;
+  readonly isRead!: boolean;
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 export class AnnouncementNotificationDto
@@ -58,7 +58,7 @@ export class AnnouncementNotificationDto
 {
   @ApiProperty()
   @IsString()
-  readonly message: string;
+  readonly message!: string;
 }
 
 export class WRAchievedNotificationDto
@@ -66,10 +66,10 @@ export class WRAchievedNotificationDto
   implements WRAchievedNotification
 {
   @NestedProperty(MapDto, { lazy: true })
-  readonly map: MMap;
+  readonly map!: MMap;
 
   @NestedProperty(LeaderboardRunDto, { lazy: true })
-  readonly run: LeaderboardRun;
+  readonly run!: LeaderboardRun;
 }
 
 export class MapStatusChangeNotificationDto
@@ -77,16 +77,16 @@ export class MapStatusChangeNotificationDto
   implements MapStatusChangeNotification
 {
   @EnumProperty(MapStatus)
-  readonly oldStatus: MapStatus;
+  readonly oldStatus!: MapStatus;
 
   @EnumProperty(MapStatus)
-  readonly newStatus: MapStatus;
+  readonly newStatus!: MapStatus;
 
   @NestedProperty(MapDto, { lazy: true })
-  readonly map: MMap;
+  readonly map!: MMap;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly changedBy: User;
+  readonly changedBy!: User;
 }
 
 export class MapTestingInviteNotificationDto
@@ -94,10 +94,10 @@ export class MapTestingInviteNotificationDto
   implements MapTestingInviteNotification
 {
   @NestedProperty(MapDto, { lazy: true })
-  readonly map: MMap;
+  readonly map!: MMap;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly invitedBy: User;
+  readonly invitedBy!: User;
 }
 
 export class MapReviewPostedNotificationDto
@@ -105,13 +105,13 @@ export class MapReviewPostedNotificationDto
   implements MapReviewPostedNotification
 {
   @NestedProperty(MapDto, { lazy: true })
-  readonly map: MMap;
+  readonly map!: MMap;
 
   @NestedProperty(MapReviewDto, { lazy: true })
-  readonly review: MapReview;
+  readonly review!: MapReview;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly reviewer: User;
+  readonly reviewer!: User;
 }
 
 export class MapReviewCommentPostedNotificationDto
@@ -119,14 +119,14 @@ export class MapReviewCommentPostedNotificationDto
   implements MapReviewCommentPostedNotification
 {
   @NestedProperty(MapDto, { lazy: true })
-  readonly map: MMap;
+  readonly map!: MMap;
 
   @NestedProperty(MapReviewDto, { lazy: true })
-  readonly review: MapReview;
+  readonly review!: MapReview;
 
   @NestedProperty(MapReviewCommentDto, { lazy: true })
-  readonly reviewComment: MapReviewComment;
+  readonly reviewComment!: MapReviewComment;
 
   @NestedProperty(UserDto, { lazy: true })
-  readonly reviewCommenter: User;
+  readonly reviewCommenter!: User;
 }

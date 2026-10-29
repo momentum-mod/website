@@ -6,7 +6,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const users = await prisma.user.findMany();
   // seed.ts adds users with random SteamIDs below 100000000000, real Steam
   // users seem always been more than that.
-  const realUsers = users.filter((user) => user.steamID > 100000000000);
+  const realUsers = users.filter(
+    (user) => user.steamID != null && user.steamID > 100000000000
+  );
   if (!realUsers || realUsers.length === 0)
     throw 'Could not find a genuine Steam user. Have you signed in before?';
 

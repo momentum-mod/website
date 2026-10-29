@@ -26,7 +26,7 @@ export class SpinnerDirective implements OnInit {
   private renderer = inject(Renderer2);
   private directiveElement = inject(ElementRef);
 
-  spinner: ComponentRef<SpinnerComponent>;
+  spinner!: ComponentRef<SpinnerComponent>;
 
   @Input()
   set mSpinner(val: boolean) {

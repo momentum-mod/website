@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import {
   BehaviorSubject,
+  EMPTY,
   merge,
   Observable,
   Subject,
@@ -71,7 +72,7 @@ export class ActivityComponent implements OnInit, OnChanges {
     | 'follow'
     | 'all'
     | 'own'
-    | BehaviorSubject<User>;
+    | BehaviorSubject<User | null>;
 
   /**
    * The height of the activities list, needs to be a precise value due to
@@ -89,7 +90,7 @@ export class ActivityComponent implements OnInit, OnChanges {
   private page = 0;
   private readonly ITEMS_PER_PAGE = 20;
   protected canLoadMore = true;
-  protected loading: boolean;
+  protected loading = false;
 
   // Emits on first load, and whenever p-scroller wants new data
   protected readonly load = new Subject<void>();
@@ -104,7 +105,7 @@ export class ActivityComponent implements OnInit, OnChanges {
       .pipe(
         switchMap(() => {
           let fetchFn: () => Observable<PagedResponse<Activity>>;
-          let extraListener: Observable<any>;
+          let extraListener: Observable<any> | undefined;
 
           const skipTake = () => ({
             skip: this.page++ * this.ITEMS_PER_PAGE,
@@ -128,13 +129,16 @@ export class ActivityComponent implements OnInit, OnChanges {
               break;
             default: // Generic BehaviorSubject variant.
               fetchFn = () => {
-                return this.activityService.getUserActivity(
-                  (this.activityFetchType as BehaviorSubject<User>).getValue()
-                    .id,
-                  skipTake()
-                );
+                const user = (
+                  this.activityFetchType as BehaviorSubject<User | null>
+                ).getValue();
+                return user
+                  ? this.activityService.getUserActivity(user.id, skipTake())
+                  : EMPTY;
               };
-              extraListener = this.activityFetchType;
+              extraListener = (
+                this.activityFetchType as BehaviorSubject<User | null>
+              ).pipe(filter(Boolean));
               break;
           }
 

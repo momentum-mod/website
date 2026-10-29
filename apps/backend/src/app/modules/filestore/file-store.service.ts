@@ -77,10 +77,11 @@ export class FileStoreService {
         })
       );
       return true;
-    } catch (error) {
+    } catch (error: any) {
       // If file isn't found, just return undefined and let the service handle
       // 404 behaviour.
-      if (error?.Code === 'NoSuchKey') return false;
+      if (error?.Code === 'NoSuchKey' || error?.name === 'NoSuchKey')
+        return false;
       throw error;
     }
   }
@@ -170,11 +171,14 @@ export class FileStoreService {
         })
       );
 
-      return commandResponse.Body.transformToByteArray();
-    } catch (error) {
+      return commandResponse.Body
+        ? commandResponse.Body.transformToByteArray()
+        : null;
+    } catch (error: any) {
       // If file isn't found, just return null and let the service handle
       // 404 behaviour.
-      if (error?.Code === 'NoSuchKey') return null;
+      if (error?.Code === 'NoSuchKey' || error?.name === 'NoSuchKey')
+        return null;
       throw error;
     }
   }
@@ -193,7 +197,9 @@ export class FileStoreService {
     );
 
     if (response.KeyCount === 0 || !response.Contents) return [];
-    return response.Contents.map(({ Key }) => Key);
+    return response.Contents.map(({ Key }) => Key).filter((k): k is string =>
+      Boolean(k)
+    );
   }
 
   /**
@@ -221,10 +227,11 @@ export class FileStoreService {
     try {
       await commandOutput;
       return true;
-    } catch (error) {
+    } catch (error: any) {
       // If file isn't found, just return false and let the service handle
       // 404 behaviour.
-      if (error?.Code === 'NoSuchKey') return false;
+      if (error?.Code === 'NoSuchKey' || error?.name === 'NoSuchKey')
+        return false;
       throw error;
     }
   }

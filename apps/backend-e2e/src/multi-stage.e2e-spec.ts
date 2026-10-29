@@ -22,6 +22,7 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import Zip from 'adm-zip';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { BabyZonesStub } from '@momentum/formats/zone';
 import { MapDto, MapReviewDto } from '../../backend/src/app/dto';
 import {
@@ -30,7 +31,7 @@ import {
 } from './support/environment';
 
 describe('Multi-stage E2E tests', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
@@ -346,7 +347,7 @@ describe('Multi-stage E2E tests', () => {
     expect(vmf2Hash).not.toBe(vmfHash);
     expect(
       (mapRes.currentVersion.downloadURL as string).endsWith(
-        `${map.currentVersion.bspDownloadId}.bsp`
+        `${map!.currentVersion!.bspDownloadId}.bsp`
       )
     ).toBeTruthy();
     const bspDownloadBuffer = await fileStore.downloadHttp(
@@ -358,10 +359,12 @@ describe('Multi-stage E2E tests', () => {
       await fileStore.downloadHttp(mapRes.currentVersion.vmfDownloadURL)
     );
     expect(
-      createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf').getData())
+      createSha1Hash(vmfZip.getEntry('surf_todd_howard_main.vmf')!.getData())
     ).toBe(vmf2Hash);
     expect(
-      createSha1Hash(vmfZip.getEntry('surf_todd_howard_instance.vmf').getData())
+      createSha1Hash(
+        vmfZip.getEntry('surf_todd_howard_instance.vmf')!.getData()
+      )
     ).toBe(vmf2Hash);
   }, 1231123123);
 });

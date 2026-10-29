@@ -64,16 +64,19 @@ export class GroupedMapCredits {
       this[credit.type].push({
         ...credit,
         placeholder: true,
-        avatarURL: STEAM_MISSING_AVATAR_URL
+        avatarURL: STEAM_MISSING_AVATAR_URL,
+        description: credit.description ?? undefined
       });
     } else {
       // MapCredit
+      if (!credit.user) return;
       this[credit.type].push({
         ...credit,
         placeholder: false,
         alias: credit.user.alias,
         userID: credit.user.id,
-        avatarURL: credit.user.avatarURL
+        avatarURL: credit.user.avatarURL,
+        description: credit.description ?? undefined
       });
     }
   }
@@ -96,9 +99,9 @@ export class GroupedMapCredits {
     return this.getAll()
       .filter(({ placeholder }) => !placeholder)
       .map(({ type, description, userID }) => ({
-        userID,
+        userID: userID!,
         type,
-        description
+        description: description ?? null
       }));
   }
 
@@ -108,7 +111,7 @@ export class GroupedMapCredits {
       .map(({ alias, type, description }) => ({
         alias,
         type,
-        description
+        description: description || undefined
       }));
   }
 

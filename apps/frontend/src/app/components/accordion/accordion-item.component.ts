@@ -88,7 +88,7 @@ export class AccordionItemComponent {
   private readonly parent = inject(AccordionComponent);
   private readonly cdRef = inject(ChangeDetectorRef);
 
-  @Input() title: string;
+  @Input() title = '';
   @Input() titleClass = '';
 
   @HostBinding('class.hasContent')

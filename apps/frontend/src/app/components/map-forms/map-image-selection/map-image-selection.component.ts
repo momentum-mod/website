@@ -65,13 +65,13 @@ export class MapImageSelectionComponent implements OnInit {
   private readonly layoutService = inject(LayoutService);
   private readonly destroyRef = inject(DestroyRef);
 
-  @Input({ required: true }) formControlPassthrough: FormControl<File[]>;
-  @Input() icon: Icon;
+  @Input({ required: true }) formControlPassthrough!: FormControl<File[]>;
+  @Input() icon?: Icon;
   @Input() disabled = false;
   @Input() previewFullscreenBackground = false;
 
   @ViewChild(MultiFileUploadComponent)
-  private uploadComponent: MultiFileUploadComponent;
+  private uploadComponent!: MultiFileUploadComponent;
 
   protected readonly ImageSelectionType = ImageSelectionType;
   protected readonly max = 5;
@@ -100,8 +100,8 @@ export class MapImageSelectionComponent implements OnInit {
     ) as File[];
 
     if (this.items[ImageSelectionType.THUMBNAIL].length === 0) {
-      let file: File;
-      while ((file = newFiles.shift())) {
+      while (newFiles.length > 0) {
+        const file = newFiles.shift()!;
         const item = await ImageSelectionItem.create(file);
         if (!item) continue;
 
@@ -110,15 +110,16 @@ export class MapImageSelectionComponent implements OnInit {
       }
 
       // Extras must be empty so just reassign
-      this.items[ImageSelectionType.EXTRA] = await Promise.all(
-        newFiles.map((file) => ImageSelectionItem.create(file)).filter(Boolean)
-      );
+      this.items[ImageSelectionType.EXTRA] = (
+        await Promise.all(
+          newFiles.map((file) => ImageSelectionItem.create(file))
+        )
+      ).filter((item): item is ImageSelectionItem => Boolean(item));
 
       this.onThumbnailChanged();
     } else {
-      this.items[ImageSelectionType.EXTRA] = [
-        ...this.items[ImageSelectionType.EXTRA],
-        ...(await Promise.all(
+      const createdItems = (
+        await Promise.all(
           newFiles
             .filter(
               (newFile) =>
@@ -135,8 +136,12 @@ export class MapImageSelectionComponent implements OnInit {
                 )
             )
             .map((file) => ImageSelectionItem.create(file))
-            .filter(Boolean)
-        ))
+        )
+      ).filter((item): item is ImageSelectionItem => Boolean(item));
+
+      this.items[ImageSelectionType.EXTRA] = [
+        ...this.items[ImageSelectionType.EXTRA],
+        ...createdItems
       ];
     }
   }
@@ -204,7 +209,7 @@ export class MapImageSelectionComponent implements OnInit {
     const arr = this.items[type];
     arr.splice(
       arr.findIndex(({ dataUrl, file }) =>
-        file
+        file && item.file
           ? AbstractFileUploadComponent.isIdenticalFile(file, item.file)
           : dataUrl === item.dataUrl
       ),
@@ -238,8 +243,8 @@ export class MapImageSelectionComponent implements OnInit {
         ...this.items[ImageSelectionType.THUMBNAIL],
         ...this.items[ImageSelectionType.EXTRA]
       ]
-        .filter(({ file }) => file)
         .map(({ file }) => file)
+        .filter((file): file is File => file != null)
     );
   }
 }

@@ -6,9 +6,9 @@ import { IsInt } from 'class-validator';
 
 export class LeaderboardStatsDto implements LeaderboardStats {
   @NestedProperty(LeaderboardDto)
-  leaderboard: LeaderboardDto;
+  leaderboard!: LeaderboardDto;
 
   @ApiProperty({ description: 'The total number of runs for this leaderboard' })
   @IsInt()
-  totalRuns: number;
+  totalRuns!: number;
 }

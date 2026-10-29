@@ -10,7 +10,7 @@
       class="inputlike flex-grow rounded border bg-black bg-opacity-25"
       id="{{ type.key }}"
       cdkDropList
-      [cdkDropListData]="value[type.key]"
+      [cdkDropListData]="value.get(type.key)"
       (cdkDropListDropped)="drop($event)"
       [cdkDropListConnectedTo]="connectedTo"
       mTooltip
@@ -18,7 +18,7 @@
       tooltipPosition="top"
       tooltipEvent="noop"
     >
-      @for (credit of value[type.key]; track credit) {
+      @for (credit of value.get(type.key); track credit) {
         <div class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5" cdkDrag>
           @if (!credit.placeholder) {
             <m-avatar class="mr-2 h-[3.25rem] w-[3.25rem]" [url]="credit.avatarURL" />

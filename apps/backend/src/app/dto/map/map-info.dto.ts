@@ -23,7 +23,7 @@ import { IsPastDate } from '../../validators/is-past-date';
 
 export class MapInfoDto implements MapInfo {
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @ApiProperty({
     type: String,
@@ -32,7 +32,7 @@ export class MapInfoDto implements MapInfo {
   @IsString()
   @MinLength(MIN_MAP_DESCRIPTION_LENGTH)
   @MaxLength(MAX_MAP_DESCRIPTION_LENGTH)
-  readonly description: string;
+  readonly description!: string;
 
   @ApiProperty({
     type: String,
@@ -41,22 +41,22 @@ export class MapInfoDto implements MapInfo {
   })
   @IsOptional()
   @Matches(/^[\w-_]{11}$/)
-  readonly youtubeID: string;
+  readonly youtubeID!: string;
 
   @ApiProperty()
   @IsDateString()
   @IsPastDate()
-  readonly creationDate: DateString;
+  readonly creationDate!: DateString;
 
   @ApiProperty()
   @IsDate()
   @IsOptional()
-  readonly approvedDate: DateString | null;
+  readonly approvedDate!: DateString | null;
 
   @ApiProperty({ description: 'Array of apps, which the map uses assets from' })
   @IsEnum(SteamGame, { each: true })
   @IsOptional()
-  readonly requiredGames: SteamGame[];
+  readonly requiredGames!: SteamGame[];
 }
 
 export class CreateMapInfoDto

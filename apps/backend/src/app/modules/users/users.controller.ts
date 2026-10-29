@@ -44,7 +44,7 @@ export class UsersController {
     description: 'The query contained conflicting parameters'
   })
   getAll(
-    @Query() query?: UsersGetAllQueryDto
+    @Query() query: UsersGetAllQueryDto
   ): Promise<PagedResponseDto<UserDto>> {
     return this.usersService.getAll(query);
   }
@@ -63,7 +63,7 @@ export class UsersController {
     @Param('userID', ParseInt32SafePipe) userID: number,
     @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand);
+    return this.usersService.get(userID, query?.expand);
   }
 
   //#endregion
@@ -103,7 +103,8 @@ export class UsersController {
   })
   getActivities(
     @Param('userID', ParseInt32SafePipe) userID: number,
-    @Query() query?: UsersGetActivitiesQueryDto
+    @Query()
+    query: UsersGetActivitiesQueryDto
   ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
       userID,
@@ -131,7 +132,7 @@ export class UsersController {
   })
   getFollowers(
     @Param('userID', ParseInt32SafePipe) userID: number,
-    @Query() query?: PagedQueryDto
+    @Query() query: PagedQueryDto
   ): Promise<PagedResponseDto<FollowDto>> {
     return this.usersService.getFollowers(userID, query.skip, query.take);
   }

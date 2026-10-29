@@ -19,8 +19,8 @@ import { IconComponent } from '../../icons';
     }
   ]
 })
-export class FileUploadComponent extends AbstractFileUploadComponent<File> {
-  public value: File = null;
+export class FileUploadComponent extends AbstractFileUploadComponent<File | null> {
+  public value: File | null = null;
   protected readonly multiple = false;
   protected readonly max = null;
 
@@ -31,20 +31,23 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     this.removeDragData(event);
 
     if (this.disabled) return;
+    if (!event.dataTransfer) return;
 
     // `.items` seems to be the correct approach but try files if missing
     const useItems = !!event.dataTransfer.items;
     const items = event.dataTransfer.items ?? event.dataTransfer.files;
+    if (!items || items.length === 0) return;
 
     const item = items[0];
-    // Ignore anything that isn't a file. We could keep this method in abstract
-    // class to handle cases where first item isn't a file but others are, but I
-    // don't think that could ever actually happen
     if (useItems && (item as DataTransferItem).kind !== 'file') return;
 
     const file = useItems
       ? (item as DataTransferItem).getAsFile()
-      : (item as File);
+      : item instanceof File
+        ? item
+        : null;
+
+    if (!file) return;
 
     if (
       this.acceptMimeTypes?.length > 0 &&
@@ -57,7 +60,9 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
   }
 
   onFilesSelected(event: Event) {
-    this.value = (event.target as HTMLInputElement).files[0];
+    const files = (event.target as HTMLInputElement).files;
+    if (!files || files.length === 0) return;
+    this.value = files[0];
 
     this.onChange(this.value);
 
@@ -96,7 +101,7 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     }
   }
 
-  writeValue(value: File): void {
+  writeValue(value: File | null): void {
     this.value = value == null || (value as any) === '' ? null : value;
   }
 
@@ -105,10 +110,10 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
   }
 
   getIterableFiles(): File[] {
-    return [this.value];
+    return this.value ? [this.value] : [];
   }
 
-  removeFile(file: File, event?: Event): void {
+  removeFile(_file: File, event?: Event): void {
     event?.stopPropagation();
     this.value = null;
     this.onChange(this.value);

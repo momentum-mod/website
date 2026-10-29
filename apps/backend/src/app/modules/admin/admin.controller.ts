@@ -275,7 +275,7 @@ export class AdminController {
     @Body() { reason }: AdminDeleteAllRunsDto,
     @LoggedInUser('id') adminID: number
   ): Promise<void> {
-    await this.adminService.deleteUserRuns(userID, reason, adminID);
+    await this.adminService.deleteUserRuns(userID, reason ?? '', adminID);
   }
 
   @Get('/reports')

@@ -20,6 +20,10 @@ export interface LeaderboardProps
   linear?: boolean;
 }
 
+export interface MaximalLeaderboardProps extends LeaderboardProps {
+  style: Style;
+}
+
 /**
  * Expand an array of map suggestions to data we can create all the
  * leaderboards we want from, including stages and all compatible gamemodes
@@ -27,7 +31,7 @@ export interface LeaderboardProps
 export function getMaximalLeaderboards<T extends LeaderboardProps>(
   leaderboards: T[],
   zones: MapZones
-): LeaderboardProps[] {
+): MaximalLeaderboardProps[] {
   return getCompatibleLeaderboards(
     [
       ...setLeaderboardLinearity(leaderboards, zones),
@@ -45,15 +49,17 @@ export function getMaximalLeaderboards<T extends LeaderboardProps>(
 export function getCompatibleLeaderboards<T extends LeaderboardProps>(
   leaderboards: T[],
   zones: MapZones
-): LeaderboardProps[] {
+): MaximalLeaderboardProps[] {
   return (
     leaderboards
       .flatMap(({ trackType, trackNum, linear }) =>
         Enum.values(Gamemode) // Note: this will include `suggestion`
           .filter((newGamemode) => !DisabledGamemodes.has(newGamemode))
           // Add a style for each compatible gamemode
-          .flatMap((newGamemode) =>
-            GamemodeStyles.get(newGamemode)
+          .flatMap((newGamemode) => {
+            const styles = GamemodeStyles.get(newGamemode);
+            if (!styles) return [];
+            return styles
               .values()
               .map((style) => ({
                 trackType,
@@ -62,8 +68,8 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
                 gamemode: newGamemode,
                 style
               }))
-              .toArray()
-          )
+              .toArray();
+          })
       )
       // Filter out any duplicates
       .filter((x, i, array) => !array.some((y, j) => isEqual(x, y) && i < j))
@@ -71,8 +77,8 @@ export function getCompatibleLeaderboards<T extends LeaderboardProps>(
       .filter(
         ({ trackType, trackNum, gamemode }) =>
           trackType !== TrackType.BONUS ||
-          GamemodeCategories.get(GamemodeCategory.DEFRAG).includes(gamemode) ||
-          !zones.tracks.bonuses?.[trackNum - 1]?.defragModifiers // ignore if undefined or 0
+          GamemodeCategories.get(GamemodeCategory.DEFRAG)?.includes(gamemode) ||
+          !zones.tracks?.bonuses?.[trackNum - 1]?.defragModifiers // ignore if undefined or 0
       )
   );
 }
@@ -88,24 +94,26 @@ export function getStageLeaderboards<T extends LeaderboardProps>(
   leaderboards: T[],
   zones: MapZones
 ): T[] {
-  return zones.tracks.main.zones.segments.length === 1
-    ? []
-    : leaderboards
-        .filter(({ trackType }) => trackType === TrackType.MAIN)
-        .flatMap((lb: T) =>
-          arrayFrom(
-            zones.tracks.main.zones.segments.length,
-            (i) =>
-              ({
-                gamemode: lb.gamemode,
-                // Whether is ranked depends on main Track, doesn't have a tier.
-                type: (lb as T & { type?: LeaderboardType }).type,
-                trackType: TrackType.STAGE,
-                trackNum: i + 1,
-                style: lb.style
-              }) as unknown as T
-          )
-        );
+  const mainSegments = zones.tracks?.main?.zones.segments;
+  if (!mainSegments || mainSegments.length <= 1) {
+    return [];
+  }
+  return leaderboards
+    .filter(({ trackType }) => trackType === TrackType.MAIN)
+    .flatMap((lb: T) =>
+      arrayFrom(
+        mainSegments.length,
+        (i) =>
+          ({
+            gamemode: lb.gamemode,
+            // Whether is ranked depends on main Track, doesn't have a tier.
+            type: (lb as T & { type?: LeaderboardType }).type,
+            trackType: TrackType.STAGE,
+            trackNum: i + 1,
+            style: lb.style
+          }) as unknown as T
+      )
+    );
 }
 
 export function isEqual<T extends LeaderboardProps, U extends LeaderboardProps>(

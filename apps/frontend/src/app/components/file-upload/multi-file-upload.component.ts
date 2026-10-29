@@ -24,7 +24,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 > {
   public value: File[] = [];
   protected readonly multiple = true;
-  @Input() max: number | null;
+  @Input() max: number | null = null;
 
   @HostListener('drop', ['$event'])
   onDrop(event: DragEvent) {
@@ -35,13 +35,12 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
     event.preventDefault();
     this.removeDragData(event);
 
-    if (this.disabled) return;
+    if (this.disabled || !event.dataTransfer) return;
 
     // `.items` seems to be the correct approach but try files if missing
     const useItems = !!event.dataTransfer.items;
     const items = event.dataTransfer.items ?? event.dataTransfer.files;
-    // DataTransferList doesn't have an iterator symbol on it according to
-    // TypeScript (???)
+    if (!items) return;
 
     for (const item of items) {
       // Ignore anything that isn't a file
@@ -49,7 +48,11 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 
       const file = useItems
         ? (item as DataTransferItem).getAsFile()
-        : (item as File);
+        : item instanceof File
+          ? item
+          : null;
+
+      if (!file) continue;
 
       if (
         this.acceptMimeTypes?.length > 0 &&
@@ -73,6 +76,7 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 
   onFilesSelected(event: Event) {
     const elementFiles = (event.target as HTMLInputElement).files;
+    if (!elementFiles) return;
 
     for (const file of elementFiles) {
       // Always ignore duplicates - can't imagine where we'd ever want this.
@@ -127,7 +131,11 @@ export class MultiFileUploadComponent extends AbstractFileUploadComponent<
 
   writeValue(value: File[]): void {
     this.value = value == null || (value as any) === '' ? [] : value;
-    if (this.disabledBecauseReachedMax && value?.length < this.max) {
+    if (
+      this.disabledBecauseReachedMax &&
+      this.max != null &&
+      value?.length < this.max
+    ) {
       this.disabledBecauseReachedMax = false;
       this.disabled = false;
     }

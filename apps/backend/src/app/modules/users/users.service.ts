@@ -61,7 +61,7 @@ export class UsersService {
   async getAll(query: UsersGetAllQueryDto): Promise<PagedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 
-    let take = query.take;
+    let take = query.take ?? 20;
     if (query.steamID) {
       take = 1;
       where.steamID = BigInt(query.steamID);
@@ -210,8 +210,10 @@ export class UsersService {
       include: { profile: true }
     });
 
+    if (!user) throw new NotFoundException('User not found');
+
     const updateInput: Prisma.UserUpdateInput = {};
-    let userData: SteamUserSummaryData;
+    let userData: SteamUserSummaryData | undefined;
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
@@ -223,6 +225,9 @@ export class UsersService {
 
       // Reset alias to steam name
       if (update.alias === '') {
+        if (!user.steamID) {
+          throw new BadRequestException('User has no linked Steam account');
+        }
         if (!userData)
           userData = await this.steamService.getSteamUserSummaryData(
             user.steamID
@@ -262,6 +267,9 @@ export class UsersService {
     }
 
     if (update.resetAvatar) {
+      if (!user.steamID) {
+        throw new BadRequestException('User has no linked Steam account');
+      }
       if (!userData)
         userData = await this.steamService.getSteamUserSummaryData(
           user.steamID
@@ -324,7 +332,9 @@ export class UsersService {
         data: updateInputToClean
       }),
       this.db.deletedUser.create({
-        data: { steamIDHash: this.getSteamIDHash(user.steamID) }
+        data: {
+          steamIDHash: user.steamID ? this.getSteamIDHash(user.steamID) : ''
+        }
       })
     ]);
 
@@ -567,7 +577,10 @@ export class UsersService {
       });
   }
 
-  private getFollower(followeeID: number, followedID: number): Promise<Follow> {
+  private getFollower(
+    followeeID: number,
+    followedID: number
+  ): Promise<Follow | null> {
     return this.db.follow.findUnique({
       where: {
         followeeID_followedID: {
@@ -691,12 +704,12 @@ export class UsersService {
     take?: number,
     localUserID?: number
   ): Promise<PagedResponseDto<MapCreditDto>> {
-    let include: Prisma.MapCreditInclude;
+    let include: Prisma.MapCreditInclude | undefined;
     const where: Prisma.MapCreditWhereInput = {
       userID,
       mmap: { status: MapStatus.APPROVED }
     };
-    if (expand?.length > 0) {
+    if (expand && expand.length > 0) {
       include = {};
       // Other expands are nested properties of the map, if anything but just
       // 'map', it'll be a more complex include object, which trivially includes
@@ -704,7 +717,9 @@ export class UsersService {
       if (expand[0] === 'map' && expand.length === 1) include.mmap = true;
       else {
         include.mmap = { include: {} };
-        if (expand.includes('info')) include.mmap.include.info = true;
+        if (expand.includes('info')) {
+          (include.mmap as any).include = { info: true };
+        }
       }
     }
 
@@ -716,7 +731,7 @@ export class UsersService {
 
     if (
       localUserID === userID ||
-      (localUserID && Bitflags.has(localUser.roles, CombinedRoles.MOD_OR_ADMIN))
+      (localUser && Bitflags.has(localUser.roles, CombinedRoles.MOD_OR_ADMIN))
     ) {
       delete where.mmap;
     }

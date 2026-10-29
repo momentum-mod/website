@@ -1,6 +1,6 @@
 <m-accordion>
   @for (group of groupedLeaderboards | keyvalue: groupLbSortFn; track $index) {
-    <m-accordion-item title="{{ GamemodeInfo.get(group.key).name }} - {{ group.value.totalRuns }} runs submitted">
+    <m-accordion-item title="{{ GamemodeInfo.get(group.key)?.name }} - {{ group.value.totalRuns }} runs submitted">
       <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-3 shadow-inner sm:p-8 sm:pt-6">
         @for (leaderboard of group.value.leaderboards; track $index) {
           @if (leaderboard.trackType !== TrackType.STAGE) {
@@ -36,9 +36,9 @@
                   <p class="mt-2 text-sm font-medium text-gray-200">Average Gameplay Rating</p>
                   <p class="font-medium">{{ leaderboard.averageRating ?? 'N/A' }}</p>
 
-                  @if (leaderboard.subSugg?.comment?.length > 0) {
+                  @if (leaderboard.subSugg?.comment) {
                     <p class="text-sm font-medium text-gray-200">Submitter Comment</p>
-                    <p class="text-sm">{{ leaderboard.subSugg.comment }}</p>
+                    <p class="text-sm">{{ leaderboard.subSugg?.comment }}</p>
                   } @else {
                     <span class="row-span-2 max-xl:hidden"></span>
                   }
@@ -104,7 +104,7 @@
                   <p>Tags</p>
                   <m-chips
                     class="min-w-[12rem] flex-grow"
-                    [chips]="MapTags.get(leaderboard.gamemode)"
+                    [chips]="MapTags.get(leaderboard.gamemode) ?? []"
                     [nameFn]="mapTagEnglishName"
                     [ngModel]="leaderboard.tags"
                     (ngModelChange)="updateTags(leaderboard, $event)"

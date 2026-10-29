@@ -5,7 +5,7 @@
       <p>You are banned from map submission</p>
     } @else {
       <m-card title="Map Summary">
-        @if (summaryLoading || summary?.length > 0) {
+        @if (summaryLoading || summary.length > 0) {
           <div class="flex flex-col gap-1" [mSpinner]="summaryLoading">
             @for (item of summary; track item.status) {
               <p class="text-gray-300">{{ MapStatusName.get(item.status) }}</p>

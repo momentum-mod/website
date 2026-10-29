@@ -29,7 +29,7 @@ export class UserSelectComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

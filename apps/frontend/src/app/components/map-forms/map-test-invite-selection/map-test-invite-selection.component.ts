@@ -24,7 +24,7 @@ export class MapTestInviteSelectionComponent implements ControlValueAccessor {
   protected users: User[] = [];
   protected disabled = false;
 
-  @ViewChild(TooltipDirective) tooltip: TooltipDirective;
+  @ViewChild(TooltipDirective) tooltip?: TooltipDirective;
 
   get value(): number[] {
     return this.users.map(({ id }) => id);
@@ -32,9 +32,9 @@ export class MapTestInviteSelectionComponent implements ControlValueAccessor {
 
   addUser(user: User, searchInput: UserSearchComponent): void {
     if (this.users.length >= this.MAX_TESTING_REQUESTS) {
-      this.tooltip.setAndShow('Maximum number of users reached!', true);
+      this.tooltip?.setAndShow('Maximum number of users reached!', true);
     } else if (this.users.some(({ id }) => id === user.id)) {
-      this.tooltip.setAndShow('User already added!', true);
+      this.tooltip?.setAndShow('User already added!', true);
     } else {
       searchInput.resetSearchBox();
       this.users.push(user);
@@ -63,7 +63,7 @@ export class MapTestInviteSelectionComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

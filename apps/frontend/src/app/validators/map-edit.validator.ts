@@ -1,10 +1,13 @@
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
-export function atLeastNRequired(numRequired: number, fieldNames: string[]) {
-  return (formGroup: FormGroup) => {
+export function atLeastNRequired(
+  numRequired: number,
+  fieldNames: string[]
+): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
     const hasAtLeastN =
-      fieldNames.filter((field) => formGroup.get(field)?.value !== null)
-        .length >= numRequired;
+      fieldNames.filter((field) => control.get(field)?.value !== null).length >=
+      numRequired;
     return hasAtLeastN ? null : { atLeastNRequired: true };
   };
 }

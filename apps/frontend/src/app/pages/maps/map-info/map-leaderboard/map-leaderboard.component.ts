@@ -102,17 +102,17 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly mapTagEnglishName = mapTagEnglishName;
   protected readonly styleEnglishName = styleEnglishName;
 
-  @Input() map: MMap;
-  protected leaderboards: GroupedMapLeaderboards;
-  protected activeMode: GroupedMapLeaderboard;
-  protected activeModeIndex: number;
+  @Input({ required: true }) map!: MMap;
+  protected leaderboards: GroupedMapLeaderboards = [];
+  protected activeMode!: GroupedMapLeaderboard;
+  protected activeModeIndex = 0;
   protected activeTrack: ActiveTrack = { type: TrackType.MAIN, num: 0 };
   protected activeStyle: Style = Style.NORMAL;
   // This is going to get *heavily* refactored in the future when we add
   // support for scrolling, jump-tos, and filtering. For now it's just in sync
   // with the game version. We'll do fancier stuff at 0.11.0.
-  protected activeType: LeaderboardFilterType;
-  protected activeTags: MapTag[];
+  protected activeType: LeaderboardFilterType = LeaderboardFilterType.TOP10;
+  protected activeTags: MapTag[] = [];
 
   protected runs: LeaderboardRun[] = [];
   protected readonly load = new Subject<void>();
@@ -122,11 +122,11 @@ export class MapLeaderboardComponent implements OnChanges {
 
   updateTags() {
     this.activeTags =
-      this.activeTrack.type === TrackType.BONUS
-        ? this.activeMode.bonuses.find(
+      (this.activeTrack.type === TrackType.BONUS
+        ? this.activeMode.bonuses?.find(
             ({ num }) => num === this.activeTrack.num
           )?.tags
-        : this.activeMode.tags;
+        : this.activeMode.tags) ?? [];
   }
 
   selectMode(modeIndex: number) {
@@ -201,7 +201,7 @@ export class MapLeaderboardComponent implements OnChanges {
     this.activeTrack.num = 1;
     this.activeStyle =
       GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
-    this.activeTags = this.activeMode.tags;
+    this.activeTags = this.activeMode.tags ?? [];
 
     this.load.next();
   }
@@ -241,12 +241,12 @@ export class MapLeaderboardComponent implements OnChanges {
       .open(ConfirmWithReasonDialogComponent, {
         header: 'Delete run',
         data: {
-          message: `Are you sure you want to permanently delete this run by ${run.user.alias}?`,
+          message: `Are you sure you want to permanently delete this run by ${run.user?.alias ?? 'Unknown User'}?`,
           proceedMessage: 'Delete run',
           abortMessage: 'Cancel'
         }
       })
-      .onClose.subscribe(
+      ?.onClose.subscribe(
         ({ confirmed, reason }: ConfirmWithReasonDialogResult) => {
           if (!confirmed) return;
 

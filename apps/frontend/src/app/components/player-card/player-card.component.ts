@@ -19,17 +19,17 @@ export class PlayerCardComponent implements OnInit {
   private readonly xpService = inject(XpSystemsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected user: FullUser;
-  protected level: number;
-  protected xp: number;
-  protected currLevelXp: number;
-  protected nextLevelXp: number;
+  protected user?: FullUser;
+  protected level = 0;
+  protected xp = 0;
+  protected currLevelXp = 0;
+  protected nextLevelXp = 0;
 
   ngOnInit() {
     this.localUserService.user
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user: FullUser | null) => {
-        if (!user) return;
+        if (!user || !user.userStats) return;
         this.user = user;
         this.level = user.userStats.level;
         this.xp = user.userStats.cosXP;

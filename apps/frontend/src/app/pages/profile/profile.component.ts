@@ -103,25 +103,29 @@ export class ProfileComponent implements OnInit {
   protected readonly MapCreditNames = MapCreditNames;
   protected readonly MapCreditType = MapCreditType;
 
-  userSubject = new BehaviorSubject<User>(null);
-  user: User;
+  protected getSocialData(key: string) {
+    return this.SocialsData[key as keyof Socials];
+  }
+
+  userSubject = new BehaviorSubject<User | null>(null);
+  user!: User;
   isLocal = true;
   avatarUrl = '/assets/images/blank_avatar.jpg';
-  avatarLoaded: boolean;
-  countryDisplayName = '';
+  avatarLoaded = false;
+  countryDisplayName: string | null = null;
   followingUsers: Follow[] = [];
   followedByUsers: Follow[] = [];
-  localFollowStatus = new BehaviorSubject<Follow>(null);
-  level: number;
-  xp: number;
-  currLevelXp: number;
-  nextLevelXp: number;
+  localFollowStatus = new BehaviorSubject<Follow | null>(null);
+  level = 0;
+  xp = 0;
+  currLevelXp = 0;
+  nextLevelXp = 0;
   importSteamFriendsModalVisible = false;
   steamFriends: User[] = [];
   steamFriendsToAdd = new Set<number>();
   loadingSteamFriends = false;
-  protected credits: MapCredit[];
-  protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
+  protected credits: MapCredit[] = [];
+  protected creditMap: Partial<Record<MapCreditType, MapCredit[]>> = {};
 
   ngOnInit() {
     this.route.paramMap
@@ -143,6 +147,7 @@ export class ProfileComponent implements OnInit {
           this.localUserService.refreshLocalUser();
           return this.localUserService.user;
         }),
+        filter((user): user is User => user != null),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
@@ -155,10 +160,13 @@ export class ProfileComponent implements OnInit {
           if (this.user.avatarURL) this.avatarUrl = this.user.avatarURL;
 
           this.avatarLoaded = true;
-          this.countryDisplayName = ISOCountryCode[this.user.country];
+          this.countryDisplayName = user.country
+            ? (ISOCountryCode[user.country as keyof typeof ISOCountryCode] ??
+              null)
+            : null;
 
-          this.level = user.userStats.level;
-          this.xp = user.userStats.cosXP;
+          this.level = user.userStats?.level ?? 1;
+          this.xp = user.userStats?.cosXP ?? 0;
           this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
           this.nextLevelXp = this.xpService.getCosmeticXpForLevel(
             this.level + 1
@@ -199,7 +207,7 @@ export class ProfileComponent implements OnInit {
             .checkFollowStatus(this.user)
             .pipe(
               switchMap((response) => {
-                this.localFollowStatus.next(response.local);
+                this.localFollowStatus.next(response.local ?? null);
                 return this.usersService.getFollowersOfUser(this.user);
               }),
               takeUntilDestroyed(this.destroyRef)
@@ -249,7 +257,7 @@ export class ProfileComponent implements OnInit {
           'max-width': 'min(55rem, 95vw)'
         }
       })
-      .onClose.subscribe(() => this.refreshUser());
+      ?.onClose.subscribe(() => this.refreshUser());
   }
 
   private refreshUser() {
@@ -268,7 +276,7 @@ export class ProfileComponent implements OnInit {
   toggleFollow() {
     const observer = {
       next: (follow?: Follow | void) =>
-        this.localFollowStatus.next(follow || null),
+        this.localFollowStatus.next((follow as Follow) ?? null),
       error: (httpError: HttpErrorResponse) => {
         this.messageService.add({
           severity: 'error',
@@ -290,16 +298,16 @@ export class ProfileComponent implements OnInit {
     this.dialogService
       .open(ProfileNotifyEditComponent, {
         header: 'Edit Notification Settings',
-        data: { flags: this.localFollowStatus.value.notifyOn }
+        data: { flags: this.localFollowStatus.value?.notifyOn ?? 0 }
       })
-      .onClose.pipe(filter(Boolean))
+      ?.onClose.pipe(filter(Boolean))
       .subscribe((response) => {
         this.localUserService
           .updateFollowStatus(this.user, response.newFlags)
           .subscribe({
             next: () =>
               this.localFollowStatus.next({
-                ...this.localFollowStatus.value,
+                ...this.localFollowStatus.value!,
                 notifyOn: response.newFlags
               }),
             error: (httpError: HttpErrorResponse) =>

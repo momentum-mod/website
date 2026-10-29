@@ -77,13 +77,13 @@ export class AdminMapsBrowserComponent implements OnInit {
     MapSortType.ALPHABETICAL_REVERSE
   ];
   protected readonly MapSortNameFn = (type: MapSortType): string =>
-    MapSortTypeName.get(type);
+    MapSortTypeName.get(type) ?? '';
 
   protected readonly MapStatusName = MapStatusName;
   protected readonly StatusDropdown = Enum.values(MapStatus).map(
     (status: MapStatus) => ({
       type: status,
-      label: MapStatusName.get(status)
+      label: MapStatusName.get(status) ?? ''
     })
   );
 

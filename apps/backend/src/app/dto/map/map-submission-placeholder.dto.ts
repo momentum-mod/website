@@ -17,5 +17,5 @@ export class MapSubmissionPlaceholderDto
   @IsString()
   @MinLength(1)
   @MaxLength(MAX_USER_ALIAS_LENGTH)
-  readonly alias: string;
+  readonly alias!: string;
 }

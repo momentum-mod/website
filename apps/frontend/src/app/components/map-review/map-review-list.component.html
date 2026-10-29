@@ -3,11 +3,15 @@
     <m-map-review-form [map]="map" (reviewPosted)="load.next()" />
   }
   <div class="flex items-center gap-4">
-    <p class="ml-2 grow font-bold italic">
-      <span>{{ map.reviewStats.total }} Reviews</span> - <span class="text-green-300">{{ map.reviewStats.approvals }} Approving</span>,
-      <span class="text-blue-300">{{ map.reviewStats.resolved }} Resolved</span>,
-      <span class="text-red-300">{{ map.reviewStats.unresolved }} Unresolved</span>
-    </p>
+    @if (map.reviewStats) {
+      <p class="ml-2 grow font-bold italic">
+        <span>{{ map.reviewStats.total }} Reviews</span> - <span class="text-green-300">{{ map.reviewStats.approvals }} Approving</span>,
+        <span class="text-blue-300">{{ map.reviewStats.resolved }} Resolved</span>,
+        <span class="text-red-300">{{ map.reviewStats.unresolved }} Unresolved</span>
+      </p>
+    } @else {
+      <div class="grow"></div>
+    }
     <p-select
       class="self-end"
       [(ngModel)]="filter"

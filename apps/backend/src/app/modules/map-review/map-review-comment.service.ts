@@ -2,7 +2,8 @@ import {
   BadRequestException,
   ForbiddenException,
   Inject,
-  Injectable
+  Injectable,
+  NotFoundException
 } from '@nestjs/common';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -74,6 +75,7 @@ export class MapReviewCommentService {
     const map = await this.db.mMap.findUnique({
       where: { id: review.mapID }
     });
+    if (!map) throw new NotFoundException('Map not found');
 
     // Notification to reviewer.
     if (userID !== review.reviewerID) {
@@ -94,6 +96,7 @@ export class MapReviewCommentService {
     // Also, after approval the submitter is no longer responsible for the map,
     // so don't sent them notifications on new reviews.
     if (
+      map.submitterID &&
       userID !== map.submitterID &&
       map.submitterID !== comment.review.reviewerID &&
       map.status !== MapStatus.APPROVED
@@ -111,7 +114,11 @@ export class MapReviewCommentService {
       });
     }
 
-    const avoidSendToUserIDs = [userID, review.reviewerID, map.submitterID];
+    const avoidSendToUserIDs = [
+      userID,
+      review.reviewerID,
+      map.submitterID
+    ].filter((id): id is number => id !== null);
     for (const reviewComment of review.comments) {
       if (!avoidSendToUserIDs.includes(reviewComment.userID)) {
         await this.notificationService.sendNotifications({
@@ -147,6 +154,7 @@ export class MapReviewCommentService {
       include: { review: { include: { mmap: true } } }
     });
 
+    if (!comment) throw new NotFoundException('Comment not found');
     if (comment.userID !== userID) throw new ForbiddenException();
 
     await this.mapsService.getMapAndCheckReadAccess({
@@ -169,8 +177,11 @@ export class MapReviewCommentService {
       include: { review: { include: { mmap: true } } }
     });
 
+    if (!comment) throw new NotFoundException('Comment not found');
+
     if (comment.userID !== userID) {
       const user = await this.db.user.findUnique({ where: { id: userID } });
+      if (!user) throw new NotFoundException('User not found');
 
       if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) {
         await this.adminActivityService.create(

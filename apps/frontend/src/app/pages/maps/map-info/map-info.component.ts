@@ -1,6 +1,6 @@
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
-import { switchMap, tap } from 'rxjs/operators';
+import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   MapStatuses,
   MapCreditNames,
@@ -102,22 +102,22 @@ export class MapInfoComponent implements OnInit {
   protected loading = false;
   protected displayFullscreenGallery = false;
 
-  map: MMap;
+  map!: MMap;
 
-  name: string;
-  prefix: string | null;
-  leaderboards: GroupedMapLeaderboards;
-  credits: GroupedMapCredits;
-  images: GalleryItem[];
-  selectedImage: GalleryItem;
-  requiredGamesNames: string[];
-  requiredGamesImages: string[];
+  name = '';
+  prefix: string | null = null;
+  leaderboards!: GroupedMapLeaderboards;
+  credits!: GroupedMapCredits;
+  images: GalleryItem[] = [];
+  selectedImage?: GalleryItem;
+  requiredGamesNames: string[] = [];
+  requiredGamesImages: string[] = [];
 
-  notify: MapNotify;
+  notify?: MapNotify;
   notifications = false;
   inFavorites = false;
-  isSubmitter: boolean;
-  inSubmission: boolean;
+  isSubmitter = false;
+  inSubmission = false;
 
   currentSection = MapInfoSection.SUBMISSION;
 
@@ -145,9 +145,10 @@ export class MapInfoComponent implements OnInit {
 
     this.route.paramMap
       .pipe(
+        filter((params) => Boolean(params.get('name'))),
         tap(() => (this.loading = true)),
         switchMap((params: ParamMap) =>
-          this.mapService.getMap(params.get('name'), {
+          this.mapService.getMap(params.get('name')!, {
             expand: [
               'info',
               'leaderboards',
@@ -225,10 +226,10 @@ export class MapInfoComponent implements OnInit {
     );
     this.requiredGamesImages = this.map.info.requiredGames
       .map((app) => SteamGamesImages.get(app) ?? null)
-      .filter((url) => Boolean(url));
+      .filter((url): url is string => Boolean(url));
 
     // In favourites iff num mapfavorites entries for user > 0. sorry
-    this.inFavorites = this.map.favorites?.length > 0;
+    this.inFavorites = (this.map.favorites?.length ?? 0) > 0;
 
     this.isSubmitter =
       this.map.submitterID === this.localUserService.user.value?.id;
@@ -288,13 +289,13 @@ export class MapInfoComponent implements OnInit {
           flags: this.notify ? this.notify.notifyOn : 0
         }
       })
-      .onClose.subscribe((response) => {
+      ?.onClose.subscribe((response) => {
         if (!response) return;
         if (response.newFlags === 0) {
           if (!this.notify) return;
           this.localUserService.disableMapNotify(this.map.id).subscribe({
             next: () => {
-              this.notify.notifyOn = 0;
+              this.notify!.notifyOn = 0;
               this.notifications = false;
             },
             error: (error) =>

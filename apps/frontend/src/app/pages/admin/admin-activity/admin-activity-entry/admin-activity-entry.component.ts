@@ -41,7 +41,7 @@ import * as Enum from '@momentum/enum';
   `
 })
 export class AdminActivityEntryComponent implements OnInit {
-  @Input({ required: true }) activityData: AdminActivityEntryData;
+  @Input({ required: true }) activityData!: AdminActivityEntryData;
 
   protected diffEntries: Array<{
     key: string;
@@ -190,10 +190,10 @@ export class AdminActivityEntryComponent implements OnInit {
   }
 
   static calculateDiff(
-    oldData: object,
-    newData: object
+    oldData: Record<string, any>,
+    newData: Record<string, any>
   ): AdminActivityEntryData['diff'] {
-    const result = {};
+    const result: Record<string, [any, any]> = {};
     new Set([...Object.keys(oldData), ...Object.keys(newData)]).forEach(
       (key) => {
         let oldValue = oldData[key];
@@ -218,10 +218,14 @@ export class AdminActivityEntryComponent implements OnInit {
     return result;
   }
 
-  static calculateUserDiff(oldUser, newUser) {
+  static calculateUserDiff(oldUser: any, newUser: any) {
     const result: AdminActivityEntryData['diff'] = {};
 
-    const getBitflagNames = (eEnum, nameMap: ReadonlyMap<any, string>, value) =>
+    const getBitflagNames = (
+      eEnum: any,
+      nameMap: ReadonlyMap<any, string>,
+      value: any
+    ) =>
       Enum.values(eEnum)
         .filter((x) => Bitflags.has(value, x))
         .map((x) => nameMap.get(x))

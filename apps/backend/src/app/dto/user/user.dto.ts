@@ -31,7 +31,7 @@ import { ActiveChatBanDto } from '../chat-ban/chat-ban.dto';
 
 export class UserDto implements User {
   @IdProperty({ description: 'The unique numeric ID of the user' })
-  readonly id: number;
+  readonly id!: number;
 
   @ApiProperty({
     type: String,
@@ -40,7 +40,7 @@ export class UserDto implements User {
   })
   @IsOptional() // Placeholder don't have SteamIDs
   @IsSteamCommunityID()
-  readonly steamID: string;
+  readonly steamID!: string;
 
   @ApiProperty({
     type: String,
@@ -50,7 +50,7 @@ export class UserDto implements User {
   @IsString()
   @MaxLength(MAX_USER_ALIAS_LENGTH)
   @Matches(NON_WHITESPACE_REGEXP)
-  readonly alias: string;
+  readonly alias!: string;
 
   @ApiPropertyOptional({
     type: String,
@@ -58,10 +58,10 @@ export class UserDto implements User {
   })
   @IsOptional()
   @IsCountryCode()
-  readonly country: string | null;
+  readonly country!: string | null;
 
   @Exclude({ toPlainOnly: true })
-  readonly avatar: string;
+  readonly avatar!: string;
 
   @ApiProperty()
   @Expose()
@@ -78,20 +78,20 @@ export class UserDto implements User {
     description:
       "The users's profile, containing information like bio and badges"
   })
-  readonly profile: ProfileDto;
+  readonly profile!: ProfileDto;
 
   @NestedProperty(UserStatsDto, {
     description: "The user's stats, containing information like XP and level"
   })
-  readonly userStats: UserStatsDto;
+  readonly userStats!: UserStatsDto;
 
   @ApiProperty({ type: Number, description: "Flags of user's roles" })
   @IsInt()
-  readonly roles: Flags<Role>;
+  readonly roles!: Flags<Role>;
 
   @ApiProperty({ type: Number, description: "Flags of user's bans" })
   @IsInt()
-  readonly bans: Flags<Ban>;
+  readonly bans!: Flags<Ban>;
 
   @NestedProperty(ActiveChatBanDto, {
     lazy: true,
@@ -104,7 +104,7 @@ export class UserDto implements User {
   readonly chatBans?: ActiveChatBanDto[];
 
   @CreatedAtProperty()
-  readonly createdAt: DateString;
+  readonly createdAt!: DateString;
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}
@@ -146,7 +146,7 @@ export class UpdateUserDto {
   resetAvatar?: boolean;
 
   @NestedProperty(UpdateSocialsDto)
-  socials: UpdateSocialsDto;
+  socials!: UpdateSocialsDto;
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
@@ -173,10 +173,10 @@ export class MergeUserDto implements MergeUser {
   @IdProperty({
     description: 'The ID of the placeholder user to merge into the actual user'
   })
-  placeholderID: number;
+  placeholderID!: number;
 
   @IdProperty({
     description: 'The ID of the actual user to merge the placeholder into'
   })
-  userID: number;
+  userID!: number;
 }

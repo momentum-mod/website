@@ -39,7 +39,7 @@ export class NotificationsController {
   })
   async getNotifications(
     @LoggedInUser('id') userID: number,
-    @Query() query?: NotificationsGetQueryDto
+    @Query() query: NotificationsGetQueryDto
   ): Promise<PagedNotificationResponseDto> {
     return this.notifsService.getNotifications(userID, query);
   }

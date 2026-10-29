@@ -44,7 +44,8 @@ import {
   MapTag,
   TagQualifier,
   MAX_MAPPER_OPEN_MAP_SUBMISSIONS,
-  GamemodeStyles
+  GamemodeStyles,
+  Gamemode
 } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import {
@@ -100,7 +101,11 @@ import * as LeaderboardHandler from './leaderboard-handler.util';
 import { MapListService } from './map-list.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { createHash, randomUUID } from 'node:crypto';
-import { MapDiscordNotifications } from './map-discord-notifications.service';
+import {
+  MapDiscordNotifications,
+  MapWithInfoInSubmission,
+  MapWithInfoApproved
+} from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
@@ -145,12 +150,11 @@ export class MapsService {
     // as not all maps are approved.
     // Changing to info: { creationDate: 'desc' }
     // would require a LOT of changes to tests and testutils.
-    const orderBy: Prisma.MMapOrderByWithRelationInput =
-      query.sortType != null
-        ? MapSortTypeOrder.get(query.sortType)
-        : {
-            createdAt: 'desc'
-          };
+    const orderBy: Prisma.MMapOrderByWithRelationInput = (query.sortType != null
+      ? MapSortTypeOrder.get(query.sortType)
+      : undefined) ?? {
+      createdAt: 'desc'
+    };
 
     const where: Prisma.MMapWhereInput = {};
     if (query.search)
@@ -219,10 +223,12 @@ export class MapsService {
         if (!userID)
           throw new ForbiddenException('PB param is invalid without a login');
         const quantifier = query.PB ? 'some' : 'none';
-        where.leaderboardRuns = { [quantifier]: { userID } };
-        if (query.gamemode) {
-          where.leaderboardRuns[quantifier].gamemode = query.gamemode;
-        }
+        where.leaderboardRuns = {
+          [quantifier]: {
+            userID,
+            ...(query.gamemode ? { gamemode: query.gamemode } : {})
+          }
+        };
       }
 
       if (query.leaderboardType != null) {
@@ -234,7 +240,7 @@ export class MapsService {
         leaderboardSome.type = query.leaderboardType;
       }
 
-      if (query.tagsWithQualifiers?.length > 0) {
+      if (query.tagsWithQualifiers && query.tagsWithQualifiers.length > 0) {
         if (!query.gamemode) {
           throw new BadRequestException(
             'tags query can only be used together with a specific gamemode'
@@ -321,7 +327,7 @@ export class MapsService {
             : MapStatuses.IN_SUBMISSION
         };
       } else if (Bitflags.has(Role.REVIEWER, roles)) {
-        if (filter?.length > 0) {
+        if (filter && filter.length > 0) {
           const ORs = [];
           const easyORs = intersection(filter, [
             MapStatus.PUBLIC_TESTING,
@@ -335,7 +341,7 @@ export class MapsService {
             ORs.push({ status: easyORs[0] });
           }
 
-          if (filter?.includes(MapStatus.PRIVATE_TESTING)) {
+          if (filter.includes(MapStatus.PRIVATE_TESTING)) {
             ORs.push({
               AND: [{ status: MapStatus.PRIVATE_TESTING }, subCredOrTesterOR]
             });
@@ -359,7 +365,7 @@ export class MapsService {
         }
       } else {
         // Regular users
-        if (filter?.length > 0) {
+        if (filter && filter.length > 0) {
           const ORs = [];
           const easyORs = intersection(filter, [
             MapStatus.PUBLIC_TESTING,
@@ -409,7 +415,7 @@ export class MapsService {
 
     // Select (and include)
     // For admins we don't need dynamic expands, just give em everything.
-    let include: Prisma.MMapInclude;
+    let include: Prisma.MMapInclude | undefined;
     if (query instanceof MapsGetAllAdminQueryDto) {
       include = {
         versions: { include: { submitter: true } },
@@ -488,49 +494,52 @@ export class MapsService {
     userID?: number,
     query?: MapsGetQueryDto
   ): Promise<MapDto> {
-    const include: Prisma.MMapInclude = expandToIncludes(query.expand, {
-      mappings: [
-        { expand: 'currentVersion', value: { omit: { zones: true } } },
-        { expand: 'currentVersionWithZones', model: 'currentVersion' },
-        {
-          expand: 'versions',
-          value: { omit: { zones: true }, include: { submitter: true } }
-        },
-        {
-          expand: 'versionsWithZones',
-          value: { include: { submitter: true } },
-          model: 'versions'
-        },
-        { expand: 'credits', value: { include: { user: true } } },
-        { expand: 'testInvites', value: { include: { user: true } } },
-        {
-          expand: 'inFavorites',
-          model: 'favorites',
-          value: { where: { userID: userID } }
-        },
-        {
-          // Explicit order, since without one Postgres may return these rows
-          // in a nondeterministic order.
-          expand: 'leaderboards',
-          value: {
-            orderBy: [
-              { gamemode: 'asc' },
-              { trackType: 'asc' },
-              { trackNum: 'asc' },
-              { style: 'asc' }
-            ]
-          }
-        },
-        {
-          expand: 'submission',
-          value: {
-            include: {
-              dates: { orderBy: { date: 'asc' }, include: { user: true } }
+    const include: Prisma.MMapInclude | undefined = expandToIncludes(
+      query?.expand,
+      {
+        mappings: [
+          { expand: 'currentVersion', value: { omit: { zones: true } } },
+          { expand: 'currentVersionWithZones', model: 'currentVersion' },
+          {
+            expand: 'versions',
+            value: { omit: { zones: true }, include: { submitter: true } }
+          },
+          {
+            expand: 'versionsWithZones',
+            value: { include: { submitter: true } },
+            model: 'versions'
+          },
+          { expand: 'credits', value: { include: { user: true } } },
+          { expand: 'testInvites', value: { include: { user: true } } },
+          {
+            expand: 'inFavorites',
+            model: 'favorites',
+            value: { where: { userID: userID } }
+          },
+          {
+            // Explicit order, since without one Postgres may return these rows
+            // in a nondeterministic order.
+            expand: 'leaderboards',
+            value: {
+              orderBy: [
+                { gamemode: 'asc' },
+                { trackType: 'asc' },
+                { trackNum: 'asc' },
+                { style: 'asc' }
+              ]
+            }
+          },
+          {
+            expand: 'submission',
+            value: {
+              include: {
+                dates: { orderBy: { date: 'asc' }, include: { user: true } }
+              }
             }
           }
-        }
-      ]
-    });
+        ]
+      }
+    );
 
     const map: any = await this.getMapAndCheckReadAccess({
       mapID,
@@ -538,7 +547,7 @@ export class MapsService {
       include
     });
 
-    if (query.personalBest) {
+    if (query?.personalBest) {
       if (!userID) {
         throw new ForbiddenException(
           'personalBest query is invalid without a login'
@@ -555,7 +564,7 @@ export class MapsService {
       });
     }
 
-    if (query.worldRecord) {
+    if (query?.worldRecord) {
       map.worldRecord = (
         await this.leaderboardRunsDbService.getRankedRuns({
           mapID: map.id,
@@ -646,8 +655,8 @@ export class MapsService {
       SuggestionType.SUBMISSION
     );
 
-    const hasVmf = vmfFiles?.length > 0;
-    const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+    const hasVmf = Boolean(vmfFiles && vmfFiles.length > 0);
+    const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer!);
 
     const bspAlreadyUsed = await this.db.mMap.exists({
       where: {
@@ -658,7 +667,7 @@ export class MapsService {
       throw new ConflictException('Map with this file hash already exists');
     }
 
-    let map: Awaited<ReturnType<typeof this.createMapDbEntry>>;
+    let map!: Awaited<ReturnType<typeof this.createMapDbEntry>>;
 
     const tasks: Promise<any>[] = [
       this.db.$transaction(async (tx) => {
@@ -686,13 +695,13 @@ export class MapsService {
         tasks.push(
           (async () => {
             const zippedVmf = hasVmf
-              ? await this.zipVmfFiles(dto.name, 1, vmfFiles)
+              ? await this.zipVmfFiles(dto.name, 1, vmfFiles!)
               : undefined;
 
             return this.uploadMapVersionFiles(
-              map.currentVersion.bspDownloadId,
+              map.currentVersion!.bspDownloadId!,
               bspFile,
-              map.currentVersion.vmfDownloadId,
+              map.currentVersion!.vmfDownloadId ?? undefined,
               zippedVmf,
               dto.name
             );
@@ -701,7 +710,11 @@ export class MapsService {
 
         await this.createMapUploadedActivities(tx, map.id, map.credits);
 
-        if (dto.wantsPrivateTesting && dto.testInvites?.length > 0) {
+        if (
+          dto.wantsPrivateTesting &&
+          dto.testInvites &&
+          dto.testInvites.length > 0
+        ) {
           await this.mapTestInviteService.createOrUpdatePrivateTestingInvites(
             tx,
             map.id,
@@ -756,7 +769,9 @@ export class MapsService {
     const user = await this.db.user.findUnique({
       where: { id: userID }
     });
-
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     // Reviewers can upload new versions to maps in public testing
     const isReviewerInPublicTesting =
       Bitflags.has(user.roles, Role.REVIEWER) &&
@@ -771,7 +786,7 @@ export class MapsService {
 
     // This should never happen but stops someone flooding S3 storage with
     // garbage.
-    if (map.versions?.length > 100) {
+    if (map.versions && map.versions.length > 100) {
       throw new ForbiddenException('Reached map version limit');
     }
 
@@ -795,7 +810,7 @@ export class MapsService {
       ? await this.tryGetBspFromTempUploads(userID)
       : null;
 
-    this.checkMapFiles(vmfFiles, bspFile);
+    this.checkMapFiles(vmfFiles ?? [], bspFile ?? undefined);
 
     if (dto.hasBSP) {
       if (!bspFile)
@@ -805,7 +820,7 @@ export class MapsService {
 
       await this.checkMapCompression(bspFile);
 
-      bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
+      bspHash = FileStoreService.getHashForBuffer(bspFile.buffer!);
 
       const bspAlreadyUsed = await this.db.mMap.exists({
         where: {
@@ -822,10 +837,13 @@ export class MapsService {
         throw new ConflictException('Map with this file hash already exists');
       }
     } else {
+      if (!map.currentVersion?.bspHash) {
+        throw new BadRequestException('Map current version has no BSP hash');
+      }
       bspHash = map.currentVersion.bspHash;
     }
 
-    const hasVmf = vmfFiles?.length > 0;
+    const hasVmf = Boolean(vmfFiles && vmfFiles.length > 0);
 
     if (!dto.hasBSP && !hasVmf && !dto.zones) {
       throw new BadRequestException(
@@ -837,10 +855,10 @@ export class MapsService {
     let zones: MapZones;
     if (dto.zones) {
       this.checkZones(dto.zones);
-      if (map.info.approvedDate) {
+      if (map.info?.approvedDate) {
         this.checkIfZonesChanged(
           dto.zones,
-          JSON.parse(map.currentVersion.zones),
+          JSON.parse(map.currentVersion!.zones!),
           MapStatuses.IN_SUBMISSION.includes(map.status) &&
             Bitflags.has(user.roles, Role.ADMIN)
         );
@@ -848,8 +866,15 @@ export class MapsService {
       zones = dto.zones;
       zonesStr = JSON.stringify(zones);
     } else {
+      if (!map.currentVersion?.zones) {
+        throw new BadRequestException('Map current version has no zones');
+      }
       zonesStr = map.currentVersion.zones;
       zones = JSON.parse(zonesStr);
+    }
+
+    if (!map.currentVersion) {
+      throw new BadRequestException('Map does not have a current version');
     }
 
     const oldVersion = map.currentVersion;
@@ -905,7 +930,8 @@ export class MapsService {
       await this.generateSubmissionLeaderboards(
         tx,
         mapID,
-        map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
+        (map.submission?.suggestions as unknown as MapSubmissionSuggestion[]) ??
+          [], // TODO: #855
         zones
       );
 
@@ -915,7 +941,7 @@ export class MapsService {
         // If the submitter is fixing the maps in a significant enough way to
         // still require a leaderboard reset, they should just get an admin to
         // do it.
-        if (map.info.approvedDate && !Bitflags.has(user.roles, Role.ADMIN)) {
+        if (map.info?.approvedDate && !Bitflags.has(user.roles, Role.ADMIN)) {
           throw new ForbiddenException(
             'Cannot reset leaderboards on a previously approved map.' +
               ' Talk about it with an admin!'
@@ -929,13 +955,13 @@ export class MapsService {
     });
 
     const zippedVmf = hasVmf
-      ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
+      ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles!)
       : undefined;
 
     await this.uploadMapVersionFiles(
-      newVersion.bspDownloadId,
-      bspFile,
-      newVersion.vmfDownloadId,
+      newVersion.bspDownloadId!,
+      bspFile ?? undefined,
+      newVersion.vmfDownloadId ?? undefined,
       zippedVmf,
       map.name
     );
@@ -949,21 +975,24 @@ export class MapsService {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
 
-    return DtoFactory(
-      MapDto,
-      await this.db.mMap.findUnique({
-        where: { id: mapID },
-        include: {
-          currentVersion: true,
-          versions: { include: { submitter: true } },
-          submission: {
-            include: {
-              dates: { orderBy: { date: 'asc' }, include: { user: true } }
-            }
+    const updatedMap = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: {
+        currentVersion: true,
+        versions: { include: { submitter: true } },
+        submission: {
+          include: {
+            dates: { orderBy: { date: 'asc' }, include: { user: true } }
           }
         }
-      })
-    );
+      }
+    });
+
+    if (!updatedMap) {
+      throw new NotFoundException('Map not found');
+    }
+
+    return DtoFactory(MapDto, updatedMap);
   }
 
   checkCredits(credits: { type: MapCreditType }[]) {
@@ -987,6 +1016,10 @@ export class MapsService {
     const user = await this.db.user.findUnique({
       where: { id: userID }
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     // 403 is user has the map submission ban
     if (Bitflags.has(user.bans, Ban.MAP_SUBMISSION)) {
@@ -1114,7 +1147,7 @@ export class MapsService {
       }
     });
 
-    return tx.mMap.findUnique({
+    const result = await tx.mMap.findUnique({
       where: { id: map.id },
       include: {
         info: true,
@@ -1130,6 +1163,12 @@ export class MapsService {
         credits: { include: { user: true } }
       }
     });
+
+    if (!result) {
+      throw new InternalServerErrorException('Failed to create map');
+    }
+
+    return result;
   }
 
   /**
@@ -1225,7 +1264,9 @@ export class MapsService {
       try {
         vdf.parse(file.buffer.toString());
       } catch (error) {
-        throw new BadRequestException(`Invalid VMF file: ${error.message}`);
+        throw new BadRequestException(
+          `Invalid VMF file: ${error instanceof Error ? error.message : String(error)}`
+        );
       }
     }
   }
@@ -1239,7 +1280,7 @@ export class MapsService {
     for (const [i, file] of files.entries()) {
       zip.addFile(
         file.originalname ?? `${mapName}_v${version}_${i}.vmf`,
-        file.buffer
+        file.buffer!
       );
     }
 
@@ -1264,16 +1305,16 @@ export class MapsService {
               ContentType: 'model/vnd.valve.source.compiled-map',
               ContentDisposition: `attachment${mapName ? `; filename="${mapName}.bsp"` : ''}`
             })
-            .then(() => this.fileStoreService.deleteFile(bspFile.path))
+            .then(() => this.fileStoreService.deleteFile(bspFile.path!))
         );
       } else {
         storeFns.push(
-          this.fileStoreService.storeFile(bspFile.buffer, bspPath(bspId))
+          this.fileStoreService.storeFile(bspFile.buffer!, bspPath(bspId))
         );
       }
     }
 
-    if (vmfZip)
+    if (vmfZip && vmfId)
       storeFns.push(this.fileStoreService.storeFile(vmfZip, vmfsPath(vmfId)));
 
     return Promise.all(storeFns);
@@ -1315,6 +1356,9 @@ export class MapsService {
     }
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     if (isSubmitter) {
       if (userID !== map.submitterID) {
@@ -1346,6 +1390,10 @@ export class MapsService {
       } else {
         throw new ForbiddenException();
       }
+    }
+
+    if (!map.currentVersion?.zones) {
+      throw new BadRequestException('Map current version has no zones');
     }
 
     const zones = JSON.parse(map.currentVersion.zones);
@@ -1549,12 +1597,12 @@ export class MapsService {
 
     if (dto.placeholders) {
       update.submission ??= { update: {} };
-      update.submission.update.placeholders = dto.placeholders;
+      (update.submission.update as any).placeholders = dto.placeholders;
     }
 
     if ('suggestions' in dto && dto.suggestions) {
       update.submission ??= { update: {} };
-      update.submission.update.suggestions = dto.suggestions;
+      (update.submission.update as any).suggestions = dto.suggestions;
     }
 
     if (dto.portingChangelog) {
@@ -1588,18 +1636,24 @@ export class MapsService {
     }
 
     // Check roles against allowed status changes
-    const { roles: allowedRoles } = MapStatusChangeRules.find(
+    const rule = MapStatusChangeRules.find(
       ({ from, to }) => from === oldStatus && to === newStatus
     );
 
-    const isChangeAllowed = allowedRoles.some((allowedRole) => {
-      if (allowedRole === 'submitter') {
-        if (isSubmitter) return true;
-      } else if (Bitflags.has(user.roles, allowedRole)) {
-        return true;
+    if (!rule) {
+      throw new ForbiddenException('Map status change is not allowed');
+    }
+
+    const isChangeAllowed = rule.roles.some(
+      (allowedRole: Role | 'submitter') => {
+        if (allowedRole === 'submitter') {
+          if (isSubmitter) return true;
+        } else if (Bitflags.has(user.roles, allowedRole)) {
+          return true;
+        }
+        return false;
       }
-      return false;
-    });
+    );
 
     if (!isChangeAllowed)
       throw new ForbiddenException('Map status change is not allowed');
@@ -1691,7 +1745,9 @@ export class MapsService {
       );
     }
 
-    const latestPubTestTime = new Date(latestPubTestDate).getTime();
+    const latestPubTestTime = latestPubTestDate
+      ? new Date(latestPubTestDate).getTime()
+      : 0;
     if (
       !Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN) &&
       currentTime - latestPubTestTime <
@@ -1757,7 +1813,7 @@ export class MapsService {
       )
     });
 
-    const { currentVersion, versions } = await this.db.mMap.findFirst({
+    const mapWithVersions = await this.db.mMap.findUnique({
       where: { id: map.id },
       include: {
         currentVersion: true,
@@ -1765,7 +1821,13 @@ export class MapsService {
       }
     });
 
-    const zones = JSON.parse(currentVersion.zones);
+    if (!mapWithVersions || !mapWithVersions.currentVersion?.zones) {
+      throw new NotFoundException('Map or current version zones not found');
+    }
+
+    const { currentVersion, versions } = mapWithVersions;
+
+    const zones = JSON.parse(currentVersion.zones!);
 
     // Is it getting approved for first time?
     if (!map.info.approvedDate) {
@@ -1779,16 +1841,18 @@ export class MapsService {
         SuggestionType.APPROVAL
       );
 
-      // Send a notification to the submitter.
-      await this.notificationService.sendNotifications({
-        data: {
-          type: NotificationType.MAP_STATUS_CHANGE,
-          notifiedUserID: map.submitterID,
-          json: { oldStatus: map.status, newStatus: dto.status },
-          mapID: map.id,
-          userID: adminID
-        }
-      });
+      if (map.submitterID != null) {
+        // Send a notification to the submitter.
+        await this.notificationService.sendNotifications({
+          data: {
+            type: NotificationType.MAP_STATUS_CHANGE,
+            notifiedUserID: map.submitterID,
+            json: { oldStatus: map.status, newStatus: dto.status },
+            mapID: map.id,
+            userID: adminID
+          }
+        });
+      }
 
       // Leaderboards always get wiped, easiest to just delete and remake, let
       // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
@@ -1803,15 +1867,17 @@ export class MapsService {
         ),
         // Stages
         ...LeaderboardHandler.getStageLeaderboards(dto.finalLeaderboards, zones)
-      ].flatMap((lb) =>
-        GamemodeStyles.get(lb.gamemode)
+      ].flatMap((lb) => {
+        const styles = GamemodeStyles.get(lb.gamemode);
+        if (!styles) return [];
+        return styles
           .values()
           .map((style) => ({
             ...lb,
             style
           }))
-          .toArray()
-      );
+          .toArray();
+      });
 
       await tx.leaderboard.createMany({
         data: expandedLeaderboards.map((lb) => ({
@@ -1878,14 +1944,16 @@ export class MapsService {
         .deleteFiles(
           versions
             .flatMap((v) => [
-              currentVersion.bspDownloadId !== v.bspDownloadId
+              currentVersion.bspDownloadId !== v.bspDownloadId &&
+              v.bspDownloadId
                 ? bspPath(v.bspDownloadId)
                 : undefined,
-              currentVersion.vmfDownloadId !== v.vmfDownloadId
+              currentVersion.vmfDownloadId !== v.vmfDownloadId &&
+              v.vmfDownloadId
                 ? vmfsPath(v.vmfDownloadId)
                 : undefined
             ])
-            .filter(Boolean)
+            .filter((x): x is string => Boolean(x))
         )
         .catch((error) => {
           error.message = `Failed to delete map version file for ${map.name}: ${error.message}`;
@@ -1960,7 +2028,16 @@ export class MapsService {
       )
     });
 
-    const toUpdate = existingLeaderboards.reduce((acc, lb) => {
+    const toUpdate = existingLeaderboards.reduce<
+      Array<{
+        gamemode: Gamemode;
+        trackType: TrackType;
+        trackNum: number;
+        type: LeaderboardType;
+        tier: number | null;
+        tags: MapTag[];
+      }>
+    >((acc, lb) => {
       const suggestion = suggestions.find((sugg) =>
         LeaderboardHandler.isSameTrackAndMode(lb, sugg)
       );
@@ -2015,14 +2092,14 @@ export class MapsService {
     if (!isAdmin && userID !== map.submitterID)
       throw new ForbiddenException('User is not the map submitter');
 
-    if (!isAdmin && map.info.approvedDate)
+    if (!isAdmin && map.info?.approvedDate)
       throw new ForbiddenException(
         'Only admins can disable maps that were previously approved.'
       );
 
     await this.deleteMapFiles(mapID);
 
-    if (map.info.approvedDate) {
+    if (map.info?.approvedDate) {
       // Disable map without touching leaderboards
 
       // Bump version with bspHash set to null to give frontend easy to tell bsp
@@ -2033,7 +2110,7 @@ export class MapsService {
           status: MapStatus.DISABLED,
           versions: {
             create: {
-              versionNum: map.versions.at(-1).versionNum + 1,
+              versionNum: map.versions.at(-1)!.versionNum + 1,
               bspDownloadId: null,
               vmfDownloadId: null,
               bspHash: null,
@@ -2048,7 +2125,7 @@ export class MapsService {
       await this.db.mMap.update({
         where: { id: mapID },
         data: {
-          currentVersion: { connect: { id: updated.versions.at(-1).id } }
+          currentVersion: { connect: { id: updated.versions.at(-1)!.id } }
         }
       });
     } else {
@@ -2057,7 +2134,9 @@ export class MapsService {
         where: { mapID: map.id }
       });
       await this.fileStoreService.deleteFiles(
-        runs.map((run) => runPath(run.replayHash))
+        runs
+          .map((run) => (run.replayHash ? runPath(run.replayHash) : undefined))
+          .filter((p): p is string => Boolean(p))
       );
 
       // Nuke everything
@@ -2098,10 +2177,12 @@ export class MapsService {
     await Promise.all(
       [
         this.fileStoreService.deleteFiles(
-          map.versions.flatMap((v) => [
-            bspPath(v.bspDownloadId),
-            vmfsPath(v.vmfDownloadId)
-          ])
+          map.versions
+            .flatMap((v) => [
+              v.bspDownloadId ? bspPath(v.bspDownloadId) : undefined,
+              v.vmfDownloadId ? vmfsPath(v.vmfDownloadId) : undefined
+            ])
+            .filter((p): p is string => Boolean(p))
         ),
         ...map.images.map((imageID) =>
           this.mapImageService.deleteStoredMapImage(imageID)
@@ -2125,7 +2206,7 @@ export class MapsService {
       include: { info: true }
     });
 
-    return DtoFactory(MapInfoDto, map.info);
+    return DtoFactory(MapInfoDto, map.info!);
   }
 
   //#endregion
@@ -2175,8 +2256,7 @@ export class MapsService {
       >
     >
   ): Promise<typeof args extends { map: M } ? M : GetMMapUnique<S, I>> {
-    const map =
-      args.map ??
+    const map = (args.map ??
       (await this.db.mMap.findUnique({
         where:
           typeof args.mapID == 'number'
@@ -2187,7 +2267,7 @@ export class MapsService {
           ? // Required by below code
             { id: true, status: true, submitterID: true, ...args.select }
           : undefined
-      }));
+      }))) as (MMap & Record<string, any>) | null;
 
     if (!map) {
       throw new NotFoundException('Map does not exist');
@@ -2215,6 +2295,9 @@ export class MapsService {
 
     // For any other state, we need to know roles
     const user = await this.db.user.findUnique({ where: { id: args.userID } });
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
 
     switch (map.status) {
       // APPROVED, always allow unless:
@@ -2315,7 +2398,7 @@ export class MapsService {
     mapID: number,
     transaction?: ExtendedPrismaServiceTransaction
   ) {
-    return await (transaction ? transaction : this.db).mMap.findUnique({
+    const res = await (transaction ? transaction : this.db).mMap.findUnique({
       where: { id: mapID },
       include: {
         info: true,
@@ -2325,6 +2408,10 @@ export class MapsService {
         credits: { include: { user: true } }
       }
     });
+
+    if (!res) throw new NotFoundException('Map not found');
+
+    return res as unknown as MapWithInfoInSubmission & MapWithInfoApproved;
   }
 
   /**
@@ -2392,7 +2479,7 @@ export class MapsService {
    */
   async checkMapCompression(bspFile: File) {
     const header = await BspHeader.fromBlob(
-      new Blob([bspFile.buffer.buffer as ArrayBuffer])
+      new Blob([bspFile.buffer!.buffer as ArrayBuffer])
     ).catch((error) => {
       throw new BadRequestException(
         error instanceof BspReadError
@@ -2415,6 +2502,10 @@ export class MapsService {
     }
 
     const bspData = await this.fileStoreService.getFile(userIDObjects[0]);
+
+    if (!bspData) {
+      return null;
+    }
 
     return {
       fieldname: 'bsp',

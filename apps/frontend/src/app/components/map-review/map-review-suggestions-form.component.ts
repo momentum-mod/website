@@ -54,11 +54,12 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected value: MapReviewSuggestion[] = [];
   protected disabled = false;
 
-  protected availableGamemodes: Array<{ gamemode: Gamemode; label: string }>;
+  protected availableGamemodes: Array<{ gamemode: Gamemode; label: string }> =
+    [];
   protected availableBonusTracks: Array<{ trackNum: number; label: number }> =
     [];
-  protected defaultMode: Gamemode;
-  private _map: MMap;
+  protected defaultMode: Gamemode = Gamemode.AHOP;
+  private _map!: MMap;
   get map() {
     return this._map;
   }
@@ -69,7 +70,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       .filter((gamemode: Gamemode) => !DisabledGamemodes.has(gamemode))
       .map((gamemode: Gamemode) => ({
         gamemode,
-        label: GamemodeInfo.get(gamemode).name
+        label: GamemodeInfo.get(gamemode)?.name ?? ''
       }));
     this.availableBonusTracks =
       map?.currentVersion?.zones?.tracks?.bonuses?.map((_, i) => ({
@@ -77,9 +78,9 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
         label: i + 1
       })) ?? [];
 
-    const lbs = groupMapLeaderboards(map.leaderboards);
+    const lbs = groupMapLeaderboards(map.leaderboards ?? []);
     const mainIndex = findMainGamemodeIndex(lbs, this.map.name);
-    this.defaultMode = lbs[mainIndex].gamemode;
+    this.defaultMode = lbs[mainIndex]?.gamemode ?? Gamemode.AHOP;
 
     // Reset
     this.writeValue(null);
@@ -112,8 +113,8 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       gamemode: this.defaultMode ?? this.availableGamemodes[0].gamemode,
       trackType,
       trackNum,
-      tier: null,
-      gameplayRating: null
+      tier: undefined,
+      gameplayRating: undefined
     });
 
     this.onChange(this.value);
@@ -151,7 +152,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
     this.onChange = fn;
   }
 
-  onTouched = () => void 0;
+  onTouched: () => void = () => void 0;
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }

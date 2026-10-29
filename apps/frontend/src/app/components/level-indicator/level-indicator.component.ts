@@ -11,12 +11,12 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
 export class LevelIndicatorComponent implements OnChanges {
   private readonly xpService = inject(XpSystemsService);
 
-  protected level: number;
-  protected levelColor: string;
-  protected prestige: number;
-  protected prestigeIcon: string;
-  protected textColor: string;
-  protected imageClass: string;
+  protected level = 0;
+  protected levelColor = '#5d5d5d';
+  protected prestige = 0;
+  protected prestigeIcon = '';
+  protected textColor = 'text-white';
+  protected imageClass = 'invert';
   protected readonly levelColors = [
     { max: 50, color: '#5d5d5d' },
     { max: 100, color: '#e84855' },
@@ -31,17 +31,16 @@ export class LevelIndicatorComponent implements OnChanges {
     { max: Infinity, color: '#ffffff' }
   ];
 
-  @Input()
-  totalLevel: number;
+  @Input({ required: true })
+  totalLevel!: number;
 
   ngOnChanges() {
     this.level = this.xpService.getInnerLevel(this.totalLevel);
     this.prestige = this.xpService.getPrestige(this.totalLevel);
     this.prestigeIcon = this.getPrestigeIcon(this.prestige);
 
-    this.levelColor = this.levelColors.find(
-      ({ max }) => this.level < max
-    ).color;
+    this.levelColor =
+      this.levelColors.find(({ max }) => this.level < max)?.color ?? '#5d5d5d';
 
     this.textColor =
       this.levelColor === '#ffffff' ? 'text-black' : 'text-white';

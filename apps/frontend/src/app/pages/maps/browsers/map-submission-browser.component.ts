@@ -89,7 +89,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     MapSortType.ALPHABETICAL_REVERSE
   ];
   protected readonly MapSortNameFn = (type: MapSortType): string =>
-    MapSortTypeName.get(type);
+    MapSortTypeName.get(type) ?? '';
 
   protected readonly filters = this.nnfb.group({
     name: this.nnfb.control<string>(''),

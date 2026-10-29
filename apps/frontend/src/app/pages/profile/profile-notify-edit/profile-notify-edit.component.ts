@@ -14,7 +14,7 @@ export class ProfileNotifyEditComponent implements OnInit {
 
   protected readonly ActivityType = ActivityType;
 
-  @Input() flags: number;
+  @Input() flags = 0;
 
   checkboxFlags = {
     pb: { checked: false, value: ActivityType.PB_ACHIEVED },
@@ -28,7 +28,7 @@ export class ProfileNotifyEditComponent implements OnInit {
       // prettier-ignore
       // Prettier removes braces around `1 << value which` errors in WebStorm.
       // https://youtrack.jetbrains.com/issue/WEB-61626/Parsing-error-for-valid-Typescript-bit-shift-expression
-      this.checkboxFlags[type].checked = Bitflags.has((1 << value), this.flags);
+      this.checkboxFlags[type as keyof typeof this.checkboxFlags].checked = Bitflags.has((1 << value), this.flags);
   }
 
   close() {

@@ -35,7 +35,11 @@ export function groupIsIncomplete(group: FormGroup): boolean {
   return !groupIsActuallyInvalid(group) && !group.valid;
 }
 
-export function getAllErrors(form: AbstractControl): Record<string, unknown> {
+export function getAllErrors(
+  form: AbstractControl | null
+): Record<string, unknown> | null {
+  if (!form) return null;
+
   if (form instanceof FormControl) {
     return form.errors ?? null;
   }
@@ -43,12 +47,17 @@ export function getAllErrors(form: AbstractControl): Record<string, unknown> {
   if (form instanceof FormGroup) {
     const groupErrors = form.errors;
     // Form group can contain errors itself, in that case add'em
-    const formErrors = groupErrors ? { groupErrors } : {};
+    const formErrors: Record<string, unknown> = groupErrors
+      ? { groupErrors }
+      : {};
     Object.keys(form.controls).forEach((key) => {
       // Recursive call of the FormGroup fields
-      const error = getAllErrors(form.get(key));
-      if (error !== null) {
-        formErrors[key] = error;
+      const control = form.get(key);
+      if (control) {
+        const error = getAllErrors(control);
+        if (error !== null) {
+          formErrors[key] = error;
+        }
       }
     });
 

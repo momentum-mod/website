@@ -94,7 +94,7 @@ export class UtilitiesComponent implements OnInit {
           actionText: 'Update'
         }
       })
-      .onClose.subscribe((shouldProceed) => {
+      ?.onClose.subscribe((shouldProceed) => {
         if (!shouldProceed) return;
         this.updateKillswitches();
       });
@@ -130,7 +130,7 @@ export class UtilitiesComponent implements OnInit {
           proceedMessage: 'Create Placeholder'
         }
       })
-      .onClose.subscribe((shouldProceed) => {
+      ?.onClose.subscribe((shouldProceed) => {
         if (!shouldProceed) return;
 
         this.adminService.createUser(this.alias.value).subscribe({
@@ -164,7 +164,7 @@ export class UtilitiesComponent implements OnInit {
           proceedMessage: 'Create Announcement'
         }
       })
-      .onClose.subscribe((shouldProceed) => {
+      ?.onClose.subscribe((shouldProceed) => {
         if (!shouldProceed) return;
 
         this.adminService
@@ -188,10 +188,10 @@ export class UtilitiesComponent implements OnInit {
   }
 
   get alias() {
-    return this.userForm.get('alias');
+    return this.userForm.controls.alias;
   }
 
   get message() {
-    return this.announcementForm.get('message');
+    return this.announcementForm.controls.message;
   }
 }

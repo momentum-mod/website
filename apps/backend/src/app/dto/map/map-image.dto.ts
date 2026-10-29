@@ -17,7 +17,7 @@ const CDN_URL = Config.url.cdn;
 
 export class MapImageDto implements MapImage {
   @StringIdProperty({ uuid: true })
-  readonly id: string;
+  readonly id!: string;
 
   @ApiProperty({
     type: String,
@@ -65,5 +65,5 @@ export class UpdateMapImagesDto implements UpdateMapImages {
   @ArrayMinSize(1)
   @ArrayMaxSize(MAX_MAP_IMAGES)
   @IsString({ each: true })
-  imageIDs: string[];
+  imageIDs!: string[];
 }

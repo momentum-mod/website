@@ -15,7 +15,8 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -29,15 +30,15 @@ import Valkey from 'iovalkey';
 // here mirror the run-session tests that used to live there as HTTP routes
 // before the move to WebSockets.
 describe('Game Connection Gateway - run sessions', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
     valkey: Valkey,
     wsUrl: string,
-    map;
+    map: Awaited<ReturnType<DbUtil['createMapWithFullLeaderboards']>>;
 
-  let user, token: string, openClients: WebsocketTestClient[];
+  let user: User, token: string, openClients: WebsocketTestClient[];
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment(undefined, { websockets: true });
@@ -46,7 +47,7 @@ describe('Game Connection Gateway - run sessions', () => {
     valkey = env.valkey;
     req = env.req;
     db = env.db;
-    wsUrl = env.wsUrl;
+    wsUrl = env.wsUrl!;
 
     map = await db.createMapWithFullLeaderboards(
       {
@@ -424,8 +425,8 @@ describe('Game Connection Gateway - run sessions', () => {
         style: Style.NORMAL,
         mapID: map.id,
         mapName: map.name,
-        mapHash: map.currentVersion.bspHash,
-        steamID: user.steamID,
+        mapHash: map.currentVersion.bspHash!,
+        steamID: user.steamID!,
         playerName: 'Abstract Barry'
       });
 

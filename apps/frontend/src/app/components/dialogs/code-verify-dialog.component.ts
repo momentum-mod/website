@@ -49,25 +49,30 @@ export class CodeVerifyDialogComponent implements OnInit {
   >(DynamicDialogConfig);
   private sanitizer = inject(DomSanitizer);
 
-  @Input() message: SafeHtml;
+  @Input() message!: SafeHtml;
   @Input() actionText = 'Delete';
 
-  protected randomCode: string;
-  protected isCodeValid: boolean;
+  protected randomCode = '';
+  protected isCodeValid = false;
 
   ngOnInit(): void {
     this.randomCode = this.generateNewCode();
     this.isCodeValid = false;
 
-    if (this.config.data.actionText) {
-      this.actionText = this.config.data.actionText;
+    const data = this.config.data;
+    if (!data) return;
+
+    if (data.actionText) {
+      this.actionText = data.actionText;
     }
 
     const sanitizedMessage = this.sanitizer.sanitize(
       SecurityContext.HTML,
-      this.config.data.message
+      data.message
     );
-    this.message = this.sanitizer.bypassSecurityTrustHtml(sanitizedMessage);
+    this.message = this.sanitizer.bypassSecurityTrustHtml(
+      sanitizedMessage ?? ''
+    );
   }
 
   private generateNewCode(): string {

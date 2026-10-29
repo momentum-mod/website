@@ -70,10 +70,10 @@ export class UserSearchComponent
    */
   @Input() appendTemplate?: TemplateRef<any>;
 
-  @Output() addPlaceholder?: EventEmitter<void> = new EventEmitter();
+  @Output() addPlaceholder = new EventEmitter<void>();
 
-  @ViewChild('searchMain') mainEl: ElementRef;
-  @ViewChild('searchOverlay') overlay: PopoverComponent;
+  @ViewChild('searchMain') mainEl!: ElementRef;
+  @ViewChild('searchOverlay') overlay!: PopoverComponent;
 
   searchRequest(searchString: string) {
     this.selectedIdx = 0;

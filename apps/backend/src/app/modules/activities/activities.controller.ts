@@ -22,7 +22,7 @@ export class ActivitiesController {
     description: 'Paginated list of activities'
   })
   getActivities(
-    @Query() query?: ActivitiesGetQueryDto
+    @Query() query: ActivitiesGetQueryDto
   ): Promise<PagedResponseDto<ActivityDto>> {
     return this.activitiesService.getAll(query);
   }

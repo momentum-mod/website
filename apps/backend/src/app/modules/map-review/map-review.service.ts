@@ -74,7 +74,7 @@ export class MapReviewService {
         mappings: [{ expand: 'map', model: 'mmap' }]
       }) ?? {};
 
-    if (query.comments > 0)
+    if (query.comments && query.comments > 0)
       include.comments = {
         include: { user: true },
         take: query.comments,
@@ -102,15 +102,17 @@ export class MapReviewService {
     });
 
     for (const review of dbResponse) {
-      review.numComments = review._count.comments;
+      review.numComments = review._count?.comments ?? 0;
       delete review._count;
     }
 
     // Filter by official/unofficial if exists on query
     const filteredResponse = hasRoleFiltering
       ? dbResponse.filter(({ reviewer }) => {
-          const hasOfficialRole =
-            reviewer.roles & (Role.ADMIN | Role.MODERATOR | Role.REVIEWER);
+          const hasOfficialRole = Boolean(
+            reviewer &&
+              reviewer.roles & (Role.ADMIN | Role.MODERATOR | Role.REVIEWER)
+          );
           return query.official ? hasOfficialRole : !hasOfficialRole;
         })
       : dbResponse;
@@ -119,10 +121,9 @@ export class MapReviewService {
     // now. DB response is unlikely to be enormous, and endpoint isn't heavily
     // used, so tolerable for now. Could write raw if needed in the future.
     const totalCount = filteredResponse.length;
-    const paginatedResponse = filteredResponse.slice(
-      query.skip,
-      query.skip + query.take
-    );
+    const skip = query.skip ?? 0;
+    const take = query.take ?? 20;
+    const paginatedResponse = filteredResponse.slice(skip, skip + take);
 
     // We needed the 'reviewer' include for the official/unofficial reviews
     // filtering logic above, but it might not have been requested in the
@@ -141,7 +142,7 @@ export class MapReviewService {
     const review = await this.db.mapReview.findFirst({
       where: { id: reviewID },
       include: expandToIncludes(query.expand, {
-        mappings: [{ expand: 'map', model: 'mmap' }]
+        mappings: [{ expand: 'map', model: 'mmap' }] as any
       })
     });
 
@@ -164,6 +165,8 @@ export class MapReviewService {
       userID,
       select: { reviewStats: true }
     });
+
+    if (!map.reviewStats) throw new NotFoundException('Review stats not found');
 
     return DtoFactory(MapReviewStatsDto, map.reviewStats);
   }
@@ -194,11 +197,13 @@ export class MapReviewService {
       try {
         validateSuggestions(
           body.suggestions,
-          JSON.parse(map.currentVersion.zones),
+          JSON.parse(map.currentVersion?.zones ?? '{}'),
           SuggestionType.REVIEW
         );
-      } catch (error) {
-        throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      } catch (error: any) {
+        throw new BadRequestException(
+          `Invalid suggestions: ${error?.message ?? error}`
+        );
       }
 
       const existingUserReviews = await this.db.mapReview.findMany({
@@ -226,6 +231,7 @@ export class MapReviewService {
 
     if (body.needsResolving || body.approves) {
       const user = await this.db.user.findUnique({ where: { id: userID } });
+      if (!user) throw new NotFoundException('User not found');
       if (!Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE))
         throw new ForbiddenException(
           body.needsResolving
@@ -262,8 +268,6 @@ export class MapReviewService {
             reviewer: { connect: { id: userID } },
             mmap: { connect: { id: mapID } },
             imageIDs: images.map(([id]) => id),
-            mainText: body.mainText,
-            approves: body.approves ?? false,
             ...newData,
             editHistory: [{ ...newData, editorID: userID, date: new Date() }]
           },
@@ -275,7 +279,11 @@ export class MapReviewService {
 
         // After approval the submitter is no longer responsible for the map,
         // so don't sent them notifications on new reviews.
-        if (userID !== map.submitterID && map.status !== MapStatus.APPROVED) {
+        if (
+          map.submitterID &&
+          userID !== map.submitterID &&
+          map.status !== MapStatus.APPROVED
+        ) {
           await this.notificationService.sendNotifications(
             {
               data: {
@@ -294,9 +302,9 @@ export class MapReviewService {
         return newReview;
       }),
       ...images.map(([id, file]) =>
-        this.fileStoreService.storeFile(file.buffer, mapReviewAssetPath(id), {
+        this.fileStoreService.storeFile(file.buffer!, mapReviewAssetPath(id), {
           ContentType:
-            (file.mimetype ?? file.filename.endsWith('png'))
+            (file.mimetype ?? file.filename?.endsWith('png'))
               ? 'image/png'
               : 'image/jpeg'
         })
@@ -345,11 +353,13 @@ export class MapReviewService {
       try {
         validateSuggestions(
           body.suggestions,
-          JSON.parse(map.currentVersion.zones),
+          JSON.parse(map.currentVersion?.zones ?? '{}'),
           SuggestionType.REVIEW
         );
-      } catch (error) {
-        throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      } catch (error: any) {
+        throw new BadRequestException(
+          `Invalid suggestions: ${error?.message ?? error}`
+        );
       }
     }
 

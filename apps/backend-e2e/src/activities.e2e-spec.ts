@@ -4,7 +4,8 @@ import { ActivityDto } from '../../backend/src/app/dto';
 
 import { DbUtil, NULL_ID, RequestUtil } from '@momentum/test-utils';
 import { ActivityType, Role } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import * as Bitflags from '@momentum/bitflags';
 import {
   setupE2ETestEnvironment,
@@ -12,7 +13,10 @@ import {
 } from './support/environment';
 
 describe('Activities', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
+  let app: NestFastifyApplication,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -26,7 +30,12 @@ describe('Activities', () => {
 
   describe('activities', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, _activity1, _activity2, activity3;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        _activity1: any,
+        _activity2: any,
+        activity3: any;
 
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
@@ -67,17 +76,17 @@ describe('Activities', () => {
 
         expect(
           res.body.data.find(
-            (data) => data.userID === u1.id && data.data === 122
+            (data: ActivityDto) => data.userID === u1.id && data.data === 122
           ).type
         ).toBe(ActivityType.MAP_APPROVED);
         expect(
           res.body.data.find(
-            (data) => data.userID === u1.id && data.data === 123
+            (data: ActivityDto) => data.userID === u1.id && data.data === 123
           ).type
         ).toBe(ActivityType.WR_ACHIEVED);
-        expect(res.body.data.find((data) => data.userID === u2.id).type).toBe(
-          ActivityType.REVIEW_MADE
-        );
+        expect(
+          res.body.data.find((data: ActivityDto) => data.userID === u2.id).type
+        ).toBe(ActivityType.REVIEW_MADE);
       });
 
       it('should respond with array of activities with userID parameter', async () => {
@@ -90,7 +99,9 @@ describe('Activities', () => {
         });
 
         expect(res);
-        expect(res.body.data.every((data) => data.userID == u1.id)).toBe(true);
+        expect(
+          res.body.data.every((data: ActivityDto) => data.userID == u1.id)
+        ).toBe(true);
       });
 
       it('should respond with array of activities with data parameter', async () => {
@@ -103,7 +114,11 @@ describe('Activities', () => {
         });
 
         expect(res);
-        expect(res.body.data.every((data) => data.data == '124')).toBe(true);
+        expect(
+          res.body.data.every(
+            (data: ActivityDto) => (data.data as any) == '124'
+          )
+        ).toBe(true);
       });
 
       it('should respond with array of activities with type paramater', async () => {
@@ -117,8 +132,9 @@ describe('Activities', () => {
 
         expect(res);
         expect(
-          res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
-            .length
+          res.body.data.filter(
+            (d: ActivityDto) => d.userID === u1.id || d.userID === u2.id
+          ).length
         ).toBe(1);
       });
 
@@ -133,8 +149,9 @@ describe('Activities', () => {
 
         expect(res);
         expect(
-          res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
-            .length
+          res.body.data.filter(
+            (d: ActivityDto) => d.userID === u1.id || d.userID === u2.id
+          ).length
         ).toBe(3);
       });
 

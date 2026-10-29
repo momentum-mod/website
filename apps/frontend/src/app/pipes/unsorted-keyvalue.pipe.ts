@@ -21,7 +21,7 @@ export class UnsortedKeyvaluePipe
     input: Record<K, V>
   ): Array<KeyValue<string, V>>;
   override transform<K extends string, V>(
-    input: Record<K, V> | ReadonlyMap<K, V>
+    input: { [key in K]?: V } | Record<K, V> | ReadonlyMap<K, V>
   ): Array<KeyValue<K, V>>;
   override transform(input: null | undefined): null;
   override transform<K, V>(
@@ -31,8 +31,14 @@ export class UnsortedKeyvaluePipe
     input: Record<K, V> | null | undefined
   ): Array<KeyValue<string, V>> | null;
   override transform<K extends string, V>(
-    input: Record<K, V> | ReadonlyMap<K, V> | null | undefined
-  ): Array<KeyValue<K, V>> | null {
-    return super.transform(input as any, (a: any, _: any) => a);
+    input:
+      | { [key in K]?: V }
+      | Record<K, V>
+      | ReadonlyMap<K, V>
+      | null
+      | undefined
+  ): Array<KeyValue<K, V>> | null;
+  override transform(input: any, _compareFn?: (a: any, b: any) => number): any {
+    return super.transform(input, (a: any, _: any) => a);
   }
 }

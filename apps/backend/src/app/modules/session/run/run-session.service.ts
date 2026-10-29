@@ -3,7 +3,8 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  Logger
+  Logger,
+  NotFoundException
 } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 import { LeaderboardRun, User } from '@momentum/db';
@@ -258,6 +259,10 @@ export class RunSessionService {
     sessionID: number,
     replay?: Buffer
   ): Promise<CompletedRunDto[]> {
+    if (!replay) {
+      throw new BadRequestException('Replay file is required');
+    }
+
     const [storedUserID, storedSession, storedTimestamps] = await Promise.all([
       this.valkey.hget(dataKey(sessionID), 'userID'),
       this.valkey.hgetall(dataKey(sessionID)),
@@ -306,6 +311,7 @@ export class RunSessionService {
     });
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
+    if (!user) throw new NotFoundException('User not found');
 
     session.mmap = map;
     session.user = user;
@@ -322,9 +328,10 @@ export class RunSessionService {
       user
     );
 
-    const compatibleStyles = CompatibleStyles.get(processedRun.style).filter(
-      (style) => GamemodeStyles.get(processedRun.gamemode)?.has(style)
-    );
+    const compatibleStyles =
+      CompatibleStyles.get(processedRun.style)?.filter((style) =>
+        GamemodeStyles.get(processedRun.gamemode)?.has(style)
+      ) ?? [];
 
     // Submit runs for all compatible styles
     const allStyles = [processedRun.style, ...compatibleStyles];
@@ -466,11 +473,15 @@ export class RunSessionService {
       where: { mapID_gamemode_trackType_trackNum_style: leaderboardWhere }
     });
 
+    if (!leaderboard) {
+      throw new NotFoundException('Leaderboard not found');
+    }
+
     // Doing XP and stats first, as we do this regardless of if you PBed or not
     const cosXPGain = this.xpSystems.getCosmeticXpForCompletion(
-      leaderboard.tier,
+      leaderboard.tier ?? 1,
       leaderboard.trackType,
-      leaderboard.linear,
+      leaderboard.linear ?? false,
       isPB
     );
 
@@ -653,7 +664,7 @@ export class RunSessionService {
   private async updateReplayFiles(
     buffer: Buffer,
     hash: string,
-    oldHash?: string
+    oldHash?: string | null
   ): Promise<void> {
     try {
       await this.fileStoreService.storeFile(buffer, runPath(hash));

@@ -1,4 +1,4 @@
-﻿import { get as getDeep } from 'lodash';
+import { get as getDeep } from 'lodash';
 import { Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { InjectOptions, Response } from 'light-my-request';
@@ -97,7 +97,9 @@ export class RequestUtil {
       } else {
         const stringifiedQuery: Record<string, string> = {};
         for (const [key, value] of Object.entries(options.query)) {
-          stringifiedQuery[key] = value.toString();
+          if (value !== undefined && value !== null) {
+            stringifiedQuery[key] = value.toString();
+          }
         }
         injectOptions.query = new URLSearchParams(stringifiedQuery).toString();
       }
@@ -107,7 +109,10 @@ export class RequestUtil {
       injectOptions.headers.authorization = `Bearer ${options.token}`;
     }
 
-    if (['POST', 'PUT', 'PATCH'].includes(injectOptions.method)) {
+    if (
+      injectOptions.method &&
+      ['POST', 'PUT', 'PATCH'].includes(injectOptions.method)
+    ) {
       if ('file' in options || 'files' in options || 'data' in options) {
         const attachFile = (
           form: FormData,
@@ -131,9 +136,9 @@ export class RequestUtil {
             options.field ?? 'file',
             options.fileName
           );
-        } else if ('files' in options) {
+        } else if ('files' in options && options.files) {
           for (const { file, field, fileName } of options.files) {
-            attachFile(form, file, field, fileName);
+            attachFile(form, file, field ?? 'file', fileName);
           }
         }
 
@@ -264,7 +269,7 @@ export class RequestUtil {
       some?: boolean; // Only test that one or more paged entry passes
     }
   ): Promise<ParsedResponse> {
-    options.expectedPropertyName ??= options.expand;
+    const expectedPropertyName = options.expectedPropertyName ?? options.expand;
 
     const res = await this.get({
       url: options.url,
@@ -280,7 +285,7 @@ export class RequestUtil {
         expect(res.body).toBeValidDto(options.validate);
       }
 
-    const test = (item) =>
+    const test = (item: any) =>
       !(
         item === undefined ||
         (Array.isArray(item) && item.length === 0) ||
@@ -293,8 +298,8 @@ export class RequestUtil {
       if (toTest.length === 0)
         throw 'nothing passed to expandTest passes filter';
 
-      const propertyNames = toTest.map((x) =>
-        getDeep(x, options.expectedPropertyName)
+      const propertyNames = toTest.map((x: any) =>
+        getDeep(x, expectedPropertyName)
       );
       if (options.some ?? false) {
         expect(propertyNames.some(test)).toBeTruthy();
@@ -302,9 +307,7 @@ export class RequestUtil {
         expect(propertyNames.every(test)).toBeTruthy();
       }
     } else {
-      expect(
-        test(getDeep(res.body, options.expectedPropertyName))
-      ).toBeTruthy();
+      expect(test(getDeep(res.body, expectedPropertyName))).toBeTruthy();
     }
 
     return res;

@@ -10,5 +10,5 @@ export class AdminAnnouncementDto implements AdminAnnouncement {
   @IsString()
   @MinLength(1)
   @MaxLength(MAX_ADMIN_ANNOUNCEMENT_LENGTH)
-  readonly message: string;
+  readonly message!: string;
 }

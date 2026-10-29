@@ -9,9 +9,9 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { IconComponent } from '../../icons';
 import { SafeUrl } from '@angular/platform-browser';
 import { NgClass } from '@angular/common';
+import { IconComponent } from '../../icons';
 
 export interface GalleryImageItem {
   type: 'image';
@@ -37,12 +37,13 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
 })
 export class GalleryComponent implements OnInit, AfterViewInit {
   @Input({ required: true }) items: GalleryItem[] = [];
-  @Input() selectedItem: GalleryItem;
+  @Input() selectedItem?: GalleryItem;
   protected selectedItemIndex = 0;
   @Output() selectedItemChange = new EventEmitter<GalleryItem>();
 
-  @ViewChild('popover') popover: ElementRef<HTMLDivElement>;
-  @ViewChild('youtubeIframe') youtubeIframe: ElementRef<HTMLIFrameElement>;
+  @ViewChild('popover') popover!: ElementRef<HTMLDivElement>;
+  @ViewChild('youtubeIframe')
+  youtubeIframe?: ElementRef<HTMLIFrameElement>;
 
   @HostListener('window:keydown.ArrowLeft')
   @HostListener('window:keydown.a')
@@ -75,7 +76,7 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.popover.nativeElement.addEventListener('toggle', (ev: ToggleEvent) => {
       if (ev.newState !== 'open' && this.youtubeIframe) {
-        this.youtubeIframe.nativeElement.contentWindow.postMessage(
+        this.youtubeIframe.nativeElement.contentWindow?.postMessage(
           '{"event":"command","func":"pauseVideo","args":""}',
           '*'
         );

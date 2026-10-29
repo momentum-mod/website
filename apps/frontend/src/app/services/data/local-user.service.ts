@@ -65,19 +65,20 @@ export class LocalUserService {
   }
 
   public async login() {
-    const acceptedTos = +localStorage.getItem('tos');
+    const tosItem = localStorage.getItem('tos');
+    const acceptedTos = tosItem ? +tosItem : 0;
     if (!acceptedTos || acceptedTos < TOS_VERSION) {
       const isFirstTime = !acceptedTos;
-      const res = await firstValueFrom(
-        this.dialogService.open(TosDialogComponent, {
-          header: isFirstTime
-            ? 'Momentum Mod Account Creation'
-            : 'Momentum Mod Legal Update',
-          data: {
-            isFirstTime
-          }
-        }).onClose
-      );
+      const ref = this.dialogService.open(TosDialogComponent, {
+        header: isFirstTime
+          ? 'Momentum Mod Account Creation'
+          : 'Momentum Mod Legal Update',
+        data: {
+          isFirstTime
+        }
+      });
+      if (!ref) return;
+      const res = await firstValueFrom(ref.onClose);
       if (!res) return;
     }
 

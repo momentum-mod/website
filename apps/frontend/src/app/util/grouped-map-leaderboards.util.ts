@@ -53,13 +53,18 @@ export type MapWithSpecificLeaderboard = MapWithGroupedLeaderboard & {
 export function groupMapLeaderboards(
   leaderboards: Leaderboard[]
 ): GroupedMapLeaderboards {
-  const arr = [];
+  const arr: any[] = [];
   for (const lb of leaderboards) {
-    const gamemodeName = GamemodeInfo.get(lb.gamemode).name;
+    const gamemodeName = GamemodeInfo.get(lb.gamemode)?.name ?? '';
     let entry = arr.find((e) => e.gamemodeName === gamemodeName);
 
     if (!entry) {
-      entry = { gamemode: lb.gamemode, gamemodeName, styles: [] };
+      entry = {
+        gamemode: lb.gamemode,
+        gamemodeName,
+        styles: [],
+        allHidden: false
+      };
       arr.push(entry);
     }
 
@@ -98,7 +103,7 @@ export function groupMapLeaderboards(
       !group.bonuses?.some((bonus) => bonus.type !== LeaderboardType.HIDDEN);
   }
 
-  return arr;
+  return arr as GroupedMapLeaderboards;
 }
 
 /**

@@ -13,12 +13,12 @@ import { EnumProperty } from '../decorators';
 
 export class LeaderboardDto implements Leaderboard {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })
-  readonly gamemode: number;
+  readonly gamemode!: number;
 
   @EnumProperty(TrackType, {
     description: 'The trackNum the run took place on'
   })
-  readonly trackType: TrackType;
+  readonly trackType!: TrackType;
 
   @ApiProperty({
     type: Number,
@@ -26,18 +26,18 @@ export class LeaderboardDto implements Leaderboard {
   })
   @IsInt()
   @Min(1)
-  readonly trackNum: number;
+  readonly trackNum!: number;
 
   @EnumProperty(Style, { description: 'The style of the run' })
-  readonly style: number;
+  readonly style!: number;
 
   @Exclude()
-  readonly mapID: number;
+  readonly mapID!: number;
 
   @ApiProperty({ type: Number, description: 'The tier of the leaderboard' })
   @IsInt()
   @IsOptional()
-  readonly tier: number;
+  readonly tier!: number;
 
   @ApiProperty({
     type: Number,
@@ -45,12 +45,12 @@ export class LeaderboardDto implements Leaderboard {
     description: 'The tags of the leaderboard'
   })
   @IsEnum(MapTag, { each: true })
-  readonly tags: MapTag[];
+  readonly tags!: MapTag[];
 
   @EnumProperty(LeaderboardType, {
     description: 'Type of leaderboard, ranked, unranked or hidden'
   })
-  readonly type: LeaderboardType;
+  readonly type!: LeaderboardType;
 
   @ApiProperty({
     type: Boolean,
@@ -58,5 +58,5 @@ export class LeaderboardDto implements Leaderboard {
   })
   @IsBoolean()
   @IsOptional()
-  readonly linear: boolean;
+  readonly linear!: boolean;
 }

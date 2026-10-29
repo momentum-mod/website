@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -67,7 +68,7 @@ export class UserController {
     @LoggedInUser('id') userID: number,
     @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand, true);
+    return this.usersService.get(userID, query?.expand, true);
   }
 
   @Patch()
@@ -309,7 +310,8 @@ export class UserController {
   })
   getActivities(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UsersGetActivitiesQueryDto
+    @Query()
+    query: UsersGetActivitiesQueryDto
   ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
       userID,
@@ -334,7 +336,8 @@ export class UserController {
   })
   getFollowedActivities(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UsersGetActivitiesQueryDto
+    @Query()
+    query: UsersGetActivitiesQueryDto
   ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getFollowedActivities(
       userID,
@@ -427,7 +430,8 @@ export class UserController {
   })
   getSubmittedMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapsGetAllUserSubmissionQueryDto
+    @Query()
+    query: MapsGetAllUserSubmissionQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(query, userID);
   }
@@ -468,6 +472,9 @@ export class UserController {
   getSteamFriends(
     @LoggedInUser() user: UserJwtAccessPayload
   ): Promise<UserDto[]> {
+    if (!user.steamID) {
+      throw new BadRequestException('User has no linked Steam account');
+    }
     return this.usersService.findSteamFriends(user.id, user.steamID);
   }
 

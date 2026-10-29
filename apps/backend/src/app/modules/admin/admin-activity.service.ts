@@ -15,8 +15,8 @@ export class AdminActivityService {
     adminID: number,
     types: AdminActivityType | AdminActivityType[],
     target: number,
-    newData: object,
-    oldData?: object,
+    newData?: object | null,
+    oldData?: object | null,
     comment?: string
   ) {
     if (!Array.isArray(types)) types = [types];
@@ -24,7 +24,7 @@ export class AdminActivityService {
       data: types.map((type) => ({
         type,
         target,
-        newData,
+        newData: newData || {},
         oldData: oldData || {},
         comment,
         userID: adminID
@@ -40,6 +40,9 @@ export class AdminActivityService {
   ) {
     if (userID) {
       const user = await this.db.user.findUnique({ where: { id: userID } });
+      if (!user) {
+        throw new BadRequestException('Requested user does not exist');
+      }
 
       if (!Bitflags.has(user.roles, Role.ADMIN | Role.MODERATOR)) {
         throw new BadRequestException(

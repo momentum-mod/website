@@ -44,7 +44,7 @@ export class MapReviewListComponent implements OnChanges {
     { type: FilterType.UNOFFICIAL, label: 'Unofficial reviewers' }
   ];
 
-  @Input({ required: true }) map: MMap;
+  @Input({ required: true }) map!: MMap;
   protected reviews: MapReview[] = [];
   protected isSubmitter = false;
 
@@ -61,8 +61,8 @@ export class MapReviewListComponent implements OnChanges {
     merge(
       this.pageChange.pipe(
         tap(({ first, rows }) => {
-          this.first = first;
-          this.rows = rows;
+          this.first = first ?? 0;
+          this.rows = rows ?? 10;
         })
       ),
       this.load
