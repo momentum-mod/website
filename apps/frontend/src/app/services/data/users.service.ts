@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
+  PagedQuery,
   PagedResponse,
   UsersGetQuery,
   UsersGetAllQuery,
@@ -23,12 +24,22 @@ export class UsersService {
     return this.http.get<User>(`users/${userID}`, { query });
   }
 
-  getFollowersOfUser(user: User): Observable<PagedResponse<Follow>> {
-    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/followers`);
+  getFollowersOfUser(
+    user: User,
+    query?: PagedQuery
+  ): Observable<PagedResponse<Follow>> {
+    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/followers`, {
+      query
+    });
   }
 
-  getUserFollows(user: User): Observable<PagedResponse<Follow>> {
-    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/follows`);
+  getUserFollows(
+    user: User,
+    query?: PagedQuery
+  ): Observable<PagedResponse<Follow>> {
+    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/follows`, {
+      query
+    });
   }
 
   getMapCredits(
