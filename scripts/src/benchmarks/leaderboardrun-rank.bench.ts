@@ -70,7 +70,7 @@ import { Style } from '@momentum/constants';
 const NUM_RUNS = 1_000;
 const NUM_QUERIES = 500;
 let mapID = 0;
-BigInt.prototype['toJSON'] = function () {
+(BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
 

@@ -44,7 +44,8 @@ optionalArgs
       process.exit(1);
     }
 
-    params[param] = Array.isArray(params[param])
+    const p = params as Record<string, number | number[]>;
+    p[param] = Array.isArray(p[param])
       ? value.split(',').map(Number)
       : Number(value);
   });
