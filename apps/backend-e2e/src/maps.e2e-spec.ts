@@ -46,10 +46,12 @@ import {
   NULL_ID,
   randomString,
   RequestUtil,
-  resetKillswitches
+  resetKillswitches,
+  E2ETestMMap
 } from '@momentum/test-utils';
 import { MapVersion, MMap, Prisma, PrismaClient, User } from '@momentum/db';
 import Zip from 'adm-zip';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import * as Enum from '@momentum/enum';
 import {
   generateRandomMapZones,
@@ -71,7 +73,7 @@ import { EXTENDED_PRISMA_SERVICE } from '../../../apps/backend/src/app/modules/d
 import { FileStoreService } from '../../../apps/backend/src/app/modules/filestore/file-store.service';
 
 describe('Maps', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
@@ -111,10 +113,10 @@ describe('Maps', () => {
       let u1: User,
         u1Token: string,
         u2: User,
-        mEarth,
-        mWater,
-        mAir,
-        mBeansOnToast,
+        mEarth: any,
+        mWater: any,
+        mAir: any,
+        mBeansOnToast: any,
         // mPrivate,
         // mDisabled,
         // mFinal,
@@ -304,7 +306,7 @@ describe('Maps', () => {
             mapID_userID: { mapID: mEarth.id, userID: u1.id },
             type: MapCreditType.AUTHOR
           },
-          data: { user: { connect: newUser } }
+          data: { user: { connect: { id: newUser.id } } }
         });
 
         const res = await req.get({
@@ -728,7 +730,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.data.map(({ id }) => id)).toMatchObject(
+        expect(res.body.data.map(({ id }: { id: number }) => id)).toMatchObject(
           expect.arrayContaining([mEarth.id, mWater.id])
         );
 
@@ -740,9 +742,9 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res2.body.data.map(({ id }) => id)).toMatchObject(
-          expect.arrayContaining([mAir.id, mBeansOnToast.id])
-        );
+        expect(
+          res2.body.data.map(({ id }: { id: number }) => id)
+        ).toMatchObject(expect.arrayContaining([mAir.id, mBeansOnToast.id]));
       });
 
       it('should respond with maps with a PB on a specific gamemode when given a gamemode and the PB filter', async () => {
@@ -944,7 +946,7 @@ describe('Maps', () => {
     describe('POST', () => {
       let user: User,
         token: string,
-        createMapObject,
+        createMapObject: any,
         u2: User,
         u3: User,
         bspBuffer: Buffer,
@@ -1023,7 +1025,7 @@ describe('Maps', () => {
       });
 
       describe('should submit a map', () => {
-        let res, createdMap;
+        let res: any, createdMap: any;
 
         beforeAll(async () => {
           await uploadBspToPreSignedUrl(bspBuffer, token);
@@ -1125,9 +1127,10 @@ describe('Maps', () => {
           });
 
           expect(
-            Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
+            Date.now() -
+              new Date((createdMap.submission as any).dates[0].date).getTime()
           ).toBeLessThan(1000);
-          expect(JSON.parse(createdMap.currentVersion.zones)).toMatchObject(
+          expect(JSON.parse(createdMap.currentVersion.zones!)).toMatchObject(
             zones
           );
           expect(createdMap.currentVersion.submitterID).toBe(user.id);
@@ -1187,15 +1190,15 @@ describe('Maps', () => {
 
           const zip = new Zip(downloadBuffer);
 
-          const extractedVmf = zip.getEntry('surf_map_main.vmf').getData();
+          const extractedVmf = zip.getEntry('surf_map_main.vmf')!.getData();
           expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
         });
 
         it('should create map uploaded activities for the map authors', async () => {
           const activity = await prisma.activity.findFirst();
 
-          expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
-          expect(activity.data).toBe(BigInt(createdMap.id));
+          expect(activity!.type).toBe(ActivityType.MAP_UPLOADED);
+          expect(activity!.data).toBe(BigInt(createdMap.id));
         });
 
         it('should create map review invites for the invitees', async () => {
@@ -1334,9 +1337,9 @@ describe('Maps', () => {
           expect(
             Date.now() -
               new Date(
-                (res.body.submission.dates as MapSubmissionDate[]).find(
+                ((res.body.submission.dates as MapSubmissionDate[]) ?? []).find(
                   ({ status }) => status === MapStatus.CONTENT_APPROVAL
-                ).date
+                )!.date
               ).getTime()
           ).toBeLessThan(1000);
         });
@@ -1723,7 +1726,7 @@ describe('Maps', () => {
         it('should 400 if the map has invalid zones', async () => {
           const zones = structuredClone(ZonesStub);
           // Silly values that pass class-validator but get caught by zone-validator.ts
-          zones.tracks.main.zones.segments[0].checkpoints.push({
+          zones.tracks.main!.zones.segments[0].checkpoints.push({
             regions: [
               {
                 points: [
@@ -1861,7 +1864,7 @@ describe('Maps', () => {
 
   describe('maps/{mapID}', () => {
     describe('GET', () => {
-      let u1: User, u1Token: string, u2: User, map;
+      let u1: User, u1Token: string, u2: User, map: E2ETestMMap;
 
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
@@ -2179,7 +2182,7 @@ describe('Maps', () => {
         u1Token: string,
         u2Token: string,
         createInput: Partial<Prisma.MMapCreateInput>,
-        map,
+        map: any,
         bspBuffer: Buffer,
         bspHash: string,
         vmfBuffer: Buffer,
@@ -2287,15 +2290,16 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(mapDB.currentVersion.versionNum).toBe(2);
-        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
+        expect(mapDB!.currentVersion!.versionNum).toBe(2);
+        expect(res.body.currentVersion.id).toBe(mapDB!.currentVersion!.id);
       });
 
       it('should upload the BSP and VMF files', async () => {
-        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: oldVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -2319,10 +2323,10 @@ describe('Maps', () => {
 
         expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
           'maps',
-          `${newMap.currentVersion.bspDownloadId}.bsp`
+          `${newMap!.currentVersion!.bspDownloadId}.bsp`
         ]);
-        expect(newMap.currentVersion.bspDownloadId).not.toEqual(
-          oldVersion.bspDownloadId
+        expect(newMap!.currentVersion!.bspDownloadId).not.toEqual(
+          oldVersion!.bspDownloadId
         );
 
         const bspDownloadBuffer = await fileStore.downloadHttp(
@@ -2335,10 +2339,10 @@ describe('Maps', () => {
 
         expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
           'maps',
-          `${newMap.currentVersion.vmfDownloadId}_VMFs.zip`
+          `${newMap!.currentVersion!.vmfDownloadId}_VMFs.zip`
         ]);
-        expect(newMap.currentVersion.vmfDownloadId).not.toEqual(
-          oldVersion.vmfDownloadId
+        expect(newMap!.currentVersion!.vmfDownloadId).not.toEqual(
+          oldVersion!.vmfDownloadId
         );
 
         const vmfDownloadBuffer = await fileStore.downloadHttp(
@@ -2347,17 +2351,16 @@ describe('Maps', () => {
 
         const zip = new Zip(vmfDownloadBuffer);
 
-        const extractedVmf = zip.getEntry('surf_map.vmf').getData();
+        const extractedVmf = zip.getEntry('surf_map.vmf')!.getData();
         expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
       });
 
       it('should generate new leaderboards for new zones', async () => {
         await prisma.leaderboard.createMany({
           data: ZonesStubLeaderboards.map((lb) => ({
+            ...lb,
             mapID: map.id,
-            style: lb.style,
-            type: LeaderboardType.IN_SUBMISSION,
-            ...lb
+            type: LeaderboardType.IN_SUBMISSION
           }))
         });
 
@@ -2405,14 +2408,14 @@ describe('Maps', () => {
         const newZones = structuredClone(ZonesStub);
 
         // Add 3rd major CP
-        newZones.tracks.main.zones.segments.push({
+        newZones.tracks.main!.zones.segments.push({
           cancel: [],
           checkpointsRequired: true,
           checkpointsOrdered: true,
           limitStartGroundSpeed: true,
           checkpoints: [
             structuredClone(
-              newZones.tracks.main.zones.segments[0].checkpoints[0]
+              newZones.tracks.main!.zones.segments[0].checkpoints[0]
             )
           ]
         });
@@ -2436,7 +2439,7 @@ describe('Maps', () => {
         });
 
         const expected = ZoneStubCompatGamemodes.flatMap((gamemode) =>
-          GamemodeStyles.get(gamemode)
+          GamemodeStyles.get(gamemode)!
             .values()
             .toArray()
             .flatMap((style) => [
@@ -2667,12 +2670,13 @@ describe('Maps', () => {
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.main.zones.segments[0].checkpoints[0].regions[0].points = [
-          [0, 0],
-          [1, 0],
-          [0, 1],
-          [1, 1]
-        ];
+        zones.tracks.main!.zones.segments[0]!.checkpoints[0]!.regions![0]!.points =
+          [
+            [0, 0],
+            [1, 0],
+            [0, 1],
+            [1, 1]
+          ];
         await req.postAttach({
           url: `maps/${map.id}`,
           status: 400,
@@ -2725,10 +2729,11 @@ describe('Maps', () => {
       });
 
       it('should succeed if only the VMF file is provided', async () => {
-        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: oldVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
         await req.postAttach({
           url: `maps/${map.id}`,
@@ -2738,20 +2743,24 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: newVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
-        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
-        expect(oldVersion.vmfDownloadId).not.toEqual(newVersion.vmfDownloadId);
+        expect(oldVersion!.bspDownloadId).toEqual(newVersion!.bspDownloadId);
+        expect(oldVersion!.vmfDownloadId).not.toEqual(
+          newVersion!.vmfDownloadId
+        );
       });
 
       it('should succeed if only the BSP file is provided', async () => {
-        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: oldVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
         await uploadBspToPreSignedUrl(bspBuffer, u1Token);
 
@@ -2762,20 +2771,24 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: newVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
-        expect(oldVersion.bspDownloadId).not.toEqual(newVersion.bspDownloadId);
-        expect(newVersion.vmfDownloadId).toBeFalsy();
+        expect(oldVersion!.bspDownloadId).not.toEqual(
+          newVersion!.bspDownloadId
+        );
+        expect(newVersion!.vmfDownloadId).toBeFalsy();
       });
 
       it('should succeed if only zones are provided', async () => {
-        const { currentVersion: oldVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: oldVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
         await req.postAttach({
           url: `maps/${map.id}`,
@@ -2788,13 +2801,14 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const { currentVersion: newVersion } = await prisma.mMap.findUnique({
-          where: { id: map.id },
-          include: { currentVersion: true }
-        });
+        const { currentVersion: newVersion } =
+          await prisma.mMap.findUniqueOrThrow({
+            where: { id: map.id },
+            include: { currentVersion: true }
+          });
 
-        expect(oldVersion.bspDownloadId).toEqual(newVersion.bspDownloadId);
-        expect(oldVersion.vmfDownloadId).toEqual(newVersion.vmfDownloadId);
+        expect(oldVersion!.bspDownloadId).toEqual(newVersion!.bspDownloadId);
+        expect(oldVersion!.vmfDownloadId).toEqual(newVersion!.vmfDownloadId);
       });
 
       it('should allow updating zones when in testing and was approved', async () => {
@@ -2807,7 +2821,7 @@ describe('Maps', () => {
         });
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.main.zones.segments[0].name = 'Bob';
+        zones.tracks.main!.zones.segments[0].name = 'Bob';
 
         await req.postAttach({
           url: `maps/${map.id}`,
@@ -2831,7 +2845,7 @@ describe('Maps', () => {
         });
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.bonuses.push(zones.tracks.bonuses[0]);
+        zones.tracks.bonuses!.push(zones.tracks.bonuses![0]);
 
         await req.postAttach({
           url: `maps/${map.id}`,
@@ -2950,11 +2964,11 @@ describe('Maps', () => {
           include: { currentVersion: true }
         });
 
-        expect(oldMap.currentVersion.bspHash).toEqual(
-          newMap.currentVersion.bspHash
+        expect(oldMap!.currentVersion!.bspHash).toEqual(
+          newMap!.currentVersion!.bspHash
         );
-        expect(oldMap.currentVersion.bspDownloadId).toEqual(
-          newMap.currentVersion.bspDownloadId
+        expect(oldMap!.currentVersion!.bspDownloadId).toEqual(
+          newMap!.currentVersion!.bspDownloadId
         );
       });
 
@@ -3210,7 +3224,7 @@ describe('Maps', () => {
         adminToken: string,
         mod: User,
         modToken: string;
-      let createMapData = undefined satisfies Partial<Prisma.MMapCreateInput>;
+      let createMapData: any;
 
       beforeAll(async () => {
         [[user, token], [u2, u2Token], adminToken, [mod, modToken]] =
@@ -3463,7 +3477,7 @@ describe('Maps', () => {
               const updatedMap = await prisma.mMap.findUnique({
                 where: { id: map.id }
               });
-              expect(updatedMap.status).toBe(s2);
+              expect(updatedMap!.status).toBe(s2);
             }
           });
         }
@@ -3513,7 +3527,7 @@ describe('Maps', () => {
           where: { id: map.id },
           include: { testInvites: true }
         });
-        expect(updatedMap.testInvites).toMatchObject([
+        expect(updatedMap!.testInvites).toMatchObject([
           { userID: mod.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
@@ -3574,7 +3588,7 @@ describe('Maps', () => {
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatus.FINAL_APPROVAL);
+        expect(updatedMap!.status).toBe(MapStatus.FINAL_APPROVAL);
       });
 
       it("should not allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's not been in testing for required time period", async () => {
@@ -3847,10 +3861,9 @@ describe('Maps', () => {
 
         await prisma.leaderboard.createMany({
           data: ZonesStubLeaderboards.map((lb) => ({
+            ...lb,
             mapID: map.id,
-            style: Style.NORMAL,
-            type: LeaderboardType.IN_SUBMISSION,
-            ...lb
+            type: LeaderboardType.IN_SUBMISSION
           }))
         });
 
@@ -4260,12 +4273,12 @@ describe('Maps', () => {
         });
 
         await fileStore.add(
-          bspPath(map.currentVersion.bspDownloadId),
+          bspPath(map.currentVersion!.bspDownloadId!),
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
         await fileStore.add(
-          vmfsPath(map.currentVersion.vmfDownloadId),
+          vmfsPath(map.currentVersion!.vmfDownloadId!),
           Buffer.from('bup')
         );
 
@@ -4295,7 +4308,7 @@ describe('Maps', () => {
           user,
           time: 1
         });
-        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
+        await fileStore.add(runPath(run.replayHash!), Buffer.alloc(123));
 
         await req.del({
           url: `maps/${map.id}`,
@@ -4313,17 +4326,17 @@ describe('Maps', () => {
         expect(updated).toBeNull();
         expect(versions).toHaveLength(0);
         expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+          await fileStore.exists(bspPath(map.currentVersion!.bspDownloadId!))
         ).toBeFalsy();
         expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+          await fileStore.exists(vmfsPath(map.currentVersion!.vmfDownloadId!))
         ).toBeFalsy();
 
         const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: map.id }
         });
         expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        expect(await fileStore.exists(runPath(run.replayHash!))).toBeFalsy();
 
         for (const sizePath of [
           imgSmallPath,
@@ -4428,11 +4441,11 @@ describe('Maps', () => {
       let u1: User,
         u1Token: string,
         u2: User,
-        pubMap1,
-        pubMap2,
-        privMap,
-        caMap,
-        faMap,
+        pubMap1: E2ETestMMap,
+        pubMap2: E2ETestMMap,
+        privMap: E2ETestMMap,
+        caMap: E2ETestMMap,
+        faMap: E2ETestMMap,
         mapCreate: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
@@ -5192,7 +5205,7 @@ describe('Maps', () => {
 
   describe('maps/getMapUploadUrl', () => {
     describe('GET', () => {
-      let user, token;
+      let user: User, token: string;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
       });
@@ -5284,7 +5297,7 @@ describe('Maps', () => {
     let user: User,
       token: string,
       adminToken: string,
-      createMapData,
+      createMapData: Partial<Prisma.MMapCreateInput>,
       bspBuffer: Buffer,
       restPostMock: jest.SpyInstance,
       restPostObservable: rxjs.Subject<void>;
@@ -5544,7 +5557,7 @@ describe('Maps', () => {
         status: MapStatus.FINAL_APPROVAL,
         submission: {
           create: {
-            ...createMapData.submission.create,
+            ...(createMapData.submission as any).create,
             suggestions: [
               {
                 trackType: TrackType.MAIN,

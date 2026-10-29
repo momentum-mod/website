@@ -1,4 +1,4 @@
-﻿// noinspection DuplicatedCode
+// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -22,14 +22,19 @@ import {
   Role,
   steamAvatarUrl
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
 
 describe('Users', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
+  let app: NestFastifyApplication,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    auth: AuthUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -45,7 +50,7 @@ describe('Users', () => {
 
   describe('users/', () => {
     describe('GET', () => {
-      let users, token;
+      let users: User[], token: string;
 
       beforeAll(async () => {
         users = await db.createUsers(3);
@@ -187,7 +192,7 @@ describe('Users', () => {
 
   describe('users/{userID}', () => {
     describe('GET', () => {
-      let user, token;
+      let user: User, token: string;
 
       beforeAll(
         async () =>
@@ -239,7 +244,7 @@ describe('Users', () => {
   });
 
   describe('GET /users/{userID}/profile', () => {
-    let user, token;
+    let user: User, token: string;
 
     beforeAll(
       async () =>
@@ -266,7 +271,7 @@ describe('Users', () => {
   });
 
   describe('GET /users/{userID}/activities', () => {
-    let user, token;
+    let user: User, token: string;
 
     beforeAll(async () => {
       [user, token] = await db.createAndLoginUser();
@@ -374,7 +379,7 @@ describe('Users', () => {
 
   describe('users/{userID}/follows', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u3;
+      let u1: User, u1Token: string, u2: User, u3: User;
 
       beforeAll(async () => {
         [[u1, u1Token], u2, u3] = await Promise.all([
@@ -434,7 +439,7 @@ describe('Users', () => {
 
   describe('users/{userID}/followers', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u3;
+      let u1: User, u1Token: string, u2: User, u3: User;
 
       beforeAll(async () => {
         [[u1, u1Token], u2, u3] = await Promise.all([
@@ -502,7 +507,7 @@ describe('Users', () => {
 
   describe('users/{userID}/credits', () => {
     describe('GET', () => {
-      let user, token, modToken;
+      let user: User, token: string, modToken: string;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();

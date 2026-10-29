@@ -64,8 +64,8 @@ async function nukeS3() {
     region: process.env.STORAGE_REGION,
     endpoint: process.env.STORAGE_ENDPOINT_URL,
     credentials: {
-      accessKeyId: process.env.STORAGE_ACCESS_KEY_ID,
-      secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY
+      accessKeyId: process.env.STORAGE_ACCESS_KEY_ID ?? '',
+      secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY ?? ''
     },
     forcePathStyle: true
   });
@@ -73,7 +73,7 @@ async function nukeS3() {
   const objects = await s3.send(
     new ListObjectsV2Command({ Bucket: process.env.STORAGE_BUCKET_NAME })
   );
-  if (objects?.Contents?.length > 0)
+  if (objects.Contents && objects.Contents.length > 0)
     await s3.send(
       new DeleteObjectsCommand({
         Bucket: process.env.STORAGE_BUCKET_NAME,
@@ -86,7 +86,7 @@ async function nukeS3() {
 
 async function nukeValkey() {
   const valkey = new Valkey({
-    port: +process.env.VALKEY_PORT,
+    port: +(process.env.VALKEY_PORT ?? 6379),
     host: process.env.VALKEY_HOST || 'localhost'
   });
   await valkey.flushall();

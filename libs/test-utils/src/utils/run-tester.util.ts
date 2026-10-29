@@ -1,4 +1,4 @@
-﻿import { ParsedResponse, RequestUtil } from './request.util';
+import { ParsedResponse, RequestUtil } from './request.util';
 import {
   Gamemode,
   RunSplits,
@@ -32,13 +32,13 @@ export interface RunTesterProps {
 export class RunTester {
   props: RunTesterProps;
 
-  sessionID: number;
+  sessionID!: number;
 
-  startTime: number;
-  currTime: number;
+  startTime!: number;
+  currTime!: number;
 
-  curMajor: number;
-  curMinor: number;
+  curMajor!: number;
+  curMinor!: number;
 
   replayBuffer = Buffer.alloc(4000);
   segments: RunSplits.Segment[] = [];
@@ -195,7 +195,7 @@ export class RunTester {
         subsegments: [subseg]
       });
     } else {
-      this.segments.at(-1).subsegments.push(subseg);
+      this.segments.at(-1)!.subsegments.push(subseg);
     }
   }
 
@@ -217,7 +217,7 @@ export class RunTester {
       mapHash: this.props.mapHash,
       gamemode: this.props.gamemode,
       compression: 1,
-      tickInterval: TickIntervals.get(this.props.gamemode),
+      tickInterval: TickIntervals.get(this.props.gamemode)!,
       playerSteamID: this.props.steamID,
       playerName: this.props.playerName,
       trackType: this.props.trackType,

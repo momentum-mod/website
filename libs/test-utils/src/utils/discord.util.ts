@@ -43,7 +43,7 @@ export async function mockDiscordService(app: NestFastifyApplication) {
   const restGetMock = jest.spyOn(discordService.rest, 'get');
   const restPostMock = jest.spyOn(discordService.rest, 'post');
 
-  const idToTypeMap = {
+  const idToTypeMap: Record<string, ChannelType> = {
     '001': ChannelType.GuildText,
     '002': ChannelType.GuildForum,
     '003': ChannelType.PublicThread

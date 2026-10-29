@@ -1,4 +1,4 @@
-﻿// noinspection DuplicatedCode
+// noinspection DuplicatedCode
 
 // Note that by importing and mocking these services service we're breaking a
 // major rule of E2E testing. But we need to test code that relies on Steam's
@@ -11,7 +11,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
 import {
   DbUtil,
   ParsedResponse,
@@ -155,20 +155,20 @@ describe('Auth', () => {
 
           const decodedAccessToken = testJwtService.decode(cookies.accessToken);
           expect(decodedAccessToken).toMatchObject({
-            id: userDB.id,
-            steamID: userDB.steamID.toString(),
+            id: userDB!.id,
+            steamID: userDB!.steamID!.toString(),
             gameAuth: false
           });
 
           const decodedRefreshToken = testJwtService.decode(
             cookies.refreshToken
           ) as any;
-          expect(decodedRefreshToken.id).toBe(userDB.id);
+          expect(decodedRefreshToken.id).toBe(userDB!.id);
         });
       });
 
       describe('when given a valid login for an existing user user', () => {
-        let user;
+        let user: User;
 
         beforeAll(async () => {
           user = await db.createUser({
@@ -212,15 +212,15 @@ describe('Auth', () => {
 
           const decodedAccessToken = testJwtService.decode(cookies.accessToken);
           expect(decodedAccessToken).toMatchObject({
-            id: userDB.id,
-            steamID: userDB.steamID.toString(),
+            id: userDB!.id,
+            steamID: userDB!.steamID!.toString(),
             gameAuth: false
           });
 
           const decodedRefreshToken = testJwtService.decode(
             cookies.refreshToken
           ) as any;
-          expect(decodedRefreshToken.id).toBe(userDB.id);
+          expect(decodedRefreshToken.id).toBe(userDB!.id);
         });
       });
 
@@ -428,7 +428,7 @@ describe('Auth', () => {
 
         jest
           .spyOn(steamService, 'tryAuthenticateUserTicketOnline')
-          .mockResolvedValueOnce(userDB.steamID);
+          .mockResolvedValueOnce(userDB!.steamID!);
         jest
           .spyOn(steamService, 'getSteamUserSummaryData')
           .mockResolvedValueOnce(userSteamSummary as any);
@@ -439,7 +439,7 @@ describe('Auth', () => {
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
-            id: userDB.steamID.toString(),
+            id: userDB!.steamID!.toString(),
             'user-agent': userAgent
           }
         });
@@ -452,7 +452,7 @@ describe('Auth', () => {
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userDB.steamID.toString());
+        expect(decrypted.steamID).toBe(userDB!.steamID!.toString());
 
         expect(decrypted.exp - decrypted.iat).toBe(60);
       });
@@ -631,7 +631,7 @@ describe('Auth', () => {
         jest
           .spyOn(steamService, 'tryAuthenticateUserTicketLocal')
           .mockReturnValueOnce({
-            steamID: userDB.steamID,
+            steamID: userDB!.steamID!,
             appID: appID
           });
         jest
@@ -644,7 +644,7 @@ describe('Auth', () => {
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
-            id: userDB.steamID.toString(),
+            id: userDB!.steamID!.toString(),
             'user-agent': userAgent
           }
         });
@@ -657,7 +657,7 @@ describe('Auth', () => {
           string,
           any
         >;
-        expect(decrypted.steamID).toBe(userDB.steamID.toString());
+        expect(decrypted.steamID).toBe(userDB!.steamID!.toString());
 
         expect(decrypted.exp - decrypted.iat).toBe(60);
       });
@@ -770,7 +770,7 @@ describe('Auth', () => {
         testJwtService.decode(res.body.accessToken) as Record<string, any>
       ).toMatchObject({
         id: user.id,
-        steamID: user.steamID.toString()
+        steamID: user.steamID!.toString()
       });
 
       expect(

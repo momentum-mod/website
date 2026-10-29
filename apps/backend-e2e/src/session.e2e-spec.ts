@@ -8,7 +8,8 @@ import {
   RequestUtil,
   resetKillswitches,
   RunTester,
-  RunTesterProps
+  RunTesterProps,
+  E2ETestMMap
 } from '@momentum/test-utils';
 import {
   ActivityType,
@@ -20,7 +21,8 @@ import {
   Style,
   TrackType
 } from '@momentum/constants';
-import { PrismaClient, TypedSql } from '@momentum/db';
+import { PrismaClient, TypedSql, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ZonesStubString } from '@momentum/formats/zone';
 import {
   setupE2ETestEnvironment,
@@ -30,11 +32,11 @@ import * as ReplayFile from '@momentum/formats/replay';
 import Valkey from 'iovalkey';
 
 describe('Session', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    map,
+    map: E2ETestMMap,
     valkey: Valkey;
 
   beforeAll(async () => {
@@ -67,7 +69,10 @@ describe('Session', () => {
   // use this method on the live API may get you banned!
   describe('session/run/:sessionID/end', () => {
     describe('POST', () => {
-      let user, token, defaultTesterProperties, otherUsers;
+      let user: User,
+        token: string,
+        defaultTesterProperties: any,
+        otherUsers: User[];
 
       beforeEach(async () => {
         // Run submission affects so much with ranks and stuff that's it's
@@ -83,8 +88,8 @@ describe('Session', () => {
           style: Style.NORMAL,
           mapID: map.id,
           mapName: map.name,
-          mapHash: map.currentVersion.bspHash,
-          steamID: user.steamID,
+          mapHash: map.currentVersion.bspHash!,
+          steamID: user.steamID!,
           playerName: 'Abstract Barry'
         });
 
@@ -196,7 +201,7 @@ describe('Session', () => {
             1,
             Style.NORMAL,
             0,
-            null
+            null as unknown as number
           )
         );
 
@@ -225,16 +230,16 @@ describe('Session', () => {
 
           const ranksAfter = await getRuns();
           expect(ranksAfter).toHaveLength(11);
-          expect(ranksAfter.find((rank) => rank.userID === user.id).rank).toBe(
+          expect(ranksAfter.find((rank) => rank.userID === user.id)!.rank).toBe(
             2
           );
 
-          for (const rankBefore of ranksBefore.filter((rank) => rank.rank > 1))
+          for (const rankBefore of ranksBefore.filter((rank) => rank.rank! > 1))
             expect(
               ranksAfter.find(
                 (rankAfter) => rankAfter.userID === rankBefore.userID
-              ).rank
-            ).toBe(rankBefore.rank + 1);
+              )!.rank
+            ).toBe(rankBefore.rank! + 1);
         });
 
         it('if has a PB, only shift ranks between the PB and old run', async () => {
@@ -271,19 +276,19 @@ describe('Session', () => {
           // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
           // now becoming 2.
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 3).userID
+          expect(ranksBefore.find((rank) => rank.rank === 2)!.userID).toBe(
+                  ranksAfter.find((rank) => rank.rank === 3)!.userID
           );
 
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 3).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 4).userID);
+          expect(ranksBefore.find((rank) => rank.rank === 3)!.userID).toBe(
+                  ranksAfter.find((rank) => rank.rank === 4)!.userID);
 
           // prettier-ignore
-          expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
-                  ranksAfter.find((rank) => rank.rank === 2).userID);
+          expect(ranksBefore.find((rank) => rank.rank === 4)!.userID).toBe(
+                  ranksAfter.find((rank) => rank.rank === 2)!.userID);
 
-          expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
+          expect(ranksBefore.find((rank) => rank.rank === 4)!.userID).toBe(
             user.id
           );
         });
@@ -347,8 +352,8 @@ describe('Session', () => {
           const mapStats = await prisma.mapStats.findUnique({
             where: { mapID: map.id }
           });
-          expect(mapStats.completions).toBe(2);
-          expect(mapStats.uniqueCompletions).toBe(1);
+          expect(mapStats!.completions).toBe(2);
+          expect(mapStats!.uniqueCompletions).toBe(1);
         });
 
         it('should create an activity if the user achieved a PB', async () => {
@@ -464,7 +469,7 @@ describe('Session', () => {
       });
 
       describe('compatible styles', () => {
-        let compatMap;
+        let compatMap: E2ETestMMap;
 
         beforeEach(async () => {
           compatMap = await db.createMap({
@@ -509,8 +514,8 @@ describe('Session', () => {
               style: Style.W_ONLY,
               mapID: compatMap.id,
               mapName: compatMap.name,
-              mapHash: compatMap.currentVersion.bspHash,
-              steamID: user.steamID,
+              mapHash: compatMap.currentVersion.bspHash!,
+              steamID: user.steamID!,
               playerName: 'Abstract Barry'
             },
             segments: [1, 1]
@@ -545,8 +550,8 @@ describe('Session', () => {
               style: Style.W_ONLY,
               mapID: compatMap.id,
               mapName: compatMap.name,
-              mapHash: compatMap.currentVersion.bspHash,
-              steamID: user.steamID,
+              mapHash: compatMap.currentVersion.bspHash!,
+              steamID: user.steamID!,
               playerName: 'Abstract Barry'
             },
             segments: [1, 1]
@@ -560,7 +565,7 @@ describe('Session', () => {
               1,
               Style.W_ONLY,
               0,
-              null
+              null as unknown as number
             )
           );
 
@@ -572,7 +577,7 @@ describe('Session', () => {
               1,
               Style.NORMAL,
               0,
-              null
+              null as unknown as number
             )
           );
 
@@ -623,8 +628,8 @@ describe('Session', () => {
               style: Style.PRO,
               mapID: kztMap.id,
               mapName: kztMap.name,
-              mapHash: kztMap.currentVersion.bspHash,
-              steamID: user.steamID,
+              mapHash: kztMap.currentVersion.bspHash!,
+              steamID: user.steamID!,
               playerName: 'Abstract Barry'
             },
             segments: [1, 1]

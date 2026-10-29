@@ -8,7 +8,8 @@ import {
   ReportCategory,
   ReportType
 } from '@momentum/constants';
-import { PrismaClient } from '@momentum/db';
+import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -16,7 +17,10 @@ import {
 import { arrayFrom } from '@momentum/util-fn';
 
 describe('Reports', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
+  let app: NestFastifyApplication,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -37,7 +41,7 @@ describe('Reports', () => {
         message: "I just don't like it"
       };
 
-      let user, token;
+      let user: User, token: string;
 
       beforeAll(async () => ([user, token] = await db.createAndLoginUser()));
 
@@ -151,7 +155,7 @@ describe('Reports', () => {
             url: 'reports',
             status: 201,
             body: {
-              targetSteamID: target.steamID.toString(),
+              targetSteamID: target.steamID!.toString(),
               type: ReportType.PLAYER_REPORT,
               category: ReportCategory.OTHER,
               message: 'griefing in the lobby'
@@ -183,7 +187,7 @@ describe('Reports', () => {
             url: 'reports',
             status: 400,
             body: {
-              targetSteamID: target.steamID.toString(),
+              targetSteamID: target.steamID!.toString(),
               type: ReportType.MAP_COMMENT_REPORT,
               category: ReportCategory.OTHER,
               message: 'wrong report type'
@@ -207,7 +211,7 @@ describe('Reports', () => {
         it('should 409 if the user already has an unresolved report against the same player', async () => {
           const target = await db.createUser();
           const body = {
-            targetSteamID: target.steamID.toString(),
+            targetSteamID: target.steamID!.toString(),
             type: ReportType.PLAYER_REPORT,
             category: ReportCategory.OTHER,
             message: 'being annoying'
@@ -220,7 +224,7 @@ describe('Reports', () => {
         it('should create a new report against the same player once the existing report is resolved', async () => {
           const target = await db.createUser();
           const body = {
-            targetSteamID: target.steamID.toString(),
+            targetSteamID: target.steamID!.toString(),
             type: ReportType.PLAYER_REPORT,
             category: ReportCategory.OTHER,
             message: 'being annoying'
@@ -250,7 +254,7 @@ describe('Reports', () => {
               url: 'reports',
               status: 201,
               body: {
-                targetSteamID: target.steamID.toString(),
+                targetSteamID: target.steamID!.toString(),
                 type: ReportType.PLAYER_REPORT,
                 category: ReportCategory.OTHER,
                 message: 'spam test'
@@ -273,7 +277,7 @@ describe('Reports', () => {
             url: 'reports',
             status: 409,
             body: {
-              targetSteamID: lastTarget.steamID.toString(),
+              targetSteamID: lastTarget.steamID!.toString(),
               type: ReportType.PLAYER_REPORT,
               category: ReportCategory.OTHER,
               message: 'spam test'
@@ -305,7 +309,7 @@ describe('Reports', () => {
             url: 'reports',
             status: 201,
             body: {
-              targetSteamID: target.steamID.toString(),
+              targetSteamID: target.steamID!.toString(),
               type: ReportType.PLAYER_REPORT,
               category: ReportCategory.OTHER,
               message: 'spam test'

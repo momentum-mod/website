@@ -61,7 +61,8 @@ import {
   PrismaClient,
   Report,
   TypedSql,
-  User
+  User,
+  ChatBan
 } from '@momentum/db';
 import Zip from 'adm-zip';
 import {
@@ -259,15 +260,15 @@ describe('Admin', () => {
         const u1Follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id, followedID: mergeUser.id }
         });
-        expect(u1Follow.followeeID).toBeTruthy();
+        expect(u1Follow!.followeeID).toBeTruthy();
 
         // u2 was following mergePlaceholder and mergeUser, the creation data should be earliest
         // of the two and the notifyOn flags combined.
         const u2Follow = await prisma.follow.findFirst({
           where: { followeeID: u2.id, followedID: mergeUser.id }
         });
-        expect(new Date(u2Follow.createdAt)).toEqual(new Date('12/24/2021'));
-        expect(u2Follow.notifyOn).toBe(
+        expect(new Date(u2Follow!.createdAt)).toEqual(new Date('12/24/2021'));
+        expect(u2Follow!.notifyOn).toBe(
           ActivityType.MAP_APPROVED | ActivityType.MAP_UPLOADED
         );
 
@@ -282,7 +283,7 @@ describe('Admin', () => {
         const mergeUserActivities = await prisma.activity.findFirst({
           where: { userID: mergeUser.id }
         });
-        expect(mergeUserActivities.type).toBe(ActivityType.REPORT_FILED);
+        expect(mergeUserActivities!.type).toBe(ActivityType.REPORT_FILED);
 
         // Placeholder should have been deleted
         const mergePlaceholderDB = await prisma.user.findFirst({
@@ -471,7 +472,7 @@ describe('Admin', () => {
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(userDB.bans).toBe(bans);
+        expect(userDB!.bans).toBe(bans);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
@@ -488,7 +489,7 @@ describe('Admin', () => {
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
+        expect(Bitflags.has(userDB!.roles, Role.MAPPER)).toBe(true);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.USER_UPDATE
@@ -506,7 +507,7 @@ describe('Admin', () => {
         });
 
         const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
-        expect(Bitflags.has(userDB.roles, Role.VERIFIED)).toBe(true);
+        expect(Bitflags.has(userDB!.roles, Role.VERIFIED)).toBe(true);
       });
 
       it('should fail to verify a user if they share alias with another verified user', async () => {
@@ -527,8 +528,8 @@ describe('Admin', () => {
         });
         const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
         // Make sure role was not set before throwing 409.
-        expect(Bitflags.has(imitatorDB.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
+        expect(Bitflags.has(imitatorDB!.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(user2DB!.roles, Role.VERIFIED)).toBe(true);
       });
 
       // Very edge case where the admin is both
@@ -546,9 +547,9 @@ describe('Admin', () => {
 
         const user1DB = await prisma.user.findFirst({ where: { id: u1.id } });
         const user2DB = await prisma.user.findFirst({ where: { id: u2.id } });
-        expect(Bitflags.has(user1DB.roles, Role.VERIFIED)).toBe(false);
-        expect(Bitflags.has(user2DB.roles, Role.VERIFIED)).toBe(true);
-        expect(user1DB.alias).not.toEqual(user2DB.alias);
+        expect(Bitflags.has(user1DB!.roles, Role.VERIFIED)).toBe(false);
+        expect(Bitflags.has(user2DB!.roles, Role.VERIFIED)).toBe(true);
+        expect(user1DB!.alias).not.toEqual(user2DB!.alias);
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
@@ -805,7 +806,7 @@ describe('Admin', () => {
         });
 
         await req.del({
-          url: `admin/users/${userBeforeDeletion.id}`,
+          url: `admin/users/${userBeforeDeletion!.id}`,
           status: 204,
           token: adminToken
         });
@@ -838,26 +839,26 @@ describe('Admin', () => {
 
         expect(deletedUser).toMatchObject({
           roles: Role.DELETED,
-          bans: userBeforeDeletion.bans,
+          bans: userBeforeDeletion!.bans,
           steamID: null,
           alias: 'Deleted User',
           avatar: null,
           country: null,
           profile: { bio: '', socials: {} },
-          userStats: userBeforeDeletion.userStats,
-          submittedMaps: userBeforeDeletion.submittedMaps,
-          mapCredits: userBeforeDeletion.mapCredits,
+          userStats: userBeforeDeletion!.userStats,
+          submittedMaps: userBeforeDeletion!.submittedMaps,
+          mapCredits: userBeforeDeletion!.mapCredits,
           mapFavorites: [],
-          reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
+          reviewsSubmitted: userBeforeDeletion!.reviewsSubmitted,
           activities: [],
           follows: [],
           followers: [],
-          mapNotifies: userBeforeDeletion.mapNotifies,
+          mapNotifies: userBeforeDeletion!.mapNotifies,
           notifications: [],
-          leaderboardRuns: userBeforeDeletion.leaderboardRuns,
-          pastRuns: userBeforeDeletion.pastRuns,
-          reportSubmitted: userBeforeDeletion.reportSubmitted,
-          reportResolved: userBeforeDeletion.reportResolved
+          leaderboardRuns: userBeforeDeletion!.leaderboardRuns,
+          pastRuns: userBeforeDeletion!.pastRuns,
+          reportSubmitted: userBeforeDeletion!.reportSubmitted,
+          reportResolved: userBeforeDeletion!.reportResolved
         });
 
         expect(deletedSteamIDEntry).toBeTruthy();
@@ -1040,7 +1041,7 @@ describe('Admin', () => {
         admin: User,
         adminToken: string,
         modToken: string,
-        map;
+        map: E2ETestMMap;
 
       beforeAll(async () => {
         [[u1, u1Token], [admin, adminToken], modToken] = await Promise.all([
@@ -1140,8 +1141,8 @@ describe('Admin', () => {
           include: { currentVersion: true }
         });
 
-        expect(mapDB.currentVersion.versionNum).toBe(2);
-        expect(res.body.currentVersion.id).toBe(mapDB.currentVersion.id);
+        expect(mapDB!.currentVersion!.versionNum).toBe(2);
+        expect(res.body.currentVersion.id).toBe(mapDB!.currentVersion!.id);
       });
 
       it('should allow admin to add a new map version when map is approved', async () => {
@@ -1173,7 +1174,7 @@ describe('Admin', () => {
         });
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.main.zones.segments[0].name = 'Bob';
+        zones.tracks.main!.zones.segments[0].name = 'Bob';
 
         await req.postAttach({
           url: `admin/maps/${map.id}`,
@@ -1194,7 +1195,7 @@ describe('Admin', () => {
         });
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.bonuses.push(zones.tracks.bonuses[0]);
+        zones.tracks.bonuses!.push(zones.tracks.bonuses![0]);
 
         await req.postAttach({
           url: `admin/maps/${map.id}`,
@@ -1214,7 +1215,7 @@ describe('Admin', () => {
         });
 
         const zones = structuredClone(ZonesStub);
-        zones.tracks.bonuses.push(zones.tracks.bonuses[0]);
+        zones.tracks.bonuses!.push(zones.tracks.bonuses![0]);
 
         await req.postAttach({
           url: `admin/maps/${map.id}`,
@@ -1638,9 +1639,9 @@ describe('Admin', () => {
 
         expect(newLeaderboards).toHaveLength(oldLeaderboards.length);
 
-        expect(newRanked.gamemode).toBe(Gamemode.SJ);
-        expect(newRanked.tier).toBe(4);
-        expect(newRanked.tags).toStrictEqual([MapTag.Portals]);
+        expect(newRanked!.gamemode).toBe(Gamemode.SJ);
+        expect(newRanked!.tier).toBe(4);
+        expect(newRanked!.tags).toStrictEqual([MapTag.Portals]);
       });
 
       it('should not allow to update leaderboards to an unsupported gamemode', async () => {
@@ -1743,8 +1744,8 @@ describe('Admin', () => {
 
       it('should allow an admin to create leaderboards for new tracks when the map is in testing and was approved', async () => {
         const newZones = structuredClone(BabyZonesStub);
-        newZones.tracks.bonuses.push({
-          zones: newZones.tracks.main.zones
+        newZones.tracks.bonuses!.push({
+          zones: newZones.tracks.main!.zones
         });
 
         const map = await db.createMap({
@@ -1832,7 +1833,7 @@ describe('Admin', () => {
 
         expect(createdLeaderboards).not.toHaveLength(0);
         expect(rankedLb).not.toBeFalsy();
-        expect(rankedLb.gamemode).toBe(Gamemode.RJ);
+        expect(rankedLb!.gamemode).toBe(Gamemode.RJ);
       });
 
       const statuses = Enum.values(MapStatus);
@@ -1949,7 +1950,7 @@ describe('Admin', () => {
                 const updatedMap = await prisma.mMap.findUnique({
                   where: { id: map.id }
                 });
-                expect(updatedMap.status).toBe(s2);
+                expect(updatedMap!.status).toBe(s2);
               }
             });
           }
@@ -2023,7 +2024,7 @@ describe('Admin', () => {
         const updatedMap = await prisma.mMap.findUnique({
           where: { id: map.id }
         });
-        expect(updatedMap.status).toBe(MapStatus.APPROVED);
+        expect(updatedMap!.status).toBe(MapStatus.APPROVED);
       });
 
       it('should create placeholder accounts and wipe placeholder json after map status changed from FA to approved', async () => {
@@ -2041,7 +2042,7 @@ describe('Admin', () => {
           },
           submission: {
             create: {
-              ...createMapData.submission.create,
+              ...(createMapData.submission as any).create,
               placeholders: [
                 {
                   type: MapCreditType.CONTRIBUTOR,
@@ -2097,7 +2098,7 @@ describe('Admin', () => {
         const submission = await prisma.mapSubmission.findUnique({
           where: { mapID: map.id }
         });
-        expect(submission.placeholders).toMatchObject([]);
+        expect(submission!.placeholders).toMatchObject([]);
       });
 
       it('should delete pending test requests and their notifications changing from PRIVATE_TESTING to DISABLED', async () => {
@@ -2144,7 +2145,7 @@ describe('Admin', () => {
           where: { id: map.id },
           include: { testInvites: true }
         });
-        expect(updatedMap.testInvites).toMatchObject([
+        expect(updatedMap!.testInvites).toMatchObject([
           { userID: u3.id, state: MapTestInviteState.ACCEPTED }
         ]);
       });
@@ -2247,10 +2248,9 @@ describe('Admin', () => {
 
           await prisma.leaderboard.createMany({
             data: ZonesStubLeaderboards.map((lb) => ({
+              ...lb,
               mapID: map.id,
-              style: Style.NORMAL,
-              type: LeaderboardType.IN_SUBMISSION,
-              ...lb
+              type: LeaderboardType.IN_SUBMISSION
             }))
           });
         });
@@ -2284,12 +2284,12 @@ describe('Admin', () => {
           expect(await fileStore.exists(`maps/${vmfId1}_VMFs.zip`)).toBeFalsy();
 
           expect(
-            createSha1Hash(await fileStore.get(`maps/${bspId2}.bsp`))
+            createSha1Hash((await fileStore.get(`maps/${bspId2}.bsp`))!)
           ).toBe(bspHash);
           expect(
             createSha1Hash(
-              new Zip(await fileStore.get(`maps/${vmfId2}_VMFs.zip`))
-                .getEntry('map.vmf')
+              new Zip((await fileStore.get(`maps/${vmfId2}_VMFs.zip`))!)
+                .getEntry('map.vmf')!
                 .getData()
             )
           ).toBe(vmfHash);
@@ -2678,12 +2678,12 @@ describe('Admin', () => {
         });
 
         await fileStore.add(
-          bspPath(map.currentVersion.bspDownloadId),
+          bspPath(map.currentVersion!.bspDownloadId!),
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
         await fileStore.add(
-          vmfsPath(map.currentVersion.vmfDownloadId),
+          vmfsPath(map.currentVersion!.vmfDownloadId!),
           Buffer.from('bup')
         );
 
@@ -2713,7 +2713,7 @@ describe('Admin', () => {
           user,
           time: 1
         });
-        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
+        await fileStore.add(runPath(run.replayHash!), Buffer.alloc(123));
 
         await req.del({
           url: `admin/maps/${map.id}`,
@@ -2731,17 +2731,17 @@ describe('Admin', () => {
         expect(updated).toBeNull();
         expect(versions).toHaveLength(0);
         expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+          await fileStore.exists(bspPath(map.currentVersion!.bspDownloadId!))
         ).toBeFalsy();
         expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+          await fileStore.exists(vmfsPath(map.currentVersion!.vmfDownloadId!))
         ).toBeFalsy();
 
         const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: map.id }
         });
         expect(relatedRuns).toHaveLength(0);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
+        expect(await fileStore.exists(runPath(run.replayHash!))).toBeFalsy();
 
         for (const sizePath of [
           imgSmallPath,
@@ -2771,12 +2771,12 @@ describe('Admin', () => {
         });
 
         await fileStore.add(
-          bspPath(map.currentVersion.bspDownloadId),
+          bspPath(map.currentVersion!.bspDownloadId!),
           readFileSync(__dirname + '/../files/map.bsp')
         );
 
         await fileStore.add(
-          vmfsPath(map.currentVersion.vmfDownloadId),
+          vmfsPath(map.currentVersion!.vmfDownloadId!),
           Buffer.from('bup')
         );
 
@@ -2806,7 +2806,7 @@ describe('Admin', () => {
           user,
           time: 1
         });
-        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
+        await fileStore.add(runPath(run.replayHash!), Buffer.alloc(123));
 
         await req.del({
           url: `admin/maps/${map.id}`,
@@ -2819,15 +2819,15 @@ describe('Admin', () => {
           include: { versions: { orderBy: { versionNum: 'asc' } } }
         });
 
-        expect(updated.status).toBe(MapStatus.DISABLED);
-        expect(updated.versions.at(-1).bspHash).toBeNull();
-        expect(updated.versions.at(-1).bspDownloadId).toBeNull();
-        expect(updated.versions.at(-1).vmfDownloadId).toBeNull();
+        expect(updated!.status).toBe(MapStatus.DISABLED);
+        expect(updated!.versions.at(-1)!.bspHash).toBeNull();
+        expect(updated!.versions.at(-1)!.bspDownloadId).toBeNull();
+        expect(updated!.versions.at(-1)!.vmfDownloadId).toBeNull();
         expect(
-          await fileStore.exists(bspPath(map.currentVersion.bspDownloadId))
+          await fileStore.exists(bspPath(map.currentVersion!.bspDownloadId!))
         ).toBeFalsy();
         expect(
-          await fileStore.exists(vmfsPath(map.currentVersion.vmfDownloadId))
+          await fileStore.exists(vmfsPath(map.currentVersion!.vmfDownloadId!))
         ).toBeFalsy();
 
         // We used to delete these, check we don't anymore
@@ -2835,7 +2835,7 @@ describe('Admin', () => {
           where: { mapID: map.id }
         });
         expect(relatedRuns).toHaveLength(1);
-        expect(await fileStore.exists(runPath(run.replayHash))).toBeTruthy();
+        expect(await fileStore.exists(runPath(run.replayHash!))).toBeTruthy();
 
         for (const sizePath of [
           imgSmallPath,
@@ -2942,7 +2942,7 @@ describe('Admin', () => {
             1,
             0,
             0,
-            null
+            null as unknown as number
           )
         );
 
@@ -2971,7 +2971,7 @@ describe('Admin', () => {
           time: 2
         });
 
-        await fileStore.add(runPath(run.replayHash), Buffer.alloc(256));
+        await fileStore.add(runPath(run.replayHash!), Buffer.alloc(256));
       });
 
       afterEach(() =>
@@ -3086,7 +3086,12 @@ describe('Admin', () => {
 
   describe('admin/delete-runs/:userID', () => {
     describe('POST', () => {
-      let admin, adminToken, modToken, run1, run2, user;
+      let admin: User,
+        adminToken: string,
+        modToken: string,
+        run1: LeaderboardRun,
+        run2: LeaderboardRun,
+        user: User;
 
       beforeAll(async () => {
         [admin, adminToken] = await db.createAndLoginUser({
@@ -3599,9 +3604,9 @@ describe('Admin', () => {
           where: { id: r1.id }
         });
 
-        expect(changedReport.resolved).toBe(true);
-        expect(changedReport.resolutionMessage).toBe('resolved');
-        expect(changedReport.resolverID).toBe(admin.id);
+        expect(changedReport!.resolved).toBe(true);
+        expect(changedReport!.resolutionMessage).toBe('resolved');
+        expect(changedReport!.resolverID).toBe(admin.id);
         await expectAdminActivityWasCreated(
           admin.id,
           AdminActivityType.REPORT_RESOLVE
@@ -3634,8 +3639,8 @@ describe('Admin', () => {
         adminToken: string,
         submitter: User,
         target: User,
-        playerReport,
-        mapReport;
+        playerReport: Report,
+        mapReport: Report;
 
       beforeEach(async () => {
         [[admin, adminToken], submitter, target] = await Promise.all([
@@ -3702,15 +3707,15 @@ describe('Admin', () => {
           issuerID: admin.id,
           reportID: playerReport.id
         });
-        expect(chatBan.expiresAt.getTime()).toBeCloseTo(
+        expect(chatBan!.expiresAt!.getTime()).toBeCloseTo(
           expiresAt.getTime(),
           -3
         );
 
         const voiceBan = bans.find((b) => b.type === ChatBanType.VOICE);
         // No expiresAt given => permanent
-        expect(voiceBan.expiresAt).toBeNull();
-        expect(voiceBan.reason).toBe('mic spam');
+        expect(voiceBan!.expiresAt).toBeNull();
+        expect(voiceBan!.reason).toBe('mic spam');
       });
 
       it('should allow a moderator to create bans when resolving a player report', async () => {
@@ -3928,7 +3933,11 @@ describe('Admin', () => {
   });
 
   describe('admin/chat-bans/{banID}', () => {
-    let admin: User, adminToken: string, target: User, u1Token: string, ban;
+    let admin: User,
+      adminToken: string,
+      target: User,
+      u1Token: string,
+      ban: ChatBan;
 
     beforeEach(async () => {
       [[admin, adminToken], [target, u1Token]] = await Promise.all([
@@ -3962,7 +3971,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.expiresAt.getTime()).toBeCloseTo(
+        expect(updated!.expiresAt!.getTime()).toBeCloseTo(
           newExpiry.getTime(),
           -3
         );
@@ -3979,7 +3988,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.expiresAt).toBeNull();
+        expect(updated!.expiresAt).toBeNull();
       });
 
       it('should edit the ban reason', async () => {
@@ -3993,7 +4002,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.reason).toBe('updated reason');
+        expect(updated!.reason).toBe('updated reason');
       });
 
       it('should allow a moderator to edit the ban', async () => {
@@ -4011,7 +4020,7 @@ describe('Admin', () => {
         const updated = await prisma.chatBan.findUnique({
           where: { id: ban.id }
         });
-        expect(updated.reason).toBe('updated by moderator');
+        expect(updated!.reason).toBe('updated by moderator');
       });
 
       it('should log a CHAT_BAN_UPDATE admin activity', async () => {
@@ -4154,10 +4163,12 @@ describe('Admin', () => {
       expect(res.body.chatBans).toBeDefined();
       // Two active bans, the expired one excluded
       expect(res.body.chatBans).toHaveLength(2);
-      expect(res.body.chatBans.map((b) => b.type).sort()).toEqual(
+      expect(res.body.chatBans.map((b: ChatBanDto) => b.type).sort()).toEqual(
         [ChatBanType.CHAT, ChatBanType.VOICE].sort()
       );
-      expect(res.body.chatBans.some((b) => b.reason === 'expired')).toBe(false);
+      expect(
+        res.body.chatBans.some((b: ChatBanDto) => b.reason === 'expired')
+      ).toBe(false);
     });
 
     it('should not expose chat bans of another user via GET /users/{id}', async () => {
@@ -4308,7 +4319,8 @@ describe('Admin', () => {
         expect(adminActivities.body).toHaveProperty('data');
 
         const userUpdateActivity = adminActivities.body.data.find(
-          (activity) => activity.type == AdminActivityType.USER_UPDATE
+          (activity: AdminActivityDto) =>
+            activity.type == AdminActivityType.USER_UPDATE
         );
 
         expect(userUpdateActivity.oldData).toEqual(
@@ -4317,7 +4329,7 @@ describe('Admin', () => {
         expect(userUpdateActivity.newData).toEqual(
           JSON.parse(JSON.stringify(newUser))
         );
-        expect(userUpdateActivity.target).toBe(oldUser.id);
+        expect(userUpdateActivity.target).toBe(oldUser!.id);
       });
 
       it('should 403 when the user tries to get admin activities', () =>

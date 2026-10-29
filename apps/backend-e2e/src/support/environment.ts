@@ -58,7 +58,7 @@ export async function setupE2ETestEnvironment(
   ) => TestingModuleBuilder,
   options?: E2ESetupOptions
 ): Promise<E2EUtils> {
-  BigInt.prototype['toJSON'] = function () {
+  (BigInt.prototype as any).toJSON = function () {
     return this.toString();
   };
 

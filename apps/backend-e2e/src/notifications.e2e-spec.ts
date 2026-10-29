@@ -176,7 +176,7 @@ describe('Notifications', () => {
       await req.del({
         url: 'notifications',
         status: 204,
-        query: { notificationIDs: notif.id.toString() },
+        query: { notificationIDs: notif!.id.toString() },
         token: userToken
       });
 
@@ -220,7 +220,7 @@ describe('Notifications', () => {
       await req.del({
         url: 'notifications',
         status: 204,
-        query: { notificationIDs: notif.id.toString() },
+        query: { notificationIDs: notif!.id.toString() },
         token: userToken
       });
 

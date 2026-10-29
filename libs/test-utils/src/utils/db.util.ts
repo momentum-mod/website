@@ -1,4 +1,4 @@
-﻿import {
+import {
   Leaderboard,
   LeaderboardRun,
   MapInfo,
@@ -49,7 +49,7 @@ export class DbUtil {
   }
 
   private readonly prisma: PrismaClient;
-  private readonly auth: AuthUtil;
+  private readonly auth?: AuthUtil;
   private users: number;
   private maps: number;
 
@@ -118,22 +118,22 @@ export class DbUtil {
 
   async createAndLoginUser(args?: CreateUserArgs): Promise<[User, string]> {
     const user = await this.createUser(args);
-    const token = this.auth.login(user);
+    const token = this.auth!.login(user);
     return [user, token];
   }
 
   async createAndLoginGameUser(args?: CreateUserArgs): Promise<[User, string]> {
     const user = await this.createUser(args);
-    const token = this.auth.gameLogin(user);
+    const token = this.auth!.gameLogin(user);
     return [user, token];
   }
 
   async loginNewUser(args?: CreateUserArgs): Promise<string> {
-    return this.auth.login(await this.createUser(args));
+    return this.auth!.login(await this.createUser(args));
   }
 
   async loginNewGameUser(args?: CreateUserArgs): Promise<string> {
-    return this.auth.gameLogin(await this.createUser(args));
+    return this.auth!.gameLogin(await this.createUser(args));
   }
 
   //#endregion
@@ -212,7 +212,7 @@ export class DbUtil {
 
     // Add Dates if caller didn't already.
     // Do it later to avoid needing to create new users.
-    if (createdMap.submission.dates.length === 0) {
+    if (createdMap.submission && createdMap.submission.dates.length === 0) {
       await this.prisma.mapSubmission.update({
         where: { mapID: createdMap.id },
         data: {
@@ -221,7 +221,9 @@ export class DbUtil {
               {
                 status: MapStatus.PUBLIC_TESTING,
                 date: new Date(Date.now() - 1000),
-                user: { connect: { id: createdMap.submitterID } }
+                user: createdMap.submitterID
+                  ? { connect: { id: createdMap.submitterID } }
+                  : undefined
               }
             ]
           }
@@ -230,7 +232,7 @@ export class DbUtil {
     }
 
     const latestVersion = createdMap?.versions?.at(-1)?.id;
-    return this.prisma.mMap.update({
+    return (await this.prisma.mMap.update({
       where: { id: createdMap.id },
       data: {
         currentVersion: latestVersion
@@ -249,7 +251,7 @@ export class DbUtil {
           }
         }
       }
-    });
+    })) as unknown as E2ETestMMap;
   }
 
   async createMaps(

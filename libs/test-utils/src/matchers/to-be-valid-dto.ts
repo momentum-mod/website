@@ -1,11 +1,11 @@
-import { plainToInstance } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync, ValidationError } from 'class-validator';
 import { PagedResponseDto } from '../../../../apps/backend/src/app/dto/paged-response.dto';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
-    // eslint-disable-next-line @typescript-eslint/naming-convention,unused-imports/no-unused-vars
+    // eslint-disable-next-line unused-imports/no-unused-vars
     interface Matchers<R> {
       toBeValidDto: (type: any) => CustomMatcherResult;
       toBeValidPagedDto: (
@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-export function toBeValidDto(received, type) {
+export function toBeValidDto(received: any, type: ClassConstructor<any>) {
   const errors = validate(type, received);
 
   const pass = errors.length === 0;
@@ -42,7 +42,7 @@ export function toBeValidDto(received, type) {
 
 export function toBeValidPagedDto(
   received: PagedResponseDto<any>,
-  type,
+  type: ClassConstructor<any>,
   returnCount?: number,
   totalCount?: number
 ) {
@@ -123,7 +123,7 @@ export function toBeValidPagedDto(
   }
 }
 
-function validate(type, data): ValidationError[] {
+function validate(type: ClassConstructor<any>, data: any): ValidationError[] {
   // Use class-transformer to create an instance of the DTO type with the
   // passed in data
   const instance = plainToInstance(type, { ...data });
@@ -154,7 +154,7 @@ function formatValidationErrors(errors: ValidationError[], depth = 1): string {
           Object.entries(error.constraints ?? {})
             .map(([conName, conMessage]) => `${conName}: ${conMessage}`)
             .join(newLine + '  ');
-      if (error.children?.length > 0)
+      if (error.children && error.children.length > 0)
         errorString +=
           newLine +
           'Children:' +

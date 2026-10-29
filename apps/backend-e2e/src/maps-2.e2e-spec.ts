@@ -12,7 +12,8 @@ import {
   UserDto
 } from '../../backend/src/app/dto';
 import { readFileSync } from 'node:fs';
-import { MMap, PrismaClient, User } from '@momentum/db';
+import { MMap, PrismaClient, User, MapReview } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   AuthUtil,
   createSha1Hash,
@@ -24,7 +25,8 @@ import {
   NULL_ID,
   randomString,
   RequestUtil,
-  resetKillswitches
+  resetKillswitches,
+  E2ETestMMap
 } from '@momentum/test-utils';
 import {
   ActivityType,
@@ -58,7 +60,7 @@ import { LeaderboardStatsDto } from '../../backend/src/app/dto/run/leaderboard-s
 import * as rxjs from 'rxjs';
 
 describe('Maps Part 2', () => {
-  let app,
+  let app: NestFastifyApplication,
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
@@ -79,7 +81,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/maplist', () => {
     describe('GET', () => {
-      let token;
+      let token: string;
       beforeAll(async () => (token = await db.loginNewUser()));
       afterAll(() => db.cleanup('user'));
 
@@ -107,7 +109,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/info', () => {
     describe('GET', () => {
-      let token, map;
+      let token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -153,7 +155,11 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/credits', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u3Token, map;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        u3Token: string,
+        map: E2ETestMMap;
 
       beforeAll(async () => {
         [[u1, u1Token], u2, u3Token] = await Promise.all([
@@ -242,16 +248,16 @@ describe('Maps Part 2', () => {
     });
 
     describe('PUT', () => {
-      let u1,
-        u1Token,
-        u2,
-        u2Token,
-        u3,
-        u4,
-        adminToken,
-        modToken,
-        map,
-        newMapCredit;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        u2Token: string,
+        u3: User,
+        u4: User,
+        adminToken: string,
+        modToken: string,
+        map: E2ETestMMap,
+        newMapCredit: any;
 
       beforeEach(async () => {
         [u1, u1Token] = await db.createAndLoginUser({
@@ -716,7 +722,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/credits/{userID}', () => {
     describe('GET', () => {
-      let user, token, map, u2Token;
+      let user: User, token: string, map: E2ETestMMap, u2Token: string;
       const creditType = MapCreditType.AUTHOR;
 
       beforeAll(async () => {
@@ -799,7 +805,7 @@ describe('Maps Part 2', () => {
     describe('GET', () => {
       const zones = ZonesStub;
 
-      let token, map;
+      let token: string, map: E2ETestMMap;
       beforeAll(
         async () =>
           ([token, map] = await Promise.all([
@@ -837,7 +843,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/images', () => {
     describe('GET', () => {
-      let token, map, id1, id2;
+      let token: string, map: MMap, id1: string, id2: string;
       beforeAll(async () => {
         [id1, id2] = [db.uuid(), db.uuid()];
         [token, map] = await Promise.all([
@@ -896,7 +902,7 @@ describe('Maps Part 2', () => {
     });
 
     describe('PUT', () => {
-      let user, token, map;
+      let user: User, token: string, map: any;
 
       const imageBuffer = readFileSync(path.join(FILES_PATH, '2560_1440.png'));
 
@@ -938,7 +944,7 @@ describe('Maps Part 2', () => {
         for (const size of ['small', 'medium', 'large', 'xl']) {
           expect(res.body[0][size]).toBeDefined();
           expect(
-            await fileStore.exists(`img/${updatedMap.images[0]}-${size}.jpg`)
+            await fileStore.exists(`img/${updatedMap!.images[0]}-${size}.jpg`)
           ).toBe(true);
         }
       });
@@ -999,9 +1005,9 @@ describe('Maps Part 2', () => {
           token
         });
 
-        const { images } = await prisma.mMap.findFirst();
+        const { images } = await prisma.mMap.findFirstOrThrow();
         expect(res.body).toMatchObject(
-          images.map((id) => ({
+          images.map((id: string) => ({
             id,
             small: expect.stringContaining(`${id}-small.jpg`),
             medium: expect.stringContaining(`${id}-medium.jpg`),
@@ -1041,7 +1047,7 @@ describe('Maps Part 2', () => {
         expect(res.body[0].id).toBe(id2);
         expect(res.body[1].id).toBe(id1);
 
-        const { images } = await prisma.mMap.findUnique({
+        const { images } = await prisma.mMap.findUniqueOrThrow({
           where: { id: map.id }
         });
         expect(images).toEqual([id2, id1]);
@@ -1217,7 +1223,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/leaderboard', () => {
     describe('GET', () => {
-      let u1, token, u2, u3, map;
+      let u1: User, token: string, u2: User, u3: User, map: E2ETestMMap;
 
       beforeAll(async () => {
         [[u1, token], u2, u3, map] = await Promise.all([
@@ -1386,7 +1392,7 @@ describe('Maps Part 2', () => {
     });
 
     describe("GET - 'around' filter", () => {
-      let map, u7, u7Token, runs;
+      let map: E2ETestMMap, u7: User, u7Token: string, runs: any[];
 
       beforeAll(async () => {
         map = await db.createMap();
@@ -1433,7 +1439,10 @@ describe('Maps Part 2', () => {
 
     describe("GET - 'friends' filter", () => {
       const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
-      let map, user, token, steamService: SteamService;
+      let map: E2ETestMMap,
+        user: User,
+        token: string,
+        steamService: SteamService;
 
       beforeAll(async () => {
         steamService = app.get(SteamService);
@@ -1504,7 +1513,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/leaderboard/run', () => {
     describe('GET', () => {
-      let u1, token, u2, map;
+      let u1: User, token: string, u2: User, map: E2ETestMMap;
 
       beforeAll(async () => {
         [[u1, token], u2, map] = await Promise.all([
@@ -1644,7 +1653,7 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/leaderboardStats', () => {
     describe('GET', () => {
-      let user, token, map;
+      let user: User, token: string, map: any;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         map = await db.createMapWithFullLeaderboards();
@@ -1684,7 +1693,13 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/reviews', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u2Token, map, reviewOfficial, reviewUnofficial;
+      let u1: User,
+        u1Token: string,
+        u2: User,
+        u2Token: string,
+        map: E2ETestMMap,
+        reviewOfficial: MapReview,
+        reviewUnofficial: MapReview;
       beforeAll(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
@@ -2458,7 +2473,7 @@ describe('Maps Part 2', () => {
       for (const status of difference(Enum.values(MapStatus), [
         MapStatus.PRIVATE_TESTING
       ]))
-        it(`should 403 if the map is in ${MapStatus[status]}`, async () => {
+        it(`should 403 if the map is in ${MapStatus[status as MapStatus]}`, async () => {
           await prisma.mMap.update({
             where: { id: map.id },
             data: { status }
@@ -2568,7 +2583,7 @@ describe('Maps Part 2', () => {
       for (const status of difference(Enum.values(MapStatus), [
         MapStatus.PRIVATE_TESTING
       ]))
-        it(`should 403 if the map is in ${MapStatus[status]}`, async () => {
+        it(`should 403 if the map is in ${MapStatus[status as MapStatus]}`, async () => {
           await prisma.mMap.update({
             where: { id: map.id },
             data: { status }

@@ -1,4 +1,4 @@
-﻿// noinspection DuplicatedCode
+// noinspection DuplicatedCode
 
 import {
   ActivityDto,
@@ -17,7 +17,8 @@ import {
   futureDateOffset,
   NULL_ID,
   randomString,
-  RequestUtil
+  RequestUtil,
+  E2ETestMMap
 } from '@momentum/test-utils';
 import {
   ActivityType,
@@ -31,6 +32,7 @@ import {
   TrackType
 } from '@momentum/constants';
 import { PrismaClient, User } from '@momentum/db';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
@@ -39,7 +41,11 @@ import { SteamService } from '../../backend/src/app/modules/steam/steam.service'
 import { createHash } from 'node:crypto';
 
 describe('User', () => {
-  let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
+  let app: NestFastifyApplication,
+    prisma: PrismaClient,
+    req: RequestUtil,
+    db: DbUtil,
+    auth: AuthUtil;
 
   beforeAll(async () => {
     const env = await setupE2ETestEnvironment();
@@ -54,7 +60,7 @@ describe('User', () => {
 
   describe('user', () => {
     describe('GET', () => {
-      let user, token;
+      let user: User, token: string;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { profile: { create: { bio: randomString() } } },
@@ -115,7 +121,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.alias).toBe(newAlias);
+        expect(updatedUser!.alias).toBe(newAlias);
       });
 
       it("should fail to update the authenticated user's alias", async () => {
@@ -134,7 +140,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.alias).not.toBe(newAlias);
+        expect(updatedUser!.alias).not.toBe(newAlias);
       });
 
       it("should reset the authenticated user's alias to steam alias", async () => {
@@ -144,7 +150,7 @@ describe('User', () => {
           app.get(SteamService),
           'getSteamUserSummaryData'
         );
-        steamSummarySpy.mockResolvedValue({ personaname: steamAlias });
+        steamSummarySpy.mockResolvedValue({ personaname: steamAlias } as any);
 
         const [user, token] = await db.createAndLoginUser({
           data: { alias: 'Not Bork' }
@@ -163,7 +169,7 @@ describe('User', () => {
           where: { id: user.id }
         });
 
-        expect(updatedUser.alias).toBe(steamAlias);
+        expect(updatedUser!.alias).toBe(steamAlias);
       });
 
       it("should update the authenticated user's bio", async () => {
@@ -182,7 +188,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.profile.bio).toBe(newBio);
+        expect(updatedUser!.profile!.bio).toBe(newBio);
       });
 
       it("should update the authenticated user's socials", async () => {
@@ -214,7 +220,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        const socials = updatedUser.profile.socials as Socials;
+        const socials = updatedUser!.profile!.socials as Socials;
 
         expect(socials).toMatchObject(socialNames);
       });
@@ -240,7 +246,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        const socials = updatedUser.profile.socials as Socials;
+        const socials = updatedUser!.profile!.socials as Socials;
 
         expect(socials.YouTube).toBeUndefined();
       });
@@ -262,10 +268,10 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        const socials = updatedUser.profile.socials as Socials;
+        const socials = updatedUser!.profile!.socials as Socials;
         expect(socials.Discord).toBe(discordUsername);
 
-        expect(updatedUser.profile.bio).toBe(newBio);
+        expect(updatedUser!.profile!.bio).toBe(newBio);
       });
 
       it('should 400 for an invalid social', async () => {
@@ -368,7 +374,7 @@ describe('User', () => {
           include: { profile: true }
         });
 
-        expect(updatedUser.country).toBe(newCountryCode);
+        expect(updatedUser!.country).toBe(newCountryCode);
       });
 
       it('should 400 since countryCode is not ISO Alpha-2 (verified by class-validator)', async () => {
@@ -540,26 +546,26 @@ describe('User', () => {
 
         expect(deletedUser).toMatchObject({
           roles: Role.DELETED,
-          bans: userBeforeDeletion.bans,
+          bans: userBeforeDeletion!.bans,
           steamID: null,
           alias: 'Deleted User',
           avatar: null,
           country: null,
           profile: { bio: '', socials: {} },
-          userStats: userBeforeDeletion.userStats,
-          submittedMaps: userBeforeDeletion.submittedMaps,
-          mapCredits: userBeforeDeletion.mapCredits,
+          userStats: userBeforeDeletion!.userStats,
+          submittedMaps: userBeforeDeletion!.submittedMaps,
+          mapCredits: userBeforeDeletion!.mapCredits,
           mapFavorites: [],
-          leaderboardRuns: userBeforeDeletion.leaderboardRuns,
-          pastRuns: userBeforeDeletion.pastRuns,
-          reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
+          leaderboardRuns: userBeforeDeletion!.leaderboardRuns,
+          pastRuns: userBeforeDeletion!.pastRuns,
+          reviewsSubmitted: userBeforeDeletion!.reviewsSubmitted,
           activities: [],
           follows: [],
           followers: [],
-          mapNotifies: userBeforeDeletion.mapNotifies,
+          mapNotifies: userBeforeDeletion!.mapNotifies,
           notifications: [],
-          reportSubmitted: userBeforeDeletion.reportSubmitted,
-          reportResolved: userBeforeDeletion.reportResolved
+          reportSubmitted: userBeforeDeletion!.reportSubmitted,
+          reportResolved: userBeforeDeletion!.reportResolved
         });
 
         expect(deletedSteamIDEntry).toBeTruthy();
@@ -597,7 +603,7 @@ describe('User', () => {
 
   describe('user/follow', () => {
     describe('POST', () => {
-      let u1, u1Token, u2, u3;
+      let u1: User, u1Token: string, u2: User, u3: User;
 
       beforeAll(
         async () =>
@@ -653,7 +659,7 @@ describe('User', () => {
 
   describe('user/follow/{userID}', () => {
     describe('GET', () => {
-      let u1, u1Token, u2;
+      let u1: User, u1Token: string, u2: User;
 
       beforeEach(
         async () =>
@@ -748,7 +754,7 @@ describe('User', () => {
     });
 
     describe('POST', () => {
-      let u1, u1Token, u2;
+      let u1: User, u1Token: string, u2: User;
 
       beforeEach(
         async () =>
@@ -777,7 +783,7 @@ describe('User', () => {
           where: { followeeID: u1.id }
         });
 
-        expect(follow.followedID).toBe(u2.id);
+        expect(follow!.followedID).toBe(u2.id);
       });
 
       it('should 404 if the target user does not exist', () =>
@@ -812,7 +818,7 @@ describe('User', () => {
     });
 
     describe('PATCH', () => {
-      let u1, u1Token, u2;
+      let u1: User, u1Token: string, u2: User;
 
       beforeAll(async () => {
         u2 = await db.createUser();
@@ -827,7 +833,7 @@ describe('User', () => {
         let follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id }
         });
-        expect(follow.notifyOn).toBe(0);
+        expect(follow!.notifyOn).toBe(0);
 
         await req.patch({
           url: `user/follow/${u2.id}`,
@@ -839,7 +845,7 @@ describe('User', () => {
         follow = await prisma.follow.findFirst({
           where: { followeeID: u1.id }
         });
-        expect(follow.notifyOn).toBe(ActivityType.REVIEW_MADE);
+        expect(follow!.notifyOn).toBe(ActivityType.REVIEW_MADE);
       });
 
       it('should 400 if the body is invalid', () =>
@@ -863,7 +869,7 @@ describe('User', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, u2;
+      let u1: User, u1Token: string, u2: User;
 
       beforeAll(
         async () =>
@@ -911,7 +917,7 @@ describe('User', () => {
 
   describe('user/notifyMap/{mapID}', () => {
     describe('GET ', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -960,7 +966,7 @@ describe('User', () => {
     });
 
     describe('PUT ', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -992,7 +998,7 @@ describe('User', () => {
         const mapNotify = await prisma.mapNotify.findFirst({
           where: { userID: user.id }
         });
-        expect(mapNotify.notifyOn).toBe(newActivityType);
+        expect(mapNotify!.notifyOn).toBe(newActivityType);
 
         await prisma.mapNotify.deleteMany();
       });
@@ -1009,7 +1015,7 @@ describe('User', () => {
         const mapNotify = await prisma.mapNotify.findFirst({
           where: { userID: user.id }
         });
-        expect(mapNotify.notifyOn).toBe(activityType);
+        expect(mapNotify!.notifyOn).toBe(activityType);
 
         await prisma.mapNotify.deleteMany();
       });
@@ -1036,7 +1042,7 @@ describe('User', () => {
     });
 
     describe('DELETE', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -1090,7 +1096,7 @@ describe('User', () => {
 
   describe('user/activities', () => {
     describe('GET', () => {
-      let user, token;
+      let user: User, token: string;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
@@ -1179,7 +1185,7 @@ describe('User', () => {
 
   describe('user/activities/followed', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u2Token;
+      let u1: User, u1Token: string, u2: User, u2Token: string;
 
       beforeAll(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
@@ -1307,7 +1313,7 @@ describe('User', () => {
 
   describe('user/maps/favorites/{mapID}', () => {
     describe('GET', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -1352,7 +1358,7 @@ describe('User', () => {
     });
 
     describe('PUT', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -1369,7 +1375,7 @@ describe('User', () => {
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(0);
+        expect(stats!.favorites).toBe(0);
 
         await req.put({
           url: `user/maps/favorites/${map.id}`,
@@ -1380,13 +1386,13 @@ describe('User', () => {
         const favorite = await prisma.mapFavorite.findFirst({
           where: { userID: user.id }
         });
-        expect(favorite.mapID).toBe(map.id);
+        expect(favorite!.mapID).toBe(map.id);
 
         stats = await prisma.mapStats.findUnique({
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(1);
+        expect(stats!.favorites).toBe(1);
       });
 
       it("should 404 if the map doesn't exist", () =>
@@ -1408,7 +1414,7 @@ describe('User', () => {
     });
 
     describe('DELETE', () => {
-      let user, token, map;
+      let user: User, token: string, map: E2ETestMMap;
 
       beforeAll(
         async () =>
@@ -1445,7 +1451,7 @@ describe('User', () => {
           where: { mapID: map.id }
         });
 
-        expect(stats.favorites).toBe(0);
+        expect(stats!.favorites).toBe(0);
       });
 
       it('should 400 if the map is not in the local users favorites', () =>
@@ -1573,7 +1579,7 @@ describe('User', () => {
 
   describe('user/maps/summary', () => {
     describe('GET', () => {
-      let u1, u1Token, u2Token;
+      let u1: User, u1Token: string, u2Token: string;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
