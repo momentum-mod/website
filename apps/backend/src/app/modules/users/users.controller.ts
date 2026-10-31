@@ -1,4 +1,9 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
+import {
+  ZodSerializerDto,
+  ZodSerializerInterceptor,
+  ZodValidationPipe
+} from 'nestjs-zod';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -7,7 +12,8 @@ import {
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiOkResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiQuery
 } from '@nestjs/swagger';
 import {
   ActivityDto,
@@ -20,12 +26,17 @@ import {
   UserDto,
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
-  UsersGetQueryDto,
   UsersGetCreditsQueryDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
+import {
+  UserResponseDto,
+  UserQuery,
+  UserQuerySchema,
+  UserSerializerSchema
+} from '../../dto/pilot-serialization';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -57,13 +68,22 @@ export class UsersController {
     description: 'Target User ID',
     required: true
   })
-  @ApiOkResponse({ type: UserDto, description: 'The found user' })
+  @ApiOkResponse({ type: UserResponseDto, description: 'The found user' })
+  @ZodSerializerDto(UserSerializerSchema)
+  @UseInterceptors(ZodSerializerInterceptor)
   @ApiNotFoundResponse({ description: 'User was not found' })
+  @ApiQuery({
+    name: 'expand',
+    type: String,
+    enum: ['profile', 'userStats'],
+    required: false,
+    description: 'Comma-separated relations to include'
+  })
   getUser(
     @Param('userID', ParseInt32SafePipe) userID: number,
-    @Query() query?: UsersGetQueryDto
-  ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand);
+    @Query(new ZodValidationPipe(UserQuerySchema)) query: UserQuery
+  ): Promise<unknown> {
+    return this.usersService.getRaw(userID, query.expand);
   }
 
   //#endregion

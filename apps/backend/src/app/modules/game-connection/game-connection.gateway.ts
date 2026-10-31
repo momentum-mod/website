@@ -8,10 +8,13 @@ import {
 import {
   CreateRunSessionDto,
   RunSessionIdDto,
-  RunSessionResponseDto,
-  UpdateRunSessionDto,
-  WsResponseDto
+  UpdateRunSessionDto
 } from '../../dto';
+import {
+  RunSessionSerializerSchema,
+  serializeWsResponse
+} from '../../dto/pilot-serialization';
+import { z } from 'zod';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { RunSessionService } from '../session/run/run-session.service';
 
@@ -32,9 +35,11 @@ export class GameConnectionGateway {
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: CreateRunSessionDto
-  ): Promise<WsResponseDto<RunSessionResponseDto>> {
-    return new WsResponseDto(
-      RunSessionResponseDto,
+  ): Promise<
+    WsResponse<z.output<typeof RunSessionSerializerSchema> | { error: string }>
+  > {
+    return serializeWsResponse(
+      RunSessionSerializerSchema,
       'runsession.create',
       await this.runSession.createSession(client.userId, data)
     );

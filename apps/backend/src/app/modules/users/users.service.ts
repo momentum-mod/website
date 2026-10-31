@@ -101,6 +101,10 @@ export class UsersService {
     expand?: string[],
     localUser = false
   ): Promise<UserDto> {
+    return DtoFactory(UserDto, await this.getRaw(id, expand, localUser));
+  }
+
+  async getRaw(id: number, expand?: string[], localUser = false) {
     const include: Prisma.UserInclude = expandToIncludes(expand) ?? {};
 
     // Embed the user's own currently-active chat/voice bans. Only done for the
@@ -116,14 +120,14 @@ export class UsersService {
       };
     }
 
-    const dbResponse: any = await this.db.user.findUnique({
+    const dbResponse = await this.db.user.findUnique({
       where: { id },
       include: undefinedIfEmpty(include)
     });
 
     if (!dbResponse) throw new NotFoundException('User not found');
 
-    return DtoFactory(UserDto, dbResponse);
+    return dbResponse;
   }
 
   async findOrCreateUser(steamID: bigint): Promise<AuthenticatedUser> {

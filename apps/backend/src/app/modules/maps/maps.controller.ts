@@ -97,6 +97,8 @@ import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 import { Config } from '../../config';
+import { ZodResponse, ZodSerializerInterceptor } from 'nestjs-zod';
+import { MapImageResponseDto } from '../../dto/pilot-serialization';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -495,7 +497,11 @@ export class MapsController {
   @Get('/:mapID/images')
   @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a map's images" })
-  @ApiOkResponse({ description: "The found map's images" })
+  @ZodResponse({
+    type: [MapImageResponseDto],
+    description: "The found map's images"
+  })
+  @UseInterceptors(ZodSerializerInterceptor)
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiParam({
     name: 'mapID',

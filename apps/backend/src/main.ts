@@ -24,6 +24,7 @@ import { FIRST_WORKER_ENV_VAR, initalizeClusterMessaging } from './clustered';
 import { JwtService } from '@nestjs/jwt';
 import { WebsocketAdapter } from './app/modules/websockets/websocket.adapter';
 import { WebsocketService } from './app/modules/websockets/websocket.service';
+import { cleanupOpenApiDoc } from 'nestjs-zod';
 
 /* eslint no-console: 0 */
 async function bootstrap() {
@@ -113,16 +114,18 @@ async function bootstrap() {
   SwaggerModule.setup(
     'docs',
     app,
-    SwaggerModule.createDocument(
-      app,
-      new DocumentBuilder()
-        .setTitle('Momentum Mod API')
-        .setDescription(
-          'The Momentum Mod API - https://github.com/momentum-mod/website'
-        )
-        .addBearerAuth()
-        .setVersion('1.0')
-        .build()
+    cleanupOpenApiDoc(
+      SwaggerModule.createDocument(
+        app,
+        new DocumentBuilder()
+          .setTitle('Momentum Mod API')
+          .setDescription(
+            'The Momentum Mod API - https://github.com/momentum-mod/website'
+          )
+          .addBearerAuth()
+          .setVersion('1.0')
+          .build()
+      )
     ),
     {
       customSiteTitle: 'Momentum Mod API Docs',

@@ -20,7 +20,7 @@ import {
   MaxLength,
   MinLength
 } from 'class-validator';
-import { Expose, plainToInstance, Transform } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
 import {
   CreatedAtProperty,
@@ -45,6 +45,11 @@ import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
 import { MapVersionDto } from './map-version.dto';
 import { MapReviewStatsDto } from './map-review-stats.dto';
+import {
+  MapImageResponseDto,
+  serializeMapImage,
+  UserSerializerSchema
+} from '../pilot-serialization';
 
 export class MapDto implements MMap {
   @IdProperty()
@@ -73,6 +78,13 @@ export class MapDto implements MMap {
     lazy: true,
     description: 'The user the submitted the map'
   })
+  @Transform(
+    ({ obj }) =>
+      obj.submitter == null
+        ? obj.submitter
+        : UserSerializerSchema.parse(obj.submitter),
+    { toPlainOnly: true }
+  )
   readonly submitter: UserDto;
 
   @NestedProperty(MapSubmissionDto)
@@ -80,26 +92,21 @@ export class MapDto implements MMap {
 
   @ApiProperty({
     description: 'Array of urls to map images',
-    type: MapImageDto,
+    type: MapImageResponseDto,
     isArray: true
   })
-  @Transform(({ value }) =>
-    // HACK: This is a stupid hack to get class-transformer to transform
-    // correctly. It only works because my DtoFactory setup is ridiculous and
-    // seems to transform TWICE. We're going to rework/replace CT/CV in future
-    // anyway so leaving for now. UUUUGH
-    value?.map((image) =>
-      typeof image == 'string'
-        ? { id: image }
-        : plainToInstance(MapImageDto, image)
-    )
-  )
+  @Transform(({ value }) => value?.map(serializeMapImage), {
+    toPlainOnly: true
+  })
   readonly images: MapImageDto[];
 
-  @ApiProperty({ description: 'Primary image for the map', type: MapImageDto })
+  @ApiProperty({
+    description: 'Primary image for the map',
+    type: MapImageResponseDto
+  })
   @Expose()
   get thumbnail(): MapImageDto {
-    return plainToInstance(MapImageDto, this.images?.[0]);
+    return this.images?.[0] ? serializeMapImage(this.images[0]) : undefined;
   }
 
   @NestedProperty(MapStatsDto)

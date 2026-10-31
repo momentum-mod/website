@@ -223,7 +223,16 @@ describe('Users', () => {
         expect(res.body.avatarURL).toBe(
           steamAvatarUrl('ac7305567f93a4c9eec4d857df993191c61fb240')
         );
+        expect(res.body).not.toHaveProperty('avatar');
       });
+
+      it('should reject unknown user query parameters', () =>
+        req.get({
+          url: `users/${user.id}`,
+          status: 400,
+          query: { unexpected: 'value' },
+          token
+        }));
 
       it('should respond with the specified user with expanded profile when using an expand parameter', () =>
         req.expandTest({

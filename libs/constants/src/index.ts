@@ -36,6 +36,7 @@ export * from './maps/map-sort-type-name.map';
 export * from './maps/steam-games.map';
 export * from './sets/disabled-gamemodes.set';
 export * from './types/models/models';
+export * from './types/models/pilot-schemas';
 export * from './types/models/paged-response.model';
 export * from './types/queries/pagination.model';
 export * from './types/queries/map-queries.model';

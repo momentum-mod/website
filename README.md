@@ -47,6 +47,15 @@ directories in `apps/`, and anything shared between applications lives in
 
 We use npm as our package manager.
 
+The backend has a small Zod serialization pilot: `GET /users/:userID` uses a Zod
+query pipe and response serializer, map images and expanded map submitters use
+shared serializers, and the run-session WebSocket response uses a schema. Public
+JSON schemas live in `libs/constants/src/types/models/pilot-schemas.ts`;
+Prisma-to-wire transformations live in
+`apps/backend/src/app/dto/pilot-serialization.ts`. Other endpoints still use
+class-validator and class-transformer. Zod is pinned because the tested Nest
+Swagger integration must generate correct OpenAPI 3.0 nullable fields.
+
 # Contributing
 
 Momentum Mod is developed entirely by volunteers, so we're always on the lookout
