@@ -102,6 +102,23 @@ describe('Zod serialization pilot', () => {
     expect(response.submitter).toEqual(UserSerializerSchema.parse(user));
   });
 
+  it('projects away cyclic source relations before producing JSON', () => {
+    const cyclicUser: typeof user & { self?: object } = { ...user };
+    cyclicUser.self = cyclicUser;
+
+    const response = UserSerializerSchema.parse(cyclicUser);
+    expect(response).not.toHaveProperty('self');
+    expect(() => JSON.stringify(response)).not.toThrow();
+  });
+
+  it('keeps an empty image list without inventing a thumbnail', () => {
+    const response = JSON.parse(
+      JSON.stringify(instanceToPlain(DtoFactory(MapDto, { images: [] })))
+    );
+    expect(response.images).toEqual([]);
+    expect(response).not.toHaveProperty('thumbnail');
+  });
+
   it('serializes WebSocket dates and preserves error envelopes', () => {
     const session = {
       id: 1,
