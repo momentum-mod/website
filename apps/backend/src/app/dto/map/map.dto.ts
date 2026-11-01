@@ -45,11 +45,8 @@ import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 import { MapTestInviteDto } from './map-test-invite.dto';
 import { MapVersionDto } from './map-version.dto';
 import { MapReviewStatsDto } from './map-review-stats.dto';
-import {
-  MapImageResponseDto,
-  serializeMapImage,
-  UserSerializerSchema
-} from '../pilot-serialization';
+import { serializeMapImage } from './map-image.schema';
+import { UserSerializerSchema } from '../user/user.schema';
 
 export class MapDto implements MMap {
   @IdProperty()
@@ -82,7 +79,7 @@ export class MapDto implements MMap {
     ({ obj }) =>
       obj.submitter == null
         ? obj.submitter
-        : UserSerializerSchema.parse(obj.submitter),
+        : UserSerializerSchema.assert(obj.submitter),
     { toPlainOnly: true }
   )
   readonly submitter: UserDto;
@@ -92,7 +89,7 @@ export class MapDto implements MMap {
 
   @ApiProperty({
     description: 'Array of urls to map images',
-    type: MapImageResponseDto,
+    type: MapImageDto,
     isArray: true
   })
   @Transform(({ value }) => value?.map(serializeMapImage), {
@@ -102,7 +99,7 @@ export class MapDto implements MMap {
 
   @ApiProperty({
     description: 'Primary image for the map',
-    type: MapImageResponseDto
+    type: MapImageDto
   })
   @Expose()
   get thumbnail(): MapImageDto {

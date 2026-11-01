@@ -1,4 +1,9 @@
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  StandardSchemaSerializerInterceptor,
+  StandardSchemaValidationPipe,
+  ValidationPipe
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -6,13 +11,12 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Test } from '@nestjs/testing';
-import { cleanupOpenApiDoc } from 'nestjs-zod';
-import { UsersController } from '../modules/users/users.controller';
-import { UsersService } from '../modules/users/users.service';
-import { MapDto } from './map/map.dto';
-import { VALIDATION_PIPE_CONFIG } from './validation-pipe-config';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+import { MapDto } from '../../dto/map/map.dto';
+import { VALIDATION_PIPE_CONFIG } from '../../dto/validation-pipe-config';
 
-describe('Zod user HTTP pilot', () => {
+describe('UsersController schema validation and serialization', () => {
   let app: NestFastifyApplication;
   const getRaw = jest.fn();
 
@@ -24,9 +28,13 @@ describe('Zod user HTTP pilot', () => {
     app = module.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter()
     );
-    app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
+    app.useGlobalPipes(
+      new ValidationPipe(VALIDATION_PIPE_CONFIG),
+      new StandardSchemaValidationPipe()
+    );
     app.useGlobalInterceptors(
-      new ClassSerializerInterceptor(app.get(Reflector))
+      new ClassSerializerInterceptor(app.get(Reflector)),
+      new StandardSchemaSerializerInterceptor(app.get(Reflector))
     );
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
@@ -79,23 +87,24 @@ describe('Zod user HTTP pilot', () => {
   });
 
   it('generates the public response schema in OpenAPI', () => {
-    const doc = cleanupOpenApiDoc(
-      SwaggerModule.createDocument(app, new DocumentBuilder().build(), {
+    const doc = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder().setOpenAPIVersion('3.1.0').build(),
+      {
         extraModels: [MapDto]
-      })
+      }
     );
-    const schema = doc.components.schemas.UserResponseDto;
+    const schema =
+      doc.paths['/users/{userID}'].get.responses['200'].content[
+        'application/json'
+      ].schema;
     expect(schema).toMatchObject({
       type: 'object',
       properties: {
         avatarURL: { type: 'string' },
-        steamID: { type: 'string', nullable: true }
+        steamID: { anyOf: [{ type: 'string' }, { type: 'null' }] }
       }
     });
     expect(schema).not.toHaveProperty('properties.avatar');
-    expect(doc.components.schemas.MapImageResponseDto).toMatchObject({
-      type: 'object',
-      properties: { id: { type: 'string' }, small: { type: 'string' } }
-    });
   });
 });

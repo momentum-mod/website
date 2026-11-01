@@ -1,9 +1,11 @@
-import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import {
-  ZodSerializerDto,
-  ZodSerializerInterceptor,
-  ZodValidationPipe
-} from 'nestjs-zod';
+  Controller,
+  Get,
+  Param,
+  Query,
+  SerializeOptions
+} from '@nestjs/common';
+import { UserResponseSchema } from '@momentum/constants';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -15,6 +17,7 @@ import {
   ApiNotFoundResponse,
   ApiQuery
 } from '@nestjs/swagger';
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import {
   ActivityDto,
   ApiOkPagedResponse,
@@ -32,11 +35,10 @@ import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 import {
-  UserResponseDto,
   UserQuery,
   UserQuerySchema,
   UserSerializerSchema
-} from '../../dto/pilot-serialization';
+} from '../../dto/user/user.schema';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -68,9 +70,11 @@ export class UsersController {
     description: 'Target User ID',
     required: true
   })
-  @ApiOkResponse({ type: UserResponseDto, description: 'The found user' })
-  @ZodSerializerDto(UserSerializerSchema)
-  @UseInterceptors(ZodSerializerInterceptor)
+  @ApiOkResponse({
+    schema: UserResponseSchema.toJsonSchema() as SchemaObject,
+    description: 'The found user'
+  })
+  @SerializeOptions({ schema: UserSerializerSchema })
   @ApiNotFoundResponse({ description: 'User was not found' })
   @ApiQuery({
     name: 'expand',
@@ -81,7 +85,7 @@ export class UsersController {
   })
   getUser(
     @Param('userID', ParseInt32SafePipe) userID: number,
-    @Query(new ZodValidationPipe(UserQuerySchema)) query: UserQuery
+    @Query({ schema: UserQuerySchema }) query: UserQuery
   ): Promise<unknown> {
     return this.usersService.getRaw(userID, query.expand);
   }

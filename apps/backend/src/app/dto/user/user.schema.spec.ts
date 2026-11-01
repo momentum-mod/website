@@ -1,17 +1,13 @@
 import { instanceToPlain } from 'class-transformer';
 import { Ban, STEAM_MISSING_AVATAR, steamAvatarUrl } from '@momentum/constants';
-import { DtoFactory } from './functions';
-import { MapDto } from './map/map.dto';
-import {
-  RunSessionSerializerSchema,
-  serializeMapImage,
-  serializeWsResponse,
-  UserQuerySchema,
-  UserSerializerSchema
-} from './pilot-serialization';
-import { UserDto } from './user/user.dto';
+import { DtoFactory } from '../functions';
+import { MapDto } from '../map/map.dto';
+import { serializeMapImage } from '../map/map-image.schema';
+import { RunSessionWsResponseSchema } from '../run/run-session.schema';
+import { UserQuerySchema, UserSerializerSchema } from './user.schema';
+import { UserDto } from './user.dto';
 
-describe('Zod serialization pilot', () => {
+describe('ArkType serialization', () => {
   const date = new Date('2024-01-02T03:04:05.000Z');
   const user = {
     id: 1,
@@ -26,7 +22,7 @@ describe('Zod serialization pilot', () => {
   };
 
   it('matches the legacy user response and strips source-only fields', () => {
-    const result = UserSerializerSchema.parse(user);
+    const result = UserSerializerSchema.assert(user);
     const { privateField: _privateField, ...source } = user;
     const legacy = JSON.parse(
       JSON.stringify(
@@ -44,9 +40,9 @@ describe('Zod serialization pilot', () => {
 
   it('uses the missing avatar for banned and placeholder users', () => {
     expect(
-      UserSerializerSchema.parse({ ...user, bans: Ban.AVATAR }).avatarURL
+      UserSerializerSchema.assert({ ...user, bans: Ban.AVATAR }).avatarURL
     ).toBe(steamAvatarUrl(STEAM_MISSING_AVATAR));
-    const placeholder = UserSerializerSchema.parse({
+    const placeholder = UserSerializerSchema.assert({
       ...user,
       avatar: null,
       steamID: null
@@ -66,7 +62,7 @@ describe('Zod serialization pilot', () => {
       totalStrafes: 6n
     };
     expect(
-      UserSerializerSchema.parse({ ...user, userStats }).userStats
+      UserSerializerSchema.assert({ ...user, userStats }).userStats
     ).toEqual({
       cosXP: 42,
       level: 2,
@@ -76,7 +72,7 @@ describe('Zod serialization pilot', () => {
       totalStrafes: 6
     });
     expect(() =>
-      UserSerializerSchema.parse({
+      UserSerializerSchema.assert({
         ...user,
         userStats: { ...userStats, totalJumps: 9007199254740992n }
       })
@@ -85,11 +81,11 @@ describe('Zod serialization pilot', () => {
 
   it('validates user query expansions and rejects unexpected query keys', () => {
     expect(
-      UserQuerySchema.parse({ expand: 'profile,userStats,unknown' })
+      UserQuerySchema.assert({ expand: 'profile,userStats,unknown' })
     ).toEqual({
       expand: ['profile', 'userStats']
     });
-    expect(() => UserQuerySchema.parse({ extra: 'unexpected' })).toThrow();
+    expect(() => UserQuerySchema.assert({ extra: 'unexpected' })).toThrow();
   });
 
   it('serializes nested map images and users without a second image transform', () => {
@@ -99,14 +95,14 @@ describe('Zod serialization pilot', () => {
 
     expect(response.images).toEqual([serializeMapImage(id)]);
     expect(response.thumbnail).toEqual(serializeMapImage(id));
-    expect(response.submitter).toEqual(UserSerializerSchema.parse(user));
+    expect(response.submitter).toEqual(UserSerializerSchema.assert(user));
   });
 
   it('projects away cyclic source relations before producing JSON', () => {
     const cyclicUser: typeof user & { self?: object } = { ...user };
     cyclicUser.self = cyclicUser;
 
-    const response = UserSerializerSchema.parse(cyclicUser);
+    const response = UserSerializerSchema.assert(cyclicUser);
     expect(response).not.toHaveProperty('self');
     expect(() => JSON.stringify(response)).not.toThrow();
   });
@@ -131,11 +127,10 @@ describe('Zod serialization pilot', () => {
       timestamps: [{ majorNum: 1, minorNum: 1, time: 0, createdAt: date }]
     };
     expect(
-      serializeWsResponse(
-        RunSessionSerializerSchema,
-        'runsession.create',
-        session
-      )
+      RunSessionWsResponseSchema.assert({
+        event: 'runsession.create',
+        data: session
+      })
     ).toEqual({
       event: 'runsession.create',
       data: {
@@ -147,8 +142,9 @@ describe('Zod serialization pilot', () => {
       }
     });
     expect(
-      serializeWsResponse(RunSessionSerializerSchema, 'runsession.create', {
-        error: 'Unavailable'
+      RunSessionWsResponseSchema.assert({
+        event: 'runsession.create',
+        data: { error: 'Unavailable' }
       })
     ).toEqual({ event: 'runsession.create', data: { error: 'Unavailable' } });
   });

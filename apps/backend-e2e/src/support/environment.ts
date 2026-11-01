@@ -2,6 +2,8 @@ import { Server } from 'node:http';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import {
   ClassSerializerInterceptor,
+  StandardSchemaSerializerInterceptor,
+  StandardSchemaValidationPipe,
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
@@ -83,8 +85,14 @@ export async function setupE2ETestEnvironment(
 
   // Anything put in a query/body that doesn't correspond to a
   // decorator-validated property on the DTO will error.
-  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalPipes(
+    new ValidationPipe(VALIDATION_PIPE_CONFIG),
+    new StandardSchemaValidationPipe()
+  );
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new StandardSchemaSerializerInterceptor(app.get(Reflector))
+  );
 
   // The WebSocket adapter doesn't support Nest DI, so resolve its dependencies
   // and pass them in directly (same as main.ts).

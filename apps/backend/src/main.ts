@@ -3,6 +3,8 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   ClassSerializerInterceptor,
+  StandardSchemaSerializerInterceptor,
+  StandardSchemaValidationPipe,
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
@@ -24,7 +26,6 @@ import { FIRST_WORKER_ENV_VAR, initalizeClusterMessaging } from './clustered';
 import { JwtService } from '@nestjs/jwt';
 import { WebsocketAdapter } from './app/modules/websockets/websocket.adapter';
 import { WebsocketService } from './app/modules/websockets/websocket.service';
-import { cleanupOpenApiDoc } from 'nestjs-zod';
 
 /* eslint no-console: 0 */
 async function bootstrap() {
@@ -69,8 +70,14 @@ async function bootstrap() {
   // data on the query/body (i.e. does not have validators) will fail. Our tests
   // even more strict: passing an unexpected value will throw an error. In
   // effect, you MUST include validation decorators
-  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalPipes(
+    new ValidationPipe(VALIDATION_PIPE_CONFIG),
+    new StandardSchemaValidationPipe()
+  );
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new StandardSchemaSerializerInterceptor(app.get(Reflector))
+  );
 
   // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by
   // default, versions can be incremented on a per-route basis upon future
@@ -114,18 +121,17 @@ async function bootstrap() {
   SwaggerModule.setup(
     'docs',
     app,
-    cleanupOpenApiDoc(
-      SwaggerModule.createDocument(
-        app,
-        new DocumentBuilder()
-          .setTitle('Momentum Mod API')
-          .setDescription(
-            'The Momentum Mod API - https://github.com/momentum-mod/website'
-          )
-          .addBearerAuth()
-          .setVersion('1.0')
-          .build()
-      )
+    SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder()
+        .setTitle('Momentum Mod API')
+        .setDescription(
+          'The Momentum Mod API - https://github.com/momentum-mod/website'
+        )
+        .addBearerAuth()
+        .setOpenAPIVersion('3.1.0')
+        .setVersion('1.0')
+        .build()
     ),
     {
       customSiteTitle: 'Momentum Mod API Docs',

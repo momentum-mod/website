@@ -47,14 +47,16 @@ directories in `apps/`, and anything shared between applications lives in
 
 We use npm as our package manager.
 
-The backend has a small Zod serialization pilot: `GET /users/:userID` uses a Zod
-query pipe and response serializer, map images and expanded map submitters use
-shared serializers, and the run-session WebSocket response uses a schema. Public
-JSON schemas live in `libs/constants/src/types/models/pilot-schemas.ts`;
-Prisma-to-wire transformations live in
-`apps/backend/src/app/dto/pilot-serialization.ts`. Other endpoints still use
-class-validator and class-transformer. Zod is pinned because the tested Nest
-Swagger integration must generate correct OpenAPI 3.0 nullable fields.
+The backend uses Nest's Standard Schema validation and serialization with
+ArkType. User and map-image wire schemas are shared in `libs/constants`, while
+the corresponding Prisma-to-wire transformations live alongside the backend
+DTOs. Other endpoints still use class-validator and class-transformer during the
+migration. OpenAPI 3.1 documents the ArkType wire schemas. ArkType requires
+`strictNullChecks`; enabling it exposes existing nullability errors in
+unmigrated code that still need to be addressed. Nest 12 and ArkType are ESM, so
+the existing Jest configuration also needs an ESM migration before backend tests
+can run. Some dependencies have not yet updated their Nest peer ranges; install
+with `npm install --legacy-peer-deps` during the transition.
 
 # Contributing
 

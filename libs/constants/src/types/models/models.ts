@@ -31,8 +31,8 @@ import type { Vector, Vector2D } from '../utils/vector.type';
 import type { Style } from '../../enums/style.enum';
 import type { float, uint16, uint8, vec3 } from '../utils/numeric.type';
 import type { MapSubmissionType } from '../../enums/map-submission-type.enum';
-import type { MapImage } from './pilot-schemas';
-export type { MapImage } from './pilot-schemas';
+import type { MapImage } from './map-image.schema';
+export type { MapImage } from './map-image.schema';
 
 /* eslint @typescript-eslint/no-namespace: 0 */
 

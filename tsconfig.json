@@ -13,6 +13,7 @@
     "lib": ["ESNext", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
       "@momentum/bitflags": ["libs/bitflags/src/index.ts"],

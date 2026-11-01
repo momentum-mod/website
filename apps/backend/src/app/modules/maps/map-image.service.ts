@@ -30,7 +30,7 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
 import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityService } from '../admin/admin-activity.service';
-import { serializeMapImage } from '../../dto/pilot-serialization';
+import { serializeMapImage } from '../../dto/map/map-image.schema';
 
 @Injectable()
 export class MapImageService {
@@ -45,13 +45,13 @@ export class MapImageService {
   async getImages(
     mapID: number,
     loggedInUserID?: number
-  ): Promise<MapImageDto[]> {
+  ): Promise<{ id: string }[]> {
     const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,
       userID: loggedInUserID
     });
 
-    return images.map(serializeMapImage);
+    return images.map((id) => ({ id }));
   }
 
   async updateImages(

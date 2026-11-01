@@ -14,6 +14,7 @@ import {
   Post,
   Put,
   Query,
+  SerializeOptions,
   UploadedFiles,
   UseGuards,
   UseInterceptors
@@ -34,6 +35,7 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags
 } from '@nestjs/swagger';
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
 import {
   ImageType,
@@ -42,7 +44,8 @@ import {
   MAX_MAP_IMAGE_SIZE,
   MAX_MAP_IMAGES,
   MAX_REVIEW_IMAGES,
-  KillswitchType
+  KillswitchType,
+  MapImageSchema
 } from '@momentum/constants';
 import { ConfigService } from '@nestjs/config';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
@@ -97,8 +100,7 @@ import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 import { Config } from '../../config';
-import { ZodResponse, ZodSerializerInterceptor } from 'nestjs-zod';
-import { MapImageResponseDto } from '../../dto/pilot-serialization';
+import { MapImageSerializerSchema } from '../../dto/map/map-image.schema';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -497,11 +499,14 @@ export class MapsController {
   @Get('/:mapID/images')
   @BypassJwtAuth()
   @ApiOperation({ summary: "Gets a map's images" })
-  @ZodResponse({
-    type: [MapImageResponseDto],
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: MapImageSchema.toJsonSchema() as SchemaObject
+    },
     description: "The found map's images"
   })
-  @UseInterceptors(ZodSerializerInterceptor)
+  @SerializeOptions({ schema: MapImageSerializerSchema })
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiParam({
     name: 'mapID',
@@ -512,7 +517,7 @@ export class MapsController {
   getImages(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID?: number
-  ): Promise<MapImageDto[]> {
+  ): Promise<{ id: string }[]> {
     return this.mapImageService.getImages(mapID, userID);
   }
 
