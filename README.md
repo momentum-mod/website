@@ -47,6 +47,17 @@ directories in `apps/`, and anything shared between applications lives in
 
 We use npm as our package manager.
 
+The backend uses Nest's Standard Schema validation and serialization with
+ArkType. User and map-image wire schemas are shared in `libs/constants`, while
+the corresponding Prisma-to-wire transformations live alongside the backend
+DTOs. Other endpoints still use class-validator and class-transformer during the
+migration. OpenAPI 3.1 documents the ArkType wire schemas. ArkType requires
+`strictNullChecks`; enabling it exposes existing nullability errors in
+unmigrated code that still need to be addressed. Nest 12 and ArkType are ESM, so
+the existing Jest configuration also needs an ESM migration before backend tests
+can run. Some dependencies have not yet updated their Nest peer ranges; install
+with `npm install --legacy-peer-deps` during the transition.
+
 # Contributing
 
 Momentum Mod is developed entirely by volunteers, so we're always on the lookout

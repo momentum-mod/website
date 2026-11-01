@@ -3,6 +3,8 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   ClassSerializerInterceptor,
+  StandardSchemaSerializerInterceptor,
+  StandardSchemaValidationPipe,
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
@@ -68,8 +70,14 @@ async function bootstrap() {
   // data on the query/body (i.e. does not have validators) will fail. Our tests
   // even more strict: passing an unexpected value will throw an error. In
   // effect, you MUST include validation decorators
-  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalPipes(
+    new ValidationPipe(VALIDATION_PIPE_CONFIG),
+    new StandardSchemaValidationPipe()
+  );
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new StandardSchemaSerializerInterceptor(app.get(Reflector))
+  );
 
   // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by
   // default, versions can be incremented on a per-route basis upon future
@@ -121,6 +129,7 @@ async function bootstrap() {
           'The Momentum Mod API - https://github.com/momentum-mod/website'
         )
         .addBearerAuth()
+        .setOpenAPIVersion('3.1.0')
         .setVersion('1.0')
         .build()
     ),

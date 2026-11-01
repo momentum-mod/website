@@ -31,6 +31,8 @@ import type { Vector, Vector2D } from '../utils/vector.type';
 import type { Style } from '../../enums/style.enum';
 import type { float, uint16, uint8, vec3 } from '../utils/numeric.type';
 import type { MapSubmissionType } from '../../enums/map-submission-type.enum';
+import type { MapImage } from './map-image.schema';
+export type { MapImage } from './map-image.schema';
 
 /* eslint @typescript-eslint/no-namespace: 0 */
 
@@ -252,14 +254,6 @@ export interface MapFavorite {
   mapID: number;
   map?: MMap;
   createdAt: DateString;
-}
-
-export interface MapImage {
-  id: string;
-  small: string;
-  medium: string;
-  large: string;
-  xl: string;
 }
 
 export interface MapListVersion {

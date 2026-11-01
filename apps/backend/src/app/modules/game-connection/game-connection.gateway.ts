@@ -6,12 +6,16 @@ import {
   WsResponse
 } from '@nestjs/websockets';
 import {
+  SerializeOptions,
+  StandardSchemaSerializerInterceptor,
+  UseInterceptors
+} from '@nestjs/common';
+import {
   CreateRunSessionDto,
   RunSessionIdDto,
-  RunSessionResponseDto,
-  UpdateRunSessionDto,
-  WsResponseDto
+  UpdateRunSessionDto
 } from '../../dto';
+import { RunSessionWsResponseSchema } from '../../dto/run/run-session.schema';
 import { AuthenticatedWebSocket } from '../websockets/websocket.adapter';
 import { RunSessionService } from '../session/run/run-session.service';
 
@@ -29,15 +33,16 @@ export class GameConnectionGateway {
   constructor(private readonly runSession: RunSessionService) {}
 
   @SubscribeMessage('runsession.create')
+  @UseInterceptors(StandardSchemaSerializerInterceptor)
+  @SerializeOptions({ schema: RunSessionWsResponseSchema })
   async createSession(
     @ConnectedSocket() client: AuthenticatedWebSocket,
     @MessageBody() data: CreateRunSessionDto
-  ): Promise<WsResponseDto<RunSessionResponseDto>> {
-    return new WsResponseDto(
-      RunSessionResponseDto,
-      'runsession.create',
-      await this.runSession.createSession(client.userId, data)
-    );
+  ) {
+    return {
+      event: 'runsession.create',
+      data: await this.runSession.createSession(client.userId, data)
+    };
   }
 
   @SubscribeMessage('runsession.update')

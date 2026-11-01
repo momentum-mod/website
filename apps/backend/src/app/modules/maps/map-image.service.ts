@@ -22,7 +22,7 @@ import { File } from '@nest-lab/fastify-multer';
 import sharp from 'sharp';
 import { parallel } from '@momentum/util-fn';
 import { v4 as uuidv4 } from 'uuid';
-import { DtoFactory, MapImageDto } from '../../dto';
+import { MapImageDto } from '../../dto';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import { FileStoreService } from '../filestore/file-store.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -30,6 +30,7 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
 import * as Bitflags from '@momentum/bitflags';
 import { AdminActivityService } from '../admin/admin-activity.service';
+import { serializeMapImage } from '../../dto/map/map-image.schema';
 
 @Injectable()
 export class MapImageService {
@@ -44,13 +45,13 @@ export class MapImageService {
   async getImages(
     mapID: number,
     loggedInUserID?: number
-  ): Promise<MapImageDto[]> {
+  ): Promise<{ id: string }[]> {
     const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,
       userID: loggedInUserID
     });
 
-    return images.map((id) => DtoFactory(MapImageDto, { id }));
+    return images.map((id) => ({ id }));
   }
 
   async updateImages(
@@ -144,7 +145,7 @@ export class MapImageService {
       );
     }
 
-    return images.map((id) => DtoFactory(MapImageDto, { id }));
+    return images.map(serializeMapImage);
   }
 
   async storeMapImage(

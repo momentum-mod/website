@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  SerializeOptions
+} from '@nestjs/common';
+import { UserResponseSchema } from '@momentum/constants';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -7,8 +14,10 @@ import {
   ApiExtraModels,
   ApiBadRequestResponse,
   ApiOkResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiQuery
 } from '@nestjs/swagger';
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import {
   ActivityDto,
   ApiOkPagedResponse,
@@ -20,12 +29,16 @@ import {
   UserDto,
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
-  UsersGetQueryDto,
   UsersGetCreditsQueryDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
+import {
+  UserQuery,
+  UserQuerySchema,
+  UserSerializerSchema
+} from '../../dto/user/user.schema';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -57,13 +70,24 @@ export class UsersController {
     description: 'Target User ID',
     required: true
   })
-  @ApiOkResponse({ type: UserDto, description: 'The found user' })
+  @ApiOkResponse({
+    schema: UserResponseSchema.toJsonSchema() as SchemaObject,
+    description: 'The found user'
+  })
+  @SerializeOptions({ schema: UserSerializerSchema })
   @ApiNotFoundResponse({ description: 'User was not found' })
+  @ApiQuery({
+    name: 'expand',
+    type: String,
+    enum: ['profile', 'userStats'],
+    required: false,
+    description: 'Comma-separated relations to include'
+  })
   getUser(
     @Param('userID', ParseInt32SafePipe) userID: number,
-    @Query() query?: UsersGetQueryDto
-  ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand);
+    @Query({ schema: UserQuerySchema }) query: UserQuery
+  ): Promise<unknown> {
+    return this.usersService.getRaw(userID, query.expand);
   }
 
   //#endregion

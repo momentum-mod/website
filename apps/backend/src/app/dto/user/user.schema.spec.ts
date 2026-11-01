@@ -1,0 +1,151 @@
+import { instanceToPlain } from 'class-transformer';
+import { Ban, STEAM_MISSING_AVATAR, steamAvatarUrl } from '@momentum/constants';
+import { DtoFactory } from '../functions';
+import { MapDto } from '../map/map.dto';
+import { serializeMapImage } from '../map/map-image.schema';
+import { RunSessionWsResponseSchema } from '../run/run-session.schema';
+import { UserQuerySchema, UserSerializerSchema } from './user.schema';
+import { UserDto } from './user.dto';
+
+describe('ArkType serialization', () => {
+  const date = new Date('2024-01-02T03:04:05.000Z');
+  const user = {
+    id: 1,
+    steamID: 76561198000000000n,
+    alias: 'A user',
+    avatar: 'avatar-hash',
+    country: null,
+    roles: 0,
+    bans: 0,
+    createdAt: date,
+    privateField: 'must not escape'
+  };
+
+  it('matches the legacy user response and strips source-only fields', () => {
+    const result = UserSerializerSchema.assert(user);
+    const { privateField: _privateField, ...source } = user;
+    const legacy = JSON.parse(
+      JSON.stringify(
+        instanceToPlain(DtoFactory(UserDto, source)),
+        (_, value) => (typeof value === 'bigint' ? value.toString() : value)
+      )
+    );
+
+    expect(result).toEqual(legacy);
+    expect(result).not.toHaveProperty('avatar');
+    expect(result).not.toHaveProperty('privateField');
+    expect(result.steamID).toBe('76561198000000000');
+    expect(result.createdAt).toBe(date.toISOString());
+  });
+
+  it('uses the missing avatar for banned and placeholder users', () => {
+    expect(
+      UserSerializerSchema.assert({ ...user, bans: Ban.AVATAR }).avatarURL
+    ).toBe(steamAvatarUrl(STEAM_MISSING_AVATAR));
+    const placeholder = UserSerializerSchema.assert({
+      ...user,
+      avatar: null,
+      steamID: null
+    });
+    expect(placeholder.avatarURL).toBe(steamAvatarUrl(STEAM_MISSING_AVATAR));
+    expect(placeholder.steamID).toBeNull();
+  });
+
+  it('serializes expanded stats and rejects unsafe bigints', () => {
+    const userStats = {
+      userID: 1,
+      cosXP: 42n,
+      level: 2,
+      mapsCompleted: 3,
+      runsSubmitted: 4,
+      totalJumps: 5n,
+      totalStrafes: 6n
+    };
+    expect(
+      UserSerializerSchema.assert({ ...user, userStats }).userStats
+    ).toEqual({
+      cosXP: 42,
+      level: 2,
+      mapsCompleted: 3,
+      runsSubmitted: 4,
+      totalJumps: 5,
+      totalStrafes: 6
+    });
+    expect(() =>
+      UserSerializerSchema.assert({
+        ...user,
+        userStats: { ...userStats, totalJumps: 9007199254740992n }
+      })
+    ).toThrow('safe integer');
+  });
+
+  it('validates user query expansions and rejects unexpected query keys', () => {
+    expect(
+      UserQuerySchema.assert({ expand: 'profile,userStats,unknown' })
+    ).toEqual({
+      expand: ['profile', 'userStats']
+    });
+    expect(() => UserQuerySchema.assert({ extra: 'unexpected' })).toThrow();
+  });
+
+  it('serializes nested map images and users without a second image transform', () => {
+    const id = '0b2e14d4-c18b-4ac9-af72-6581936be64b';
+    const map = DtoFactory(MapDto, { images: [id], submitter: user });
+    const response = instanceToPlain(map);
+
+    expect(response.images).toEqual([serializeMapImage(id)]);
+    expect(response.thumbnail).toEqual(serializeMapImage(id));
+    expect(response.submitter).toEqual(UserSerializerSchema.assert(user));
+  });
+
+  it('projects away cyclic source relations before producing JSON', () => {
+    const cyclicUser: typeof user & { self?: object } = { ...user };
+    cyclicUser.self = cyclicUser;
+
+    const response = UserSerializerSchema.assert(cyclicUser);
+    expect(response).not.toHaveProperty('self');
+    expect(() => JSON.stringify(response)).not.toThrow();
+  });
+
+  it('keeps an empty image list without inventing a thumbnail', () => {
+    const response = JSON.parse(
+      JSON.stringify(instanceToPlain(DtoFactory(MapDto, { images: [] })))
+    );
+    expect(response.images).toEqual([]);
+    expect(response).not.toHaveProperty('thumbnail');
+  });
+
+  it('serializes WebSocket dates and preserves error envelopes', () => {
+    const session = {
+      id: 1,
+      userID: 2,
+      mapID: 3,
+      gamemode: 1,
+      trackType: 0,
+      trackNum: 1,
+      createdAt: date,
+      timestamps: [{ majorNum: 1, minorNum: 1, time: 0, createdAt: date }]
+    };
+    expect(
+      RunSessionWsResponseSchema.assert({
+        event: 'runsession.create',
+        data: session
+      })
+    ).toEqual({
+      event: 'runsession.create',
+      data: {
+        ...session,
+        createdAt: date.toISOString(),
+        timestamps: [
+          { majorNum: 1, minorNum: 1, time: 0, createdAt: date.toISOString() }
+        ]
+      }
+    });
+    expect(
+      RunSessionWsResponseSchema.assert({
+        event: 'runsession.create',
+        data: { error: 'Unavailable' }
+      })
+    ).toEqual({ event: 'runsession.create', data: { error: 'Unavailable' } });
+  });
+});
