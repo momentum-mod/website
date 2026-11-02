@@ -16,6 +16,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
@@ -35,6 +36,7 @@ import { LoggedInUser, Roles } from '../../decorators';
 import { MapsService } from '../maps/maps.service';
 import { KillswitchService } from '../killswitch/killswitch.service';
 import { UsersService } from '../users/users.service';
+import { RankingService } from '../ranking/ranking.service';
 import {
   AdminActivityDto,
   AdminCreateChatBanDto,
@@ -85,7 +87,8 @@ export class AdminController {
     private readonly mapReviewService: MapReviewService,
     private readonly usersService: UsersService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly killswitchService: KillswitchService
+    private readonly killswitchService: KillswitchService,
+    private readonly rankingService: RankingService
   ) {}
 
   @Post('/users')
@@ -271,17 +274,6 @@ export class AdminController {
     await this.adminService.deleteLeaderboardRun(body, adminID);
   }
 
-  @Post('/rank-points/rebuild')
-  @HttpCode(HttpStatus.ACCEPTED)
-  @ApiOperation({
-    summary:
-      'Throws away all rank points and regenerates them from the database. ' +
-      'Runs in the background; ladders are briefly empty while it does.'
-  })
-  rebuildRankPoints(): void {
-    this.adminService.rebuildRankPoints();
-  }
-
   @Post('/delete-runs/:userID')
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -291,6 +283,17 @@ export class AdminController {
     @LoggedInUser('id') adminID: number
   ): Promise<void> {
     await this.adminService.deleteUserRuns(userID, reason, adminID);
+  }
+
+  @Post('/rank-points/rebuild')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    description:
+      'Regenerate all rank points from the database in the background'
+  })
+  @ApiAcceptedResponse({ description: 'Rebuild started' })
+  rebuildRankPoints(): void {
+    this.rankingService.rebuildAllInBackground();
   }
 
   @Get('/reports')
