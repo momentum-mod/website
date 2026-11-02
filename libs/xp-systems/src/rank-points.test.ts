@@ -115,7 +115,7 @@ describe('rank-points', () => {
       [8, 17, 10, 1014],
       [8, 17, 17, 399]
     ]) {
-      it(`design document: tier ${tier}, N=${n}, rank ${rank} should pay about ${expected} points`, () => {
+      it(`should pay about ${expected} points for tier ${tier}, N=${n}, rank ${rank} (design document)`, () => {
         assert.ok(
           Math.abs(
             getRankPoints(rank, n, tier, 1, DESIGN_DOC_PARAMS) - expected
@@ -145,7 +145,7 @@ describe('rank-points', () => {
       [8, 17, 10, 567],
       [8, 17, 17, 160]
     ]) {
-      it(`current params: tier ${tier}, N=${n}, rank ${rank} should pay ${expected} points`, () => {
+      it(`should pay ${expected} points for tier ${tier}, N=${n}, rank ${rank}`, () => {
         assert.equal(getRankPoints(rank, n, tier), expected);
       });
     }
