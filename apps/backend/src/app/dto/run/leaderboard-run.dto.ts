@@ -104,9 +104,8 @@ export class LeaderboardRunDto implements LeaderboardRun {
     type: Number,
     required: false,
     description:
-      'Rank points the run is worth. Only present for runs on leaderboards ' +
-      'that award points (RANKED main tracks on approved maps), and only on ' +
-      'endpoints that look them up.'
+      'Rank points the run is worth. Only present for runs on RANKED ' +
+      'leaderboards on approved maps, and only on endpoints that look them up.'
   })
   @IsInt()
   @Min(0)
