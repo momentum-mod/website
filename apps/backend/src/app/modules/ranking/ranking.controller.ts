@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  UnauthorizedException
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiGoneResponse,
@@ -55,15 +49,6 @@ export class RankingController {
     @Query() query: RanksGetQueryDto,
     @LoggedInUser('id') loggedInUserID?: number
   ): Promise<PagedResponseDto<RankEntryDto>> {
-    const around = query.filter?.includes('around');
-    if (around && !loggedInUserID) throw new UnauthorizedException();
-
-    return this.rankingService.getLadder(
-      gamemode,
-      query.style,
-      query.skip,
-      query.take,
-      around ? { userID: loggedInUserID } : undefined
-    );
+    return this.rankingService.getLadder(gamemode, query, loggedInUserID);
   }
 }

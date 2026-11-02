@@ -4,7 +4,8 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  OnModuleInit
+  OnModuleInit,
+  UnauthorizedException
 } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
@@ -36,6 +37,7 @@ import {
   DtoFactory,
   PagedResponseDto,
   RankEntryDto,
+  RanksGetQueryDto,
   UserRankDto
 } from '../../dto';
 import {
@@ -462,17 +464,21 @@ export class RankingService implements OnModuleInit {
 
   async getLadder(
     gamemode: Gamemode,
-    style: Style,
-    skip: number,
-    take: number,
-    around?: { userID: number }
+    query: RanksGetQueryDto,
+    loggedInUserID?: number
   ): Promise<PagedResponseDto<RankEntryDto>> {
-    const ladderKey = RankPointsKeys.ladder(gamemode, style);
+    const ladderKey = RankPointsKeys.ladder(gamemode, query.style);
+    const take = query.take;
+    let skip = query.skip;
 
-    if (around) {
+    if (query.filter?.[0] === 'around') {
+      if (!loggedInUserID) {
+        throw new UnauthorizedException();
+      }
+
       const position = await this.valkey.zrevrank(
         ladderKey,
-        around.userID.toString()
+        loggedInUserID.toString()
       );
 
       if (position === null)
