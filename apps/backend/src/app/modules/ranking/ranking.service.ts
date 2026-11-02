@@ -4,11 +4,12 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
+import { CronJob } from 'cron';
+import * as Sentry from '@sentry/node';
 import { randomUUID } from 'node:crypto';
 import {
   Gamemode,
@@ -55,9 +56,8 @@ declare module 'iovalkey' {
 const BATCH_SIZE = 100;
 /** Members per ZADD when staging very large leaderboards. */
 const ZADD_CHUNK = 5000;
-/** How often the worker checks the queue. */
-export const RANK_POINTS_WORKER_INTERVAL_MS = 2000;
-export const RANK_POINTS_WORKER_NAME = 'rank-points-worker';
+const RANK_POINTS_JOB_NAME = 'RankPointsQueueJob';
+const RANK_POINTS_JOB_CRON = '*/2 * * * * *';
 /** Lock expiry. Refreshed between batches, so only needs to outlive one. */
 const LOCK_TTL_MS = 60_000;
 
@@ -105,7 +105,7 @@ export function isRankPointsEligible(
  * All of this is derived data: `rebuildAll` regenerates it from Postgres.
  */
 @Injectable()
-export class RankingService implements OnModuleInit, OnModuleDestroy {
+export class RankingService implements OnModuleInit {
   private readonly logger = new Logger('Ranking Service');
 
   /**
@@ -140,26 +140,25 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
         `Rank points data is at version ${version ?? 'none'}, expected ${RANK_POINTS_VERSION}. Rebuilding...`
       );
       // Don't block startup on this, it can take a while on a large DB.
-      void this.rebuildAll().catch((error) =>
-        this.logger.error('Rank points rebuild failed', error)
-      );
+      this.rebuildAllInBackground();
     }
 
-    this.schedulerRegistry.addInterval(
-      RANK_POINTS_WORKER_NAME,
-      setInterval(
-        () =>
-          void this.processQueue().catch((error) =>
-            this.logger.error('Rank points worker failed', error)
-          ),
-        RANK_POINTS_WORKER_INTERVAL_MS
-      )
+    this.schedulerRegistry.addCronJob(
+      RANK_POINTS_JOB_NAME,
+      CronJob.from({
+        cronTime: RANK_POINTS_JOB_CRON,
+        onTick: this.processQueue.bind(this),
+        waitForCompletion: true,
+        start: true,
+        errorHandler(error) {
+          if (Sentry.isInitialized()) {
+            Sentry.setContext('Error', { error });
+            Sentry.getCurrentScope().setLevel('warning');
+            Sentry.captureException('Failed to process rank points queue');
+          }
+        }
+      })
     );
-  }
-
-  onModuleDestroy(): void {
-    if (this.schedulerRegistry.doesExist('interval', RANK_POINTS_WORKER_NAME))
-      this.schedulerRegistry.deleteInterval(RANK_POINTS_WORKER_NAME);
   }
 
   //#region Updates
@@ -246,9 +245,6 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
       if (!heldToken) await this.releaseLock(token);
     }
 
-    if (processed > 0)
-      this.logger.debug(`Updated rank points for ${processed} leaderboards`);
-
     return processed;
   }
 
@@ -258,16 +254,22 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
    */
   rebuildAll(): Promise<void> {
     const rebuild = this.pendingRebuild.then(() => this.doRebuildAll());
-    // Never let a failed rebuild wedge the queue.
-    this.pendingRebuild = rebuild.catch(() => {
-      // Logged by whoever called rebuildAll.
-    });
+    // Never let a failed rebuild wedge the queue. Whoever called rebuildAll
+    // handles the error.
+    this.pendingRebuild = rebuild.catch(() => {});
     return rebuild;
   }
 
-  private async doRebuildAll(): Promise<void> {
-    const start = Date.now();
+  rebuildAllInBackground(): void {
+    void this.rebuildAll().catch((error) => {
+      if (Sentry.isInitialized()) {
+        Sentry.setContext('Error', { error });
+        Sentry.captureException('Failed to rebuild rank points');
+      }
+    });
+  }
 
+  private async doRebuildAll(): Promise<void> {
     const token = await this.acquireLock();
     if (!token) {
       this.logger.warn('Rank points rebuild skipped, lock is held');
@@ -302,13 +304,9 @@ export class RankingService implements OnModuleInit, OnModuleDestroy {
         await this.queueLeaderboardUpdates(leaderboards.slice(i, i + 1000));
       }
 
-      const processed = await this.drainQueue(token);
+      await this.drainQueue(token);
 
       await this.valkey.set(RankPointsKeys.version, RANK_POINTS_VERSION);
-
-      this.logger.log(
-        `Rebuilt rank points for ${processed} leaderboards in ${((Date.now() - start) / 1000).toFixed(2)}s`
-      );
     } finally {
       await this.releaseLock(token);
     }

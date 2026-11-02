@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  Logger,
   NotFoundException
 } from '@nestjs/common';
 import { LeaderboardRun, Prisma } from '@momentum/db';
@@ -52,8 +51,6 @@ export class AdminService {
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService
   ) {}
-
-  private readonly logger = new Logger('Admin Service');
 
   async createPlaceholderUser(
     adminID: number,
@@ -400,15 +397,8 @@ export class AdminService {
     ]);
   }
 
-  /**
-   * Regenerate all rank points from the database in the background.
-   */
   rebuildRankPoints(): void {
-    void this.rankingService
-      .rebuildAll()
-      .catch((error) =>
-        this.logger.error('Admin-triggered rank points rebuild failed', error)
-      );
+    this.rankingService.rebuildAllInBackground();
   }
 
   private async deleteRunFiles(
