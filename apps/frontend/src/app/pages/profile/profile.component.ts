@@ -1,4 +1,10 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  ViewChild
+} from '@angular/core';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   ActivatedRoute,
@@ -24,6 +30,7 @@ import { MessageService } from 'primeng/api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
 import { ActivityComponent } from '../../components/activity/activity.component';
+import { FollowComponent } from '../../components/follow/follow.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 import { RoleBadgesComponent } from '../../components/role-badges/role-badges.component';
 import { Icon, IconComponent } from '../../icons';
@@ -70,7 +77,8 @@ import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-
     SpinnerComponent,
     LevelIndicatorComponent,
     DialogModule,
-    ProfileChatBansComponent
+    ProfileChatBansComponent,
+    FollowComponent
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -108,8 +116,6 @@ export class ProfileComponent implements OnInit {
   avatarUrl = '/assets/images/blank_avatar.jpg';
   avatarLoaded: boolean;
   countryDisplayName = '';
-  followingUsers: Follow[] = [];
-  followedByUsers: Follow[] = [];
   localFollowStatus = new BehaviorSubject<Follow>(null);
   level: number;
   xp: number;
@@ -121,6 +127,9 @@ export class ProfileComponent implements OnInit {
   loadingSteamFriends = false;
   protected credits: MapCredit[];
   protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
+
+  @ViewChild('followingList')
+  private followingList?: FollowComponent;
 
   ngOnInit() {
     this.route.paramMap
@@ -163,16 +172,6 @@ export class ProfileComponent implements OnInit {
             this.level + 1
           );
 
-          this.usersService.getUserFollows(this.user).subscribe({
-            next: (response) => (this.followingUsers = response.data),
-            error: (httpError: HttpErrorResponse) =>
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Could not retrieve user follows',
-                detail: httpError.error.message
-              })
-          });
-
           this.usersService
             .getMapCredits(this.user.id, {
               expand: ['map', 'info'],
@@ -196,19 +195,15 @@ export class ProfileComponent implements OnInit {
 
           this.localUserService
             .checkFollowStatus(this.user)
-            .pipe(
-              switchMap((response) => {
-                this.localFollowStatus.next(response.local);
-                return this.usersService.getFollowersOfUser(this.user);
-              }),
-              takeUntilDestroyed(this.destroyRef)
-            )
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              next: (response) => (this.followedByUsers = response.data),
+              next: (response) => {
+                this.localFollowStatus.next(response.local);
+              },
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
-                  summary: 'Could not retrieve user followers',
+                  summary: 'Could not retrieve follow status',
                   detail: httpError.error.message
                 })
             });
@@ -361,15 +356,7 @@ export class ProfileComponent implements OnInit {
         );
         this.steamFriendsToAdd.clear();
 
-        this.usersService.getUserFollows(this.user).subscribe({
-          next: (response) => (this.followingUsers = response.data),
-          error: (httpError: HttpErrorResponse) =>
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Could not retrieve user follows',
-              detail: httpError.error.message
-            })
-        });
+        this.followingList?.refresh();
       },
       error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
