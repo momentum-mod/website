@@ -1,5 +1,11 @@
 import './instrumentation';
-import { Client, Events, GuildMember, Routes } from 'discord.js';
+import {
+  Client,
+  Events,
+  GuildMember,
+  IntentsBitField,
+  Routes
+} from 'discord.js';
 import { Agent } from 'undici';
 import { logger } from './logger';
 import { config } from './config';
@@ -9,7 +15,9 @@ import { InteractionModule } from './types/interaction-module';
 import { initializeServices } from './services';
 import { interactionModules } from './interaction-modules';
 
-const client = new Client({ intents: [2 ** 25 - 1] });
+const client = new Client({
+  intents: [2 ** 25 - 1 - IntentsBitField.Flags.GuildPresences]
+});
 
 // https://github.com/nodejs/undici/issues/1531#issuecomment-1178869993
 client.rest.setAgent(new Agent({ connect: { timeout: 60000 } }));
