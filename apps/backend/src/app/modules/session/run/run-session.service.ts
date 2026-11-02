@@ -539,7 +539,6 @@ export class RunSessionService {
     }
 
     const xpGain: XpGain = {
-      // rankXP: 0,
       cosXP: {
         gainLvl: gainedLevels,
         oldXP: Number(userStats.cosXP),

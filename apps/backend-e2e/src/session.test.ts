@@ -325,14 +325,13 @@ describe('Session', () => {
           assert.equal(res.statusCode, 200);
           assertValidDto(completedRun, CompletedRunDto);
           assert.equal(completedRun.isNewPersonalBest, false);
-          // assert.equal(completedRun.xp.rankXP, 0);
           assert.equal(completedRun.totalRuns, 10);
 
           const ranksAfter = await getRuns();
           assert.deepEqual(ranksBefore, ranksAfter);
         });
 
-        it('should assign cosmetic and rank XP for the run', async () => {
+        it('should assign cosmetic XP for the run', async () => {
           const res = await submitRun();
 
           const completedRun = res.body[0];
@@ -343,7 +342,6 @@ describe('Session', () => {
               time: any(Number),
               newPersonalBest: { rank: 2 },
               xp: {
-                // rankXP: any(Number),
                 cosXP: {
                   oldXP: 0,
                   gainXP: any(Number)

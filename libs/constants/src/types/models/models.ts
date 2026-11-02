@@ -570,16 +570,7 @@ export interface LeaderboardRun {
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;
-  /**
-   * Rank points this run is worth. Only present for runs on leaderboards that
-   * award points (RANKED main tracks on approved maps), and only on endpoints
-   * that look them up.
-   */
   points?: number;
-  /**
-   * Total number of runs on the run's leaderboard. Only present on endpoints
-   * that look it up (e.g. a user's runs).
-   */
   totalRuns?: number;
   userID: number;
   user?: User;
@@ -686,7 +677,6 @@ export namespace RunSplits {
 }
 
 export interface XpGain {
-  // rankXP: number;
   cosXP: {
     gainLvl: number;
     oldXP: number;

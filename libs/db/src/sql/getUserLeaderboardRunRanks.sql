@@ -5,16 +5,8 @@
 -- @param $5:styles Array of styles
 -- @param $6:times Array of the runs' times
 -- @param $7:createdAts Array of the runs' createdAt, as ISO strings
-
--- For a set of runs (given as parallel arrays of their leaderboard, time and
--- createdAt), returns each run's rank on its leaderboard and the total number
--- of runs on it. Used to decorate a page of a user's runs without a query per
--- run.
---
--- The caller already has each run's time and createdAt, so they're passed in
--- rather than looked up: the planner reaches a user's run through the
--- leaderboard-order index and filters on userID, reading every run on the
--- leaderboard. Both counts are index-only scans of that index.
+-- Times and createdAts are passed in rather than looked up, as finding a user's
+-- run means reading every run on its leaderboard
 WITH runs AS (
     SELECT
         *
