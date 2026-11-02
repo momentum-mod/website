@@ -47,8 +47,6 @@ export class ProfileRunsComponent implements OnChanges {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly GamemodeInfo = GamemodeInfo;
-  protected readonly TrackType = TrackType;
-  protected readonly TrackTypeName = TrackTypeName;
 
   @Input({ required: true }) userID: number;
 
