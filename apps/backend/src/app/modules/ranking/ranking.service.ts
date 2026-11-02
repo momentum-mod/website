@@ -32,25 +32,18 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { ValkeyService } from '../valkey/valkey.service';
 import { isFirstWorker } from '../../../clustered';
 import { UserCacheService } from '../user-cache/user-cache.service';
-import { PagedResponseDto, RankEntryDto, UserRankDto } from '../../dto';
+import {
+  DtoFactory,
+  PagedResponseDto,
+  RankEntryDto,
+  UserRankDto
+} from '../../dto';
 import {
   parseLeaderboard,
   RankPointsKeys,
   serializeLeaderboard
 } from './rank-points.keys';
 import { COMMIT_RANK_POINTS_LUA, RELEASE_LOCK_LUA } from './rank-points.lua';
-import { Result } from 'iovalkey';
-
-// Custom commands registered in onModuleInit via defineCommand.
-declare module 'iovalkey' {
-  interface RedisCommander<Context> {
-    rankPointsCommit(
-      numberOfKeys: number,
-      ...keys: string[]
-    ): Result<number, Context>;
-    rankPointsReleaseLock(key: string, token: string): Result<number, Context>;
-  }
-}
 
 /** How many leaderboards to stage before committing them in one batch. */
 const BATCH_SIZE = 100;
@@ -65,11 +58,8 @@ interface LeaderboardEligibility {
   type: LeaderboardType | number;
 }
 
-/** How a leaderboard's runs are scored. See `RankingService.getTrackScoring`. */
 export interface TrackScoring {
-  /** Tier to score at. Stages use their main track's. */
   tier: number;
-  /** Track weight, see `getTrackWeight`. */
   weight: number;
 }
 
@@ -470,10 +460,6 @@ export class RankingService implements OnModuleInit {
 
   //#region Reads
 
-  /**
-   * A page of a gamemode+style ladder. With `around`, the page is centered on
-   * the logged-in user's position.
-   */
   async getLadder(
     gamemode: Gamemode,
     style: Style,
@@ -520,9 +506,6 @@ export class RankingService implements OnModuleInit {
     return new PagedResponseDto(RankEntryDto, [data, totalCount]);
   }
 
-  /**
-   * A user's rank on every ladder they have points on.
-   */
   async getUserRanks(userID: number): Promise<UserRankDto[]> {
     if (!(await this.userCache.exists(userID)))
       throw new NotFoundException('User not found');
@@ -545,13 +528,15 @@ export class RankingService implements OnModuleInit {
       const position = results[i * 3][1] as number | null;
       if (position === null) continue;
 
-      ranks.push({
-        gamemode,
-        style,
-        rank: position + 1,
-        points: Number(results[i * 3 + 1][1]),
-        totalPlayers: results[i * 3 + 2][1] as number
-      });
+      ranks.push(
+        DtoFactory(UserRankDto, {
+          gamemode,
+          style,
+          rank: position + 1,
+          points: Number(results[i * 3 + 1][1]),
+          totalPlayers: results[i * 3 + 2][1] as number
+        })
+      );
     }
 
     return ranks;
@@ -576,9 +561,6 @@ export class RankingService implements OnModuleInit {
     return scores.map((score) => (score === null ? undefined : Number(score)));
   }
 
-  /**
-   * Committed points for one user across several leaderboards, in input order.
-   */
   async getUserTrackPoints(
     userID: number,
     leaderboards: LeaderboardIdentifier[]

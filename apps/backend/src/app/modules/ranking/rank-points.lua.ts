@@ -1,12 +1,19 @@
-/**
- * Lua scripts for rank points. Run server-side so each is atomic with respect
- * to every other Valkey command, which the commit step relies on: nothing can
- * stage new points for a track between the ZUNIONSTORE reading the staging set
- * and the RENAME promoting it.
- */
+import { Result } from 'iovalkey';
+
+// Registered in RankingService.onModuleInit via defineCommand.
+declare module 'iovalkey' {
+  interface RedisCommander<Context> {
+    rankPointsCommit(
+      numberOfKeys: number,
+      ...keys: string[]
+    ): Result<number, Context>;
+    rankPointsReleaseLock(key: string, token: string): Result<number, Context>;
+  }
+}
 
 /**
- * Commit staged track points to a ladder.
+ * Commit staged track points to a ladder. Done in Lua so nothing can stage new
+ * points for a track between the ZUNIONSTORE and the RENAME.
  *
  * KEYS[1]            ladder key
  * KEYS[2i], KEYS[2i+1] (track key, staging key) pairs for each leaderboard

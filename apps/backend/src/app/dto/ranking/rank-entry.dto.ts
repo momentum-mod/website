@@ -16,7 +16,7 @@ export class RankEntryDto implements RankEntry {
   @ApiProperty({
     type: Number,
     description:
-      'Total rank points across every ranked main track for this gamemode and style'
+      'Total rank points across every ranked leaderboard for this gamemode and style'
   })
   @IsInt()
   @Min(0)

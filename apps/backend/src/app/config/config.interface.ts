@@ -47,10 +47,6 @@ export interface ConfigInterface {
     secretAccessKey: string;
   };
   db: {
-    /**
-     * Max connections in each process's Postgres pool. In clustered mode every
-     * worker has its own pool, so the total is this times the worker count.
-     */
     poolSize: number;
   };
   valkey: {
