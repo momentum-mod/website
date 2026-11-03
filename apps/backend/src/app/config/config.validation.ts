@@ -106,6 +106,14 @@ export class ConfigValidation {
   @IsOptionalWithEmptyString()
   readonly TWITCH_STREAMS_UPDATE_SCHEDULE?: string;
 
+  @IsNumberString()
+  @IsOptionalWithEmptyString()
+  readonly THROTTLE_TTL?: string;
+
+  @IsNumberString()
+  @IsOptionalWithEmptyString()
+  readonly THROTTLE_LIMIT?: string;
+
   @IsString()
   @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
   @IsOptional()

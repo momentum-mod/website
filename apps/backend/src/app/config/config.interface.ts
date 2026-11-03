@@ -77,6 +77,7 @@ export interface ConfigInterface {
     clientSecret: string;
     streamsUpdateSchedule: string;
   };
+  throttle: { ttl: number; limit: number };
   mapListUpdateSchedule: string;
   sitemapMaxAge: string;
   logLevel: pino.LevelWithSilent;

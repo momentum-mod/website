@@ -115,6 +115,11 @@ export const ConfigFactory = (): ConfigInterface => {
       streamsUpdateSchedule:
         process.env['TWITCH_STREAMS_UPDATE_SCHEDULE'] ?? '*/5 * * * *'
     },
+    // Only applied in production; throttling is disabled in dev and test.
+    throttle: {
+      ttl: +(process.env['THROTTLE_TTL'] || 60),
+      limit: +(process.env['THROTTLE_LIMIT'] || 200)
+    },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',
     sitemapMaxAge: process.env['SITEMAP_MAX_AGE'] ?? '600',

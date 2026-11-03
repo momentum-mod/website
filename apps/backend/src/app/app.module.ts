@@ -46,16 +46,13 @@ import { IncomingMessage, ServerResponse } from 'node:http';
             ? []
             : [
                 // If request limit is exceeded within the ttl, deny by throwing exception.
-                // These throttlers are provided globally, but apply to each endpoint individually.
+                // This throttler is provided globally, but applies to each endpoint individually.
                 // If any endpoint needs to exceed the limit, consider redesigning it or
                 // override it with @SkipThrottle or @Throttle on the endpoint or whole controller.
-                // IMPORTANT: Throttlers MUST be named if multiple are used at
-                // the same time, otherwise collisions will occurr resulting in using
-                // the smallest limit with the highest ttl.
-                // Note that with names you must specify them in the endpoint/controller
-                // overrides, as they are omitted by default.
-                { name: 'short', ttl: seconds(1), limit: 20 },
-                { name: 'long', ttl: seconds(60), limit: 200 }
+                {
+                  ttl: seconds(config.getOrThrow('throttle.ttl')),
+                  limit: config.getOrThrow('throttle.limit')
+                }
               ]
         // This only limits per-instance; we could store in Valkey instead in the future if needed.
         // Though if we're deploying multiple servers it'd have to be per-cluster -- latency

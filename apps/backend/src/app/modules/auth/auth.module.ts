@@ -37,7 +37,7 @@ import { UserIPThrottlerGuard } from './user-ip-throttler.guard';
       useClass: LimitedGuard
     },
     {
-      // Provide throttler guard here instread of the app module
+      // Provide throttler guard here instead of the app module
       // so that it runs after the request user is set
       provide: APP_GUARD,
       useClass: UserIPThrottlerGuard
