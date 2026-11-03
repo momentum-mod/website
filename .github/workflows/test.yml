@@ -32,7 +32,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -67,7 +67,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -113,7 +113,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -149,7 +149,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -184,7 +184,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -269,7 +269,7 @@ jobs:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
