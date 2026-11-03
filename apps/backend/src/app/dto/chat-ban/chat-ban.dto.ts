@@ -129,14 +129,15 @@ export class PlayerChatBansDto implements PlayerChatBans {
   @NestedProperty(PlayerChatBanDto, {
     isArray: true,
     required: true,
-    description: "The player's active bans. Empty if they have none"
+    description:
+      "The player's active bans. Only empty in an update, when their last ban has been revoked"
   })
   readonly bans: PlayerChatBanDto[];
 }
 
 /**
- * Response to `chatbans.get`, with an entry for every queried player, including
- * those with no bans or no account.
+ * Response to `chatbans.get`, with an entry for each queried player that has
+ * active bans. Players with none, or no account, are left out.
  */
 export class PlayerChatBansListDto implements PlayerChatBansList {
   @NestedProperty(PlayerChatBansDto, { isArray: true, required: true })
