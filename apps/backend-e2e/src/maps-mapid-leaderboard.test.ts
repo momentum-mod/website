@@ -2,6 +2,7 @@ import { mock, after, before, describe, it } from 'node:test';
 import {
   assertValidDto,
   futureDateOffset,
+  matchesPartial,
   NULL_ID
 } from '@momentum/test-utils';
 import * as assert from 'node:assert/strict';
@@ -219,26 +220,45 @@ describe('Maps', () => {
         await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
       });
 
-      it('should return a list of ranks around your rank', async () => {
+      it('should return the page-aligned window containing your rank', async () => {
         const res = await req.get({
           url: `maps/${map.id}/leaderboard`,
           query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
           status: 200,
           token: u7Token,
-          validatePaged: { type: LeaderboardRunDto, returnCount: 9 }
+          validatePaged: { type: LeaderboardRunDto, returnCount: 8 }
         });
 
-        // We're calling as user 7, taking 4 on each side, so we expect ranks
-        // 3, 4, 5, 6, our rank, 8, 9, 10, 11
-        let rankIndex = 3;
+        // We're calling as user 7 (rank 7) with a page size of 8, so our PB is
+        // on page 0 (ranks 1-8). We expect exactly that page back.
+        let rankIndex = 1;
         for (const rank of res.body.data) {
           assertValidDto(rank, LeaderboardRunDto);
           assert.equal(rank.rank, rankIndex);
           rankIndex++;
         }
-        // Last tested was 11, then incremented once more, should be sitting on
-        // 12.
-        assert.equal(rankIndex, 12);
+        // Last tested was 8, then incremented once more, should be sitting on 9.
+        assert.equal(rankIndex, 9);
+      });
+
+      it('should return the correct page when your rank is past the first page', async () => {
+        // runs[14].user is rank 15; with page size 8 that's page 1 (ranks 9-16).
+        const u15Token = auth.login(runs[14].user);
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
+          status: 200,
+          token: u15Token,
+          validatePaged: { type: LeaderboardRunDto, returnCount: 8 }
+        });
+
+        let rankIndex = 9;
+        for (const rank of res.body.data) {
+          assertValidDto(rank, LeaderboardRunDto);
+          assert.equal(rank.rank, rankIndex);
+          rankIndex++;
+        }
+        assert.equal(rankIndex, 17);
       });
 
       it('should 401 when no access token is provided', async () => {
@@ -279,7 +299,7 @@ describe('Maps', () => {
         });
       });
 
-      it("should return a list of the user's Steam friend's ranks", async () => {
+      it("should return a list of the user's and their Steam friend's ranks", async () => {
         // Mock the call to Steam's API
         mock
           .method(steamService, 'getSteamFriends')
@@ -296,10 +316,12 @@ describe('Maps', () => {
           query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 200,
           token,
-          validatePaged: { type: LeaderboardRunDto, count: 10 }
+          validatePaged: { type: LeaderboardRunDto, count: 11 }
         });
 
-        for (const run of res.body.data)
+        const [ownRun, ...friendRuns] = res.body.data;
+        assert.ok(matchesPartial(ownRun, { userID: user.id, rank: 1 }));
+        for (const run of friendRuns)
           assert.ok(mockSteamIDs.includes(BigInt(run.user.steamID)));
       });
 

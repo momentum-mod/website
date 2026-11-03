@@ -538,25 +538,8 @@ export class MapsService {
       include
     });
 
-    if (query.personalBest) {
-      if (!userID) {
-        throw new ForbiddenException(
-          'personalBest query is invalid without a login'
-        );
-      }
-
-      map.personalBest = await this.leaderboardRunsDbService.getRankedRun({
-        mapID: map.id,
-        userID: userID,
-        gamemode: query.personalBest[0],
-        trackType: query.personalBest[1],
-        trackNum: query.personalBest[2],
-        style: query.personalBest[3]
-      });
-    }
-
     if (query.worldRecord) {
-      map.worldRecord = (
+      const wr = (
         await this.leaderboardRunsDbService.getRankedRuns({
           mapID: map.id,
           gamemode: query.worldRecord[0],
@@ -567,6 +550,31 @@ export class MapsService {
           take: 1
         })
       )[0];
+
+      map.worldRecord = wr
+        ? {
+            gamemode: wr.gamemode,
+            trackType: wr.trackType,
+            trackNum: wr.trackNum,
+            style: wr.style,
+            time: wr.time,
+            steamID: wr.user.steamID.toString()
+          }
+        : undefined;
+    }
+
+    if (query.personalBests) {
+      if (!userID) {
+        throw new ForbiddenException(
+          'personalBests query is invalid without a login'
+        );
+      }
+
+      map.personalBests =
+        await this.leaderboardRunsDbService.getMapUserPersonalBests({
+          mapID: map.id,
+          userID
+        });
     }
 
     return DtoFactory(MapDto, map);

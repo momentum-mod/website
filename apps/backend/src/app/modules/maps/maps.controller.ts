@@ -59,6 +59,8 @@ import {
   CreateMapTestInviteDto,
   CreateMapWithFilesDto,
   LeaderboardRunDto,
+  MapCompletionDto,
+  MapCompletionsGetQueryDto,
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
@@ -645,6 +647,26 @@ export class MapsController {
     @Query() query?: MapLeaderboardGetRunQueryDto
   ): Promise<LeaderboardRunDto> {
     return this.runsService.getRun(mapID, query, userID);
+  }
+
+  @Get('/:mapID/user-completions')
+  @ApiOperation({
+    summary: "Returns the logged-in user's completion status on every track"
+  })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiOkResponse({ type: MapCompletionDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'Map was not found' })
+  getUserCompletions(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
+    @Query() query: MapCompletionsGetQueryDto
+  ): Promise<MapCompletionDto[]> {
+    return this.runsService.getMapUserCompletions(mapID, query, userID);
   }
 
   @Get('/:mapID/leaderboardStats')

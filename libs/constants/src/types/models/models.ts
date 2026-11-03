@@ -219,10 +219,20 @@ export interface MMap {
   credits: MapCredit[];
   favorites: MapFavorite[];
   leaderboards: Leaderboard[];
-  worldRecord: LeaderboardRun;
-  personalBest: LeaderboardRun;
+  worldRecord: MapLeaderboardTime;
+  personalBests?: MapLeaderboardTime[];
   testInvites?: MapTestInvite[];
   reviewStats?: MapReviewStats;
+}
+
+export interface MapLeaderboardTime {
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+  time: number;
+  /** Only set on {@link MMap.worldRecord} */
+  steamID?: string;
 }
 
 export interface MapVersion {
@@ -491,6 +501,14 @@ export interface Leaderboard {
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;
+}
+
+export interface MapCompletion {
+  trackType: TrackType;
+  trackNum: number;
+  totalCompletions: number;
+  /** Null if the user hasn't completed the track */
+  rank: number | null;
 }
 
 export interface LeaderboardRun {

@@ -31,11 +31,11 @@ import {
 } from '../decorators';
 import { IsMapName } from '../../validators';
 import { LeaderboardDto } from '../run/leaderboard.dto';
-import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
 import { MapImageDto } from './map-image.dto';
 import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
+import { MapLeaderboardTimeDto } from './map-leaderboard-time.dto';
 import { MapStatsDto } from './map-stats.dto';
 import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
@@ -124,11 +124,11 @@ export class MapDto implements MMap {
   @NestedProperty(LeaderboardDto, { isArray: true })
   readonly leaderboards: LeaderboardDto[];
 
-  @NestedProperty(LeaderboardRunDto, { lazy: true })
-  readonly worldRecord: LeaderboardRunDto;
+  @NestedProperty(MapLeaderboardTimeDto, { lazy: true })
+  readonly worldRecord: MapLeaderboardTimeDto;
 
-  @NestedProperty(LeaderboardRunDto, { lazy: true })
-  readonly personalBest: LeaderboardRunDto;
+  @NestedProperty(MapLeaderboardTimeDto, { lazy: true, isArray: true })
+  readonly personalBests: MapLeaderboardTimeDto[];
 
   @NestedProperty(MapTestInviteDto, { lazy: true, isArray: true })
   readonly testInvites?: MapTestInviteDto[];

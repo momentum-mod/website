@@ -11,6 +11,8 @@ import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
+  MapCompletionDto,
+  MapCompletionsGetQueryDto,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
@@ -80,10 +82,13 @@ export class LeaderboardRunsService {
           throw new GoneException('User has no runs on this leaderboard');
         }
 
-        // Start at your rank, then backtrack by half of `take`, then 1 for your rank
-        const skip = Math.max(rank - Math.floor(query.take / 2) - 1, 0);
-        // We include your rank, so increment `take` by 1.
-        const take = query.take + 1;
+        // Return the page-aligned window of `take` runs that contains the
+        // user's PB, using the same fixed page size the client paginates with.
+        // The client derives which page this is from its own row in the
+        // response (rank -> floor((rank - 1) / take)).
+        const page = Math.floor((rank - 1) / query.take);
+        const skip = page * query.take;
+        const take = query.take;
 
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
@@ -107,6 +112,12 @@ export class LeaderboardRunsService {
           throw new GoneException('No friends detected :(');
 
         steamIDs = steamFriends.map((item) => BigInt(item.steamid));
+
+        // Clients handle the user's own run being the only one returned
+        if (loggedInUserSteamID) {
+          steamIDs.push(loggedInUserSteamID);
+        }
+
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
           ...query,
@@ -196,6 +207,33 @@ export class LeaderboardRunsService {
     }
 
     throw new NotFoundException('Run not found');
+  }
+
+  async getMapUserCompletions(
+    mapID: number,
+    query: MapCompletionsGetQueryDto,
+    loggedInUserID: number
+  ): Promise<MapCompletionDto[]> {
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID: loggedInUserID
+    });
+
+    const rows = await this.leaderboardRunsDbService.getMapUserCompletions({
+      mapID,
+      gamemode: query.gamemode,
+      style: query.style,
+      userID: loggedInUserID
+    });
+
+    return rows.map((row) =>
+      DtoFactory(MapCompletionDto, {
+        trackType: row.trackType,
+        trackNum: row.trackNum,
+        totalCompletions: row.totalCompletions,
+        rank: row.rank
+      })
+    );
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {
