@@ -1,5 +1,12 @@
 import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  computed,
+  signal
+} from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import {
   MapStatuses,
@@ -14,11 +21,11 @@ import {
   SteamGamesNames,
   SteamGamesImages
 } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { MessageService } from '@openng/optimus-ui/api';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { GroupedMapCredits, GroupedMapLeaderboards } from '../../../util';
+import { GroupedMapCredits } from '../../../util';
 import * as Enum from '@momentum/enum';
 import { MapSubmissionComponent } from './map-submission/map-submission.component';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
@@ -97,27 +104,28 @@ export class MapInfoComponent implements OnInit {
   protected readonly MapStatusName = MapStatusName;
   protected readonly downloadZoneFile = downloadZoneFile;
 
-  protected loading = false;
-  protected displayFullscreenGallery = false;
+  protected readonly loading = signal(false);
 
-  map: MMap;
+  // Note: favourite toggling adjusts map.stats in place rather than replacing
+  // the map, since a new map reference resets child components (e.g. the
+  // leaderboard's selected mode); the view still refreshes via inFavorites.
+  protected readonly map = signal<MMap | null>(null);
 
-  name: string;
-  prefix: string | null;
-  leaderboards: GroupedMapLeaderboards;
-  credits: GroupedMapCredits;
-  images: GalleryItem[];
-  selectedImage: GalleryItem;
-  requiredGamesNames: string[];
-  requiredGamesImages: string[];
+  protected readonly name = signal<string | null>(null);
+  protected readonly prefix = signal<string | null>(null);
+  protected readonly credits = signal<GroupedMapCredits | null>(null);
+  protected readonly images = signal<GalleryItem[]>([]);
+  protected readonly selectedImage = signal<GalleryItem | null>(null);
+  protected readonly requiredGamesNames = signal<string[]>([]);
+  protected readonly requiredGamesImages = signal<string[]>([]);
 
-  notify: MapNotify;
-  notifications = false;
-  inFavorites = false;
-  isSubmitter: boolean;
-  inSubmission: boolean;
+  private notify: MapNotify;
+  protected readonly notifications = signal(false);
+  protected readonly inFavorites = signal(false);
+  protected readonly isSubmitter = signal(false);
+  protected readonly inSubmission = signal(false);
 
-  currentSection = MapInfoSection.SUBMISSION;
+  protected readonly currentSection = signal(MapInfoSection.SUBMISSION);
 
   /**
    * Whether to show the "Edit Map" button.
@@ -125,15 +133,16 @@ export class MapInfoComponent implements OnInit {
    * submitters can edit during submission.
    * Reviewers can only edit maps in public testing, or use the status control on maps in content approval.
    */
-  get canEditMap() {
+  protected readonly canEditMap = computed(() => {
     if (this.localUserService.isModOrAdmin) return true;
-    if (this.isSubmitter && this.inSubmission) return true;
+    if (this.isSubmitter() && this.inSubmission()) return true;
+    const status = this.map()?.status;
     return (
       this.localUserService.isReviewerOrAbove &&
-      (this.map.status === MapStatus.PUBLIC_TESTING ||
-        this.map.status === MapStatus.CONTENT_APPROVAL)
+      (status === MapStatus.PUBLIC_TESTING ||
+        status === MapStatus.CONTENT_APPROVAL)
     );
-  }
+  });
   sections = Enum.values(MapInfoSection);
 
   ngOnInit() {
@@ -143,7 +152,7 @@ export class MapInfoComponent implements OnInit {
 
     this.route.paramMap
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((params: ParamMap) =>
           this.mapService.getMap(params.get('name'), {
             expand: [
@@ -170,42 +179,45 @@ export class MapInfoComponent implements OnInit {
       .subscribe({
         next: (map) => {
           this.setMap(map);
-          this.loading = false;
+          this.loading.set(false);
         },
         error: () => this.router.navigate(['/404'])
       });
   }
 
   setMap(map: MMap) {
-    this.map = map;
+    this.map.set(map);
 
     if (!map) this.router.navigate(['/404']);
 
-    this.titleService.setTitle(this.map.name);
+    this.titleService.setTitle(map.name);
 
     const [name, prefix] = extractPrefixFromMapName(map.name);
-    this.name = name;
-    this.prefix = prefix;
-    this.credits = new GroupedMapCredits(
-      this.map.credits ?? [],
-      this.map.submission?.placeholders ?? []
+    this.name.set(name);
+    this.prefix.set(prefix);
+    this.credits.set(
+      new GroupedMapCredits(
+        map.credits ?? [],
+        map.submission?.placeholders ?? []
+      )
     );
-    this.inSubmission = MapStatuses.IN_SUBMISSION.includes(map.status);
+    this.inSubmission.set(MapStatuses.IN_SUBMISSION.includes(map.status));
     // Show Review section first if in review, otherwise leaderboards.
-    this.currentSection =
-      this.map.status === MapStatus.APPROVED
+    this.currentSection.set(
+      map.status === MapStatus.APPROVED
         ? MapInfoSection.LEADERBOARDS
-        : MapInfoSection.SUBMISSION;
+        : MapInfoSection.SUBMISSION
+    );
 
-    this.setImages(this.map.images, this.map.info.youtubeID);
+    this.setImages(map.images, map.info.youtubeID);
 
-    this.layoutService.setBackgroundImage(this.map.thumbnail?.large);
+    this.layoutService.setBackgroundImage(map.thumbnail?.large);
 
     if (this.localUserService.isLoggedIn) {
-      this.localUserService.checkMapNotify(this.map.id).subscribe({
+      this.localUserService.checkMapNotify(map.id).subscribe({
         next: (resp) => {
           this.notify = resp;
-          if (resp) this.notifications = true;
+          if (resp) this.notifications.set(true);
         },
         error: (error) => {
           if (error.status !== 404)
@@ -218,29 +230,34 @@ export class MapInfoComponent implements OnInit {
       });
     }
 
-    this.requiredGamesNames = this.map.info.requiredGames.map(
-      (app) => SteamGamesNames.get(app) ?? app.toString()
+    this.requiredGamesNames.set(
+      map.info.requiredGames.map(
+        (app) => SteamGamesNames.get(app) ?? app.toString()
+      )
     );
-    this.requiredGamesImages = this.map.info.requiredGames
-      .map((app) => SteamGamesImages.get(app) ?? null)
-      .filter((url) => Boolean(url));
+    this.requiredGamesImages.set(
+      map.info.requiredGames
+        .map((app) => SteamGamesImages.get(app) ?? null)
+        .filter((url) => Boolean(url))
+    );
 
     // In favourites iff num mapfavorites entries for user > 0. sorry
-    this.inFavorites = this.map.favorites?.length > 0;
+    this.inFavorites.set(map.favorites?.length > 0);
 
-    this.isSubmitter =
-      this.map.submitterID === this.localUserService.user.value?.id;
+    this.isSubmitter.set(
+      map.submitterID === this.localUserService.user.value?.id
+    );
   }
 
   setImages(images: MapImage[], youtubeID?: string) {
-    this.images = images.map(({ small, large }) => ({
+    const items: GalleryItem[] = images.map(({ small, large }) => ({
       type: 'image',
       full: large,
       thumbnail: small
     }));
 
     if (youtubeID) {
-      this.images.unshift({
+      items.unshift({
         type: 'youtube',
         safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://www.youtube.com/embed/${youtubeID}?enablejsapi=1`
@@ -251,22 +268,22 @@ export class MapInfoComponent implements OnInit {
       });
     }
 
-    this.selectedImage = this.images[0];
+    this.images.set(items);
+    this.selectedImage.set(items[0]);
   }
 
   toggleFavorite() {
-    if (this.inFavorites) {
-      this.localUserService
-        .removeMapFromFavorites(this.map.id)
-        .subscribe(() => {
-          this.inFavorites = false;
-          this.map.stats.favorites--;
-        });
+    const map = this.map();
+    if (this.inFavorites()) {
+      this.localUserService.removeMapFromFavorites(map.id).subscribe(() => {
+        map.stats.favorites--;
+        this.inFavorites.set(false);
+      });
     } else {
-      this.localUserService.addMapToFavorites(this.map.id).subscribe({
+      this.localUserService.addMapToFavorites(map.id).subscribe({
         next: () => {
-          this.inFavorites = true;
-          this.map.stats.favorites++;
+          map.stats.favorites++;
+          this.inFavorites.set(true);
         },
         error: (error) =>
           this.messageService.add({
@@ -290,10 +307,10 @@ export class MapInfoComponent implements OnInit {
         if (!response) return;
         if (response.newFlags === 0) {
           if (!this.notify) return;
-          this.localUserService.disableMapNotify(this.map.id).subscribe({
+          this.localUserService.disableMapNotify(this.map().id).subscribe({
             next: () => {
               this.notify.notifyOn = 0;
-              this.notifications = false;
+              this.notifications.set(false);
             },
             error: (error) =>
               this.messageService.add({
@@ -304,10 +321,10 @@ export class MapInfoComponent implements OnInit {
           });
         } else {
           this.localUserService
-            .updateMapNotify(this.map.id, response.newFlags)
+            .updateMapNotify(this.map().id, response.newFlags)
             .subscribe({
               next: (response) => {
-                this.notifications = true;
+                this.notifications.set(true);
                 if (!this.notify) this.notify = response;
                 else this.notify.notifyOn = response.newFlags;
               },

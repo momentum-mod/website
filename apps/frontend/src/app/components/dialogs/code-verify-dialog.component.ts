@@ -1,12 +1,9 @@
+import { Component, SecurityContext, inject, signal } from '@angular/core';
 import {
-  Component,
-  Input,
-  OnInit,
-  SecurityContext,
-  inject
-} from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'm-code-verify-dialog',
@@ -32,14 +29,14 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
         type="button"
         class="btn btn-red"
         (click)="submit()"
-        [disabled]="!this.isCodeValid"
+        [disabled]="!isCodeValid()"
       >
         {{ actionText }}
       </button>
     </div>
   `
 })
-export class CodeVerifyDialogComponent implements OnInit {
+export class CodeVerifyDialogComponent {
   protected readonly ref = inject(DynamicDialogRef);
   protected readonly config = inject<
     DynamicDialogConfig<{
@@ -47,40 +44,23 @@ export class CodeVerifyDialogComponent implements OnInit {
       actionText?: string;
     }>
   >(DynamicDialogConfig);
-  private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer = inject(DomSanitizer);
 
-  @Input() message: SafeHtml;
-  @Input() actionText = 'Delete';
-
-  protected randomCode: string;
-  protected isCodeValid: boolean;
-
-  ngOnInit(): void {
-    this.randomCode = this.generateNewCode();
-    this.isCodeValid = false;
-
-    if (this.config.data.actionText) {
-      this.actionText = this.config.data.actionText;
-    }
-
-    const sanitizedMessage = this.sanitizer.sanitize(
-      SecurityContext.HTML,
-      this.config.data.message
-    );
-    this.message = this.sanitizer.bypassSecurityTrustHtml(sanitizedMessage);
-  }
-
-  private generateNewCode(): string {
-    return Math.random().toString().slice(2, 8);
-  }
+  protected readonly message = this.sanitizer.bypassSecurityTrustHtml(
+    this.sanitizer.sanitize(SecurityContext.HTML, this.config.data.message)
+  );
+  protected readonly actionText = this.config.data.actionText || 'Delete';
+  protected readonly randomCode = Math.random().toString().slice(2, 8);
+  protected readonly isCodeValid = signal(false);
 
   onCodeInput(event: Event) {
-    this.isCodeValid =
-      (event.target as HTMLInputElement).value === this.randomCode;
+    this.isCodeValid.set(
+      (event.target as HTMLInputElement).value === this.randomCode
+    );
   }
 
   submit() {
-    if (!this.isCodeValid) return;
+    if (!this.isCodeValid()) return;
     this.ref.close(true);
   }
 }

@@ -12,17 +12,17 @@
     />
     <m-user-select formControlName="user" />
   </div>
-  <div [mSpinner]="loading">
+  <div [mSpinner]="loading()">
     <m-accordion [autoClose]="false" [startFirstOpen]="true">
-      @for (ca of compositeActivities; track ca.activity.id) {
+      @for (ca of compositeActivities(); track ca.activity.id) {
         <m-accordion-item [hasContent]="!!ca.entry.diff">
           <m-admin-activity-entry-header header [activity]="ca.activity" [activityData]="ca.entry" />
           <m-admin-activity-entry [activityData]="ca.entry" />
         </m-accordion-item>
       } @empty {
-        @if (!loading) {
+        @if (!loading()) {
           <p class="my-4 text-center text-2xl text-gray-100">
-            @if (totalRecords === -1) {
+            @if (totalRecords() === -1) {
               User is not an admin
             } @else {
               No activities found
@@ -33,9 +33,9 @@
     </m-accordion>
     <p-paginator
       (onPageChange)="pageChange.next($event)"
-      [first]="first"
+      [first]="first()"
       [rows]="rows"
-      [totalRecords]="totalRecords"
+      [totalRecords]="totalRecords()"
       [showCurrentPageReport]="true"
       [alwaysShow]="false"
     />

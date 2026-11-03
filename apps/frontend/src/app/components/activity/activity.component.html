@@ -1,16 +1,9 @@
-<m-card [title]="headerTitle" class="h-full">
+<m-card [title]="headerTitle()" class="h-full">
   <ng-container header>
     <span class="mr-2">Filter:</span>
-    <p-select
-      [options]="Types"
-      [(ngModel)]="filterValue"
-      optionLabel="label"
-      optionValue="value"
-      (onChange)="filterActivities()"
-      appendTo="body"
-    />
+    <p-select [options]="Types" [(ngModel)]="filterValue" optionLabel="label" optionValue="value" appendTo="body" />
   </ng-container>
-  <div [mSpinner]="loading" [ngStyle]="{ height }" class="infinite-scroll-container scroll-thin overflow-y-scroll pr-4">
+  <div [mSpinner]="loading()" [ngStyle]="{ height: height() }" class="infinite-scroll-container scroll-thin overflow-y-scroll pr-4">
     <div
       infinite-scroll
       [infiniteScrollDistance]="2"
@@ -19,11 +12,11 @@
       [fromRoot]="true"
       (scrolled)="load.next()"
     >
-      @for (item of filteredActivities; track item.id) {
+      @for (item of filteredActivities(); track item.id) {
         <m-activity-content [activity]="item" />
       } @empty {
-        @if (!loading) {
-          @if (activities.length === 0 && !loading) {
+        @if (!loading()) {
+          @if (activities().length === 0) {
             <p class="italics m-8 h-8 text-center text-2xl text-gray-400">No activities found</p>
           }
         }

@@ -1,17 +1,17 @@
 import {
   Component,
   ElementRef,
-  Input,
   OnInit,
   TemplateRef,
-  ViewChild,
   inject,
-  Output,
-  EventEmitter
+  input,
+  output,
+  signal,
+  viewChild
 } from '@angular/core';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
-import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorModule } from '@openng/optimus-ui/paginator';
 import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { UsersService } from '../../services/data/users.service';
@@ -51,8 +51,8 @@ export class UserSearchComponent
 
   protected readonly Role = Role;
   public itemsName = 'users';
-  protected searchBySteam = false;
-  protected selectedIdx = 0;
+  protected readonly searchBySteam = signal(false);
+  protected readonly selectedIdx = signal(0);
   protected readonly anchorName = `--userSearch-${Math.random().toString(36).substring(2, 12)}`;
 
   /**
@@ -60,23 +60,23 @@ export class UserSearchComponent
    * component wants to select a user, not view this profile (e.g. credits
    * picker)
    */
-  @Input() showProfileButton = false;
-  @Input() useOverlay = true;
+  readonly showProfileButton = input(false);
+  readonly useOverlay = input(true);
 
   /**
    * If set, will be put after default no results/error message,
    * and paginator if results found.
    */
-  @Input() appendTemplate?: TemplateRef<any>;
+  readonly appendTemplate = input<TemplateRef<any>>();
 
-  @Output() addPlaceholder?: EventEmitter<void> = new EventEmitter();
+  readonly addPlaceholder = output<void>();
 
-  @ViewChild('searchMain') mainEl: ElementRef;
-  @ViewChild('searchOverlay') overlay: PopoverComponent;
+  readonly mainEl = viewChild<ElementRef>('searchMain');
+  readonly overlay = viewChild<PopoverComponent>('searchOverlay');
 
   searchRequest(searchString: string) {
-    this.selectedIdx = 0;
-    if (this.searchBySteam) {
+    this.selectedIdx.set(0);
+    if (this.searchBySteam()) {
       if (
         Number.isNaN(+searchString) ||
         BigInt(searchString.toString()) >= BigInt(2 ** 63)
@@ -89,7 +89,7 @@ export class UserSearchComponent
       return this.usersService.getUsers({
         search: searchString,
         take: this.rows,
-        skip: this.first
+        skip: this.first()
       });
     }
   }
@@ -99,31 +99,31 @@ export class UserSearchComponent
   }
 
   onKeydown(event: KeyboardEvent) {
+    const found = this.found();
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.selectedIdx = (this.selectedIdx + 1) % this.found.length;
+      this.selectedIdx.update((idx) => (idx + 1) % found.length);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.selectedIdx =
-        (this.selectedIdx - 1 + this.found.length) % this.found.length;
+      this.selectedIdx.update((idx) => (idx - 1 + found.length) % found.length);
     } else if (event.key === 'Enter') {
       if (
         this.search.value.length > 0 &&
-        this.found.length === 0 &&
-        this.appendTemplate &&
+        found.length === 0 &&
+        this.appendTemplate() &&
         this.addPlaceholder
       ) {
         this.addPlaceholder.emit();
       } else {
-        this.onSelected(this.found[this.selectedIdx]);
+        this.onSelected(found[this.selectedIdx()]);
       }
     }
   }
 
   override ngOnInit() {
-    if (this.useOverlay) {
+    if (this.useOverlay()) {
       this.search.valueChanges.subscribe((value) =>
-        value?.length > 0 ? this.overlay.show() : this.overlay.hide()
+        value?.length > 0 ? this.overlay().show() : this.overlay().hide()
       );
     }
 

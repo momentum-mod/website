@@ -3,7 +3,7 @@
     <form (ngSubmit)="createUser()" [formGroup]="userForm">
       <h4>Create Placeholder User</h4>
       <input class="textinput my-2" type="text" formControlName="alias" />
-      <button class="btn btn-blue" type="submit" [disabled]="alias.invalid">Submit</button>
+      <button class="btn btn-blue" type="submit" [disabled]="aliasInvalid()">Submit</button>
     </form>
 
     <form (ngSubmit)="makeAnnouncement()" [formGroup]="announcementForm">
@@ -16,13 +16,11 @@
           dynamicTextareaHeight
           formControlName="message"
         ></textarea>
-        @if (announcementForm.value.message.length > 0) {
-          <span class="ml-2 mt-1 text-sm"
-            >{{ MAX_ADMIN_ANNOUNCEMENT_LENGTH - announcementForm.value.message.length | plural: 'character' }} remaining</span
-          >
+        @if (messageLength() > 0) {
+          <span class="ml-2 mt-1 text-sm">{{ MAX_ADMIN_ANNOUNCEMENT_LENGTH - messageLength() | plural: 'character' }} remaining</span>
         }
       </div>
-      <button class="btn btn-blue" type="submit" [disabled]="message.invalid">Submit</button>
+      <button class="btn btn-blue" type="submit" [disabled]="messageInvalid()">Submit</button>
     </form>
 
     <form (ngSubmit)="showKillswitchesVerifyDialog()" [formGroup]="killswitchForm">

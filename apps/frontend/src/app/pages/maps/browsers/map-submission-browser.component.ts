@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
@@ -19,10 +19,10 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { MapsService } from '../../../services/data/maps.service';
@@ -57,8 +57,14 @@ export class MapSubmissionBrowserComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly nnfb = inject(NonNullableFormBuilder);
 
-  // Default for users. More options get added if user is mod/admin.
-  protected StatusDropdown = [
+  // Mods/admins also get the earlier submission stages.
+  protected readonly StatusDropdown = [
+    ...(this.localUserService.isModOrAdmin
+      ? [
+          { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
+          { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' }
+        ]
+      : []),
     { type: MapStatus.PUBLIC_TESTING, label: 'Public Testing' },
     { type: MapStatus.FINAL_APPROVAL, label: 'Final Approval' }
   ];
@@ -100,23 +106,15 @@ export class MapSubmissionBrowserComponent implements OnInit {
     sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
-  protected maps: MMap[] = [];
+  protected readonly maps = signal<MMap[]>([]);
 
   private skip = 0;
-  protected loading = false;
-  protected loadMore = new Subject<void>();
+  protected readonly loading = signal(false);
+  protected readonly loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
-    if (this.localUserService.isModOrAdmin) {
-      this.StatusDropdown = [
-        { type: MapStatus.PRIVATE_TESTING, label: 'Private Testing' },
-        { type: MapStatus.CONTENT_APPROVAL, label: 'Content Approval' },
-        ...this.StatusDropdown
-      ];
-    }
-
     setupPersistentForm(
       this.filters,
       'SUBMISSION_MAPS_FILTERS',
@@ -126,13 +124,13 @@ export class MapSubmissionBrowserComponent implements OnInit {
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
-        filter(() => !this.loading),
+        filter(() => !this.loading()),
         map(() => this.itemsPerLoad)
       ),
       this.filters.valueChanges.pipe(
         debounceTime(200),
         tap(() => {
-          this.maps = [];
+          this.maps.set([]);
           this.skip = 0;
         }),
         map(() => this.initialItems)
@@ -140,7 +138,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
     )
       .pipe(
         filter(() => this.filters.valid),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((take) => {
           const {
             name,
@@ -185,9 +183,9 @@ export class MapSubmissionBrowserComponent implements OnInit {
       )
       .subscribe({
         next: (res: PagedResponse<MMap>) => {
-          this.maps.push(...res.data);
+          this.maps.update((maps) => [...maps, ...res.data]);
           this.skip += res.returnCount;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -195,7 +193,7 @@ export class MapSubmissionBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

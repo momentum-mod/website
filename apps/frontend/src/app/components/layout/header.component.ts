@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MenuItem } from '@openng/optimus-ui/api';
 import { LayoutService } from '../../services/layout.service';
 import { MultiSearchComponent } from '../search/multi-search.component';
 import { PlayerCardComponent } from '../player-card/player-card.component';
 import { LocalUserService } from '../../services/data/local-user.service';
-import { MenuModule } from 'primeng/menu';
+import { MenuModule } from '@openng/optimus-ui/menu';
 import { IconComponent } from '../../icons';
-import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { NotificationsMenuComponent } from '../notifications/notifications-menu.component';
 import { PopoverComponent } from '../popover/popover.component';
@@ -20,49 +20,46 @@ import { PopoverComponent } from '../popover/popover.component';
     PlayerCardComponent,
     MenuModule,
     IconComponent,
-    AsyncPipe,
     RouterLink,
     NotificationsMenuComponent,
     PopoverComponent
   ]
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   protected readonly localUserService = inject(LocalUserService);
   private readonly layoutService = inject(LayoutService);
 
-  protected unreadNotificationsCount = 0;
+  protected readonly user = toSignal(this.localUserService.user);
 
-  protected profileDropdownMenu: MenuItem[] = [];
+  protected readonly unreadNotificationsCount = signal(0);
 
-  protected markingAsReadEnabled = false;
+  protected readonly profileDropdownMenu = computed<MenuItem[]>(() => {
+    const userID = this.user()?.id;
+    return [
+      {
+        label: 'Profile',
+        // If `user` hasn't been fetched yet, just navigate to ProfileRedirect
+        // component, which will await the user result then redirect to relatived URL.
+        routerLink: userID ? `/profile/${userID}` : '/profile'
+      },
+      {
+        label: 'Edit Profile',
+        routerLink: '/profile/edit'
+      },
+      {
+        label: 'Log out',
+        command: () => this.localUserService.logout()
+      }
+    ];
+  });
 
-  ngOnInit() {
-    this.localUserService.user.subscribe(() => {
-      const userID = this.localUserService.user.value?.id;
-      this.profileDropdownMenu = [
-        {
-          label: 'Profile',
-          // If `user` hasn't been fetched yet, just navigate to ProfileRedirect
-          // component, which will await the user result then redirect to relatived URL.
-          routerLink: userID ? `/profile/${userID}` : '/profile'
-        },
-        {
-          label: 'Edit Profile',
-          routerLink: '/profile/edit'
-        },
-        {
-          label: 'Log out',
-          command: () => this.localUserService.logout()
-        }
-      ];
-    });
-  }
+  protected readonly markingAsReadEnabled = signal(false);
 
   protected toggleSidenav() {
     this.layoutService.toggleSidenavState();
   }
 
   protected updateUnreadNotificationsCount(count: number) {
-    this.unreadNotificationsCount = count;
+    this.unreadNotificationsCount.set(count);
   }
 }

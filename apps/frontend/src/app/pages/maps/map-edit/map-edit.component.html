@@ -1,5 +1,15 @@
+@let map = this.map();
+@let loading = this.loading();
+@let wasApproved = this.wasApproved();
+@let isSubmitter = this.isSubmitter();
+@let inSubmission = this.inSubmission();
+@let isUploading = this.isUploading();
+@let uploadPercentage = this.uploadPercentage();
+@let uploadStatusDescription = this.uploadStatusDescription();
+@let isSubmittingVersionForm = this.isSubmittingVersionForm();
+@let isSubmittingTestInviteForm = this.isSubmittingTestInviteForm();
 <m-card-header titleSize="5" title="Edit Map">
-  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + map?.name">Return to Map</button>
+  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + $safeNavigationMigration(map?.name)">Return to Map</button>
 </m-card-header>
 
 <!-- Using `display: none` instead of ngIf to hide stuff as this component
@@ -163,7 +173,7 @@
       </p>
     }
     <button class="btn btn-green ml-auto" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
-    <button type="button" class="btn" [routerLink]="'/maps/' + map?.name">Return to Map</button>
+    <button type="button" class="btn" [routerLink]="'/maps/' + $safeNavigationMigration(map?.name)">Return to Map</button>
   </div>
 </form>
 

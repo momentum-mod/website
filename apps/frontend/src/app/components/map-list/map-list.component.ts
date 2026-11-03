@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MMap } from '@momentum/constants';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
@@ -11,10 +11,10 @@ import { SpinnerComponent } from '../spinner/spinner.component';
   imports: [MapListItemComponent, InfiniteScrollDirective, SpinnerComponent]
 })
 export class MapListComponent {
-  @Input({ required: true }) maps: MMap[];
-  @Input({ required: true }) loading: boolean;
-  @Input({ required: true }) loadMore: Subject<void>;
-  @Input() isSubmissionPage = false;
-  @Input() isAdminPage = false;
-  @Input() showApprovedDate = false;
+  readonly maps = input.required<MMap[]>();
+  readonly loading = input.required<boolean>();
+  readonly loadMore = input.required<Subject<void>>();
+  readonly isSubmissionPage = input(false);
+  readonly isAdminPage = input(false);
+  readonly showApprovedDate = input(false);
 }

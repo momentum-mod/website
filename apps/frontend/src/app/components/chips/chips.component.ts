@@ -1,4 +1,11 @@
-import { Component, Input, TemplateRef, forwardRef } from '@angular/core';
+import {
+  Component,
+  computed,
+  forwardRef,
+  input,
+  signal,
+  TemplateRef
+} from '@angular/core';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icons';
@@ -32,80 +39,81 @@ export type Chip = unknown;
   templateUrl: './chips.component.html'
 })
 export class ChipsComponent implements ControlValueAccessor {
-  // The chips picked by the user
-  selected: Chip[] | null = [];
+  // All chips that can be picked
+  readonly chips = input.required<Chip[]>();
 
-  // Available chips
-  private _chips: Chip[] = [];
-  get chips() {
-    return this._chips;
-  }
-  @Input({ required: true }) set chips(chips: Chip[]) {
-    this._chips = chips;
+  // The chips picked by the user, as last written/changed
+  private readonly rawSelected = signal<Chip[]>([]);
 
-    this.selected =
-      this.selected?.filter((selected) => this.includesFn(chips, selected)) ??
-      [];
-  }
+  // Selected chips that are still available, e.g. after `chips` changes
+  readonly selected = computed(() =>
+    this.rawSelected().filter((selected) =>
+      this.includesFn()(this.chips(), selected)
+    )
+  );
 
-  get available() {
-    return this.chips.filter((chip) => !this.includesFn(this.selected, chip));
-  }
+  protected readonly available = computed(() =>
+    this.chips().filter((chip) => !this.includesFn()(this.selected(), chip))
+  );
 
   /**
    * Show chip name on hover instead of on the chip
    */
-  @Input() hoverNames = false;
+  readonly hoverNames = input(false);
 
-  @Input() typeName = 'Chip';
+  readonly typeName = input('Chip');
 
   protected readonly anchorName = `--chips-${Math.random().toString(36).substring(2, 12)}`;
 
   /**
    * You can provide a function that maps values to strings.
    */
-  @Input() nameFn?: (chip: Chip) => string;
+  readonly nameFn = input<(chip: Chip) => string>();
 
   /**
    * Function to provide image urls for chips.
    */
-  @Input() imageFn?: (chip: Chip) => string | null;
+  readonly imageFn = input<(chip: Chip) => string | null>();
 
   /**
    * Check that a collection of chips includes the given chip.
    * This defaults to .includes() array method, so needs to be set if chips
    * are of an object type.
    */
-  @Input() includesFn = (collection: Chip[], chip: Chip) =>
-    collection.includes(chip);
+  readonly includesFn = input((collection: Chip[], chip: Chip) =>
+    collection.includes(chip)
+  );
 
   /**
    * Placed at the end (within) each selected tag.
    */
-  @Input() appendEachSelectedTemplate?: TemplateRef<any>;
+  readonly appendEachSelectedTemplate = input<TemplateRef<any>>();
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   add(chip: Chip) {
-    if (this.disabled || this.includesFn(this.selected, chip)) return;
+    if (this.disabled() || this.includesFn()(this.selected(), chip)) return;
 
-    this.selected.push(chip);
-    this.onChange(this.selected);
+    this.setSelected([...this.selected(), chip]);
   }
 
   remove(chip: Chip) {
-    this.selected.splice(this.selected.indexOf(chip), 1);
-    this.onChange(this.selected);
+    this.setSelected(this.selected().filter((selected) => selected !== chip));
   }
 
   reset() {
-    this.selected = [];
-    this.onChange(this.selected);
+    this.setSelected([]);
+  }
+
+  private setSelected(selected: Chip[]) {
+    this.rawSelected.set(selected);
+    this.onChange(selected);
   }
 
   getChipName(chip: Chip): string {
-    if (this.nameFn) {
-      return this.nameFn(chip);
+    const nameFn = this.nameFn();
+    if (nameFn) {
+      return nameFn(chip);
     } else if (typeof chip === 'number') {
       return chip.toString();
     } else if (typeof chip === 'string') {
@@ -116,7 +124,8 @@ export class ChipsComponent implements ControlValueAccessor {
   }
 
   getChipImage(chip: Chip): string | null {
-    if (this.imageFn) return this.imageFn(chip);
+    const imageFn = this.imageFn();
+    if (imageFn) return imageFn(chip);
     return null;
   }
 
@@ -131,10 +140,10 @@ export class ChipsComponent implements ControlValueAccessor {
   }
 
   setDisabledState(setDisabled: boolean): void {
-    this.disabled = setDisabled;
+    this.disabled.set(setDisabled);
   }
 
   writeValue(value: Chip[] | null) {
-    this.selected = value ?? [];
+    this.rawSelected.set(value ?? []);
   }
 }

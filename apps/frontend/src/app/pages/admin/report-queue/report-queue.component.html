@@ -1,7 +1,7 @@
 <m-card [title]="'Report Queue'" cardClass="!p-0">
   <ng-container header>
     <label>Resolved: </label>
-    <select name="Resolved" (change)="filterChange.next()" [(ngModel)]="filters.resolved">
+    <select name="Resolved" (change)="filterChange.next()" [(ngModel)]="resolved">
       <option value="true">Yes</option>
       <option selected="selected" value="false">No</option>
     </select>
@@ -18,13 +18,13 @@
     <div class="w-[19%] px-2 py-1 text-center">Resolution Message</div>
     <div class="w-[9%] px-2 py-1 text-center">Actions</div>
   </div>
-  <ul [mSpinner]="loading" class="divide-y divide-white divide-opacity-10">
-    @for (report of reportQueue; track $index) {
+  <ul [mSpinner]="loading()" class="divide-y divide-white divide-opacity-10">
+    @for (report of reportQueue(); track $index) {
       <li class="basis-full">
         <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
       </li>
     } @empty {
-      @if (!loading) {
+      @if (!loading()) {
         <i class="block px-2 py-1">There are no reports that match the search criteria.</i>
       }
     }
@@ -32,9 +32,9 @@
   <p-paginator
     class="block border-t border-white border-opacity-10 px-3 py-2"
     (onPageChange)="pageChange.next($event)"
-    [first]="first"
+    [first]="first()"
     [rows]="rows"
-    [totalRecords]="totalRecords"
+    [totalRecords]="totalRecords()"
     [showCurrentPageReport]="true"
     [alwaysShow]="false"
   />

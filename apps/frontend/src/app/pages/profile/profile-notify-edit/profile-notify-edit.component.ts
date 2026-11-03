@@ -1,7 +1,10 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -11,12 +14,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class ProfileNotifyEditComponent implements OnInit {
   private readonly ref = inject(DynamicDialogRef);
+  private readonly config =
+    inject<DynamicDialogConfig<{ flags: number }>>(DynamicDialogConfig);
 
   protected readonly ActivityType = ActivityType;
 
-  @Input() flags: number;
+  private readonly flags = this.config.data?.flags ?? 0;
 
-  checkboxFlags = {
+  protected readonly checkboxFlags = {
     pb: { checked: false, value: ActivityType.PB_ACHIEVED },
     wr: { checked: false, value: ActivityType.WR_ACHIEVED },
     approved: { checked: false, value: ActivityType.MAP_APPROVED },
@@ -36,10 +41,11 @@ export class ProfileNotifyEditComponent implements OnInit {
   }
 
   submit() {
+    let flags = this.flags;
     for (const { checked, value } of Object.values(this.checkboxFlags))
-      this.flags = checked
-        ? Bitflags.add(this.flags, 1 << value)
-        : Bitflags.remove(this.flags, 1 << value);
-    this.ref.close({ newFlags: this.flags });
+      flags = checked
+        ? Bitflags.add(flags, 1 << value)
+        : Bitflags.remove(flags, 1 << value);
+    this.ref.close({ newFlags: flags });
   }
 }

@@ -1,4 +1,13 @@
-<div [mSpinner]="!map">
+@let leaderboards = this.leaderboards();
+@let activeMode = this.activeMode();
+@let activeModeIndex = this.activeModeIndex();
+@let activeTrack = this.activeTrack();
+@let activeStyle = this.activeStyle();
+@let activeTags = this.activeTags();
+@let runs = this.runs();
+@let loading = this.loading();
+@let showHiddenLeaderboards = this.showHiddenLeaderboards();
+<div [mSpinner]="!map()">
   <div class="flex gap-4">
     <div class="flex grow flex-wrap gap-x-4 gap-y-2 md:gap-x-8">
       @for (groupedLeaderboard of leaderboards; track $index) {
@@ -20,8 +29,13 @@
         }
       }
     </div>
-    @if (map.info.approvedDate && hasHiddenLeaderboards()) {
-      <button class="mb-auto ml-auto" type="button" [mTooltip]="hiddenLbInfo" (click)="showHiddenLeaderboards = !showHiddenLeaderboards">
+    @if (map().info.approvedDate && hasHiddenLeaderboards()) {
+      <button
+        class="mb-auto ml-auto"
+        type="button"
+        [mTooltip]="hiddenLbInfo"
+        (click)="this.showHiddenLeaderboards.set(!showHiddenLeaderboards)"
+      >
         <m-icon class="h-6 w-6 drop-shadow-lg" [icon]="showHiddenLeaderboards ? 'eye' : 'eye-closed'" />
       </button>
       <ng-template #hiddenLbInfo><m-hidden-leaderboards-info title="Show Hidden Leaderboard" /></ng-template>
@@ -158,7 +172,7 @@
     <m-spinner />
   }
 
-  @if (map.status === MapStatus.APPROVED && activeTags.length > 0) {
+  @if (map().status === MapStatus.APPROVED && activeTags.length > 0) {
     <p class="text-lg">
       <span class="flex flex-wrap gap-1.5">
         @for (tag of activeTags; track $index) {

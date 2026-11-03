@@ -1,10 +1,18 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Activity, ActivityType } from '@momentum/constants';
 import { Icon, IconComponent } from '../../icons';
 import { RouterLink } from '@angular/router';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { NgClass, NgStyle } from '@angular/common';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+
+interface ActivityDisplay {
+  actionText: string;
+  eventText: string;
+  icon: Icon | undefined;
+  color: string | undefined;
+  link: string | null;
+}
 
 @Component({
   selector: 'm-activity-content',
@@ -18,56 +26,64 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
   ],
   templateUrl: './activity-content.component.html'
 })
-export class ActivityContentComponent implements OnInit {
-  @Input() activity: Activity;
+export class ActivityContentComponent {
+  readonly activity = input<Activity>();
   /**
    * Whether the date should have display property set to none
    * and limit content width on md media query (for notifications)
    */
-  @Input() dateNone = false;
-  activityIcon: Icon;
-  actionText = '';
-  eventText = '';
-  eventColor: string;
-  eventLink = null;
-
-  ngOnInit() {
-    switch (this.activity.type) {
+  readonly dateNone = input(false);
+  protected readonly display = computed<ActivityDisplay>(() => {
+    const activity = this.activity();
+    switch (activity.type) {
       case ActivityType.MAP_UPLOADED:
-        this.actionText = ' uploaded a new ';
-        this.eventText = 'map';
-        this.activityIcon = 'panorama-outline';
-        this.eventColor = 'indigo-400';
-        break;
+        return {
+          actionText: ' uploaded a new ',
+          eventText: 'map',
+          icon: 'panorama-outline',
+          color: 'indigo-400',
+          link: null
+        };
       case ActivityType.MAP_APPROVED:
-        this.actionText = ' added a new ';
-        this.eventText = 'map';
-        this.activityIcon = 'panorama-outline';
-        this.eventColor = 'green-500';
-        this.eventLink = '/maps/' + this.activity.data;
-        break;
+        return {
+          actionText: ' added a new ',
+          eventText: 'map',
+          icon: 'panorama-outline',
+          color: 'green-500',
+          link: '/maps/' + activity.data
+        };
       case ActivityType.WR_ACHIEVED:
-        this.actionText = ' achieved a ';
-        this.eventText = 'world record';
-        this.activityIcon = 'earth';
-        this.eventColor = 'yellow-500';
-        this.eventLink = '/runs/' + this.activity.data;
-        break;
+        return {
+          actionText: ' achieved a ',
+          eventText: 'world record',
+          icon: 'earth',
+          color: 'yellow-500',
+          link: '/runs/' + activity.data
+        };
       case ActivityType.PB_ACHIEVED:
-        this.actionText = ' achieved a ';
-        this.eventText = 'personal best';
-        this.activityIcon = 'trophy';
-        this.eventColor = 'gray-300';
-        this.eventLink = '/runs/' + this.activity.data;
-        break;
+        return {
+          actionText: ' achieved a ',
+          eventText: 'personal best',
+          icon: 'trophy',
+          color: 'gray-300',
+          link: '/runs/' + activity.data
+        };
       case ActivityType.USER_JOINED:
-        this.actionText = ' has ';
-        this.eventText = 'joined';
-        this.activityIcon = 'account-multiple-outline';
-        this.eventColor = 'blue-400';
-        break;
+        return {
+          actionText: ' has ',
+          eventText: 'joined',
+          icon: 'account-multiple-outline',
+          color: 'blue-400',
+          link: null
+        };
       default:
-        break;
+        return {
+          actionText: '',
+          eventText: '',
+          icon: undefined,
+          color: undefined,
+          link: null
+        };
     }
-  }
+  });
 }

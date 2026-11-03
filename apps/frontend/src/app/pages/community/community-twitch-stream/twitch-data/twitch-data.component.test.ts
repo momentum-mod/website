@@ -49,22 +49,22 @@ describe('TwitchDataComponent', () => {
   });
 
   it('should compute high-resolution 16:9 thumbnail URL', () => {
-    component.stream = mockStream;
+    fixture.componentRef.setInput('stream', mockStream);
     assert.equal(
-      component.thumbnailUrl,
+      component.thumbnailUrl(),
       'https://static-cdn.jtvnw.net/previews-ttv/live_user_momentumrunner-640x360.jpg'
     );
-    assert.equal(component.getImage(), component.thumbnailUrl);
+    assert.equal(component.getImage(), component.thumbnailUrl());
   });
 
   it('should compute stream URL using user_login or user_name', () => {
-    component.stream = mockStream;
-    assert.equal(component.streamUrl, 'https://twitch.tv/momentumrunner');
+    fixture.componentRef.setInput('stream', mockStream);
+    assert.equal(component.streamUrl(), 'https://twitch.tv/momentumrunner');
     assert.equal(component.getURL(), 'https://twitch.tv/momentumrunner');
   });
 
   it('should return helper values correctly', () => {
-    component.stream = mockStream;
+    fixture.componentRef.setInput('stream', mockStream);
     assert.equal(component.getUserName(), 'MomentumRunner');
     assert.equal(
       component.getTitle(),
@@ -74,9 +74,9 @@ describe('TwitchDataComponent', () => {
   });
 
   it('should handle null stream gracefully', () => {
-    component.stream = null;
-    assert.equal(component.thumbnailUrl, '');
-    assert.equal(component.streamUrl, '#');
+    fixture.componentRef.setInput('stream', null);
+    assert.equal(component.thumbnailUrl(), '');
+    assert.equal(component.streamUrl(), '#');
     assert.equal(component.getImage(), 'NULL');
     assert.equal(component.getUserName(), 'NULL');
     assert.equal(component.getTitle(), 'NULL');

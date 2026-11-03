@@ -1,4 +1,4 @@
-@if (value) {
+@if (value(); as value) {
   <div class="inputlike flex h-10 w-full items-center gap-2 px-2">
     <m-user [user]="value" aliasClass="text-16" avatarClass="!h-6" />
     <button type="button" (click)="removeUser()" class="flex">

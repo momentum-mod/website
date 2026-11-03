@@ -1,6 +1,61 @@
-import { DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import {
+  ChangeDetectorRef,
+  DestroyRef,
+  inject,
+  isSignal,
+  Signal
+} from '@angular/core';
+import {
+  takeUntilDestroyed,
+  toObservable,
+  toSignal
+} from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  ControlEvent,
+  FormControl,
+  FormGroup
+} from '@angular/forms';
+import { switchMap } from 'rxjs';
+
+/**
+ * Marks the current component for check on every event (value, status,
+ * pristine, touched, submit, reset) from a form tree.
+ *
+ * For form-heavy templates that read lots of raw control state (`.valid`,
+ * `.errors`, `.dirty` ...) which can change outside of template events -
+ * async validators finishing, or programmatic patchValue/reset after a request.
+ * Prefer `controlEvents` + `computed` where only a few values are read.
+ *
+ * Must be called in an injection context.
+ */
+export function refreshOnFormEvents(control: AbstractControl): void {
+  const cdRef = inject(ChangeDetectorRef);
+  control.events
+    .pipe(takeUntilDestroyed(inject(DestroyRef)))
+    .subscribe(() => cdRef.markForCheck());
+}
+
+/**
+ * Signal that updates on every event (value, status, pristine, touched,
+ * submit, reset) from a control or any of its descendants.
+ *
+ * Reading this in a computed or template makes it re-evaluate on form changes
+ * that don't come from a DOM event in the same component - e.g. async
+ * validators finishing, or a parent calling patchValue after a request - which
+ * OnPush change detection wouldn't otherwise pick up.
+ *
+ * Must be called in an injection context.
+ */
+export function controlEvents(
+  control: AbstractControl | Signal<AbstractControl>
+): Signal<ControlEvent | undefined> {
+  return toSignal(
+    isSignal(control)
+      ? toObservable(control).pipe(switchMap((c) => c.events))
+      : control.events
+  );
+}
 
 /**
  * Returns true if a group is valid and dirty.

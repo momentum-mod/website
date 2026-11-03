@@ -1,8 +1,9 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { Component, computed, inject } from '@angular/core';
+import { ProgressBarModule } from '@openng/optimus-ui/progressbar';
 import { LevelIndicatorComponent } from '../level-indicator/level-indicator.component';
 import { XpSystemsService } from '../../services/xp-systems.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import {
   FullUser,
   LocalUserService
@@ -14,27 +15,19 @@ import {
   templateUrl: './player-card.component.html',
   styleUrl: './player-card.component.css'
 })
-export class PlayerCardComponent implements OnInit {
+export class PlayerCardComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly xpService = inject(XpSystemsService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  protected user: FullUser;
-  protected level: number;
-  protected xp: number;
-  protected currLevelXp: number;
-  protected nextLevelXp: number;
-
-  ngOnInit() {
-    this.localUserService.user
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user: FullUser | null) => {
-        if (!user) return;
-        this.user = user;
-        this.level = user.userStats.level;
-        this.xp = user.userStats.cosXP;
-        this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
-        this.nextLevelXp = this.xpService.getCosmeticXpForLevel(this.level + 1);
-      });
-  }
+  // Null users are ignored, so this keeps showing the last logged-in user.
+  protected readonly user = toSignal<FullUser>(
+    this.localUserService.user.pipe(filter(Boolean))
+  );
+  protected readonly level = computed(() => this.user()?.userStats.level);
+  protected readonly xp = computed(() => this.user()?.userStats.cosXP);
+  protected readonly currLevelXp = computed(() =>
+    this.user() ? this.xpService.getCosmeticXpForLevel(this.level()) : 0
+  );
+  protected readonly nextLevelXp = computed(() =>
+    this.user() ? this.xpService.getCosmeticXpForLevel(this.level() + 1) : 0
+  );
 }

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import {
   Ban,
   CombinedRoles,

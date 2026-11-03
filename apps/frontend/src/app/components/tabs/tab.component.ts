@@ -1,14 +1,17 @@
-import { Component, Directive, HostBinding, Input } from '@angular/core';
+import { Component, Directive, input, signal } from '@angular/core';
 
-@Directive({ selector: '[mTab]', standalone: true })
-export class TabDirective {
-  @Input({ required: true }) tabName!: string;
-  @HostBinding('class') classes = 'transition-opacity block';
-  @HostBinding('style.opacity') get isHidden() {
-    return this.selected ? 1 : 0;
+@Directive({
+  selector: '[mTab]',
+  standalone: true,
+  host: {
+    class: 'transition-opacity block',
+    '[style.opacity]': 'selected() ? 1 : 0'
   }
+})
+export class TabDirective {
+  readonly tabName = input.required<string>();
 
-  public selected = false;
+  public readonly selected = signal(false);
 }
 
 @Component({

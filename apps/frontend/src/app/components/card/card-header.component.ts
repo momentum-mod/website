@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 @Component({
@@ -7,10 +7,10 @@ import { NgClass } from '@angular/common';
   template: `
     <div
       class="flex flex-wrap items-center gap-2"
-      [ngClass]="{ 'items-end': !!title }"
+      [ngClass]="{ 'items-end': !!title() }"
     >
-      @if (title) {
-        <p class="flex-grow card-title" [style.font-size]="fontSize">
+      @if (title(); as title) {
+        <p class="flex-grow card-title" [style.font-size]="fontSize()">
           {{ title }}
         </p>
       }
@@ -19,17 +19,17 @@ import { NgClass } from '@angular/common';
   `
 })
 export class CardHeaderComponent {
-  @Input() title: string;
-  @Input({ required: true }) titleSize!: string | number;
+  readonly title = input<string>();
+  readonly titleSize = input.required<string | number>();
 
   /**
    * Big titles shrink on mobile via --card-title-scale (see styles.css), but
    * never below the default 2rem, so ordinary card titles are unaffected.
    */
-  protected get fontSize(): string {
-    const size = Number(this.titleSize);
+  protected readonly fontSize = computed(() => {
+    const size = Number(this.titleSize());
     return size > 2
       ? `max(2rem, calc(${size}rem * var(--card-title-scale, 1)))`
       : `${size}rem`;
-  }
+  });
 }

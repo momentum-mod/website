@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  computed,
+  signal
+} from '@angular/core';
+import { controlEvents } from '../../util/form-utils.util';
 import {
   CombinedRoles,
   GamemodeInfo,
@@ -10,7 +18,7 @@ import {
   MMap,
   TrackType
 } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import {
   FormControl,
   FormGroup,
@@ -56,11 +64,11 @@ export class MapReviewFormComponent {
   protected readonly MAX_REVIEW_IMAGES = MAX_REVIEW_IMAGES;
   protected readonly MAX_REVIEW_LENGTH = MAX_REVIEW_LENGTH;
 
-  @Input({ required: true }) map: MMap;
-  @Input() editing = false;
-  @Input() reviewID?: number; // Only applicable if editing
-  @Output() public readonly reviewPosted = new EventEmitter<void>();
-  @Output() public readonly canceledEditing = new EventEmitter<void>();
+  readonly map = input.required<MMap>();
+  readonly editing = input(false);
+  readonly reviewID = input<number>(); // Only applicable if editing
+  public readonly reviewPosted = output<void>();
+  public readonly canceledEditing = output<void>();
 
   public readonly form = this.nnfb.group(
     {
@@ -79,7 +87,7 @@ export class MapReviewFormComponent {
           // validator that fetches the current map zones on the class whenever
           // validator is run.
           suggestionsValidator(
-            () => this.map?.currentVersion?.zones,
+            () => this.map()?.currentVersion?.zones,
             SuggestionType.REVIEW
           )
         ]
@@ -137,11 +145,26 @@ export class MapReviewFormComponent {
     return this.form.get('images') as FormControl<File[]>;
   }
 
-  protected loading = false;
+  protected readonly loading = signal(false);
+
+  // Form is reset from an async callback, so the template reads these.
+  private readonly formEvents = controlEvents(this.form);
+  protected readonly canSubmit = computed(() => {
+    this.formEvents();
+    return !this.loading() && this.form.valid && !this.form.pristine;
+  });
+  protected readonly mainTextLength = computed(() => {
+    this.formEvents();
+    return this.mainText.value?.length;
+  });
+  protected readonly suggestionsInvalid = computed(() => {
+    this.formEvents();
+    return this.suggestions.invalid;
+  });
 
   submit() {
-    if (this.loading || this.form.invalid || this.form.pristine) return;
-    this.loading = true;
+    if (this.loading() || this.form.invalid || this.form.pristine) return;
+    this.loading.set(true);
 
     const suggestions =
       this.suggestions.value.length > 0 ? this.suggestions.value : undefined;
@@ -154,12 +177,12 @@ export class MapReviewFormComponent {
       });
     }
 
-    const req = this.editing
-      ? this.mapsService.updateMapReview(this.reviewID, {
+    const req = this.editing()
+      ? this.mapsService.updateMapReview(this.reviewID(), {
           mainText: this.mainText.value,
           suggestions
         })
-      : this.mapsService.postMapReview(this.map.id, {
+      : this.mapsService.postMapReview(this.map().id, {
           data: {
             mainText: this.mainText.value,
             suggestions,
@@ -172,15 +195,15 @@ export class MapReviewFormComponent {
     req
       .pipe(
         take(1),
-        finalize(() => (this.loading = false))
+        finalize(() => this.loading.set(false))
       )
       .subscribe({
         next: () => {
-          this.reviewPosted.next();
+          this.reviewPosted.emit();
           this.messageService.add({
             severity: 'success',
-            summary: `${this.editing ? 'Updated' : 'Posted'} map review for ${
-              this.map.name
+            summary: `${this.editing() ? 'Updated' : 'Posted'} map review for ${
+              this.map().name
             }`
           });
           this.form.reset({ suggestions: [], images: [] });
@@ -195,7 +218,7 @@ export class MapReviewFormComponent {
           else {
             this.messageService.add({
               severity: 'error',
-              summary: `Failed to ${this.editing ? 'edit' : 'post'} review`,
+              summary: `Failed to ${this.editing() ? 'edit' : 'post'} review`,
               detail: httpError.error.message
             });
           }
@@ -208,6 +231,6 @@ export class MapReviewFormComponent {
   }
 
   get isSubmitter() {
-    return this.localUserService.user.value?.id === this.map.submitterID;
+    return this.localUserService.user.value?.id === this.map().submitterID;
   }
 }

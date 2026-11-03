@@ -1,5 +1,5 @@
-import Material from '@primeng/themes/material';
-import { definePreset } from '@primeng/themes';
+import Material from '@openng/optimus-ui-themes/material';
+import { definePreset } from '@openng/optimus-ui-themes';
 
 const selectStyles = {
   background: 'rgb(0 0 0 / 0.25)',

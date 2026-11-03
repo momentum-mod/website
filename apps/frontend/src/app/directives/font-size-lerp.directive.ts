@@ -1,4 +1,4 @@
-import { Directive, HostBinding, Input, OnChanges } from '@angular/core';
+import { Directive, HostBinding, OnChanges, input } from '@angular/core';
 
 /**
  * Doing this automatically is so annoying, and requires fucking with the DOM
@@ -11,18 +11,19 @@ import { Directive, HostBinding, Input, OnChanges } from '@angular/core';
  * I couldn't get them working very well, so this is good enough for the time
  * being.
  */
+// eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: '[fontSizeLerp]', standalone: true })
 export class FontSizeLerpDirective implements OnChanges {
-  @Input('fontSizeLerp') options: {
+  readonly options = input<{
     chars: number;
     startAt: number;
     baseRem: number;
-  };
+  }>(undefined, { alias: 'fontSizeLerp' });
 
   @HostBinding('style.font-size') fontSize: string;
 
   ngOnChanges() {
-    const { chars, startAt, baseRem } = this.options;
+    const { chars, startAt, baseRem } = this.options();
     let val = baseRem;
     if (chars > startAt) {
       val = (baseRem * startAt) / chars;

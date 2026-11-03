@@ -1,5 +1,5 @@
 <a
-  [href]="streamUrl"
+  [href]="streamUrl()"
   target="_blank"
   rel="noopener noreferrer"
   class="group flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-gray-700/40 shadow-md backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-950/40"
@@ -7,7 +7,7 @@
   <!-- Thumbnail & Badges Container -->
   <div class="relative aspect-video w-full overflow-hidden bg-gray-900">
     <img
-      [src]="thumbnailUrl"
+      [src]="thumbnailUrl()"
       [alt]="getTitle()"
       class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
       loading="lazy"
@@ -29,12 +29,12 @@
 
     <!-- Bottom Overlay: Stream Start Time & Viewer Count -->
     <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-12 text-white">
-      @if (stream?.started_at) {
+      @if (stream()?.started_at; as startedAt) {
         <span
           class="flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 font-medium text-gray-200 backdrop-blur-sm"
           mTooltip="Stream started"
         >
-          {{ stream.started_at | timeAgo }}
+          {{ startedAt | timeAgo }}
         </span>
       } @else {
         <span></span>
@@ -42,7 +42,7 @@
 
       <span class="flex items-center gap-1.5 rounded bg-black/70 px-2 py-0.5 font-semibold backdrop-blur-sm" mTooltip="Current Viewers">
         <m-icon icon="eye" class="h-3.5 w-3.5 text-red-400" />
-        {{ stream?.viewer_count ?? 0 | number }}
+        {{ stream()?.viewer_count ?? 0 | number }}
       </span>
     </div>
   </div>
@@ -69,9 +69,9 @@
     </p>
 
     <!-- Stream Tags (if any) -->
-    @if (stream?.tags && stream.tags.length > 0) {
+    @if (stream()?.tags?.length > 0) {
       <div class="mt-auto flex flex-wrap gap-1.5 pt-3">
-        @for (tag of stream.tags.slice(0, 3); track tag) {
+        @for (tag of stream().tags.slice(0, 3); track tag) {
           <span class="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-11 font-medium text-gray-300">
             {{ tag }}
           </span>

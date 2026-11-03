@@ -1,11 +1,11 @@
 import {
   Component,
+  computed,
   DestroyRef,
-  Input,
   OnInit,
-  QueryList,
-  ViewChildren,
-  inject
+  inject,
+  input,
+  viewChildren
 } from '@angular/core';
 import {
   MapSubmissionType,
@@ -25,18 +25,19 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { SubmissionTypeInfoComponent } from '../../tooltips/submission-type-info.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import * as Enum from '@momentum/enum';
 
 import { TooltipDirective } from '../../../directives/tooltip.directive';
-import { DatePicker } from 'primeng/datepicker';
+import { DatePicker } from '@openng/optimus-ui/datepicker';
 import { IconComponent } from '../../../icons';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { PluralPipe } from '../../../pipes/plural.pipe';
 import { ChipsComponent } from '../../chips/chips.component';
 import { DatePickerUTC } from '../../../directives/date-picker-utc.directive';
+import { controlEvents } from '../../../util/form-utils.util';
 
 @Component({
   selector: 'm-map-details-form',
@@ -64,41 +65,50 @@ export class MapDetailsFormComponent implements OnInit {
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
   protected readonly MAX_CHANGELOG_LENGTH = MAX_CHANGELOG_LENGTH;
   protected readonly maxDate = new Date();
-  protected mapSubmissionTypeOptions: Array<{
-    type: MapSubmissionType;
-    label: string;
-  }>;
 
-  @Input({ required: true }) formGroup: FormGroup<{
-    name: FormControl<string>;
-    description: FormControl<string>;
-    portingChangelog: FormControl<string>;
-    creationDate: FormControl<Date>;
-    submissionType: FormControl<MapSubmissionType>;
-    youtubeID: FormControl<string>;
-    requiredGames: FormControl<SteamGame[]>;
-  }>;
+  readonly formGroup = input.required<
+    FormGroup<{
+      name: FormControl<string>;
+      description: FormControl<string>;
+      portingChangelog: FormControl<string>;
+      creationDate: FormControl<Date>;
+      submissionType: FormControl<MapSubmissionType>;
+      youtubeID: FormControl<string>;
+      requiredGames: FormControl<SteamGame[]>;
+    }>
+  >();
 
-  private _isModOrAdmin: boolean;
-  get isModOrAdmin() {
-    return this._isModOrAdmin;
-  }
-  @Input({ required: true }) set isModOrAdmin(val: boolean) {
-    this._isModOrAdmin = val;
+  readonly isModOrAdmin = input.required<boolean>();
 
-    this.mapSubmissionTypeOptions = [
-      { type: MapSubmissionType.ORIGINAL, label: 'Original' },
-      { type: MapSubmissionType.PORT, label: 'Port' }
-    ];
-    if (val)
-      this.mapSubmissionTypeOptions.push({
-        type: MapSubmissionType.SPECIAL,
-        label: 'Special (Moderator only)'
-      });
-  }
+  protected readonly mapSubmissionTypeOptions = computed(() => [
+    { type: MapSubmissionType.ORIGINAL, label: 'Original' },
+    { type: MapSubmissionType.PORT, label: 'Port' },
+    ...(this.isModOrAdmin()
+      ? [
+          {
+            type: MapSubmissionType.SPECIAL,
+            label: 'Special (Moderator only)'
+          }
+        ]
+      : [])
+  ]);
 
-  @ViewChildren(TooltipDirective)
-  tooltips: QueryList<TooltipDirective>;
+  // The form is owned (and may be patched asynchronously) by the parent.
+  private readonly formEvents = controlEvents(this.formGroup);
+  protected readonly descriptionLength = computed(() => {
+    this.formEvents();
+    return this.description.value?.length ?? 0;
+  });
+  protected readonly portingChangelogLength = computed(() => {
+    this.formEvents();
+    return this.portingChangelog.value?.length ?? 0;
+  });
+  protected readonly isPort = computed(() => {
+    this.formEvents();
+    return this.submissionType.value === MapSubmissionType.PORT;
+  });
+
+  readonly tooltips = viewChildren(TooltipDirective);
 
   ngOnInit() {
     this.name.statusChanges
@@ -108,7 +118,7 @@ export class MapDetailsFormComponent implements OnInit {
 
   onNameStatusChange(status: FormControlStatus) {
     const tooltip = TooltipDirective.findByContext(
-      this.tooltips,
+      this.tooltips(),
       'mapNameError'
     );
     if (status !== 'INVALID') {
@@ -150,32 +160,32 @@ export class MapDetailsFormComponent implements OnInit {
   steamGameImage = (game: SteamGame) => SteamGamesImages.get(game);
 
   get youtubeID() {
-    return this.formGroup.get('youtubeID') as FormControl<string>;
+    return this.formGroup().get('youtubeID') as FormControl<string>;
   }
 
   get name() {
-    return this.formGroup.get('name') as FormControl<string>;
+    return this.formGroup().get('name') as FormControl<string>;
   }
 
   get description() {
-    return this.formGroup.get('description') as FormControl<string>;
+    return this.formGroup().get('description') as FormControl<string>;
   }
 
   get portingChangelog() {
-    return this.formGroup.get('portingChangelog') as FormControl<string>;
+    return this.formGroup().get('portingChangelog') as FormControl<string>;
   }
 
   get creationDate() {
-    return this.formGroup.get('creationDate') as FormControl<Date>;
+    return this.formGroup().get('creationDate') as FormControl<Date>;
   }
 
   get submissionType() {
-    return this.formGroup.get(
+    return this.formGroup().get(
       'submissionType'
     ) as FormControl<MapSubmissionType>;
   }
 
   get requiredGames() {
-    return this.formGroup.get('requiredGames') as FormControl<SteamGame[]>;
+    return this.formGroup().get('requiredGames') as FormControl<SteamGame[]>;
   }
 }

@@ -3,7 +3,8 @@ import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import {
   HTTP_INTERCEPTORS,
   withInterceptorsFromDi,
-  provideHttpClient
+  provideHttpClient,
+  withXhr
 } from '@angular/common/http';
 import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import { provideRouter, TitleStrategy } from '@angular/router';
@@ -11,9 +12,9 @@ import {
   importProvidersFrom,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { providePrimeNG } from 'primeng/config';
-import { DialogService } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from '@openng/optimus-ui/api';
+import { provideOptimus } from '@openng/optimus-ui/config';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { APP_ROUTES } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth.interceptor';
 import { AppComponent } from './app/app.component';
@@ -41,8 +42,8 @@ bootstrapApplication(AppComponent, {
     provideRouter(APP_ROUTES),
     { provide: TitleStrategy, useClass: CustomTitleStrategy },
     provideAnimations(),
-    provideHttpClient(withInterceptorsFromDi()),
-    providePrimeNG({
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    provideOptimus({
       theme: {
         preset: MomentumPreset,
         options: {

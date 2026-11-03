@@ -2,22 +2,22 @@
   <div #searchMain [style.anchor-name]="anchorName" class="relative flex w-full items-center gap-2">
     <input
       class="textinput min-w-0 flex-grow md:min-w-[15rem]"
-      [mSpinner]="search.pending"
-      [placeholder]="searchBySteam ? 'Search by SteamID...' : 'Search by username...'"
+      [mSpinner]="searchStatus() === 'PENDING'"
+      [placeholder]="searchBySteam() ? 'Search by SteamID...' : 'Search by username...'"
       [formControl]="search"
       (keydown)="onKeydown($event)"
       type="text"
     />
     <m-icon
       class="absolute right-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
-      [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam }"
+      [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam() }"
       mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
       icon="steam"
       pack="si"
-      (click)="searchBySteam = !searchBySteam"
+      (click)="searchBySteam.set(!searchBySteam())"
     />
   </div>
-  @if (useOverlay) {
+  @if (useOverlay()) {
     <m-popover #searchOverlay [anchorName]="anchorName">
       <ng-container *ngTemplateOutlet="results" />
     </m-popover>
@@ -28,22 +28,22 @@
 <ng-template #results>
   <div
     class="flex min-h-12 flex-col justify-center gap-2"
-    [ngClass]="{ 'w-96 max-w-[calc(100vw-3rem)]': useOverlay }"
+    [ngClass]="{ 'w-96 max-w-[calc(100vw-3rem)]': useOverlay() }"
     (keydown)="onKeydown($event)"
   >
-    @if (search.invalid && search.value.length > 0 && found.length === 0) {
+    @if (searchStatus() === 'INVALID' && searchValue().length > 0 && found().length === 0) {
       <div class="flex flex-row flex-wrap justify-center gap-4">
         <p class="my-auto text-center text-lg text-gray-200">
           {{ getFirstError() }}
         </p>
-        <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
+        <ng-container *ngTemplateOutlet="appendTemplate()"></ng-container>
       </div>
-    } @else if (search.value.length > 0) {
-      @for (user of found; track $index; let isLast = $last) {
+    } @else if (searchValue().length > 0) {
+      @for (user of found(); track $index; let isLast = $last) {
         <div
           class="rounded bg-white bg-opacity-0 p-2 transition-colors"
-          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx }"
-          (mouseenter)="selectedIdx = $index"
+          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx() }"
+          (mouseenter)="selectedIdx.set($index)"
           (click)="onSelected(user)"
         >
           <div class="flex items-center">
@@ -52,7 +52,7 @@
               <div class="flex w-full leading-4">
                 <p class="mr-1 font-bold leading-4">{{ user.alias }}</p>
                 <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
-                @if (showProfileButton) {
+                @if (showProfileButton()) {
                   <a
                     [routerLink]="'/profile/' + user.id"
                     (click)="$event.stopPropagation()"
@@ -80,13 +80,13 @@
           <p-paginator
             class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
             (onPageChange)="pageChange.next($event)"
-            [first]="first"
+            [first]="first()"
             [rows]="rows"
-            [totalRecords]="totalRecords"
+            [totalRecords]="totalRecords()"
             [showCurrentPageReport]="true"
             [alwaysShow]="false"
           />
-          <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
+          <ng-container *ngTemplateOutlet="appendTemplate()"></ng-container>
         }
       } @empty {
         <m-spinner />
