@@ -12,9 +12,7 @@
   [ngClass]="{
     'pointer-events-none brightness-50 saturate-50': disabled()
   }"
-  [style.--lb-cols]="
-    `minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved() ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`
-  "
+  [style.--lb-cols]="`minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved() ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`"
 >
   <thead class="mt-3 hidden bg-gray-950 p-3 lg:contents">
     <tr class="contents">

@@ -39,9 +39,7 @@ export class MapSubmissionApprovalDto implements MapSubmissionApproval {
     [LeaderboardType.HIDDEN]: LeaderboardType.HIDDEN
   })
   readonly type:
-    | LeaderboardType.RANKED
-    | LeaderboardType.UNRANKED
-    | LeaderboardType.HIDDEN;
+    LeaderboardType.RANKED | LeaderboardType.UNRANKED | LeaderboardType.HIDDEN;
 
   @ApiProperty({ description: 'Final tags' })
   @IsEnum(MapTag, { each: true })

@@ -14,8 +14,10 @@ import * as Enum from '@momentum/enum';
 import { arrayFrom } from '@momentum/util-fn';
 import { isLinearMainTrack } from '@momentum/formats/zone';
 
-export interface LeaderboardProps
-  extends Pick<MapSubmissionSuggestion, 'gamemode' | 'trackType' | 'trackNum'> {
+export interface LeaderboardProps extends Pick<
+  MapSubmissionSuggestion,
+  'gamemode' | 'trackType' | 'trackNum'
+> {
   style?: Style;
   linear?: boolean;
 }
