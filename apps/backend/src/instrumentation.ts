@@ -25,11 +25,11 @@ const opts: Sentry.NodeOptions = {
   dsn,
   environment: process.env['SENTRY_ENV'],
   tracesSampleRate: sampleRate,
-  profilesSampleRate: sampleRate,
+  profileSessionSampleRate: sampleRate,
+  profileLifecycle: 'trace',
   debug: false,
   normalizeDepth: 10,
-  integrations,
-  _experiments: { enableLogs: true }
+  integrations
 };
 
 if (process.env['NODE_ENV'] === Environment.PRODUCTION && dsn) {

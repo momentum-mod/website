@@ -19,9 +19,9 @@ if (process.env.NODE_ENV === 'prod' && dsn) {
   Sentry.init({
     dsn,
     tracesSampleRate: sampleRate,
-    profilesSampleRate: sampleRate,
+    profileSessionSampleRate: sampleRate,
+    profileLifecycle: 'trace',
     normalizeDepth: 6,
-    integrations,
-    enableLogs: true
+    integrations
   });
 }
