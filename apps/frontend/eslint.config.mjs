@@ -10,10 +10,10 @@ export default [
     rules: {
       '@angular-eslint/directive-selector': [
         'error',
-        {
-          type: ['element', 'attribute'],
-          prefix: ['m']
-        }
+        [
+          { type: 'attribute', prefix: ['m'], style: 'camelCase' },
+          { type: 'element', prefix: ['m'], style: 'kebab-case' }
+        ]
       ],
       '@angular-eslint/component-selector': [
         'error',
