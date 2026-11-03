@@ -5,14 +5,7 @@ import { NgClass } from '@angular/common';
 
 // Should correspond to .btn-<color> classes.
 export type NStateButtonColor =
-  | 'blue'
-  | 'pale'
-  | 'red'
-  | 'green'
-  | 'orange'
-  | 'pink'
-  | 'purple'
-  | 'yellow';
+  'blue' | 'pale' | 'red' | 'green' | 'orange' | 'pink' | 'purple' | 'yellow';
 
 export type NStateButtonStates = Array<{
   color: NStateButtonColor | null;

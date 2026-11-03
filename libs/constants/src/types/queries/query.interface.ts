@@ -3,10 +3,7 @@
 
 export type QueryParam = {
   [param: string]:
-    | string
-    | number
-    | boolean
-    | ReadonlyArray<string | number | boolean>;
+    string | number | boolean | ReadonlyArray<string | number | boolean>;
 };
 
 export type QueryParamOptional = {

@@ -29,9 +29,9 @@ import { UserDto } from '../user/user.dto';
 import { MapReviewDto } from '../map/map-review.dto';
 import { MapReviewCommentDto } from '../map/map-review-comment.dto';
 
-export class NotificationDto<T = NotificationType>
-  implements AbstractNotification<T>
-{
+export class NotificationDto<
+  T = NotificationType
+> implements AbstractNotification<T> {
   @IdProperty()
   readonly id: number;
 

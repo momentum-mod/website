@@ -118,13 +118,11 @@ export class UpdateReportDialogComponent implements OnInit {
           ? new Date(Date.now() + banDuration).toISOString()
           : null;
 
-        body.chatBans = types.map(
-          (type): CreateChatBan => ({
-            type,
-            expiresAt,
-            reason: banReason || null
-          })
-        );
+        body.chatBans = types.map((type): CreateChatBan => ({
+          type,
+          expiresAt,
+          reason: banReason || null
+        }));
       }
     } else {
       body = { resolved, resolutionMessage };
