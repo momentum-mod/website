@@ -56,7 +56,7 @@ import {
   parallel
 } from '@momentum/util-fn';
 import { File } from '@nest-lab/fastify-multer';
-import { vdf } from 'fast-vdf';
+import { parse as parseVdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
 import { Merge, MergeExclusive } from 'type-fest';
@@ -1228,7 +1228,7 @@ export class MapsService {
         throw new BadRequestException('Invalid VMF file');
 
       try {
-        vdf.parse(file.buffer.toString());
+        parseVdf(file.buffer.toString());
       } catch (error) {
         throw new BadRequestException(`Invalid VMF file: ${error.message}`);
       }
