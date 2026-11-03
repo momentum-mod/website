@@ -208,10 +208,38 @@ export interface MMap {
   credits: MapCredit[];
   favorites: MapFavorite[];
   leaderboards: Leaderboard[];
-  worldRecord: LeaderboardRun;
-  personalBest: LeaderboardRun;
+  /** The map's world record on the requested leaderboard (track + style). */
+  worldRecord: MapLeaderboardTime;
+  /**
+   * The logged-in user's PB time on every leaderboard (track + style) they've
+   * completed on this map. Only populated when the `personalBests` query param is
+   * set. The game caches these so the map selector's completion table can show PB
+   * times without refetching (a user's PB only changes when they submit a run).
+   */
+  personalBests?: MapLeaderboardTime[];
   testInvites?: MapTestInvite[];
   reviewStats?: MapReviewStats;
+}
+
+/**
+ * A single recorded time on one leaderboard (track + style) of a map. A slim
+ * projection of {@link LeaderboardRun} - just the leaderboard coordinates and the
+ * time, which is all the game needs for the map selector (a user PB in
+ * {@link MMap.personalBests}, or the {@link MMap.worldRecord}). Deliberately omits
+ * rank and the full user, which nothing consumes for these.
+ */
+export interface MapLeaderboardTime {
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+  time: number;
+  /**
+   * Steam ID of the player who set the time. Only sent for {@link MMap.worldRecord},
+   * where the game needs to identify the holder for the WR-holder achievement; omitted
+   * for {@link MMap.personalBests}, where it's always the requesting user.
+   */
+  steamID?: string;
 }
 
 export interface MapVersion {
@@ -480,6 +508,26 @@ export interface Leaderboard {
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;
+}
+
+/**
+ * A single track's completion status for a given user, as summarised for the
+ * game's map selector. There's one of these per leaderboard (track) on a map
+ * for a given gamemode + style, whether or not the user has completed it.
+ *
+ * The user has completed the track iff `rank` is non-null. Other per-track data
+ * the game already has from its map cache (e.g. leaderboard type, linearity, tier,
+ * and the user's PB time) is intentionally omitted here, as is the completion
+ * group (CompletionGroup), which the front end derives from `rank` +
+ * `totalCompletions`.
+ */
+export interface MapCompletion {
+  trackType: TrackType;
+  trackNum: number;
+  /** Total number of users who have completed this track. */
+  totalCompletions: number;
+  /** The user's PB rank, null if not completed. */
+  rank: number | null;
 }
 
 export interface LeaderboardRun {
