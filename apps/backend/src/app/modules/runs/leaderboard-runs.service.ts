@@ -11,6 +11,8 @@ import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
+  MapCompletionDto,
+  MapCompletionsGetQueryDto,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
   PagedResponseDto,
@@ -80,10 +82,13 @@ export class LeaderboardRunsService {
           throw new GoneException('User has no runs on this leaderboard');
         }
 
-        // Start at your rank, then backtrack by half of `take`, then 1 for your rank
-        const skip = Math.max(rank - Math.floor(query.take / 2) - 1, 0);
-        // We include your rank, so increment `take` by 1.
-        const take = query.take + 1;
+        // Return the page-aligned window of `take` runs that contains the
+        // user's PB, using the same fixed page size the client paginates with.
+        // The client derives which page this is from its own row in the
+        // response (rank -> floor((rank - 1) / take)).
+        const page = Math.floor((rank - 1) / query.take);
+        const skip = page * query.take;
+        const take = query.take;
 
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
@@ -107,6 +112,12 @@ export class LeaderboardRunsService {
           throw new GoneException('No friends detected :(');
 
         steamIDs = steamFriends.map((item) => BigInt(item.steamid));
+
+        // Always add the local player to the list, client handles the case where it's the only record returned
+        if (loggedInUserSteamID) {
+          steamIDs.push(loggedInUserSteamID);
+        }
+
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
           ...query,
@@ -196,6 +207,45 @@ export class LeaderboardRunsService {
     }
 
     throw new NotFoundException('Run not found');
+  }
+
+  /**
+   * Returns the logged-in user's completion status for every track on a map, in
+   * a single gamemode + style. One entry per leaderboard (track), whether or not
+   * the user has completed it. The game merges this with its map cache (track
+   * labels, tiers, and the PB time) to build the map selector's completion table.
+   *
+   * Note: tier, the PB time, and the completion group are not returned here. The
+   * game sources tier and PB time from its map cache (tier because Leaderboard.tier
+   * is null for submission maps; PB time because it only changes when the user
+   * submits a run, so it's cached per track/style from GetMap). The completion group
+   * is derived on the front end from rank + totalCompletions.
+   */
+  async getMapUserCompletions(
+    mapID: number,
+    query: MapCompletionsGetQueryDto,
+    loggedInUserID: number
+  ): Promise<MapCompletionDto[]> {
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID: loggedInUserID
+    });
+
+    const rows = await this.leaderboardRunsDbService.getMapUserCompletions({
+      mapID,
+      gamemode: query.gamemode,
+      style: query.style,
+      userID: loggedInUserID
+    });
+
+    return rows.map((row) =>
+      DtoFactory(MapCompletionDto, {
+        trackType: row.trackType,
+        trackNum: row.trackNum,
+        totalCompletions: row.totalCompletions ?? 0,
+        rank: row.rank
+      })
+    );
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {
