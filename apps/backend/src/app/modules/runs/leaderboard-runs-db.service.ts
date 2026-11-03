@@ -1,6 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { LeaderboardRun, TypedSql } from '@momentum/db';
-import { type Gamemode, type Style, type TrackType } from '@momentum/constants';
+import { LeaderboardRun, TypedSql, User } from '@momentum/db';
+import {
+  type Gamemode,
+  type MapCompletion,
+  type MapLeaderboardTime,
+  type Style,
+  type TrackType
+} from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   ExtendedPrismaService,
@@ -40,9 +46,9 @@ export class LeaderboardRunsDbService {
       includeSplits?: IncludeSplits;
     }
   ): Promise<
-    IncludeSplits extends true
-      ? LeaderboardRun[]
-      : Omit<LeaderboardRun, 'splits'>[]
+    ((IncludeSplits extends true
+      ? LeaderboardRun
+      : Omit<LeaderboardRun, 'splits'>) & { user: User })[]
   > {
     const skip = args.skip === undefined ? 0 : args.skip;
     const take = args.take === undefined ? 10 : args.take;
@@ -99,32 +105,6 @@ export class LeaderboardRunsDbService {
     return rows.map(LeaderboardRunsDbService.mapRowToLeaderboardRun);
   }
 
-  /**
-   * Get a single ranked run for a user on a specific leaderboard.
-   */
-  async getRankedRun(
-    args: LeaderboardQuery & { userID: number }
-  ): Promise<LeaderboardRun | undefined> {
-    const sql = TypedSql.getLeaderboardRun(
-      args.mapID,
-      args.gamemode,
-      args.trackType,
-      args.trackNum,
-      args.style,
-      args.userID
-    );
-
-    const rows: any[] = args.transaction
-      ? await args.transaction.$queryRawTyped(sql)
-      : await this.db.$queryRawTyped(sql);
-
-    if (rows.length === 0) {
-      return undefined;
-    }
-
-    return LeaderboardRunsDbService.mapRowToLeaderboardRun(rows[0]);
-  }
-
   private static mapRowToLeaderboardRun(row: any): any {
     return {
       rank: row.rank,
@@ -150,6 +130,57 @@ export class LeaderboardRunsDbService {
         createdAt: row.user_createdAt
       }
     };
+  }
+
+  /**
+   * Get every track on a map for a gamemode + style, with its total completions
+   * and the user's PB rank (null if not completed).
+   */
+  async getMapUserCompletions(args: {
+    mapID: number;
+    gamemode: Gamemode;
+    style: Style;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<MapCompletion[]> {
+    const sql = TypedSql.getMapUserCompletions(
+      args.mapID,
+      args.gamemode,
+      args.style,
+      args.userID
+    );
+
+    const rows = args.transaction
+      ? await args.transaction.$queryRawTyped(sql)
+      : await this.db.$queryRawTyped(sql);
+
+    return rows.map((row) => ({
+      trackType: row.trackType as TrackType,
+      trackNum: row.trackNum,
+      totalCompletions: row.totalCompletions ?? 0,
+      rank: row.rank
+    }));
+  }
+
+  /**
+   * Get the user's PB time on every leaderboard they've completed on a map.
+   */
+  async getMapUserPersonalBests(args: {
+    mapID: number;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<MapLeaderboardTime[]> {
+    const db = args.transaction ?? this.db;
+    return db.leaderboardRun.findMany({
+      where: { mapID: args.mapID, userID: args.userID },
+      select: {
+        gamemode: true,
+        trackType: true,
+        trackNum: true,
+        style: true,
+        time: true
+      }
+    });
   }
 
   /**
