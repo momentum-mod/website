@@ -181,7 +181,7 @@ export class UsersService {
           'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
         );
 
-      let roles = undefined;
+      let roles: Role | undefined;
       if (
         this.config.getOrThrow('steam.preventLimited') &&
         (await this.steamService.isAccountLimited(steamID))
