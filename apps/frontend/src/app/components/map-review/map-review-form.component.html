@@ -69,7 +69,7 @@
         </p>
       </div>
     </ng-template>
-    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="loading || form.invalid || form.pristine">
+    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="loading() || form.invalid || form.pristine">
       {{ editing ? 'Update' : 'Post' }}
     </button>
   </div>

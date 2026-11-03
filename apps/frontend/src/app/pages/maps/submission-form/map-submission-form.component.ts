@@ -1,11 +1,13 @@
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   HostListener,
   isDevMode,
   OnInit,
   ViewChild,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -100,6 +102,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   private readonly nnfb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngHttp = inject(HttpClient);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   protected readonly FormUtils = FormUtils;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
@@ -109,15 +112,15 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   @ViewChild(MapLeaderboardSelectionComponent)
   lbSelection: MapLeaderboardSelectionComponent;
 
-  isUploading = false;
-  uploadPercentage = 0;
-  uploadStatusDescription = '';
+  protected readonly isUploading = signal(false);
+  protected readonly uploadPercentage = signal(0);
+  protected readonly uploadStatusDescription = signal('');
 
   protected zones: MapZones | null = null;
 
-  isMapperOrPorter: boolean;
-  isModOrAdmin: boolean;
-  hasMapInSubmission: boolean;
+  protected readonly isMapperOrPorter = signal(false);
+  protected readonly isModOrAdmin = signal(false);
+  protected readonly hasMapInSubmission = signal(false);
 
   form = this.nnfb.group({
     files: this.nnfb.group({
@@ -222,11 +225,11 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     this.localUserService.user
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this.isMapperOrPorter = this.localUserService.hasRole(
-          CombinedRoles.MAPPER_AND_ABOVE
+        this.isMapperOrPorter.set(
+          this.localUserService.hasRole(CombinedRoles.MAPPER_AND_ABOVE)
         );
-        this.isModOrAdmin = this.localUserService.hasRole(
-          CombinedRoles.MOD_OR_ADMIN
+        this.isModOrAdmin.set(
+          this.localUserService.hasRole(CombinedRoles.MOD_OR_ADMIN)
         );
 
         if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
@@ -240,7 +243,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
 
     this.mapsService
       .getMapSubmissions()
-      .subscribe((value) => (this.hasMapInSubmission = value.totalCount > 0));
+      .subscribe((value) => this.hasMapInSubmission.set(value.totalCount > 0));
   }
 
   async onBspFileSelected() {
@@ -256,6 +259,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     // This has been validated already
     this.zones = JSON.parse(await this.zon.value.text()) as MapZones;
     this.lbSelection.zones = this.zones;
+    // Setting a plain property on the child doesn't schedule change detection
+    this.cdRef.markForCheck();
 
     // A zone file *coooould* have a different filename from the BSP so try the
     // BSP first
@@ -308,7 +313,7 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
 
-    this.isUploading = true;
+    this.isUploading.set(true);
     let mapID: number;
     let mapName: string;
 
@@ -327,12 +332,12 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
             tap((event: HttpEvent<string>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
-                  this.isUploading = true;
-                  this.uploadStatusDescription = 'Uploading BSP file...';
+                  this.isUploading.set(true);
+                  this.uploadStatusDescription.set('Uploading BSP file...');
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage = Math.round(
-                    (event['loaded'] / event['total']) * 80
+                  this.uploadPercentage.set(
+                    Math.round((event['loaded'] / event['total']) * 80)
                   );
                   break;
               }
@@ -370,19 +375,20 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
             tap((event: HttpEvent<MMap>) => {
               switch (event.type) {
                 case HttpEventType.Sent:
-                  this.isUploading = true;
-                  this.uploadStatusDescription = 'Submitting map...';
+                  this.isUploading.set(true);
+                  this.uploadStatusDescription.set('Submitting map...');
                   break;
                 case HttpEventType.UploadProgress:
-                  this.uploadPercentage =
-                    80 + Math.round((event['loaded'] / event['total']) * 10);
+                  this.uploadPercentage.set(
+                    80 + Math.round((event['loaded'] / event['total']) * 10)
+                  );
                   break;
                 case HttpEventType.Response: {
                   const dto: MMap = event.body;
                   mapID = dto.id;
                   mapName = dto.name;
-                  this.uploadStatusDescription = 'Uploading images...';
-                  this.uploadPercentage = 90;
+                  this.uploadStatusDescription.set('Uploading images...');
+                  this.uploadPercentage.set(90);
                   break;
                 }
               }
@@ -420,8 +426,8 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
       // needed.
     }
 
-    this.uploadPercentage = 100;
-    this.uploadStatusDescription = 'Upload completed!';
+    this.uploadPercentage.set(100);
+    this.uploadStatusDescription.set('Upload completed!');
     this.messageService.add({
       severity: 'success',
       summary: 'Map upload complete!'
@@ -437,18 +443,18 @@ export class MapSubmissionFormComponent implements OnInit, ConfirmDeactivate {
   }
 
   resetUpload() {
-    this.uploadStatusDescription = '';
-    this.uploadPercentage = 0;
-    this.isUploading = false;
+    this.uploadStatusDescription.set('');
+    this.uploadPercentage.set(0);
+    this.isUploading.set(false);
   }
 
   @HostListener('window:beforeunload', ['$event'])
   canLeavePage(_event: Event): boolean {
-    return (!this.isUploading && !this.form.dirty) || isDevMode();
+    return (!this.isUploading() && !this.form.dirty) || isDevMode();
   }
 
   canDeactivate(): true | string {
-    if (this.isUploading)
+    if (this.isUploading())
       return 'Map is currently uploading, are you sure you want to leave this page?';
     else if (this.form.dirty)
       return 'Form is incomplete, are you sure you want to leave this page?';

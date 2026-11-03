@@ -1,13 +1,13 @@
 <div class="grid grid-cols-1 gap-4 lg:grid-flow-col lg:grid-cols-[minmax(auto,14rem)_1fr] lg:grid-rows-[auto_auto]">
   <p class="card-title text-nowrap text-40 md:text-48">Your Maps</p>
   <div class="flex flex-col gap-4">
-    @if (hasSubmissionBan) {
+    @if (hasSubmissionBan()) {
       <p>You are banned from map submission</p>
     } @else {
       <m-card title="Map Summary">
-        @if (summaryLoading || summary?.length > 0) {
-          <div class="flex flex-col gap-1" [mSpinner]="summaryLoading">
-            @for (item of summary; track item.status) {
+        @if (summaryLoading() || summary()?.length > 0) {
+          <div class="flex flex-col gap-1" [mSpinner]="summaryLoading()">
+            @for (item of summary(); track item.status) {
               <p class="text-gray-300">{{ MapStatusName.get(item.status) }}</p>
               <p class="mb-1 text-gray-50">{{ item.statusCount }}</p>
             }
@@ -62,5 +62,5 @@
       </div>
     </form>
   </div>
-  <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
+  <m-map-list [maps]="maps()" [loadMore]="loadMore" [loading]="loading()" [isSubmissionPage]="true" />
 </div>

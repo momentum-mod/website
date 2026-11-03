@@ -1,6 +1,6 @@
 <p class="card-title text-5xl sm:text-8xl">Map Submission</p>
 
-@if (isMapperOrPorter || !hasMapInSubmission || true) {
+@if (isMapperOrPorter() || !hasMapInSubmission() || true) {
   <m-alert class="alert--fancy my-8 bg-blue-700 bg-opacity-20">
     <p class="max-w-[70rem] pr-6">
       If this is your first time submitting a map, please check our
@@ -150,7 +150,7 @@
         <p class="card-title ml-2 text-4xl md:text-5xl">Details</p>
       </div>
       <div class="card card--fancy mt-6 p-4 pt-10">
-        <m-map-details-form [formGroup]="details" [isModOrAdmin]="isModOrAdmin" />
+        <m-map-details-form [formGroup]="details" [isModOrAdmin]="isModOrAdmin()" />
       </div>
     </div>
 
@@ -366,14 +366,14 @@
       </div>
     </div>
     <div class="mt-4 flex">
-      @if (isUploading) {
+      @if (isUploading()) {
         <div class="my-auto flex flex-grow flex-col">
-          <p-progressBar [value]="uploadPercentage" [showValue]="false" class="mr-6" />
-          <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+          <p-progressBar [value]="uploadPercentage()" [showValue]="false" class="mr-6" />
+          <p class="mt-2 text-center italic">{{ uploadStatusDescription() }}</p>
         </div>
       }
       <div class="ml-auto h-full">
-        <button class="btn btn-green gap-2 px-4 text-xl" type="submit" [disabled]="form.invalid || isUploading">
+        <button class="btn btn-green gap-2 px-4 text-xl" type="submit" [disabled]="form.invalid || isUploading()">
           Submit Map
           <m-icon class="text-3xl" icon="upload" />
         </button>

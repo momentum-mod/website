@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+  signal
+} from '@angular/core';
 import {
   CombinedRoles,
   GamemodeInfo,
@@ -137,11 +144,11 @@ export class MapReviewFormComponent {
     return this.form.get('images') as FormControl<File[]>;
   }
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   submit() {
-    if (this.loading || this.form.invalid || this.form.pristine) return;
-    this.loading = true;
+    if (this.loading() || this.form.invalid || this.form.pristine) return;
+    this.loading.set(true);
 
     const suggestions =
       this.suggestions.value.length > 0 ? this.suggestions.value : undefined;
@@ -172,7 +179,7 @@ export class MapReviewFormComponent {
     req
       .pipe(
         take(1),
-        finalize(() => (this.loading = false))
+        finalize(() => this.loading.set(false))
       )
       .subscribe({
         next: () => {

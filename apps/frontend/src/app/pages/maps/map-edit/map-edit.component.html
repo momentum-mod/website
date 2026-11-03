@@ -1,5 +1,5 @@
 <m-card-header titleSize="5" title="Edit Map">
-  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + map?.name">Return to Map</button>
+  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + map()?.name">Return to Map</button>
 </m-card-header>
 
 <!-- Using `display: none` instead of ngIf to hide stuff as this component
@@ -8,9 +8,9 @@
 <form
   [formGroup]="versionForm"
   (ngSubmit)="submitVersionForm()"
-  [mSpinner]="loading"
+  [mSpinner]="loading()"
   class="card card--fancy my-8 flex-col overflow-visible p-4"
-  [ngClass]="canEdit || isSubmitter ? '!flex' : '!hidden'"
+  [ngClass]="canEdit || isSubmitter() ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
   <div class="card-title -mt-10 mb-2 text-4xl md:text-5xl">Submit New Version</div>
@@ -35,7 +35,7 @@
       <button
         type="submit"
         class="btn btn-green self-end"
-        [disabled]="loading || isSubmittingVersionForm || versionForm.pristine || versionForm.invalid"
+        [disabled]="loading() || isSubmittingVersionForm() || versionForm.pristine || versionForm.invalid"
       >
         Submit
       </button>
@@ -60,16 +60,16 @@
       </p>
     </div>
   }
-  @if (isUploading) {
-    <p-progressBar class="mb-2 mt-8" [value]="uploadPercentage" [showValue]="false" />
-    <p class="text-center italic">{{ uploadStatusDescription }}</p>
+  @if (isUploading()) {
+    <p-progressBar class="mb-2 mt-8" [value]="uploadPercentage()" [showValue]="false" />
+    <p class="text-center italic">{{ uploadStatusDescription() }}</p>
   }
 </form>
 
 <div
-  [mSpinner]="loading"
+  [mSpinner]="loading()"
   class="card card--fancy my-8 flex-col gap-4 overflow-visible p-4"
-  [ngClass]="isSubmitter && map.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
+  [ngClass]="isSubmitter() && map()?.status === MapStatus.PRIVATE_TESTING ? '!flex' : '!hidden'"
 >
   <p class="card-title -mb-4 -mt-9 text-4xl md:text-5xl">Invite Testers</p>
   <m-map-test-invite-selection [formControl]="testInviteForm" />
@@ -77,7 +77,7 @@
     type="button"
     (click)="submitTestInviteForm()"
     class="btn btn-green self-end"
-    [disabled]="loading || isSubmittingTestInviteForm || testInviteForm.pristine || testInviteForm.invalid"
+    [disabled]="loading() || isSubmittingTestInviteForm() || testInviteForm.pristine || testInviteForm.invalid"
   >
     Update Invites
   </button>
@@ -86,19 +86,19 @@
 <form
   [formGroup]="mainForm"
   (ngSubmit)="submitMainForm()"
-  [mSpinner]="loading"
+  [mSpinner]="loading()"
   class="card card--fancy mb-8 mt-14 flex-col gap-8 overflow-visible p-4"
-  [ngClass]="isModOrAdmin || isSubmitter || isReviewer ? '!flex' : '!hidden'"
+  [ngClass]="isModOrAdmin || isSubmitter() || isReviewer ? '!flex' : '!hidden'"
   preventEnterSubmit
 >
   <p class="card-title -mb-4 -mt-9 text-4xl md:text-5xl">Update Map</p>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter() ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Details</legend>
     <m-map-details-form [formGroup]="details" [isModOrAdmin]="isModOrAdmin" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter() ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Change Submitter</legend>
     <p class="color-red-500 mb-4 mt-2 italic">
       Updating this removes the ability for the current submitter to update the map. Use responsibly!
@@ -106,7 +106,7 @@
     <m-user-select [formControl]="submitter" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter() ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Images</legend>
     <m-map-image-selection [formControlPassthrough]="images" icon="image-multiple-outline" [previewFullscreenBackground]="true" />
     @if (images.errors?.['required'] && images.dirty) {
@@ -131,15 +131,15 @@
     }
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter ? '!flex' : '!hidden'">
+  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || isSubmitter() ? '!flex' : '!hidden'">
     <legend class="font-display text-4xl font-bold">Credits</legend>
     <m-map-credits-selection class="grid h-full min-h-[18rem] grid-cols-1 gap-4 lg:grid-cols-4" [formControl]="credits" />
   </fieldset>
 
-  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || (isSubmitter && !wasApproved) ? '!block' : '!hidden'">
-    @let formControl = wasApproved ? leaderboards : suggestions;
+  <fieldset class="card-inset flex flex-col" [ngClass]="canEdit || (isSubmitter() && !wasApproved()) ? '!block' : '!hidden'">
+    @let formControl = wasApproved() ? leaderboards : suggestions;
     <legend class="font-display text-4xl font-bold">Leaderboards</legend>
-    <m-map-leaderboards-selection [wasApproved]="wasApproved" [mapLeaderboards]="map.leaderboards" [formControl]="formControl" />
+    <m-map-leaderboards-selection [wasApproved]="wasApproved()" [mapLeaderboards]="map()?.leaderboards" [formControl]="formControl" />
     @if (formControl.dirty && formControl.errors) {
       <p class="my-2 ml-auto text-right text-lg text-red-400"><b>Error: </b>{{ formControl.errors['error'] }}</p>
     } @else if (formControl.pristine && formControl.errors) {
@@ -153,7 +153,7 @@
 
   <fieldset class="card-inset flex flex-col gap-2">
     <legend class="font-display text-4xl font-bold">Status Update</legend>
-    <m-map-status-form [formGroup]="statusChange" [map]="map" [sub]="isSubmitter" />
+    <m-map-status-form [formGroup]="statusChange" [map]="map()" [sub]="isSubmitter()" />
   </fieldset>
 
   <div class="-mt-4 flex flex-wrap gap-4">
@@ -162,15 +162,15 @@
         Error: {{ FormUtils.getAllErrors(mainForm) | json }}
       </p>
     }
-    <button class="btn btn-green ml-auto" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
-    <button type="button" class="btn" [routerLink]="'/maps/' + map?.name">Return to Map</button>
+    <button class="btn btn-green ml-auto" type="submit" [disabled]="loading() || mainForm.pristine || mainForm.invalid">Update Map</button>
+    <button type="button" class="btn" [routerLink]="'/maps/' + map()?.name">Return to Map</button>
   </div>
 </form>
 
-@if (isAdmin && map.info.approvedDate) {
+@if (isAdmin && map()?.info.approvedDate) {
   <button class="btn btn-red ml-auto" type="button" (click)="disableMap()">Disable map and delete files</button>
 }
 
-@if (inSubmission && !map.info.approvedDate && (isSubmitter || isAdmin)) {
+@if (inSubmission() && !map()?.info.approvedDate && (isSubmitter() || isAdmin)) {
   <button class="btn btn-red mr-auto" type="button" (click)="deleteMap()">Delete map</button>
 }

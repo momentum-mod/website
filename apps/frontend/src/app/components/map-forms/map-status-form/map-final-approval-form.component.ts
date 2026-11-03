@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, signal } from '@angular/core';
 import {
   GamemodeInfo,
   LeaderboardType,
@@ -86,7 +86,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
       .toArray();
   }
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   @Input({ required: true }) groupedLeaderboards: GroupedLeaderboards;
 
@@ -110,7 +110,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
   onChange: (value: MapSubmissionApproval[]) => void = () => void 0;

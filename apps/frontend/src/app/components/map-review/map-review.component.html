@@ -1,16 +1,16 @@
 <fieldset class="flex min-w-0 flex-col gap-2 rounded border border-white border-opacity-20 px-3 pb-4 pt-2 md:px-6 md:pb-6">
   <legend class="mb-2 flex w-full flex-wrap items-center gap-y-1 px-1">
-    <m-user [user]="review.reviewer" class="mr-1" avatarClass="!h-8" aliasClass="font-medium" [badges]="true" badgesClass="!h-4" />
-    @if (review.resolved === false) {
+    <m-user [user]="currentReview().reviewer" class="mr-1" avatarClass="!h-8" aliasClass="font-medium" [badges]="true" badgesClass="!h-4" />
+    @if (currentReview().resolved === false) {
       <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
       <m-icon icon="shield-star" class="text-red-400" mTooltip="Review requires resolving. The map cannot be approved until resolved." />
-    } @else if (review.resolved === true) {
+    } @else if (currentReview().resolved === true) {
       <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
       <m-icon icon="shield-check" class="mr-1.5 text-blue-400" />
       <p class="mr-2 text-sm italic">Resolved by</p>
-      <m-user [user]="review.resolver" avatarClass="!h-5" aliasClass="font-normal text-sm mr-1" />
+      <m-user [user]="currentReview().resolver" avatarClass="!h-5" aliasClass="font-normal text-sm mr-1" />
     }
-    @if (review.approves) {
+    @if (currentReview().approves) {
       <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
       <m-icon icon="check-decagram" class="text-green-400" mTooltip="Approved" />
     }
@@ -20,9 +20,9 @@
     <!-- prettier-ignore -->
     <p class="text-sm italic text-gray-100">
       Posted <span
-      class="font-medium">{{ review.createdAt | date:"MMM dd, hh:mm a"}}</span>@if
-    (review.editHistory?.length > 1) {, edited <span
-      class="font-medium">{{ review.editHistory.at(-1).date |
+      class="font-medium">{{ currentReview().createdAt | date:"MMM dd, hh:mm a"}}</span>@if
+    (currentReview().editHistory?.length > 1) {, edited <span
+      class="font-medium">{{ currentReview().editHistory.at(-1).date |
       date:"MMM dd, hh:mm a" }}</span>}
     </p>
     @if (isReviewAuthor) {
@@ -37,10 +37,10 @@
     }
   </legend>
 
-  @if (!editing) {
+  @if (!editing()) {
     <div class="flex flex-col gap-4">
-      <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ review.mainText }}</p>
-      @if (suggestions?.size > 0) {
+      <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ currentReview().mainText }}</p>
+      @if (suggestions()?.size > 0) {
         <!-- Tags move onto their own full-width line on mobile, to leave room for the other columns. -->
         <div
           class="grid grid-flow-row grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-4 max-md:gap-y-1 md:grid-cols-[auto_auto_auto_minmax(auto,1fr)] md:gap-x-5"
@@ -50,7 +50,7 @@
           <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Rating</p>
           <p class="text-sm font-medium uppercase text-gray-250 max-md:hidden">Tags</p>
 
-          @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
+          @for (gamemode of suggestions() | unsortedKeyvalue; track $index) {
             @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
               <p class="text-sm text-gray-50">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
               <p class="justify-self-center text-sm font-medium">{{ mainSugg.tier ?? '' }}</p>
@@ -78,10 +78,10 @@
         </div>
       }
 
-      @if (review.images?.length > 0) {
-        <m-gallery #gallery [items]="images" />
+      @if (currentReview().images?.length > 0) {
+        <m-gallery #gallery [items]="images()" />
         <div class="grid grid-cols-3 gap-2 rounded bg-black bg-opacity-20 p-1.5 sm:grid-cols-6">
-          @for (image of images; track $index; let galleryImageIndex = $index) {
+          @for (image of images(); track $index; let galleryImageIndex = $index) {
             <button
               type="button"
               class="hover-white-overlay rounded-sm shadow-lg"
@@ -97,24 +97,24 @@
     <m-map-review-form
       [map]="map"
       [editing]="true"
-      [reviewID]="review.id"
+      [reviewID]="currentReview().id"
       (canceledEditing)="disableEditing()"
       (reviewPosted)="updatedOrDeleted.next(); disableEditing()"
     />
   }
 
-  @if (review.comments.length > 0) {
+  @if (currentReview().comments.length > 0) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-10"></div>
 
-    @if (review.numComments > review.comments.length) {
+    @if (currentReview().numComments > currentReview().comments.length) {
       <p class="px-1 text-sm italic text-gray-100">
-        {{ review.numComments - review.comments.length | plural: 'additional comment' }} -
+        {{ currentReview().numComments - currentReview().comments.length | plural: 'additional comment' }} -
         <button type="button" class="link font-medium italic" (click)="loadComments.next()">Load more</button>
       </p>
     }
 
-    <div class="flex flex-col gap-3" [mSpinner]="loadingComments">
-      @for (comment of review.comments.slice().reverse(); track $index) {
+    <div class="flex flex-col gap-3" [mSpinner]="loadingComments()">
+      @for (comment of currentReview().comments.slice().reverse(); track $index) {
         <div class="ml-1 flex flex-col">
           <div class="flex flex-wrap items-center gap-x-2">
             <m-user
@@ -147,7 +147,7 @@
               </button>
             }
           </div>
-          @if (editModeComments.get(comment.id); as editForm) {
+          @if (editModeComments().get(comment.id); as editForm) {
             <form [formGroup]="editForm" (ngSubmit)="editComment(comment.id)" class="contents">
               <textarea
                 rows="1"
@@ -163,11 +163,11 @@
                     >{{ MAX_REVIEW_COMMENT_LENGTH - editForm.value.textInput?.length | plural: 'character' }} remaining</span
                   >
                 }
-                <button type="button" class="btn btn-red btn-thin ml-auto" (click)="editModeComments.delete(comment.id)">Cancel</button>
+                <button type="button" class="btn btn-red btn-thin ml-auto" (click)="cancelEditComment(comment.id)">Cancel</button>
                 <button
                   type="submit"
                   class="btn btn-green btn-thin"
-                  [disabled]="loadingComments || editForm.invalid || editForm.controls.textInput.value.length === 0"
+                  [disabled]="loadingComments() || editForm.invalid || editForm.controls.textInput.value.length === 0"
                 >
                   Update
                 </button>
@@ -199,7 +199,7 @@
           <button
             type="submit"
             class="btn btn-green btn-thin"
-            [disabled]="loadingComments || commentInput.invalid || commentInput.controls.textInput.value.length === 0"
+            [disabled]="loadingComments() || commentInput.invalid || commentInput.controls.textInput.value.length === 0"
           >
             Post
           </button>
@@ -214,7 +214,7 @@
   @if (isReviewer) {
     <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>
     <div class="flex flex-wrap gap-2">
-      @switch (review.resolved) {
+      @switch (currentReview().resolved) {
         @case (null) {
           <div class="flex justify-end gap-1">
             <button type="button" class="btn btn-thin" (click)="updateResolvedStatus(false)">Mark as needs resolving</button>

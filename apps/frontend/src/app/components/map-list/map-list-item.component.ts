@@ -5,7 +5,8 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import {
   GamemodeInfo,
@@ -63,7 +64,7 @@ export class MapListItemComponent implements OnChanges {
 
   @Output() favoriteUpdate = new EventEmitter();
 
-  inFavorites: boolean;
+  protected readonly inFavorites = signal(false);
   statusName = '';
   authors: Array<{ id?: number; alias: string }>;
   name: string;
@@ -77,7 +78,7 @@ export class MapListItemComponent implements OnChanges {
     // This isn't well-documented (or designed), but `favorites` here is an
     // of MapFavorite entries that match the LU id. So if > 0, user has it
     // favourited.
-    this.inFavorites = this.map.favorites?.length > 0;
+    this.inFavorites.set(this.map.favorites?.length > 0);
     this.statusName = MapStatusName.get(this.map.status as any);
 
     const [name, prefix] = extractPrefixFromMapName(this.map.name);
@@ -101,10 +102,10 @@ export class MapListItemComponent implements OnChanges {
   toggleMapInFavorites(event?: Event) {
     event?.stopPropagation();
     event?.preventDefault();
-    if (this.inFavorites) {
+    if (this.inFavorites()) {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe({
         next: () => {
-          this.inFavorites = false;
+          this.inFavorites.set(false);
           this.favoriteUpdate.emit(false);
           this.messageService.add({
             severity: 'success',
@@ -120,7 +121,7 @@ export class MapListItemComponent implements OnChanges {
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
-          this.inFavorites = true;
+          this.inFavorites.set(true);
           this.favoriteUpdate.emit(true);
           this.messageService.add({
             severity: 'success',

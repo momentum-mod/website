@@ -3,7 +3,9 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
-  inject
+  computed,
+  inject,
+  signal
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActiveChatBan, ChatBanTypeNames, User } from '@momentum/constants';
@@ -24,14 +26,13 @@ export class ProfileChatBansComponent implements OnChanges {
 
   protected readonly ChatBanTypeNames = ChatBanTypeNames;
 
-  protected bans: ActiveChatBan[] = [];
+  protected readonly bans = signal<ActiveChatBan[]>([]);
+  protected readonly activeBans = computed(() =>
+    this.bans().filter((ban) => this.isActive(ban))
+  );
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['user']) this.load();
-  }
-
-  protected get activeBans(): ActiveChatBan[] {
-    return this.bans.filter((ban) => this.isActive(ban));
   }
 
   protected isActive(ban: ActiveChatBan): boolean {
@@ -55,7 +56,7 @@ export class ProfileChatBansComponent implements OnChanges {
 
   private load() {
     if (!this.user) {
-      this.bans = [];
+      this.bans.set([]);
       return;
     }
 
@@ -70,13 +71,13 @@ export class ProfileChatBansComponent implements OnChanges {
           take: 100
         })
         .subscribe({
-          next: (response) => (this.bans = response.data),
-          error: () => (this.bans = [])
+          next: (response) => this.bans.set(response.data),
+          error: () => this.bans.set([])
         });
     } else if (this.isLocal) {
-      this.bans = this.user.chatBans ?? [];
+      this.bans.set(this.user.chatBans ?? []);
     } else {
-      this.bans = [];
+      this.bans.set([]);
     }
   }
 }

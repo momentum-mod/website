@@ -1,4 +1,4 @@
-import { Component, forwardRef, HostBinding } from '@angular/core';
+import { Component, forwardRef, HostBinding, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { User } from '@momentum/constants';
 import { UserComponent } from '../user/user.component';
@@ -19,10 +19,12 @@ import { UserSearchComponent } from '../search/user-search.component';
   styles: '.disabled { pointer-events: none; opacity: 0.5 }'
 })
 export class UserSelectComponent implements ControlValueAccessor {
-  protected value: User | null = null;
+  protected readonly value = signal<User | null>(null);
 
-  @HostBinding('class.disabled')
-  protected disabled = false;
+  protected readonly disabled = signal(false);
+  @HostBinding('class.disabled') protected get disabledClass() {
+    return this.disabled();
+  }
 
   onChange: (value: User | null) => void = () => void 0;
   registerOnChange(fn: () => void): void {
@@ -35,20 +37,20 @@ export class UserSelectComponent implements ControlValueAccessor {
   }
 
   setDisabledState(setDisabled: boolean): void {
-    this.disabled = setDisabled;
+    this.disabled.set(setDisabled);
   }
 
   writeValue(value: User | null) {
-    this.value = value;
+    this.value.set(value);
   }
 
   selectUser(user: User) {
-    this.value = user;
+    this.value.set(user);
     this.onChange(user);
   }
 
   removeUser() {
-    this.value = null;
+    this.value.set(null);
     this.onChange(null);
   }
 }

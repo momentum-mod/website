@@ -1,4 +1,10 @@
-import { Component, Input, TemplateRef, forwardRef } from '@angular/core';
+import {
+  Component,
+  Input,
+  TemplateRef,
+  forwardRef,
+  signal
+} from '@angular/core';
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icons';
@@ -33,23 +39,23 @@ export type Chip = unknown;
 })
 export class ChipsComponent implements ControlValueAccessor {
   // The chips picked by the user
-  selected: Chip[] | null = [];
+  readonly selected = signal<Chip[]>([]);
 
   // Available chips
-  private _chips: Chip[] = [];
+  private readonly _chips = signal<Chip[]>([]);
   get chips() {
-    return this._chips;
+    return this._chips();
   }
   @Input({ required: true }) set chips(chips: Chip[]) {
-    this._chips = chips;
+    this._chips.set(chips);
 
-    this.selected =
-      this.selected?.filter((selected) => this.includesFn(chips, selected)) ??
-      [];
+    this.selected.update((selected) =>
+      selected.filter((selected) => this.includesFn(chips, selected))
+    );
   }
 
   get available() {
-    return this.chips.filter((chip) => !this.includesFn(this.selected, chip));
+    return this.chips.filter((chip) => !this.includesFn(this.selected(), chip));
   }
 
   /**
@@ -84,23 +90,23 @@ export class ChipsComponent implements ControlValueAccessor {
    */
   @Input() appendEachSelectedTemplate?: TemplateRef<any>;
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   add(chip: Chip) {
-    if (this.disabled || this.includesFn(this.selected, chip)) return;
+    if (this.disabled() || this.includesFn(this.selected(), chip)) return;
 
-    this.selected.push(chip);
-    this.onChange(this.selected);
+    this.selected.update((selected) => [...selected, chip]);
+    this.onChange(this.selected());
   }
 
   remove(chip: Chip) {
-    this.selected.splice(this.selected.indexOf(chip), 1);
-    this.onChange(this.selected);
+    this.selected.update((selected) => selected.filter((s) => s !== chip));
+    this.onChange(this.selected());
   }
 
   reset() {
-    this.selected = [];
-    this.onChange(this.selected);
+    this.selected.set([]);
+    this.onChange(this.selected());
   }
 
   getChipName(chip: Chip): string {
@@ -131,10 +137,10 @@ export class ChipsComponent implements ControlValueAccessor {
   }
 
   setDisabledState(setDisabled: boolean): void {
-    this.disabled = setDisabled;
+    this.disabled.set(setDisabled);
   }
 
   writeValue(value: Chip[] | null) {
-    this.selected = value ?? [];
+    this.selected.set(value ?? []);
   }
 }

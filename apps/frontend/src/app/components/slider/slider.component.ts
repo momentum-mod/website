@@ -338,6 +338,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
           (event) => {
             if (this.dragging) {
               this.dragging = false;
+              this.cd.markForCheck();
               this.ngZone.run(() =>
                 this.slideEnd.emit(
                   this.range

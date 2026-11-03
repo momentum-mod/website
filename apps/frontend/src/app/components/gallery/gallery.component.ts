@@ -4,10 +4,11 @@ import {
   ElementRef,
   EventEmitter,
   HostListener,
-  Input,
-  OnInit,
   Output,
-  ViewChild
+  ViewChild,
+  input,
+  linkedSignal,
+  signal
 } from '@angular/core';
 import { IconComponent } from '../../icons';
 import { SafeUrl } from '@angular/platform-browser';
@@ -35,10 +36,13 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
   imports: [NgClass, IconComponent],
   templateUrl: './gallery.component.html'
 })
-export class GalleryComponent implements OnInit, AfterViewInit {
-  @Input({ required: true }) items: GalleryItem[] = [];
-  @Input() selectedItem: GalleryItem;
-  protected selectedItemIndex = 0;
+export class GalleryComponent implements AfterViewInit {
+  readonly items = input.required<GalleryItem[]>();
+  readonly selectedItem = input<GalleryItem>();
+  protected readonly currentItem = linkedSignal(
+    () => this.selectedItem() ?? this.items()[0]
+  );
+  protected readonly selectedItemIndex = signal(0);
   @Output() selectedItemChange = new EventEmitter<GalleryItem>();
 
   @ViewChild('popover') popover: ElementRef<HTMLDivElement>;
@@ -49,10 +53,10 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   cycleLeft() {
     if (!this.popover.nativeElement.matches(':popover-open')) return;
 
-    if (this.selectedItemIndex === 0) {
-      this.selectItem(this.items.length - 1);
+    if (this.selectedItemIndex() === 0) {
+      this.selectItem(this.items().length - 1);
     } else {
-      this.selectItem(this.selectedItemIndex - 1);
+      this.selectItem(this.selectedItemIndex() - 1);
     }
   }
 
@@ -61,15 +65,11 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   cycleRight() {
     if (!this.popover.nativeElement.matches(':popover-open')) return;
 
-    if (this.selectedItemIndex === this.items.length - 1) {
+    if (this.selectedItemIndex() === this.items().length - 1) {
       this.selectItem(0);
     } else {
-      this.selectItem(this.selectedItemIndex + 1);
+      this.selectItem(this.selectedItemIndex() + 1);
     }
-  }
-
-  ngOnInit(): void {
-    this.selectedItem ??= this.items[0];
   }
 
   ngAfterViewInit(): void {
@@ -88,8 +88,8 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   }
 
   selectItem(index: number): void {
-    this.selectedItemIndex = index;
-    this.selectedItem = this.items[index];
-    this.selectedItemChange.emit(this.selectedItem);
+    this.selectedItemIndex.set(index);
+    this.currentItem.set(this.items()[index]);
+    this.selectedItemChange.emit(this.currentItem());
   }
 }

@@ -1,11 +1,11 @@
 <div class="flex max-h-[75vh] flex-col gap-4 overflow-y-auto">
-  <div [mSpinner]="loadingChatBans">
+  <div [mSpinner]="loadingChatBans()">
     <h2>Communication Bans</h2>
-    @if (!loadingChatBans && chatBans.length === 0) {
+    @if (!loadingChatBans() && chatBans().length === 0) {
       <p class="text-gray-300">This user has no communication bans.</p>
     }
     <div class="flex flex-col gap-3">
-      @for (ban of chatBans; track ban.id) {
+      @for (ban of chatBans(); track ban.id) {
         <div class="card-inset flex flex-col gap-1 p-3">
           <div class="flex flex-wrap items-center gap-2">
             <span class="font-medium">{{ ChatBanTypeNames.get(ban.type) }}</span>
@@ -110,17 +110,17 @@
     </div>
     @if (hasRole(Role.PLACEHOLDER)) {
       <h5 class="whitespace-nowrap">Merge to Real User:</h5>
-      @if (!mergeUser) {
+      @if (!mergeUser()) {
         <m-user-search (selected)="selectMergeUser($event)" />
       }
-      @if (mergeErr) {
+      @if (mergeErr()) {
         <div class="mt-2 text-center text-red-600">
-          {{ mergeErr }}
+          {{ mergeErr() }}
         </div>
       }
-      @if (mergeUser) {
+      @if (mergeUser(); as mergeUser) {
         <div class="flex flex-col gap-2">
-          <a [routerLink]="'/profile/' + mergeUser?.id" class="flex items-center gap-2">
+          <a [routerLink]="'/profile/' + mergeUser.id" class="flex items-center gap-2">
             <m-avatar class="h-10" [url]="mergeUser.avatarURL" />
             <p class="text-lg">{{ mergeUser.alias }}</p>
           </a>

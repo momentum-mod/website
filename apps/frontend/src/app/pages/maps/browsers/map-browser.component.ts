@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   Gamemode,
   Leaderboard,
@@ -107,7 +107,7 @@ export class MapBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (sortType: MapSortType): string =>
     MapSortTypeName.get(sortType) ?? '';
 
-  protected currentAllowedTAndQs = [];
+  protected readonly currentAllowedTAndQs = signal<Array<TagAndQualifier>>([]);
   protected readonly TagQualifier = TagQualifier;
   protected readonly MapTagNameFn = (tagAndQualifier: TagAndQualifier) =>
     mapTagEnglishName(tagAndQualifier[0]);
@@ -135,10 +135,10 @@ export class MapBrowserComponent implements OnInit {
     sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
-  protected maps: Array<MapWithSpecificLeaderboard> = [];
+  protected readonly maps = signal<Array<MapWithSpecificLeaderboard>>([]);
 
   private skip = 0;
-  protected loading = false;
+  protected readonly loading = signal(false);
   protected loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
@@ -163,7 +163,7 @@ export class MapBrowserComponent implements OnInit {
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
-        filter(() => !this.loading),
+        filter(() => !this.loading()),
         map(() => this.itemsPerLoad)
       ),
       this.filters.valueChanges.pipe(
@@ -173,7 +173,7 @@ export class MapBrowserComponent implements OnInit {
         // distinctUntilChanged(deepEquals),
         debounceTime(200),
         tap(() => {
-          this.maps = [];
+          this.maps.set([]);
           this.skip = 0;
         }),
         map(() => this.initialItems)
@@ -181,7 +181,7 @@ export class MapBrowserComponent implements OnInit {
     )
       .pipe(
         filter(() => this.filters.valid),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((take) => {
           const {
             favorites,
@@ -250,21 +250,20 @@ export class MapBrowserComponent implements OnInit {
           // Relying on switchMap relying here to guarantee the current gamemode
           // filter accurately corresponds to the this data.
           const currentMode = this.gamemode.value;
-          this.maps.push(
-            ...res.data.map((map) => {
-              const ret = map as MapWithSpecificLeaderboard;
-              ret.groupedLeaderboards = groupMapLeaderboards(map.leaderboards);
-              if (currentMode) {
-                ret.currentModeLeaderboards = getSpecificGroupedLeaderboard(
-                  ret.groupedLeaderboards,
-                  currentMode
-                );
-              }
-              return ret;
-            })
-          );
+          const newMaps = res.data.map((map) => {
+            const ret = map as MapWithSpecificLeaderboard;
+            ret.groupedLeaderboards = groupMapLeaderboards(map.leaderboards);
+            if (currentMode) {
+              ret.currentModeLeaderboards = getSpecificGroupedLeaderboard(
+                ret.groupedLeaderboards,
+                currentMode
+              );
+            }
+            return ret;
+          });
+          this.maps.update((maps) => [...maps, ...newMaps]);
           this.skip += res.returnCount;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -272,7 +271,7 @@ export class MapBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -296,18 +295,18 @@ export class MapBrowserComponent implements OnInit {
   }
 
   updateTagsAndQualifiers(gamemode: Gamemode | 0 | undefined | null) {
-    this.currentAllowedTAndQs = (gamemode ? MapTags.get(gamemode) : []).map(
-      (tag: MapTag) => [
+    this.currentAllowedTAndQs.set(
+      (gamemode ? MapTags.get(gamemode) : []).map((tag: MapTag) => [
         tag,
         TagQualifier.INCLUDE // Default to include.
-      ]
+      ])
     );
 
     this.tagsAndQualifiers.setValue(
       this.tagsAndQualifiers
         .getRawValue()
         .filter((tAndQ) =>
-          this.MapTagIncludesFn(this.currentAllowedTAndQs, tAndQ)
+          this.MapTagIncludesFn(this.currentAllowedTAndQs(), tAndQ)
         )
     );
   }

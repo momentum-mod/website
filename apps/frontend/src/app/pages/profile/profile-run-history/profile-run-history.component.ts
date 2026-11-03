@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import {
@@ -57,14 +57,14 @@ export class ProfileRunHistoryComponent implements OnInit {
   // TODO: Subject/BehaviorSubject
   @Input() userSubject: Observable<User>;
   userID: number;
-  runs: PastRun[] = [];
+  protected readonly runs = signal<PastRun[]>([]);
   showFilters = false;
 
   protected readonly rows = 10;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
-  protected loading: boolean;
+  protected readonly loading = signal(false);
   protected readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
 
@@ -95,10 +95,10 @@ export class ProfileRunHistoryComponent implements OnInit {
 
     merge(
       this.load,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first)))
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.pastRunsService.getRuns({
             userID: this.userID,
@@ -108,15 +108,15 @@ export class ProfileRunHistoryComponent implements OnInit {
             orderBy: this.currentFilter.orderBy,
             order: this.currentFilter.order,
             take: this.rows,
-            skip: this.first
+            skip: this.first()
           })
         )
       )
       .subscribe({
         next: (response) => {
-          this.totalRecords = response.totalCount;
-          this.runs = response.data;
-          this.loading = false;
+          this.totalRecords.set(response.totalCount);
+          this.runs.set(response.data);
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -124,7 +124,7 @@ export class ProfileRunHistoryComponent implements OnInit {
             summary: 'Cannot get user runs',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -140,7 +140,7 @@ export class ProfileRunHistoryComponent implements OnInit {
     )
       return;
     this.currentFilter = { isPB: isPersonalBest, map, order, orderBy };
-    this.first = 0;
+    this.first.set(0);
     this.load.next();
   }
 }

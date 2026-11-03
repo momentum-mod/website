@@ -1,15 +1,15 @@
-@if (map) {
+@if (map(); as map) {
   <div class="grid grid-cols-1 gap-x-4 gap-y-2 lg:[grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
     <div class="flex gap-4">
       <!-- This negative margin is pretty evil, breaking the standard <main>
            padding. But vertical space is so precious here! -->
       <div class="flex min-w-0 flex-[1_1_auto] flex-col lg:-mt-4 lg:h-24">
-        <p class="card-title -mb-1 mt-auto text-[1.5rem] text-gray-200 lg:text-[2rem]">{{ prefix }}</p>
+        <p class="card-title -mb-1 mt-auto text-[1.5rem] text-gray-200 lg:text-[2rem]">{{ prefix() }}</p>
         <p
           class="card-title [--font-lerp-scale:0.8] lg:[--font-lerp-scale:1]"
-          [fontSizeLerp]="{ chars: name.length, startAt: 12, baseRem: 4.5 }"
+          [fontSizeLerp]="{ chars: name().length, startAt: 12, baseRem: 4.5 }"
         >
-          {{ name }}
+          {{ name() }}
         </p>
       </div>
       <button type="button" class="mt-auto flex flex-[0_0_auto]" (click)="toggleMapBackground()" mTooltip="Toggle map backgrounds">
@@ -24,8 +24,8 @@
           <button
             type="button"
             class="justify-self-start font-display text-3xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50 lg:text-4xl"
-            [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
-            (click)="currentSection = section"
+            [ngClass]="{ '!text-white !opacity-100': currentSection() === section }"
+            (click)="currentSection.set(section)"
           >
             {{ MapInfoSection[section] }}
           </button>
@@ -72,34 +72,35 @@
             class="btn btn-yellow"
             type="button"
             (click)="toggleFavorite()"
-            mTooltip="{{ inFavorites ? 'Remove from favorites' : 'Add to favorites' }}"
+            mTooltip="{{ inFavorites() ? 'Remove from favorites' : 'Add to favorites' }}"
           >
-            <m-icon [icon]="inFavorites ? 'star' : 'star-outline'" />
+            <m-icon [icon]="inFavorites() ? 'star' : 'star-outline'" />
           </button>
           <button
             class="btn btn-orange"
             type="button"
             (click)="editNotificationSettings()"
-            mTooltip="{{ notifications ? 'Disable Notifications' : 'Enable Notifications' }}"
+            mTooltip="{{ notifications() ? 'Disable Notifications' : 'Enable Notifications' }}"
           >
-            <m-icon [icon]="notifications ? 'bell-alert' : 'bell-outline'" />
+            <m-icon [icon]="notifications() ? 'bell-alert' : 'bell-outline'" />
           </button>
-          @if (!isSubmitter && !localUserService.isModOrAdmin) {
+          @if (!isSubmitter() && !localUserService.isModOrAdmin) {
             <m-report-button class="text-lg" mTooltip="Report map" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
           }
         }
       </div>
     </div>
     <div #sideBar class="max-lg:order-2">
-      <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
-        <m-gallery #gallery [items]="images" [selectedItem]="selectedImage" (selectedItemChange)="selectedImage = $event" />
+      <div #card [mSpinner]="loading()" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
+        <m-gallery #gallery [items]="images()" [selectedItem]="selectedImage()" (selectedItemChange)="selectedImage.set($event)" />
         <div>
           <div class="aspect-video">
-            @if (selectedImage && selectedImage.type === 'image') {
+            @let selected = selectedImage();
+            @if (selected && selected.type === 'image') {
               <button type="button" class="hover-white-overlay aspect-video cursor-zoom-in" (click)="gallery.show()">
-                <img [src]="selectedImage.full" />
+                <img [src]="selected.full" />
               </button>
-            } @else if (selectedImage && selectedImage.type === 'youtube') {
+            } @else if (selected && selected.type === 'youtube') {
               <div class="relative h-full w-full">
                 <!-- Silly way to align fullscreen icon over youtube embed's -->
                 <button type="button" (click)="gallery.show()" class="absolute bottom-[-3px] right-4 cursor-zoom-in">
@@ -118,15 +119,15 @@
                   type="text/html"
                   [width]="sideBar.offsetWidth"
                   [height]="sideBar.offsetWidth * (9 / 16)"
-                  [src]="selectedImage.safeUrl"
+                  [src]="selected.safeUrl"
                 ></iframe>
               </div>
             }
           </div>
-          @if (images.length > 1) {
+          @if (images().length > 1) {
             <div class="flex justify-center bg-black bg-opacity-20">
-              @for (image of images; track $index) {
-                <button type="button" class="hover-white-overlay aspect-video max-h-16" (click)="selectedImage = image">
+              @for (image of images(); track $index) {
+                <button type="button" class="hover-white-overlay aspect-video max-h-16" (click)="selectedImage.set(image)">
                   <img class="aspect-video max-h-16 min-w-0" [src]="image.type === 'image' ? image.thumbnail : image.safeThumbnail" />
                 </button>
               }
@@ -140,9 +141,9 @@
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
             <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ favorites() | plural: 'Favorite' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.favorites | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ favorites() | thousandsSuffix: 1 }}</p>
           </div>
           <div class="flex items-center gap-1" mTooltip="{{ map.stats?.uniqueCompletions | plural: 'Unique Completion' }}">
             <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
@@ -151,7 +152,7 @@
           <div class="ml-auto"></div>
           @if (map.info.requiredGames.length > 0) {
             <div class="flex items-center" [mTooltip]="requiredGamesTooltip">
-              @for (gameImage of requiredGamesImages; track $index) {
+              @for (gameImage of requiredGamesImages(); track $index) {
                 <img
                   class="{{ !$last ? '-mr-3' : '' }} aspect-square h-6 rounded-md drop-shadow-[0_0_0.175rem_#000]"
                   [style]="{ zIndex: -$index }"
@@ -162,7 +163,7 @@
             <ng-template #requiredGamesTooltip>
               <p class="text-right"><b>This map requires assets from these games:</b></p>
               <ul class="list-inside list-disc">
-                @for (gameName of requiredGamesNames; track $index) {
+                @for (gameName of requiredGamesNames(); track $index) {
                   <li>{{ gameName }}</li>
                 }
               </ul>
@@ -182,7 +183,7 @@
           </ng-template>
         </div>
 
-        @if (inSubmission) {
+        @if (inSubmission()) {
           <div
             class="flex justify-center gap-2 bg-purple-500 bg-opacity-50 py-3 [border-bottom:1px_solid_rgb(0_0_0/0.2)] [border-inline:1px_solid_rgb(255_255_255/0.075)] [border-top:1px_solid_rgb(255_255_255/0.05)]"
           >
@@ -214,13 +215,13 @@
             <!-- This template setup is a bit overcomplicated but allows realigning everything into grids
                if we ever decide to change layout (see #website Jan 3rd 24) -->
             <ng-template #creditBlock let-type="type">
-              @if (credits?.get(type).length > 0) {
+              @if (credits().get(type).length > 0) {
                 <div>
                   <p class="font-sm mb-1 font-bold uppercase text-gray-200">
                     {{ MapCreditNames.get(type) }}
                   </p>
                   <div class="grid grid-cols-2 place-items-start gap-1">
-                    @for (credit of credits.get(type); track $index) {
+                    @for (credit of credits().get(type); track $index) {
                       @if (!credit.placeholder) {
                         <a routerLink="/profile/{{ credit.userID }}" class="flex">
                           <m-avatar class="mr-4 size-8 shrink-0" [url]="credit.avatarURL" />
@@ -263,8 +264,8 @@
     </div>
     <div class="min-w-0 max-lg:order-4">
       <div class="stack card card--fancy border-opacity-[0.0675] p-3 [grid-template-columns:minmax(0,1fr)] md:p-4">
-        <m-map-submission [ngClass]="{ hidden: currentSection !== MapInfoSection.SUBMISSION }" [map]="map" />
-        <m-map-leaderboard [ngClass]="{ hidden: currentSection !== MapInfoSection.LEADERBOARDS }" [map]="map" />
+        <m-map-submission [ngClass]="{ hidden: currentSection() !== MapInfoSection.SUBMISSION }" [map]="map" />
+        <m-map-leaderboard [ngClass]="{ hidden: currentSection() !== MapInfoSection.LEADERBOARDS }" [map]="map" />
       </div>
     </div>
   </div>

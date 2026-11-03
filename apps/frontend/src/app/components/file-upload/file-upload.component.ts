@@ -1,4 +1,4 @@
-import { Component, forwardRef, HostListener } from '@angular/core';
+import { Component, forwardRef, HostListener, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 import { IconComponent } from '../../icons';
@@ -20,7 +20,7 @@ import { IconComponent } from '../../icons';
   ]
 })
 export class FileUploadComponent extends AbstractFileUploadComponent<File> {
-  public value: File = null;
+  protected readonly value = signal<File>(null);
   protected readonly multiple = false;
   protected readonly max = null;
 
@@ -30,7 +30,7 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     event.preventDefault();
     this.removeDragData(event);
 
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     // `.items` seems to be the correct approach but try files if missing
     const useItems = !!event.dataTransfer.items;
@@ -52,14 +52,14 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     )
       return;
 
-    this.value = file;
-    this.onChange(this.value);
+    this.value.set(file);
+    this.onChange(this.value());
   }
 
   onFilesSelected(event: Event) {
-    this.value = (event.target as HTMLInputElement).files[0];
+    this.value.set((event.target as HTMLInputElement).files[0]);
 
-    this.onChange(this.value);
+    this.onChange(this.value());
 
     (event.target as HTMLInputElement).value = '';
   }
@@ -86,31 +86,30 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
       if (!matchingType) continue;
 
       const blob = await clipboardItem.getType(matchingType);
-      this.value = new File(
-        [blob],
-        `ClipboardItem.${matchingType.split('/').at(-1)}`
+      this.value.set(
+        new File([blob], `ClipboardItem.${matchingType.split('/').at(-1)}`)
       );
 
-      this.onChange(this.value);
+      this.onChange(this.value());
       return;
     }
   }
 
   writeValue(value: File): void {
-    this.value = value == null || (value as any) === '' ? null : value;
+    this.value.set(value == null || (value as any) === '' ? null : value);
   }
 
   hasSelection(): boolean {
-    return !!this.value;
+    return !!this.value();
   }
 
   getIterableFiles(): File[] {
-    return [this.value];
+    return [this.value()];
   }
 
   removeFile(file: File, event?: Event): void {
     event?.stopPropagation();
-    this.value = null;
-    this.onChange(this.value);
+    this.value.set(null);
+    this.onChange(this.value());
   }
 }

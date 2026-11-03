@@ -1,4 +1,12 @@
-import { Directive, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Directive,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  signal
+} from '@angular/core';
 import { NonNullableFormBuilder } from '@angular/forms';
 import {
   debounceTime,
@@ -14,6 +22,7 @@ import { PagedResponse } from '@momentum/constants';
 @Directive()
 export abstract class AbstractSearchComponent<T> implements OnInit {
   private readonly nnfb = inject(NonNullableFormBuilder);
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   @Output() public readonly selected = new EventEmitter<T>();
 
@@ -21,16 +30,16 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
   protected readonly pageChange = new Subject<PaginatorState>();
 
   abstract readonly itemsName: string;
-  protected found: T[] = [];
+  protected readonly found = signal<T[]>([]);
   protected readonly rows = 5;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
   protected error: string;
 
   ngOnInit() {
     merge(
-      this.pageChange.pipe(tap(({ first }) => (this.first = first))),
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first))),
       this.search.valueChanges.pipe(
         distinctUntilChanged(),
         filter((value) => {
@@ -45,6 +54,9 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
         switchMap(() => {
           const value = this.search.value;
           this.search.markAsPending();
+          // Form control status isn't a signal, so nothing else schedules
+          // change detection for the spinner.
+          this.cdRef.markForCheck();
           return this.searchRequest(value);
         })
       )
@@ -56,8 +68,8 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
       if (!response) {
         this.resetSearchData();
       } else if (response.returnCount > 0) {
-        this.found = response.data;
-        this.totalRecords = response.totalCount;
+        this.found.set(response.data);
+        this.totalRecords.set(response.totalCount);
         this.search.setErrors(null);
       } else {
         this.resetSearchData();
@@ -67,6 +79,7 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
     error: (err) => {
       console.error(err);
       this.search.setErrors({ error: `Error fetching ${this.itemsName}!` });
+      this.cdRef.markForCheck();
     }
   };
 
@@ -80,9 +93,9 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
   }
 
   protected resetSearchData() {
-    this.found = [];
-    this.first = 0;
-    this.totalRecords = 0;
+    this.found.set([]);
+    this.first.set(0);
+    this.totalRecords.set(0);
   }
 
   protected onSelected(item: T) {

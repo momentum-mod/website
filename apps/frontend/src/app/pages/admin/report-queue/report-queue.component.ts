@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { switchMap, tap } from 'rxjs/operators';
 import { ReportType, Report } from '@momentum/constants';
 import { MessageService } from 'primeng/api';
@@ -28,14 +28,14 @@ export class ReportQueueComponent implements OnInit {
 
   protected readonly ReportType = ReportType;
 
-  reportQueue: Report[] = [];
+  protected readonly reportQueue = signal<Report[]>([]);
   filters = { resolved: false };
 
   protected readonly rows = 10;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
-  protected loading: boolean;
+  protected readonly loading = signal(false);
   protected readonly pageChange = new Subject<PaginatorState>();
   protected readonly refresh = new Subject<void>();
   protected readonly filterChange = new Subject<void>();
@@ -46,28 +46,28 @@ export class ReportQueueComponent implements OnInit {
       this.refresh,
       this.filterChange.pipe(
         tap(() => {
-          this.first = 0;
-          this.totalRecords = 0;
+          this.first.set(0);
+          this.totalRecords.set(0);
         })
       ),
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first)))
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.adminService.getReports({
             expand: ['submitter', 'resolver'],
             resolved: this.filters.resolved,
             take: this.rows,
-            skip: this.first
+            skip: this.first()
           })
         )
       )
       .subscribe({
         next: (response) => {
-          this.totalRecords = response.totalCount;
-          this.reportQueue = response.data;
-          this.loading = false;
+          this.totalRecords.set(response.totalCount);
+          this.reportQueue.set(response.data);
+          this.loading.set(false);
         },
         error: (error) => {
           console.error(error);
@@ -76,7 +76,7 @@ export class ReportQueueComponent implements OnInit {
             summary: 'Failed to load report queue',
             detail: error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   HostBinding,
   Input,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AccordionComponent } from './accordion.component';
@@ -86,7 +86,6 @@ import { IconComponent } from '../../icons';
 })
 export class AccordionItemComponent {
   private readonly parent = inject(AccordionComponent);
-  private readonly cdRef = inject(ChangeDetectorRef);
 
   @Input() title: string;
   @Input() titleClass = '';
@@ -99,15 +98,14 @@ export class AccordionItemComponent {
 
   public Key = Symbol();
 
-  @HostBinding('class.open') // TODO: this *probably* the buggy
-  private _open = false;
+  private readonly _open = signal(false);
+  @HostBinding('class.open')
   public get open() {
-    return this._open;
+    return this._open();
   }
   public set open(val: boolean) {
     if (!this.hasContent) return;
-    this._open = val;
-    this.cdRef.detectChanges();
+    this._open.set(val);
   }
 
   toggle() {

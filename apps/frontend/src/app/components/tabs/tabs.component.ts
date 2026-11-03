@@ -3,7 +3,8 @@ import {
   Component,
   ContentChildren,
   Input,
-  QueryList
+  QueryList,
+  signal
 } from '@angular/core';
 import { NgClass, NgStyle } from '@angular/common';
 import { TabDirective } from './tab.component';
@@ -22,7 +23,7 @@ import { TabDirective } from './tab.component';
           class="p-2 font-display text-gray-300 drop-shadow font-bold
                  leading-none transition-colors hover:text-gray-200"
           (click)="selectTab($index)"
-          [ngClass]="{ '!text-gray-50': activeIndex === $index }"
+          [ngClass]="{ '!text-gray-50': activeIndex() === $index }"
           [ngStyle]="{ 'font-size': headerFontSize }"
         >
           {{ tab.tabName }}
@@ -37,14 +38,14 @@ export class TabsComponent implements AfterContentInit {
   @Input() headerFontSize = '2rem';
   @ContentChildren(TabDirective) tabs: QueryList<TabDirective>;
 
-  protected activeIndex: number;
+  protected readonly activeIndex = signal<number | undefined>(undefined);
 
   ngAfterContentInit(): void {
     this.selectTab(0);
   }
 
   selectTab(index: number): void {
-    this.activeIndex = index;
-    this.tabs.forEach((tab, i) => (tab.selected = i === index));
+    this.activeIndex.set(index);
+    this.tabs.forEach((tab, i) => tab.selected.set(i === index));
   }
 }

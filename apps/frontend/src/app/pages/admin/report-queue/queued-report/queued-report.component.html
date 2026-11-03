@@ -30,9 +30,9 @@
     <p
       #messageText
       class="whitespace-pre-wrap break-words text-sm"
-      [class.line-clamp-2]="!messageExpanded"
-      [class.cursor-pointer]="messageOverflows"
-      [title]="messageOverflows ? (messageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      [class.line-clamp-2]="!messageExpanded()"
+      [class.cursor-pointer]="messageOverflows()"
+      [title]="messageOverflows() ? (messageExpanded() ? 'Click to collapse' : 'Click to expand') : ''"
       (click)="toggleMessage()"
     >
       {{ report.message }}
@@ -43,9 +43,9 @@
     <p
       #resolutionMessageText
       class="whitespace-pre-wrap break-words text-sm"
-      [class.line-clamp-2]="!resolutionMessageExpanded"
-      [class.cursor-pointer]="resolutionMessageOverflows"
-      [title]="resolutionMessageOverflows ? (resolutionMessageExpanded ? 'Click to collapse' : 'Click to expand') : ''"
+      [class.line-clamp-2]="!resolutionMessageExpanded()"
+      [class.cursor-pointer]="resolutionMessageOverflows()"
+      [title]="resolutionMessageOverflows() ? (resolutionMessageExpanded() ? 'Click to collapse' : 'Click to expand') : ''"
       (click)="toggleResolutionMessage()"
     >
       {{ report.resolutionMessage }}

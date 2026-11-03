@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { LayoutService } from '../../services/layout.service';
 import { MultiSearchComponent } from '../search/multi-search.component';
@@ -30,16 +30,16 @@ export class HeaderComponent implements OnInit {
   protected readonly localUserService = inject(LocalUserService);
   private readonly layoutService = inject(LayoutService);
 
-  protected unreadNotificationsCount = 0;
+  protected readonly unreadNotificationsCount = signal(0);
 
-  protected profileDropdownMenu: MenuItem[] = [];
+  protected readonly profileDropdownMenu = signal<MenuItem[]>([]);
 
-  protected markingAsReadEnabled = false;
+  protected readonly markingAsReadEnabled = signal(false);
 
   ngOnInit() {
     this.localUserService.user.subscribe(() => {
       const userID = this.localUserService.user.value?.id;
-      this.profileDropdownMenu = [
+      this.profileDropdownMenu.set([
         {
           label: 'Profile',
           // If `user` hasn't been fetched yet, just navigate to ProfileRedirect
@@ -54,7 +54,7 @@ export class HeaderComponent implements OnInit {
           label: 'Log out',
           command: () => this.localUserService.logout()
         }
-      ];
+      ]);
     });
   }
 
@@ -63,6 +63,6 @@ export class HeaderComponent implements OnInit {
   }
 
   protected updateUnreadNotificationsCount(count: number) {
-    this.unreadNotificationsCount = count;
+    this.unreadNotificationsCount.set(count);
   }
 }

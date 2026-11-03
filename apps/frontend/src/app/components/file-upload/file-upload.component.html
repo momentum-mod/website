@@ -17,12 +17,12 @@
     }
   </div>
 }
-@if (showSelected || multiple || !value) {
+@if (showSelected || multiple || !value()) {
   <m-icon
     [icon]="icon"
     class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in [.dragging_&]:text-blue-100 [:hover_&]:text-blue-100"
   ></m-icon>
-  @if (!disabled) {
+  @if (!disabled()) {
     <p class="text-balance px-2 font-medium">
       @if (enableClipboard) {
         Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }}, drag here, or
@@ -32,7 +32,7 @@
       }
     </p>
   }
-  @if (disabledBecauseReachedMax) {
+  @if (disabledBecauseReachedMax()) {
     <p>File limit reached</p>
   }
 }

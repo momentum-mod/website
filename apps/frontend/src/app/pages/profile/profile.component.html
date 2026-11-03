@@ -1,15 +1,15 @@
-@if (user) {
+@if (user(); as user) {
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
       <div
         class="mb-4 flex flex-col gap-3 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:flex-row sm:gap-4 sm:p-4"
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
-        @if (avatarLoaded) {
+        @if (avatarLoaded()) {
           <div
             class="size-28 shrink-0 rounded-2xl bg-cover bg-no-repeat sm:size-40"
             [ngStyle]="{
-              'background-image': 'url(' + avatarUrl + ')'
+              'background-image': 'url(' + avatarUrl() + ')'
             }"
           ></div>
         }
@@ -21,7 +21,7 @@
             >
               {{ user.alias }}
               @if (user.country && user.country.length === 2) {
-                <span [title]="countryDisplayName" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
+                <span [title]="countryDisplayName()" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
               }
               @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
                 <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
@@ -30,7 +30,7 @@
               }
             </h1>
             <div class="flex gap-1">
-              @if (!isLocal && (localUserService.user | async) && !localUserService.isLimited) {
+              @if (!isLocal() && (localUserService.user | async) && !localUserService.isLimited) {
                 <m-report-button
                   class="aspect-square p-2"
                   mTooltip="Report Profile"
@@ -68,7 +68,7 @@
                   <m-icon icon="shield-crown-outline" />
                 </button>
               }
-              @if (isLocal || localUserService.isModOrAdmin) {
+              @if (isLocal() || localUserService.isModOrAdmin) {
                 <button class="btn btn-purple aspect-square p-2" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
                   <m-icon icon="note-edit" />
                 </button>
@@ -76,12 +76,16 @@
             </div>
           </div>
           <m-role-badges class="h-10 !gap-0" [roles]="user.roles" classes="p-1" />
-          <m-profile-chat-bans [user]="user" [isLocal]="isLocal" />
+          <m-profile-chat-bans [user]="user" [isLocal]="isLocal()" />
           @if (!hasRole(Role.DELETED)) {
             <div class="flex w-full gap-2 font-display text-2xl">
               <div class="flex-grow">
-                <p class="pb-1 leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
-                <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)" />
+                <p class="pb-1 leading-none">{{ xp() - currLevelXp() }} / {{ nextLevelXp() - currLevelXp() }} xp</p>
+                <p-progressBar
+                  class="h-2 w-full"
+                  [showValue]="false"
+                  [value]="(100 * (xp() - currLevelXp())) / (nextLevelXp() - currLevelXp())"
+                />
               </div>
               <m-level-indicator class="mt-auto" [totalLevel]="user.userStats.level" />
             </div>
@@ -112,14 +116,14 @@
 
         <div class="flex flex-col gap-4 sm:flex-row">
           <div class="min-w-0 flex-grow basis-0">
-            <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
-            @if (followedByUsers.length === 0) {
+            <h3 class="font-display font-bold">Followers ({{ followedByUsers().length }})</h3>
+            @if (followedByUsers().length === 0) {
               <h5 class="m-0">
                 <i>No followers</i>
               </h5>
             } @else {
               <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
-                @for (usr of followedByUsers; track usr) {
+                @for (usr of followedByUsers(); track usr) {
                   <li class="py-1">
                     <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
                       <m-avatar class="mr-2 h-12" [url]="usr.followee?.avatarURL" />
@@ -136,14 +140,14 @@
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
             <div class="h-[1px] bg-gray-400 sm:h-auto sm:w-[1px]"></div>
             <div class="min-w-0 flex-grow basis-0">
-              <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
-              @if (followingUsers.length === 0) {
+              <h3 class="font-display font-bold">Following ({{ followingUsers().length }})</h3>
+              @if (followingUsers().length === 0) {
                 <h5 class="m-0">
                   <i>Not following anyone</i>
                 </h5>
               } @else {
                 <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
-                  @for (usr of followingUsers; track usr) {
+                  @for (usr of followingUsers(); track usr) {
                     <li class="py-1">
                       <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
                         <m-avatar class="mr-2 h-12" [url]="usr.followed?.avatarURL" />
@@ -160,7 +164,7 @@
           }
         </div>
 
-        @if (isLocal) {
+        @if (isLocal()) {
           <div>
             <button class="btn btn-blue w-fit" type="button" (click)="showSteamFriendsModal()">
               Import Steam Friends
@@ -169,7 +173,7 @@
           </div>
 
           <p-dialog
-            [mSpinner]="!steamFriends"
+            [mSpinner]="!steamFriends()"
             [(visible)]="importSteamFriendsModalVisible"
             [modal]="true"
             [style]="{ 'min-width': 'min(25rem, 95vw)' }"
@@ -179,10 +183,10 @@
             <ng-template pTemplate="header">
               <div class="flex w-full flex-col gap-4">
                 <p class="text-lg">Import Steam friends to followers</p>
-                @if (steamFriends && steamFriends.length > 0) {
+                @if (steamFriends() && steamFriends().length > 0) {
                   <div class="flex justify-start gap-4">
                     <button
-                      [disabled]="steamFriendsToAdd.size === steamFriends.length"
+                      [disabled]="steamFriendsToAdd().size === steamFriends().length"
                       class="btn btn-blue"
                       type="button"
                       (click)="selectAllSteamFriends()"
@@ -190,7 +194,7 @@
                       Select All
                     </button>
 
-                    @if (steamFriendsToAdd.size > 0) {
+                    @if (steamFriendsToAdd().size > 0) {
                       <button class="btn btn-blue" type="button" (click)="deselectAllSteamFriends()">Deselect All</button>
                     }
                   </div>
@@ -198,20 +202,20 @@
               </div>
             </ng-template>
             <div class="mb-4 grid gap-4">
-              @if (steamFriends && steamFriends.length > 0) {
-                @for (steamFriend of steamFriends; track $index) {
+              @if (steamFriends() && steamFriends().length > 0) {
+                @for (steamFriend of steamFriends(); track $index) {
                   <div class="flex items-center gap-4">
                     <input
                       type="checkbox"
                       class="checkbox mr-1"
-                      [checked]="steamFriendsToAdd.has(steamFriend.id)"
+                      [checked]="steamFriendsToAdd().has(steamFriend.id)"
                       (change)="toggleSteamFriend(steamFriend)"
                     />
                     <m-avatar class="h-10" [url]="steamFriend.avatarURL" />
                     <p>{{ steamFriend.alias }}</p>
                   </div>
                 }
-              } @else if (loadingSteamFriends) {
+              } @else if (loadingSteamFriends()) {
                 <m-spinner />
               } @else {
                 <p><i>Steam Friends not found</i></p>
@@ -222,7 +226,7 @@
               <button
                 class="btn btn-green w-fit"
                 type="button"
-                [disabled]="steamFriendsToAdd.size === 0"
+                [disabled]="steamFriendsToAdd().size === 0"
                 (click)="importSteamFriendsToFollow()"
               >
                 Follow
@@ -230,17 +234,17 @@
             </ng-template>
           </p-dialog>
         }
-        @if (credits && credits.length > 0) {
+        @if (credits() && credits().length > 0) {
           <div>
             <h3 class="font-display font-bold">Credits</h3>
             <div class="ng-star-inserted grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
               @for (type of MapCreditType | enumValue; track $index) {
-                @if (creditMap[type]) {
+                @if (creditMap()[type]) {
                   <div>
                     <p class="font-sm mb-1 font-bold uppercase text-gray-200">
                       {{ MapCreditNames.get(type) }}
                     </p>
-                    @for (credit of creditMap[type]; track $index) {
+                    @for (credit of creditMap()[type]; track $index) {
                       <a routerLink="/maps/{{ credit.map?.id }}">
                         <p class="font-sm text-gray-200">
                           {{ credit.map?.name }}
@@ -257,7 +261,7 @@
     </div>
     <div class="col-span-full flex flex-col max-xl:row-start-2 xl:col-span-2">
       @if (user) {
-        <m-activity headerTitle="Activity" [activityFetchType]="isLocal ? 'own' : userSubject" class="h-full" />
+        <m-activity headerTitle="Activity" [activityFetchType]="isLocal() ? 'own' : userSubject" class="h-full" />
       }
     </div>
   </div>

@@ -5,7 +5,11 @@ import {
   Input,
   Output,
   ViewChild,
-  inject
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  signal
 } from '@angular/core';
 import {
   CombinedRoles,
@@ -89,24 +93,19 @@ export class MapReviewComponent {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  private _review: MapReview;
-  get review() {
-    return this._review;
-  }
+  readonly review = input.required<MapReview>();
+  protected readonly currentReview = linkedSignal(() => this.review());
 
-  @Input({ required: true })
-  set review(review: MapReview) {
-    this._review = review;
-    this.suggestions = groupMapSuggestions(review.suggestions);
-    this.images = review.images.map((image) => ({
+  protected readonly suggestions = computed<GroupedMapReviewSuggestions>(() =>
+    groupMapSuggestions(this.review().suggestions)
+  );
+  protected readonly images = computed<GalleryImageItem[]>(() =>
+    this.review().images.map((image) => ({
       type: 'image',
       full: image,
       thumbnail: image
-    }));
-  }
-
-  protected suggestions: GroupedMapReviewSuggestions;
-  protected images: GalleryImageItem[] = [];
+    }))
+  );
   protected activeImageDialogIndex = 0;
 
   // Extremely annoying that we need this, but review editing needs this, this
@@ -125,13 +124,12 @@ export class MapReviewComponent {
   protected readonly MAX_REVIEW_COMMENT_LENGTH = MAX_REVIEW_COMMENT_LENGTH;
 
   protected loadComments = new Subject<void>();
-  protected loadingComments = false;
-  protected editModeComments: Map<
-    number,
-    FormGroup<{ textInput: FormControl<string> }>
-  > = new Map();
+  protected readonly loadingComments = signal(false);
+  protected readonly editModeComments = signal<
+    Map<number, FormGroup<{ textInput: FormControl<string> }>>
+  >(new Map());
 
-  protected editing = false;
+  protected readonly editing = signal(false);
 
   constructor() {
     // Very simplistic pagination but don't want to overcomplicate this
@@ -139,19 +137,22 @@ export class MapReviewComponent {
     // fetches another 5 (older) and appends to comments array.
     this.loadComments
       .pipe(
-        tap(() => (this.loadingComments = true)),
+        tap(() => this.loadingComments.set(true)),
         switchMap(() =>
-          this.mapsService.getMapReviewComments(this._review.id, {
+          this.mapsService.getMapReviewComments(this.currentReview().id, {
             take: 5,
-            skip: this._review.comments.length
+            skip: this.currentReview().comments.length
           })
         ),
-        tap(() => (this.loadingComments = false))
+        tap(() => this.loadingComments.set(false))
       )
       .subscribe({
         next: (res) => {
-          this.loadingComments = false;
-          this._review.comments.push(...res.data);
+          this.loadingComments.set(false);
+          this.currentReview.update((review) => ({
+            ...review,
+            comments: [...review.comments, ...res.data]
+          }));
         },
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
@@ -166,34 +167,37 @@ export class MapReviewComponent {
   editForm: MapReviewFormComponent;
 
   enableEditing(): void {
-    if (this.editing) return;
+    if (this.editing()) return;
 
-    this.editing = true;
+    this.editing.set(true);
 
     // Need a CD cycle to run to insert and init the form, can only set form
     // values after that's completed.
     this.cdRef.detectChanges();
 
-    this.editForm.mainText.setValue(this._review.mainText);
-    this.editForm.suggestions.setValue(this._review.suggestions);
+    this.editForm.mainText.setValue(this.currentReview().mainText);
+    this.editForm.suggestions.setValue(this.currentReview().suggestions);
     this.editForm.form.markAsPristine();
   }
 
   disableEditing(): void {
-    this.editing = false;
+    this.editing.set(false);
   }
 
   updateResolvedStatus(status: boolean | null): void {
     this.adminService
-      .updateMapReview(this._review.id, status)
+      .updateMapReview(this.currentReview().id, status)
       .pipe(take(1))
       .subscribe({
         next: (res) => {
           // This doesn't return all expands so just update stuff that changed
           // of called the `review` setter
-          this._review.resolver = res.resolver;
-          this._review.resolverID = res.resolverID;
-          this._review.resolved = res.resolved;
+          this.currentReview.update((review) => ({
+            ...review,
+            resolver: res.resolver,
+            resolverID: res.resolverID,
+            resolved: res.resolved
+          }));
         },
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
@@ -211,8 +215,8 @@ export class MapReviewComponent {
         'Are you sure you want to delete this review? This action is irreversible!',
       accept: () =>
         (this.isReviewAuthor
-          ? this.mapsService.deleteMapReview(this._review.id)
-          : this.adminService.deleteMapReview(this._review.id)
+          ? this.mapsService.deleteMapReview(this.currentReview().id)
+          : this.adminService.deleteMapReview(this.currentReview().id)
         )
           .pipe(take(1))
           .subscribe({
@@ -228,20 +232,23 @@ export class MapReviewComponent {
   }
 
   postComment(): void {
-    this.loadingComments = true;
+    this.loadingComments.set(true);
     this.mapsService
       .postMapReviewComment(
-        this._review.id,
+        this.currentReview().id,
         this.commentInput.get('textInput').value
       )
       .pipe(
         take(1),
-        tap(() => (this.loadingComments = false))
+        tap(() => this.loadingComments.set(false))
       )
       .subscribe({
         next: (res) => {
-          this._review.comments.unshift(res);
-          this._review.numComments++;
+          this.currentReview.update((review) => ({
+            ...review,
+            comments: [res, ...review.comments],
+            numComments: review.numComments + 1
+          }));
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -249,7 +256,7 @@ export class MapReviewComponent {
             detail: httpError.error.message,
             summary: 'Failed to post comment!'
           });
-          this.loadingComments = false;
+          this.loadingComments.set(false);
           this.updatedOrDeleted.next();
         }
       });
@@ -257,42 +264,56 @@ export class MapReviewComponent {
   }
 
   initEditComment(commentID: number): void {
-    if (this.editModeComments.has(commentID)) return;
+    if (this.editModeComments().has(commentID)) return;
 
-    this.editModeComments.set(
-      commentID,
-      this.nnfb.group({
-        textInput: this.nnfb.control<string>(
-          this._review.comments.find(({ id }) => id === commentID).text,
-          {
-            validators: [
-              Validators.minLength(1),
-              Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
-            ]
-          }
-        )
-      })
+    const form = this.nnfb.group({
+      textInput: this.nnfb.control<string>(
+        this.currentReview().comments.find(({ id }) => id === commentID).text,
+        {
+          validators: [
+            Validators.minLength(1),
+            Validators.maxLength(MAX_REVIEW_COMMENT_LENGTH)
+          ]
+        }
+      )
+    });
+    this.editModeComments.update((comments) =>
+      new Map(comments).set(commentID, form)
     );
   }
 
+  cancelEditComment(commentID: number): void {
+    this.editModeComments.update((comments) => {
+      const updated = new Map(comments);
+      updated.delete(commentID);
+      return updated;
+    });
+  }
+
   editComment(commentID: number): void {
-    if (this.loadingComments) return;
-    this.loadingComments = true;
+    if (this.loadingComments()) return;
+    this.loadingComments.set(true);
 
     this.mapsService
       .updateMapReviewComment(
         commentID,
-        this.editModeComments.get(commentID).get('textInput').value
+        this.editModeComments().get(commentID).get('textInput').value
       )
       .pipe(
         take(1),
-        finalize(() => (this.loadingComments = false))
+        finalize(() => this.loadingComments.set(false))
       )
       .subscribe({
         next: (res) => {
-          this.editModeComments.delete(commentID);
-          this._review.comments.find(({ id }) => id === commentID).text =
-            res.text;
+          this.cancelEditComment(commentID);
+          this.currentReview.update((review) => ({
+            ...review,
+            comments: review.comments.map((comment) =>
+              comment.id === commentID
+                ? { ...comment, text: res.text }
+                : comment
+            )
+          }));
         },
         error: (httpError: HttpErrorResponse) =>
           this.messageService.add({
@@ -308,20 +329,20 @@ export class MapReviewComponent {
       target: event.target as EventTarget,
       message: 'Are you sure you want to delete this comment?',
       accept: () => {
-        this.loadingComments = true;
+        this.loadingComments.set(true);
         this.mapsService
           .deleteMapReviewComment(commentID)
           .pipe(
             take(1),
-            tap(() => (this.loadingComments = false))
+            tap(() => this.loadingComments.set(false))
           )
           .subscribe({
             next: () => {
-              this._review.comments.splice(
-                this._review.comments.findIndex(({ id }) => id === commentID),
-                1
-              );
-              this._review.numComments--;
+              this.currentReview.update((review) => ({
+                ...review,
+                comments: review.comments.filter(({ id }) => id !== commentID),
+                numComments: review.numComments - 1
+              }));
             },
             error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
@@ -347,7 +368,9 @@ export class MapReviewComponent {
   }
 
   get isReviewAuthor(): boolean {
-    return this.localUserService.user.value?.id === this._review.reviewerID;
+    return (
+      this.localUserService.user.value?.id === this.currentReview().reviewerID
+    );
   }
 
   isCommentAuthor(commentAuthorID: number): boolean {

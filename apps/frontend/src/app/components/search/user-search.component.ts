@@ -7,7 +7,8 @@ import {
   ViewChild,
   inject,
   Output,
-  EventEmitter
+  EventEmitter,
+  signal
 } from '@angular/core';
 import { Role, User } from '@momentum/constants';
 import { of } from 'rxjs';
@@ -52,7 +53,7 @@ export class UserSearchComponent
   protected readonly Role = Role;
   public itemsName = 'users';
   protected searchBySteam = false;
-  protected selectedIdx = 0;
+  protected readonly selectedIdx = signal(0);
   protected readonly anchorName = `--userSearch-${Math.random().toString(36).substring(2, 12)}`;
 
   /**
@@ -75,7 +76,7 @@ export class UserSearchComponent
   @ViewChild('searchOverlay') overlay: PopoverComponent;
 
   searchRequest(searchString: string) {
-    this.selectedIdx = 0;
+    this.selectedIdx.set(0);
     if (this.searchBySteam) {
       if (
         Number.isNaN(+searchString) ||
@@ -89,7 +90,7 @@ export class UserSearchComponent
       return this.usersService.getUsers({
         search: searchString,
         take: this.rows,
-        skip: this.first
+        skip: this.first()
       });
     }
   }
@@ -101,21 +102,22 @@ export class UserSearchComponent
   onKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.selectedIdx = (this.selectedIdx + 1) % this.found.length;
+      this.selectedIdx.update((idx) => (idx + 1) % this.found().length);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.selectedIdx =
-        (this.selectedIdx - 1 + this.found.length) % this.found.length;
+      this.selectedIdx.update(
+        (idx) => (idx - 1 + this.found().length) % this.found().length
+      );
     } else if (event.key === 'Enter') {
       if (
         this.search.value.length > 0 &&
-        this.found.length === 0 &&
+        this.found().length === 0 &&
         this.appendTemplate &&
         this.addPlaceholder
       ) {
         this.addPlaceholder.emit();
       } else {
-        this.onSelected(this.found[this.selectedIdx]);
+        this.onSelected(this.found()[this.selectedIdx()]);
       }
     }
   }

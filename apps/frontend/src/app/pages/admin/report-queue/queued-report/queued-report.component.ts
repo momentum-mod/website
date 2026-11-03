@@ -7,7 +7,8 @@ import {
   OnInit,
   Output,
   ViewChild,
-  inject
+  inject,
+  signal
 } from '@angular/core';
 import { ReportCategory, ReportType, Report } from '@momentum/constants';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -43,10 +44,10 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
   categoryText: string;
   reportedResourceURL = '';
 
-  messageExpanded = false;
-  resolutionMessageExpanded = false;
-  messageOverflows = false;
-  resolutionMessageOverflows = false;
+  protected readonly messageExpanded = signal(false);
+  protected readonly resolutionMessageExpanded = signal(false);
+  protected readonly messageOverflows = signal(false);
+  protected readonly resolutionMessageOverflows = signal(false);
 
   ngOnInit() {
     switch (this.report.type) {
@@ -89,9 +90,9 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
     // Measured while collapsed (line-clamp-2 applied), so scrollHeight
     // exceeding clientHeight means the text is actually being truncated.
     setTimeout(() => {
-      this.messageOverflows = this.isOverflowing(this.messageText);
-      this.resolutionMessageOverflows = this.isOverflowing(
-        this.resolutionMessageText
+      this.messageOverflows.set(this.isOverflowing(this.messageText));
+      this.resolutionMessageOverflows.set(
+        this.isOverflowing(this.resolutionMessageText)
       );
     });
   }
@@ -102,12 +103,12 @@ export class QueuedReportComponent implements OnInit, AfterViewInit {
   }
 
   toggleMessage() {
-    if (this.messageOverflows) this.messageExpanded = !this.messageExpanded;
+    if (this.messageOverflows()) this.messageExpanded.update((x) => !x);
   }
 
   toggleResolutionMessage() {
-    if (this.resolutionMessageOverflows) {
-      this.resolutionMessageExpanded = !this.resolutionMessageExpanded;
+    if (this.resolutionMessageOverflows()) {
+      this.resolutionMessageExpanded.update((x) => !x);
     }
   }
 

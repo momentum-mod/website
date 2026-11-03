@@ -7,7 +7,8 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges
+  SimpleChanges,
+  signal
 } from '@angular/core';
 import {
   Notification,
@@ -47,7 +48,7 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
 
   protected readonly NotificationType = NotificationType;
 
-  protected notifications: Notification[] = [];
+  protected readonly notifications = signal<Notification[]>([]);
 
   // If set to true, all shown notifications will be marked as read
   // (even if the menu is in a hidden popover).
@@ -55,13 +56,13 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
   private _lastTotalUnreadCount = 0;
   @Output() unreadNotificationsCount = new EventEmitter<number>();
 
-  protected first = 0;
+  protected readonly first = signal(0);
   protected rows = 10;
-  protected totalExisting = 0;
+  protected readonly totalExisting = signal(0);
   protected readonly pageChange = new Subject<PaginatorState>();
   protected readonly refresh = new Subject<void>();
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   ngOnChanges(changes: SimpleChanges) {
     // We still need to call this if set to false, to run output emitter
@@ -73,14 +74,14 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
   ngOnInit() {
     merge(
       this.refresh,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first)))
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.notificationsService.getNotifications({
             take: this.rows,
-            skip: this.first
+            skip: this.first()
           })
         ),
         takeUntilDestroyed(this.destroyRef)
@@ -88,18 +89,20 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
       .subscribe({
         next: (pagedResponse) => {
           // Show test invites first, can't orderBy specific type on backend.
-          this.notifications = pagedResponse.data.sort((a, b) => {
-            return a.type === NotificationType.MAP_TESTING_INVITE
-              ? -1
-              : Date.parse(b.createdAt) - Date.parse(a.createdAt);
-          });
+          this.notifications.set(
+            pagedResponse.data.sort((a, b) => {
+              return a.type === NotificationType.MAP_TESTING_INVITE
+                ? -1
+                : Date.parse(b.createdAt) - Date.parse(a.createdAt);
+            })
+          );
 
-          this.totalExisting = pagedResponse.totalCount;
+          this.totalExisting.set(pagedResponse.totalCount);
           this.markVisiblePageAsRead(pagedResponse.totalUnreadCount);
 
-          this.loading = false;
+          this.loading.set(false);
         },
-        error: () => (this.loading = false)
+        error: () => this.loading.set(false)
       });
 
     this.refresh.next();
@@ -116,18 +119,18 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
   updateNotifications(removeIndex?: number) {
     const queryOptions: NotificationsDeleteQuery =
       removeIndex !== undefined
-        ? { notificationIDs: [this.notifications[removeIndex].id] }
+        ? { notificationIDs: [this.notifications()[removeIndex].id] }
         : { all: true };
 
     this.notificationsService
       .deleteNotifications(queryOptions)
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         take(1)
       )
       .subscribe({
         next: () => this.refresh.next(),
-        error: () => (this.loading = false)
+        error: () => this.loading.set(false)
       });
   }
 
@@ -148,7 +151,7 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
    * response value, so we store the last gotten value when case 1 runs, and use that.
    */
   markVisiblePageAsRead(totalUnreadCount: number) {
-    const shownUnreadNotificationIDs = this.notifications
+    const shownUnreadNotificationIDs = this.notifications()
       .filter((notification) => !notification.isRead)
       .map((notification) => notification.id);
 
@@ -164,9 +167,13 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
       .subscribe(() => {
         // Don't refetch notifications (they will be the same other than isRead.)
         // Just modify locally.
-        this.notifications.forEach((notification) => {
-          if (!notification.isRead) notification.isRead = true;
-        });
+        this.notifications.update((notifications) =>
+          notifications.map((notification) =>
+            notification.isRead
+              ? notification
+              : { ...notification, isRead: true }
+          )
+        );
         const newTotalUnreadCount =
           totalUnreadCount - shownUnreadNotificationIDs.length;
 
@@ -180,7 +187,7 @@ export class NotificationsMenuComponent implements OnChanges, OnInit {
    * interacting with the menu.
    */
   handleLoadingRequest(loading: boolean) {
-    this.loading = loading;
+    this.loading.set(loading);
   }
 
   handleRefreshRequest() {

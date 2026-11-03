@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { LevelIndicatorComponent } from '../level-indicator/level-indicator.component';
 import { XpSystemsService } from '../../services/xp-systems.service';
@@ -19,22 +26,22 @@ export class PlayerCardComponent implements OnInit {
   private readonly xpService = inject(XpSystemsService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected user: FullUser;
-  protected level: number;
-  protected xp: number;
-  protected currLevelXp: number;
-  protected nextLevelXp: number;
+  protected readonly user = signal<FullUser | undefined>(undefined);
+  protected readonly level = computed(() => this.user()?.userStats.level);
+  protected readonly xp = computed(() => this.user()?.userStats.cosXP);
+  protected readonly currLevelXp = computed(() =>
+    this.xpService.getCosmeticXpForLevel(this.level())
+  );
+  protected readonly nextLevelXp = computed(() =>
+    this.xpService.getCosmeticXpForLevel(this.level() + 1)
+  );
 
   ngOnInit() {
     this.localUserService.user
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user: FullUser | null) => {
         if (!user) return;
-        this.user = user;
-        this.level = user.userStats.level;
-        this.xp = user.userStats.cosXP;
-        this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
-        this.nextLevelXp = this.xpService.getCosmeticXpForLevel(this.level + 1);
+        this.user.set(user);
       });
   }
 }

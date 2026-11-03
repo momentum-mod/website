@@ -104,7 +104,8 @@ export default [
       'unicorn/no-unreadable-array-destructuring': 'error',
       'unicorn/no-useless-length-check': 'error',
       'unicorn/no-useless-spread': 'error',
-      'unicorn/no-useless-undefined': 'error',
+      // Angular's `signal(undefined)` needs the explicit argument.
+      'unicorn/no-useless-undefined': ['error', { checkArguments: false }],
       'unicorn/prefer-array-find': 'error',
       'unicorn/prefer-array-flat': 'error',
       'unicorn/prefer-array-flat-map': 'error',

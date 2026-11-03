@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import {
   FormsModule,
   NonNullableFormBuilder,
@@ -74,11 +74,11 @@ export class ProfileAdminSettingsComponent implements OnInit {
   protected user: User;
   protected isAdmin = false;
 
-  protected chatBans: BanView[] = [];
-  protected loadingChatBans = false;
+  protected readonly chatBans = signal<BanView[]>([]);
+  protected readonly loadingChatBans = signal(false);
 
-  protected mergeUser: User | null = null;
-  protected mergeErr = '';
+  protected readonly mergeUser = signal<User | null>(null);
+  protected readonly mergeErr = signal('');
 
   // Pending role/ban bitflag edits. Kept separate from `user.roles`/`user.bans`
   // so toggling a checkbox doesn't live-mutate the shared User object the rest
@@ -179,7 +179,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
   //#region Communication bans
 
   protected loadChatBans() {
-    this.loadingChatBans = true;
+    this.loadingChatBans.set(true);
     this.adminService
       .getChatBans({
         targetID: this.user.id,
@@ -189,14 +189,16 @@ export class ProfileAdminSettingsComponent implements OnInit {
       })
       .subscribe({
         next: (response) => {
-          this.loadingChatBans = false;
-          this.chatBans = response.data.map((ban) => ({
-            ...ban,
-            expiryEdit: ban.expiresAt ? new Date(ban.expiresAt) : null
-          }));
+          this.loadingChatBans.set(false);
+          this.chatBans.set(
+            response.data.map((ban) => ({
+              ...ban,
+              expiryEdit: ban.expiresAt ? new Date(ban.expiresAt) : null
+            }))
+          );
         },
         error: (httpError: HttpErrorResponse) => {
-          this.loadingChatBans = false;
+          this.loadingChatBans.set(false);
           this.messageService.add({
             severity: 'error',
             summary: 'Could not retrieve chat bans',
@@ -270,38 +272,39 @@ export class ProfileAdminSettingsComponent implements OnInit {
 
   protected selectMergeUser(user1: User) {
     if (this.user.id === user1.id) {
-      this.mergeErr = 'Cannot merge the same user onto themselves!';
+      this.mergeErr.set('Cannot merge the same user onto themselves!');
       return;
     }
-    this.mergeErr = '';
-    this.mergeUser = user1;
+    this.mergeErr.set('');
+    this.mergeUser.set(user1);
   }
 
   protected cancelMerge() {
-    this.mergeUser = null;
+    this.mergeUser.set(null);
   }
 
   protected mergeUsers() {
-    if (!this.mergeUser) return;
+    const mergeUser = this.mergeUser();
+    if (!mergeUser) return;
     this.dialogService
       .open(ConfirmDialogComponent, {
         header: 'Merge users?',
         data: {
-          message: `You are about to merge the placeholder user <b>${this.user.alias}</b> with the user <b>${this.mergeUser.alias}</b>.
+          message: `You are about to merge the placeholder user <b>${this.user.alias}</b> with the user <b>${mergeUser.alias}</b>.
         This will merge over all activities, credits, and user follows, and then delete the placeholder user!
         Are you sure you want to proceed?`
         }
       })
       .onClose.subscribe((response) => {
         if (!response) return;
-        this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
+        this.adminService.mergeUsers(this.user, mergeUser).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
               detail: 'Successfully merged the two users!'
             });
-            const mergedID = this.mergeUser.id;
-            this.mergeUser = null;
+            const mergedID = mergeUser.id;
+            this.mergeUser.set(null);
             this.ref.close();
             this.router.navigate([`/profile/${mergedID}`]);
           },

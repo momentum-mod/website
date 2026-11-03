@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -95,10 +95,10 @@ export class ProfileEditComponent implements OnInit {
     return this.form.get('socials') as FormGroup;
   }
 
-  protected user: User | null = null;
-  protected isLocal = false;
-  protected isAdmin = false;
-  protected isModOrAdmin = false;
+  protected readonly user = signal<User | null>(null);
+  protected readonly isLocal = signal(false);
+  protected readonly isAdmin = signal(false);
+  protected readonly isModOrAdmin = signal(false);
 
   protected readonly MAX_BIO_LENGTH = MAX_BIO_LENGTH;
 
@@ -127,8 +127,8 @@ export class ProfileEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.localUserService.user.subscribe(() => {
-      this.isAdmin = this.localUserService.isAdmin;
-      this.isModOrAdmin = this.localUserService.isModOrAdmin;
+      this.isAdmin.set(this.localUserService.isAdmin);
+      this.isModOrAdmin.set(this.localUserService.isModOrAdmin);
     });
 
     this.route.paramMap
@@ -142,13 +142,13 @@ export class ProfileEditComponent implements OnInit {
 
           const id = Number(params.get('id') ?? -1);
           if (params.has('id') && this.localUserService.user.value?.id !== id) {
-            this.isLocal = false;
+            this.isLocal.set(false);
             return this.usersService.getUser(id, {
               expand: ['profile', 'userStats']
             });
           }
 
-          this.isLocal = true;
+          this.isLocal.set(true);
           return this.localUserService.user;
         })
       )
@@ -156,8 +156,8 @@ export class ProfileEditComponent implements OnInit {
   }
 
   setUser(user: User) {
-    this.user = user;
-    if (!this.isLocal) {
+    this.user.set(user);
+    if (!this.isLocal()) {
       this.titleService.setTitle(`Editing ${user.alias}'s profile`);
     }
     // On DTO profile stuff in within `profile` sub-object - for form we don't
@@ -168,7 +168,7 @@ export class ProfileEditComponent implements OnInit {
 
   updateUser() {
     this.usersService
-      .getUser(this.user.id, {
+      .getUser(this.user().id, {
         expand: ['profile', 'userStats']
       })
       .subscribe((user) => this.setUser(user));
@@ -188,7 +188,7 @@ export class ProfileEditComponent implements OnInit {
     // We log /admin queries separately so really worth using the /user endpoint
     // whenever possible. So only do the /admin call is it's got admin-specific
     // stuff on.
-    if (this.isLocal) {
+    if (this.isLocal()) {
       this.localUserService.updateUser(update).subscribe({
         next: () => {
           this.localUserService.refreshLocalUser();
@@ -205,7 +205,7 @@ export class ProfileEditComponent implements OnInit {
           })
       });
     } else {
-      this.adminService.updateUser(this.user.id, update).subscribe({
+      this.adminService.updateUser(this.user().id, update).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -223,20 +223,20 @@ export class ProfileEditComponent implements OnInit {
   }
 
   hasBan(ban: Ban) {
-    return this.localUserService.hasBan(ban, this.user);
+    return this.localUserService.hasBan(ban, this.user());
   }
 
   hasRole(role: Role) {
-    return this.localUserService.hasRole(role, this.user);
+    return this.localUserService.hasRole(role, this.user());
   }
 
   checkUserPermissions() {
-    if (this.hasBan(Ban.ALIAS) && !this.isModOrAdmin) {
+    if (this.hasBan(Ban.ALIAS) && !this.isModOrAdmin()) {
       this.alias.disable();
     } else {
       this.alias.enable();
     }
-    if (this.hasBan(Ban.BIO) && !this.isModOrAdmin) {
+    if (this.hasBan(Ban.BIO) && !this.isModOrAdmin()) {
       this.bio.disable();
     } else {
       this.bio.enable();
@@ -244,16 +244,16 @@ export class ProfileEditComponent implements OnInit {
   }
 
   returnToProfile() {
-    this.router.navigate([`/profile/${this.user.id}`]);
+    this.router.navigate([`/profile/${this.user().id}`]);
   }
 
   resetAlias() {
-    (this.isLocal
+    (this.isLocal()
       ? this.localUserService.resetAliasToSteamAlias()
-      : this.adminService.resetUserAliasToSteamAlias(this.user.id)
+      : this.adminService.resetUserAliasToSteamAlias(this.user().id)
     ).subscribe({
       next: () => {
-        if (this.isLocal) this.localUserService.refreshLocalUser();
+        if (this.isLocal()) this.localUserService.refreshLocalUser();
         else this.updateUser();
         this.messageService.add({
           severity: 'success',
@@ -270,12 +270,12 @@ export class ProfileEditComponent implements OnInit {
   }
 
   resetAvatar() {
-    (this.isLocal
+    (this.isLocal()
       ? this.localUserService.updateAvatarFromSteam()
-      : this.adminService.updateUserAvatarFromSteam(this.user.id)
+      : this.adminService.updateUserAvatarFromSteam(this.user().id)
     ).subscribe({
       next: () => {
-        if (this.isLocal) this.localUserService.refreshLocalUser();
+        if (this.isLocal()) this.localUserService.refreshLocalUser();
         this.messageService.add({
           severity: 'success',
           detail: 'Successfully updated avatar!'

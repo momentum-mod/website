@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, Input, signal } from '@angular/core';
 import {
   ControlValueAccessor,
   FormsModule,
@@ -51,8 +51,8 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   protected readonly MapTags = MapTags;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  protected value: MapReviewSuggestion[] = [];
-  protected disabled = false;
+  protected readonly value = signal<MapReviewSuggestion[]>([]);
+  protected readonly disabled = signal(false);
 
   protected availableGamemodes: Array<{ gamemode: Gamemode; label: string }>;
   protected availableBonusTracks: Array<{ trackNum: number; label: number }> =
@@ -86,9 +86,9 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
   }
 
   addEmptyItem() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    const hasMainTrack = this.value.some(
+    const hasMainTrack = this.value().some(
       ({ trackType }) => trackType === TrackType.MAIN
     );
 
@@ -100,7 +100,7 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       trackType = TrackType.BONUS;
       // Handle cases where we have Bonus 1, bonus 4, bonus 3, ...
       const bonusNums = new Set(
-        this.value
+        this.value()
           .filter(({ trackType }) => trackType === TrackType.BONUS)
           .map(({ trackNum }) => trackNum)
       );
@@ -108,42 +108,45 @@ export class MapReviewSuggestionsFormComponent implements ControlValueAccessor {
       while (bonusNums.has(trackNum)) trackNum++;
     }
 
-    this.value.push({
-      gamemode: this.defaultMode ?? this.availableGamemodes[0].gamemode,
-      trackType,
-      trackNum,
-      tier: null,
-      gameplayRating: null
-    });
+    this.value.update((value) => [
+      ...value,
+      {
+        gamemode: this.defaultMode ?? this.availableGamemodes[0].gamemode,
+        trackType,
+        trackNum,
+        tier: null,
+        gameplayRating: null
+      }
+    ]);
 
-    this.onChange(this.value);
+    this.onChange(this.value());
     this.onTouched();
   }
 
   removeItem(index: number) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.value.splice(index, 1);
+    this.value.update((value) => value.filter((_, i) => i !== index));
 
-    this.onChange(this.value);
+    this.onChange(this.value());
     this.onTouched();
   }
 
   updateTags(item: MapReviewSuggestion, tags: MapTag[]) {
     item.tags = tags;
-    this.onChange(this.value);
+    this.onChange(this.value());
   }
 
   writeValue(value: MapReviewSuggestion[] | null): void {
     if (!value) {
-      this.value = [];
+      this.value.set([]);
     } else {
-      this.value = value;
+      this.value.set(value);
     }
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
   onChange: (value: MapReviewSuggestion[]) => void = () => void 0;

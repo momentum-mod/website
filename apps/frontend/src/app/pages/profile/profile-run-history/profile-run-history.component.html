@@ -33,8 +33,8 @@
     </div>
   </div>
 </div>
-<ul [mSpinner]="loading">
-  @for (run of runs; track $index) {
+<ul [mSpinner]="loading()">
+  @for (run of runs(); track $index) {
     <li class="basis-full">
       <div class="flex flex-wrap items-center">
         <div class="w-1/5 pl-4 pr-4 text-3xl [font-color:silver] sm:w-1/6 md:pl-4">
@@ -51,16 +51,16 @@
       </div>
     </li>
   } @empty {
-    @if (!loading) {
+    @if (!loading()) {
       <i>No runs found</i>
     }
   }
 </ul>
 <p-paginator
   (onPageChange)="pageChange.next($event)"
-  [first]="first"
+  [first]="first()"
   [rows]="rows"
-  [totalRecords]="totalRecords"
+  [totalRecords]="totalRecords()"
   [showCurrentPageReport]="true"
   [alwaysShow]="false"
 />

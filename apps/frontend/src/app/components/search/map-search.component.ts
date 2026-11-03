@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PaginatorModule } from 'primeng/paginator';
 import { AbstractSearchComponent } from './abstract-search.component';
 import { MMap } from '@momentum/constants';
@@ -15,7 +15,7 @@ import { NgClass } from '@angular/common';
 export class MapSearchComponent extends AbstractSearchComponent<MMap> {
   private readonly mapsService = inject(MapsService);
 
-  protected selectedIdx = 0;
+  protected readonly selectedIdx = signal(0);
 
   itemsName = 'maps';
 
@@ -23,20 +23,21 @@ export class MapSearchComponent extends AbstractSearchComponent<MMap> {
     return this.mapsService.getMaps({
       search: searchString,
       take: this.rows,
-      skip: this.first
+      skip: this.first()
     });
   }
 
   onKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      this.selectedIdx = (this.selectedIdx + 1) % this.found.length;
+      this.selectedIdx.update((idx) => (idx + 1) % this.found().length);
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      this.selectedIdx =
-        (this.selectedIdx - 1 + this.found.length) % this.found.length;
-    } else if (event.key === 'Enter' && this.found.length > 0) {
-      this.onSelected(this.found[this.selectedIdx]);
+      this.selectedIdx.update(
+        (idx) => (idx - 1 + this.found().length) % this.found().length
+      );
+    } else if (event.key === 'Enter' && this.found().length > 0) {
+      this.onSelected(this.found()[this.selectedIdx()]);
     }
   }
 }

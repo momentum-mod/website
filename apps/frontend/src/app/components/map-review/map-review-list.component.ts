@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, inject, signal } from '@angular/core';
 import { MapReview, MMap } from '@momentum/constants';
 import { forkJoin, merge, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -44,15 +44,15 @@ export class MapReviewListComponent implements OnChanges {
   ];
 
   @Input({ required: true }) map: MMap;
-  protected reviews: MapReview[] = [];
+  protected readonly reviews = signal<MapReview[]>([]);
   protected isSubmitter = false;
 
   public readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
-  protected loading = false;
-  protected rows = 10;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly loading = signal(false);
+  protected readonly rows = signal(10);
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
   protected filter = FilterType.NONE;
 
@@ -60,14 +60,14 @@ export class MapReviewListComponent implements OnChanges {
     merge(
       this.pageChange.pipe(
         tap(({ first, rows }) => {
-          this.first = first;
-          this.rows = rows;
+          this.first.set(first);
+          this.rows.set(rows);
         })
       ),
       this.load
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() => {
           let filter: boolean | undefined;
           switch (this.filter) {
@@ -83,8 +83,8 @@ export class MapReviewListComponent implements OnChanges {
               expand: ['reviewer', 'resolver'],
               official: filter,
               comments: 5,
-              take: this.rows,
-              skip: this.first
+              take: this.rows(),
+              skip: this.first()
             }),
             this.mapsService.getMapReviewStats(this.map.id)
           ]);
@@ -92,12 +92,12 @@ export class MapReviewListComponent implements OnChanges {
       )
       .subscribe({
         next: ([pagedRes, statsRes]) => {
-          this.reviews = pagedRes.data;
-          this.totalRecords = pagedRes.totalCount;
+          this.reviews.set(pagedRes.data);
+          this.totalRecords.set(pagedRes.totalCount);
           // Mutating actual map object here so don't have to re-request the
           // entire thing just to update stats.
           this.map.reviewStats = statsRes;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -105,7 +105,7 @@ export class MapReviewListComponent implements OnChanges {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

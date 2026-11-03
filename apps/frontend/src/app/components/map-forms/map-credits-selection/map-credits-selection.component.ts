@@ -4,7 +4,13 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  QueryList,
+  signal,
+  ViewChildren
+} from '@angular/core';
 import {
   MAX_USER_ALIAS_LENGTH,
   MapCreditNames,
@@ -49,7 +55,7 @@ import { AvatarComponent } from '../../avatar/avatar.component';
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {
-  protected value: GroupedMapCredits;
+  protected readonly value = signal<GroupedMapCredits>(new GroupedMapCredits());
 
   protected readonly MapCreditType = MapCreditType;
   protected readonly MapCreditNames = MapCreditNames;
@@ -64,7 +70,7 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     user: User,
     searchComponent: UserSearchComponent
   ) {
-    const existingUserCredit = this.value
+    const existingUserCredit = this.value()
       .getAll()
       .find((userEntry) => userEntry.userID === user.id);
     if (existingUserCredit) {
@@ -76,23 +82,25 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       );
     } else {
       searchComponent.resetSearchBox();
-      this.value.add({ user, type, description: null });
-      this.onChange(this.value);
+      this.value().add({ user, type, description: null });
+      this.onChange(this.value());
     }
   }
 
   removeUser(type: MapCreditType, userID: number, alias: string) {
-    const userIndex = this.value.get(type).findIndex(
-      // Also check for alias to remove the correct placeholder.
-      (credit) => credit.userID === userID && credit.alias === alias
-    );
+    const userIndex = this.value()
+      .get(type)
+      .findIndex(
+        // Also check for alias to remove the correct placeholder.
+        (credit) => credit.userID === userID && credit.alias === alias
+      );
     if (userIndex === -1) return;
-    this.value[type].splice(userIndex, 1);
-    this.onChange(this.value);
+    this.value()[type].splice(userIndex, 1);
+    this.onChange(this.value());
   }
 
   addPlaceholder(type: MapCreditType, searchComponent: UserSearchComponent) {
-    const existingPlaceholderCredit = this.value
+    const existingPlaceholderCredit = this.value()
       .getAll()
       .find(
         (placeholderEntry) =>
@@ -115,9 +123,9 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       return;
     }
 
-    this.value.add({ type, alias: searchComponent.search.value });
+    this.value().add({ type, alias: searchComponent.search.value });
     searchComponent.resetSearchBox();
-    this.onChange(this.value);
+    this.onChange(this.value());
   }
 
   drop(event: CdkDragDrop<any[]>) {
@@ -137,12 +145,12 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
     }
 
     // Update the type of each inner credit when it gets moved between arrays
-    this.value.updateInnerTypes();
-    this.onChange(this.value);
+    this.value().updateInnerTypes();
+    this.onChange(this.value());
   }
 
   writeValue(value: GroupedMapCredits | null): void {
-    this.value = value ?? new GroupedMapCredits();
+    this.value.set(value ?? new GroupedMapCredits());
   }
 
   onChange: (value: GroupedMapCredits) => void = () => void 0;

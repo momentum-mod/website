@@ -1,4 +1,11 @@
-import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  Input,
+  OnChanges,
+  inject,
+  signal
+} from '@angular/core';
 import {
   GamemodeDefaultUIStyle,
   GamemodeInfo,
@@ -114,9 +121,9 @@ export class MapLeaderboardComponent implements OnChanges {
   protected activeType: LeaderboardFilterType;
   protected activeTags: MapTag[];
 
-  protected runs: LeaderboardRun[] = [];
+  protected readonly runs = signal<LeaderboardRun[]>([]);
   protected readonly load = new Subject<void>();
-  protected loading = false;
+  protected readonly loading = signal(false);
 
   protected showHiddenLeaderboards = false;
 
@@ -162,14 +169,14 @@ export class MapLeaderboardComponent implements OnChanges {
             this.activeStyle
           ])
         ),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() => this.fetchRuns()),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response) => {
-          this.runs = response.data;
-          this.loading = false;
+          this.runs.set(response.data);
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -177,7 +184,7 @@ export class MapLeaderboardComponent implements OnChanges {
             detail: httpError.error.message,
             summary: 'Error fetching runs'
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

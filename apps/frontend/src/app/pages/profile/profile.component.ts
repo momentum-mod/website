@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   ActivatedRoute,
@@ -103,24 +110,33 @@ export class ProfileComponent implements OnInit {
   protected readonly MapCreditType = MapCreditType;
 
   userSubject = new BehaviorSubject<User>(null);
-  user: User;
-  isLocal = true;
-  avatarUrl = '/assets/images/blank_avatar.jpg';
-  avatarLoaded: boolean;
-  countryDisplayName = '';
-  followingUsers: Follow[] = [];
-  followedByUsers: Follow[] = [];
+  protected readonly user = signal<User>(null);
+  protected readonly isLocal = signal(true);
+  protected readonly avatarUrl = signal('/assets/images/blank_avatar.jpg');
+  protected readonly avatarLoaded = signal(false);
+  protected readonly countryDisplayName = signal('');
+  protected readonly followingUsers = signal<Follow[]>([]);
+  protected readonly followedByUsers = signal<Follow[]>([]);
   localFollowStatus = new BehaviorSubject<Follow>(null);
-  level: number;
-  xp: number;
-  currLevelXp: number;
-  nextLevelXp: number;
-  importSteamFriendsModalVisible = false;
-  steamFriends: User[] = [];
-  steamFriendsToAdd = new Set<number>();
-  loadingSteamFriends = false;
-  protected credits: MapCredit[];
-  protected creditMap: Partial<Record<MapCreditType, MapCredit[]>>;
+  protected readonly level = computed(() => this.user()?.userStats?.level);
+  protected readonly xp = computed(() => this.user()?.userStats?.cosXP);
+  protected readonly currLevelXp = computed(() =>
+    this.xpService.getCosmeticXpForLevel(this.level())
+  );
+  protected readonly nextLevelXp = computed(() =>
+    this.xpService.getCosmeticXpForLevel(this.level() + 1)
+  );
+  protected readonly importSteamFriendsModalVisible = signal(false);
+  protected readonly steamFriends = signal<User[]>([]);
+  protected readonly steamFriendsToAdd = signal(new Set<number>());
+  protected readonly loadingSteamFriends = signal(false);
+  protected readonly credits = signal<MapCredit[]>(null);
+  protected readonly creditMap = computed(() =>
+    Object.groupBy<MapCreditType, MapCredit>(
+      this.credits() ?? [],
+      (credit) => credit.type
+    )
+  );
 
   ngOnInit() {
     this.route.paramMap
@@ -132,13 +148,13 @@ export class ProfileComponent implements OnInit {
               !this.localUserService.isLoggedIn ||
               this.localUserService.user.value?.id !== id
             ) {
-              this.isLocal = false;
+              this.isLocal.set(false);
               return this.usersService.getUser(id, {
                 expand: ['profile', 'userStats']
               });
             }
           }
-          this.isLocal = true;
+          this.isLocal.set(true);
           this.localUserService.refreshLocalUser();
           return this.localUserService.user;
         }),
@@ -146,25 +162,18 @@ export class ProfileComponent implements OnInit {
       )
       .subscribe({
         next: (user) => {
-          this.user = user;
-          if (!this.isLocal) {
+          this.user.set(user);
+          if (!this.isLocal()) {
             this.titleService.setTitle(user.alias);
           }
           this.userSubject.next(user);
-          if (this.user.avatarURL) this.avatarUrl = this.user.avatarURL;
+          if (user.avatarURL) this.avatarUrl.set(user.avatarURL);
 
-          this.avatarLoaded = true;
-          this.countryDisplayName = ISOCountryCode[this.user.country];
+          this.avatarLoaded.set(true);
+          this.countryDisplayName.set(ISOCountryCode[user.country]);
 
-          this.level = user.userStats.level;
-          this.xp = user.userStats.cosXP;
-          this.currLevelXp = this.xpService.getCosmeticXpForLevel(this.level);
-          this.nextLevelXp = this.xpService.getCosmeticXpForLevel(
-            this.level + 1
-          );
-
-          this.usersService.getUserFollows(this.user).subscribe({
-            next: (response) => (this.followingUsers = response.data),
+          this.usersService.getUserFollows(user).subscribe({
+            next: (response) => this.followingUsers.set(response.data),
             error: (httpError: HttpErrorResponse) =>
               this.messageService.add({
                 severity: 'error',
@@ -174,18 +183,12 @@ export class ProfileComponent implements OnInit {
           });
 
           this.usersService
-            .getMapCredits(this.user.id, {
+            .getMapCredits(user.id, {
               expand: ['map', 'info'],
               take: 100
             })
             .subscribe({
-              next: (response) => {
-                this.credits = response.data;
-                this.creditMap = Object.groupBy<MapCreditType, MapCredit>(
-                  response.data,
-                  (credit) => credit.type
-                );
-              },
+              next: (response) => this.credits.set(response.data),
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
@@ -195,16 +198,16 @@ export class ProfileComponent implements OnInit {
             });
 
           this.localUserService
-            .checkFollowStatus(this.user)
+            .checkFollowStatus(user)
             .pipe(
               switchMap((response) => {
                 this.localFollowStatus.next(response.local);
-                return this.usersService.getFollowersOfUser(this.user);
+                return this.usersService.getFollowersOfUser(user);
               }),
               takeUntilDestroyed(this.destroyRef)
             )
             .subscribe({
-              next: (response) => (this.followedByUsers = response.data),
+              next: (response) => this.followedByUsers.set(response.data),
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
@@ -223,18 +226,18 @@ export class ProfileComponent implements OnInit {
   }
 
   hasRole(role: Role) {
-    if (!this.user) return false;
-    return this.localUserService.hasRole(role, this.user);
+    if (!this.user()) return false;
+    return this.localUserService.hasRole(role, this.user());
   }
 
   hasBan(ban: Ban) {
-    if (!this.user) return false;
-    return this.localUserService.hasBan(ban, this.user);
+    if (!this.user()) return false;
+    return this.localUserService.hasBan(ban, this.user());
   }
 
   onEditProfile() {
     this.router.navigate([
-      `/profile/${this.isLocal ? '' : this.user.id + '/'}edit`
+      `/profile/${this.isLocal() ? '' : this.user().id + '/'}edit`
     ]);
   }
 
@@ -242,7 +245,7 @@ export class ProfileComponent implements OnInit {
     this.dialogService
       .open(ProfileAdminSettingsComponent, {
         header: 'Admin Settings',
-        data: { user: this.user, isLocal: this.isLocal },
+        data: { user: this.user(), isLocal: this.isLocal() },
         style: {
           'min-width': 'min(35rem, 95vw)',
           'max-width': 'min(55rem, 95vw)'
@@ -252,13 +255,13 @@ export class ProfileComponent implements OnInit {
   }
 
   private refreshUser() {
-    if (this.isLocal) {
+    if (this.isLocal()) {
       this.localUserService.refreshLocalUser();
     } else {
       this.usersService
-        .getUser(this.user.id, { expand: ['profile', 'userStats'] })
+        .getUser(this.user().id, { expand: ['profile', 'userStats'] })
         .subscribe((user) => {
-          this.user = user;
+          this.user.set(user);
           this.userSubject.next(user);
         });
     }
@@ -278,9 +281,9 @@ export class ProfileComponent implements OnInit {
     };
 
     if (this.localFollowStatus.value) {
-      this.localUserService.unfollowUser(this.user).subscribe(observer);
+      this.localUserService.unfollowUser(this.user()).subscribe(observer);
     } else {
-      this.localUserService.followUser(this.user).subscribe(observer);
+      this.localUserService.followUser(this.user()).subscribe(observer);
     }
   }
 
@@ -294,7 +297,7 @@ export class ProfileComponent implements OnInit {
       .onClose.pipe(filter(Boolean))
       .subscribe((response) => {
         this.localUserService
-          .updateFollowStatus(this.user, response.newFlags)
+          .updateFollowStatus(this.user(), response.newFlags)
           .subscribe({
             next: () =>
               this.localFollowStatus.next({
@@ -312,19 +315,19 @@ export class ProfileComponent implements OnInit {
   }
 
   showSteamFriendsModal() {
-    this.importSteamFriendsModalVisible = true;
-    this.loadingSteamFriends = true;
+    this.importSteamFriendsModalVisible.set(true);
+    this.loadingSteamFriends.set(true);
     this.localUserService
       .getSteamFriends()
       .pipe(
         tap({
-          error: () => (this.loadingSteamFriends = false),
-          next: () => (this.loadingSteamFriends = false)
+          error: () => this.loadingSteamFriends.set(false),
+          next: () => this.loadingSteamFriends.set(false)
         })
       )
       .subscribe({
         next: (response) => {
-          this.steamFriends = response;
+          this.steamFriends.set(response);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -337,32 +340,38 @@ export class ProfileComponent implements OnInit {
   }
 
   toggleSteamFriend(user: User) {
-    if (this.steamFriendsToAdd.has(user.id)) {
-      this.steamFriendsToAdd.delete(user.id);
-    } else {
-      this.steamFriendsToAdd.add(user.id);
-    }
+    this.steamFriendsToAdd.update((toAdd) => {
+      const updated = new Set(toAdd);
+      if (updated.has(user.id)) {
+        updated.delete(user.id);
+      } else {
+        updated.add(user.id);
+      }
+      return updated;
+    });
   }
 
   selectAllSteamFriends() {
-    this.steamFriendsToAdd = new Set(this.steamFriends.map((user) => user.id));
+    this.steamFriendsToAdd.set(
+      new Set(this.steamFriends().map((user) => user.id))
+    );
   }
 
   deselectAllSteamFriends() {
-    this.steamFriendsToAdd.clear();
+    this.steamFriendsToAdd.set(new Set());
   }
 
   importSteamFriendsToFollow() {
-    this.localUserService.followUsers(this.steamFriendsToAdd).subscribe({
+    this.localUserService.followUsers(this.steamFriendsToAdd()).subscribe({
       next: () => {
-        this.importSteamFriendsModalVisible = false;
-        this.steamFriends = this.steamFriends.filter(
-          (user) => !this.steamFriendsToAdd.has(user.id)
+        this.importSteamFriendsModalVisible.set(false);
+        this.steamFriends.update((friends) =>
+          friends.filter((user) => !this.steamFriendsToAdd().has(user.id))
         );
-        this.steamFriendsToAdd.clear();
+        this.steamFriendsToAdd.set(new Set());
 
-        this.usersService.getUserFollows(this.user).subscribe({
-          next: (response) => (this.followingUsers = response.data),
+        this.usersService.getUserFollows(this.user()).subscribe({
+          next: (response) => this.followingUsers.set(response.data),
           error: (httpError: HttpErrorResponse) =>
             this.messageService.add({
               severity: 'error',

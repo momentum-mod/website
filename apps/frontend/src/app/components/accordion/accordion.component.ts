@@ -1,12 +1,10 @@
 import {
   AfterContentInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   ContentChildren,
   Input,
-  QueryList,
-  inject
+  QueryList
 } from '@angular/core';
 import { AccordionItemComponent } from './accordion-item.component';
 import { Subject, delay, takeWhile } from 'rxjs';
@@ -20,8 +18,6 @@ import { Subject, delay, takeWhile } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AccordionComponent implements AfterContentInit {
-  private readonly cdRef = inject(ChangeDetectorRef);
-
   // Strategy: each accordion-item component injects this component, which calls
   // the below Subject  whenever it opens with a key unique to that component.
   // Then we just iterate over the query list of accordion items, opening the
@@ -47,8 +43,7 @@ export class AccordionComponent implements AfterContentInit {
       this.items.changes
         .pipe(
           // Delay this check until next EL macrotask to avoid
-          // ExpressionChangedAfterItHasBeenCheckedError that throw even with
-          // the explicit CDRef.detachChanges call for some fucking reason.
+          // ExpressionChangedAfterItHasBeenCheckedError.
           // See https://stackoverflow.com/a/72021564
           delay(0),
           takeWhile(() => {
@@ -61,7 +56,6 @@ export class AccordionComponent implements AfterContentInit {
               this.items.forEach((item) => (item.open = true));
             }
 
-            this.cdRef.detectChanges();
             return true;
           })
         )
@@ -70,7 +64,6 @@ export class AccordionComponent implements AfterContentInit {
 
   onItemOpened(key: symbol) {
     for (const item of this.items) {
-      // CD calls happen in here
       if (item.Key === key) {
         item.open = true;
       } else if (this.autoClose) {

@@ -1,4 +1,4 @@
-@if (user) {
+@if (user()) {
   <m-card title="Edit Profile">
     <button type="button" header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>
     <form class="m-2 sm:m-6" (ngSubmit)="onSubmit()" [formGroup]="form">
@@ -7,7 +7,7 @@
           <p class="text-lg">Alias</p>
           <div class="relative flex w-full flex-wrap items-stretch gap-2">
             <input class="textinput mb-1 min-w-0 max-sm:w-full" formControlName="alias" type="text" />
-            @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
+            @if (!hasBan(Ban.ALIAS) || isModOrAdmin()) {
               <div class="input-group-append">
                 <button class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
               </div>
@@ -39,7 +39,7 @@
           />
         </div>
 
-        @if (!hasBan(Ban.AVATAR) || isModOrAdmin) {
+        @if (!hasBan(Ban.AVATAR) || isModOrAdmin()) {
           <div>
             <p class="text-lg">Avatar</p>
             <button class="btn" type="button" (click)="resetAvatar()">Update from Steam</button>

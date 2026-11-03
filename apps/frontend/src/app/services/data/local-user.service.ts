@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable, of } from 'rxjs';
 import { DialogService } from 'primeng/dynamicdialog';
 import {
@@ -45,10 +45,15 @@ export class LocalUserService {
         : null;
 
     this.user = new BehaviorSubject(storedUser);
+    this.user.subscribe((user) => this.userSignal.set(user));
     this.refreshLocalUser();
   }
 
   public readonly user: BehaviorSubject<FullUser | null>;
+
+  // Mirrors `user` so that templates reading the role/ban getters below
+  // update when the user changes.
+  private readonly userSignal = signal<FullUser | null>(null);
 
   public get isLoggedIn(): boolean {
     return this.authService.isAuthenticated();
@@ -93,7 +98,7 @@ export class LocalUserService {
 
   public hasRole(roles: Role, user?: User): boolean {
     if (!user && !this.isLoggedIn) return false;
-    user ??= this.user.value as User;
+    user ??= this.userSignal() as User;
     return user?.roles ? Bitflags.has(roles, user.roles) : false;
   }
 
@@ -119,7 +124,7 @@ export class LocalUserService {
 
   public hasBan(bans: Ban, user?: User): boolean {
     if (!user && !this.isLoggedIn) return false;
-    user ??= this.user.value as User;
+    user ??= this.userSignal() as User;
     return user?.bans ? Bitflags.has(bans, user.bans) : false;
   }
 

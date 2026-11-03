@@ -31,7 +31,7 @@
     [ngClass]="{ 'w-96 max-w-[calc(100vw-3rem)]': useOverlay }"
     (keydown)="onKeydown($event)"
   >
-    @if (search.invalid && search.value.length > 0 && found.length === 0) {
+    @if (search.invalid && search.value.length > 0 && found().length === 0) {
       <div class="flex flex-row flex-wrap justify-center gap-4">
         <p class="my-auto text-center text-lg text-gray-200">
           {{ getFirstError() }}
@@ -39,11 +39,11 @@
         <ng-container *ngTemplateOutlet="appendTemplate"></ng-container>
       </div>
     } @else if (search.value.length > 0) {
-      @for (user of found; track $index; let isLast = $last) {
+      @for (user of found(); track $index; let isLast = $last) {
         <div
           class="rounded bg-white bg-opacity-0 p-2 transition-colors"
-          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx }"
-          (mouseenter)="selectedIdx = $index"
+          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx() }"
+          (mouseenter)="selectedIdx.set($index)"
           (click)="onSelected(user)"
         >
           <div class="flex items-center">
@@ -80,9 +80,9 @@
           <p-paginator
             class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
             (onPageChange)="pageChange.next($event)"
-            [first]="first"
+            [first]="first()"
             [rows]="rows"
-            [totalRecords]="totalRecords"
+            [totalRecords]="totalRecords()"
             [showCurrentPageReport]="true"
             [alwaysShow]="false"
           />

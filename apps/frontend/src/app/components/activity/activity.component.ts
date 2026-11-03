@@ -4,7 +4,9 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
-  inject
+  computed,
+  inject,
+  signal
 } from '@angular/core';
 import {
   BehaviorSubject,
@@ -82,14 +84,19 @@ export class ActivityComponent implements OnInit, OnChanges {
   // Filtered version always gets rendered, but this is needed to store other
   // activities hidden by filters, so we don't need to reset and reload data
   // each time a filter changes.
-  protected activities: Activity[] = [];
-  protected filteredActivities: Activity[] = [];
+  protected readonly activities = signal<Activity[]>([]);
+  protected readonly filterValue = signal<ActivityType>(ActivityType.ALL);
+  protected readonly filteredActivities = computed(() => {
+    const filterValue = this.filterValue();
+    return filterValue === ActivityType.ALL
+      ? this.activities()
+      : this.activities().filter((value) => value.type === filterValue);
+  });
 
-  protected filterValue: ActivityType = ActivityType.ALL;
   private page = 0;
   private readonly ITEMS_PER_PAGE = 20;
   protected canLoadMore = true;
-  protected loading: boolean;
+  protected readonly loading = signal(false);
 
   // Emits on first load, and whenever p-scroller wants new data
   protected readonly load = new Subject<void>();
@@ -139,7 +146,7 @@ export class ActivityComponent implements OnInit, OnChanges {
           }
 
           this.clearActivities();
-          this.loading = false;
+          this.loading.set(false);
 
           // Switch over component variants to pick type of request. infinite scrolly
           // guy will fire off the `load` subject on scroll
@@ -150,14 +157,14 @@ export class ActivityComponent implements OnInit, OnChanges {
                   extraListener.pipe(
                     tap(() => {
                       this.clearActivities();
-                      this.loading = false;
+                      this.loading.set(false);
                     })
                   )
                 )
               : this.load
           ).pipe(
             filter(() => this.canLoadMore),
-            tap(() => (this.loading = true)),
+            tap(() => this.loading.set(true)),
             switchMap(() => fetchFn())
           );
         })
@@ -166,10 +173,12 @@ export class ActivityComponent implements OnInit, OnChanges {
         next: (res: PagedResponse<Activity>) => {
           this.canLoadMore = res.returnCount === this.ITEMS_PER_PAGE;
           if (res.returnCount !== 0) {
-            this.activities.push(...res.data);
-            this.filterActivities();
+            this.activities.update((activities) => [
+              ...activities,
+              ...res.data
+            ]);
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -178,7 +187,7 @@ export class ActivityComponent implements OnInit, OnChanges {
             detail: httpError.error.message
           });
           this.page = Math.max(0, this.page - 1);
-          this.loading = false;
+          this.loading.set(false);
         }
       });
 
@@ -188,16 +197,8 @@ export class ActivityComponent implements OnInit, OnChanges {
     }
   }
 
-  protected filterActivities(): void {
-    this.filteredActivities =
-      this.filterValue === ActivityType.ALL
-        ? this.activities
-        : this.activities.filter((value) => value.type === this.filterValue);
-  }
-
   private clearActivities() {
-    this.activities = [];
-    this.filteredActivities = [];
+    this.activities.set([]);
     this.canLoadMore = true;
     this.page = 0;
   }

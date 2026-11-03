@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { AdminActivity, AdminActivityType, User } from '@momentum/constants';
 import { Subject, merge, of, switchMap, tap } from 'rxjs';
 import { MessageService } from 'primeng/api';
@@ -63,36 +63,38 @@ export class AdminActivityComponent implements OnInit {
     { value: AdminActivityType.CHAT_BAN_REVOKE, text: 'Chat ban revoked' },
   ];
 
-  protected compositeActivities: Array<{
-    activity: AdminActivity;
-    entry: AdminActivityEntryData;
-  }> = [];
+  protected readonly compositeActivities = signal<
+    Array<{
+      activity: AdminActivity;
+      entry: AdminActivityEntryData;
+    }>
+  >([]);
 
   protected readonly filters = this.nnfb.group({
     types: this.nnfb.control<AdminActivityType[]>([]),
     user: new FormControl<User | null>(null)
   });
 
-  protected loading: boolean;
+  protected readonly loading = signal(false);
 
   protected readonly pageChange = new Subject<PaginatorState>();
-  protected first = 0;
+  protected readonly first = signal(0);
   protected readonly rows = 10;
-  protected totalRecords = 0;
+  protected readonly totalRecords = signal(0);
 
   ngOnInit() {
     merge(
       of(null),
       this.filters.valueChanges,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first)))
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() => {
           const { types, user } = this.filters.value;
           const query = {
             take: this.rows,
-            skip: this.first,
+            skip: this.first(),
             filter: types.length > 0 ? types : undefined
           };
 
@@ -110,12 +112,14 @@ export class AdminActivityComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          this.totalRecords = response.totalCount;
-          this.compositeActivities = response.data.map((activity) => ({
-            activity,
-            entry: AdminActivityEntryComponent.getActivityData(activity)
-          }));
-          this.loading = false;
+          this.totalRecords.set(response.totalCount);
+          this.compositeActivities.set(
+            response.data.map((activity) => ({
+              activity,
+              entry: AdminActivityEntryComponent.getActivityData(activity)
+            }))
+          );
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -123,9 +127,9 @@ export class AdminActivityComponent implements OnInit {
             summary: 'Failed to load admin activity',
             detail: httpError.error.message
           });
-          this.compositeActivities = [];
-          this.totalRecords = 0;
-          this.loading = false;
+          this.compositeActivities.set([]);
+          this.totalRecords.set(0);
+          this.loading.set(false);
         }
       });
   }

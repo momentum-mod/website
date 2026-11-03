@@ -4,7 +4,9 @@ import {
   HostBinding,
   HostListener,
   Input,
-  ViewChild
+  ViewChild,
+  WritableSignal,
+  signal
 } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { Icon } from '../../icons';
@@ -21,13 +23,13 @@ import { Icon } from '../../icons';
 export abstract class AbstractFileUploadComponent<T extends File | File[]>
   implements ControlValueAccessor
 {
-  protected abstract value: T;
+  protected abstract readonly value: WritableSignal<T>;
   protected abstract readonly multiple: boolean;
   protected abstract readonly max: number | null;
 
   // Uses a numeric counter to handle dragging over child elements
   // https://stackoverflow.com/a/21002544
-  protected dragOverCounter = 0;
+  protected readonly dragOverCounter = signal(0);
 
   /**
    * Extensions that file select dialog will accept
@@ -49,10 +51,10 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
    */
   @Input() typeName = '';
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   // Shouldn't really be public but I wanna set it from MapImageSelection :)
-  public disabledBecauseReachedMax = false;
+  public readonly disabledBecauseReachedMax = signal(false);
 
   /**
    * Whether to show a list of selected files within the component. If false,
@@ -68,7 +70,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
   @HostBinding('class.dragging')
   private get isDragging() {
-    return this.dragOverCounter > 0;
+    return this.dragOverCounter() > 0;
   }
 
   @HostBinding('class.hasSelection')
@@ -90,7 +92,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
   @HostListener('click')
   onClick() {
-    if (!this.disabled) {
+    if (!this.disabled()) {
       this.input.nativeElement.click();
     }
   }
@@ -102,22 +104,22 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
   @HostListener('dragenter')
   onDragEnter() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.dragOverCounter++;
+    this.dragOverCounter.update((count) => count + 1);
   }
 
   @HostListener('dragleave')
   onDragLeave() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.dragOverCounter--;
+    this.dragOverCounter.update((count) => count - 1);
   }
 
   abstract addFromClipboard(event: Event): Promise<void>;
 
   removeDragData(event: DragEvent) {
-    this.dragOverCounter = 0;
+    this.dragOverCounter.set(0);
 
     if (event.dataTransfer.items) {
       event.dataTransfer.items.clear();
@@ -145,10 +147,10 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-    this.dragOverCounter = 0;
+    this.disabled.set(isDisabled);
+    this.dragOverCounter.set(0);
     if (isDisabled === false) {
-      this.disabledBecauseReachedMax = false;
+      this.disabledBecauseReachedMax.set(false);
     }
   }
 

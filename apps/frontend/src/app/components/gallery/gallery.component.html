@@ -28,28 +28,30 @@
     </button>
 
     <div #parent class="pointer-events-none z-10 flex aspect-video min-h-0 basis-[87.5%] items-center justify-center">
-      @if (selectedItem && selectedItem.type === 'image') {
-        <img class="pointer-events-auto max-h-full max-w-full rounded shadow-lg" [src]="selectedItem.full" />
-      } @else if (selectedItem && selectedItem.type === 'youtube') {
-        <iframe
-          #youtubeIframe
-          class="pointer-events-auto size-full shadow-lg"
-          type="text/html"
-          [src]="selectedItem.safeUrl"
-          allowfullscreen="true"
-        ></iframe>
+      @if (currentItem(); as current) {
+        @if (current.type === 'image') {
+          <img class="pointer-events-auto max-h-full max-w-full rounded shadow-lg" [src]="current.full" />
+        } @else if (current.type === 'youtube') {
+          <iframe
+            #youtubeIframe
+            class="pointer-events-auto size-full shadow-lg"
+            type="text/html"
+            [src]="current.safeUrl"
+            allowfullscreen="true"
+          ></iframe>
+        }
       }
     </div>
 
-    @if (items.length > 1) {
+    @if (items().length > 1) {
       <!-- Make sure high in z-order so clicking in between thumbnails doesn't trigger close (annoying!)-->
       <div class="z-10 mt-[1.5vh] flex min-h-0 basis-[12.5%] items-center justify-center gap-[1.5vh] overflow-x-auto">
-        @for (item of items; track $index; let i = $index) {
+        @for (item of items(); track $index; let i = $index) {
           <!-- Needed for hover effect -->
           <button
             type="button"
             class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded border-2 border-white border-opacity-0 shadow-lg transition-colors"
-            [ngClass]="{ 'border-opacity-80': i === selectedItemIndex }"
+            [ngClass]="{ 'border-opacity-80': i === selectedItemIndex() }"
             (click)="selectItem(i)"
           >
             <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />

@@ -1,4 +1,4 @@
-@if (value && value.length > 0 && !disabled) {
+@if (value()?.length > 0 && !disabled()) {
   <!-- On mobile, each item is a small card with labelled fields, rather than a row of the 7-column table. -->
   <table class="mb-2 grid border-collapse grid-cols-1 gap-2 md:grid-cols-[auto_8rem_auto_auto_auto_4fr_auto] md:gap-0.5">
     <thead class="hidden bg-gray-950 md:contents">
@@ -16,7 +16,7 @@
       </tr>
     </thead>
     <tbody class="contents">
-      @for (item of value; track item; let i = $index) {
+      @for (item of value(); track item; let i = $index) {
         <tr class="mt-2 grid grid-cols-2 gap-2 rounded bg-black bg-opacity-10 p-2 md:contents md:bg-transparent md:p-0">
           <td>
             <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Gamemode</p>
@@ -27,7 +27,7 @@
               optionLabel="label"
               optionValue="gamemode"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
@@ -40,7 +40,7 @@
               optionLabel="label"
               optionValue="type"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
@@ -54,7 +54,7 @@
               [options]="item.trackType === TrackType.BONUS ? availableBonusTracks : []"
               [disabled]="item.trackType !== TrackType.BONUS"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
@@ -68,7 +68,7 @@
               step="1"
               [(ngModel)]="item.tier"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
           <td>
@@ -81,7 +81,7 @@
               step="1"
               [(ngModel)]="item.gameplayRating"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
           <td class="max-md:col-span-2">

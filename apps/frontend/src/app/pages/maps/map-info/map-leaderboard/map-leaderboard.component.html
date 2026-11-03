@@ -154,7 +154,7 @@
     />
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <m-spinner />
   }
 
@@ -171,10 +171,10 @@
       </span>
     </p>
   }
-  @if (!loading && runs.length === 0) {
+  @if (!loading() && runs().length === 0) {
     <h4 class="text-center">No runs found</h4>
   }
-  @if (!loading && runs.length > 0) {
+  @if (!loading() && runs().length > 0) {
     <div class="mt-4 w-full">
       <!-- Below sm, the time and date are stacked in one column and the rank gets a fixed width, since percentage bases
            don't leave enough room for the time. -->
@@ -184,7 +184,7 @@
         <p class="shrink-0 text-right sm:basis-1/10 sm:text-left">Time</p>
         <p class="basis-3/20 text-right max-sm:hidden">Achieved</p>
       </div>
-      @for (run of runs; track $index) {
+      @for (run of runs(); track $index) {
         <div
           class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
         >

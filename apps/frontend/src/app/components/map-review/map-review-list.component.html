@@ -18,11 +18,11 @@
       appendTo="body"
     />
   </div>
-  <div [mSpinner]="loading" class="flex flex-col gap-4">
-    @for (review of reviews; track $index) {
+  <div [mSpinner]="loading()" class="flex flex-col gap-4">
+    @for (review of reviews(); track $index) {
       <m-map-review [review]="review" [map]="map" (updatedOrDeleted)="load.next()" />
     } @empty {
-      @if (!loading) {
+      @if (!loading()) {
         <p class="m-4 text-center text-lg italic text-gray-200">No reviews posted</p>
       }
     }
@@ -30,9 +30,9 @@
   <p-paginator
     class="self-end"
     (onPageChange)="pageChange.next($event)"
-    [first]="first"
-    [rows]="rows"
-    [totalRecords]="totalRecords"
+    [first]="first()"
+    [rows]="rows()"
+    [totalRecords]="totalRecords()"
     [showCurrentPageReport]="true"
     [alwaysShow]="false"
     [rowsPerPageOptions]="[5, 10, 20]"

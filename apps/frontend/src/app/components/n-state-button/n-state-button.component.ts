@@ -1,12 +1,11 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   forwardRef,
   HostBinding,
   HostListener,
   Input,
-  inject
+  signal
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Icon, IconComponent } from '../../icons';
@@ -30,14 +29,14 @@ export type NStateButtonStates = Array<{
 }>;
 
 @Component({
-  template: `@if (currentState.text; as text) {
+  template: `@if (currentState()?.text; as text) {
       <p [ngClass]="textClass">{{ text }}</p>
     }
-    @if (currentState.icon; as icon) {
+    @if (currentState()?.icon; as icon) {
       <m-icon [ngClass]="iconClass" [icon]="icon" />
     }`,
   host: {
-    '[style.opacity]': '(disabled ? "0.5" : "1")'
+    '[style.opacity]': '(disabled() ? "0.5" : "1")'
   },
   selector: 'm-n-state-button',
   providers: [
@@ -51,8 +50,6 @@ export type NStateButtonStates = Array<{
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NStateButtonComponent implements ControlValueAccessor {
-  private readonly cdRef = inject(ChangeDetectorRef);
-
   @Input({ required: true }) states: NStateButtonStates;
 
   @Input() type: 'button' | 'submit' = 'button';
@@ -60,24 +57,27 @@ export class NStateButtonComponent implements ControlValueAccessor {
   @Input() iconClass: string;
 
   @HostBinding('class') get classes() {
-    return `btn btn-${this.currentState?.color ?? ''}`;
+    return `btn btn-${this.currentState()?.color ?? ''}`;
   }
 
   @HostListener('click')
   onClick() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.value = (this.value + 1) % this.states.length;
-    this.currentState = this.states[this.value];
-    this.onChange(this.value);
-    this.cdRef.markForCheck();
+    this.value.update((value) => (value + 1) % this.states.length);
+    this.currentState.set(this.states[this.value()]);
+    this.onChange(this.value());
   }
 
-  protected value = 0;
-  protected currentState: (typeof this.states)[number];
+  protected readonly value = signal(0);
+  protected readonly currentState = signal<
+    NStateButtonStates[number] | undefined
+  >(undefined);
 
-  @HostBinding('attr.disabled')
-  protected disabled = false;
+  protected readonly disabled = signal(false);
+  @HostBinding('attr.disabled') protected get disabledAttr() {
+    return this.disabled();
+  }
 
   onChange: (value: number) => void = () => void 0;
   registerOnChange(fn: () => void): void {
@@ -90,12 +90,11 @@ export class NStateButtonComponent implements ControlValueAccessor {
   }
 
   setDisabledState(setDisabled: boolean): void {
-    this.disabled = setDisabled;
+    this.disabled.set(setDisabled);
   }
 
   writeValue(value: number = 0) {
-    this.value = value;
-    this.currentState = this.states[value];
-    this.cdRef.markForCheck();
+    this.value.set(value);
+    this.currentState.set(this.states[value]);
   }
 }

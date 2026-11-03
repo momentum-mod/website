@@ -1,7 +1,7 @@
 <button
   type="button"
   class="btn btn-blue mb-3 ml-auto lg:-mb-6"
-  [ngClass]="{ 'pointer-events-none saturate-50': disabled }"
+  [ngClass]="{ 'pointer-events-none saturate-50': disabled() }"
   (click)="addEmptyItem()"
 >
   Add Leaderboard
@@ -10,7 +10,7 @@
 <table
   class="grid w-full border-collapse grid-cols-1 gap-3 lg:gap-1 lg:[grid-template-columns:var(--lb-cols)]"
   [ngClass]="{
-    'pointer-events-none brightness-50 saturate-50': disabled
+    'pointer-events-none brightness-50 saturate-50': disabled()
   }"
   [style.--lb-cols]="
     `minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`
@@ -32,7 +32,7 @@
     </tr>
   </thead>
   <tbody class="contents">
-    @for (item of value; track $index) {
+    @for (item of value(); track $index) {
       <tr class="grid grid-cols-2 items-end gap-2 rounded bg-black bg-opacity-10 p-3 lg:contents lg:bg-transparent lg:p-0">
         <td>
           <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Gamemode</p>
@@ -43,7 +43,7 @@
             optionLabel="label"
             optionValue="gamemode"
             (blur)="onTouched()"
-            (onChange)="onChange(value)"
+            (onChange)="onChange(value())"
             appendTo="body"
           />
         </td>
@@ -66,9 +66,9 @@
             <p-select
               class="w-full"
               [(ngModel)]="item.trackNum"
-              [options]="availableBonusTracks"
+              [options]="availableBonusTracks()"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           }
@@ -80,7 +80,7 @@
             [(ngModel)]="item.tier"
             [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
             (blur)="onTouched()"
-            (onChange)="onChange(value)"
+            (onChange)="onChange(value())"
             appendTo="body"
           />
         </td>
@@ -103,7 +103,7 @@
               [(ngModel)]="item.comment"
               [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
         }
