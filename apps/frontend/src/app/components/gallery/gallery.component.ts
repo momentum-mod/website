@@ -1,13 +1,11 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnInit,
-  Output,
-  ViewChild
+  input,
+  model,
+  viewChild
 } from '@angular/core';
 import { IconComponent } from '../../icons';
 import { SafeUrl } from '@angular/platform-browser';
@@ -33,63 +31,70 @@ export type GalleryItem = GalleryImageItem | GalleryYouTubeItem;
 @Component({
   selector: 'm-gallery',
   imports: [NgClass, IconComponent],
-  templateUrl: './gallery.component.html'
+  templateUrl: './gallery.component.html',
+  host: {
+    '(window:keydown.ArrowLeft)': 'cycleLeft()',
+    '(window:keydown.a)': 'cycleLeft()',
+    '(window:keydown.ArrowRight)': 'cycleRight()',
+    '(window:keydown.d)': 'cycleRight()'
+  }
 })
-export class GalleryComponent implements OnInit, AfterViewInit {
-  @Input({ required: true }) items: GalleryItem[] = [];
-  @Input() selectedItem: GalleryItem;
-  protected selectedItemIndex = 0;
-  @Output() selectedItemChange = new EventEmitter<GalleryItem>();
+export class GalleryComponent implements AfterViewInit {
+  readonly items = input.required<GalleryItem[]>();
+  /** Two-way bindable; defaults to the first item if never set. */
+  readonly selectedItem = model<GalleryItem>();
 
-  @ViewChild('popover') popover: ElementRef<HTMLDivElement>;
-  @ViewChild('youtubeIframe') youtubeIframe: ElementRef<HTMLIFrameElement>;
+  protected readonly currentItem = computed(
+    () => this.selectedItem() ?? this.items()[0]
+  );
+  protected readonly selectedItemIndex = computed(() =>
+    Math.max(this.items().indexOf(this.currentItem()), 0)
+  );
 
-  @HostListener('window:keydown.ArrowLeft')
-  @HostListener('window:keydown.a')
+  readonly popover = viewChild<ElementRef<HTMLDivElement>>('popover');
+  readonly youtubeIframe =
+    viewChild<ElementRef<HTMLIFrameElement>>('youtubeIframe');
+
   cycleLeft() {
-    if (!this.popover.nativeElement.matches(':popover-open')) return;
+    if (!this.popover().nativeElement.matches(':popover-open')) return;
 
-    if (this.selectedItemIndex === 0) {
-      this.selectItem(this.items.length - 1);
+    if (this.selectedItemIndex() === 0) {
+      this.selectItem(this.items().length - 1);
     } else {
-      this.selectItem(this.selectedItemIndex - 1);
+      this.selectItem(this.selectedItemIndex() - 1);
     }
   }
 
-  @HostListener('window:keydown.ArrowRight')
-  @HostListener('window:keydown.d')
   cycleRight() {
-    if (!this.popover.nativeElement.matches(':popover-open')) return;
+    if (!this.popover().nativeElement.matches(':popover-open')) return;
 
-    if (this.selectedItemIndex === this.items.length - 1) {
+    if (this.selectedItemIndex() === this.items().length - 1) {
       this.selectItem(0);
     } else {
-      this.selectItem(this.selectedItemIndex + 1);
+      this.selectItem(this.selectedItemIndex() + 1);
     }
-  }
-
-  ngOnInit(): void {
-    this.selectedItem ??= this.items[0];
   }
 
   ngAfterViewInit(): void {
-    this.popover.nativeElement.addEventListener('toggle', (ev: ToggleEvent) => {
-      if (ev.newState !== 'open' && this.youtubeIframe) {
-        this.youtubeIframe.nativeElement.contentWindow.postMessage(
-          '{"event":"command","func":"pauseVideo","args":""}',
-          '*'
-        );
+    this.popover().nativeElement.addEventListener(
+      'toggle',
+      (ev: ToggleEvent) => {
+        const youtubeIframe = this.youtubeIframe();
+        if (ev.newState !== 'open' && youtubeIframe) {
+          youtubeIframe.nativeElement.contentWindow.postMessage(
+            '{"event":"command","func":"pauseVideo","args":""}',
+            '*'
+          );
+        }
       }
-    });
+    );
   }
 
   show(): void {
-    this.popover.nativeElement.showPopover();
+    this.popover().nativeElement.showPopover();
   }
 
   selectItem(index: number): void {
-    this.selectedItemIndex = index;
-    this.selectedItem = this.items[index];
-    this.selectedItemChange.emit(this.selectedItem);
+    this.selectedItem.set(this.items()[index]);
   }
 }

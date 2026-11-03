@@ -1,4 +1,5 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   Gamemode,
   Leaderboard,
@@ -23,8 +24,8 @@ import {
   FormsModule,
   NonNullableFormBuilder
 } from '@angular/forms';
-import { PaginatorModule } from 'primeng/paginator';
-import { MessageService } from 'primeng/api';
+import { PaginatorModule } from '@openng/optimus-ui/paginator';
+import { MessageService } from '@openng/optimus-ui/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, merge, of, Subject } from 'rxjs';
@@ -41,7 +42,7 @@ import { SliderComponent } from '../../../components/slider/slider.component';
 import { MapsService } from '../../../services/data/maps.service';
 import { LocalUserService } from '../../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AsyncPipe, CommonModule, NgClass, NgStyle } from '@angular/common';
+import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../../directives/tooltip.directive';
 import { DropdownComponent } from '../../../components/dropdown/dropdown.component';
 import { ChipsComponent } from '../../../components/chips/chips.component';
@@ -62,7 +63,6 @@ type TagAndQualifier = [MapTag, TagQualifier];
     ReactiveFormsModule,
     NgClass,
     NgStyle,
-    AsyncPipe,
     TooltipDirective,
     CommonModule,
     FormsModule,
@@ -107,7 +107,8 @@ export class MapBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (sortType: MapSortType): string =>
     MapSortTypeName.get(sortType) ?? '';
 
-  protected currentAllowedTAndQs = [];
+  protected readonly user = toSignal(this.localUserService.user);
+  protected readonly currentAllowedTAndQs = signal<Array<TagAndQualifier>>([]);
   protected readonly TagQualifier = TagQualifier;
   protected readonly MapTagNameFn = (tagAndQualifier: TagAndQualifier) =>
     mapTagEnglishName(tagAndQualifier[0]);
@@ -135,11 +136,14 @@ export class MapBrowserComponent implements OnInit {
     sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
-  protected maps: Array<MapWithSpecificLeaderboard> = [];
+  // Mirrors the gamemode control for the template.
+  protected readonly selectedGamemode = signal<Gamemode | null>(null);
+
+  protected readonly maps = signal<Array<MapWithSpecificLeaderboard>>([]);
 
   private skip = 0;
-  protected loading = false;
-  protected loadMore = new Subject<void>();
+  protected readonly loading = signal(false);
+  protected readonly loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
@@ -147,6 +151,7 @@ export class MapBrowserComponent implements OnInit {
     this.gamemode.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
+        this.selectedGamemode.set(value);
         this.tiers[value != null ? 'enable' : 'disable']({ emitEvent: false });
         this.tagsAndQualifiers[value != null ? 'enable' : 'disable']({
           emitEvent: false
@@ -163,7 +168,7 @@ export class MapBrowserComponent implements OnInit {
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
-        filter(() => !this.loading),
+        filter(() => !this.loading()),
         map(() => this.itemsPerLoad)
       ),
       this.filters.valueChanges.pipe(
@@ -173,7 +178,7 @@ export class MapBrowserComponent implements OnInit {
         // distinctUntilChanged(deepEquals),
         debounceTime(200),
         tap(() => {
-          this.maps = [];
+          this.maps.set([]);
           this.skip = 0;
         }),
         map(() => this.initialItems)
@@ -181,7 +186,7 @@ export class MapBrowserComponent implements OnInit {
     )
       .pipe(
         filter(() => this.filters.valid),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((take) => {
           const {
             favorites,
@@ -250,21 +255,20 @@ export class MapBrowserComponent implements OnInit {
           // Relying on switchMap relying here to guarantee the current gamemode
           // filter accurately corresponds to the this data.
           const currentMode = this.gamemode.value;
-          this.maps.push(
-            ...res.data.map((map) => {
-              const ret = map as MapWithSpecificLeaderboard;
-              ret.groupedLeaderboards = groupMapLeaderboards(map.leaderboards);
-              if (currentMode) {
-                ret.currentModeLeaderboards = getSpecificGroupedLeaderboard(
-                  ret.groupedLeaderboards,
-                  currentMode
-                );
-              }
-              return ret;
-            })
-          );
+          const newMaps = res.data.map((map) => {
+            const ret = map as MapWithSpecificLeaderboard;
+            ret.groupedLeaderboards = groupMapLeaderboards(map.leaderboards);
+            if (currentMode) {
+              ret.currentModeLeaderboards = getSpecificGroupedLeaderboard(
+                ret.groupedLeaderboards,
+                currentMode
+              );
+            }
+            return ret;
+          });
+          this.maps.update((maps) => [...maps, ...newMaps]);
           this.skip += res.returnCount;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -272,7 +276,7 @@ export class MapBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -296,28 +300,35 @@ export class MapBrowserComponent implements OnInit {
   }
 
   updateTagsAndQualifiers(gamemode: Gamemode | 0 | undefined | null) {
-    this.currentAllowedTAndQs = (gamemode ? MapTags.get(gamemode) : []).map(
-      (tag: MapTag) => [
+    const allowed = (gamemode ? MapTags.get(gamemode) : []).map(
+      (tag: MapTag): TagAndQualifier => [
         tag,
         TagQualifier.INCLUDE // Default to include.
       ]
     );
+    this.currentAllowedTAndQs.set(allowed);
 
     this.tagsAndQualifiers.setValue(
       this.tagsAndQualifiers
         .getRawValue()
-        .filter((tAndQ) =>
-          this.MapTagIncludesFn(this.currentAllowedTAndQs, tAndQ)
-        )
+        .filter((tAndQ) => this.MapTagIncludesFn(allowed, tAndQ))
     );
   }
 
   toggleTagQualifier(index: number) {
-    const arr = this.tagsAndQualifiers.value;
-    arr[index][1] =
-      arr[index][1] === TagQualifier.INCLUDE
-        ? TagQualifier.EXCLUDE
-        : TagQualifier.INCLUDE;
-    this.tagsAndQualifiers.setValue(arr);
+    // New array so OnPush children (chips) see the change.
+    this.tagsAndQualifiers.setValue(
+      this.tagsAndQualifiers.value.map(
+        ([tag, qualifier], i): TagAndQualifier =>
+          i === index
+            ? [
+                tag,
+                qualifier === TagQualifier.INCLUDE
+                  ? TagQualifier.EXCLUDE
+                  : TagQualifier.INCLUDE
+              ]
+            : [tag, qualifier]
+      )
+    );
   }
 }

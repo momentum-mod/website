@@ -1,10 +1,13 @@
 import {
   Component,
-  Input,
   OnChanges,
   SimpleChanges,
-  inject
+  inject,
+  input,
+  computed,
+  signal
 } from '@angular/core';
+import { controlEvents } from '../../../util/form-utils.util';
 import {
   Gamemode,
   Leaderboard,
@@ -27,12 +30,12 @@ import {
   GamemodeDefaultUIStyle
 } from '@momentum/constants';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { ChartModule } from 'primeng/chart';
+import { MessageService } from '@openng/optimus-ui/api';
+import { ChartModule } from '@openng/optimus-ui/chart';
 import { arrayFrom, leaderboardKey } from '@momentum/util-fn';
 import { ChartData } from 'chart.js';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from '@openng/optimus-ui/datepicker';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { IterableElement } from 'type-fest';
 import { MapFinalApprovalFormComponent } from './map-final-approval-form.component';
@@ -83,56 +86,68 @@ export class MapStatusFormComponent implements OnChanges {
   protected readonly MapStatus = MapStatus;
   protected readonly MapStatusName = MapStatusName;
   protected readonly MIN_PUBLIC_TESTING_DURATION = MIN_PUBLIC_TESTING_DURATION;
-  @Input({ required: true }) map: MMap;
-  @Input({ required: true }) sub: boolean;
+  readonly map = input.required<MMap>();
+  readonly sub = input.required<boolean>();
 
-  @Input({ required: true }) formGroup: FormGroup<{
-    status: FormControl<MapStatus>;
-    finalLeaderboards: FormControl<MapSubmissionApproval[]>;
-  }>;
+  readonly formGroup = input.required<
+    FormGroup<{
+      status: FormControl<MapStatus>;
+      finalLeaderboards: FormControl<MapSubmissionApproval[]>;
+    }>
+  >();
 
-  protected status: MapStatus;
-  protected possibleStatuses: Array<{
-    label: string;
-    value: MapStatus | -1; // PrimeNG component behaves weirdly for `null`
-  }> = [];
+  protected readonly status = signal<MapStatus | null>(null);
+  protected readonly possibleStatuses = signal<
+    Array<{
+      label: string;
+      value: MapStatus | -1; // PrimeNG component behaves weirdly for `null`
+    }>
+  >([]);
 
-  protected firstEnteredPublicTesting: number;
-  protected isBlockedForUnresolvedReviews: boolean;
-  protected isBlockedForSubmissionTimeGate: boolean;
-  protected isBlockedForNoApprovingReview: boolean;
-  protected hasBeenApprovedBefore: boolean;
+  protected readonly firstEnteredPublicTesting = signal<number | null>(null);
+  protected readonly isBlockedForUnresolvedReviews = signal(false);
+  protected readonly isBlockedForSubmissionTimeGate = signal(false);
+  protected readonly isBlockedForNoApprovingReview = signal(false);
+  protected readonly hasBeenApprovedBefore = signal(false);
 
-  protected loading = false;
+  protected readonly loading = signal(false);
 
-  protected groupedLeaderboards: GroupedLeaderboards = new Map();
+  protected readonly groupedLeaderboards = signal<GroupedLeaderboards>(
+    new Map()
+  );
+
+  // The form is owned (and may be reset) by the parent.
+  private readonly formEvents = controlEvents(this.formGroup);
+  protected readonly selectedStatus = computed(() => {
+    this.formEvents();
+    return this.statusControl.value;
+  });
 
   async ngOnChanges(changes: SimpleChanges) {
-    if (!changes['map'] || !this.map) return;
-    this.isBlockedForUnresolvedReviews = false;
-    this.isBlockedForSubmissionTimeGate = false;
-    this.isBlockedForNoApprovingReview = false;
+    const map = this.map();
+    if (!changes['map'] || !map) return;
+    this.isBlockedForUnresolvedReviews.set(false);
+    this.isBlockedForSubmissionTimeGate.set(false);
+    this.isBlockedForNoApprovingReview.set(false);
 
-    this.status = this.map.status;
+    this.status.set(map.status);
 
     this.populateStatuses();
 
     if (
-      ![MapStatus.FINAL_APPROVAL, MapStatus.PUBLIC_TESTING].includes(
-        this.status
-      )
+      ![MapStatus.FINAL_APPROVAL, MapStatus.PUBLIC_TESTING].includes(map.status)
     )
       return;
 
-    this.loading = true;
+    this.loading.set(true);
     let reviews: PagedResponse<MapReview>, leaderboardStats: LeaderboardStats[];
     try {
       [reviews, leaderboardStats] = await firstValueFrom(
         forkJoin([
-          this.mapsService.getMapReviews(this.map.id, {
+          this.mapsService.getMapReviews(map.id, {
             take: 1000
           }),
-          this.leaderboardsService.getLeaderboardStats(this.map.id)
+          this.leaderboardsService.getLeaderboardStats(map.id)
         ])
       );
     } catch (httpError) {
@@ -141,44 +156,43 @@ export class MapStatusFormComponent implements OnChanges {
         summary: 'Error fetching map summary data!!',
         detail: httpError.error.message
       });
-      this.loading = false;
+      this.loading.set(false);
       return;
     }
 
     this.setupFinalApprovalForm(leaderboardStats, reviews.data);
-    this.hasBeenApprovedBefore = Boolean(this.map.info.approvedDate);
+    this.hasBeenApprovedBefore.set(Boolean(map.info.approvedDate));
 
-    this.firstEnteredPublicTesting = new Date(
-      this.map.submission.dates.findLast(
+    const firstEnteredPublicTesting = new Date(
+      map.submission.dates.findLast(
         ({ status }) => status === MapStatus.PUBLIC_TESTING
       )?.date
     ).getTime();
-    this.isBlockedForSubmissionTimeGate =
+    this.firstEnteredPublicTesting.set(firstEnteredPublicTesting);
+    this.isBlockedForSubmissionTimeGate.set(
       !(this.mod || this.adm) &&
-      Date.now() - this.firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION;
+        Date.now() - firstEnteredPublicTesting < MIN_PUBLIC_TESTING_DURATION
+    );
 
     // Could use MapReviewStats here but we need to fetch the entirely of the
     // map reviews to display the review suggestions graphs anyway.
-    this.isBlockedForUnresolvedReviews = reviews.data.some(
-      ({ resolved }) => resolved === false
+    this.isBlockedForUnresolvedReviews.set(
+      reviews.data.some(({ resolved }) => resolved === false)
     );
 
-    this.isBlockedForNoApprovingReview = false; //|| !reviews.data.some(({ approves }) => approves);
+    this.isBlockedForNoApprovingReview.set(false); //|| !reviews.data.some(({ approves }) => approves);
 
     if (
-      this.isBlockedForSubmissionTimeGate ||
-      this.isBlockedForUnresolvedReviews ||
-      this.isBlockedForNoApprovingReview
+      this.isBlockedForSubmissionTimeGate() ||
+      this.isBlockedForUnresolvedReviews() ||
+      this.isBlockedForNoApprovingReview()
     ) {
-      this.possibleStatuses.splice(
-        this.possibleStatuses.findIndex(
-          ({ value }) => value === MapStatus.FINAL_APPROVAL
-        ),
-        1
+      this.possibleStatuses.update((statuses) =>
+        statuses.filter(({ value }) => value !== MapStatus.FINAL_APPROVAL)
       );
     }
 
-    this.loading = false;
+    this.loading.set(false);
   }
 
   // This is all so heavily dependent on map and review data that we construct
@@ -188,7 +202,7 @@ export class MapStatusFormComponent implements OnChanges {
     leaderboardStats: LeaderboardStats[],
     reviews: MapReview[]
   ) {
-    const subSuggs = this.map.submission.suggestions;
+    const subSuggs = this.map().submission.suggestions;
     const reviewSuggs = reviews.flatMap(({ suggestions }) => suggestions);
     const arr10 = arrayFrom(10, (i) => i + 1);
     const style = getComputedStyle(document.documentElement);
@@ -296,16 +310,17 @@ export class MapStatusFormComponent implements OnChanges {
         return r;
       });
 
-    this.groupedLeaderboards.clear();
+    // New Map each time so the OnPush final approval form sees the change.
+    const groupedLeaderboards: GroupedLeaderboards = new Map();
     for (const lb of leaderboards) {
       if (lb.style !== GamemodeDefaultUIStyle.get(lb.gamemode)) {
         continue;
       }
 
-      let group = this.groupedLeaderboards.get(lb.gamemode);
+      let group = groupedLeaderboards.get(lb.gamemode);
       if (!group) {
         group = { leaderboards: [], totalRuns: 0 };
-        this.groupedLeaderboards.set(lb.gamemode, group);
+        groupedLeaderboards.set(lb.gamemode, group);
       }
       group.leaderboards.push(lb);
 
@@ -314,35 +329,36 @@ export class MapStatusFormComponent implements OnChanges {
         group.totalRuns += lb.totalRuns;
       }
     }
+    this.groupedLeaderboards.set(groupedLeaderboards);
   }
 
   populateStatuses() {
-    this.possibleStatuses = [
+    this.possibleStatuses.set([
       { label: 'No change', value: -1 },
       ...MapStatusChangeRules.filter(
         ({ from, roles }) =>
-          this.status === from &&
+          this.status() === from &&
           ((roles.includes(Role.ADMIN) && this.adm) ||
             (roles.includes(Role.MODERATOR) && this.mod) ||
             (roles.includes(Role.REVIEWER) && this.rev) ||
-            (roles.includes('submitter') && this.sub))
+            (roles.includes('submitter') && this.sub()))
       ).map(({ to }) => ({ value: to, label: MapStatusName.get(to) }))
-    ];
+    ]);
   }
 
   isPossibleStatus(status: MapStatus) {
-    return this.possibleStatuses.some(({ value }) => value === status);
+    return this.possibleStatuses().some(({ value }) => value === status);
   }
 
   protected groupLbSortFn = (a, b) => a.value.totalRuns > b.value.totalRuns;
   protected leaderboardKey = leaderboardKey;
 
   get statusControl() {
-    return this.formGroup.get('status') as FormControl<MapStatus>;
+    return this.formGroup().get('status') as FormControl<MapStatus>;
   }
 
   get finalLeaderboards() {
-    return this.formGroup.get('finalLeaderboards') as FormControl<
+    return this.formGroup().get('finalLeaderboards') as FormControl<
       MapSubmissionApproval[]
     >;
   }

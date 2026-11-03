@@ -1,16 +1,17 @@
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, inject, input, linkedSignal, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { MapReview, MMap } from '@momentum/constants';
 import { forkJoin, merge, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { PaginatorState } from 'primeng/paginator';
-import { MessageService } from 'primeng/api';
-import { PaginatorModule } from 'primeng/paginator';
+import { PaginatorState } from '@openng/optimus-ui/paginator';
+import { MessageService } from '@openng/optimus-ui/api';
+import { PaginatorModule } from '@openng/optimus-ui/paginator';
 import { MapReviewComponent } from './map-review.component';
 import { MapReviewFormComponent } from './map-review-form.component';
 import { MapsService } from '../../services/data/maps.service';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { FormsModule } from '@angular/forms';
 import { SpinnerDirective } from '../../directives/spinner.directive';
 
@@ -32,7 +33,7 @@ enum FilterType {
   ],
   templateUrl: './map-review-list.component.html'
 })
-export class MapReviewListComponent implements OnChanges {
+export class MapReviewListComponent {
   private readonly mapsService = inject(MapsService);
   private readonly messageService = inject(MessageService);
   protected readonly localUserService = inject(LocalUserService);
@@ -43,34 +44,38 @@ export class MapReviewListComponent implements OnChanges {
     { type: FilterType.UNOFFICIAL, label: 'Unofficial reviewers' }
   ];
 
-  @Input({ required: true }) map: MMap;
-  protected reviews: MapReview[] = [];
-  protected isSubmitter = false;
+  readonly map = input.required<MMap>();
+  // Updated from the stats endpoint after each load, rather than refetching
+  // the whole map; resets whenever the map input changes.
+  protected readonly reviewStats = linkedSignal(() => this.map().reviewStats);
+  protected readonly reviews = signal<MapReview[]>([]);
 
   public readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
-  protected loading = false;
-  protected rows = 10;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly loading = signal(false);
+  protected readonly rows = signal(10);
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
-  protected filter = FilterType.NONE;
+  protected readonly filter = signal(FilterType.NONE);
 
   constructor() {
     merge(
+      // Initial load, and reload whenever the map input changes.
+      toObservable(this.map),
       this.pageChange.pipe(
         tap(({ first, rows }) => {
-          this.first = first;
-          this.rows = rows;
+          this.first.set(first);
+          this.rows.set(rows);
         })
       ),
       this.load
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() => {
           let filter: boolean | undefined;
-          switch (this.filter) {
+          switch (this.filter()) {
             case FilterType.OFFICIAL:
               filter = true;
               break;
@@ -79,25 +84,23 @@ export class MapReviewListComponent implements OnChanges {
               break;
           }
           return forkJoin([
-            this.mapsService.getMapReviews(this.map.id, {
+            this.mapsService.getMapReviews(this.map().id, {
               expand: ['reviewer', 'resolver'],
               official: filter,
               comments: 5,
-              take: this.rows,
-              skip: this.first
+              take: this.rows(),
+              skip: this.first()
             }),
-            this.mapsService.getMapReviewStats(this.map.id)
+            this.mapsService.getMapReviewStats(this.map().id)
           ]);
         })
       )
       .subscribe({
         next: ([pagedRes, statsRes]) => {
-          this.reviews = pagedRes.data;
-          this.totalRecords = pagedRes.totalCount;
-          // Mutating actual map object here so don't have to re-request the
-          // entire thing just to update stats.
-          this.map.reviewStats = statsRes;
-          this.loading = false;
+          this.reviews.set(pagedRes.data);
+          this.totalRecords.set(pagedRes.totalCount);
+          this.reviewStats.set(statsRes);
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -105,14 +108,8 @@ export class MapReviewListComponent implements OnChanges {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
-  }
-
-  ngOnChanges(): void {
-    this.load.next();
-    this.isSubmitter =
-      this.localUserService.user.value?.id === this.map.submitterID;
   }
 }

@@ -1,8 +1,8 @@
 <div [style.anchor-name]="anchorName" class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
   <button
     (click)="op.toggle()"
-    [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
-    [disabled]="available.length === 0"
+    [mTooltip]="available().length > 0 ? 'Add ' + typeName() : null"
+    [disabled]="available().length === 0"
     type="button"
     class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
   >
@@ -11,22 +11,22 @@
   <button
     type="button"
     (click)="reset()"
-    [mTooltip]="available.length > 0 ? 'Reset ' + typeName : null"
-    [disabled]="selected.length === 0"
+    [mTooltip]="available().length > 0 ? 'Reset ' + typeName() : null"
+    [disabled]="selected().length === 0"
     class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
   >
     <m-icon icon="close-thick" class="size-6" />
   </button>
-  @for (chip of selected; track $index; let sIndex = $index) {
+  @for (chip of selected(); track $index; let sIndex = $index) {
     <div
       class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
-      [mTooltip]="hoverNames ? getChipName(chip) : null"
+      [mTooltip]="hoverNames() ? getChipName(chip) : null"
     >
       @if (getChipImage(chip); as chipImage) {
         <img class="aspect-square h-6" [src]="chipImage" />
       }
 
-      @if (!hoverNames) {
+      @if (!hoverNames()) {
         <span class="font-medium text-gray-50">{{ getChipName(chip) }}</span>
       }
 
@@ -37,13 +37,13 @@
       >
         <m-icon icon="close-thick" class="size-4" />
       </button>
-      <ng-container [ngTemplateOutlet]="appendEachSelectedTemplate" [ngTemplateOutletContext]="{ index: sIndex }"></ng-container>
+      <ng-container [ngTemplateOutlet]="appendEachSelectedTemplate()" [ngTemplateOutletContext]="{ index: sIndex }"></ng-container>
     </div>
   }
 </div>
 <m-popover #op [classList]="'p-0'" [anchorName]="anchorName">
   <div class="flex max-w-xl flex-wrap gap-2">
-    @for (chip of available; track $index) {
+    @for (chip of available(); track $index) {
       <button
         (click)="add(chip)"
         class="flex gap-2 rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"

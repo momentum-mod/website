@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import { XpSystemsService } from '../../services/xp-systems.service';
 import { TooltipDirective } from '../../directives/tooltip.directive';
@@ -8,15 +8,9 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
   imports: [TooltipDirective, CommonModule, NgStyle, NgClass],
   templateUrl: './level-indicator.component.html'
 })
-export class LevelIndicatorComponent implements OnChanges {
+export class LevelIndicatorComponent {
   private readonly xpService = inject(XpSystemsService);
 
-  protected level: number;
-  protected levelColor: string;
-  protected prestige: number;
-  protected prestigeIcon: string;
-  protected textColor: string;
-  protected imageClass: string;
   protected readonly levelColors = [
     { max: 50, color: '#5d5d5d' },
     { max: 100, color: '#e84855' },
@@ -31,22 +25,26 @@ export class LevelIndicatorComponent implements OnChanges {
     { max: Infinity, color: '#ffffff' }
   ];
 
-  @Input()
-  totalLevel: number;
+  readonly totalLevel = input<number>();
 
-  ngOnChanges() {
-    this.level = this.xpService.getInnerLevel(this.totalLevel);
-    this.prestige = this.xpService.getPrestige(this.totalLevel);
-    this.prestigeIcon = this.getPrestigeIcon(this.prestige);
-
-    this.levelColor = this.levelColors.find(
-      ({ max }) => this.level < max
-    ).color;
-
-    this.textColor =
-      this.levelColor === '#ffffff' ? 'text-black' : 'text-white';
-    this.imageClass = this.levelColor === '#ffffff' ? 'invert-0' : 'invert';
-  }
+  protected readonly level = computed(() =>
+    this.xpService.getInnerLevel(this.totalLevel())
+  );
+  protected readonly prestige = computed(() =>
+    this.xpService.getPrestige(this.totalLevel())
+  );
+  protected readonly prestigeIcon = computed(() =>
+    this.getPrestigeIcon(this.prestige())
+  );
+  protected readonly levelColor = computed(
+    () => this.levelColors.find(({ max }) => this.level() < max).color
+  );
+  protected readonly textColor = computed(() =>
+    this.levelColor() === '#ffffff' ? 'text-black' : 'text-white'
+  );
+  protected readonly imageClass = computed(() =>
+    this.levelColor() === '#ffffff' ? 'invert-0' : 'invert'
+  );
 
   private getPrestigeIcon(prestige: number): string {
     return prestige <= 5

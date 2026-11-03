@@ -12,9 +12,12 @@ import {
   ReportType,
   UpdateReport
 } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SelectModule } from 'primeng/select';
+import { MessageService } from '@openng/optimus-ui/api';
+import {
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { AdminService } from '../../../../services/data/admin.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IconComponent } from '../../../../icons';
@@ -33,9 +36,10 @@ export class UpdateReportDialogComponent implements OnInit {
   private readonly config =
     inject<DynamicDialogConfig<{ report: Report }>>(DynamicDialogConfig);
 
-  // Populated from the dialog config in ngOnInit. PrimeNG's DynamicDialog passes
-  // data via DynamicDialogConfig.data, not @Input.
-  protected report: Report;
+  // DynamicDialog passes data via DynamicDialogConfig.data, not inputs.
+  protected readonly report: Report = this.config.data.report;
+  protected readonly isPlayerReport =
+    this.report?.type === ReportType.PLAYER_REPORT;
 
   protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
 
@@ -67,8 +71,6 @@ export class UpdateReportDialogComponent implements OnInit {
   });
 
   ngOnInit() {
-    this.report = this.config.data.report;
-
     if (this.isPlayerReport) {
       // Player reports are handled entirely through the ban section: submitting
       // always resolves them and the ban reason doubles as the resolution
@@ -82,10 +84,6 @@ export class UpdateReportDialogComponent implements OnInit {
         resolutionMessage: this.report.resolutionMessage
       });
     }
-  }
-
-  get isPlayerReport(): boolean {
-    return this.report?.type === ReportType.PLAYER_REPORT;
   }
 
   cancel() {

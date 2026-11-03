@@ -4,7 +4,7 @@ import { IconComponent } from '../../../icons';
 import { RouterLink } from '@angular/router';
 import { MapsService } from '../../../services/data/maps.service';
 import { finalize, take, tap } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({

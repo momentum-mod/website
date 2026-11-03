@@ -1,4 +1,10 @@
-import { Component, Input, inject } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal
+} from '@angular/core';
 import {
   MMap,
   MapSubmissionType,
@@ -51,27 +57,27 @@ export class MapSubmissionComponent {
   protected readonly downloadZoneFile = downloadZoneFile;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  protected suggestions: GroupedMapSubmissionSuggestions;
-  protected versions: MapVersion[];
-  protected visibleVersions: number;
-  protected hasComments = false;
+  readonly map = input.required<MMap>();
 
-  private _map: MMap;
-  get map() {
-    return this._map;
-  }
-  @Input({ required: true }) set map(map: MMap) {
-    this._map = map;
-    this.suggestions = groupMapSuggestions(map.submission.suggestions);
-    this.versions = map?.versions.sort(
+  protected readonly suggestions = computed<GroupedMapSubmissionSuggestions>(
+    () => groupMapSuggestions(this.map().submission.suggestions)
+  );
+  protected readonly versions = computed<MapVersion[]>(() =>
+    [...(this.map()?.versions ?? [])].sort(
       (v1, v2) => v2.versionNum - v1.versionNum
-    );
-    this.visibleVersions = 2;
-    this.hasComments = [...this.suggestions.values()]
+    )
+  );
+  // Reset whenever the map changes.
+  protected readonly visibleVersions = linkedSignal(() => {
+    this.map();
+    return 2;
+  });
+  protected readonly hasComments = computed(() =>
+    [...this.suggestions().values()]
       .map((v) => [...v.values()])
       .flat(2)
-      .some(({ comment }) => comment);
-  }
+      .some(({ comment }) => comment)
+  );
 
   // Since most of the times users won't need to download older
   // zones we'd rather not load them while showing map info,
@@ -81,7 +87,7 @@ export class MapSubmissionComponent {
   async downloadOlderZoneFile(versionId: string) {
     if (!this.mapWithVersionsZones) {
       this.mapWithVersionsZones = await firstValueFrom(
-        this.mapService.getMap(this._map.id, { expand: ['versionsWithZones'] })
+        this.mapService.getMap(this.map().id, { expand: ['versionsWithZones'] })
       );
     }
 

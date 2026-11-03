@@ -1,11 +1,11 @@
 <!-- Only visible on mobile, where the sidenav is a drawer over the page. -->
-<div class="backdrop" [ngClass]="{ open: (collapsed | async) === false }" (click)="close()"></div>
-<nav class="scroll-thin" [ngClass]="{ smol: collapsed | async }">
-  @for (category of menuItems | async; track category.title) {
+<div class="backdrop" [ngClass]="{ open: collapsed() === false }" (click)="close()"></div>
+<nav class="scroll-thin" [ngClass]="{ smol: collapsed() }">
+  @for (category of menuItems(); track category.title) {
     <p class="category">{{ category.title }}</p>
     @for (item of category.items; track item.title) {
       @if (item.external) {
-        <a [href]="item.link" class="item" target="_blank" [mTooltip]="item.title" [tooltipDisabled]="(showTooltips | async) === false">
+        <a [href]="item.link" class="item" target="_blank" [mTooltip]="item.title" [tooltipDisabled]="showTooltips() === false">
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>
         </a>
@@ -14,7 +14,7 @@
           [routerLink]="[item.link]"
           class="item"
           [mTooltip]="category.title + ' - ' + item.title"
-          [tooltipDisabled]="(showTooltips | async) === false"
+          [tooltipDisabled]="showTooltips() === false"
         >
           <m-icon [icon]="item.icon" [pack]="item.pack" />
           <p>{{ item.title }}</p>

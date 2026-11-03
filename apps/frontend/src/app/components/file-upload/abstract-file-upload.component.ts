@@ -1,10 +1,13 @@
 import {
+  computed,
   Directive,
   ElementRef,
   HostBinding,
   HostListener,
-  Input,
-  ViewChild
+  input,
+  signal,
+  viewChild,
+  WritableSignal
 } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { Icon } from '../../icons';
@@ -21,54 +24,61 @@ import { Icon } from '../../icons';
 export abstract class AbstractFileUploadComponent<T extends File | File[]>
   implements ControlValueAccessor
 {
-  protected abstract value: T;
+  protected abstract readonly value: WritableSignal<T>;
   protected abstract readonly multiple: boolean;
-  protected abstract readonly max: number | null;
+
+  /**
+   * Maximum number of files that can be selected. Only meaningful when
+   * `multiple` is true.
+   */
+  readonly max = input<number | null>(null);
 
   // Uses a numeric counter to handle dragging over child elements
   // https://stackoverflow.com/a/21002544
-  protected dragOverCounter = 0;
+  protected readonly dragOverCounter = signal(0);
 
   /**
    * Extensions that file select dialog will accept
    * (use comma separation for multiple)
    */
-  @Input({ required: true }) acceptExtensions = '';
+  readonly acceptExtensions = input.required<string>();
 
   /**
    * Mimetypes that the addFromClipboard feature will accept.
    *
    * 'Add from clipboard' button will be disabled if this is not provided.
    */
-  @Input() acceptMimeTypes: string[];
+  readonly acceptMimeTypes = input<string[]>();
 
-  @Input() enableClipboard = false;
+  readonly enableClipboard = input(false);
 
   /**
    * Name of the file type to use in "select a <type> string"
    */
-  @Input() typeName = '';
+  readonly typeName = input('');
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   // Shouldn't really be public but I wanna set it from MapImageSelection :)
-  public disabledBecauseReachedMax = false;
+  public readonly disabledBecauseReachedMax = signal(false);
 
   /**
    * Whether to show a list of selected files within the component. If false,
    * the "Select a file" stuff is always shown.
    */
-  @Input() showSelected = true;
+  readonly showSelected = input(true);
 
   /**
    * Icon to use, uses generic file icon if not given.
    * Only supports MDI currently
    */
-  @Input() icon: Icon = 'file-upload';
+  readonly icon = input<Icon>('file-upload');
+
+  private readonly isDragging = computed(() => this.dragOverCounter() > 0);
 
   @HostBinding('class.dragging')
-  private get isDragging() {
-    return this.dragOverCounter > 0;
+  private get draggingClass() {
+    return this.isDragging();
   }
 
   @HostBinding('class.hasSelection')
@@ -76,7 +86,7 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
     return this.hasSelection();
   }
 
-  @ViewChild('fileInput') private input: ElementRef<HTMLInputElement>;
+  private readonly input = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   abstract onDrop(event: DragEvent): void;
 
@@ -90,8 +100,8 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
   @HostListener('click')
   onClick() {
-    if (!this.disabled) {
-      this.input.nativeElement.click();
+    if (!this.disabled()) {
+      this.input().nativeElement.click();
     }
   }
 
@@ -102,22 +112,22 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
 
   @HostListener('dragenter')
   onDragEnter() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.dragOverCounter++;
+    this.dragOverCounter.update((count) => count + 1);
   }
 
   @HostListener('dragleave')
   onDragLeave() {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.dragOverCounter--;
+    this.dragOverCounter.update((count) => count - 1);
   }
 
   abstract addFromClipboard(event: Event): Promise<void>;
 
   removeDragData(event: DragEvent) {
-    this.dragOverCounter = 0;
+    this.dragOverCounter.set(0);
 
     if (event.dataTransfer.items) {
       event.dataTransfer.items.clear();
@@ -145,10 +155,10 @@ export abstract class AbstractFileUploadComponent<T extends File | File[]>
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-    this.dragOverCounter = 0;
+    this.disabled.set(isDisabled);
+    this.dragOverCounter.set(0);
     if (isDisabled === false) {
-      this.disabledBecauseReachedMax = false;
+      this.disabledBecauseReachedMax.set(false);
     }
   }
 

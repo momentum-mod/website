@@ -13,13 +13,13 @@
   <m-user-search
     #userSearch
     [useOverlay]="false"
-    [ngClass]="{ hide: activeType !== SearchType.USER }"
+    [ngClass]="{ hide: activeType() !== SearchType.USER }"
     class="transition-all [&.hide]:-z-10 [&.hide]:translate-x-1/2 [&.hide]:opacity-0"
     (selected)="userSelected($event); userSearch.resetSearchBox()"
   />
   <m-map-search
     #mapSearch
-    [ngClass]="{ hide: activeType !== SearchType.MAP }"
+    [ngClass]="{ hide: activeType() !== SearchType.MAP }"
     class="transition-all [&.hide]:-z-10 [&.hide]:-translate-x-1/2 [&.hide]:opacity-0"
     (selected)="mapSelected($event); mapSearch.resetSearchBox()"
   />

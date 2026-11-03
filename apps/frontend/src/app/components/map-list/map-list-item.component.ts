@@ -1,12 +1,12 @@
 import {
   Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-  inject
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  output
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   GamemodeInfo,
   LeaderboardType,
@@ -14,18 +14,17 @@ import {
   MapStatusName,
   MapStatus,
   MMap,
-  MapTag,
   mapTagEnglishName,
   MapStatuses
 } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { MapWithSpecificLeaderboard } from '../../util';
 import { extractPrefixFromMapName } from '@momentum/util-fn';
 import { FontSizeLerpDirective } from '../../directives/font-size-lerp.directive';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { AsyncPipe, NgClass, NgStyle } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { IconComponent } from '../../icons';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
@@ -41,12 +40,11 @@ import { PluralPipe } from '../../pipes/plural.pipe';
     TooltipDirective,
     IconComponent,
     NgStyle,
-    AsyncPipe,
     TimeAgoPipe,
     PluralPipe
   ]
 })
-export class MapListItemComponent implements OnChanges {
+export class MapListItemComponent {
   protected readonly localUserService = inject(LocalUserService);
   private readonly messageService = inject(MessageService);
 
@@ -56,55 +54,54 @@ export class MapListItemComponent implements OnChanges {
   protected readonly MapStatus = MapStatus;
   protected readonly mapTagEnglishName = mapTagEnglishName;
 
-  @Input({ required: true }) map!: MMap | MapWithSpecificLeaderboard;
-  @Input() isSubmission = false;
-  @Input() isAdminPage = false;
-  @Input() showApprovedDate = false;
+  readonly map = input.required<MMap | MapWithSpecificLeaderboard>();
+  readonly isSubmission = input(false);
+  readonly isAdminPage = input(false);
+  readonly showApprovedDate = input(false);
 
-  @Output() favoriteUpdate = new EventEmitter();
+  readonly favoriteUpdate = output<boolean>();
 
-  inFavorites: boolean;
-  statusName = '';
-  authors: Array<{ id?: number; alias: string }>;
-  name: string;
-  prefix: string;
-  tierStyle: string;
-  tags: MapTag[];
+  protected readonly user = toSignal(this.localUserService.user);
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (!changes['map']) return;
+  // This isn't well-documented (or designed), but `favorites` here is an
+  // of MapFavorite entries that match the LU id. So if > 0, user has it
+  // favourited. Toggled locally, reset when the map input changes.
+  protected readonly inFavorites = linkedSignal(
+    () => this.map().favorites?.length > 0
+  );
 
-    // This isn't well-documented (or designed), but `favorites` here is an
-    // of MapFavorite entries that match the LU id. So if > 0, user has it
-    // favourited.
-    this.inFavorites = this.map.favorites?.length > 0;
-    this.statusName = MapStatusName.get(this.map.status as any);
+  private readonly nameParts = computed(() =>
+    extractPrefixFromMapName(this.map().name)
+  );
+  protected readonly name = computed(() => this.nameParts()[0]);
+  protected readonly prefix = computed(() => this.nameParts()[1]);
 
-    const [name, prefix] = extractPrefixFromMapName(this.map.name);
-    this.name = name;
-    this.prefix = prefix;
-    this.authors = [
-      ...this.map.credits,
-      ...(MapStatuses.IN_SUBMISSION.includes(this.map.status) ||
-      this.map.status === MapStatus.DISABLED
-        ? (this.map.submission?.placeholders ?? [])
-        : [])
-    ]
-      .filter(({ type }) => type === MapCreditType.AUTHOR)
-      .map((credit) =>
-        'userID' in credit
-          ? { alias: credit.user.alias, id: credit.userID }
-          : { alias: credit.alias }
-      );
-  }
+  protected readonly authors = computed<Array<{ id?: number; alias: string }>>(
+    () => {
+      const map = this.map();
+      return [
+        ...map.credits,
+        ...(MapStatuses.IN_SUBMISSION.includes(map.status) ||
+        map.status === MapStatus.DISABLED
+          ? (map.submission?.placeholders ?? [])
+          : [])
+      ]
+        .filter(({ type }) => type === MapCreditType.AUTHOR)
+        .map((credit) =>
+          'userID' in credit
+            ? { alias: credit.user.alias, id: credit.userID }
+            : { alias: credit.alias }
+        );
+    }
+  );
 
   toggleMapInFavorites(event?: Event) {
     event?.stopPropagation();
     event?.preventDefault();
-    if (this.inFavorites) {
-      this.localUserService.removeMapFromFavorites(this.map.id).subscribe({
+    if (this.inFavorites()) {
+      this.localUserService.removeMapFromFavorites(this.map().id).subscribe({
         next: () => {
-          this.inFavorites = false;
+          this.inFavorites.set(false);
           this.favoriteUpdate.emit(false);
           this.messageService.add({
             severity: 'success',
@@ -118,9 +115,9 @@ export class MapListItemComponent implements OnChanges {
           })
       });
     } else {
-      this.localUserService.addMapToFavorites(this.map.id).subscribe({
+      this.localUserService.addMapToFavorites(this.map().id).subscribe({
         next: () => {
-          this.inFavorites = true;
+          this.inFavorites.set(true);
           this.favoriteUpdate.emit(true);
           this.messageService.add({
             severity: 'success',
@@ -140,7 +137,7 @@ export class MapListItemComponent implements OnChanges {
   protected isReleasedMap(
     _map: MMap | MapWithSpecificLeaderboard
   ): _map is MapWithSpecificLeaderboard {
-    return !this.isSubmission;
+    return !this.isSubmission();
   }
 
   protected isSubmitterAnAuthor(map: MMap) {

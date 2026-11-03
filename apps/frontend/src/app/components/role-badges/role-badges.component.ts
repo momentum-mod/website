@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { Flags, Role, RoleNames } from '@momentum/constants';
 import * as Bitflags from '@momentum/bitflags';
 import { TooltipDirective } from '../../directives/tooltip.directive';
@@ -12,24 +12,24 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
 @Component({
   selector: 'm-role-badges',
   imports: [TooltipDirective],
-  template: `@for (role of heldRoleStrings; track $index) {
+  template: `@for (role of heldRoleStrings(); track $index) {
     <!-- SVGs in apps/frontend/src/assets/images/badges/roles must have
          filenames corresponding to RoleNames! -->
     <img
       [src]="'assets/images/badges/' + role + '.svg'"
       [mTooltip]="role"
       [alt]="role + ' Badge'"
-      [class]="'h-full aspect-square opacity-90 drop-shadow ' + classes"
+      [class]="'h-full aspect-square opacity-90 drop-shadow ' + classes()"
     />
   }`,
   styles: ':host { display: flex; gap: 0.25rem; }'
 })
-export class RoleBadgesComponent implements OnChanges {
-  @Input({ required: true }) roles!: Flags<Role>;
+export class RoleBadgesComponent {
+  readonly roles = input.required<Flags<Role>>();
 
-  @Input() ignored: Role[];
+  readonly ignored = input<Role[]>();
 
-  @Input() classes = '';
+  readonly classes = input('');
 
   private readonly available: Role[] = [
     Role.ADMIN,
@@ -43,14 +43,12 @@ export class RoleBadgesComponent implements OnChanges {
     Role.LIMITED
   ];
 
-  protected heldRoleStrings: string[] = [];
-
-  ngOnChanges() {
-    this.heldRoleStrings = this.available
+  protected readonly heldRoleStrings = computed(() =>
+    this.available
       .filter(
         (role) =>
-          Bitflags.has(this.roles, role) && !this.ignored?.includes(role)
+          Bitflags.has(this.roles(), role) && !this.ignored()?.includes(role)
       )
-      .map((role) => RoleNames.get(role));
-  }
+      .map((role) => RoleNames.get(role))
+  );
 }

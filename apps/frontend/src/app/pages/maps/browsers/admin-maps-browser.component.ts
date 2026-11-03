@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   MapCreditName,
   MapCreditType,
@@ -20,10 +20,10 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { AdminService } from '../../../services/data/admin.service';
@@ -94,11 +94,11 @@ export class AdminMapsBrowserComponent implements OnInit {
     sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
-  protected maps: MMap[] = [];
+  protected readonly maps = signal<MMap[]>([]);
 
   private skip = 0;
-  protected loading = false;
-  protected loadMore = new Subject<void>();
+  protected readonly loading = signal(false);
+  protected readonly loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
@@ -108,13 +108,13 @@ export class AdminMapsBrowserComponent implements OnInit {
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
-        filter(() => !this.loading),
+        filter(() => !this.loading()),
         map(() => this.itemsPerLoad)
       ),
       this.filters.valueChanges.pipe(
         debounceTime(200),
         tap(() => {
-          this.maps = [];
+          this.maps.set([]);
           this.skip = 0;
         }),
         map(() => this.initialItems)
@@ -122,7 +122,7 @@ export class AdminMapsBrowserComponent implements OnInit {
     )
       .pipe(
         filter(() => this.filters.valid),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
             this.filters.getRawValue();
@@ -149,9 +149,9 @@ export class AdminMapsBrowserComponent implements OnInit {
       )
       .subscribe({
         next: (res: PagedResponse<MMap>) => {
-          this.maps.push(...res.data);
+          this.maps.update((maps) => [...maps, ...res.data]);
           this.skip += res.returnCount;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -159,7 +159,7 @@ export class AdminMapsBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

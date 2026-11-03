@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { merge, Observable, Subject } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import {
@@ -7,13 +7,13 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
-import { SelectModule } from 'primeng/select';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { MessageService } from '@openng/optimus-ui/api';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { PaginatorModule, PaginatorState } from '@openng/optimus-ui/paginator';
 import { PastRunsService } from '../../../services/data/past-runs.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgClass, NgStyle } from '@angular/common';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
 import { IconComponent } from '../../../icons';
 import { RouterLink } from '@angular/router';
@@ -55,16 +55,16 @@ export class ProfileRunHistoryComponent implements OnInit {
   ];
 
   // TODO: Subject/BehaviorSubject
-  @Input() userSubject: Observable<User>;
-  userID: number;
-  runs: PastRun[] = [];
-  showFilters = false;
+  readonly userSubject = input.required<Observable<User>>();
+  private userID: number;
+  protected readonly runs = signal<PastRun[]>([]);
+  protected readonly showFilters = signal(false);
 
   protected readonly rows = 10;
-  protected totalRecords = 0;
-  protected first = 0;
+  protected readonly totalRecords = signal(0);
+  protected readonly first = signal(0);
 
-  protected loading: boolean;
+  protected readonly loading = signal(false);
   protected readonly load = new Subject<void>();
   protected readonly pageChange = new Subject<PaginatorState>();
 
@@ -88,17 +88,17 @@ export class ProfileRunHistoryComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.userSubject.subscribe((user) => {
+    this.userSubject().subscribe((user) => {
       this.userID = user.id;
       this.load.next();
     });
 
     merge(
       this.load,
-      this.pageChange.pipe(tap(({ first }) => (this.first = first)))
+      this.pageChange.pipe(tap(({ first }) => this.first.set(first)))
     )
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.pastRunsService.getRuns({
             userID: this.userID,
@@ -108,15 +108,15 @@ export class ProfileRunHistoryComponent implements OnInit {
             orderBy: this.currentFilter.orderBy,
             order: this.currentFilter.order,
             take: this.rows,
-            skip: this.first
+            skip: this.first()
           })
         )
       )
       .subscribe({
         next: (response) => {
-          this.totalRecords = response.totalCount;
-          this.runs = response.data;
-          this.loading = false;
+          this.totalRecords.set(response.totalCount);
+          this.runs.set(response.data);
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -124,7 +124,7 @@ export class ProfileRunHistoryComponent implements OnInit {
             summary: 'Cannot get user runs',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
@@ -140,7 +140,7 @@ export class ProfileRunHistoryComponent implements OnInit {
     )
       return;
     this.currentFilter = { isPB: isPersonalBest, map, order, orderBy };
-    this.first = 0;
+    this.first.set(0);
     this.load.next();
   }
 }

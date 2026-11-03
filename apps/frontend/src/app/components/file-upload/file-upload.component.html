@@ -1,6 +1,6 @@
 <!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
-<input #fileInput (change)="onFilesSelected($event)" [accept]="acceptExtensions" [multiple]="multiple" hidden type="file" />
-@if (showSelected && hasSelection()) {
+<input #fileInput (change)="onFilesSelected($event)" [accept]="acceptExtensions()" [multiple]="multiple" hidden type="file" />
+@if (showSelected() && hasSelection()) {
   <div class="flex w-full flex-col rounded border-white border-opacity-5 bg-black bg-opacity-50 p-2 shadow-inner">
     @for (file of getIterableFiles(); track file) {
       <div class="flex items-center gap-2 [&:not(:last-child)]:mb-2">
@@ -17,22 +17,22 @@
     }
   </div>
 }
-@if (showSelected || multiple || !value) {
+@if (showSelected() || multiple || !hasSelection()) {
   <m-icon
-    [icon]="icon"
+    [icon]="icon()"
     class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in [.dragging_&]:text-blue-100 [:hover_&]:text-blue-100"
   ></m-icon>
-  @if (!disabled) {
+  @if (!disabled()) {
     <p class="text-balance px-2 font-medium">
-      @if (enableClipboard) {
-        Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }}, drag here, or
+      @if (enableClipboard()) {
+        Select {{ multiple ? '' : 'a ' }}{{ typeName() }} file{{ multiple ? 's' : '' }}, drag here, or
         <a class="link" (click)="addFromClipboard($event)">add from clipboard</a>
       } @else {
-        Select {{ multiple ? '' : 'a ' }}{{ typeName }} file{{ multiple ? 's' : '' }} or drag here
+        Select {{ multiple ? '' : 'a ' }}{{ typeName() }} file{{ multiple ? 's' : '' }} or drag here
       }
     </p>
   }
-  @if (disabledBecauseReachedMax) {
+  @if (disabledBecauseReachedMax()) {
     <p>File limit reached</p>
   }
 }
