@@ -1,10 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import {
   NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { AdminService } from '../../../services/data/admin.service';
 import * as Enum from '@momentum/enum';
 import {
@@ -12,7 +14,7 @@ import {
   Killswitches,
   MAX_ADMIN_ANNOUNCEMENT_LENGTH
 } from '@momentum/constants';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { CodeVerifyDialogComponent } from '../../../components/dialogs/code-verify-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardComponent } from '../../../components/card/card.component';
@@ -60,6 +62,27 @@ export class UtilitiesComponent implements OnInit {
       ]
     })
   });
+
+  // Forms get reset from async dialog callbacks, so the template reads these
+  // rather than the controls directly.
+  protected readonly aliasInvalid = toSignal(
+    this.userForm.controls.alias.statusChanges.pipe(
+      map((status) => status === 'INVALID')
+    ),
+    { initialValue: this.userForm.controls.alias.invalid }
+  );
+  protected readonly messageInvalid = toSignal(
+    this.announcementForm.controls.message.statusChanges.pipe(
+      map((status) => status === 'INVALID')
+    ),
+    { initialValue: this.announcementForm.controls.message.invalid }
+  );
+  protected readonly messageLength = toSignal(
+    this.announcementForm.controls.message.valueChanges.pipe(
+      map((message) => message?.length ?? 0)
+    ),
+    { initialValue: 0 }
+  );
 
   ngOnInit() {
     this.adminService.getKillswitches().subscribe({

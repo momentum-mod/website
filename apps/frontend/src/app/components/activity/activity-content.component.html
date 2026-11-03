@@ -1,13 +1,14 @@
-<div class="flex min-h-[50px] flex-wrap items-center gap-1 py-1" [ngClass]="{ 'w-[14rem]': dateNone }">
-  <a routerLink="/profile/{{ activity.user.id }}" class="contents">
-    <m-avatar [url]="activity.user.avatarURL" class="mr-2 !h-7" />
-    <p>{{ activity.user.alias }}</p>
+@let d = display();
+<div class="flex min-h-[50px] flex-wrap items-center gap-1 py-1" [ngClass]="{ 'w-[14rem]': dateNone() }">
+  <a routerLink="/profile/{{ activity().user.id }}" class="contents">
+    <m-avatar [url]="activity().user.avatarURL" class="mr-2 !h-7" />
+    <p>{{ activity().user.alias }}</p>
   </a>
-  <p>{{ actionText }}</p>
-  <p [ngStyle]="{ cursor: eventLink ? 'pointer' : 'auto' }" [routerLink]="eventLink ? eventLink : null">
-    <b [ngClass]="'text-' + eventColor">{{ eventText }}</b
+  <p>{{ d.actionText }}</p>
+  <p [ngStyle]="{ cursor: d.link ? 'pointer' : 'auto' }" [routerLink]="d.link ? d.link : null">
+    <b [ngClass]="'text-' + d.color">{{ d.eventText }}</b
     >!
   </p>
-  <m-icon class="text-3xl" [ngStyle]="{ color: eventColor }" [icon]="activityIcon" />
-  <p class="ml-auto" [ngClass]="dateNone ? 'd-none' : ''">{{ activity.createdAt | timeAgo }}</p>
+  <m-icon class="text-3xl" [ngStyle]="{ color: d.color }" [icon]="d.icon" />
+  <p class="ml-auto" [ngClass]="dateNone() ? 'd-none' : ''">{{ activity().createdAt | timeAgo }}</p>
 </div>

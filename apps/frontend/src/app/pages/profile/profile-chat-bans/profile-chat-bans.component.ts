@@ -1,10 +1,6 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  inject
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, Observable, of, switchMap } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { ActiveChatBan, ChatBanTypeNames, User } from '@momentum/constants';
 import { AdminService } from '../../../services/data/admin.service';
@@ -15,24 +11,24 @@ import { LocalUserService } from '../../../services/data/local-user.service';
   templateUrl: './profile-chat-bans.component.html',
   imports: [DatePipe]
 })
-export class ProfileChatBansComponent implements OnChanges {
+export class ProfileChatBansComponent {
   private readonly adminService = inject(AdminService);
   protected readonly localUserService = inject(LocalUserService);
 
-  @Input({ required: true }) user: User;
-  @Input() isLocal = false;
+  readonly user = input.required<User>();
+  readonly isLocal = input(false);
 
   protected readonly ChatBanTypeNames = ChatBanTypeNames;
 
-  protected bans: ActiveChatBan[] = [];
+  // Reloads only when `user` changes.
+  private readonly bans = toSignal(
+    toObservable(this.user).pipe(switchMap((user) => this.load(user))),
+    { initialValue: [] as ActiveChatBan[] }
+  );
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['user']) this.load();
-  }
-
-  protected get activeBans(): ActiveChatBan[] {
-    return this.bans.filter((ban) => this.isActive(ban));
-  }
+  protected readonly activeBans = computed(() =>
+    this.bans().filter((ban) => this.isActive(ban))
+  );
 
   protected isActive(ban: ActiveChatBan): boolean {
     return !ban.expiresAt || new Date(ban.expiresAt).getTime() > Date.now();
@@ -53,30 +49,27 @@ export class ProfileChatBansComponent implements OnChanges {
     return `${Math.round(hours / 24)}d left`;
   }
 
-  private load() {
-    if (!this.user) {
-      this.bans = [];
-      return;
-    }
+  private load(user: User | undefined): Observable<ActiveChatBan[]> {
+    if (!user) return of([]);
 
     // Mods/admins see the target's active bans regardless of whose profile
     // this is; a regular user only has their own active bans embedded in
     // GET /user, and can't see anyone else's.
     if (this.localUserService.isModOrAdmin) {
-      this.adminService
+      return this.adminService
         .getChatBans({
-          targetID: this.user.id,
+          targetID: user.id,
           expand: ['issuer'],
           take: 100
         })
-        .subscribe({
-          next: (response) => (this.bans = response.data),
-          error: () => (this.bans = [])
-        });
-    } else if (this.isLocal) {
-      this.bans = this.user.chatBans ?? [];
+        .pipe(
+          map((response) => response.data),
+          catchError(() => of([]))
+        );
+    } else if (this.isLocal()) {
+      return of(user.chatBans ?? []);
     } else {
-      this.bans = [];
+      return of([]);
     }
   }
 }

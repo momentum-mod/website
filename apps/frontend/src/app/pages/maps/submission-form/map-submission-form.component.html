@@ -1,3 +1,9 @@
+@let isUploading = this.isUploading();
+@let uploadPercentage = this.uploadPercentage();
+@let uploadStatusDescription = this.uploadStatusDescription();
+@let isMapperOrPorter = this.isMapperOrPorter();
+@let isModOrAdmin = this.isModOrAdmin();
+@let hasMapInSubmission = this.hasMapInSubmission();
 <p class="card-title text-5xl sm:text-8xl">Map Submission</p>
 
 @if (isMapperOrPorter || !hasMapInSubmission || true) {

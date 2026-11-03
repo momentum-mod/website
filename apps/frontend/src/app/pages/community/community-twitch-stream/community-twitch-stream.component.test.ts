@@ -58,7 +58,7 @@ describe('CommunityTwitchStreamComponent', () => {
     const streams = [{ id: '1' }, { id: '2' }];
     mock.method(twitchAPI, 'getGameStreams', () => of({ data: streams }));
     component.ngOnInit();
-    assert.deepEqual(component.streams, streams);
-    assert.equal(component.queriedStreams, true);
+    assert.deepEqual(component.streams(), streams);
+    assert.equal(component.queriedStreams(), true);
   });
 });

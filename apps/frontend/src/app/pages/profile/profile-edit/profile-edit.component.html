@@ -1,3 +1,5 @@
+@let user = this.user();
+@let isModOrAdmin = this.isModOrAdmin();
 @if (user) {
   <m-card title="Edit Profile">
     <button type="button" header class="btn btn-blue" (click)="returnToProfile()">Return to Profile</button>

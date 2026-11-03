@@ -1,5 +1,5 @@
 <m-accordion>
-  @for (group of groupedLeaderboards | keyvalue: groupLbSortFn; track $index) {
+  @for (group of groupedLeaderboards() | keyvalue: groupLbSortFn; track $index) {
     <m-accordion-item title="{{ GamemodeInfo.get(group.key).name }} - {{ group.value.totalRuns }} runs submitted">
       <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-3 shadow-inner sm:p-8 sm:pt-6">
         @for (leaderboard of group.value.leaderboards; track $index) {
@@ -96,7 +96,7 @@
                     optionValue="type"
                     optionLabel="label"
                     placeholder="Select Type"
-                    [disabled]="disabled"
+                    [disabled]="disabled()"
                     (onChange)="onChange(value)"
                     appendTo="body"
                   />

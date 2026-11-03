@@ -1,8 +1,12 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { IconComponent } from '../../icons';
 
 @Component({
   selector: 'm-alert',
+  host: {
+    class: 'alert',
+    '[style.display]': 'display()'
+  },
   imports: [IconComponent],
   template: ` <div class="prose max-w-none">
       <ng-content />
@@ -16,13 +20,9 @@ import { IconComponent } from '../../icons';
     </button>`
 })
 export class AlertComponent {
-  @HostBinding('style.display')
-  protected display = 'block';
-
-  @HostBinding('class')
-  private readonly class = 'alert';
+  protected readonly display = signal('block');
 
   dismiss() {
-    this.display = 'none';
+    this.display.set('none');
   }
 }

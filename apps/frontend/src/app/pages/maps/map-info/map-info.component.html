@@ -1,3 +1,18 @@
+@let loading = this.loading();
+@let map = this.map();
+@let name = this.name();
+@let prefix = this.prefix();
+@let credits = this.credits();
+@let images = this.images();
+@let selectedImage = this.selectedImage();
+@let requiredGamesNames = this.requiredGamesNames();
+@let requiredGamesImages = this.requiredGamesImages();
+@let notifications = this.notifications();
+@let inFavorites = this.inFavorites();
+@let isSubmitter = this.isSubmitter();
+@let inSubmission = this.inSubmission();
+@let currentSection = this.currentSection();
+@let canEditMap = this.canEditMap();
 @if (map) {
   <div class="grid grid-cols-1 gap-x-4 gap-y-2 lg:[grid-template-columns:minmax(0,3fr)_minmax(0,7fr)]">
     <div class="flex gap-4">
@@ -25,7 +40,7 @@
             type="button"
             class="justify-self-start font-display text-3xl font-bold leading-none text-gray-100 opacity-90 drop-shadow transition-colors hover:text-gray-50 lg:text-4xl"
             [ngClass]="{ '!text-white !opacity-100': currentSection === section }"
-            (click)="currentSection = section"
+            (click)="this.currentSection.set(section)"
           >
             {{ MapInfoSection[section] }}
           </button>
@@ -92,7 +107,7 @@
     </div>
     <div #sideBar class="max-lg:order-2">
       <div #card [mSpinner]="loading" class="card card--fancy flex w-auto flex-col overflow-hidden rounded-t border-none">
-        <m-gallery #gallery [items]="images" [selectedItem]="selectedImage" (selectedItemChange)="selectedImage = $event" />
+        <m-gallery #gallery [items]="images" [selectedItem]="selectedImage" (selectedItemChange)="this.selectedImage.set($event)" />
         <div>
           <div class="aspect-video">
             @if (selectedImage && selectedImage.type === 'image') {
@@ -126,7 +141,7 @@
           @if (images.length > 1) {
             <div class="flex justify-center bg-black bg-opacity-20">
               @for (image of images; track $index) {
-                <button type="button" class="hover-white-overlay aspect-video max-h-16" (click)="selectedImage = image">
+                <button type="button" class="hover-white-overlay aspect-video max-h-16" (click)="this.selectedImage.set(image)">
                   <img class="aspect-video max-h-16 min-w-0" [src]="image.type === 'image' ? image.thumbnail : image.safeThumbnail" />
                 </button>
               }
@@ -136,17 +151,22 @@
         <div
           class="flex flex-wrap justify-between gap-4 bg-black bg-opacity-10 px-3.5 py-2 [border-bottom:1px_solid_rgb(0_0_0/0.1)] [border-inline:1px_solid_rgb(255_255_255/0.05)] [border-top:1px_solid_rgb(255_255_255/0.1)]"
         >
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.plays | plural: 'Play' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ $safeNavigationMigration(map.stats?.plays) | plural: 'Play' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="play-circle-outline"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.plays | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ $safeNavigationMigration(map.stats?.plays) | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.favorites | plural: 'Favorite' }}">
+          <div class="flex items-center gap-1" mTooltip="{{ $safeNavigationMigration(map.stats?.favorites) | plural: 'Favorite' }}">
             <m-icon class="mb-0.5 text-24 drop-shadow-md" icon="star"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.favorites | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">{{ $safeNavigationMigration(map.stats?.favorites) | thousandsSuffix: 1 }}</p>
           </div>
-          <div class="flex items-center gap-1" mTooltip="{{ map.stats?.uniqueCompletions | plural: 'Unique Completion' }}">
+          <div
+            class="flex items-center gap-1"
+            mTooltip="{{ $safeNavigationMigration(map.stats?.uniqueCompletions) | plural: 'Unique Completion' }}"
+          >
             <m-icon class="text-24 drop-shadow-md" icon="run-fast"></m-icon>
-            <p class="font-display text-24 drop-shadow-md">{{ map.stats?.uniqueCompletions | thousandsSuffix: 1 }}</p>
+            <p class="font-display text-24 drop-shadow-md">
+              {{ $safeNavigationMigration(map.stats?.uniqueCompletions) | thousandsSuffix: 1 }}
+            </p>
           </div>
           <div class="ml-auto"></div>
           @if (map.info.requiredGames.length > 0) {
@@ -173,10 +193,10 @@
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>
           <ng-template #dateTooltip>
-            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
+            <p class="text-right"><b>Created On - </b>{{ $safeNavigationMigration(map.info?.creationDate) | date }}</p>
             <p class="text-right"><b>Added in Momentum - </b>{{ map.createdAt | date }}</p>
             @if (map.info?.approvedDate) {
-              <p class="text-right"><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>
+              <p class="text-right"><b>Released in Momentum - </b>{{ $safeNavigationMigration(map.info?.approvedDate) | date }}</p>
             }
             <p class="text-right"><b>Submitted By - </b>{{ map.submitter?.alias }}</p>
           </ng-template>

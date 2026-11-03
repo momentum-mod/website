@@ -1,3 +1,7 @@
+@let chatBans = this.chatBans();
+@let loadingChatBans = this.loadingChatBans();
+@let mergeUser = this.mergeUser();
+@let mergeErr = this.mergeErr();
 <div class="flex max-h-[75vh] flex-col gap-4 overflow-y-auto">
   <div [mSpinner]="loadingChatBans">
     <h2>Communication Bans</h2>
@@ -120,7 +124,7 @@
       }
       @if (mergeUser) {
         <div class="flex flex-col gap-2">
-          <a [routerLink]="'/profile/' + mergeUser?.id" class="flex items-center gap-2">
+          <a [routerLink]="'/profile/' + $safeNavigationMigration(mergeUser?.id)" class="flex items-center gap-2">
             <m-avatar class="h-10" [url]="mergeUser.avatarURL" />
             <p class="text-lg">{{ mergeUser.alias }}</p>
           </a>

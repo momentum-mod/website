@@ -1,3 +1,9 @@
+@let status = this.status();
+@let isBlockedForUnresolvedReviews = this.isBlockedForUnresolvedReviews();
+@let isBlockedForSubmissionTimeGate = this.isBlockedForSubmissionTimeGate();
+@let isBlockedForNoApprovingReview = this.isBlockedForNoApprovingReview();
+@let firstEnteredPublicTesting = this.firstEnteredPublicTesting();
+@let hasBeenApprovedBefore = this.hasBeenApprovedBefore();
 <div class="flex flex-col gap-2 text-gray-50">
   <div>
     <p class="mb-1">
@@ -32,7 +38,7 @@
         }
       }
     </p>
-    @if (sub) {
+    @if (sub()) {
       <p class="mb-2">You can change the map to the following states:</p>
       <!-- See map-status-changers.map.ts for possible changes -->
       @if (isPossibleStatus(MapStatus.PRIVATE_TESTING)) {
@@ -70,19 +76,19 @@
 
       @if (
         status === MapStatus.PUBLIC_TESTING &&
-        (this.isBlockedForUnresolvedReviews || this.isBlockedForSubmissionTimeGate || this.isBlockedForNoApprovingReview)
+        (isBlockedForUnresolvedReviews || isBlockedForSubmissionTimeGate || isBlockedForNoApprovingReview)
       ) {
         <div class="my-4 text-red-400">
           <p>This map cannot leave testing because:</p>
 
-          @if (this.isBlockedForUnresolvedReviews) {
+          @if (isBlockedForUnresolvedReviews) {
             <p class="ml-4 mt-0 font-medium">it has unresolved reviews.</p>
           }
           <!-- TODO: move down to final approval, and change elsewhere also -->
-          @if (this.isBlockedForNoApprovingReview) {
+          @if (isBlockedForNoApprovingReview) {
             <p class="ml-4 mt-0 font-medium">it does not have any approving reviews from an official reviewer.</p>
           }
-          @if (this.isBlockedForSubmissionTimeGate) {
+          @if (isBlockedForSubmissionTimeGate) {
             <p class="ml-4 mt-0 font-medium">
               it has not been in public testing for long enough. It will be able to move on
               {{ firstEnteredPublicTesting + MIN_PUBLIC_TESTING_DURATION | date: 'medium' }}.
@@ -94,11 +100,11 @@
   </div>
   <div class="flex items-center gap-4 self-end">
     <p class="text-lg">Update status</p>
-    <p-select [formControl]="statusControl" [options]="possibleStatuses" appendTo="body" />
+    <p-select [formControl]="statusControl" [options]="possibleStatuses()" appendTo="body" />
   </div>
   @if ((mod || adm) && status === MapStatus.FINAL_APPROVAL && !hasBeenApprovedBefore) {
     <!-- Form goes whack if this is in the above conditional -->
-    <div class="flex flex-col gap-4" [ngClass]="{ hidden: statusControl.value !== MapStatus.APPROVED }">
+    <div class="flex flex-col gap-4" [ngClass]="{ hidden: selectedStatus() !== MapStatus.APPROVED }">
       <div class="prose max-w-[64rem]">
         <h2>Final Approval</h2>
         <p>
@@ -117,12 +123,12 @@
           thing). Keep in mind that we still have "hidden/secret" leaderboards for if people genuinely want to compete in a weird off-mode,
           and that a hidden leaderboard can always be upgraded to unranked in the future.
         </p>
-        @if (this.isBlockedForUnresolvedReviews) {
+        @if (isBlockedForUnresolvedReviews) {
           <p class="font-medium text-red-500">Warning: map has unresolved reviews!</p>
         }
       </div>
 
-      <m-map-final-approval-form [groupedLeaderboards]="groupedLeaderboards" [formControl]="finalLeaderboards" />
+      <m-map-final-approval-form [groupedLeaderboards]="groupedLeaderboards()" [formControl]="finalLeaderboards" />
       @if (finalLeaderboards.pristine) {
         <p class="ml-auto font-medium text-blue-100">
           These selections create approved leaderboards, so are heavily validated. At minimum you need an unhidden, tiered leaderboard in at

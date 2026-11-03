@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { XMLParser } from 'fast-xml-parser';
 import { BlogService } from '../../../services/data/blog.service';
@@ -17,24 +24,29 @@ export class CommunityNewsComponent implements OnInit {
   // The number of blog posts to display on this component
   readonly POSTS_DISPLAYED = 10;
 
-  feed: { item: BlogPost[] } = { item: [] };
-  loaded = false;
+  private readonly feed = signal<{ item: BlogPost[] }>({ item: [] });
+  protected readonly posts = computed(() =>
+    this.feed().item.slice(0, this.POSTS_DISPLAYED)
+  );
+  protected readonly loaded = signal(false);
 
-  parser = new XMLParser();
+  private readonly parser = new XMLParser();
 
   ngOnInit() {
     this.blogService
       .getRecentBlogPosts()
-      .pipe(finalize(() => (this.loaded = true)))
+      .pipe(finalize(() => this.loaded.set(true)))
       .subscribe((response) => {
-        response = this.parser.parse(response);
-        this.feed = response.rss.channel;
+        const feed: { item: BlogPost[] } =
+          this.parser.parse(response).rss.channel;
 
-        for (const post of this.feed.item) {
+        for (const post of feed.item) {
           post['content:encoded'] =
             post['content:encoded'].slice(0, 500) + '...';
           post.pubDate = post.pubDate.slice(0, -6);
         }
+
+        this.feed.set(feed);
       });
   }
 }

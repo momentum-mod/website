@@ -1,3 +1,18 @@
+@let user = this.user();
+@let isLocal = this.isLocal();
+@let avatarUrl = this.avatarUrl();
+@let avatarLoaded = this.avatarLoaded();
+@let countryDisplayName = this.countryDisplayName();
+@let followingUsers = this.followingUsers();
+@let followedByUsers = this.followedByUsers();
+@let xp = this.xp();
+@let currLevelXp = this.currLevelXp();
+@let nextLevelXp = this.nextLevelXp();
+@let steamFriends = this.steamFriends();
+@let steamFriendsToAdd = this.steamFriendsToAdd();
+@let loadingSteamFriends = this.loadingSteamFriends();
+@let credits = this.credits();
+@let creditMap = this.creditMap();
 @if (user) {
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
@@ -30,7 +45,7 @@
               }
             </h1>
             <div class="flex gap-1">
-              @if (!isLocal && (localUserService.user | async) && !localUserService.isLimited) {
+              @if (!isLocal && localUser() && !localUserService.isLimited) {
                 <m-report-button
                   class="aspect-square p-2"
                   mTooltip="Report Profile"
@@ -40,26 +55,20 @@
                 <button
                   type="button"
                   class="btn btn-green stack aspect-square p-2"
-                  [mTooltip]="(localFollowStatus | async) ? 'Unfollow' : 'Follow'"
+                  [mTooltip]="localFollow() ? 'Unfollow' : 'Follow'"
                   (click)="toggleFollow()"
                 >
-                  <m-icon
-                    class="opacity-100 transition-opacity [:hover>&]:opacity-0"
-                    [icon]="(localFollowStatus | async) ? 'heart' : 'heart-outline'"
-                  />
-                  <m-icon
-                    class="opacity-0 transition-opacity [:hover>&]:opacity-100"
-                    [icon]="(localFollowStatus | async) ? 'heart-broken' : 'heart'"
-                  />
+                  <m-icon class="opacity-100 transition-opacity [:hover>&]:opacity-0" [icon]="localFollow() ? 'heart' : 'heart-outline'" />
+                  <m-icon class="opacity-0 transition-opacity [:hover>&]:opacity-100" [icon]="localFollow() ? 'heart-broken' : 'heart'" />
                 </button>
-                @if (localFollowStatus | async) {
+                @if (localFollow()) {
                   <button
                     type="button"
                     class="btn btn-blue aspect-square p-2"
                     mTooltip="Edit Notifications"
                     (click)="editFollowNotifications()"
                   >
-                    <m-icon [icon]="(localFollowStatus | async).notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
+                    <m-icon [icon]="localFollow().notifyOn === 0 ? 'bell-outline' : 'bell-alert'" />
                   </button>
                 }
               }
@@ -92,7 +101,7 @@
         @if (user.profile?.bio?.length > 0) {
           <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
         }
-        @if ((user.profile?.socials | unsortedKeyvalue)?.length) {
+        @if (($safeNavigationMigration(user.profile?.socials) | unsortedKeyvalue)?.length) {
           <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {
@@ -121,8 +130,8 @@
               <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
                 @for (usr of followedByUsers; track usr) {
                   <li class="py-1">
-                    <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
-                      <m-avatar class="mr-2 h-12" [url]="usr.followee?.avatarURL" />
+                    <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followee?.id)" class="flex items-center">
+                      <m-avatar class="mr-2 h-12" [url]="$safeNavigationMigration(usr.followee?.avatarURL)" />
                       <p>
                         {{ usr.followee?.alias }}<br />
                         <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
@@ -145,8 +154,8 @@
                 <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
                   @for (usr of followingUsers; track usr) {
                     <li class="py-1">
-                      <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
-                        <m-avatar class="mr-2 h-12" [url]="usr.followed?.avatarURL" />
+                      <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followed?.id)" class="flex items-center">
+                        <m-avatar class="mr-2 h-12" [url]="$safeNavigationMigration(usr.followed?.avatarURL)" />
                         <p>
                           {{ usr.followed?.alias }}<br />
                           <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>

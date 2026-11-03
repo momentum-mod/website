@@ -4,9 +4,8 @@ import {
   ElementRef,
   OnInit,
   Renderer2,
-  HostBinding,
-  Input,
   createComponent,
+  input,
   ApplicationRef,
   inject
 } from '@angular/core';
@@ -20,7 +19,11 @@ import { SpinnerComponent } from '../components/spinner/spinner.component';
  * Based off of Nebular directive
  * https://github.com/akveo/nebular/blob/master/src/framework/theme/components/spinner/spinner.directive.ts
  */
-@Directive({ selector: '[mSpinner]', standalone: true })
+@Directive({
+  selector: '[mSpinner]',
+  standalone: true,
+  host: { '[class.spinner-container--active]': 'mSpinner()' }
+})
 export class SpinnerDirective implements OnInit {
   private appRef = inject(ApplicationRef);
   private renderer = inject(Renderer2);
@@ -28,17 +31,8 @@ export class SpinnerDirective implements OnInit {
 
   spinner: ComponentRef<SpinnerComponent>;
 
-  @Input()
-  set mSpinner(val: boolean) {
-    if (val) {
-      this.show();
-    } else {
-      this.hide();
-    }
-  }
-
-  @HostBinding('class.spinner-container--active')
-  protected active = false;
+  /** Shows the spinner while true. */
+  readonly mSpinner = input<boolean>(false);
 
   ngOnInit() {
     this.spinner = createComponent(SpinnerComponent, {
@@ -55,13 +49,5 @@ export class SpinnerDirective implements OnInit {
       this.directiveElement.nativeElement,
       'spinner-container'
     );
-  }
-
-  hide() {
-    this.active = false;
-  }
-
-  show() {
-    this.active = true;
   }
 }

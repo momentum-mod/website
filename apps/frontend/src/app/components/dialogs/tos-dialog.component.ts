@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { TOS_VERSION } from '@momentum/constants';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
 
 @Component({
   selector: 'm-tos-dialog',

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { User } from '@momentum/constants';
 import { HomeUserMapsComponent } from './user-maps/home-user-maps.component';
 import { HomeStatsComponent } from './stats/home-stats.component';
@@ -15,7 +15,7 @@ export class HomeComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly router = inject(Router);
 
-  user: User;
+  protected readonly user = signal<User | null>(null);
 
   constructor() {
     this.localUserService.user.subscribe({
@@ -25,7 +25,7 @@ export class HomeComponent {
           // so for now just redirect to the map browser.
           this.router.navigate(['/maps']);
         } else {
-          this.user = user;
+          this.user.set(user);
         }
       },
       error: (error) => console.error(error)

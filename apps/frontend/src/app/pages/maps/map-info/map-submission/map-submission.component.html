@@ -1,3 +1,4 @@
+@let map = this.map();
 <fieldset class="card-inset mb-6 flex flex-col">
   <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Details</legend>
 
@@ -32,10 +33,10 @@
       <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
       <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
       <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
-      <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments ? 'Comment' : '' }}</p>
+      <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments() ? 'Comment' : '' }}</p>
     </div>
 
-    @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
+    @for (gamemode of suggestions() | unsortedKeyvalue; track $index) {
       @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
         <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
           <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
@@ -92,7 +93,7 @@
 <fieldset class="card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
   <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
 
-  @for (version of versions.slice(0, visibleVersions); track version.versionNum) {
+  @for (version of versions().slice(0, visibleVersions()); track version.versionNum) {
     <div class="mt-1 flex w-fit gap-3" [mTooltip]="versionTooltip">
       <p class="text-sm font-medium uppercase">Version {{ version.versionNum }}</p>
       <p class="text-sm font-medium text-gray-200">{{ version.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
@@ -113,10 +114,10 @@
     </p>
   }
 
-  @if (visibleVersions < versions.length) {
+  @if (visibleVersions() < versions().length) {
     <p>
-      {{ versions.length - visibleVersions | plural: 'more version' }} -
-      <a class="link cursor-pointer font-medium" (click)="visibleVersions = visibleVersions + 5">Load more</a>
+      {{ versions().length - visibleVersions() | plural: 'more version' }} -
+      <a class="link cursor-pointer font-medium" (click)="visibleVersions.set(visibleVersions() + 5)">Load more</a>
     </p>
   }
 </fieldset>

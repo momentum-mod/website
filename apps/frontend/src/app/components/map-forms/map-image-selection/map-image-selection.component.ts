@@ -1,10 +1,11 @@
 import {
   Component,
   DestroyRef,
-  Input,
   OnInit,
-  ViewChild,
-  inject
+  inject,
+  input,
+  viewChild,
+  signal
 } from '@angular/core';
 import {
   ControlContainer,
@@ -65,66 +66,85 @@ export class MapImageSelectionComponent implements OnInit {
   private readonly layoutService = inject(LayoutService);
   private readonly destroyRef = inject(DestroyRef);
 
-  @Input({ required: true }) formControlPassthrough: FormControl<File[]>;
-  @Input() icon: Icon;
-  @Input() disabled = false;
-  @Input() previewFullscreenBackground = false;
+  readonly formControlPassthrough = input.required<FormControl<File[]>>();
+  readonly icon = input<Icon>();
+  readonly disabled = input(false);
+  readonly previewFullscreenBackground = input(false);
 
-  @ViewChild(MultiFileUploadComponent)
-  private uploadComponent: MultiFileUploadComponent;
+  private readonly uploadComponent = viewChild(MultiFileUploadComponent);
 
   protected readonly ImageSelectionType = ImageSelectionType;
   protected readonly max = 5;
 
   ngOnInit() {
-    this.formControlPassthrough.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.formControlPassthrough()
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.onFileSelectionChanged());
   }
 
-  public items: Record<ImageSelectionType, Array<ImageSelectionItem>> = {
+  // The arrays inside are mutated in place (CDK drag-drop requires it), often
+  // after awaiting file reads, so every mutation is followed by publish() to
+  // give the view a new reference.
+  public readonly items = signal<
+    Record<ImageSelectionType, Array<ImageSelectionItem>>
+  >({
     [ImageSelectionType.THUMBNAIL]: [],
     [ImageSelectionType.EXTRA]: []
-  };
+  });
+
+  private publish() {
+    this.items.update((items) => ({ ...items }));
+  }
+
+  public setItems(
+    thumbnail: ImageSelectionItem[],
+    extras: ImageSelectionItem[]
+  ) {
+    this.items.set({
+      [ImageSelectionType.THUMBNAIL]: thumbnail,
+      [ImageSelectionType.EXTRA]: extras
+    });
+  }
 
   async onFileSelectionChanged() {
-    if (Object.values(this.items).flat().length > MAX_MAP_IMAGES) {
-      this.formControlPassthrough.disable({ emitEvent: false });
-      this.uploadComponent.disabledBecauseReachedMax = true;
+    const items = this.items();
+    if (Object.values(items).flat().length > MAX_MAP_IMAGES) {
+      this.formControlPassthrough().disable({ emitEvent: false });
+      this.uploadComponent().disabledBecauseReachedMax.set(true);
     }
 
-    if (!(this.formControlPassthrough.value?.length > 0)) return;
+    const formControlPassthrough = this.formControlPassthrough();
+    if (!(formControlPassthrough.value?.length > 0)) return;
 
-    const newFiles = structuredClone(
-      this.formControlPassthrough.value
-    ) as File[];
+    const newFiles = structuredClone(formControlPassthrough.value) as File[];
 
-    if (this.items[ImageSelectionType.THUMBNAIL].length === 0) {
+    if (items[ImageSelectionType.THUMBNAIL].length === 0) {
       let file: File;
       while ((file = newFiles.shift())) {
         const item = await ImageSelectionItem.create(file);
         if (!item) continue;
 
-        this.items[ImageSelectionType.THUMBNAIL].push(item);
+        items[ImageSelectionType.THUMBNAIL].push(item);
         break;
       }
 
       // Extras must be empty so just reassign
-      this.items[ImageSelectionType.EXTRA] = await Promise.all(
+      items[ImageSelectionType.EXTRA] = await Promise.all(
         newFiles.map((file) => ImageSelectionItem.create(file)).filter(Boolean)
       );
 
+      this.publish();
       this.onThumbnailChanged();
     } else {
-      this.items[ImageSelectionType.EXTRA] = [
-        ...this.items[ImageSelectionType.EXTRA],
+      items[ImageSelectionType.EXTRA] = [
+        ...items[ImageSelectionType.EXTRA],
         ...(await Promise.all(
           newFiles
             .filter(
               (newFile) =>
                 ![
-                  ...this.items[ImageSelectionType.THUMBNAIL],
-                  ...this.items[ImageSelectionType.EXTRA]
+                  ...items[ImageSelectionType.THUMBNAIL],
+                  ...items[ImageSelectionType.EXTRA]
                 ].some(
                   (item) =>
                     item?.file &&
@@ -138,6 +158,7 @@ export class MapImageSelectionComponent implements OnInit {
             .filter(Boolean)
         ))
       ];
+      this.publish();
     }
   }
 
@@ -146,17 +167,16 @@ export class MapImageSelectionComponent implements OnInit {
     // going to still update the image anyway. Refactoring this to expose the
     // ImageSelectionItems in outer form (so we can access dataUrls) would be
     // a huge pain.
-    if (!this.previewFullscreenBackground) return;
+    if (!this.previewFullscreenBackground()) return;
 
-    if (this.items[ImageSelectionType.THUMBNAIL].length === 0) {
+    const thumbnail = this.items()[ImageSelectionType.THUMBNAIL];
+    if (thumbnail.length === 0) {
       this.layoutService.setBackgroundState(BackgroundState.DISABLED);
       return;
     }
 
     this.layoutService.setBackgroundState(BackgroundState.ENABLED);
-    this.layoutService.setBackgroundImage(
-      this.items[ImageSelectionType.THUMBNAIL][0].dataUrl
-    );
+    this.layoutService.setBackgroundImage(thumbnail[0].dataUrl);
   }
 
   drop(event: CdkDragDrop<ImageSelectionItem[]>, newType: ImageSelectionType) {
@@ -176,13 +196,13 @@ export class MapImageSelectionComponent implements OnInit {
         newType === ImageSelectionType.EXTRA
           ? ImageSelectionType.THUMBNAIL
           : ImageSelectionType.EXTRA;
-      const targetData = this.items[newType];
-      const previousData = this.items[originalType];
+      const targetData = this.items()[newType];
+      const previousData = this.items()[originalType];
 
       if (newType === ImageSelectionType.EXTRA) {
         // Thumbnail -> Extra:
         // Don't allow if we don't have any extras
-        if (this.items[ImageSelectionType.EXTRA].length === 0) return;
+        if (this.items()[ImageSelectionType.EXTRA].length === 0) return;
         // Otherwise pick the first extra and make it the thumbnail, then
         // move original thumbnail to extras
 
@@ -197,11 +217,13 @@ export class MapImageSelectionComponent implements OnInit {
       this.onThumbnailChanged();
     }
 
+    this.publish();
     this.updateFormValue();
   }
 
   removeItem(item: ImageSelectionItem, type: ImageSelectionType) {
-    const arr = this.items[type];
+    const items = this.items();
+    const arr = items[type];
     arr.splice(
       arr.findIndex(({ dataUrl, file }) =>
         file
@@ -212,10 +234,10 @@ export class MapImageSelectionComponent implements OnInit {
     );
 
     if (type === ImageSelectionType.THUMBNAIL) {
-      if (this.items[ImageSelectionType.EXTRA].length > 0) {
+      if (items[ImageSelectionType.EXTRA].length > 0) {
         transferArrayItem(
-          this.items[ImageSelectionType.EXTRA],
-          this.items[ImageSelectionType.THUMBNAIL],
+          items[ImageSelectionType.EXTRA],
+          items[ImageSelectionType.THUMBNAIL],
           0,
           0
         );
@@ -224,19 +246,20 @@ export class MapImageSelectionComponent implements OnInit {
       this.onThumbnailChanged();
     }
 
+    this.publish();
     this.updateFormValue();
   }
 
   updateFormValue() {
     // If editing existing images and move order, should be marked considered
     // touched + dirty
-    this.formControlPassthrough.markAsTouched();
-    this.formControlPassthrough.markAsDirty();
+    this.formControlPassthrough().markAsTouched();
+    this.formControlPassthrough().markAsDirty();
 
-    this.formControlPassthrough.setValue(
+    this.formControlPassthrough().setValue(
       [
-        ...this.items[ImageSelectionType.THUMBNAIL],
-        ...this.items[ImageSelectionType.EXTRA]
+        ...this.items()[ImageSelectionType.THUMBNAIL],
+        ...this.items()[ImageSelectionType.EXTRA]
       ]
         .filter(({ file }) => file)
         .map(({ file }) => file)

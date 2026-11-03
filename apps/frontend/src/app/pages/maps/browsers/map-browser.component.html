@@ -9,7 +9,7 @@
           <p
             class="whitespace-nowrap text-left font-display text-28 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50 md:text-36"
             [ngClass]="{
-              'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': gamemode.value === mode
+              'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': selectedGamemode() === mode
             }"
             [ngStyle]="{ 'font-size': size }"
           >
@@ -71,11 +71,11 @@
     </div>
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
       <div class="flex w-full items-center gap-2 md:w-auto">
-        <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tiers</p>
+        <p class="font-display text-24" [ngClass]="{ 'opacity-50': selectedGamemode() == null }">Tiers</p>
         <m-slider
           #slider
           class="h-9 min-w-0 flex-1 md:w-64 md:flex-none"
-          [ngClass]="{ 'contrast-25 opacity-50': gamemode.value == null }"
+          [ngClass]="{ 'contrast-25 opacity-50': selectedGamemode() == null }"
           formControlName="tiers"
           [range]="true"
           [step]="1"
@@ -83,10 +83,10 @@
           [max]="10"
           [markers]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
           mTooltip="You must select a gamemode to use this filter"
-          [tooltipDisabled]="gamemode.value != null"
+          [tooltipDisabled]="selectedGamemode() != null"
         />
       </div>
-      @if (localUserService.user | async) {
+      @if (user()) {
         <div class="flex items-center gap-2">
           <m-n-state-button
             class="size-10 p-0 md:size-8"
@@ -124,16 +124,16 @@
     </div>
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
       <div class="flex w-full items-center gap-2 md:w-auto">
-        <p class="font-display text-24" [ngClass]="{ 'opacity-50': gamemode.value == null }">Tags</p>
+        <p class="font-display text-24" [ngClass]="{ 'opacity-50': selectedGamemode() == null }">Tags</p>
         <m-chips
           class="min-w-0 flex-1 md:flex-none"
           typeName="Tags"
-          [chips]="currentAllowedTAndQs"
+          [chips]="currentAllowedTAndQs()"
           [nameFn]="MapTagNameFn"
           [includesFn]="MapTagIncludesFn"
           [appendEachSelectedTemplate]="toggleQualifierBtn"
           mTooltip="You must select a gamemode to use this filter"
-          [tooltipDisabled]="gamemode.value != null"
+          [tooltipDisabled]="selectedGamemode() != null"
           formControlName="tagsAndQualifiers"
         />
         <ng-template #toggleQualifierBtn let-index="index">
@@ -153,4 +153,4 @@
     </div>
   </div>
 </form>
-<m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [showApprovedDate]="true" />
+<m-map-list [maps]="maps()" [loadMore]="loadMore" [loading]="loading()" [showApprovedDate]="true" />

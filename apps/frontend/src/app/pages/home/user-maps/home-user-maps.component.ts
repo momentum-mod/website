@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { MapStatuses, MapStatus } from '@momentum/constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -15,10 +15,10 @@ export class HomeUserMapsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly MapStatus = MapStatus;
-  protected approved: number;
-  protected submission: number;
+  protected readonly approved = signal<number | null>(null);
+  protected readonly submission = signal<number | null>(null);
 
-  protected loading = true;
+  protected readonly loading = signal(true);
 
   ngOnInit() {
     this.userService.user
@@ -29,20 +29,22 @@ export class HomeUserMapsComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          this.loading = false;
-          this.approved =
+          this.loading.set(false);
+          this.approved.set(
             response.find(({ status }) => status === MapStatus.APPROVED)
-              ?.statusCount ?? 0;
-          this.submission =
+              ?.statusCount ?? 0
+          );
+          this.submission.set(
             response
               .filter(({ status }) =>
                 MapStatuses.IN_SUBMISSION.includes(status)
               )
               .map(({ statusCount }) => statusCount)
-              .reduce((a, c) => a + c, 0) ?? 0;
+              .reduce((a, c) => a + c, 0) ?? 0
+          );
         },
         error: (error) => {
-          this.loading = false;
+          this.loading.set(false);
           console.error(error);
         }
       });

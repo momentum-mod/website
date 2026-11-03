@@ -1,12 +1,13 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'form[preventEnterSubmit]',
   standalone: true
 })
 export class PreventEnterSubmitDirective {
   @HostListener('keydown.enter', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
+  onKeyDown(event: Event): void {
     event.preventDefault();
   }
 }

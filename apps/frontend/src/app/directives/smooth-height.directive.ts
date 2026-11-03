@@ -3,8 +3,8 @@ import {
   OnChanges,
   HostBinding,
   ElementRef,
-  Input,
-  inject
+  inject,
+  input
 } from '@angular/core';
 
 /**
@@ -16,12 +16,13 @@ import {
  *
  * Based on https://stackoverflow.com/a/52277742
  */
+// eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({ selector: '[smoothHeight]', standalone: true })
 export class SmoothHeightAnimDirective implements OnChanges {
   private readonly elRef = inject(ElementRef);
 
-  @Input() smoothHeight: boolean;
-  @Input() display = 'block';
+  readonly smoothHeight = input<boolean>();
+  readonly display = input('block');
   private pulse: boolean;
   private startHeight: number;
 
@@ -31,7 +32,10 @@ export class SmoothHeightAnimDirective implements OnChanges {
   }
 
   @HostBinding('style') get styles(): CSSStyleDeclaration {
-    return { display: this.display, overflow: 'hidden' } as CSSStyleDeclaration;
+    return {
+      display: this.display(),
+      overflow: 'hidden'
+    } as CSSStyleDeclaration;
   }
 
   setStartHeight() {

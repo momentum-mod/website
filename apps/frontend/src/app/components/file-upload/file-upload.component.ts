@@ -1,4 +1,4 @@
-import { Component, forwardRef, HostListener } from '@angular/core';
+import { Component, forwardRef, HostListener, signal } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 import { IconComponent } from '../../icons';
@@ -20,9 +20,8 @@ import { IconComponent } from '../../icons';
   ]
 })
 export class FileUploadComponent extends AbstractFileUploadComponent<File> {
-  public value: File = null;
+  public readonly value = signal<File | null>(null);
   protected readonly multiple = false;
-  protected readonly max = null;
 
   @HostListener('drop', ['$event'])
   onDrop(event: DragEvent) {
@@ -30,7 +29,7 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
     event.preventDefault();
     this.removeDragData(event);
 
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     // `.items` seems to be the correct approach but try files if missing
     const useItems = !!event.dataTransfer.items;
@@ -46,20 +45,15 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
       ? (item as DataTransferItem).getAsFile()
       : (item as File);
 
-    if (
-      this.acceptMimeTypes?.length > 0 &&
-      !this.acceptMimeTypes.includes(file.type)
-    )
+    const acceptMimeTypes = this.acceptMimeTypes();
+    if (acceptMimeTypes?.length > 0 && !acceptMimeTypes.includes(file.type))
       return;
 
-    this.value = file;
-    this.onChange(this.value);
+    this.select(file);
   }
 
   onFilesSelected(event: Event) {
-    this.value = (event.target as HTMLInputElement).files[0];
-
-    this.onChange(this.value);
+    this.select((event.target as HTMLInputElement).files[0]);
 
     (event.target as HTMLInputElement).value = '';
   }
@@ -67,7 +61,7 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
   async addFromClipboard(event: Event) {
     event.stopPropagation();
 
-    if (!this.enableClipboard) return;
+    if (!this.enableClipboard()) return;
 
     this.onTouched();
 
@@ -80,37 +74,38 @@ export class FileUploadComponent extends AbstractFileUploadComponent<File> {
 
     for (const clipboardItem of items) {
       const matchingType = clipboardItem.types.find((type) =>
-        this.acceptMimeTypes?.includes(type)
+        this.acceptMimeTypes()?.includes(type)
       );
 
       if (!matchingType) continue;
 
       const blob = await clipboardItem.getType(matchingType);
-      this.value = new File(
-        [blob],
-        `ClipboardItem.${matchingType.split('/').at(-1)}`
+      this.select(
+        new File([blob], `ClipboardItem.${matchingType.split('/').at(-1)}`)
       );
-
-      this.onChange(this.value);
       return;
     }
   }
 
   writeValue(value: File): void {
-    this.value = value == null || (value as any) === '' ? null : value;
+    this.value.set(value == null || (value as any) === '' ? null : value);
   }
 
   hasSelection(): boolean {
-    return !!this.value;
+    return !!this.value();
   }
 
   getIterableFiles(): File[] {
-    return [this.value];
+    return [this.value()];
   }
 
-  removeFile(file: File, event?: Event): void {
+  removeFile(_file: File, event?: Event): void {
     event?.stopPropagation();
-    this.value = null;
-    this.onChange(this.value);
+    this.select(null);
+  }
+
+  private select(file: File | null) {
+    this.value.set(file);
+    this.onChange(file);
   }
 }

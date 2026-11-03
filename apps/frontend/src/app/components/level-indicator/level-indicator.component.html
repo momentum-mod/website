@@ -1,14 +1,14 @@
 <div
-  [ngStyle]="{ 'background-color': levelColor }"
-  [ngClass]="[textColor, prestige ? 'pl-1' : 'pl-2']"
+  [ngStyle]="{ 'background-color': levelColor() }"
+  [ngClass]="[textColor(), prestige() ? 'pl-1' : 'pl-2']"
   class="flex items-center gap-1 rounded pr-2 font-display shadow"
-  [mTooltip]="'Prestige ' + prestige + ' - Level ' + level"
+  [mTooltip]="'Prestige ' + prestige() + ' - Level ' + level()"
 >
   <!-- Display prestige icon if available -->
-  @if (prestige) {
-    <img [ngClass]="imageClass" class="h-5 w-5 drop-shadow-sm" [src]="prestigeIcon" alt="Prestige Icon" />
+  @if (prestige()) {
+    <img [ngClass]="imageClass()" class="h-5 w-5 drop-shadow-sm" [src]="prestigeIcon()" alt="Prestige Icon" />
   }
 
   <!-- Display the level -->
-  <b class="pointer-events-none text-xl drop-shadow-sm">{{ level }}</b>
+  <b class="pointer-events-none text-xl drop-shadow-sm">{{ level() }}</b>
 </div>
