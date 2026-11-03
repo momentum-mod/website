@@ -101,7 +101,7 @@ module.exports = {
       current: 'currentColor',
       black: '#000',
       white: '#fff',
-      ...require('./src/app/theme/shared_styling/colors/colors-tailwind-vars')
+      ...require('./src/app/theme/shared_styling/colors/colors-tailwind-vars.cjs')
     },
     // Tailwind's shadows are super weak, these are based off of them but
     // with increased strength.
