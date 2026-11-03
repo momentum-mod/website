@@ -16,3 +16,6 @@ maptags-poeditor.json
 
 # Prisma generated client
 libs/db/src/generated
+
+# Map zone files exported from the game, used by the seed script
+scripts/assets
