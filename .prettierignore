@@ -16,3 +16,4 @@ maptags-poeditor.json
 
 # Prisma generated client
 libs/db/src/generated
+.nx/self-healing

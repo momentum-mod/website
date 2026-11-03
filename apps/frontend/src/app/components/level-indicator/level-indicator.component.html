@@ -5,7 +5,9 @@
   [mTooltip]="'Prestige ' + prestige + ' - Level ' + level"
 >
   <!-- Display prestige icon if available -->
-  <img *ngIf="prestige" [ngClass]="imageClass" class="h-5 w-5 drop-shadow-sm" [src]="prestigeIcon" alt="Prestige Icon" />
+  @if (prestige) {
+    <img [ngClass]="imageClass" class="h-5 w-5 drop-shadow-sm" [src]="prestigeIcon" alt="Prestige Icon" />
+  }
 
   <!-- Display the level -->
   <b class="pointer-events-none text-xl drop-shadow-sm">{{ level }}</b>
