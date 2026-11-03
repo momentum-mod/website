@@ -6,23 +6,10 @@
   "tags": ["backend"],
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "target": "node",
-        "compiler": "tsc",
-        "outputPath": "dist/apps/backend",
-        "main": "apps/backend/src/main.ts",
-        "sourceMap": true,
-        "tsConfig": "apps/backend/tsconfig.app.json",
-        "webpackConfig": "apps/backend/webpack.config.js"
-      },
+      "outputs": ["{workspaceRoot}/dist/apps/backend"],
       "configurations": {
         "development": {},
-        "production": {
-          "generatePackageJson": true
-        }
+        "production": {}
       }
     },
     "serve": {
@@ -41,10 +28,15 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/backend/**/*.ts"]
+        "command": "eslint",
+        "args": ["**/*.ts"]
       }
     },
     "test": {
