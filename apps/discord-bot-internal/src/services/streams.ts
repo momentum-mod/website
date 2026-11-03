@@ -261,9 +261,9 @@ export class StreamsService extends Service {
   }
 
   async registerSoftBans(messages: Message[]) {
-    const selfMessages = (messages = messages.filter(
+    const selfMessages = messages.filter(
       (m) => m.author.id === this.client.user.id
-    ));
+    );
     const softBannedMessages = this.messageIdStreamerMap
       .entries()
       .filter(
