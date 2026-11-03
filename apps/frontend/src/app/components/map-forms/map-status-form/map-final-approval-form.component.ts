@@ -65,8 +65,8 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapTags = MapTags;
   protected readonly mapTagEnglishName = mapTagEnglishName;
-  protected readonly TierChartOptions: ChartOptions;
-  protected readonly RatingChartOptions: ChartOptions;
+  protected readonly TierChartOptions: ChartOptions<'bar'>;
+  protected readonly RatingChartOptions: ChartOptions<'bar'>;
 
   public get value(): MapSubmissionApproval[] {
     return this.groupedLeaderboards()
