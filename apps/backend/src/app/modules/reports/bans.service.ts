@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { instanceToPlain } from 'class-transformer';
 import { Prisma } from '@momentum/db';
-import { PlayerChatBans } from '@momentum/constants';
+import { DtoFactory, PlayerChatBansDto } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { WebsocketService } from '../websockets/websocket.service';
@@ -24,29 +25,21 @@ export class BansService {
   ) {}
 
   /**
-   * Active bans of each player, including an empty entry for every player with
-   * no bans or no account, so clients know they've been checked.
+   * Active bans of each of the given players. Players with no active bans, or
+   * no account, are left out.
    */
   async getPlayerBans(
     steamIDs: string[]
-  ): Promise<{ players: PlayerChatBans[] }> {
-    const uniqueIDs = [...new Set(steamIDs)];
-
+  ): Promise<{ players: PlayerChatBansDto[] }> {
     const users = await this.db.user.findMany({
-      where: { steamID: { in: uniqueIDs.map(BigInt) } },
+      where: {
+        steamID: { in: Array.from(new Set(steamIDs)).map(BigInt) },
+        chatBans: { some: activeBanFilter() }
+      },
       select: playerBansSelect()
     });
 
-    const bansBySteamID = new Map(
-      users.map((user) => [user.steamID!.toString(), user])
-    );
-
-    return {
-      players: uniqueIDs.map((steamID) => {
-        const user = bansBySteamID.get(steamID);
-        return user ? toPlayerChatBans(user) : { steamID, bans: [] };
-      })
-    };
+    return { players: users.map(toPlayerChatBansDto) };
   }
 
   /**
@@ -66,7 +59,7 @@ export class BansService {
 
       this.wsService.broadcastToAll({
         event: 'chatbans.update',
-        data: toPlayerChatBans(user)
+        data: instanceToPlain(toPlayerChatBansDto(user))
       });
     } catch (error) {
       // The ban change itself succeeded, so don't fail the request over this.
@@ -93,22 +86,9 @@ function activeBanFilter(): Prisma.ChatBanWhereInput {
   return { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] };
 }
 
-function toPlayerBan({
-  type,
-  expiresAt
-}: {
-  type: number;
-  expiresAt: Date | null;
-}): PlayerChatBans['bans'][number] {
-  return { type, expiresAt: expiresAt?.toISOString() ?? null };
-}
-
-function toPlayerChatBans(user: {
-  steamID: bigint | null;
-  chatBans: { type: number; expiresAt: Date | null }[];
-}) {
-  return {
-    steamID: user.steamID!.toString(),
-    bans: user.chatBans.map(toPlayerBan)
-  } satisfies PlayerChatBans;
+function toPlayerChatBansDto({
+  steamID,
+  chatBans: bans
+}: Prisma.UserGetPayload<{ select: ReturnType<typeof playerBansSelect> }>) {
+  return DtoFactory(PlayerChatBansDto, { steamID, bans });
 }
