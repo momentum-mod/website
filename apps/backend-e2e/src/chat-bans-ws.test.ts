@@ -88,7 +88,7 @@ describe('Game Connection Gateway - chat bans', () => {
       assert.equal(res.data.players[0].bans.length, 2);
     });
 
-    it('should leave out expired bans', async () => {
+    it('should leave out players whose bans have all expired', async () => {
       await createBan(ChatBanType.CHAT, new Date(Date.now() - 1000));
       const client = await connect();
 
@@ -96,12 +96,10 @@ describe('Game Connection Gateway - chat bans', () => {
         steamIDs: [target.steamID.toString()]
       });
 
-      assert.deepEqual(res.data.players, [
-        { steamID: target.steamID.toString(), bans: [] }
-      ]);
+      assert.deepEqual(res.data, { players: [] });
     });
 
-    it('should return an empty entry for players with no bans or no account', async () => {
+    it('should leave out players with no bans or no account', async () => {
       const client = await connect();
       const unknownSteamID = '76561190000000001';
 
@@ -109,13 +107,23 @@ describe('Game Connection Gateway - chat bans', () => {
         steamIDs: [target.steamID.toString(), unknownSteamID]
       });
 
-      assert.deepEqual(res.data.players, [
-        { steamID: target.steamID.toString(), bans: [] },
-        { steamID: unknownSteamID, bans: [] }
-      ]);
+      assert.deepEqual(res.data, { players: [] });
+    });
+
+    it('should only return the players that have bans', async () => {
+      await createBan(ChatBanType.VOICE, null);
+      const client = await connect();
+
+      const res = await client.sendAndAwait('chatbans.get', {
+        steamIDs: ['76561190000000001', target.steamID.toString()]
+      });
+
+      assert.equal(res.data.players.length, 1);
+      assert.equal(res.data.players[0].steamID, target.steamID.toString());
     });
 
     it('should return each player once', async () => {
+      await createBan(ChatBanType.VOICE, null);
       const client = await connect();
       const steamID = target.steamID.toString();
 
@@ -123,7 +131,8 @@ describe('Game Connection Gateway - chat bans', () => {
         steamIDs: [steamID, steamID]
       });
 
-      assert.deepEqual(res.data.players, [{ steamID, bans: [] }]);
+      assert.equal(res.data.players.length, 1);
+      assert.equal(res.data.players[0].steamID, steamID);
     });
 
     it('should return an error for an invalid Steam ID', async () => {
@@ -272,6 +281,24 @@ describe('Game Connection Gateway - chat bans', () => {
           steamID: target.steamID.toString(),
           bans: [{ type: ChatBanType.VOICE, expiresAt: null }]
         }
+      });
+    });
+
+    it('should be sent with no bans when the last ban is revoked', async () => {
+      const ban = await createBan(ChatBanType.CHAT);
+      const client = await connect();
+
+      await req.del({
+        url: `admin/chat-bans/${ban.id}`,
+        status: 204,
+        token: adminToken
+      });
+
+      // Lookups leave out players with no bans, so this is how clients that
+      // already know of the ban learn it's gone
+      assert.deepEqual(await client.next(), {
+        event: 'chatbans.update',
+        data: { steamID: target.steamID.toString(), bans: [] }
       });
     });
   });
