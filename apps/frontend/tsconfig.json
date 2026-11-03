@@ -11,7 +11,8 @@
     "noFallthroughCasesInSwitch": true,
     "module": "preserve",
     "moduleResolution": "bundler",
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "esModuleInterop": true
   },
   "files": [],
   "include": [],

@@ -6,36 +6,10 @@
   "tags": ["discord-bot"],
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "target": "node",
-        "compiler": "tsc",
-        "outputPath": "dist/apps/discord-bot-internal",
-        "main": "apps/discord-bot-internal/src/index.ts",
-        "sourceMap": true,
-        "tsConfig": "apps/discord-bot-internal/tsconfig.json",
-        "webpackConfig": "apps/discord-bot-internal/webpack.config.js"
-      },
+      "outputs": ["{workspaceRoot}/dist/apps/discord-bot-internal"],
       "configurations": {
-        "development": {
-          "assets": [
-            {
-              "glob": "config.json",
-              "input": "apps/discord-bot-internal/config/",
-              "output": "./config/"
-            },
-            {
-              "glob": "bot_data.db",
-              "input": "apps/discord-bot-internal/data/",
-              "output": "./data/"
-            }
-          ]
-        },
-        "production": {
-          "generatePackageJson": true
-        }
+        "development": {},
+        "production": {}
       }
     },
     "serve": {
@@ -55,10 +29,15 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/discord-bot-internal/**/*.ts"]
+        "command": "eslint",
+        "args": ["**/*.ts"]
       }
     }
   }
