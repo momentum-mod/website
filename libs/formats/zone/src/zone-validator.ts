@@ -250,9 +250,9 @@ export function validateZoneFile(input: MapZones): void {
         thr('has no bottom position');
       }
 
-      if (
-        !(region.bottom >= MIN_COORD_FLOAT && region.bottom < MAX_COORD_FLOAT)
-      ) {
+      if (!(
+        region.bottom >= MIN_COORD_FLOAT && region.bottom < MAX_COORD_FLOAT
+      )) {
         thr('bottom is out of bounds');
       }
 
@@ -283,14 +283,12 @@ export function validateZoneFile(input: MapZones): void {
 
         const [currX, currY] = curr1;
 
-        if (
-          !(
-            currX >= MIN_COORD_FLOAT &&
-            currX <= MAX_COORD_FLOAT &&
-            currY >= MIN_COORD_FLOAT &&
-            currY <= MAX_COORD_FLOAT
-          )
-        ) {
+        if (!(
+          currX >= MIN_COORD_FLOAT &&
+          currX <= MAX_COORD_FLOAT &&
+          currY >= MIN_COORD_FLOAT &&
+          currY <= MAX_COORD_FLOAT
+        )) {
           thr(`point ${i} is out of bounds`);
         }
 

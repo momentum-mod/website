@@ -16,7 +16,7 @@ export function deepEquals<T>(a: T, b: T): boolean {
     if (Array.isArray(a)) {
       length = a.length;
       if (length !== (b as unknown[])?.length) return false;
-      for (i = length; i-- !== 0; ) if (!deepEquals(a[i], b[i])) return false;
+      for (i = length; i-- !== 0;) if (!deepEquals(a[i], b[i])) return false;
       return true;
     }
 
@@ -51,10 +51,10 @@ export function deepEquals<T>(a: T, b: T): boolean {
     length = keys.length;
     if (length !== Object.keys(b).length) return false;
 
-    for (i = length; i-- !== 0; )
+    for (i = length; i-- !== 0;)
       if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
 
-    for (i = length; i-- !== 0; )
+    for (i = length; i-- !== 0;)
       if (!deepEquals(a[keys[i]], b[keys[i]])) return false;
 
     return true;

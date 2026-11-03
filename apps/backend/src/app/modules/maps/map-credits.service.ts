@@ -93,12 +93,10 @@ export class MapCreditsService {
 
       this.mapsService.checkCredits([...body, ...placeholders]);
 
-      if (
-        !(
-          body.some((credit) => credit.type === MapCreditType.AUTHOR) ||
-          placeholders.some(({ type }) => type === MapCreditType.AUTHOR)
-        )
-      ) {
+      if (!(
+        body.some((credit) => credit.type === MapCreditType.AUTHOR) ||
+        placeholders.some(({ type }) => type === MapCreditType.AUTHOR)
+      )) {
         throw new BadRequestException('Credits do not contain an AUTHOR');
       }
     }

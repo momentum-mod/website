@@ -32,9 +32,7 @@ export class TooltipDirective extends PTooltip {
    * Content of the tooltip.
    */
   @Input('mTooltip') override content:
-    | string
-    | TemplateRef<HTMLElement>
-    | undefined = undefined;
+    string | TemplateRef<HTMLElement> | undefined = undefined;
 
   /**
    * String by which to distuingish multiple instances in a viewChildren() query

@@ -21,9 +21,9 @@ import { Icon } from '../../icons';
  * set to false.
  */
 @Directive()
-export abstract class AbstractFileUploadComponent<T extends File | File[]>
-  implements ControlValueAccessor
-{
+export abstract class AbstractFileUploadComponent<
+  T extends File | File[]
+> implements ControlValueAccessor {
   protected abstract readonly value: WritableSignal<T>;
   protected abstract readonly multiple: boolean;
 

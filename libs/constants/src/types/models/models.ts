@@ -636,41 +636,35 @@ export type Notification =
   | MapReviewPostedNotification
   | MapReviewCommentPostedNotification;
 
-export interface AnnouncementNotification
-  extends AbstractNotification<NotificationType.ANNOUNCEMENT> {
+export interface AnnouncementNotification extends AbstractNotification<NotificationType.ANNOUNCEMENT> {
   message: string;
 }
 
-export interface WRAchievedNotification
-  extends AbstractNotification<NotificationType.WR_ACHIEVED> {
+export interface WRAchievedNotification extends AbstractNotification<NotificationType.WR_ACHIEVED> {
   // TODO fields that would be stored as json in db.
   // Take what's needed from a LeaderboardRun and create separate fields.
   map: MMap;
 }
 
-export interface MapStatusChangeNotification
-  extends AbstractNotification<NotificationType.MAP_STATUS_CHANGE> {
+export interface MapStatusChangeNotification extends AbstractNotification<NotificationType.MAP_STATUS_CHANGE> {
   oldStatus: MapStatus;
   newStatus: MapStatus;
   map: MMap;
   changedBy: User;
 }
 
-export interface MapTestingInviteNotification
-  extends AbstractNotification<NotificationType.MAP_TESTING_INVITE> {
+export interface MapTestingInviteNotification extends AbstractNotification<NotificationType.MAP_TESTING_INVITE> {
   map: MMap;
   invitedBy: User;
 }
 
-export interface MapReviewPostedNotification
-  extends AbstractNotification<NotificationType.MAP_REVIEW_POSTED> {
+export interface MapReviewPostedNotification extends AbstractNotification<NotificationType.MAP_REVIEW_POSTED> {
   map: MMap;
   review: MapReview;
   reviewer: User;
 }
 
-export interface MapReviewCommentPostedNotification
-  extends AbstractNotification<NotificationType.MAP_REVIEW_COMMENT_POSTED> {
+export interface MapReviewCommentPostedNotification extends AbstractNotification<NotificationType.MAP_REVIEW_COMMENT_POSTED> {
   map: MMap;
   review: MapReview;
   reviewComment: MapReviewComment;
