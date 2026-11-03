@@ -1183,22 +1183,20 @@ export class MapsService {
       });
 
     // Rare that this actual happens, currently just in case inLinear changes
-    if (toUpdate.length > 0)
-      for (const { gamemode, trackType, trackNum, linear } of toUpdate) {
-        // updateMany rather than update (and deleteMany below) ensures this
-        // handles styles in the future
-        await tx.leaderboard.updateMany({
-          where: { mapID, gamemode, trackType, trackNum },
-          data: { linear }
-        });
-      }
+    for (const { gamemode, trackType, trackNum, linear } of toUpdate) {
+      // updateMany rather than update (and deleteMany below) ensures this
+      // handles styles in the future
+      await tx.leaderboard.updateMany({
+        where: { mapID, gamemode, trackType, trackNum },
+        data: { linear }
+      });
+    }
 
-    if (toDelete.length > 0)
-      for (const { gamemode, trackType, trackNum } of toDelete) {
-        await tx.leaderboard.deleteMany({
-          where: { mapID, gamemode, trackType, trackNum }
-        });
-      }
+    for (const { gamemode, trackType, trackNum } of toDelete) {
+      await tx.leaderboard.deleteMany({
+        where: { mapID, gamemode, trackType, trackNum }
+      });
+    }
   }
 
   private async createMapUploadedActivities(
@@ -1209,13 +1207,11 @@ export class MapsService {
     await tx.activity.createMany({
       data: credits
         .filter((credit) => credit.type === MapCreditType.AUTHOR)
-        .map(
-          (credit): Prisma.ActivityCreateManyInput => ({
-            type: ActivityType.MAP_UPLOADED,
-            userID: credit.userID,
-            data: mapID
-          })
-        )
+        .map((credit): Prisma.ActivityCreateManyInput => ({
+          type: ActivityType.MAP_UPLOADED,
+          userID: credit.userID,
+          data: mapID
+        }))
     });
   }
 
@@ -1760,13 +1756,11 @@ export class MapsService {
     });
 
     await tx.activity.createMany({
-      data: allCredits.map(
-        (credit): Prisma.ActivityCreateManyInput => ({
-          type: ActivityType.MAP_APPROVED,
-          userID: credit.userID,
-          data: map.id
-        })
-      )
+      data: allCredits.map((credit): Prisma.ActivityCreateManyInput => ({
+        type: ActivityType.MAP_APPROVED,
+        userID: credit.userID,
+        data: map.id
+      }))
     });
 
     const { currentVersion, versions } = await tx.mMap.findFirst({

@@ -49,9 +49,7 @@ function leaderboardName(
  */
 export function validateSuggestions(
   suggestions:
-    | MapSubmissionSuggestion[]
-    | MapSubmissionApproval[]
-    | MapReviewSuggestion[],
+    MapSubmissionSuggestion[] | MapSubmissionApproval[] | MapReviewSuggestion[],
   zoneData: MapZones,
   type: SuggestionType
 ) {
@@ -119,8 +117,6 @@ export function validateSuggestions(
 
     if (
       'gameplayRating' in sugg &&
-      // Buggy rule, destructuring above isn't type-safe.
-      /* eslint-disable unicorn/consistent-destructuring */
       sugg.gameplayRating != null &&
       (sugg.gameplayRating <= 0 ||
         sugg.gameplayRating > 10 ||
