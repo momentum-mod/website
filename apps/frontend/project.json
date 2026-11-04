@@ -110,7 +110,8 @@
       "options": {
         "command": "node --test --test-reporter=spec -r ts-node/register -r tsconfig-paths/register -r ./apps/frontend/src/test-setup.ts \"apps/frontend/src/**/*.test.ts\"",
         "env": {
-          "TS_NODE_PROJECT": "apps/frontend/tsconfig.spec.json"
+          "TS_NODE_PROJECT": "apps/frontend/tsconfig.spec.json",
+          "TS_NODE_TRANSPILE_ONLY": "true"
         }
       }
     },
