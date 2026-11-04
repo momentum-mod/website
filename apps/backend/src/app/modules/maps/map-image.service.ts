@@ -18,7 +18,7 @@ import {
   imgSmallPath,
   imgXlPath
 } from '@momentum/constants';
-import { File } from '@nest-lab/fastify-multer';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 import sharp from 'sharp';
 import { parallel } from '@momentum/util-fn';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,7 +57,7 @@ export class MapImageService {
     userID: number,
     mapID: number,
     imageIDs: string[],
-    files: File[]
+    files: UploadedMultipartFile[]
   ): Promise<MapImageDto[]> {
     const map = await this.mapsService.getMapAndCheckReadAccess({
       mapID,

@@ -55,7 +55,7 @@ import {
   isEmpty,
   parallel
 } from '@momentum/util-fn';
-import { File } from '@nest-lab/fastify-multer';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 import { parse as parseVdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
@@ -626,7 +626,7 @@ export class MapsService {
   async submitMap(
     dto: CreateMapDto,
     userID: number,
-    vmfFiles?: File[]
+    vmfFiles?: UploadedMultipartFile[]
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
 
@@ -735,7 +735,7 @@ export class MapsService {
     mapID: number,
     dto: CreateMapVersionDto,
     userID: number,
-    vmfFiles?: File[]
+    vmfFiles?: UploadedMultipartFile[]
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
@@ -1215,7 +1215,10 @@ export class MapsService {
     });
   }
 
-  private checkMapFiles(vmfFiles: File[], bspFile?: File) {
+  private checkMapFiles(
+    vmfFiles: UploadedMultipartFile[],
+    bspFile?: UploadedMultipartFile
+  ) {
     if (bspFile && !bspFile.originalname.endsWith('.bsp')) {
       throw new BadRequestException('Bad BSP name');
     }
@@ -1238,7 +1241,7 @@ export class MapsService {
   private async zipVmfFiles(
     mapName: string,
     version: number,
-    files: File[]
+    files: UploadedMultipartFile[]
   ): Promise<Buffer> {
     const zip = new Zip();
     for (const [i, file] of files.entries()) {
@@ -1253,7 +1256,7 @@ export class MapsService {
 
   private async uploadMapVersionFiles(
     bspId: string,
-    bspFile?: File,
+    bspFile?: UploadedMultipartFile,
     vmfId?: string,
     vmfZip?: Buffer,
     mapName?: string
@@ -2402,7 +2405,7 @@ export class MapsService {
    * Check if provided bsp file was compressed with bspzip
    * @throws BadRequestException
    */
-  async checkMapCompression(bspFile: File) {
+  async checkMapCompression(bspFile: UploadedMultipartFile) {
     const header = await BspHeader.fromBlob(
       new Blob([bspFile.buffer.buffer as ArrayBuffer])
     ).catch((error) => {
@@ -2417,7 +2420,9 @@ export class MapsService {
       throw new BadRequestException('BSP is not compressed');
   }
 
-  async tryGetBspFromTempUploads(userID: number): Promise<File | null> {
+  async tryGetBspFromTempUploads(
+    userID: number
+  ): Promise<UploadedMultipartFile | null> {
     const userIDObjects = await this.fileStoreService.listFileKeys(
       `upload_tmp/${userID}`
     );
@@ -2428,13 +2433,16 @@ export class MapsService {
 
     const bspData = await this.fileStoreService.getFile(userIDObjects[0]);
 
+    const buffer = Buffer.from(bspData);
+
     return {
       fieldname: 'bsp',
       originalname: 'map.bsp',
       encoding: '7bit',
       mimetype: 'model/vnd.valve.source.compiled-map',
       path: userIDObjects[0],
-      buffer: Buffer.from(bspData)
+      size: buffer.length,
+      buffer
     };
   }
 

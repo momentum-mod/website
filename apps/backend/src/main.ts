@@ -14,9 +14,9 @@ import {
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
-import multipart from '@fastify/multipart';
 import { Logger } from 'nestjs-pino';
 import cluster from 'node:cluster';
+import { MAX_MAP_IMAGE_SIZE, MAX_VMF_SIZE } from '@momentum/constants';
 import { Config, Environment } from './app/config';
 import { AppModule } from './app/app.module';
 import { VALIDATION_PIPE_CONFIG } from './app/dto';
@@ -38,7 +38,16 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      trustProxy: env === Environment.PRODUCTION
+      trustProxy: env === Environment.PRODUCTION,
+      // Nest registers @fastify/multipart for us, but caps files at the body
+      // limit (1MiB) by default. The size validators on each endpoint do the
+      // real checking (they run in prod with the config limits), so just allow
+      // the biggest possible through.
+      multipart: {
+        limits: {
+          fileSize: Math.max(MAX_VMF_SIZE, MAX_MAP_IMAGE_SIZE)
+        }
+      }
     }),
     {
       bufferLogs: true, // Buffer logs until Pino is attached
@@ -82,8 +91,6 @@ async function bootstrap() {
 
   // Enable @fastify/helmet header protections
   await app.register(helmet, { global: true });
-
-  await app.register(multipart);
 
   // CORS policy to allow browsers to access the backend from dashboard.momentum-mod.org
   await app.register(cors, {

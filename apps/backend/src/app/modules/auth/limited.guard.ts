@@ -20,6 +20,11 @@ export class LimitedGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Game WebSocket clients are authenticated once, at the upgrade (see
+    // WebsocketAdapter). Nest 12 runs global guards on gateway handlers too,
+    // where there is no HTTP request to inspect.
+    if (context.getType() !== 'http') return true;
+
     const request = context.switchToHttp().getRequest();
 
     if (this.isPublicOrAllowedToLimited(context)) return true;
