@@ -1,5 +1,6 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TwitchDataComponent } from './twitch-data.component';
 import { TwitchStream } from '@momentum/constants';
@@ -27,6 +28,13 @@ describe('TwitchDataComponent', () => {
     is_mature: false
   };
 
+  // Specs are compiled by ts-node (JIT) without Angular's JIT transform, which
+  // is what registers signal inputs, so setInput throws NG0303. Swap the input
+  // signal for a writable one instead.
+  const setStream = (value: TwitchStream | null) => {
+    (component as any).stream = signal(value);
+  };
+
   beforeEach(async () => {
     // Templates and styles referenced by URL can't be resolved without the
     // Angular CLI, and none of these tests need them.
@@ -49,7 +57,7 @@ describe('TwitchDataComponent', () => {
   });
 
   it('should compute high-resolution 16:9 thumbnail URL', () => {
-    fixture.componentRef.setInput('stream', mockStream);
+    setStream(mockStream);
     assert.equal(
       component.thumbnailUrl(),
       'https://static-cdn.jtvnw.net/previews-ttv/live_user_momentumrunner-640x360.jpg'
@@ -58,13 +66,13 @@ describe('TwitchDataComponent', () => {
   });
 
   it('should compute stream URL using user_login or user_name', () => {
-    fixture.componentRef.setInput('stream', mockStream);
+    setStream(mockStream);
     assert.equal(component.streamUrl(), 'https://twitch.tv/momentumrunner');
     assert.equal(component.getURL(), 'https://twitch.tv/momentumrunner');
   });
 
   it('should return helper values correctly', () => {
-    fixture.componentRef.setInput('stream', mockStream);
+    setStream(mockStream);
     assert.equal(component.getUserName(), 'MomentumRunner');
     assert.equal(
       component.getTitle(),
@@ -74,7 +82,7 @@ describe('TwitchDataComponent', () => {
   });
 
   it('should handle null stream gracefully', () => {
-    fixture.componentRef.setInput('stream', null);
+    setStream(null);
     assert.equal(component.thumbnailUrl(), '');
     assert.equal(component.streamUrl(), '#');
     assert.equal(component.getImage(), 'NULL');

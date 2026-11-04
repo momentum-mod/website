@@ -2,10 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
-    "module": "preserve",
+    "module": "commonjs",
     "target": "ES2022",
     "types": ["node"],
-    "moduleResolution": "bundler",
+    "moduleResolution": "node10",
     "isolatedModules": true
   },
   "files": ["src/test-setup.ts"],
