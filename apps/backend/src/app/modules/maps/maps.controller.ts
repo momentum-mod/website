@@ -34,7 +34,10 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags
 } from '@nestjs/swagger';
-import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
+import {
+  FileFieldsInterceptor,
+  UploadedMultipartFile
+} from '@nestjs/platform-fastify/multipart';
 import {
   ImageType,
   MAP_IMAGE_HEIGHT,
@@ -236,7 +239,7 @@ export class MapsController {
         })
       )
     )
-    files: { vmfs: File[] },
+    files: { vmfs: UploadedMultipartFile[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
     return this.mapsService.submitMap(data, userID, files.vmfs);
@@ -276,7 +279,7 @@ export class MapsController {
         })
       )
     )
-    files: { vmfs: File[] },
+    files: { vmfs: UploadedMultipartFile[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
     return this.mapsService.submitMapVersion(mapID, data, userID, files.vmfs);
@@ -568,7 +571,7 @@ export class MapsController {
         })
       )
     )
-    files: { images?: File[] }
+    files: { images?: UploadedMultipartFile[] }
   ): Promise<MapImageDto[]> {
     return this.mapImageService.updateImages(
       userID,
@@ -712,7 +715,7 @@ export class MapsController {
         })
       )
     )
-    files: { images?: File[] },
+    files: { images?: UploadedMultipartFile[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapReviewDto> {
     return this.mapReviewService.createReview(

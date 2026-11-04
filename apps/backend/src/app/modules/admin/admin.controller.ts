@@ -64,7 +64,10 @@ import { AdminService } from './admin.service';
 import { AdminActivityService } from './admin-activity.service';
 import { MapReviewService } from '../map-review/map-review.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
-import { File, FileFieldsInterceptor } from '@nest-lab/fastify-multer';
+import {
+  FileFieldsInterceptor,
+  UploadedMultipartFile
+} from '@nestjs/platform-fastify/multipart';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { Config } from '../../config';
 
@@ -235,7 +238,7 @@ export class AdminController {
         })
       )
     )
-    files: { vmfs: File[] },
+    files: { vmfs: UploadedMultipartFile[] },
     @LoggedInUser('id') userID: number
   ): Promise<MapDto> {
     return this.mapsService.submitMapVersion(mapID, data, userID, files.vmfs);

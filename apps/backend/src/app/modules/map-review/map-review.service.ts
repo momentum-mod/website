@@ -18,7 +18,7 @@ import {
   Role
 } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@momentum/db';
-import { File } from '@nest-lab/fastify-multer';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 import {
   expandToIncludes,
   isEmpty,
@@ -172,7 +172,7 @@ export class MapReviewService {
     userID: number,
     mapID: number,
     body: CreateMapReviewDto,
-    imageFiles: File[] = []
+    imageFiles: UploadedMultipartFile[] = []
   ): Promise<MapReviewDto> {
     // TODO: Ban from this when we do community-wide bans in future
 
@@ -234,7 +234,7 @@ export class MapReviewService {
         );
     }
 
-    const images: [string, File][] = imageFiles.map((file) => [
+    const images: [string, UploadedMultipartFile][] = imageFiles.map((file) => [
       `${uuidv4()}.${file.originalname.split('.').at(-1)}`,
       file
     ]);

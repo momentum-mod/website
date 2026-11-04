@@ -1,12 +1,7 @@
 import { FileValidator } from '@nestjs/common';
 import sharp, { type FormatEnum, type Metadata } from 'sharp';
-import * as Multer from '@nest-lab/fastify-multer';
-import { IFile } from '@nestjs/common/pipes/file/interfaces';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 import { ImageType } from '@momentum/constants';
-
-// Fastify Multer's version has `size` optional for some reason, let Nest
-// interface take precedence.
-type NestCompatibleFile = Multer.File & IFile;
 
 export interface ImageFileValidatorOptions {
   /** Omit to accept any format */
@@ -22,7 +17,7 @@ export interface ImageFileValidatorOptions {
  */
 export class ImageFileValidator extends FileValidator<
   ImageFileValidatorOptions,
-  NestCompatibleFile
+  UploadedMultipartFile
 > {
   constructor(
     options: ImageFileValidatorOptions,
@@ -33,7 +28,7 @@ export class ImageFileValidator extends FileValidator<
     super(options);
   }
 
-  async isValid(file?: NestCompatibleFile): Promise<boolean> {
+  async isValid(file?: UploadedMultipartFile): Promise<boolean> {
     if (!file) return false;
     let mimetype: ImageType | undefined;
     if (file.mimetype) {
