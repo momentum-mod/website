@@ -21,7 +21,7 @@
         "parser": "angular",
         "printWidth": 140,
         "plugins": ["prettier-plugin-tailwindcss"],
-        "tailwindConfig": "./apps/frontend/tailwind.config.js"
+        "tailwindStylesheet": "./apps/frontend/src/app/theme/styles.css"
       }
     }
   ]

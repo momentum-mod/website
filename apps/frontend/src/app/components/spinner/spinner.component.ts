@@ -23,7 +23,7 @@ import { NgClass } from '@angular/common';
 
         span {
           border-radius: 50%;
-          border: 0.25rem solid theme('colors.gray.200');
+          border: 0.25rem solid var(--color-gray-200);
           border-bottom-color: transparent;
           height: 48px;
           aspect-ratio: 1/1;

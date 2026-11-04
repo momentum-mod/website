@@ -17,7 +17,7 @@
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
       <div
-        class="mb-4 flex flex-col gap-3 rounded border border-white border-opacity-10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:flex-row sm:gap-4 sm:p-4"
+        class="mb-4 flex flex-col gap-3 rounded-sm border border-white/10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:flex-row sm:gap-4 sm:p-4"
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
         @if (avatarLoaded) {
@@ -28,15 +28,15 @@
             }"
           ></div>
         }
-        <div class="flex min-w-0 flex-grow flex-col justify-between gap-3 sm:gap-0">
+        <div class="flex min-w-0 grow flex-col justify-between gap-3 sm:gap-0">
           <div class="flex flex-wrap gap-1">
             <h1
-              class="flex flex-grow items-center gap-2 font-medium [--font-lerp-scale:0.8] md:[--font-lerp-scale:1]"
+              class="flex grow items-center gap-2 font-medium [--font-lerp-scale:0.8] md:[--font-lerp-scale:1]"
               [fontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
             >
               {{ user.alias }}
               @if (user.country && user.country.length === 2) {
-                <span [title]="countryDisplayName" class="rounded inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
+                <span [title]="countryDisplayName" class="rounded-sm inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
               }
               @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
                 <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
@@ -54,7 +54,7 @@
                 />
                 <button
                   type="button"
-                  class="btn btn-green stack aspect-square p-2"
+                  class="btn stack aspect-square p-2 btn-green"
                   [mTooltip]="localFollow() ? 'Unfollow' : 'Follow'"
                   (click)="toggleFollow()"
                 >
@@ -64,7 +64,7 @@
                 @if (localFollow()) {
                   <button
                     type="button"
-                    class="btn btn-blue aspect-square p-2"
+                    class="btn aspect-square p-2 btn-blue"
                     mTooltip="Edit Notifications"
                     (click)="editFollowNotifications()"
                   >
@@ -73,22 +73,22 @@
                 }
               }
               @if (localUserService.isModOrAdmin) {
-                <button class="btn btn-orange aspect-square p-2" type="button" mTooltip="Admin Settings" (click)="onAdminSettings()">
+                <button class="btn aspect-square p-2 btn-orange" type="button" mTooltip="Admin Settings" (click)="onAdminSettings()">
                   <m-icon icon="shield-crown-outline" />
                 </button>
               }
               @if (isLocal || localUserService.isModOrAdmin) {
-                <button class="btn btn-purple aspect-square p-2" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
+                <button class="btn aspect-square p-2 btn-purple" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
                   <m-icon icon="note-edit" />
                 </button>
               }
             </div>
           </div>
-          <m-role-badges class="h-10 !gap-0" [roles]="user.roles" classes="p-1" />
+          <m-role-badges class="h-10 gap-0!" [roles]="user.roles" classes="p-1" />
           <m-profile-chat-bans [user]="user" [isLocal]="isLocal" />
           @if (!hasRole(Role.DELETED)) {
             <div class="flex w-full gap-2 font-display text-2xl">
-              <div class="flex-grow">
+              <div class="grow">
                 <p class="pb-1 leading-none">{{ xp - currLevelXp }} / {{ nextLevelXp - currLevelXp }} xp</p>
                 <p-progressBar class="h-2 w-full" [showValue]="false" [value]="(100 * (xp - currLevelXp)) / (nextLevelXp - currLevelXp)" />
               </div>
@@ -99,14 +99,14 @@
       </div>
       <div class="card gap-5 p-4 [&>*:not(.card-inset)]:px-2">
         @if (user.profile?.bio?.length > 0) {
-          <p class="card-inset scroll-thin max-h-60 overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
+          <p class="scroll-thin max-h-60 card-inset overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
         }
         @if (($safeNavigationMigration(user.profile?.socials) | unsortedKeyvalue)?.length) {
           <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {
                 <a
-                  class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:!text-blue-500"
+                  class="m-1 overflow-hidden text-ellipsis whitespace-nowrap transition duration-100 ease-out hover:text-blue-500!"
                   href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
                   target="_blank"
                   [mTooltip]="social.key"
@@ -120,14 +120,14 @@
         }
 
         <div class="flex flex-col gap-4 sm:flex-row">
-          <div class="min-w-0 flex-grow basis-0">
+          <div class="min-w-0 grow basis-0">
             <h3 class="font-display font-bold">Followers ({{ followedByUsers.length }})</h3>
             @if (followedByUsers.length === 0) {
               <h5 class="m-0">
                 <i>No followers</i>
               </h5>
             } @else {
-              <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
+              <ul class="scroll-thin max-h-70 overflow-y-auto">
                 @for (usr of followedByUsers; track usr) {
                   <li class="py-1">
                     <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followee?.id)" class="flex items-center">
@@ -143,15 +143,15 @@
             }
           </div>
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
-            <div class="h-[1px] bg-gray-400 sm:h-auto sm:w-[1px]"></div>
-            <div class="min-w-0 flex-grow basis-0">
+            <div class="h-px bg-gray-400 sm:h-auto sm:w-px"></div>
+            <div class="min-w-0 grow basis-0">
               <h3 class="font-display font-bold">Following ({{ followingUsers.length }})</h3>
               @if (followingUsers.length === 0) {
                 <h5 class="m-0">
                   <i>Not following anyone</i>
                 </h5>
               } @else {
-                <ul class="scroll-thin max-h-[17.5rem] overflow-y-auto">
+                <ul class="scroll-thin max-h-70 overflow-y-auto">
                   @for (usr of followingUsers; track usr) {
                     <li class="py-1">
                       <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followed?.id)" class="flex items-center">
@@ -171,7 +171,7 @@
 
         @if (isLocal) {
           <div>
-            <button class="btn btn-blue w-fit" type="button" (click)="showSteamFriendsModal()">
+            <button class="btn w-fit btn-blue" type="button" (click)="showSteamFriendsModal()">
               Import Steam Friends
               <m-icon icon="steam" pack="si" class="ml-2 shrink-0" />
             </button>
@@ -229,7 +229,7 @@
 
             <ng-template pTemplate="footer">
               <button
-                class="btn btn-green w-fit"
+                class="btn w-fit btn-green"
                 type="button"
                 [disabled]="steamFriendsToAdd.size === 0"
                 (click)="importSteamFriendsToFollow()"
@@ -246,7 +246,7 @@
               @for (type of MapCreditType | enumValue; track $index) {
                 @if (creditMap[type]) {
                   <div>
-                    <p class="font-sm mb-1 font-bold uppercase text-gray-200">
+                    <p class="font-sm mb-1 font-bold text-gray-200 uppercase">
                       {{ MapCreditNames.get(type) }}
                     </p>
                     @for (credit of creditMap[type]; track $index) {

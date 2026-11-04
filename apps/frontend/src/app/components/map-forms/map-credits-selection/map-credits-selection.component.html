@@ -7,7 +7,7 @@
       }
     </p>
     <div
-      class="inputlike flex-grow rounded border bg-black bg-opacity-25"
+      class="grow inputlike rounded-sm border bg-black/25"
       id="{{ type.key }}"
       cdkDropList
       [cdkDropListData]="value()[type.key]"
@@ -19,24 +19,24 @@
       tooltipEvent="noop"
     >
       @for (credit of value()[type.key]; track credit) {
-        <div class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5" cdkDrag>
+        <div class="flex cursor-move bg-white/0 p-3 transition-colors hover:bg-white/5" cdkDrag>
           @if (!credit.placeholder) {
-            <m-avatar class="mr-2 h-[3.25rem] w-[3.25rem]" [url]="credit.avatarURL" />
+            <m-avatar class="mr-2 h-13 w-13" [url]="credit.avatarURL" />
           } @else {
-            <div class="mr-2 inline-grid h-[3.25rem] w-[3.25rem] place-content-center">
-              <p mTooltip="Placeholder user" class="text-shadow-strong font-display text-48 font-bold">?</p>
+            <div class="mr-2 inline-grid h-13 w-13 place-content-center">
+              <p mTooltip="Placeholder user" class="font-display text-48 font-bold text-shadow-strong">?</p>
             </div>
           }
 
-          <div class="flex flex-grow flex-col">
+          <div class="flex grow flex-col">
             <div class="flex">
-              <span class="mr-3 flex-grow">{{ credit.alias }}</span>
+              <span class="mr-3 grow">{{ credit.alias }}</span>
               <button type="button" (click)="removeUser(type.key, credit.userID, credit.alias)">
                 <m-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
               </button>
             </div>
             <input
-              class="textinput !px-3 !py-0.5 text-sm"
+              class="textinput px-3! py-0.5! text-sm"
               placeholder="Description"
               [(ngModel)]="credit.description"
               (change)="onChange(value())"

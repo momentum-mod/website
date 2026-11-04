@@ -1,16 +1,11 @@
 import { Component, computed, input } from '@angular/core';
-import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-card-header',
-  imports: [NgClass],
   template: `
-    <div
-      class="flex flex-wrap items-center gap-2"
-      [ngClass]="{ 'items-end': !!title() }"
-    >
+    <div class="flex flex-wrap items-center gap-2">
       @if (title(); as title) {
-        <p class="flex-grow card-title" [style.font-size]="fontSize()">
+        <p class="grow card-title" [style.font-size]="fontSize()">
           {{ title }}
         </p>
       }

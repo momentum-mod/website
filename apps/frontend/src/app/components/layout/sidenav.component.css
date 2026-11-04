@@ -1,3 +1,5 @@
+@reference '../../theme/styles.css';
+
 /*
 * I've styled this in CSS since the collapsing stuff is annoying in Tailwind.
 *
@@ -71,12 +73,12 @@ nav {
     justify-items: center;
     font-size: 1rem;
     padding: 0.25rem 2rem;
-    @apply text-gray-50 bg-blue-500 bg-opacity-0 border-blue-500 border-opacity-0 transition-colors;
+    @apply text-gray-50 bg-blue-500/0 border-blue-500/0 transition-colors;
 
     transition: padding 0.3s;
 
     &:hover {
-      @apply bg-opacity-25 border-opacity-100;
+      @apply bg-blue-500/25 border-blue-500;
     }
 
     & m-icon {

@@ -63,10 +63,10 @@ export interface SliderSlideEndEvent {
 
     <div class="relative h-3 w-full" (click)="onBarClick($event)">
       <div
-        class="absolute block w-full h-1 bg-gray-400 top-1 bottom-1 rounded shadow overflow-hidden"
+        class="absolute block w-full h-1 bg-gray-400 top-1 bottom-1 rounded-sm shadow-sm overflow-hidden"
       >
         <span
-          class="block relative bg-gradient-to-r from-blue-500 to-blue-300 h-full"
+          class="block relative bg-linear-to-r from-blue-500 to-blue-300 h-full"
           [ngStyle]="
             range()
               ? {
@@ -82,7 +82,7 @@ export interface SliderSlideEndEvent {
       @if (range()) {
         <span
           #sliderHandleStart
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: rangeStartLeft }"
           [ngClass]="{ 'handle--active': handleIndex === 0 }"
@@ -100,7 +100,7 @@ export interface SliderSlideEndEvent {
         ></span>
         <span
           #sliderHandleEnd
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: rangeEndLeft }"
           [ngClass]="{ 'handle--active': handleIndex === 1 }"
@@ -118,7 +118,7 @@ export interface SliderSlideEndEvent {
       } @else {
         <span
           #sliderHandle
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: handleValue + '%' }"
           (touchstart)="onDragStart($event)"
