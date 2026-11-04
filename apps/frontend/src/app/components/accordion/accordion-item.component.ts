@@ -40,6 +40,8 @@ import { IconComponent } from '../../icons';
   `,
   styles: [
     `
+      @reference '../../theme/styles.css';
+
       :host {
         display: flex;
         flex-direction: column;

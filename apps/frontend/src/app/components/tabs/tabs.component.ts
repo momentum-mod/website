@@ -19,10 +19,10 @@ import { TabDirective } from './tab.component';
       @for (tab of tabs(); track $index) {
         <button
           type="button"
-          class="p-2 font-display text-gray-300 drop-shadow font-bold
+          class="p-2 font-display text-gray-300 drop-shadow-sm font-bold
                  leading-none transition-colors hover:text-gray-200"
           (click)="selectTab($index)"
-          [ngClass]="{ '!text-gray-50': activeIndex() === $index }"
+          [ngClass]="{ 'text-gray-50!': activeIndex() === $index }"
           [ngStyle]="{ 'font-size': headerFontSize() }"
         >
           {{ tab.tabName() }}

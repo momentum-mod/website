@@ -23,7 +23,7 @@
       <m-map-review [review]="review" [map]="map()" (updatedOrDeleted)="load.next()" />
     } @empty {
       @if (!loading()) {
-        <p class="m-4 text-center text-lg italic text-gray-200">No reviews posted</p>
+        <p class="m-4 text-center text-lg text-gray-200 italic">No reviews posted</p>
       }
     }
   </div>
@@ -39,6 +39,6 @@
   />
 } @else {
   <p class="text-lg font-medium text-gray-100">
-    <a (click)="localUserService.login()" class="link cursor-pointer">Sign in</a> to see and post reviews!
+    <a (click)="localUserService.login()" class="cursor-pointer link">Sign in</a> to see and post reviews!
   </p>
 }

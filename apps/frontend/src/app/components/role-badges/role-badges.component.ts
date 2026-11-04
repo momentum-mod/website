@@ -19,7 +19,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
       [src]="'assets/images/badges/' + role + '.svg'"
       [mTooltip]="role"
       [alt]="role + ' Badge'"
-      [class]="'h-full aspect-square opacity-90 drop-shadow ' + classes()"
+      [class]="'h-full aspect-square opacity-90 drop-shadow-sm ' + classes()"
     />
   }`,
   styles: ':host { display: flex; gap: 0.25rem; }'

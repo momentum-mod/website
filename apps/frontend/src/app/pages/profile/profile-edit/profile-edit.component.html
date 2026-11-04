@@ -8,7 +8,7 @@
         <div [ngClass]="{ 'has-error': !alias.valid }">
           <p class="text-lg">Alias</p>
           <div class="relative flex w-full flex-wrap items-stretch gap-2">
-            <input class="textinput mb-1 min-w-0 max-sm:w-full" formControlName="alias" type="text" />
+            <input class="mb-1 min-w-0 textinput max-sm:w-full" formControlName="alias" type="text" />
             @if (!hasBan(Ban.ALIAS) || isModOrAdmin) {
               <div class="input-group-append">
                 <button class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
@@ -16,16 +16,16 @@
             }
           </div>
           @if (alias.hasError('minlength')) {
-            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Username must be at least 3 characters.</p>
+            <p class="bg-dark-800 mt-2 mb-0 border border-red-600 px-3 py-2 text-red-600">Username must be at least 3 characters.</p>
           }
           @if (alias.hasError('maxlength')) {
-            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Username cannot exceed 32 characters.</p>
+            <p class="bg-dark-800 mt-2 mb-0 border border-red-600 px-3 py-2 text-red-600">Username cannot exceed 32 characters.</p>
           }
           @if (alias.hasError('pattern')) {
-            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Invalid alias.</p>
+            <p class="bg-dark-800 mt-2 mb-0 border border-red-600 px-3 py-2 text-red-600">Invalid alias.</p>
           }
           @if (alias.hasError('required') && alias.dirty) {
-            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">Username is required.</p>
+            <p class="bg-dark-800 mt-2 mb-0 border border-red-600 px-3 py-2 text-red-600">Username is required.</p>
           }
         </div>
 
@@ -53,9 +53,9 @@
             <p class="text-lg">Bio</p>
             <span class="mb-2">{{ MAX_BIO_LENGTH - description.value.length | plural: 'character' }} remaining</span>
           </div>
-          <textarea rows="6" class="textinput mb-1 w-full" formControlName="bio" type="bio" #description></textarea>
+          <textarea rows="6" class="mb-1 w-full textinput" formControlName="bio" type="bio" #description></textarea>
           @if (bio.hasError('maxlength')) {
-            <p class="bg-dark-800 mb-0 mt-2 border border-red-600 px-3 py-2 text-red-600">
+            <p class="bg-dark-800 mt-2 mb-0 border border-red-600 px-3 py-2 text-red-600">
               Text cannot exceed {{ MAX_BIO_LENGTH }} characters.
             </p>
           }
@@ -78,7 +78,7 @@
       </div>
       <div class="flex flex-wrap gap-2">
         <button class="btn btn-green" type="submit" [disabled]="form.touched && !form.valid">Save changes</button>
-        <button type="button" header class="btn btn-blue mr-4" (click)="returnToProfile()">Return to Profile</button>
+        <button type="button" header class="btn mr-4 btn-blue" (click)="returnToProfile()">Return to Profile</button>
         @if (!hasRole(Role.DELETED)) {
           <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteUser()">Delete User</button>
         }

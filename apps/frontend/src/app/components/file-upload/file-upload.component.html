@@ -1,16 +1,16 @@
 <!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
 <input #fileInput (change)="onFilesSelected($event)" [accept]="acceptExtensions()" [multiple]="multiple" hidden type="file" />
 @if (showSelected() && hasSelection()) {
-  <div class="flex w-full flex-col rounded border-white border-opacity-5 bg-black bg-opacity-50 p-2 shadow-inner">
+  <div class="flex w-full flex-col rounded-sm border-white/5 bg-black/50 p-2 inset-shadow-sm">
     @for (file of getIterableFiles(); track file) {
-      <div class="flex items-center gap-2 [&:not(:last-child)]:mb-2">
+      <div class="flex items-center gap-2 not-last:mb-2">
         <p class="shrink truncate text-sm">{{ file.name }}</p>
         <p class="ml-auto basis-auto pt-0.5 text-sm italic opacity-75">
           {{ size(file) }}
         </p>
         <m-icon
           (click)="removeFile(file, $event)"
-          class="flex h-6 w-6 basis-auto rounded-sm bg-blue-500 bg-opacity-30 transition-colors hover:bg-opacity-50"
+          class="flex h-6 w-6 basis-auto rounded-xs bg-blue-500/30 transition-colors hover:bg-blue-500/50"
           icon="close"
         />
       </div>
@@ -20,10 +20,10 @@
 @if (showSelected() || multiple || !hasSelection()) {
   <m-icon
     [icon]="icon()"
-    class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in [.dragging_&]:text-blue-100 [:hover_&]:text-blue-100"
+    class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in in-[.dragging]:text-blue-100 in-[:hover]:text-blue-100"
   ></m-icon>
   @if (!disabled()) {
-    <p class="text-balance px-2 font-medium">
+    <p class="px-2 font-medium text-balance">
       @if (enableClipboard()) {
         Select {{ multiple ? '' : 'a ' }}{{ typeName() }} file{{ multiple ? 's' : '' }}, drag here, or
         <a class="link" (click)="addFromClipboard($event)">add from clipboard</a>

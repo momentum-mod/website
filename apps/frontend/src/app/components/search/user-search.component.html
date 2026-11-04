@@ -1,7 +1,7 @@
 <div [style.anchor-scope]="anchorName">
   <div #searchMain [style.anchor-name]="anchorName" class="relative flex w-full items-center gap-2">
     <input
-      class="textinput min-w-0 flex-grow md:min-w-[15rem]"
+      class="min-w-0 grow textinput md:min-w-60"
       [mSpinner]="searchStatus() === 'PENDING'"
       [placeholder]="searchBySteam() ? 'Search by SteamID...' : 'Search by username...'"
       [formControl]="search"
@@ -10,7 +10,7 @@
     />
     <m-icon
       class="absolute right-3 h-6 w-6 opacity-40 transition-opacity hover:opacity-60"
-      [ngClass]="{ '!opacity-100 hover:!opacity-80': searchBySteam() }"
+      [ngClass]="{ 'opacity-100! hover:opacity-80!': searchBySteam() }"
       mTooltip="Search by SteamID (SteamID 64, e.g. 76561198039308694)"
       icon="steam"
       pack="si"
@@ -41,23 +41,23 @@
     } @else if (searchValue().length > 0) {
       @for (user of found(); track $index; let isLast = $last) {
         <div
-          class="rounded bg-white bg-opacity-0 p-2 transition-colors"
-          [ngClass]="{ 'bg-opacity-5': $index === selectedIdx() }"
+          class="rounded-sm p-2 transition-colors"
+          [ngClass]="$index === selectedIdx() ? 'bg-white/5' : 'bg-white/0'"
           (mouseenter)="selectedIdx.set($index)"
           (click)="onSelected(user)"
         >
           <div class="flex items-center">
-            <img class="h-10 w-10 rounded" [src]="user.avatarURL" />
-            <div class="ml-4 mt-2 w-full">
+            <img class="h-10 w-10 rounded-sm" [src]="user.avatarURL" />
+            <div class="mt-2 ml-4 w-full">
               <div class="flex w-full leading-4">
-                <p class="mr-1 font-bold leading-4">{{ user.alias }}</p>
+                <p class="mr-1 leading-4 font-bold">{{ user.alias }}</p>
                 <m-role-badges class="ml-2 h-4 flex-wrap gap-1" [roles]="user.roles" />
                 @if (showProfileButton()) {
                   <a
                     [routerLink]="'/profile/' + user.id"
                     (click)="$event.stopPropagation()"
                     target="_blank"
-                    class="m-link ml-auto self-center text-sm italic text-gray-200"
+                    class="m-link ml-auto self-center text-sm text-gray-200 italic"
                   >
                     View Profile
                   </a>
@@ -66,7 +66,7 @@
               @if (!hasRole(Role.PLACEHOLDER, user)) {
                 <a
                   (click)="$event.stopPropagation()"
-                  class="text-sm italic leading-4"
+                  class="text-sm leading-4 italic"
                   target="_blank"
                   href="https://steamcommunity.com/profiles/{{ user.steamID }}"
                 >
@@ -78,7 +78,7 @@
         </div>
         @if (isLast) {
           <p-paginator
-            class="[&>*]:mt-auto [&>*]:[box-shadow:none]"
+            class="*:mt-auto *:[box-shadow:none]"
             (onPageChange)="pageChange.next($event)"
             [first]="first()"
             [rows]="rows"
