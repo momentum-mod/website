@@ -1,12 +1,12 @@
 <div #popover popover="auto" class="h-full w-full bg-transparent p-0">
-  <div class="relative flex h-screen w-screen flex-col items-center justify-center bg-black bg-opacity-50 p-[1.5vh] backdrop-blur">
+  <div class="relative flex h-screen w-screen flex-col items-center justify-center bg-black/50 p-[1.5vh] backdrop-blur-sm">
     <div
-      class="-z-1 absolute h-full w-full cursor-pointer bg-black bg-opacity-0 transition-colors duration-300 ease-in-out hover:bg-opacity-[0.15]"
+      class="absolute h-full w-full cursor-pointer bg-black/0 transition-colors duration-300 ease-in-out hover:bg-black/15"
       (click)="popover.hidePopover()"
     ></div>
     <button
       type="button"
-      class="absolute right-0 top-0 z-20 m-[1.5vh] size-12 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-10 md:size-20"
+      class="absolute top-0 right-0 z-20 m-[1.5vh] size-12 rounded-full bg-white/0 transition-colors hover:bg-white/10 md:size-20"
       (click)="popover.hidePopover()"
     >
       <m-icon class="size-full p-2" icon="close" />
@@ -14,14 +14,14 @@
 
     <button
       type="button"
-      class="absolute left-1 z-20 size-14 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-5 md:left-4 md:size-32"
+      class="absolute left-1 z-20 size-14 rounded-full bg-white/0 transition-colors hover:bg-white/5 md:left-4 md:size-32"
       (click)="cycleLeft()"
     >
       <m-icon icon="menu-left" class="size-full opacity-85" />
     </button>
     <button
       type="button"
-      class="absolute right-1 z-20 size-14 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-5 md:right-4 md:size-32"
+      class="absolute right-1 z-20 size-14 rounded-full bg-white/0 transition-colors hover:bg-white/5 md:right-4 md:size-32"
       (click)="cycleRight()"
     >
       <m-icon icon="menu-right" class="size-full opacity-85" />
@@ -30,7 +30,7 @@
     <div #parent class="pointer-events-none z-10 flex aspect-video min-h-0 basis-[87.5%] items-center justify-center">
       @let selectedItem = currentItem();
       @if (selectedItem && selectedItem.type === 'image') {
-        <img class="pointer-events-auto max-h-full max-w-full rounded shadow-lg" [src]="selectedItem.full" />
+        <img class="pointer-events-auto max-h-full max-w-full rounded-sm shadow-lg" [src]="selectedItem.full" />
       } @else if (selectedItem && selectedItem.type === 'youtube') {
         <iframe
           #youtubeIframe
@@ -49,8 +49,8 @@
           <!-- Needed for hover effect -->
           <button
             type="button"
-            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded border-2 border-white border-opacity-0 shadow-lg transition-colors"
-            [ngClass]="{ 'border-opacity-80': i === selectedItemIndex() }"
+            class="hover-white-overlay h-full w-max shrink-0 items-center overflow-hidden rounded-sm border-2 shadow-lg transition-colors"
+            [ngClass]="i === selectedItemIndex() ? 'border-white/80' : 'border-white/0'"
             (click)="selectItem(i)"
           >
             <img class="h-full min-h-0" [src]="item.type === 'image' ? item.thumbnail : item.safeThumbnail" />

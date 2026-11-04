@@ -10,7 +10,7 @@ import { NgClass } from '@angular/common';
       [ngClass]="{ 'items-end': !!title() }"
     >
       @if (title(); as title) {
-        <p class="flex-grow card-title" [style.font-size]="fontSize()">
+        <p class="grow card-title" [style.font-size]="fontSize()">
           {{ title }}
         </p>
       }

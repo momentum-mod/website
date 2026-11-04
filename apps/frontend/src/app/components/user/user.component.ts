@@ -17,7 +17,7 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
   imports: [AvatarComponent, NgClass, RoleBadgesComponent, RouterLink],
   template: ` @if (user(); as user) {
     <m-avatar
-      class="h-8 shadow"
+      class="h-8 shadow-sm"
       [ngClass]="avatarClass()"
       [url]="user.avatarURL"
     />

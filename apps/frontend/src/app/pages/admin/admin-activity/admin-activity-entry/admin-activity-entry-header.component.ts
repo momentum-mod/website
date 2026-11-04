@@ -12,7 +12,7 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
   template: `
     <div class="flex min-h-[40px] flex-wrap items-center gap-1 py-1">
       <a routerLink="/profile/{{ activity().userID }}" class="contents">
-        <m-avatar [url]="activity().user.avatarURL" class="mr-2 !h-7" />
+        <m-avatar [url]="activity().user.avatarURL" class="mr-2 h-7!" />
         <p>{{ activity().user.alias }}</p>
       </a>
       <p>{{ activityData().actionText }}</p>

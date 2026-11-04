@@ -1,21 +1,21 @@
 @let review = this.reviewState();
-<fieldset class="flex min-w-0 flex-col gap-2 rounded border border-white border-opacity-20 px-3 pb-4 pt-2 md:px-6 md:pb-6">
+<fieldset class="flex min-w-0 flex-col gap-2 rounded-sm border border-white/20 px-3 pt-2 pb-4 md:px-6 md:pb-6">
   <legend class="mb-2 flex w-full flex-wrap items-center gap-y-1 px-1">
-    <m-user [user]="review.reviewer" class="mr-1" avatarClass="!h-8" aliasClass="font-medium" [badges]="true" badgesClass="!h-4" />
+    <m-user [user]="review.reviewer" class="mr-1" avatarClass="h-8!" aliasClass="font-medium" [badges]="true" badgesClass="h-4!" />
     @if (review.resolved === false) {
-      <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
+      <div class="h-px basis-4 bg-white/20"></div>
       <m-icon icon="shield-star" class="text-red-400" mTooltip="Review requires resolving. The map cannot be approved until resolved." />
     } @else if (review.resolved === true) {
-      <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
+      <div class="h-px basis-4 bg-white/20"></div>
       <m-icon icon="shield-check" class="mr-1.5 text-blue-400" />
       <p class="mr-2 text-sm italic">Resolved by</p>
-      <m-user [user]="review.resolver" avatarClass="!h-5" aliasClass="font-normal text-sm mr-1" />
+      <m-user [user]="review.resolver" avatarClass="h-5!" aliasClass="font-normal text-sm mr-1" />
     }
     @if (review.approves) {
-      <div class="h-[1px] basis-4 bg-white bg-opacity-20"></div>
+      <div class="h-px basis-4 bg-white/20"></div>
       <m-icon icon="check-decagram" class="text-green-400" mTooltip="Approved" />
     }
-    <div class="mr-1 h-[1px] flex-grow bg-white bg-opacity-20"></div>
+    <div class="mr-1 h-px grow bg-white/20"></div>
     <!-- TODO: We actually store the full edit history, but don't want to spend the time making
                a component for displaying it. Not at all hard, low priority so leaving for now. -->
     <!-- prettier-ignore -->
@@ -33,23 +33,23 @@
     }
     @if (isModOrAdmin || isReviewAuthor) {
       <button class="ml-2" type="button" (click)="deleteReview($event)" mTooltip="Delete review">
-        <m-icon icon="delete" class="text-shadow my-auto block text-base text-red-500 transition-colors hover:text-red-400" />
+        <m-icon icon="delete" class="my-auto block text-base text-red-500 transition-colors text-shadow hover:text-red-400" />
       </button>
     }
   </legend>
 
   @if (!editing()) {
     <div class="flex flex-col gap-4">
-      <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ review.mainText }}</p>
+      <p class="wrap-anywhere whitespace-pre-wrap">{{ review.mainText }}</p>
       @if (suggestions()?.size > 0) {
         <!-- Tags move onto their own full-width line on mobile, to leave room for the other columns. -->
         <div
           class="grid grid-flow-row grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-4 max-md:gap-y-1 md:grid-cols-[auto_auto_auto_minmax(auto,1fr)] md:gap-x-5"
         >
-          <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
-          <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
-          <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Rating</p>
-          <p class="text-sm font-medium uppercase text-gray-250 max-md:hidden">Tags</p>
+          <p class="text-sm font-medium text-gray-200 uppercase">Suggestions</p>
+          <p class="justify-self-center text-sm font-medium text-gray-250 uppercase">Tier</p>
+          <p class="justify-self-center text-sm font-medium text-gray-250 uppercase">Rating</p>
+          <p class="text-sm font-medium text-gray-250 uppercase max-md:hidden">Tags</p>
 
           @for (gamemode of suggestions() | unsortedKeyvalue; track $index) {
             @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
@@ -81,11 +81,11 @@
 
       @if (review.images?.length > 0) {
         <m-gallery #gallery [items]="images()" />
-        <div class="grid grid-cols-3 gap-2 rounded bg-black bg-opacity-20 p-1.5 sm:grid-cols-6">
+        <div class="grid grid-cols-3 gap-2 rounded-sm bg-black/20 p-1.5 sm:grid-cols-6">
           @for (image of images(); track $index; let galleryImageIndex = $index) {
             <button
               type="button"
-              class="hover-white-overlay rounded-sm shadow-lg"
+              class="hover-white-overlay rounded-xs shadow-lg"
               (click)="gallery.selectItem(galleryImageIndex); gallery.show()"
             >
               <img [src]="image.thumbnail" />
@@ -105,12 +105,12 @@
   }
 
   @if (review.comments.length > 0) {
-    <div class="my-2 h-[1px] w-full bg-white bg-opacity-10"></div>
+    <div class="my-2 h-px w-full bg-white/10"></div>
 
     @if (review.numComments > review.comments.length) {
-      <p class="px-1 text-sm italic text-gray-100">
+      <p class="px-1 text-sm text-gray-100 italic">
         {{ review.numComments - review.comments.length | plural: 'additional comment' }} -
-        <button type="button" class="link font-medium italic" (click)="loadComments.next()">Load more</button>
+        <button type="button" class="font-medium link italic" (click)="loadComments.next()">Load more</button>
       </p>
     }
 
@@ -121,12 +121,12 @@
             <m-user
               class="gap-1"
               [user]="comment.user"
-              aliasClass="font-medium !text-base"
-              avatarClass="!h-4"
+              aliasClass="font-medium text-base!"
+              avatarClass="h-4!"
               [badges]="true"
               badgesClass="h-4"
             />
-            <p class="self-end pb-[1px] text-sm italic text-gray-200">{{ comment.createdAt | date: 'MMM dd, yyyy hh:mm a' }}</p>
+            <p class="self-end pb-px text-sm text-gray-200 italic">{{ comment.createdAt | date: 'MMM dd, yyyy hh:mm a' }}</p>
             @if (isCommentAuthor(comment.user.id)) {
               <button
                 type="button"
@@ -155,7 +155,7 @@
                 (keydown.control.enter)="editComment(comment.id)"
                 [formControl]="editForm.controls.textInput"
                 placeholder="Update comment"
-                class="textinput my-1 grow resize-none overflow-hidden px-2 py-1"
+                class="my-1 grow resize-none overflow-hidden textinput px-2 py-1"
                 dynamicTextareaHeight
               ></textarea>
               <div class="flex gap-1">
@@ -167,10 +167,10 @@
                     remaining</span
                   >
                 }
-                <button type="button" class="btn btn-red btn-thin ml-auto" (click)="cancelEditComment(comment.id)">Cancel</button>
+                <button type="button" class="btn ml-auto btn-thin btn-red" (click)="cancelEditComment(comment.id)">Cancel</button>
                 <button
                   type="submit"
-                  class="btn btn-green btn-thin"
+                  class="btn btn-thin btn-green"
                   [disabled]="loadingComments() || editForm.invalid || editForm.controls.textInput.value.length === 0"
                 >
                   Update
@@ -178,7 +178,7 @@
               </div>
             </form>
           } @else {
-            <p class="whitespace-pre-wrap [overflow-wrap:anywhere]">{{ comment.text }}</p>
+            <p class="wrap-anywhere whitespace-pre-wrap">{{ comment.text }}</p>
           }
         </div>
       }
@@ -192,17 +192,17 @@
         (keydown.control.enter)="postComment()"
         [formControl]="commentInput.controls.textInput"
         placeholder="Leave a comment"
-        class="textinput min-w-0 grow resize-none overflow-hidden px-2 py-1 max-md:basis-full"
+        class="min-w-0 grow resize-none overflow-hidden textinput px-2 py-1 max-md:basis-full"
         dynamicTextareaHeight
       ></textarea>
       @if (commentInput.dirty) {
         <div>
-          <button type="button" class="btn btn-red btn-thin" (click)="commentInput.reset()">Cancel</button>
+          <button type="button" class="btn btn-thin btn-red" (click)="commentInput.reset()">Cancel</button>
         </div>
         <div>
           <button
             type="submit"
-            class="btn btn-green btn-thin"
+            class="btn btn-thin btn-green"
             [disabled]="loadingComments() || commentInput.invalid || commentInput.controls.textInput.value.length === 0"
           >
             Post
@@ -221,7 +221,7 @@
   }
 
   @if (isReviewer) {
-    <div class="my-2 h-[1px] w-full bg-white bg-opacity-20"></div>
+    <div class="my-2 h-px w-full bg-white/20"></div>
     <div class="flex flex-wrap gap-2">
       @switch (review.resolved) {
         @case (null) {

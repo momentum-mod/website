@@ -82,14 +82,14 @@
           <p>This map cannot leave testing because:</p>
 
           @if (isBlockedForUnresolvedReviews) {
-            <p class="ml-4 mt-0 font-medium">it has unresolved reviews.</p>
+            <p class="mt-0 ml-4 font-medium">it has unresolved reviews.</p>
           }
           <!-- TODO: move down to final approval, and change elsewhere also -->
           @if (isBlockedForNoApprovingReview) {
-            <p class="ml-4 mt-0 font-medium">it does not have any approving reviews from an official reviewer.</p>
+            <p class="mt-0 ml-4 font-medium">it does not have any approving reviews from an official reviewer.</p>
           }
           @if (isBlockedForSubmissionTimeGate) {
-            <p class="ml-4 mt-0 font-medium">
+            <p class="mt-0 ml-4 font-medium">
               it has not been in public testing for long enough. It will be able to move on
               {{ firstEnteredPublicTesting + MIN_PUBLIC_TESTING_DURATION | date: 'medium' }}.
             </p>
@@ -105,7 +105,7 @@
   @if ((mod || adm) && status === MapStatus.FINAL_APPROVAL && !hasBeenApprovedBefore) {
     <!-- Form goes whack if this is in the above conditional -->
     <div class="flex flex-col gap-4" [ngClass]="{ hidden: selectedStatus() !== MapStatus.APPROVED }">
-      <div class="prose max-w-[64rem]">
+      <div class="prose max-w-5xl">
         <h2>Final Approval</h2>
         <p>
           This section lets you pick the final leaderboards for the map. You should only be using this if you are experienced in the main

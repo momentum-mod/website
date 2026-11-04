@@ -2,12 +2,12 @@
   <div class="flex min-w-0 flex-col lg:basis-4/10">
     <!-- Horizontally scrolling strip on mobile (bleeding to the screen edges), wrapping block on desktop. -->
     <div
-      class="scroll-thin flex items-end gap-x-4 gap-y-1 overflow-x-auto pb-1 max-md:-mx-4 max-md:px-4 md:flex-wrap md:overflow-visible md:pb-0 lg:-mt-4"
+      class="flex scroll-thin items-end gap-x-4 gap-y-1 overflow-x-auto pb-1 max-md:-mx-4 max-md:px-4 md:flex-wrap md:overflow-visible md:pb-0 lg:-mt-4"
     >
       <ng-template #gm let-mode="mode" let-name="name" let-size="size">
         <button type="button" class="shrink-0" (click)="gamemode.setValue(mode)">
           <p
-            class="whitespace-nowrap text-left font-display text-28 font-bold leading-none text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50 md:text-36"
+            class="text-left font-display text-28 leading-none font-bold whitespace-nowrap text-gray-300 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] transition-all hover:text-gray-50 md:text-36"
             [ngClass]="{
               'text-white drop-shadow-[0_0_8px_rgb(255_255_255/0.225)]': selectedGamemode() === mode
             }"
@@ -21,7 +21,7 @@
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.SURF, name: 'Surf' }" />
       <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
         <p
-          class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+          class="pointer-events-none col-span-2 font-display text-20 leading-none font-bold text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
         >
           Bhop
         </p>
@@ -30,7 +30,7 @@
       </div>
       <div class="grid shrink-0 grid-cols-2 grid-rows-1 gap-x-2">
         <p
-          class="pointer-events-none col-span-2 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+          class="pointer-events-none col-span-2 font-display text-20 leading-none font-bold text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
         >
           Climb
         </p>
@@ -43,7 +43,7 @@
       <ng-container *ngTemplateOutlet="gm; context: { mode: Gamemode.CONC, name: 'Conc' }" />
       <div class="grid shrink-0 grid-cols-3 grid-rows-1 gap-x-2">
         <p
-          class="pointer-events-none col-span-3 font-display text-20 font-bold leading-none text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
+          class="pointer-events-none col-span-3 font-display text-20 leading-none font-bold text-gray-400 drop-shadow-[0_2px_4px_rgb(0_0_0/0.3)] md:text-24"
         >
           Defrag
         </p>
@@ -56,16 +56,16 @@
   <div class="flex min-w-0 flex-col gap-2 lg:ml-auto lg:basis-6/10">
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
       <input
-        class="textinput order-1 min-w-0 flex-1 backdrop-blur-lg md:order-none md:w-64 md:flex-none"
+        class="order-1 min-w-0 flex-1 textinput backdrop-blur-lg md:order-0 md:w-64 md:flex-none"
         type="text"
         placeholder="Map Name"
         formControlName="name"
       />
-      <div class="order-3 flex w-full items-center gap-2 md:order-none md:w-auto">
+      <div class="order-3 flex w-full items-center gap-2 md:order-0 md:w-auto">
         <m-user-select class="min-w-0 flex-1 md:flex-none" formControlName="credit" />
         <m-dropdown class="shrink-0" [entries]="MapCreditOptions" [nameFn]="MapCreditNameFn" formControlName="creditType" />
       </div>
-      <button (click)="filters.reset({ tagsAndQualifiers: [] })" type="button" class="btn order-2 size-10 p-0 md:order-none md:size-8">
+      <button (click)="filters.reset({ tagsAndQualifiers: [] })" type="button" class="btn order-2 size-10 p-0 md:order-0 md:size-8">
         <m-icon icon="filter-remove" class="size-5" />
       </button>
     </div>
@@ -75,7 +75,7 @@
         <m-slider
           #slider
           class="h-9 min-w-0 flex-1 md:w-64 md:flex-none"
-          [ngClass]="{ 'contrast-25 opacity-50': selectedGamemode() == null }"
+          [ngClass]="{ 'opacity-50': selectedGamemode() == null }"
           formControlName="tiers"
           [range]="true"
           [step]="1"
@@ -139,8 +139,12 @@
         <ng-template #toggleQualifierBtn let-index="index">
           <div
             role="button"
-            class="btn m-0 flex size-4 rounded p-0 transition-colors hover:bg-opacity-20"
-            [ngClass]="tagsAndQualifiers.getRawValue()[index]?.[1] === TagQualifier.EXCLUDE ? 'btn-red' : 'btn-green'"
+            class="btn m-0 flex size-4 rounded-sm p-0 transition-colors"
+            [ngClass]="
+              tagsAndQualifiers.getRawValue()[index]?.[1] === TagQualifier.EXCLUDE
+                ? 'btn-red hover:bg-red-400/20'
+                : 'btn-green hover:bg-green-500/20'
+            "
             [mTooltip]="
               tagsAndQualifiers.getRawValue()[index]?.[1] === TagQualifier.EXCLUDE
                 ? 'Maps with this tag are Excluded'

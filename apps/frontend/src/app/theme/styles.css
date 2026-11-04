@@ -1,33 +1,814 @@
-@import '@fontsource/roboto/300.css';
-@import '@fontsource/roboto/300-italic.css';
-@import '@fontsource/roboto/400.css';
-@import '@fontsource/roboto/400-italic.css';
-@import '@fontsource/roboto/500.css';
-@import '@fontsource/roboto/500-italic.css';
-@import '@fontsource/roboto/700.css';
-@import '@fontsource/roboto/700-italic.css';
+@import '@fontsource/roboto/300.css' layer(base);
+@import '@fontsource/roboto/300-italic.css' layer(base);
+@import '@fontsource/roboto/400.css' layer(base);
+@import '@fontsource/roboto/400-italic.css' layer(base);
+@import '@fontsource/roboto/500.css' layer(base);
+@import '@fontsource/roboto/500-italic.css' layer(base);
+@import '@fontsource/roboto/700.css' layer(base);
+@import '@fontsource/roboto/700-italic.css' layer(base);
 
 /*@import './primeng-theme-nolayers.css';*/
 /*@import './primeng-nolayers.css';*/
 /* @import './primeng-overrides.css'; */
 
-@import './shared_styling/fonts/BebasNeue/300.css';
-@import './shared_styling/fonts/BebasNeue/400.css';
-@import './shared_styling/fonts/BebasNeue/700.css';
-@import './shared_styling/colors/colors-css-vars.css';
+@import './shared_styling/fonts/BebasNeue/300.css' layer(base);
+@import './shared_styling/fonts/BebasNeue/400.css' layer(base);
+@import './shared_styling/fonts/BebasNeue/700.css' layer(base);
+@import './shared_styling/colors/colors-css-vars.css' layer(base);
 
-@import 'flag-icons/css/flag-icons.min.css';
+@import 'flag-icons/css/flag-icons.min.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source(none);
+
+/* Only scan the frontend's own sources (and no tests). */
+@source '../../**/*.{html,ts}';
+@source not '../../**/*.test.ts';
+@source not './shared_styling';
+
+@plugin '@tailwindcss/typography';
+
+/* Angular form state, only once the user has touched the control. */
+@custom-variant valid (&.ng-valid.ng-dirty);
+@custom-variant invalid (&.ng-invalid.ng-dirty);
+@custom-variant pending (&.ng-pending.ng-dirty);
+@custom-variant validchild (&:has(.ng-valid.ng-dirty));
+@custom-variant invalidchild (&:has(.ng-invalid.ng-dirty));
+@custom-variant pendingchild (&:has(.ng-pending.ng-dirty));
+
+/*
+ * Theme variables are always emitted (`static`) so component stylesheets,
+ * which Tailwind processes separately, can use them with plain var().
+ */
+@theme static {
+  /* We don't care about small variations in tablet sizes that much. */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1280px;
+  --breakpoint-xl: 1536px;
+
+  --font-sans:
+    'Roboto', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-display:
+    'Bebas Neue Momentum', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* Relativized versions of font-size: 8pt, 9pt, 10pt etc... */
+  --text-8: 0.5rem;
+  --text-9: 0.5625rem;
+  --text-10: 0.625rem;
+  --text-11: 0.6875rem;
+  --text-12: 0.75rem;
+  --text-14: 0.875rem;
+  --text-16: 1rem;
+  --text-18: 1.125rem;
+  --text-20: 1.25rem;
+  --text-22: 1.375rem;
+  --text-24: 1.5rem;
+  --text-26: 1.625rem;
+  --text-28: 1.75rem;
+  --text-30: 1.875rem;
+  --text-32: 2rem;
+  --text-36: 2.25rem;
+  --text-40: 2.5rem;
+  --text-44: 2.75rem;
+  --text-48: 3rem;
+  --text-56: 3.5rem;
+  --text-64: 4rem;
+
+  /*
+   * Our own palette only. Each colour is defined by the shared_styling
+   * submodule as space-separated channels (see colors-css-vars.css).
+   */
+  --color-*: initial;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-gray-50: rgb(var(--gray-50));
+  --color-gray-100: rgb(var(--gray-100));
+  --color-gray-200: rgb(var(--gray-200));
+  --color-gray-250: rgb(var(--gray-250));
+  --color-gray-300: rgb(var(--gray-300));
+  --color-gray-400: rgb(var(--gray-400));
+  --color-gray-500: rgb(var(--gray-500));
+  --color-gray-600: rgb(var(--gray-600));
+  --color-gray-700: rgb(var(--gray-700));
+  --color-gray-800: rgb(var(--gray-800));
+  --color-gray-900: rgb(var(--gray-900));
+  --color-gray-950: rgb(var(--gray-950));
+  --color-pale-50: rgb(var(--pale-50));
+  --color-pale-100: rgb(var(--pale-100));
+  --color-pale-200: rgb(var(--pale-200));
+  --color-pale-300: rgb(var(--pale-300));
+  --color-pale-400: rgb(var(--pale-400));
+  --color-pale-500: rgb(var(--pale-500));
+  --color-pale-600: rgb(var(--pale-600));
+  --color-pale-700: rgb(var(--pale-700));
+  --color-pale-800: rgb(var(--pale-800));
+  --color-pale-900: rgb(var(--pale-900));
+  --color-pale-950: rgb(var(--pale-950));
+  --color-blue-50: rgb(var(--blue-50));
+  --color-blue-100: rgb(var(--blue-100));
+  --color-blue-200: rgb(var(--blue-200));
+  --color-blue-300: rgb(var(--blue-300));
+  --color-blue-400: rgb(var(--blue-400));
+  --color-blue-500: rgb(var(--blue-500));
+  --color-blue-600: rgb(var(--blue-600));
+  --color-blue-700: rgb(var(--blue-700));
+  --color-blue-800: rgb(var(--blue-800));
+  --color-blue-900: rgb(var(--blue-900));
+  --color-blue-950: rgb(var(--blue-950));
+  --color-purple-50: rgb(var(--purple-50));
+  --color-purple-100: rgb(var(--purple-100));
+  --color-purple-200: rgb(var(--purple-200));
+  --color-purple-300: rgb(var(--purple-300));
+  --color-purple-400: rgb(var(--purple-400));
+  --color-purple-500: rgb(var(--purple-500));
+  --color-purple-600: rgb(var(--purple-600));
+  --color-purple-700: rgb(var(--purple-700));
+  --color-purple-800: rgb(var(--purple-800));
+  --color-purple-900: rgb(var(--purple-900));
+  --color-purple-950: rgb(var(--purple-950));
+  --color-pink-50: rgb(var(--pink-50));
+  --color-pink-100: rgb(var(--pink-100));
+  --color-pink-200: rgb(var(--pink-200));
+  --color-pink-300: rgb(var(--pink-300));
+  --color-pink-400: rgb(var(--pink-400));
+  --color-pink-500: rgb(var(--pink-500));
+  --color-pink-600: rgb(var(--pink-600));
+  --color-pink-700: rgb(var(--pink-700));
+  --color-pink-800: rgb(var(--pink-800));
+  --color-pink-900: rgb(var(--pink-900));
+  --color-pink-950: rgb(var(--pink-950));
+  --color-red-50: rgb(var(--red-50));
+  --color-red-100: rgb(var(--red-100));
+  --color-red-200: rgb(var(--red-200));
+  --color-red-300: rgb(var(--red-300));
+  --color-red-400: rgb(var(--red-400));
+  --color-red-500: rgb(var(--red-500));
+  --color-red-600: rgb(var(--red-600));
+  --color-red-700: rgb(var(--red-700));
+  --color-red-800: rgb(var(--red-800));
+  --color-red-900: rgb(var(--red-900));
+  --color-red-950: rgb(var(--red-950));
+  --color-orange-50: rgb(var(--orange-50));
+  --color-orange-100: rgb(var(--orange-100));
+  --color-orange-200: rgb(var(--orange-200));
+  --color-orange-300: rgb(var(--orange-300));
+  --color-orange-400: rgb(var(--orange-400));
+  --color-orange-500: rgb(var(--orange-500));
+  --color-orange-600: rgb(var(--orange-600));
+  --color-orange-700: rgb(var(--orange-700));
+  --color-orange-800: rgb(var(--orange-800));
+  --color-orange-900: rgb(var(--orange-900));
+  --color-orange-950: rgb(var(--orange-950));
+  --color-yellow-50: rgb(var(--yellow-50));
+  --color-yellow-100: rgb(var(--yellow-100));
+  --color-yellow-200: rgb(var(--yellow-200));
+  --color-yellow-300: rgb(var(--yellow-300));
+  --color-yellow-400: rgb(var(--yellow-400));
+  --color-yellow-500: rgb(var(--yellow-500));
+  --color-yellow-600: rgb(var(--yellow-600));
+  --color-yellow-700: rgb(var(--yellow-700));
+  --color-yellow-800: rgb(var(--yellow-800));
+  --color-yellow-900: rgb(var(--yellow-900));
+  --color-yellow-950: rgb(var(--yellow-950));
+  --color-green-50: rgb(var(--green-50));
+  --color-green-100: rgb(var(--green-100));
+  --color-green-200: rgb(var(--green-200));
+  --color-green-300: rgb(var(--green-300));
+  --color-green-400: rgb(var(--green-400));
+  --color-green-500: rgb(var(--green-500));
+  --color-green-600: rgb(var(--green-600));
+  --color-green-700: rgb(var(--green-700));
+  --color-green-800: rgb(var(--green-800));
+  --color-green-900: rgb(var(--green-900));
+  --color-green-950: rgb(var(--green-950));
+  --color-tier-1: rgb(var(--tier-1));
+  --color-tier-2: rgb(var(--tier-2));
+  --color-tier-3: rgb(var(--tier-3));
+  --color-tier-4: rgb(var(--tier-4));
+  --color-tier-5: rgb(var(--tier-5));
+  --color-tier-6: rgb(var(--tier-6));
+  --color-tier-7: rgb(var(--tier-7));
+  --color-tier-8: rgb(var(--tier-8));
+  --color-tier-9: rgb(var(--tier-9));
+  --color-tier-10: rgb(var(--tier-10));
+}
+
+/*
+ * Tailwind's shadows are super weak, these are based off of them but with
+ * increased strength. Inlined so the multi-layer drop shadows are split into
+ * separate drop-shadow() calls. Note that the bare `shadow` and `drop-shadow`
+ * utilities ignore the theme in v4, so use `shadow-sm` / `drop-shadow-sm`.
+ */
+@theme inline {
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.125);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.25);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.25);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.25);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+  --inset-shadow-sm: inset 0 0 12px 0 rgb(0 0 0 / 0.125);
+  --drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.1625);
+  --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.325), 0 1px 1px rgb(0 0 0 / 0.195);
+  --drop-shadow-md: 0 4px 3px rgb(0 0 0 / 0.2275), 0 2px 2px rgb(0 0 0 / 0.195);
+  --drop-shadow-lg: 0 10px 8px rgb(0 0 0 / 0.13), 0 4px 3px rgb(0 0 0 / 0.325);
+  --drop-shadow-xl:
+    0 20px 13px rgb(0 0 0 / 0.0975), 0 8px 5px rgb(0 0 0 / 0.26);
+  --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.4875);
+}
+
+/*
+ * We set these dynamically in code in some places, which the scanner can't
+ * pick up.
+ */
+@source inline('text-pale-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-blue-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-purple-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-pink-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-red-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-orange-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-yellow-{50,100,200,300,400,500,600,700,800,900,950}');
+@source inline('text-green-{50,100,200,300,400,500,600,700,800,900,950}');
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  background-color: rgb(50 50 50 / 0.9);
+  @apply border border-white/5;
+  box-shadow:
+    1px 3px 4px rgb(0 0 0 / 0.2),
+    2px 4px 24px rgb(0 0 0 / 0.2);
+  backdrop-filter: none;
+  overflow: hidden;
+}
+
+@utility alert {
+  display: block;
+  flex-direction: column;
+  border-radius: 0.25rem;
+  background-color: rgb(50 50 50 / 0.9);
+  @apply border border-white/5;
+  box-shadow:
+    1px 3px 4px rgb(0 0 0 / 0.2),
+    2px 4px 24px rgb(0 0 0 / 0.2);
+  backdrop-filter: none;
+  overflow: hidden;
+  position: relative;
+  padding: 1.5rem;
+}
+
+@utility card--fancy {
+  background-color: rgb(255 255 255 / 0.0625);
+  backdrop-filter: blur(100px) brightness(0.9);
+}
+
+@utility alert--fancy {
+  background-color: rgb(255 255 255 / 0.0625);
+  backdrop-filter: blur(100px) brightness(0.9);
+}
+
+@utility card-header {
+  background-color: rgb(0 0 0 / 0.175);
+  border-bottom: 1px solid rgb(0 0 0 / 0.1);
+  padding: 0.75rem 1rem;
+}
+
+@utility card-title {
+  @apply font-display;
+  font-weight: 700;
+  opacity: 0.9;
+  line-height: 1;
+  filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
+    drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
+    drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
+}
+
+@utility card-body {
+  display: block;
+  padding: 1rem;
+  border-top: 1px solid rgba(255 255 255 / 0.0375);
+}
+
+@utility card-inset {
+  padding: 1rem;
+  border-radius: 0.25rem;
+  background-color: rgba(0 0 0 / 0.15);
+  box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+  border: 1px solid rgba(255 255 255 / 0.1);
+
+  &:is(fieldset) {
+    padding: 0.25rem 1rem 1rem 1rem;
+    /* Fieldsets default to min-width: min-content, so wide children make
+         them overflow their parent instead of shrinking/scrolling. */
+    min-width: 0;
+  }
+}
+
+@utility link {
+  color: rgb(var(--blue-400));
+  transition: color ease-out 0.15s;
+
+  &:hover {
+    color: rgb(var(--blue-300));
+    filter: drop-shadow(0 1px 3px rgb(var(--blue-700)));
+  }
+}
+
+@utility btn {
+  display: flex;
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  /* This fixes a weird issue with box model insanity
+       https://stackoverflow.com/a/31120774 */
+  background-origin: border-box !important;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background-color: rgb(var(--gray-500) / 100);
+
+  transition: background-color ease-out 0.15s;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.3);
+  & > icon {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2));
+  }
+
+  box-shadow:
+    0 2px 8px rgb(0 0 0 / 0.15),
+    0 1px 2px rgb(0 0 0 / 0.2);
+
+  &:disabled {
+    pointer-events: none;
+    filter: contrast(0.5) brightness(0.5);
+  }
+
+  /* Gross way to do hover anims. I miss Sass! */
+  &::after {
+    content: ' ';
+    position: absolute;
+    pointer-events: none;
+    overflow: hidden;
+    /* Stupid way to get this to overlap well with button. Again, this
+         approach sucks but can't think of anything better rn */
+    border-radius: 0.175rem;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transition: background-color ease-out 0.15s;
+    background-color: rgb(255 255 255 / 0);
+  }
+
+  &:hover::after {
+    background-color: rgb(255 255 255 / 0.1);
+  }
+}
+
+@utility btn-thin {
+  padding: 0.375rem 0.625rem;
+}
+
+@utility btn-blue {
+  background: linear-gradient(
+    rgb(var(--blue-500)),
+    color-mix(in srgb, rgb(var(--blue-500)), rgb(var(--blue-600)))
+  );
+}
+
+@utility btn-pale {
+  background: linear-gradient(
+    rgb(var(--pale-500)),
+    color-mix(in srgb, rgb(var(--pale-500)), rgb(var(--pale-600)))
+  );
+}
+
+@utility btn-red {
+  background: linear-gradient(
+    color-mix(in srgb, rgb(var(--red-400)), rgb(var(--red-500))),
+    rgb(var(--red-500))
+  );
+}
+
+@utility btn-green {
+  background: linear-gradient(
+    rgb(var(--green-500)),
+    color-mix(in srgb, rgb(var(--green-500)), rgb(var(--green-600)))
+  );
+}
+
+@utility btn-orange {
+  background: linear-gradient(
+    rgb(var(--orange-500)),
+    color-mix(in srgb, rgb(var(--orange-500)), 75% rgb(var(--orange-600)))
+  );
+}
+
+@utility btn-pink {
+  background: linear-gradient(
+    rgb(var(--pink-500)),
+    color-mix(in srgb, rgb(var(--pink-500)), rgb(var(--pink-600)))
+  );
+}
+
+@utility btn-purple {
+  background: linear-gradient(
+    rgb(var(--purple-500)),
+    color-mix(in srgb, rgb(var(--purple-500)), rgb(var(--purple-600)))
+  );
+}
+
+@utility btn-yellow {
+  /* Yellow is a bastard */
+  border: 1px solid rgb(255 255 255 / 0.25);
+  background: linear-gradient(rgb(var(--yellow-500)), rgb(var(--yellow-600)));
+}
+
+@utility inputlike {
+  border-radius: 0.25rem;
+
+  transition-duration: 0.1s;
+  transition-property: border, background-color, color, box-shadow, opacity;
+  transition-timing-function: ease-out;
+
+  box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+
+  /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+  @apply border border-white/10 bg-black/25;
+
+  &:not(:disabled):hover,
+  &.dragging:not(:disabled) {
+    @apply bg-black/30 border-white/15;
+  }
+
+  &:not(:disabled):focus {
+    @apply bg-black/35 border-white/15;
+    outline: none !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+@utility textinput {
+  border-radius: 0.25rem;
+
+  transition-duration: 0.1s;
+  transition-property: border, background-color, color, box-shadow, opacity;
+  transition-timing-function: ease-out;
+
+  box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+
+  /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+  @apply border border-white/10 bg-black/25;
+
+  &:not(:disabled):hover,
+  &.dragging:not(:disabled) {
+    @apply bg-black/30 border-white/15;
+  }
+
+  &:not(:disabled):focus {
+    @apply bg-black/35 border-white/15;
+    outline: none !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+  padding: 0.5rem 1rem;
+}
+
+@utility radio {
+  border-radius: 50%;
+
+  transition-duration: 0.1s;
+  transition-property: border, background-color, color, box-shadow, opacity;
+  transition-timing-function: ease-out;
+
+  box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+
+  /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+  @apply border border-white/10 bg-black/25;
+
+  &:not(:disabled):hover,
+  &.dragging:not(:disabled) {
+    @apply bg-black/30 border-white/15;
+  }
+
+  &:not(:disabled):focus {
+    @apply bg-black/35 border-white/15;
+    outline: none !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+  padding: 0.75rem;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  font: inherit;
+  color: #1896d3;
+  content: ' ';
+  position: relative;
+  float: left;
+
+  &::before {
+    position: absolute;
+    content: ' ';
+    width: 60%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.1s transform ease-in-out;
+    background-color: currentColor;
+    transform-origin: center;
+  }
+
+  &:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@utility checkbox {
+  border-radius: 0.25rem;
+
+  transition-duration: 0.1s;
+  transition-property: border, background-color, color, box-shadow, opacity;
+  transition-timing-function: ease-out;
+
+  box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
+
+  /* Tailwind @apply is helpful here so components overriding these properties
+       correctly interact with Tailwind's crazy --var stuff */
+  @apply border border-white/10 bg-black/25;
+
+  &:not(:disabled):hover,
+  &.dragging:not(:disabled) {
+    @apply bg-black/30 border-white/15;
+  }
+
+  &:not(:disabled):focus {
+    @apply bg-black/35 border-white/15;
+    outline: none !important;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  /* Using techniques from https://moderncss.dev/pure-css-custocheckbox-style/ */
+  vertical-align: middle;
+  height: 1.5rem;
+  aspect-ratio: 1 / 1;
+  /*padding: 1.125rem; !* This value controls the overall width/height of the element.*!*/
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  font: inherit;
+  color: #1896d3;
+  content: ' ';
+  position: relative;
+  float: left;
+
+  &::before {
+    position: absolute;
+    content: ' ';
+    width: 60%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.1s transform ease-in-out;
+    background-color: currentColor;
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  &:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@utility textinput-validated {
+  &.ng-valid.ng-dirty {
+    @apply border-green-500!;
+  }
+
+  &.ng-invalid.ng-dirty {
+    @apply border-red-500!;
+  }
+
+  &.ng-pending.ng-dirty {
+    @apply border-orange-500!;
+  }
+}
+
+@utility badge {
+  pointer-events: none;
+  border-radius: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 2px 3px 8px black / 50%;
+  @apply bg-gray-600;
+}
+
+@utility badge-blue {
+  @apply bg-blue-600;
+}
+
+@utility badge-red {
+  @apply bg-red-600 hover:bg-red-400;
+}
+
+@utility badge-green {
+  @apply bg-green-400 hover:bg-green-500;
+}
+
+@utility badge-orange {
+  @apply bg-orange-400 hover:bg-orange-500;
+}
+
+@utility spinner-container {
+  &:not(.spinner-container--active) > m-spinner {
+    display: none;
+  }
+}
+
+@utility spinner-container--active {
+  & > *:not(m-spinner) {
+    opacity: 0.8;
+  }
+}
+
+@utility stack {
+  /** Useful class that uses grid to stack children without requiring
+    `position: absolute` */
+  display: grid;
+
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
+
+@utility hover-white-overlay {
+  display: flex;
+  position: relative;
+
+  &::after {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(255 255 255 / 0);
+    content: '';
+    transition: 0.2s ease-in-out;
+  }
+
+  &:hover::after {
+    background-color: rgb(255 255 255 / 0.1);
+  }
+}
+
+@utility small-caps {
+  font-variant: small-caps;
+}
+
+@utility all-small-caps {
+  font-variant: all-small-caps;
+}
+
+@utility prose {
+  /**
+   * @tailwindcss/typography's `prose` class is styled for light-mode by
+   * default, and uses prose-invert for dark mode. We're only dark mode, so
+   * just apply .prose-invert on top of .prose everywhere.
+   */
+  @apply prose-invert;
+  color: var(--color-gray-50);
+  & :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+    &:not(:first-child) {
+      margin-top: 1rem;
+    }
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+
+  &
+    :where(h1, h2, h3, h4, h5, h6):not(
+      :where([class~='not-prose'], [class~='not-prose'] *)
+    ) {
+    &:not(:first-child) {
+      margin-top: 0.5rem;
+    }
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+@utility scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+@utility text-shadow {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+@utility text-shadow-strong {
+  text-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.4),
+    0 1px 4px rgba(0, 0, 0, 0.3);
+}
 
 @layer base {
+  /* Heading sizes, which Preflight resets. */
+  h1 {
+    font-size: var(--text-6xl);
+  }
+  h2 {
+    font-size: var(--text-4xl);
+  }
+  h3 {
+    font-size: var(--text-3xl);
+  }
+  h4 {
+    font-size: var(--text-2xl);
+  }
+  h5 {
+    font-size: var(--text-xl);
+  }
+  h6 {
+    font-size: var(--text-lg);
+  }
+
+  /* Preflight changes that we still want the v3 behaviour for. */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
   html {
     scroll-behavior: smooth;
     height: 100vh;
     width: 100vw;
-    color: theme('colors.gray.50');
+    color: var(--color-gray-50);
   }
 
   iframe {
@@ -56,346 +837,6 @@
     & svg {
       vertical-align: middle;
     }
-  }
-
-  .card,
-  .alert {
-    display: flex;
-    flex-direction: column;
-    border-radius: 0.25rem;
-    background-color: rgb(50 50 50 / 0.9);
-    @apply border border-white border-opacity-5;
-    box-shadow:
-      1px 3px 4px rgb(0 0 0 / 0.2),
-      2px 4px 24px rgb(0 0 0 / 0.2);
-    backdrop-filter: none;
-    overflow: hidden;
-  }
-
-  .card--fancy,
-  .alert--fancy {
-    background-color: rgb(255 255 255 / 0.0625);
-    backdrop-filter: blur(100px) brightness(0.9);
-  }
-
-  .card-header {
-    background-color: rgb(0 0 0 / 0.175);
-    border-bottom: 1px solid rgb(0 0 0 / 0.1);
-    padding: 0.75rem 1rem;
-  }
-
-  .card-title {
-    @apply font-display;
-    font-weight: 700;
-    opacity: 0.9;
-    line-height: 1;
-    filter: drop-shadow(0px 2px 1px rgb(0 0 0 / 0.2))
-      drop-shadow(1px 2px 4px rgb(0 0 0 / 0.2))
-      drop-shadow(3px 6px 16px rgb(0 0 0 / 0.4));
-  }
-
-  .card-body {
-    display: block;
-    padding: 1rem;
-    border-top: 1px solid rgba(255 255 255 / 0.0375);
-  }
-
-  .card-inset {
-    padding: 1rem;
-    border-radius: 0.25rem;
-    background-color: rgba(0 0 0 / 0.15);
-    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
-    border: 1px solid rgba(255 255 255 / 0.1);
-
-    &:is(fieldset) {
-      padding: 0.25rem 1rem 1rem 1rem;
-      /* Fieldsets default to min-width: min-content, so wide children make
-         them overflow their parent instead of shrinking/scrolling. */
-      min-width: 0;
-    }
-  }
-
-  .alert {
-    display: block;
-    position: relative;
-    padding: 1.5rem;
-  }
-
-  .link {
-    color: rgb(var(--blue-400));
-    transition: color ease-out 0.15s;
-
-    &:hover {
-      color: rgb(var(--blue-300));
-      filter: drop-shadow(0 1px 3px rgb(var(--blue-700)));
-    }
-  }
-
-  .btn {
-    display: flex;
-    position: relative;
-    padding: 0.5rem 0.75rem;
-    justify-content: center;
-    align-items: center;
-    border-radius: 0.25rem;
-    font-weight: 500;
-    /* This fixes a weird issue with box model insanity
-       https://stackoverflow.com/a/31120774 */
-    background-origin: border-box !important;
-    border: 1px solid rgb(255 255 255 / 0.1);
-    background-color: rgb(var(--gray-500) / 100);
-
-    transition: background-color ease-out 0.15s;
-    text-shadow: 0 1px 1px rgb(0 0 0 / 0.3);
-    & > icon {
-      filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2));
-    }
-
-    box-shadow:
-      0 2px 8px rgb(0 0 0 / 0.15),
-      0 1px 2px rgb(0 0 0 / 0.2);
-
-    &:disabled {
-      pointer-events: none;
-      filter: contrast(0.5) brightness(0.5);
-    }
-
-    /* Gross way to do hover anims. I miss Sass! */
-    &::after {
-      content: ' ';
-      position: absolute;
-      pointer-events: none;
-      overflow: hidden;
-      /* Stupid way to get this to overlap well with button. Again, this
-         approach sucks but can't think of anything better rn */
-      border-radius: 0.175rem;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      transition: background-color ease-out 0.15s;
-      background-color: rgb(255 255 255 / 0);
-    }
-
-    &:hover::after {
-      background-color: rgb(255 255 255 / 0.1);
-    }
-  }
-
-  .btn-thin {
-    padding: 0.375rem 0.625rem;
-  }
-
-  .btn-blue {
-    background: linear-gradient(
-      rgb(var(--blue-500)),
-      color-mix(in srgb, rgb(var(--blue-500)), rgb(var(--blue-600)))
-    );
-  }
-
-  .btn-pale {
-    background: linear-gradient(
-      rgb(var(--pale-500)),
-      color-mix(in srgb, rgb(var(--pale-500)), rgb(var(--pale-600)))
-    );
-  }
-
-  .btn-red {
-    background: linear-gradient(
-      color-mix(in srgb, rgb(var(--red-400)), rgb(var(--red-500))),
-      rgb(var(--red-500))
-    );
-  }
-
-  .btn-green {
-    background: linear-gradient(
-      rgb(var(--green-500)),
-      color-mix(in srgb, rgb(var(--green-500)), rgb(var(--green-600)))
-    );
-  }
-
-  .btn-orange {
-    background: linear-gradient(
-      rgb(var(--orange-500)),
-      color-mix(in srgb, rgb(var(--orange-500)), 75% rgb(var(--orange-600)))
-    );
-  }
-
-  .btn-pink {
-    background: linear-gradient(
-      rgb(var(--pink-500)),
-      color-mix(in srgb, rgb(var(--pink-500)), rgb(var(--pink-600)))
-    );
-  }
-
-  .btn-purple {
-    background: linear-gradient(
-      rgb(var(--purple-500)),
-      color-mix(in srgb, rgb(var(--purple-500)), rgb(var(--purple-600)))
-    );
-  }
-
-  .btn-yellow {
-    /* Yellow is a bastard */
-    border: 1px solid rgb(255 255 255 / 0.25);
-    background: linear-gradient(rgb(var(--yellow-500)), rgb(var(--yellow-600)));
-  }
-
-  .inputlike,
-  .textinput,
-  .radio,
-  .checkbox,
-  m-file-upload,
-  m-multi-file-upload {
-    border-radius: 0.25rem;
-
-    transition-duration: 0.1s;
-    transition-property: border, background-color, color, box-shadow, opacity;
-    transition-timing-function: ease-out;
-
-    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
-
-    /* Tailwind @apply is helpful here so components overriding these properties
-       correctly interact with Tailwind's crazy --var stuff */
-    @apply border border-white border-opacity-10 bg-black bg-opacity-25;
-
-    &:not(:disabled):hover,
-    &.dragging:not(:disabled) {
-      @apply bg-opacity-30 border-opacity-[0.15];
-    }
-
-    &:not(:disabled):focus {
-      @apply bg-opacity-[0.35] border-opacity-[0.15];
-      outline: none !important;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-    }
-  }
-
-  .textinput {
-    padding: 0.5rem 1rem;
-  }
-
-  .textinput-validated {
-    &.ng-valid.ng-dirty {
-      @apply border-green-500 !important;
-    }
-
-    &.ng-invalid.ng-dirty {
-      @apply border-red-500 !important;
-    }
-
-    &.ng-pending.ng-dirty {
-      @apply border-orange-500 !important;
-    }
-  }
-
-  /* Using techniques from https://moderncss.dev/pure-css-custocheckbox-style/ */
-  .checkbox {
-    vertical-align: middle;
-    height: 1.5rem;
-    aspect-ratio: 1 / 1;
-    /*padding: 1.125rem; !* This value controls the overall width/height of the element.*!*/
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-    font: inherit;
-    color: #1896d3;
-    content: ' ';
-    border-radius: 0.25rem;
-    position: relative;
-    float: left;
-
-    &::before {
-      position: absolute;
-      content: ' ';
-      width: 60%;
-      height: 60%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: 0.1s transform ease-in-out;
-      background-color: currentColor;
-      transform-origin: center;
-      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    }
-
-    &:checked::before {
-      transform: translate(-50%, -50%) scale(1);
-    }
-  }
-
-  .radio {
-    padding: 0.75rem;
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-    font: inherit;
-    color: #1896d3;
-    content: ' ';
-    border-radius: 50%;
-    position: relative;
-    float: left;
-
-    &::before {
-      position: absolute;
-      content: ' ';
-      width: 60%;
-      height: 60%;
-      top: 50%;
-      left: 50%;
-      border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: 0.1s transform ease-in-out;
-      background-color: currentColor;
-      transform-origin: center;
-    }
-
-    &:checked::before {
-      transform: translate(-50%, -50%) scale(1);
-    }
-  }
-
-  .badge {
-    pointer-events: none;
-    border-radius: 1rem;
-    text-align: center;
-    font-size: 0.875rem;
-    font-weight: 500;
-    min-width: 1.5rem;
-    min-height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 2px 3px 8px black / 50%;
-    @apply bg-gray-600;
-  }
-
-  .badge-blue {
-    @apply bg-blue-600;
-  }
-
-  .badge-red {
-    @apply bg-red-600 hover:bg-red-400;
-  }
-
-  .badge-green {
-    @apply bg-green-400 hover:bg-green-500;
-  }
-
-  .badge-orange {
-    @apply bg-orange-400 hover:bg-orange-500;
-  }
-
-  .spinner-container:not(.spinner-container--active) > m-spinner {
-    display: none;
-  }
-
-  .spinner-container--active > *:not(m-spinner) {
-    opacity: 0.8;
   }
 
   m-file-upload,
@@ -508,7 +949,7 @@
     .dismiss-button {
       margin-left: auto;
       place-items: center;
-      @apply size-7 rounded-full bg-white bg-opacity-0 transition-colors hover:bg-opacity-15;
+      @apply size-7 rounded-full bg-white/0 transition-colors hover:bg-white/15;
 
       & m-icon {
         @apply size-full;
@@ -525,102 +966,5 @@
         line-height: 1.2;
       }
     }
-  }
-}
-
-@layer utilities {
-  /** Useful class that uses grid to stack children without requiring
-    `position: absolute` */
-  .stack {
-    display: grid;
-
-    > * {
-      grid-row: 1;
-      grid-column: 1;
-    }
-  }
-
-  .hover-white-overlay {
-    display: flex;
-    position: relative;
-
-    &::after {
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 1000;
-      height: 100%;
-      width: 100%;
-      background-color: rgb(255 255 255 / 0);
-      content: '';
-      transition: 0.2s ease-in-out;
-    }
-
-    &:hover::after {
-      background-color: rgb(255 255 255 / 0.1);
-    }
-  }
-
-  .small-caps {
-    font-variant: small-caps;
-  }
-
-  .all-small-caps {
-    font-variant: all-small-caps;
-  }
-
-  /**
-   * @tailwindcss/typography's `prose` class is styled for light-mode by
-   * default, and uses prose-invert for dark mode. We're only dark mode, so
-   * just apply .prose-invert on top of .prose everywhere.
-   */
-  .prose {
-    @apply prose-invert;
-    color: theme('colors.gray.50');
-    & :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      &:not(:first-child) {
-        margin-top: 1rem;
-      }
-      &:not(:last-child) {
-        margin-bottom: 1rem;
-      }
-    }
-
-    &
-      :where(h1, h2, h3, h4, h5, h6):not(
-        :where([class~='not-prose'], [class~='not-prose'] *)
-      ) {
-      &:not(:first-child) {
-        margin-top: 0.5rem;
-      }
-      &:not(:last-child) {
-        margin-bottom: 0.5rem;
-      }
-    }
-  }
-
-  .scroll-thin {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  }
-
-  .scroll-thin::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .scroll-thin::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  .text-shadow {
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
-  }
-
-  .text-shadow-strong {
-    text-shadow:
-      0 1px 1px rgba(0, 0, 0, 0.4),
-      0 1px 4px rgba(0, 0, 0, 0.3);
   }
 }

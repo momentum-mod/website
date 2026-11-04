@@ -3,7 +3,7 @@
     @for (blogPost of posts(); track blogPost) {
       <a [href]="blogPost.link" target="_blank" rel="noopener noreferrer" class="blog-post">
         <div class="flex flex-wrap items-end">
-          <h2 class="relative max-w-full flex-1 flex-grow px-2 sm:px-4">{{ blogPost.title }}</h2>
+          <h2 class="relative max-w-full flex-1 grow px-2 sm:px-4">{{ blogPost.title }}</h2>
           <h5 class="pubDate col-auto ml-auto hidden sm:block">
             {{ blogPost.pubDate }}
           </h5>
