@@ -140,8 +140,8 @@ export type MapsGetExpand = Array<
 
 export type MapsGetQuery = {
   expand?: MapsGetExpand;
-  personalBest?: [Gamemode, TrackType, number, Style];
   worldRecord?: [Gamemode, TrackType, number, Style];
+  personalBests?: boolean;
 };
 
 export interface CreateMapWithFiles {
@@ -250,6 +250,11 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
   expand?: MapRunsGetExpand;
   userID?: number;
   rank?: number;
+};
+
+export type MapCompletionsGetQuery = {
+  gamemode: Gamemode;
+  style?: Style; // Default 0
 };
 
 //#endregion
