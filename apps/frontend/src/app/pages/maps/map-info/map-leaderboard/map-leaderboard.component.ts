@@ -2,6 +2,7 @@ import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
 import {
   GamemodeDefaultUIStyle,
   GamemodeInfo,
+  getRankGroupEnds,
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
@@ -10,6 +11,8 @@ import {
   mapTagEnglishName,
   MMap,
   PagedResponse,
+  RANK_GROUP_COUNT,
+  RANK_GROUP_TOP_RANKS,
   Style,
   styleEnglishName,
   TrackType
@@ -20,11 +23,6 @@ import { MessageService } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { AngleDoubleLeftIcon, AngleDoubleRightIcon } from 'primeng/icons';
-import {
-  getRankGroupEnds,
-  RANK_GROUP_COUNT,
-  RANK_GROUP_TOP_RANKS
-} from '@momentum/xp-systems';
 import { DialogService } from 'primeng/dynamicdialog';
 import {
   GroupedMapLeaderboard,
