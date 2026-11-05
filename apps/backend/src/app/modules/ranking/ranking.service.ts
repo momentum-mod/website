@@ -1,0 +1,624 @@
+import {
+  GoneException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+  UnauthorizedException
+} from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
+import { CronJob } from 'cron';
+import * as Sentry from '@sentry/node';
+import { randomUUID } from 'node:crypto';
+import {
+  Gamemode,
+  GamemodeStyles,
+  LeaderboardIdentifier,
+  LeaderboardType,
+  MapStatus,
+  Style,
+  TrackType
+} from '@momentum/constants';
+import { TypedSql } from '@momentum/db';
+import {
+  getRankPoints,
+  getTrackWeight,
+  RANK_POINTS_VERSION
+} from '@momentum/xp-systems';
+import { parallelLimit } from '@momentum/util-fn';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
+import { ValkeyService } from '../valkey/valkey.service';
+import { isFirstWorker } from '../../../clustered';
+import { UserCacheService } from '../user-cache/user-cache.service';
+import {
+  DtoFactory,
+  PagedResponseDto,
+  RankEntryDto,
+  RanksGetQueryDto,
+  UserRankDto
+} from '../../dto';
+import {
+  parseLeaderboard,
+  RankPointsKeys,
+  serializeLeaderboard
+} from './rank-points.keys';
+import { COMMIT_RANK_POINTS_LUA, RELEASE_LOCK_LUA } from './rank-points.lua';
+
+/** How many leaderboards to stage before committing them in one batch. */
+const BATCH_SIZE = 100;
+/** Members per ZADD when staging very large leaderboards. */
+const ZADD_CHUNK = 5000;
+const RANK_POINTS_JOB_NAME = 'RankPointsQueueJob';
+const RANK_POINTS_JOB_CRON = '*/2 * * * * *';
+/** Lock expiry. Refreshed between batches, so only needs to outlive one. */
+const LOCK_TTL_MS = 60_000;
+
+interface LeaderboardEligibility {
+  type: LeaderboardType | number;
+}
+
+export interface TrackScoring {
+  tier: number;
+  weight: number;
+}
+
+/**
+ * Whether runs on this leaderboard earn rank points. Main tracks, stages and
+ * bonuses all can. The map must also be APPROVED; callers that have the
+ * status to hand should check it too.
+ */
+export function isRankPointsEligible(
+  leaderboard: LeaderboardEligibility,
+  mapStatus?: MapStatus
+): boolean {
+  return (
+    leaderboard.type === LeaderboardType.RANKED &&
+    (mapStatus === undefined || mapStatus === MapStatus.APPROVED)
+  );
+}
+
+/**
+ * Rank points, stored in Valkey.
+ *
+ * Every RANKED leaderboard (main track, stage or bonus) on an APPROVED map has
+ * a sorted set of userID -> points ("track"), and every gamemode+style has a
+ * sorted set of userID -> total points ("ladder") which is the sum of its
+ * tracks. Stage and bonus points are weighted down, see `getTrackWeight`.
+ *
+ * Updates flow through a queue: anything that changes a leaderboard's runs or
+ * eligibility calls `queueLeaderboardUpdates`, and a worker on the first
+ * cluster worker periodically drains the queue, recomputing each leaderboard
+ * from Postgres into a staging set and then committing batches of staging sets
+ * into their ladders atomically.
+ *
+ * All of this is derived data: `rebuildAll` regenerates it from Postgres.
+ */
+@Injectable()
+export class RankingService implements OnModuleInit {
+  private readonly logger = new Logger('Ranking Service');
+
+  /**
+   * Resolves once any in-progress rebuild (at startup, or admin-triggered) has
+   * finished, so queue processing never races one.
+   */
+  private pendingRebuild: Promise<void> = Promise.resolve();
+
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly valkey: ValkeyService,
+    private readonly schedulerRegistry: SchedulerRegistry,
+    private readonly userCache: UserCacheService,
+    private readonly config: ConfigService
+  ) {}
+
+  async onModuleInit(): Promise<void> {
+    this.valkey.defineCommand('rankPointsCommit', {
+      lua: COMMIT_RANK_POINTS_LUA
+    });
+    this.valkey.defineCommand('rankPointsReleaseLock', {
+      lua: RELEASE_LOCK_LUA,
+      numberOfKeys: 1
+    });
+
+    // Only one worker drains the queue. Reads work from any worker.
+    if (!isFirstWorker()) return;
+
+    const version = await this.valkey.get(RankPointsKeys.version);
+    if (version !== String(RANK_POINTS_VERSION)) {
+      this.logger.log(
+        `Rank points data is at version ${version ?? 'none'}, expected ${RANK_POINTS_VERSION}. Rebuilding...`
+      );
+      // Don't block startup on this, it can take a while on a large DB.
+      this.rebuildAllInBackground();
+    }
+
+    this.schedulerRegistry.addCronJob(
+      RANK_POINTS_JOB_NAME,
+      CronJob.from({
+        cronTime: RANK_POINTS_JOB_CRON,
+        onTick: this.processQueue.bind(this),
+        waitForCompletion: true,
+        start: true,
+        errorHandler(error) {
+          if (Sentry.isInitialized()) {
+            Sentry.setContext('Error', { error });
+            Sentry.getCurrentScope().setLevel('warning');
+            Sentry.captureException('Failed to process rank points queue');
+          }
+        }
+      })
+    );
+  }
+
+  //#region Updates
+
+  /**
+   * Mark leaderboards as needing their points recomputed. Safe to call for
+   * leaderboards that turn out to be ineligible or deleted; they'll simply be
+   * removed from their ladder.
+   *
+   * Call *after* the DB transaction that changed them has committed.
+   */
+  async queueLeaderboardUpdates(
+    leaderboards: LeaderboardIdentifier[]
+  ): Promise<void> {
+    if (leaderboards.length === 0) return;
+
+    await this.valkey.sadd(
+      RankPointsKeys.queue,
+      ...leaderboards.map(serializeLeaderboard)
+    );
+  }
+
+  /**
+   * Every leaderboard of a map, for queueing. Fetch *before* deleting a map so
+   * the identifiers still exist, then queue after the delete.
+   */
+  async getMapLeaderboards(mapID: number): Promise<LeaderboardIdentifier[]> {
+    return this.db.leaderboard.findMany({
+      where: { mapID },
+      select: {
+        mapID: true,
+        gamemode: true,
+        trackType: true,
+        trackNum: true,
+        style: true
+      }
+    });
+  }
+
+  /**
+   * Queue every leaderboard of a map. Use after anything that can change a
+   * map's status, its leaderboards' type/tier, or how many stages or bonuses
+   * it has (stage and bonus points depend on all three).
+   */
+  async queueMapUpdates(mapID: number): Promise<void> {
+    await this.queueLeaderboardUpdates(await this.getMapLeaderboards(mapID));
+  }
+
+  /**
+   * Drain the update queue. Returns the number of leaderboards processed, or
+   * -1 if another process holds the lock.
+   *
+   * Runs on an interval, but can be awaited directly (e.g. in tests, or after
+   * a rebuild) to process everything immediately.
+   */
+  async processQueue(): Promise<number> {
+    await this.pendingRebuild;
+    return this.drainQueue();
+  }
+
+  /**
+   * Process everything in the queue. Acquires the lock unless the caller
+   * already holds it and passes its token.
+   */
+  private async drainQueue(heldToken?: string): Promise<number> {
+    const token = heldToken ?? (await this.acquireLock());
+    if (!token) return -1;
+
+    let processed = 0;
+    try {
+      while (true) {
+        const keys: string[] = await this.valkey.spop(
+          RankPointsKeys.queue,
+          BATCH_SIZE
+        );
+        if (!keys || keys.length === 0) break;
+
+        await this.processBatch(keys.map(parseLeaderboard));
+        processed += keys.length;
+
+        await this.valkey.pexpire(RankPointsKeys.lock, LOCK_TTL_MS);
+      }
+    } finally {
+      if (!heldToken) await this.releaseLock(token);
+    }
+
+    return processed;
+  }
+
+  /**
+   * Throw away all rank points data and regenerate it from Postgres.
+   * Rebuilds are serialized; a second call waits for the first to finish.
+   */
+  rebuildAll(): Promise<void> {
+    const rebuild = this.pendingRebuild.then(() => this.doRebuildAll());
+    // Never let a failed rebuild wedge the queue. Whoever called rebuildAll
+    // handles the error.
+    this.pendingRebuild = rebuild.catch(() => {});
+    return rebuild;
+  }
+
+  rebuildAllInBackground(): void {
+    void this.rebuildAll().catch((error) => {
+      if (Sentry.isInitialized()) {
+        Sentry.setContext('Error', { error });
+        Sentry.captureException('Failed to rebuild rank points');
+      }
+    });
+  }
+
+  private async doRebuildAll(): Promise<void> {
+    const token = await this.acquireLock();
+    if (!token) {
+      this.logger.warn('Rank points rebuild skipped, lock is held');
+      return;
+    }
+
+    try {
+      await this.valkey.del(RankPointsKeys.version, RankPointsKeys.queue);
+      for (const prefix of [
+        RankPointsKeys.trackPrefix,
+        RankPointsKeys.stagingPrefix,
+        RankPointsKeys.ladderPrefix
+      ]) {
+        await this.deleteByPrefix(prefix);
+      }
+
+      const leaderboards = await this.db.leaderboard.findMany({
+        where: {
+          type: LeaderboardType.RANKED,
+          mmap: { status: MapStatus.APPROVED }
+        },
+        select: {
+          mapID: true,
+          gamemode: true,
+          trackType: true,
+          trackNum: true,
+          style: true
+        }
+      });
+
+      for (let i = 0; i < leaderboards.length; i += 1000) {
+        await this.queueLeaderboardUpdates(leaderboards.slice(i, i + 1000));
+      }
+
+      await this.drainQueue(token);
+
+      await this.valkey.set(RankPointsKeys.version, RANK_POINTS_VERSION);
+    } finally {
+      await this.releaseLock(token);
+    }
+  }
+
+  private async processBatch(
+    leaderboards: LeaderboardIdentifier[]
+  ): Promise<void> {
+    // Half the DB pool, so a rebuild never starves request handling of
+    // connections.
+    const concurrency = Math.max(
+      1,
+      Math.floor(this.config.getOrThrow<number>('db.poolSize') / 2)
+    );
+    await parallelLimit(leaderboards, concurrency, (lb) =>
+      this.stageLeaderboard(lb)
+    );
+
+    // Commits are per ladder, so group by gamemode+style.
+    const byLadder = new Map<string, LeaderboardIdentifier[]>();
+    for (const lb of leaderboards) {
+      const key = RankPointsKeys.ladder(lb.gamemode, lb.style);
+      const group = byLadder.get(key);
+      if (group) group.push(lb);
+      else byLadder.set(key, [lb]);
+    }
+
+    for (const [ladderKey, lbs] of byLadder) {
+      await this.valkey.rankPointsCommit(
+        1 + 2 * lbs.length,
+        ladderKey,
+        ...lbs.flatMap((lb) => [
+          RankPointsKeys.track(lb),
+          RankPointsKeys.staging(lb)
+        ])
+      );
+    }
+  }
+
+  /**
+   * Recompute a leaderboard's points from Postgres into its staging set. If
+   * the leaderboard no longer awards points (or no longer exists), the staging
+   * set is removed so the commit drops the track from the ladder.
+   */
+  private async stageLeaderboard(lb: LeaderboardIdentifier): Promise<void> {
+    const stagingKey = RankPointsKeys.staging(lb);
+
+    const scoring = await this.getTrackScoring(lb);
+    if (!scoring) {
+      await this.valkey.del(stagingKey);
+      return;
+    }
+
+    const runs = await this.db.$queryRawTyped(
+      TypedSql.getLeaderboardRankOrder(
+        lb.mapID,
+        lb.gamemode,
+        lb.trackType,
+        lb.trackNum,
+        lb.style
+      )
+    );
+
+    if (runs.length === 0) {
+      await this.valkey.del(stagingKey);
+      return;
+    }
+
+    const { tier, weight } = scoring;
+    const completions = runs.length;
+    const members: Array<number | string> = [];
+    for (const run of runs) {
+      members.push(
+        getRankPoints(run.rank, completions, tier, weight),
+        run.userID
+      );
+    }
+
+    // Atomic DEL + ZADD so a concurrent commit never sees a half-written set.
+    const multi = this.valkey.multi().del(stagingKey);
+    for (let i = 0; i < members.length; i += ZADD_CHUNK * 2) {
+      multi.zadd(stagingKey, ...members.slice(i, i + ZADD_CHUNK * 2));
+    }
+    await multi.exec();
+  }
+
+  /**
+   * The tier and track weight a leaderboard's runs are scored with, or null if
+   * it doesn't award rank points (or no longer exists).
+   *
+   * Stages have no tier of their own, so use the main track's. A stage's
+   * weight depends on how many stages the map has, a bonus's on how many
+   * *ranked* bonuses it has, both for the same gamemode+style. So ranking or
+   * unranking one bonus changes what the others are worth: anything that
+   * changes a leaderboard's type must queue the whole map (`queueMapUpdates`).
+   */
+  async getTrackScoring(
+    lb: LeaderboardIdentifier
+  ): Promise<TrackScoring | null> {
+    const leaderboard = await this.db.leaderboard.findUnique({
+      where: { mapID_gamemode_trackType_trackNum_style: lb },
+      select: { type: true, tier: true, mmap: { select: { status: true } } }
+    });
+
+    if (
+      !leaderboard ||
+      !isRankPointsEligible(leaderboard, leaderboard.mmap.status)
+    )
+      return null;
+
+    const { mapID, gamemode, trackType, style } = lb;
+    let tier = leaderboard.tier;
+    let trackCount = 1;
+    if (trackType !== TrackType.MAIN) {
+      const [main, count] = await Promise.all([
+        trackType === TrackType.STAGE
+          ? this.db.leaderboard.findUnique({
+              where: {
+                mapID_gamemode_trackType_trackNum_style: {
+                  mapID,
+                  gamemode,
+                  trackType: TrackType.MAIN,
+                  trackNum: 1,
+                  style
+                }
+              },
+              select: { tier: true }
+            })
+          : null,
+        this.db.leaderboard.count({
+          where: {
+            mapID,
+            gamemode,
+            style,
+            trackType,
+            // Unranked bonuses award nothing, so don't take a share of the
+            // bonus pool. (Stages always share their main track's type.)
+            ...(trackType === TrackType.BONUS && {
+              type: LeaderboardType.RANKED
+            })
+          }
+        })
+      ]);
+      if (trackType === TrackType.STAGE) tier = main?.tier ?? null;
+      trackCount = count;
+    }
+
+    if (tier == null) {
+      // Shouldn't happen for a ranked track, but don't let a data issue either
+      // crash the worker or silently zero a leaderboard.
+      this.logger.warn(
+        `Ranked leaderboard ${serializeLeaderboard(lb)} has no tier, treating as tier 1`
+      );
+      tier = 1;
+    }
+
+    return { tier, weight: getTrackWeight(trackType, trackCount) };
+  }
+
+  //#endregion
+
+  //#region Reads
+
+  async getLadder(
+    gamemode: Gamemode,
+    query: RanksGetQueryDto,
+    loggedInUserID?: number
+  ): Promise<PagedResponseDto<RankEntryDto>> {
+    const ladderKey = RankPointsKeys.ladder(gamemode, query.style);
+    const take = query.take;
+    let skip = query.skip;
+
+    if (query.filter?.[0] === 'around') {
+      if (!loggedInUserID) {
+        throw new UnauthorizedException();
+      }
+
+      const position = await this.valkey.zrevrank(
+        ladderKey,
+        loggedInUserID.toString()
+      );
+
+      if (position === null)
+        throw new GoneException('User has no rank on this leaderboard');
+
+      skip = Math.max(position - Math.floor(take / 2), 0);
+    }
+
+    const [[, totalCount], [, entries]] = (await this.valkey
+      .pipeline()
+      .zcard(ladderKey)
+      .zrevrange(ladderKey, skip, skip + take - 1, 'WITHSCORES')
+      .exec()) as [[null, number], [null, string[]]];
+
+    const userIDs: number[] = [];
+    const points: number[] = [];
+    for (let i = 0; i < entries.length; i += 2) {
+      userIDs.push(Number(entries[i]));
+      points.push(Number(entries[i + 1]));
+    }
+
+    const users = await this.userCache.getUsers(userIDs);
+
+    const data = userIDs.map((userID, i) => ({
+      rank: skip + i + 1,
+      userID,
+      points: points[i],
+      user: users[i]
+    }));
+
+    return new PagedResponseDto(RankEntryDto, [data, totalCount]);
+  }
+
+  async getUserRanks(userID: number): Promise<UserRankDto[]> {
+    if (!(await this.userCache.exists(userID)))
+      throw new NotFoundException('User not found');
+
+    const ladders: Array<[Gamemode, Style]> = [];
+    for (const [gamemode, styles] of GamemodeStyles) {
+      for (const style of styles) ladders.push([gamemode, style]);
+    }
+
+    const pipeline = this.valkey.pipeline();
+    const member = userID.toString();
+    for (const [gamemode, style] of ladders) {
+      const key = RankPointsKeys.ladder(gamemode, style);
+      pipeline.zrevrank(key, member).zscore(key, member).zcard(key);
+    }
+    const results = await pipeline.exec();
+
+    const ranks: UserRankDto[] = [];
+    for (const [i, [gamemode, style]] of ladders.entries()) {
+      const position = results[i * 3][1] as number | null;
+      if (position === null) continue;
+
+      ranks.push(
+        DtoFactory(UserRankDto, {
+          gamemode,
+          style,
+          rank: position + 1,
+          points: Number(results[i * 3 + 1][1]),
+          totalPlayers: results[i * 3 + 2][1] as number
+        })
+      );
+    }
+
+    return ranks;
+  }
+
+  /**
+   * Committed points for several users' runs on one leaderboard. `undefined`
+   * where the user has no points there (including when the leaderboard
+   * doesn't award points at all).
+   */
+  async getTrackPoints(
+    leaderboard: LeaderboardIdentifier,
+    userIDs: number[]
+  ): Promise<Array<number | undefined>> {
+    if (userIDs.length === 0) return [];
+
+    const scores = await this.valkey.zmscore(
+      RankPointsKeys.track(leaderboard),
+      ...userIDs.map(String)
+    );
+
+    return scores.map((score) => (score === null ? undefined : Number(score)));
+  }
+
+  async getUserTrackPoints(
+    userID: number,
+    leaderboards: LeaderboardIdentifier[]
+  ): Promise<Array<number | undefined>> {
+    if (leaderboards.length === 0) return [];
+
+    const pipeline = this.valkey.pipeline();
+    const member = userID.toString();
+    for (const lb of leaderboards) {
+      pipeline.zscore(RankPointsKeys.track(lb), member);
+    }
+    const results = await pipeline.exec();
+
+    return results.map(([, score]) =>
+      score === null ? undefined : Number(score)
+    );
+  }
+
+  //#endregion
+
+  //#region Locking and housekeeping
+
+  private async acquireLock(): Promise<string | null> {
+    const token = randomUUID();
+    const result = await this.valkey.set(
+      RankPointsKeys.lock,
+      token,
+      'PX',
+      LOCK_TTL_MS,
+      'NX'
+    );
+    return result === 'OK' ? token : null;
+  }
+
+  private async releaseLock(token: string): Promise<void> {
+    await this.valkey.rankPointsReleaseLock(RankPointsKeys.lock, token);
+  }
+
+  private async deleteByPrefix(prefix: string): Promise<void> {
+    let cursor = '0';
+    do {
+      const [next, keys] = await this.valkey.scan(
+        cursor,
+        'MATCH',
+        `${prefix}*`,
+        'COUNT',
+        1000
+      );
+      cursor = next;
+      if (keys.length > 0) await this.valkey.unlink(...keys);
+    } while (cursor !== '0');
+  }
+
+  //#endregion
+}

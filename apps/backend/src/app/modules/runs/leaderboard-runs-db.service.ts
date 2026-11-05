@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { LeaderboardRun, TypedSql } from '@momentum/db';
+import { LeaderboardRun, TypedSql, User } from '@momentum/db';
 import { type Gamemode, type Style, type TrackType } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
@@ -39,10 +39,12 @@ export class LeaderboardRunsDbService {
       userIDs?: number[];
       includeSplits?: IncludeSplits;
     }
+    // Every query variant selects the run's user columns, which mapRowToLeaderboardRun
+    // nests under `user` - so it's always present, despite not being on the Prisma model.
   ): Promise<
-    IncludeSplits extends true
-      ? LeaderboardRun[]
-      : Omit<LeaderboardRun, 'splits'>[]
+    ((IncludeSplits extends true
+      ? LeaderboardRun
+      : Omit<LeaderboardRun, 'splits'>) & { user: User })[]
   > {
     const skip = args.skip === undefined ? 0 : args.skip;
     const take = args.take === undefined ? 10 : args.take;
@@ -99,32 +101,6 @@ export class LeaderboardRunsDbService {
     return rows.map(LeaderboardRunsDbService.mapRowToLeaderboardRun);
   }
 
-  /**
-   * Get a single ranked run for a user on a specific leaderboard.
-   */
-  async getRankedRun(
-    args: LeaderboardQuery & { userID: number }
-  ): Promise<LeaderboardRun | undefined> {
-    const sql = TypedSql.getLeaderboardRun(
-      args.mapID,
-      args.gamemode,
-      args.trackType,
-      args.trackNum,
-      args.style,
-      args.userID
-    );
-
-    const rows: any[] = args.transaction
-      ? await args.transaction.$queryRawTyped(sql)
-      : await this.db.$queryRawTyped(sql);
-
-    if (rows.length === 0) {
-      return undefined;
-    }
-
-    return LeaderboardRunsDbService.mapRowToLeaderboardRun(rows[0]);
-  }
-
   private static mapRowToLeaderboardRun(row: any): any {
     return {
       rank: row.rank,
@@ -150,6 +126,70 @@ export class LeaderboardRunsDbService {
         createdAt: row.user_createdAt
       }
     };
+  }
+
+  /**
+   * Get every track (leaderboard) on a map for a given gamemode + style, along
+   * with its total completions and the given user's PB rank (null where the user
+   * hasn't completed the track). The PB time is not returned - the game caches it
+   * per track/style from GetMap.
+   */
+  async getMapUserCompletions(args: {
+    mapID: number;
+    gamemode: Gamemode;
+    style: Style;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<
+    Array<{
+      trackType: number;
+      trackNum: number;
+      totalCompletions: number | null;
+      rank: number | null;
+    }>
+  > {
+    const sql = TypedSql.getMapUserCompletions(
+      args.mapID,
+      args.gamemode,
+      args.style,
+      args.userID
+    );
+
+    return args.transaction
+      ? await args.transaction.$queryRawTyped(sql)
+      : await this.db.$queryRawTyped(sql);
+  }
+
+  /**
+   * Get the given user's PB time on every leaderboard (track + style) they've
+   * completed on a map. Each LeaderboardRun row is already a user's PB for that
+   * leaderboard, so no aggregation is needed - and no ranks, so plain Prisma is
+   * fine (unlike the rank-bearing queries above).
+   */
+  async getMapUserPersonalBests(args: {
+    mapID: number;
+    userID: number;
+    transaction?: ExtendedPrismaServiceTransaction;
+  }): Promise<
+    Array<{
+      gamemode: Gamemode;
+      trackType: TrackType;
+      trackNum: number;
+      style: Style;
+      time: number;
+    }>
+  > {
+    const db = args.transaction ?? this.db;
+    return db.leaderboardRun.findMany({
+      where: { mapID: args.mapID, userID: args.userID },
+      select: {
+        gamemode: true,
+        trackType: true,
+        trackNum: true,
+        style: true,
+        time: true
+      }
+    });
   }
 
   /**

@@ -21,11 +21,16 @@ import {
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
   UsersGetQueryDto,
-  UsersGetCreditsQueryDto
+  UsersGetCreditsQueryDto,
+  UsersGetRunsQueryDto,
+  LeaderboardRunDto,
+  UserRankDto
 } from '../../dto';
 import { ParseInt32SafePipe } from '../../pipes';
 import { UsersService } from './users.service';
 import { BypassJwtAuth, LoggedInUser } from '../../decorators';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
+import { RankingService } from '../ranking/ranking.service';
 
 @Controller('users')
 @BypassJwtAuth()
@@ -33,7 +38,11 @@ import { BypassJwtAuth, LoggedInUser } from '../../decorators';
 @ApiBearerAuth()
 @ApiExtraModels(PagedResponseDto)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly leaderboardRunsService: LeaderboardRunsService,
+    private readonly rankingService: RankingService
+  ) {}
 
   //#region Main User Endpoints
 
@@ -84,6 +93,52 @@ export class UsersController {
     @Param('userID', ParseInt32SafePipe) userID: number
   ): Promise<ProfileDto> {
     return this.usersService.getProfile(userID);
+  }
+
+  //#endregion
+
+  //#region Runs and Ranks
+
+  @Get('/:userID/runs')
+  @ApiOperation({
+    summary:
+      "Returns a paginated list of a user's leaderboard runs on approved maps, " +
+      'newest first, with rank, total runs on the leaderboard, and rank points'
+  })
+  @ApiParam({
+    name: 'userID',
+    type: Number,
+    description: 'Target User ID',
+    required: true
+  })
+  @ApiOkPagedResponse(LeaderboardRunDto, {
+    description: "Paginated list of the user's runs"
+  })
+  @ApiNotFoundResponse({ description: 'User was not found' })
+  getRuns(
+    @Param('userID', ParseInt32SafePipe) userID: number,
+    @Query() query?: UsersGetRunsQueryDto
+  ): Promise<PagedResponseDto<LeaderboardRunDto>> {
+    return this.leaderboardRunsService.getUserRuns(userID, query);
+  }
+
+  @Get('/:userID/ranks')
+  @ApiOperation({
+    summary:
+      "Returns the user's rank and points on every gamemode+style ladder they have points on"
+  })
+  @ApiParam({
+    name: 'userID',
+    type: Number,
+    description: 'Target User ID',
+    required: true
+  })
+  @ApiOkResponse({ type: UserRankDto, isArray: true })
+  @ApiNotFoundResponse({ description: 'User was not found' })
+  getRanks(
+    @Param('userID', ParseInt32SafePipe) userID: number
+  ): Promise<UserRankDto[]> {
+    return this.rankingService.getUserRanks(userID);
   }
 
   //#endregion

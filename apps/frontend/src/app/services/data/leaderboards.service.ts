@@ -27,7 +27,7 @@ export class LeaderboardsService {
     mapID: number,
     query: MapLeaderboardGetRunQuery
   ): Observable<LeaderboardRun> {
-    return this.http.get<LeaderboardRun>(`maps/${mapID}/leaderboard/unique`, {
+    return this.http.get<LeaderboardRun>(`maps/${mapID}/leaderboard/run`, {
       query
     });
   }

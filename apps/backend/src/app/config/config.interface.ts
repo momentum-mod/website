@@ -46,6 +46,9 @@ export interface ConfigInterface {
     accessKeyID: string;
     secretAccessKey: string;
   };
+  db: {
+    poolSize: number;
+  };
   valkey: {
     port: number;
     host: string;

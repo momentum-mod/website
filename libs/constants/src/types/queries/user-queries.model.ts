@@ -1,6 +1,17 @@
 ﻿import { ActivitiesGetQuery } from './activity-queries.model';
 import { PagedQuery } from './pagination.model';
-import { Role, Ban, Flags, User, Socials, Follow } from '../../';
+import {
+  Role,
+  Ban,
+  Flags,
+  User,
+  Socials,
+  Follow,
+  Gamemode,
+  TrackType,
+  Style,
+  LeaderboardType
+} from '../../';
 
 export type CreateUser = Pick<User, 'alias'>;
 
@@ -47,11 +58,17 @@ export type UsersGetCreditsQuery = PagedQuery & {
   expand?: UsersGetCreditsExpand;
 };
 
+export type UsersGetRunsQuery = PagedQuery & {
+  gamemode?: Gamemode;
+  trackType?: TrackType;
+  trackNum?: number;
+  style?: Style;
+  leaderboardType?: LeaderboardType;
+};
+
 type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
-export type UserMapFavoritesGetExpand = Array<
-  'info' | 'credits' | 'submitter' | 'personalBest'
->;
+export type UserMapFavoritesGetExpand = Array<'info' | 'credits' | 'submitter'>;
 
 export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapFavoritesGetExpand;

@@ -16,6 +16,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
@@ -276,6 +277,17 @@ export class AdminController {
     @LoggedInUser('id') adminID: number
   ): Promise<void> {
     await this.adminService.deleteUserRuns(userID, reason, adminID);
+  }
+
+  @Post('/rank-points/rebuild')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    description:
+      'Regenerate all rank points from the database in the background'
+  })
+  @ApiAcceptedResponse({ description: 'Rebuild started' })
+  rebuildRankPoints(): void {
+    this.adminService.rebuildRankPoints();
   }
 
   @Get('/reports')

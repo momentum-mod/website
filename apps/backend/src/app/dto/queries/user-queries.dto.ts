@@ -1,6 +1,11 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
+  Gamemode,
+  LeaderboardType,
+  Style,
+  TrackType,
+  UsersGetRunsQuery,
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
   UsersGetActivitiesQuery,
@@ -70,6 +75,28 @@ export class UsersGetAllQueryDto
   readonly userIDs?: number[];
 }
 
+export class UsersGetRunsQueryDto
+  extends PagedQueryDto
+  implements UsersGetRunsQuery
+{
+  @EnumQueryProperty(Gamemode, { description: 'Filter by gamemode' })
+  readonly gamemode?: Gamemode;
+
+  @EnumQueryProperty(TrackType, { description: 'Filter by track type' })
+  readonly trackType?: TrackType;
+
+  @IntQueryProperty({ description: 'Filter by track number' })
+  readonly trackNum?: number;
+
+  @EnumQueryProperty(Style, { description: 'Filter by style' })
+  readonly style?: Style;
+
+  @EnumQueryProperty(LeaderboardType, {
+    description: 'Filter by the type of the leaderboard the run is on'
+  })
+  readonly leaderboardType?: LeaderboardType;
+}
+
 export class UsersGetActivitiesQueryDto
   extends PagedQueryDto
   implements UsersGetActivitiesQuery
@@ -112,12 +139,6 @@ export class UserMapFavoritesGetQueryDto
   extends UserMapsBaseGetQuery
   implements UserMapFavoritesGetQuery
 {
-  @ExpandQueryProperty([
-    'info',
-    'credits',
-    'thumbnail',
-    'submitter',
-    'personalBest'
-  ])
+  @ExpandQueryProperty(['info', 'credits', 'thumbnail', 'submitter'])
   readonly expand: UserMapFavoritesGetExpand;
 }

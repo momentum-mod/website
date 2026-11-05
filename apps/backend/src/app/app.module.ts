@@ -28,6 +28,7 @@ import { GameConnectionModule } from './modules/game-connection/game-connection.
 import { TwitchModule } from './modules/twitch/twitch.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
+import { RankingModule } from './modules/ranking/ranking.module';
 import { WebsocketsModule } from './modules/websockets/websockets.module';
 
 @Module({
@@ -190,7 +191,8 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
     KillswitchModule,
     HealthcheckModule,
     GameConnectionModule,
-    TwitchModule
+    TwitchModule,
+    RankingModule
   ],
   providers: [
     {
