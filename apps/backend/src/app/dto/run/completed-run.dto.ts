@@ -25,10 +25,6 @@ class CosXpGain {
 }
 
 export class XpGainDto implements XpGain {
-  // @ApiProperty({ type: Number, description: 'New ranked XP of player' })
-  // @IsInt()
-  // readonly rankXP: number;
-
   @NestedProperty(CosXpGain)
   readonly cosXP: CosXpGain;
 }

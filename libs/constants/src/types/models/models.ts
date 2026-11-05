@@ -524,6 +524,18 @@ export interface Leaderboard {
   linear: boolean;
 }
 
+/**
+ * The components that uniquely identify a leaderboard. Leaderboards have no
+ * numeric ID; they are defined purely in terms of these.
+ */
+export interface LeaderboardIdentifier {
+  mapID: number;
+  gamemode: Gamemode;
+  trackType: TrackType;
+  trackNum: number;
+  style: Style;
+}
+
 export interface LeaderboardStats {
   leaderboard: Leaderboard;
   totalRuns: number;
@@ -549,6 +561,23 @@ export interface MapCompletion {
   rank: number | null;
 }
 
+/** A single row of a gamemode+style rank points ladder. */
+export interface RankEntry {
+  rank: number;
+  userID: number;
+  points: number;
+  user: User;
+}
+
+/** A user's position on a single gamemode+style rank points ladder. */
+export interface UserRank {
+  gamemode: Gamemode;
+  style: Style;
+  rank: number;
+  points: number;
+  totalPlayers: number;
+}
+
 export interface LeaderboardRun {
   gamemode: Gamemode;
   trackType: TrackType;
@@ -560,7 +589,8 @@ export interface LeaderboardRun {
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;
-  // rankXP: number;
+  points?: number;
+  totalRuns?: number;
   userID: number;
   user?: User;
   mapID: number;
@@ -687,7 +717,6 @@ export namespace RunSplits {
 }
 
 export interface XpGain {
-  // rankXP: number;
   cosXP: {
     gainLvl: number;
     oldXP: number;

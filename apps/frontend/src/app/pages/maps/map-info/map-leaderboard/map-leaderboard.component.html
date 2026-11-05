@@ -143,22 +143,22 @@
       </div>
     </div>
 
-    <p-select
-      class="ml-auto self-center"
-      [(ngModel)]="activeType"
-      [options]="LeaderboardFilterTypeDropdown"
-      optionLabel="label"
-      optionValue="type"
-      (onChange)="load.next()"
-      appendTo="body"
-    />
+    <div class="ml-auto flex items-center gap-4 self-center">
+      @if (localUserService.user | async) {
+        <button type="button" class="btn" (click)="jumpToSelf()">Jump to me</button>
+      }
+      <p-select
+        [(ngModel)]="activeType"
+        [options]="LeaderboardFilterTypeDropdown"
+        optionLabel="label"
+        optionValue="type"
+        (onChange)="reload()"
+        appendTo="body"
+      />
+    </div>
   </div>
 
-  @if (loading) {
-    <m-spinner />
-  }
-
-  @if (map.status === MapStatus.APPROVED && activeTags.length > 0) {
+  @if (map.status === MapStatus.APPROVED && activeTags?.length > 0) {
     <p class="text-lg">
       <span class="flex flex-wrap gap-1.5">
         @for (tag of activeTags; track $index) {
@@ -171,44 +171,119 @@
       </span>
     </p>
   }
-  @if (!loading && runs.length === 0) {
-    <h4 class="text-center">No runs found</h4>
-  }
-  @if (!loading && runs.length > 0) {
-    <div class="mt-4 w-full">
-      <!-- Below sm, the time and date are stacked in one column and the rank gets a fixed width, since percentage bases
-           don't leave enough room for the time. -->
-      <div class="flex gap-2 px-3 sm:gap-0 sm:px-4">
-        <p class="w-9 shrink-0 text-left sm:w-auto sm:basis-1/10">Rank</p>
-        <p class="min-w-0 grow basis-auto">User</p>
-        <p class="shrink-0 text-right sm:basis-1/10 sm:text-left">Time</p>
-        <p class="basis-3/20 text-right max-sm:hidden">Achieved</p>
-      </div>
-      @for (run of runs; track $index) {
-        <div
-          class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
-        >
-          <p class="text-shadow pointer-events-none w-9 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">{{ run.rank }}</p>
-          <div class="flex min-w-0 grow basis-auto gap-2">
-            <m-user class="contents" [user]="run.user" avatarClass="h-7" aliasClass="min-w-0 truncate" />
-          </div>
-          <div class="flex shrink-0 flex-col items-end sm:contents">
-            <p class="text-shadow pointer-events-none text-lg sm:basis-1/10">{{ run.time | timing }}</p>
-            <p class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:basis-3/20 sm:text-base sm:text-gray-50">
-              {{ run.createdAt | timeAgo }}
-            </p>
-          </div>
-          @if (isModOrAdmin) {
-            <button
-              type="button"
-              class="flex items-center rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100 sm:ml-4"
-              (click)="deleteRun(run)"
-            >
-              <m-icon class="h-4 w-4" icon="delete" />
-            </button>
-          }
-        </div>
+  <!-- Keep the current page on screen (dimmed) while the next one loads, rather than collapsing the list. -->
+  <div class="min-h-16" [mSpinner]="loading">
+    @if (runs.length === 0) {
+      @if (!loading) {
+        <h4 class="text-center">No runs found</h4>
       }
-    </div>
-  }
+    } @else {
+      <div class="mt-4 w-full">
+        <!-- Below sm, the time and date are stacked in one column and the rank gets a fixed width, since percentage bases
+           don't leave enough room for the time. -->
+        <div class="flex gap-2 px-3 sm:gap-0 sm:px-4">
+          <p class="w-9 shrink-0 text-left sm:w-auto sm:basis-1/10">Rank</p>
+          <p class="min-w-0 grow basis-auto">User</p>
+          <p class="shrink-0 text-right sm:basis-1/10 sm:text-left">Time</p>
+          @if (hasPoints) {
+            <p class="shrink-0 basis-[12%] px-3 text-right max-sm:hidden">Points</p>
+          }
+          <p class="basis-3/20 text-right max-sm:hidden">Achieved</p>
+        </div>
+        @for (run of runs; track $index) {
+          <div
+            class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
+            [id]="isLocalUser(run) ? 'leaderboard-run-self' : null"
+            [ngClass]="{ 'outline outline-1 [outline-color:rgb(255_255_255/0.4)]': isLocalUser(run) }"
+          >
+            <p class="text-shadow pointer-events-none w-9 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">
+              {{ run.rank }}
+            </p>
+            <div class="flex min-w-0 grow basis-auto gap-2">
+              <m-user class="contents" [user]="run.user" avatarClass="h-7" aliasClass="min-w-0 truncate" />
+            </div>
+            <div class="flex shrink-0 flex-col items-end sm:contents">
+              <p class="text-shadow pointer-events-none text-lg sm:basis-1/10">{{ run.time | timing }}</p>
+              @if (hasPoints) {
+                <p
+                  class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:shrink-0 sm:basis-[12%] sm:px-3 sm:text-lg sm:text-gray-50"
+                >
+                  @if (run.points != null) {
+                    {{ run.points | numberWithCommas }}<span class="sm:hidden"> pts</span>
+                  } @else {
+                    <span class="text-gray-400">—</span>
+                  }
+                </p>
+              }
+              <p class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:basis-3/20 sm:text-base sm:text-gray-50">
+                {{ run.createdAt | timeAgo }}
+              </p>
+            </div>
+            @if (isModOrAdmin) {
+              <button
+                type="button"
+                class="flex items-center rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100 sm:ml-4"
+                (click)="deleteRun(run)"
+              >
+                <m-icon class="h-4 w-4" icon="delete" />
+              </button>
+            }
+          </div>
+        }
+        @if (isPaged) {
+          <!-- With group jumps, the double arrows (and the page report, to keep it before them) come from the start/end
+               slots instead of the built-ins. The slots' margins are cleared so they sit where the built-ins would. -->
+          <p-paginator
+            class="mt-4 block [&_.p-paginator-content-end]:m-0 [&_.p-paginator-content-start]:m-0"
+            (onPageChange)="onPageChange($event)"
+            [first]="skip"
+            [rows]="take"
+            [totalRecords]="totalCount"
+            [showCurrentPageReport]="!jumpsByGroup"
+            [showFirstLastIcon]="!jumpsByGroup"
+            [templateLeft]="jumpsByGroup ? previousGroupJump : null"
+            [templateRight]="jumpsByGroup ? nextGroupJump : null"
+            [alwaysShow]="false"
+          />
+          <ng-template #previousGroupJump>
+            <div class="flex items-center">
+              <span class="p-paginator-current">{{ pageReport }}</span>
+              @if (previousGroupBoundary; as target) {
+                <button
+                  type="button"
+                  class="p-paginator-first"
+                  [attr.aria-label]="'Jump to ' + target.label"
+                  [mTooltip]="'Jump to ' + target.label + ' (rank ' + (target.rank | numberWithCommas) + ')'"
+                  (click)="jumpToRank(target.rank)"
+                >
+                  <svg data-p-icon="angle-double-left" class="p-paginator-first-icon"></svg>
+                </button>
+              } @else {
+                <button type="button" class="p-paginator-first p-disabled" disabled aria-label="Jump to previous group">
+                  <svg data-p-icon="angle-double-left" class="p-paginator-first-icon"></svg>
+                </button>
+              }
+            </div>
+          </ng-template>
+          <ng-template #nextGroupJump>
+            @if (nextGroupBoundary; as target) {
+              <button
+                type="button"
+                class="p-paginator-last"
+                [attr.aria-label]="'Jump to ' + target.label"
+                [mTooltip]="'Jump to ' + target.label + ' (rank ' + (target.rank | numberWithCommas) + ')'"
+                (click)="jumpToRank(target.rank)"
+              >
+                <svg data-p-icon="angle-double-right" class="p-paginator-last-icon"></svg>
+              </button>
+            } @else {
+              <button type="button" class="p-paginator-last p-disabled" disabled aria-label="Jump to next group">
+                <svg data-p-icon="angle-double-right" class="p-paginator-last-icon"></svg>
+              </button>
+            }
+          </ng-template>
+        }
+      </div>
+    }
+  </div>
 </div>
