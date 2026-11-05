@@ -10,6 +10,7 @@ import {
 import {
   GamemodeDefaultUIStyle,
   GamemodeInfo,
+  getRankGroupEnds,
   LeaderboardRun,
   LeaderboardType,
   MapLeaderboardGetQuery,
@@ -18,6 +19,8 @@ import {
   mapTagEnglishName,
   MMap,
   PagedResponse,
+  RANK_GROUP_COUNT,
+  RANK_GROUP_TOP_RANKS,
   Style,
   styleEnglishName,
   TrackType
@@ -31,11 +34,6 @@ import {
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon
 } from '@openng/optimus-ui/icons';
-import {
-  getRankGroupEnds,
-  RANK_GROUP_COUNT,
-  RANK_GROUP_TOP_RANKS
-} from '@momentum/xp-systems';
 import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import {
   GroupedMapLeaderboard,

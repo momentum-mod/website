@@ -8,14 +8,17 @@ import { catchError, switchMap, tap } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import {
+  CompletionGroup,
   Gamemode,
   GamemodeInfo,
+  getCompletionGroup,
+  getRankGroupEnds,
   LeaderboardRun,
   LeaderboardType,
+  RANK_GROUP_TOP_RANKS,
   TrackType,
   TrackTypeName
 } from '@momentum/constants';
-import { getRankGroup, RANK_GROUP_TOP_RANKS } from '@momentum/xp-systems';
 import { UsersService } from '../../../services/data/users.service';
 import { GamemodeSelectComponent } from '../../../components/gamemode-select/gamemode-select.component';
 import { SpinnerDirective } from '../../../directives/spinner.directive';
@@ -143,12 +146,15 @@ export class ProfileRunsComponent implements OnChanges {
       return { label: 'WR', title: 'World record', color: 'wr' };
     if (run.rank <= RANK_GROUP_TOP_RANKS)
       return { label: 'TOP 10', title: 'Top 10', color: 'top10' };
-    const group = run.totalRuns ? getRankGroup(run.rank, run.totalRuns) : null;
-    if (!group) return null;
+    const group = run.totalRuns
+      ? getCompletionGroup(run.rank, getRankGroupEnds(run.totalRuns))
+      : null;
+    if (group === null) return null;
+    const groupNum = group - CompletionGroup.GROUP_1 + 1;
     return {
-      label: `G${group.group}`,
-      title: `Group ${group.group}`,
-      color: `${group.group}`
+      label: `G${groupNum}`,
+      title: `Group ${groupNum}`,
+      color: `${groupNum}`
     };
   }
 
