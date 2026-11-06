@@ -1,3 +1,4 @@
+import 'zone.js';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import {
@@ -7,10 +8,7 @@ import {
 } from '@angular/common/http';
 import { APP_BASE_HREF, IMAGE_CONFIG } from '@angular/common';
 import { provideRouter, TitleStrategy } from '@angular/router';
-import {
-  importProvidersFrom,
-  provideZonelessChangeDetection
-} from '@angular/core';
+import { importProvidersFrom } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -22,7 +20,6 @@ import { MomentumPreset } from './app/theme/primeng-preset';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideZonelessChangeDetection(),
     importProvidersFrom(BrowserModule),
     { provide: APP_BASE_HREF, useValue: '/' },
     {
