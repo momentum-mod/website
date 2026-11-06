@@ -1,6 +1,10 @@
 import * as assert from 'node:assert/strict';
 import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  ServiceUnavailableException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SteamService } from './steam.service';
 
@@ -39,6 +43,41 @@ describe('SteamService', () => {
 
   afterEach(() => {
     mock.restoreAll();
+  });
+
+  describe('tryAuthenticateUserTicketOnline', () => {
+    it('should return the SteamID for a valid ticket', async () => {
+      setFetchMockResponse({
+        response: { params: { result: 'OK', steamid: '76561198039308694' } }
+      });
+
+      const result = await service.tryAuthenticateUserTicketOnline('ticket', 1);
+
+      assert.strictEqual(result, 76561198039308694n);
+    });
+
+    it('should throw an UnauthorizedException for a rejected ticket', async () => {
+      setFetchMockResponse({
+        response: { error: { errorcode: 3, errordesc: 'Invalid parameter' } }
+      });
+
+      await assert.rejects(
+        service.tryAuthenticateUserTicketOnline('ticket', 1),
+        UnauthorizedException
+      );
+    });
+
+    it('should throw a ServiceUnavailableException for an unparseable response', async () => {
+      responses.push({
+        text: () => Promise.resolve('<html>Forbidden</html>'),
+        json: () => Promise.reject(new SyntaxError('Unexpected token'))
+      });
+
+      await assert.rejects(
+        service.tryAuthenticateUserTicketOnline('ticket', 1),
+        ServiceUnavailableException
+      );
+    });
   });
 
   describe('isAccountLimited', () => {
