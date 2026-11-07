@@ -16,6 +16,7 @@ import {
 import { LobbyService } from '../../backend/src/app/modules/lobby/lobby.service';
 import { WebsocketService } from '../../backend/src/app/modules/websockets/websocket.service';
 import { AuthenticatedWebSocket } from '../../backend/src/app/modules/websockets/websocket.adapter';
+import { WsResponseDto } from '../../backend/src/app/dto';
 
 // E2E tests for the lobby tracking half of the game connection WebSocket
 // gateway (lobby.update/leave/mapcounts), and the LobbyService queries built on
@@ -561,12 +562,24 @@ describe('Game Connection Gateway - lobbies', () => {
         isMapLobby: false
       });
 
-      const message = { event: 'lobby.test', data: { hello: 'world' } };
+      class MockDto {
+        hello: string;
+        constructor(hello: string) {
+          this.hello = hello;
+        }
+      }
+
+      const message = new WsResponseDto(MockDto, 'lobby.test', {
+        hello: 'world'
+      });
       await lobbyService.broadcastToLobby(LOBBY_A, message, {
         excludeUserID: user.id
       });
 
-      assert.deepEqual(await member.next(), message);
+      assert.deepEqual(await member.next(), {
+        event: 'lobby.test',
+        data: { hello: 'world' }
+      });
       await assert.rejects(sender.next(200));
       await assert.rejects(outsider.next(200));
     });

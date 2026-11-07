@@ -1,9 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { JsonValue } from 'type-fest';
 import { ClientContext, Result } from 'iovalkey';
 import { Gamemode, MapLobbyPlayerCount } from '@momentum/constants';
-import { LobbyStatusDto } from '../../dto';
+import { LobbyStatusDto, WsResponseDto } from '../../dto';
 import { ValkeyService } from '../valkey/valkey.service';
 import {
   isNewerConnection,
@@ -230,9 +229,9 @@ export class LobbyService implements OnModuleInit {
   /**
    * Send a message to every connected user in a lobby.
    */
-  async broadcastToLobby(
+  async broadcastToLobby<T>(
     lobbyID: string,
-    message: JsonValue,
+    message: WsResponseDto<T>,
     { excludeUserID }: { excludeUserID?: number } = {}
   ): Promise<void> {
     let recipients = await this.getLobbyMembers(lobbyID);

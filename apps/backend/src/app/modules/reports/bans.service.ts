@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { instanceToPlain } from 'class-transformer';
 import { Prisma } from '@momentum/db';
-import { DtoFactory, PlayerChatBansDto } from '../../dto';
+import { UserDto, WsResponseDto } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { WebsocketService } from '../websockets/websocket.service';
@@ -28,9 +27,7 @@ export class BansService {
    * Active bans of each of the given players. Players with no active bans, or
    * no account, are left out.
    */
-  async getPlayerBans(
-    steamIDs: string[]
-  ): Promise<{ players: PlayerChatBansDto[] }> {
+  async getPlayerBans(steamIDs: string[]) {
     const users = await this.db.user.findMany({
       where: {
         steamID: { in: Array.from(new Set(steamIDs)).map(BigInt) },
@@ -39,7 +36,14 @@ export class BansService {
       select: playerBansSelect()
     });
 
-    return { players: users.map(toPlayerChatBansDto) };
+    return {
+      // TODO: Stupid .map to rename chatBans to bans, table is becoming bans in
+      // future anyway...
+      players: users.map(({ steamID, chatBans }) => ({
+        steamID,
+        bans: chatBans
+      }))
+    };
   }
 
   /**
@@ -48,6 +52,12 @@ export class BansService {
    *
    * Goes to everyone rather than the user's lobby, since that's only known
    * from what the user's own client reports.
+   *
+   * TODO: This is adds unnecessary load across all workers, we either need a
+   * staggered message delivery system (probably want this for other announces
+   * anyway), or just implement this in a more sensible way -- make game clients
+   * communicate other players in their lobby so we can have reliable sync'd
+   * state.
    */
   async broadcastPlayerBans(userID: number): Promise<void> {
     try {
@@ -57,10 +67,12 @@ export class BansService {
       });
       if (!user) return;
 
-      this.wsService.broadcastToAll({
-        event: 'chatbans.update',
-        data: instanceToPlain(toPlayerChatBansDto(user))
-      });
+      (user as any).bans = user.chatBans; // TODO: Stupid rename, see above
+      delete user.chatBans;
+
+      this.wsService.broadcastToAll(
+        new WsResponseDto(UserDto, 'chatbans.update', user)
+      );
     } catch (error) {
       // The ban change itself succeeded, so don't fail the request over this.
       // Clients that missed it pick it up the next time they look the user up.
@@ -72,23 +84,16 @@ export class BansService {
   }
 }
 
-function playerBansSelect() {
-  return {
-    steamID: true,
-    chatBans: {
-      where: activeBanFilter(),
-      select: { type: true, expiresAt: true }
-    }
-  } satisfies Prisma.UserSelect;
-}
+export type PlayerBans = Array<Pick<UserDto, 'steamID' | 'chatBans'>>;
 
-function activeBanFilter(): Prisma.ChatBanWhereInput {
-  return { OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] };
-}
+const playerBansSelect = () => ({
+  steamID: true,
+  chatBans: {
+    where: activeBanFilter(),
+    select: { type: true, expiresAt: true }
+  }
+});
 
-function toPlayerChatBansDto({
-  steamID,
-  chatBans: bans
-}: Prisma.UserGetPayload<{ select: ReturnType<typeof playerBansSelect> }>) {
-  return DtoFactory(PlayerChatBansDto, { steamID, bans });
-}
+const activeBanFilter = (): Prisma.ChatBanWhereInput => ({
+  OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
+});
