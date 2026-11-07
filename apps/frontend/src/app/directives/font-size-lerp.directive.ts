@@ -11,14 +11,13 @@ import { Directive, HostBinding, OnChanges, input } from '@angular/core';
  * I couldn't get them working very well, so this is good enough for the time
  * being.
  */
-// eslint-disable-next-line @angular-eslint/directive-selector
-@Directive({ selector: '[fontSizeLerp]', standalone: true })
+@Directive({ selector: '[mFontSizeLerp]', standalone: true })
 export class FontSizeLerpDirective implements OnChanges {
   readonly options = input<{
     chars: number;
     startAt: number;
     baseRem: number;
-  }>(undefined, { alias: 'fontSizeLerp' });
+  }>(undefined, { alias: 'mFontSizeLerp' });
 
   @HostBinding('style.font-size') fontSize: string;
 

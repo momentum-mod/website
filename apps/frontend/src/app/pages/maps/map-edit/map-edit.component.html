@@ -21,7 +21,7 @@
   [mSpinner]="loading"
   class="my-8 card flex-col overflow-visible card--fancy p-4"
   [ngClass]="canEdit || isSubmitter ? 'flex!' : 'hidden!'"
-  preventEnterSubmit
+  mPreventEnterSubmit
 >
   <div class="-mt-10 mb-2 card-title text-4xl md:text-5xl">Submit New Version</div>
   <div class="flex flex-col gap-4 lg:flex-row">
@@ -99,7 +99,7 @@
   [mSpinner]="loading"
   class="mt-14 mb-8 card flex-col gap-8 overflow-visible card--fancy p-4"
   [ngClass]="isModOrAdmin || isSubmitter || isReviewer ? 'flex!' : 'hidden!'"
-  preventEnterSubmit
+  mPreventEnterSubmit
 >
   <p class="-mt-9 -mb-4 card-title text-4xl md:text-5xl">Update Map</p>
 
