@@ -65,6 +65,7 @@ export class UtilitiesComponent implements OnInit {
 
   // Forms get reset from async dialog callbacks, so the template reads these
   // rather than the controls directly.
+  // Can probably remove this once we switch to single-based forms.
   protected readonly aliasInvalid = toSignal(
     this.userForm.controls.alias.statusChanges.pipe(
       map((status) => status === 'INVALID')

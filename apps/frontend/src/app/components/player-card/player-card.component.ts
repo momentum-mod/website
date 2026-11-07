@@ -18,7 +18,6 @@ import {
 export class PlayerCardComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly xpService = inject(XpSystemsService);
-  // Null users are ignored, so this keeps showing the last logged-in user.
   protected readonly user = toSignal<FullUser>(
     this.localUserService.user.pipe(filter(Boolean))
   );
