@@ -1,12 +1,9 @@
+import { Component, SecurityContext, inject } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
-  Component,
-  Input,
-  OnInit,
-  SecurityContext,
-  inject
-} from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
 
 @Component({
   selector: 'm-confirm-dialog',
@@ -26,7 +23,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
       ></button>
     </div>`
 })
-export class ConfirmDialogComponent implements OnInit {
+export class ConfirmDialogComponent {
   protected readonly ref = inject(DynamicDialogRef);
   protected readonly config = inject<
     DynamicDialogConfig<{
@@ -35,33 +32,21 @@ export class ConfirmDialogComponent implements OnInit {
       proceedMessage?: string;
     }>
   >(DynamicDialogConfig);
-  private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer = inject(DomSanitizer);
 
-  @Input({ required: true }) message: SafeHtml;
-  @Input({ required: false }) abortMessage: SafeHtml;
-  @Input({ required: false }) proceedMessage: SafeHtml;
+  protected readonly message = this.trust(
+    this.config.data.message.replaceAll('\n', '<br/>')
+  );
+  protected readonly abortMessage = this.trust(
+    this.config.data.abortMessage ?? 'Close'
+  );
+  protected readonly proceedMessage = this.trust(
+    this.config.data.proceedMessage ?? 'Submit'
+  );
 
-  ngOnInit() {
-    const sanitizedMessage = this.sanitizer.sanitize(
-      SecurityContext.HTML,
-      this.config.data.message.replaceAll('\n', '<br/>')
-    );
-    this.message = this.sanitizer.bypassSecurityTrustHtml(sanitizedMessage);
-
-    const sanitizedAbortMessage = this.sanitizer.sanitize(
-      SecurityContext.HTML,
-      this.config.data.abortMessage ?? 'Close'
-    );
-    this.abortMessage = this.sanitizer.bypassSecurityTrustHtml(
-      sanitizedAbortMessage
-    );
-
-    const sanitizedProceedMessage = this.sanitizer.sanitize(
-      SecurityContext.HTML,
-      this.config.data.proceedMessage ?? 'Submit'
-    );
-    this.proceedMessage = this.sanitizer.bypassSecurityTrustHtml(
-      sanitizedProceedMessage
+  private trust(html: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(
+      this.sanitizer.sanitize(SecurityContext.HTML, html)
     );
   }
 

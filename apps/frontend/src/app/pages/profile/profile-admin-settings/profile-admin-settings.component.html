@@ -1,3 +1,7 @@
+@let chatBans = this.chatBans();
+@let loadingChatBans = this.loadingChatBans();
+@let mergeUser = this.mergeUser();
+@let mergeErr = this.mergeErr();
 <div class="flex max-h-[75vh] flex-col gap-4 overflow-y-auto">
   <div [mSpinner]="loadingChatBans">
     <h2>Communication Bans</h2>
@@ -6,22 +10,22 @@
     }
     <div class="flex flex-col gap-3">
       @for (ban of chatBans; track ban.id) {
-        <div class="card-inset flex flex-col gap-1 p-3">
+        <div class="flex card-inset flex-col gap-1 p-3">
           <div class="flex flex-wrap items-center gap-2">
             <span class="font-medium">{{ ChatBanTypeNames.get(ban.type) }}</span>
             @if (isActive(ban)) {
               <span
-                class="rounded bg-red-800 px-2 py-0.5 text-xs"
+                class="rounded-sm bg-red-800 px-2 py-0.5 text-xs"
                 [title]="ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'This ban does not expire'"
                 >Active - {{ expiryLabel(ban) }}</span
               >
             } @else {
-              <span class="rounded bg-gray-700 px-2 py-0.5 text-xs">Expired</span>
+              <span class="rounded-sm bg-gray-700 px-2 py-0.5 text-xs">Expired</span>
             }
           </div>
 
           @if (ban.reason) {
-            <p class="whitespace-break-spaces text-sm">{{ ban.reason }}</p>
+            <p class="text-sm whitespace-break-spaces">{{ ban.reason }}</p>
           }
 
           <p class="text-sm text-gray-300">
@@ -30,7 +34,7 @@
             }
             @if (ban.issuer) {
               <span>
-                by <a class="hover:!text-blue-500" [routerLink]="'/profile/' + ban.issuer.id">{{ ban.issuer.alias }}</a></span
+                by <a class="hover:text-blue-500!" [routerLink]="'/profile/' + ban.issuer.id">{{ ban.issuer.alias }}</a></span
               >
             }
             <span> - {{ ban.expiresAt ? 'Expires ' + (ban.expiresAt | date: 'medium') : 'Never expires' }}</span>
@@ -62,7 +66,7 @@
     </div>
   </div>
 
-  <div [formGroup]="adminEditForm" class="border-t border-white border-opacity-10 pt-4">
+  <div [formGroup]="adminEditForm" class="border-t border-white/10 pt-4">
     <div class="mb-4 flex flex-wrap gap-x-8 gap-y-4">
       <div>
         <h2>Bans</h2>
@@ -131,10 +135,10 @@
         </div>
       }
     }
-    <button class="btn btn-green mt-2" type="button" (click)="saveAdminSettings()">Save Admin Settings</button>
+    <button class="btn mt-2 btn-green" type="button" (click)="saveAdminSettings()">Save Admin Settings</button>
   </div>
 
-  <div class="flex flex-wrap items-center justify-between gap-2 border-t border-white border-opacity-10 pt-4">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
     <button class="btn" type="button" (click)="close()">Close</button>
     <div class="flex flex-wrap gap-2">
       <button class="px-2 text-red-500 transition-colors hover:text-red-400" type="button" (click)="deleteRuns()">Purge runs</button>

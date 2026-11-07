@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 
 @Directive({
-  selector: '[dynamicTextareaHeight]'
+  selector: '[mDynamicTextareaHeight]'
 })
 export class DynamicTextareaHeightDirective {
   private readonly renderer = inject(Renderer2);

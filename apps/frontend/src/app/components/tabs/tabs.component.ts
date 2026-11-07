@@ -1,9 +1,9 @@
 import {
   AfterContentInit,
   Component,
-  ContentChildren,
-  Input,
-  QueryList
+  contentChildren,
+  input,
+  signal
 } from '@angular/core';
 import { NgClass, NgStyle } from '@angular/common';
 import { TabDirective } from './tab.component';
@@ -16,16 +16,16 @@ import { TabDirective } from './tab.component';
   // parent, carousel could look good - though I'd rather not bunge a PrimeNG one
   // in here... Maybe okay?
   template: `<div class="w-full flex gap-2 items-center scroll-auto">
-      @for (tab of tabs; track $index) {
+      @for (tab of tabs(); track $index) {
         <button
           type="button"
-          class="p-2 font-display text-gray-300 drop-shadow font-bold
+          class="p-2 font-display text-gray-300 drop-shadow-sm font-bold
                  leading-none transition-colors hover:text-gray-200"
           (click)="selectTab($index)"
-          [ngClass]="{ '!text-gray-50': activeIndex === $index }"
-          [ngStyle]="{ 'font-size': headerFontSize }"
+          [ngClass]="{ 'text-gray-50!': activeIndex() === $index }"
+          [ngStyle]="{ 'font-size': headerFontSize() }"
         >
-          {{ tab.tabName }}
+          {{ tab.tabName() }}
         </button>
       }
     </div>
@@ -34,17 +34,17 @@ import { TabDirective } from './tab.component';
     </div> `
 })
 export class TabsComponent implements AfterContentInit {
-  @Input() headerFontSize = '2rem';
-  @ContentChildren(TabDirective) tabs: QueryList<TabDirective>;
+  readonly headerFontSize = input('2rem');
+  readonly tabs = contentChildren(TabDirective);
 
-  protected activeIndex: number;
+  protected readonly activeIndex = signal(0);
 
   ngAfterContentInit(): void {
     this.selectTab(0);
   }
 
   selectTab(index: number): void {
-    this.activeIndex = index;
-    this.tabs.forEach((tab, i) => (tab.selected = i === index));
+    this.activeIndex.set(index);
+    this.tabs().forEach((tab, i) => tab.selected.set(i === index));
   }
 }

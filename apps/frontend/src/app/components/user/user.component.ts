@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { User } from '@momentum/constants';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { NgClass } from '@angular/common';
@@ -15,21 +15,21 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
 @Component({
   selector: 'm-user',
   imports: [AvatarComponent, NgClass, RoleBadgesComponent, RouterLink],
-  template: ` @if (user) {
+  template: ` @if (user(); as user) {
     <m-avatar
-      class="h-8 shadow"
-      [ngClass]="avatarClass"
+      class="h-8 shadow-sm"
+      [ngClass]="avatarClass()"
       [url]="user.avatarURL"
     />
     <a
       [routerLink]="'/profile/' + user.id"
       class="text-lg text-shadow transition-colors [:hover>&]:text-blue-200"
-      [ngClass]="aliasClass"
+      [ngClass]="aliasClass()"
     >
       {{ user.alias }}
     </a>
-    @if (badges && user.roles > 0) {
-      <m-role-badges [roles]="user.roles" [ngClass]="badgesClass" />
+    @if (badges() && user.roles > 0) {
+      <m-role-badges [roles]="user.roles" [ngClass]="badgesClass()" />
     }
   }`,
   styles: [
@@ -44,9 +44,9 @@ import { RoleBadgesComponent } from '../role-badges/role-badges.component';
   ]
 })
 export class UserComponent {
-  @Input({ required: true }) user!: User;
-  @Input() aliasClass?: string;
-  @Input() avatarClass?: string;
-  @Input() badges = false;
-  @Input() badgesClass?: string;
+  readonly user = input.required<User>();
+  readonly aliasClass = input<string>();
+  readonly avatarClass = input<string>();
+  readonly badges = input(false);
+  readonly badgesClass = input<string>();
 }

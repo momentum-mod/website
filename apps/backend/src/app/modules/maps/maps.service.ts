@@ -55,8 +55,8 @@ import {
   isEmpty,
   parallel
 } from '@momentum/util-fn';
-import { File } from '@nest-lab/fastify-multer';
-import { vdf } from 'fast-vdf';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
+import { parse as parseVdf } from 'fast-vdf';
 import Zip from 'adm-zip';
 import { ConfigService } from '@nestjs/config';
 import { Merge, MergeExclusive } from 'type-fest';
@@ -626,7 +626,7 @@ export class MapsService {
   async submitMap(
     dto: CreateMapDto,
     userID: number,
-    vmfFiles?: File[]
+    vmfFiles?: UploadedMultipartFile[]
   ): Promise<MapDto> {
     await this.checkCreateDto(userID, dto);
 
@@ -735,7 +735,7 @@ export class MapsService {
     mapID: number,
     dto: CreateMapVersionDto,
     userID: number,
-    vmfFiles?: File[]
+    vmfFiles?: UploadedMultipartFile[]
   ): Promise<MapDto> {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
@@ -1183,22 +1183,20 @@ export class MapsService {
       });
 
     // Rare that this actual happens, currently just in case inLinear changes
-    if (toUpdate.length > 0)
-      for (const { gamemode, trackType, trackNum, linear } of toUpdate) {
-        // updateMany rather than update (and deleteMany below) ensures this
-        // handles styles in the future
-        await tx.leaderboard.updateMany({
-          where: { mapID, gamemode, trackType, trackNum },
-          data: { linear }
-        });
-      }
+    for (const { gamemode, trackType, trackNum, linear } of toUpdate) {
+      // updateMany rather than update (and deleteMany below) ensures this
+      // handles styles in the future
+      await tx.leaderboard.updateMany({
+        where: { mapID, gamemode, trackType, trackNum },
+        data: { linear }
+      });
+    }
 
-    if (toDelete.length > 0)
-      for (const { gamemode, trackType, trackNum } of toDelete) {
-        await tx.leaderboard.deleteMany({
-          where: { mapID, gamemode, trackType, trackNum }
-        });
-      }
+    for (const { gamemode, trackType, trackNum } of toDelete) {
+      await tx.leaderboard.deleteMany({
+        where: { mapID, gamemode, trackType, trackNum }
+      });
+    }
   }
 
   private async createMapUploadedActivities(
@@ -1209,17 +1207,18 @@ export class MapsService {
     await tx.activity.createMany({
       data: credits
         .filter((credit) => credit.type === MapCreditType.AUTHOR)
-        .map(
-          (credit): Prisma.ActivityCreateManyInput => ({
-            type: ActivityType.MAP_UPLOADED,
-            userID: credit.userID,
-            data: mapID
-          })
-        )
+        .map((credit): Prisma.ActivityCreateManyInput => ({
+          type: ActivityType.MAP_UPLOADED,
+          userID: credit.userID,
+          data: mapID
+        }))
     });
   }
 
-  private checkMapFiles(vmfFiles: File[], bspFile?: File) {
+  private checkMapFiles(
+    vmfFiles: UploadedMultipartFile[],
+    bspFile?: UploadedMultipartFile
+  ) {
     if (bspFile && !bspFile.originalname.endsWith('.bsp')) {
       throw new BadRequestException('Bad BSP name');
     }
@@ -1232,7 +1231,7 @@ export class MapsService {
         throw new BadRequestException('Invalid VMF file');
 
       try {
-        vdf.parse(file.buffer.toString());
+        parseVdf(file.buffer.toString());
       } catch (error) {
         throw new BadRequestException(`Invalid VMF file: ${error.message}`);
       }
@@ -1242,7 +1241,7 @@ export class MapsService {
   private async zipVmfFiles(
     mapName: string,
     version: number,
-    files: File[]
+    files: UploadedMultipartFile[]
   ): Promise<Buffer> {
     const zip = new Zip();
     for (const [i, file] of files.entries()) {
@@ -1257,7 +1256,7 @@ export class MapsService {
 
   private async uploadMapVersionFiles(
     bspId: string,
-    bspFile?: File,
+    bspFile?: UploadedMultipartFile,
     vmfId?: string,
     vmfZip?: Buffer,
     mapName?: string
@@ -1760,13 +1759,11 @@ export class MapsService {
     });
 
     await tx.activity.createMany({
-      data: allCredits.map(
-        (credit): Prisma.ActivityCreateManyInput => ({
-          type: ActivityType.MAP_APPROVED,
-          userID: credit.userID,
-          data: map.id
-        })
-      )
+      data: allCredits.map((credit): Prisma.ActivityCreateManyInput => ({
+        type: ActivityType.MAP_APPROVED,
+        userID: credit.userID,
+        data: map.id
+      }))
     });
 
     const { currentVersion, versions } = await tx.mMap.findFirst({
@@ -2408,7 +2405,7 @@ export class MapsService {
    * Check if provided bsp file was compressed with bspzip
    * @throws BadRequestException
    */
-  async checkMapCompression(bspFile: File) {
+  async checkMapCompression(bspFile: UploadedMultipartFile) {
     const header = await BspHeader.fromBlob(
       new Blob([bspFile.buffer.buffer as ArrayBuffer])
     ).catch((error) => {
@@ -2423,7 +2420,9 @@ export class MapsService {
       throw new BadRequestException('BSP is not compressed');
   }
 
-  async tryGetBspFromTempUploads(userID: number): Promise<File | null> {
+  async tryGetBspFromTempUploads(
+    userID: number
+  ): Promise<UploadedMultipartFile | null> {
     const userIDObjects = await this.fileStoreService.listFileKeys(
       `upload_tmp/${userID}`
     );
@@ -2434,13 +2433,16 @@ export class MapsService {
 
     const bspData = await this.fileStoreService.getFile(userIDObjects[0]);
 
+    const buffer = Buffer.from(bspData);
+
     return {
       fieldname: 'bsp',
       originalname: 'map.bsp',
       encoding: '7bit',
       mimetype: 'model/vnd.valve.source.compiled-map',
       path: userIDObjects[0],
-      buffer: Buffer.from(bspData)
+      size: buffer.length,
+      buffer
     };
   }
 

@@ -1,44 +1,45 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CombinedRoles } from '@momentum/constants';
 import { SIDENAV_ITEMS } from '../../side-menu.const';
 import { LocalUserService } from '../../services/data/local-user.service';
 import { LayoutService, SidenavState } from '../../services/layout.service';
 import { map } from 'rxjs/operators';
-import { combineLatest, Observable } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '../../icons';
-import { AsyncPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'm-sidenav',
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.css'],
-  imports: [IconComponent, RouterModule, AsyncPipe, TooltipDirective, NgClass]
+  imports: [IconComponent, RouterModule, TooltipDirective, NgClass]
 })
 export class SidenavComponent {
   private readonly localUserService = inject(LocalUserService);
   private readonly layoutService = inject(LayoutService);
 
-  protected collapsed: Observable<boolean> =
+  protected readonly collapsed = toSignal(
     this.layoutService.sidenavToggled.pipe(
       map((state) => state === SidenavState.CLOSED)
-    );
+    )
+  );
+  private readonly isMobile = toSignal(this.layoutService.isMobile);
 
   /**
    * Item names are only hidden (so need tooltips) when the desktop sidebar is
    * collapsed. In the mobile drawer they're always visible.
    */
-  protected showTooltips: Observable<boolean> = combineLatest([
-    this.collapsed,
-    this.layoutService.isMobile
-  ]).pipe(map(([collapsed, isMobile]) => collapsed && !isMobile));
+  protected readonly showTooltips = computed(
+    () => this.collapsed() && !this.isMobile()
+  );
 
   protected close() {
     this.layoutService.setSidenavState(SidenavState.CLOSED);
   }
 
-  protected menuItems: Observable<typeof SIDENAV_ITEMS> =
+  protected readonly menuItems = toSignal(
     this.localUserService.user.pipe(
       map((user) => {
         const isLoggedIn = user != null;
@@ -55,5 +56,7 @@ export class SidenavComponent {
           )
         }));
       })
-    );
+    ),
+    { initialValue: [] as typeof SIDENAV_ITEMS }
+  );
 }

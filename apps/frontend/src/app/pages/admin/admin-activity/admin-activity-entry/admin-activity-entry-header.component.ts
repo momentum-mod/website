@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AdminActivity } from '@momentum/constants';
 import { AdminActivityEntryData } from './admin-activity-entry.component';
@@ -11,25 +11,27 @@ import { AvatarComponent } from '../../../../components/avatar/avatar.component'
   selector: 'm-admin-activity-entry-header',
   template: `
     <div class="flex min-h-[40px] flex-wrap items-center gap-1 py-1">
-      <a routerLink="/profile/{{ activity.userID }}" class="contents">
-        <m-avatar [url]="activity.user.avatarURL" class="mr-2 !h-7" />
-        <p>{{ activity.user.alias }}</p>
+      <a routerLink="/profile/{{ activity().userID }}" class="contents">
+        <m-avatar [url]="activity().user.avatarURL" class="mr-2 h-7!" />
+        <p>{{ activity().user.alias }}</p>
       </a>
-      <p>{{ activityData.actionText }}</p>
+      <p>{{ activityData().actionText }}</p>
       <a
-        [ngClass]="activityData.targetLink ? 'link' : ''"
-        [ngStyle]="{ cursor: activityData.targetLink ? 'pointer' : 'auto' }"
-        [routerLink]="activityData.targetLink ? activityData.targetLink : null"
+        [ngClass]="activityData().targetLink ? 'link' : ''"
+        [ngStyle]="{ cursor: activityData().targetLink ? 'pointer' : 'auto' }"
+        [routerLink]="
+          activityData().targetLink ? activityData().targetLink : null
+        "
       >
-        <b>{{ activityData.targetName }}</b>
+        <b>{{ activityData().targetName }}</b>
       </a>
 
-      <p class="ml-auto">{{ activity.createdAt | timeAgo }}</p>
+      <p class="ml-auto">{{ activity().createdAt | timeAgo }}</p>
     </div>
   `,
   imports: [TimeAgoPipe, RouterLink, NgStyle, AvatarComponent, NgClass]
 })
 export class AdminActivityEntryHeaderComponent {
-  @Input({ required: true }) activity: AdminActivity;
-  @Input({ required: true }) activityData: AdminActivityEntryData;
+  readonly activity = input.required<AdminActivity>();
+  readonly activityData = input.required<AdminActivityEntryData>();
 }

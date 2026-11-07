@@ -2,7 +2,8 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "strict": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "ignoreDeprecations": "6.0"
   },
   "extends": "../../tsconfig.json"
 }

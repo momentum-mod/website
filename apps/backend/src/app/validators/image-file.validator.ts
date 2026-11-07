@@ -1,12 +1,7 @@
 import { FileValidator } from '@nestjs/common';
-import sharp from 'sharp';
-import * as Multer from '@nest-lab/fastify-multer';
-import { IFile } from '@nestjs/common/pipes/file/interfaces';
+import sharp, { type FormatEnum, type Metadata } from 'sharp';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 import { ImageType } from '@momentum/constants';
-
-// Fastify Multer's version has `size` optional for some reason, let Nest
-// interface take precedence.
-type NestCompatibleFile = Multer.File & IFile;
 
 export interface ImageFileValidatorOptions {
   /** Omit to accept any format */
@@ -22,18 +17,18 @@ export interface ImageFileValidatorOptions {
  */
 export class ImageFileValidator extends FileValidator<
   ImageFileValidatorOptions,
-  NestCompatibleFile
+  UploadedMultipartFile
 > {
   constructor(
     options: ImageFileValidatorOptions,
-    private readonly readMetadata: (
-      buffer: Buffer
-    ) => Promise<sharp.Metadata> = (buffer) => sharp(buffer).metadata()
+    private readonly readMetadata: (buffer: Buffer) => Promise<Metadata> = (
+      buffer
+    ) => sharp(buffer).metadata()
   ) {
     super(options);
   }
 
-  async isValid(file?: NestCompatibleFile): Promise<boolean> {
+  async isValid(file?: UploadedMultipartFile): Promise<boolean> {
     if (!file) return false;
     let mimetype: ImageType | undefined;
     if (file.mimetype) {
@@ -48,7 +43,7 @@ export class ImageFileValidator extends FileValidator<
       }
     }
 
-    let metadata: sharp.Metadata;
+    let metadata: Metadata;
     try {
       // This does the brunt of the validation - sharp will autodetect image
       // formats, and throw if it can't parse it at all
@@ -91,7 +86,7 @@ export class ImageFileValidator extends FileValidator<
 
   private static compareImageType(
     imageType: ImageType,
-    sharpType: keyof sharp.FormatEnum
+    sharpType: keyof FormatEnum
   ): boolean {
     switch (imageType) {
       case ImageType.JPG:

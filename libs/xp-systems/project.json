@@ -15,10 +15,6 @@
         "assets": ["libs/xp-systems/*.md"]
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
     "test": {
       "executor": "nx:run-commands",
       "cache": true,
@@ -29,6 +25,14 @@
           "TS_NODE_PROJECT": "libs/xp-systems/tsconfig.spec.json"
         }
       }
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*"
+      ]
     }
   }
 }

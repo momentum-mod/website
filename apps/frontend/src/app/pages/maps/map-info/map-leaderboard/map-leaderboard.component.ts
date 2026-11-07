@@ -1,4 +1,11 @@
-import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnChanges,
+  inject,
+  input,
+  signal
+} from '@angular/core';
 import {
   GamemodeDefaultUIStyle,
   GamemodeInfo,
@@ -16,9 +23,9 @@ import {
 } from '@momentum/constants';
 import { mapHttpError } from '../../../../util/rxjs/map-http-error';
 import { Observable, Subject, switchMap, tap } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { SelectModule } from 'primeng/select';
-import { DialogService } from 'primeng/dynamicdialog';
+import { MessageService } from '@openng/optimus-ui/api';
+import { SelectModule } from '@openng/optimus-ui/select';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import {
   GroupedMapLeaderboard,
   GroupedMapLeaderboards,
@@ -37,7 +44,7 @@ import { TooltipDirective } from '../../../../directives/tooltip.directive';
 import { IconComponent } from '../../../../icons';
 import { NgClass, NgStyle } from '@angular/common';
 import { RangePipe } from '../../../../pipes/range.pipe';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { FormsModule } from '@angular/forms';
 import { TimingPipe } from '../../../../pipes/timing.pipe';
 import { TimeAgoPipe } from '../../../../pipes/time-ago.pipe';
@@ -102,52 +109,57 @@ export class MapLeaderboardComponent implements OnChanges {
   protected readonly mapTagEnglishName = mapTagEnglishName;
   protected readonly styleEnglishName = styleEnglishName;
 
-  @Input() map: MMap;
-  protected leaderboards: GroupedMapLeaderboards;
-  protected activeMode: GroupedMapLeaderboard;
-  protected activeModeIndex: number;
-  protected activeTrack: ActiveTrack = { type: TrackType.MAIN, num: 0 };
-  protected activeStyle: Style = Style.NORMAL;
+  readonly map = input<MMap>();
+  protected readonly leaderboards = signal<GroupedMapLeaderboards>([]);
+  protected readonly activeMode = signal<GroupedMapLeaderboard | null>(null);
+  protected readonly activeModeIndex = signal<number | null>(null);
+  protected readonly activeTrack = signal<ActiveTrack>({
+    type: TrackType.MAIN,
+    num: 0
+  });
+  protected readonly activeStyle = signal<Style>(Style.NORMAL);
   // This is going to get *heavily* refactored in the future when we add
   // support for scrolling, jump-tos, and filtering. For now it's just in sync
   // with the game version. We'll do fancier stuff at 0.11.0.
-  protected activeType: LeaderboardFilterType;
-  protected activeTags: MapTag[];
+  protected readonly activeType = signal<LeaderboardFilterType | null>(null);
+  protected readonly activeTags = signal<MapTag[] | null>(null);
 
-  protected runs: LeaderboardRun[] = [];
+  protected readonly runs = signal<LeaderboardRun[]>([]);
   protected readonly load = new Subject<void>();
-  protected loading = false;
+  protected readonly loading = signal(false);
 
-  protected showHiddenLeaderboards = false;
+  protected readonly showHiddenLeaderboards = signal(false);
 
   updateTags() {
-    this.activeTags =
-      this.activeTrack.type === TrackType.BONUS
-        ? this.activeMode.bonuses.find(
-            ({ num }) => num === this.activeTrack.num
-          )?.tags
-        : this.activeMode.tags;
+    const activeTrack = this.activeTrack();
+    const activeMode = this.activeMode();
+    this.activeTags.set(
+      activeTrack.type === TrackType.BONUS
+        ? activeMode.bonuses.find(({ num }) => num === activeTrack.num)?.tags
+        : activeMode.tags
+    );
   }
 
   selectMode(modeIndex: number) {
-    this.activeModeIndex = modeIndex;
-    this.activeMode = this.leaderboards[modeIndex];
-    this.activeStyle =
-      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
+    const mode = this.leaderboards()[modeIndex];
+    this.activeModeIndex.set(modeIndex);
+    this.activeMode.set(mode);
+    this.activeStyle.set(
+      GamemodeDefaultUIStyle.get(mode.gamemode) ?? Style.NORMAL
+    );
 
     this.updateTags();
     this.load.next();
   }
 
   selectTrack(type: TrackType, num: number) {
-    this.activeTrack.type = type;
-    this.activeTrack.num = num;
+    this.activeTrack.set({ type, num });
     this.updateTags();
     this.load.next();
   }
 
   selectStyle(style: Style) {
-    this.activeStyle = style;
+    this.activeStyle.set(style);
     this.load.next();
   }
 
@@ -156,20 +168,20 @@ export class MapLeaderboardComponent implements OnChanges {
       .pipe(
         map(() =>
           JSON.stringify([
-            this.activeMode,
-            this.activeTrack,
-            this.activeType,
-            this.activeStyle
+            this.activeMode(),
+            this.activeTrack(),
+            this.activeType(),
+            this.activeStyle()
           ])
         ),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() => this.fetchRuns()),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (response) => {
-          this.runs = response.data;
-          this.loading = false;
+          this.runs.set(response.data);
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -177,57 +189,57 @@ export class MapLeaderboardComponent implements OnChanges {
             detail: httpError.error.message,
             summary: 'Error fetching runs'
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }
 
   ngOnChanges(): void {
-    if (!this.map) return;
+    const mapValue = this.map();
+    if (!mapValue) return;
 
-    this.leaderboards = groupMapLeaderboards(this.map.leaderboards).sort(
+    const leaderboards = groupMapLeaderboards(mapValue.leaderboards).sort(
       (a, b) => a.gamemodeName.localeCompare(b.gamemodeName)
     );
-    this.leaderboards.forEach((lb) =>
-      lb.bonuses?.sort((a, b) => a.num - b.num)
+    leaderboards.forEach((lb) => lb.bonuses?.sort((a, b) => a.num - b.num));
+    const activeModeIndex = findMainGamemodeIndex(leaderboards, mapValue.name);
+    const activeMode = leaderboards[activeModeIndex];
+    this.leaderboards.set(leaderboards);
+    this.activeModeIndex.set(activeModeIndex);
+    this.activeMode.set(activeMode);
+    this.activeType.set(LeaderboardFilterType.TOP10);
+    this.activeTrack.set({ type: TrackType.MAIN, num: 1 });
+    this.activeStyle.set(
+      GamemodeDefaultUIStyle.get(activeMode.gamemode) ?? Style.NORMAL
     );
-    this.activeModeIndex = findMainGamemodeIndex(
-      this.leaderboards,
-      this.map.name
-    );
-    this.activeMode = this.leaderboards[this.activeModeIndex];
-    this.activeType = LeaderboardFilterType.TOP10;
-    this.activeTrack.type = TrackType.MAIN;
-    this.activeTrack.num = 1;
-    this.activeStyle =
-      GamemodeDefaultUIStyle.get(this.activeMode.gamemode) ?? Style.NORMAL;
-    this.activeTags = this.activeMode.tags;
+    this.activeTags.set(activeMode.tags);
 
     this.load.next();
   }
 
   fetchRuns(): Observable<PagedResponse<LeaderboardRun>> {
-    const { gamemode } = this.activeMode;
+    const { gamemode } = this.activeMode();
+    const activeTrack = this.activeTrack();
     const query: MapLeaderboardGetQuery = {
       gamemode,
       take: 10,
-      trackType: this.activeTrack.type,
-      trackNum: this.activeTrack.num,
-      style: this.activeStyle
+      trackType: activeTrack.type,
+      trackNum: activeTrack.num,
+      style: this.activeStyle()
     };
 
-    if (this.activeType === LeaderboardFilterType.FRIENDS)
+    if (this.activeType() === LeaderboardFilterType.FRIENDS)
       query.filter = 'friends';
-    if (this.activeType === LeaderboardFilterType.AROUND)
+    if (this.activeType() === LeaderboardFilterType.AROUND)
       query.filter = 'around';
 
     return this.leaderboardService
-      .getRuns(this.map.id, query)
+      .getRuns(this.map().id, query)
       .pipe(mapHttpError(410, { data: [], totalCount: 0, returnCount: 0 }));
   }
 
   hasHiddenLeaderboards() {
-    return this.leaderboards.some(
+    return this.leaderboards().some(
       ({ type }) => type === LeaderboardType.HIDDEN
     );
   }

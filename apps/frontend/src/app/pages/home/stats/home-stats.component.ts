@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { UserStats } from '@momentum/constants';
 import { CardComponent } from '../../../components/card/card.component';
 
@@ -8,5 +8,5 @@ import { CardComponent } from '../../../components/card/card.component';
   templateUrl: './home-stats.component.html'
 })
 export class HomeStatsComponent {
-  @Input() userStats: UserStats;
+  readonly userStats = input<UserStats>();
 }

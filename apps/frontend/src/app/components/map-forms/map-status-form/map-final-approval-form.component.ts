@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, forwardRef, input, signal } from '@angular/core';
 import {
   GamemodeInfo,
   LeaderboardType,
@@ -14,14 +14,14 @@ import {
   FormsModule,
   NG_VALUE_ACCESSOR
 } from '@angular/forms';
-import { ChartModule } from 'primeng/chart';
+import { ChartModule } from '@openng/optimus-ui/chart';
 import { leaderboardKey } from '@momentum/util-fn';
 import { ChartOptions } from 'chart.js';
-import { SelectModule } from 'primeng/select';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { AccordionComponent } from '../../accordion/accordion.component';
 import { AccordionItemComponent } from '../../accordion/accordion-item.component';
 import { GroupedLeaderboards } from './map-status-form.component';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 import { KeyValuePipe, NgClass } from '@angular/common';
 import { IconComponent } from '../../../icons';
 import { PluralPipe } from '../../../pipes/plural.pipe';
@@ -65,11 +65,11 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   protected readonly GamemodeInfo = GamemodeInfo;
   protected readonly MapTags = MapTags;
   protected readonly mapTagEnglishName = mapTagEnglishName;
-  protected readonly TierChartOptions: ChartOptions;
-  protected readonly RatingChartOptions: ChartOptions;
+  protected readonly TierChartOptions: ChartOptions<'bar'>;
+  protected readonly RatingChartOptions: ChartOptions<'bar'>;
 
   public get value(): MapSubmissionApproval[] {
-    return this.groupedLeaderboards
+    return this.groupedLeaderboards()
       .values()
       .flatMap(({ leaderboards }) =>
         leaderboards
@@ -86,9 +86,9 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
       .toArray();
   }
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
-  @Input({ required: true }) groupedLeaderboards: GroupedLeaderboards;
+  readonly groupedLeaderboards = input.required<GroupedLeaderboards>();
 
   constructor() {
     this.TierChartOptions = this.chartOptions('Reviewer Tiers');
@@ -110,7 +110,7 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean) {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
   }
 
   onChange: (value: MapSubmissionApproval[]) => void = () => void 0;

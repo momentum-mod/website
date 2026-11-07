@@ -1,81 +1,95 @@
-<div [mSpinner]="!map">
+@let leaderboards = this.leaderboards();
+@let activeMode = this.activeMode();
+@let activeModeIndex = this.activeModeIndex();
+@let activeTrack = this.activeTrack();
+@let activeStyle = this.activeStyle();
+@let activeTags = this.activeTags();
+@let runs = this.runs();
+@let loading = this.loading();
+@let showHiddenLeaderboards = this.showHiddenLeaderboards();
+<div [mSpinner]="!map()">
   <div class="flex gap-4">
     <div class="flex grow flex-wrap gap-x-4 gap-y-2 md:gap-x-8">
       @for (groupedLeaderboard of leaderboards; track $index) {
         @if (!groupedLeaderboard.allHidden || showHiddenLeaderboards) {
           <button
             type="button"
-            class="flex gap-2 opacity-70 drop-shadow transition-opacity hover:opacity-90"
+            class="flex gap-2 opacity-70 drop-shadow-sm transition-opacity hover:opacity-90"
             (click)="selectMode($index)"
-            [ngClass]="{ '!opacity-100': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
+            [ngClass]="{ 'opacity-100!': activeModeIndex === $index, 'pointer-events-none': leaderboards.length === 1 }"
           >
             <img
               class="aspect-square h-8 md:h-11"
               [src]="'assets/images/gamemodes/' + GamemodeInfo.get(groupedLeaderboard.gamemode).icon + '.png'"
             />
-            <p class="font-display text-3xl font-bold leading-none md:text-5xl">
+            <p class="font-display text-3xl leading-none font-bold md:text-5xl">
               {{ groupedLeaderboard.gamemodeName }}
             </p>
           </button>
         }
       }
     </div>
-    @if (map.info.approvedDate && hasHiddenLeaderboards()) {
-      <button class="mb-auto ml-auto" type="button" [mTooltip]="hiddenLbInfo" (click)="showHiddenLeaderboards = !showHiddenLeaderboards">
+    @if (map().info.approvedDate && hasHiddenLeaderboards()) {
+      <button
+        class="mb-auto ml-auto"
+        type="button"
+        [mTooltip]="hiddenLbInfo"
+        (click)="this.showHiddenLeaderboards.set(!showHiddenLeaderboards)"
+      >
         <m-icon class="h-6 w-6 drop-shadow-lg" [icon]="showHiddenLeaderboards ? 'eye' : 'eye-closed'" />
       </button>
       <ng-template #hiddenLbInfo><m-hidden-leaderboards-info title="Show Hidden Leaderboard" /></ng-template>
     }
   </div>
 
-  <div class="my-4 flex w-full max-w-full flex-wrap gap-4 [&>*]:box-border">
+  <div class="my-4 flex w-full max-w-full flex-wrap gap-4 *:box-border">
     <ng-template #unrankedLbInfo><m-unranked-leaderboards-info /></ng-template>
     <ng-template #hiddenLbInfo><m-hidden-leaderboards-info /></ng-template>
     <button
       type="button"
-      class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.3)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+      class="relative flex flex-initial items-center rounded-sm bg-linear-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] outline-2 outline-[rgb(255_255_255/0)] transition-all outline-solid hover:outline-[rgb(255_255_255/0.75)] [&.selected]:from-[rgb(70_70_70/0.4)]! [&.selected]:to-[rgb(70_70_70/0.3)]! [&.selected]:[box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)]! [&.selected]:outline-[rgb(255_255_255/0.85)]"
       (click)="selectTrack(TrackType.MAIN, 1)"
       [ngClass]="{
         selected: activeTrack.type === TrackType.MAIN && activeTrack.num === 1
       }"
     >
       <p
-        class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+        class="flex h-full items-center rounded-l border-y border-l border-white/10 px-3 py-2 font-display text-28 leading-none text-white/90 text-shadow-strong [.selected>&]:text-white/100 [:hover>&]:text-white/100"
       >
         Map
       </p>
       @if (activeMode.tier) {
         <p
-          class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+          class="h-full items-center rounded-r border border-white/10 px-3 py-2 text-center font-display text-28 leading-none text-white/100 transition-colors text-shadow-strong [.selected>&]:text-white/100"
           [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + activeMode.tier + ') / 0.7)' }"
         >
           T{{ activeMode.tier }}
         </p>
       }
       @if (activeMode.type === LeaderboardType.UNRANKED) {
-        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+        <m-icon class="absolute -right-3 -bottom-3 drop-shadow-sm" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
       } @else if (activeMode.type === LeaderboardType.HIDDEN) {
-        <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+        <m-icon class="absolute -right-3 -bottom-3 drop-shadow-sm" icon="eye-off" [mTooltip]="hiddenLbInfo" />
       }
     </button>
 
     @if (activeMode.stages > 0) {
       <div
-        class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
+        class="inline-flex flex-initial items-center rounded-sm border border-white/10 bg-linear-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
       >
         <p
-          class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 transition-all"
+          class="flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white/90 transition-all text-shadow-strong"
         >
           Stage
         </p>
         <!-- Buttons have full borders that overlap by 1px (-mr-px/-mb-px), so wrapped cells are always closed on every side. -mt-px puts the first row's top border on the group's border rather than doubling it. -->
-        <div class="-mt-px flex max-w-[60rem] flex-wrap">
+        <div class="-mt-px flex max-w-240 flex-wrap">
           @for (stage of activeMode.stages | range; track $index) {
             <button
               type="button"
-              class="text-shadow-strong border-collie -mb-px -mr-px h-full w-[3rem] items-center border border-white border-opacity-10 bg-black bg-opacity-0 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+              class="border-collie -mr-px -mb-px h-full w-12 items-center border border-white/10 bg-black/0 py-2 text-center font-display text-28 leading-none text-white/80 outline-[rgb(255_255_255/0)] transition-colors text-shadow-strong hover:bg-black/10"
               [ngClass]="{
-                '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
+                'shadow-inset! rounded-sm bg-black/30! text-white! [box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)]! outline-2 outline-[rgb(255_255_255/0.75)] outline-solid':
                   activeTrack.type === TrackType.STAGE && activeTrack.num === stage + 1
               }"
               (click)="selectTrack(TrackType.STAGE, stage + 1)"
@@ -91,48 +105,48 @@
       <button
         type="button"
         (click)="selectTrack(TrackType.BONUS, bonus.num)"
-        class="relative flex flex-initial items-center rounded bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] outline outline-2 transition-all [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] [outline-color:rgb(255_255_255/0)] hover:[outline-color:rgb(255_255_255/0.75)] [&.selected]:!from-[rgb(70_70_70/0.4)] [&.selected]:!to-[rgb(70_70_70/0.4)] [&.selected]:![box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)] [&.selected]:[outline-color:rgb(255_255_255/0.85)]"
+        class="relative flex flex-initial items-center rounded-sm bg-linear-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)] outline-2 outline-[rgb(255_255_255/0)] transition-all outline-solid hover:outline-[rgb(255_255_255/0.75)] [&.selected]:from-[rgb(70_70_70/0.4)]! [&.selected]:to-[rgb(70_70_70/0.4)]! [&.selected]:[box-shadow:inset_0_0_12px_rgb(0_0_0/0.3)]! [&.selected]:outline-[rgb(255_255_255/0.85)]"
         [ngClass]="{
           selected: activeTrack.type === TrackType.BONUS && activeTrack.num === bonus.num
         }"
       >
         <p
-          class="text-shadow-strong flex h-full items-center rounded-l border-y border-l border-white border-opacity-10 px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 [.selected>&]:text-opacity-100 [:hover>&]:text-opacity-100"
+          class="flex h-full items-center rounded-l border-y border-l border-white/10 px-3 py-2 font-display text-28 leading-none text-white/90 text-shadow-strong [.selected>&]:text-white/100 [:hover>&]:text-white/100"
         >
           Bonus {{ bonus.num }}
         </p>
         @if (bonus.tier) {
           <p
-            class="text-shadow-strong h-full items-center rounded-r border border-white border-opacity-10 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-100 transition-colors [.selected>&]:text-opacity-100"
+            class="h-full items-center rounded-r border border-white/10 px-3 py-2 text-center font-display text-28 leading-none text-white/100 transition-colors text-shadow-strong [.selected>&]:text-white/100"
             [ngStyle]="{ 'background-color': 'rgb(var(--tier-' + bonus.tier + ') / 0.7)' }"
           >
             T{{ bonus.tier }}
           </p>
         }
         @if (bonus.type === LeaderboardType.UNRANKED) {
-          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
+          <m-icon class="absolute -right-3 -bottom-3 drop-shadow-sm" icon="numeric-off" [mTooltip]="unrankedLbInfo" />
         } @else if (bonus.type === LeaderboardType.HIDDEN) {
-          <m-icon class="absolute -bottom-3 -right-3 drop-shadow" icon="eye-off" [mTooltip]="hiddenLbInfo" />
+          <m-icon class="absolute -right-3 -bottom-3 drop-shadow-sm" icon="eye-off" [mTooltip]="hiddenLbInfo" />
         }
       </button>
     }
 
     <div
-      class="inline-flex flex-initial items-center rounded border border-white border-opacity-10 bg-gradient-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
+      class="inline-flex flex-initial items-center rounded-sm border border-white/10 bg-linear-to-b from-[rgb(255_255_255/0.3)] to-[rgb(200_200_200/0.3)] bg-origin-border [box-shadow:1px_2px_8px_rgb(0_0_0/0.25)]"
     >
       <p
-        class="text-shadow-strong flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white text-opacity-90 transition-all"
+        class="flex h-full cursor-default items-center px-3 py-2 font-display text-28 leading-none text-white/90 transition-all text-shadow-strong"
       >
         Style
       </p>
       <!-- Buttons have full borders that overlap by 1px (-mr-px/-mb-px), so wrapped cells are always closed on every side. -mt-px puts the first row's top border on the group's border rather than doubling it. -->
-      <div class="-mt-px flex max-w-[60rem] flex-wrap">
+      <div class="-mt-px flex max-w-240 flex-wrap">
         @for (style of activeMode.styles; track $index) {
           <button
             type="button"
-            class="text-shadow-strong border-collie -mb-px -mr-px h-full items-center border border-white border-opacity-10 bg-black bg-opacity-0 px-3 py-2 text-center font-display text-28 leading-none text-white text-opacity-80 transition-colors [outline-color:rgb(255_255_255/0)] hover:bg-opacity-10"
+            class="border-collie -mr-px -mb-px h-full items-center border border-white/10 bg-black/0 px-3 py-2 text-center font-display text-28 leading-none text-white/80 outline-[rgb(255_255_255/0)] transition-colors text-shadow-strong hover:bg-black/10"
             [ngClass]="{
-              '!shadow-inset rounded !bg-opacity-30 !text-opacity-100 outline outline-2 ![box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)] [outline-color:rgb(255_255_255/0.75)]':
+              'shadow-inset! rounded-sm bg-black/30! text-white! [box-shadow:inset_0_0_12px_rgb(0_0_0/0.2)]! outline-2 outline-[rgb(255_255_255/0.75)] outline-solid':
                 activeStyle === style
             }"
             (click)="selectStyle(style)"
@@ -158,12 +172,12 @@
     <m-spinner />
   }
 
-  @if (map.status === MapStatus.APPROVED && activeTags.length > 0) {
+  @if (map().status === MapStatus.APPROVED && activeTags.length > 0) {
     <p class="text-lg">
       <span class="flex flex-wrap gap-1.5">
         @for (tag of activeTags; track $index) {
           <p
-            class="text-shadow flex h-8 items-center rounded border border-white border-opacity-10 bg-blue-500 bg-opacity-75 px-2 pb-0.5 font-display text-20 backdrop-blur-md"
+            class="flex h-8 items-center rounded-sm border border-white/10 bg-blue-500/75 px-2 pb-0.5 font-display text-20 backdrop-blur-md text-shadow"
           >
             {{ mapTagEnglishName(tag) }}
           </p>
@@ -186,22 +200,22 @@
       </div>
       @for (run of runs; track $index) {
         <div
-          class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
+          class="mt-1.5 flex items-center gap-2 rounded-sm border border-white/5 bg-white/10! px-3 py-2 shadow-sm transition-colors odd:bg-gray-200 hover:bg-white! hover:bg-white/15! sm:gap-0 sm:px-4"
         >
-          <p class="text-shadow pointer-events-none w-9 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">{{ run.rank }}</p>
+          <p class="pointer-events-none w-9 shrink-0 text-left font-display text-2xl text-shadow sm:w-auto sm:basis-1/10">{{ run.rank }}</p>
           <div class="flex min-w-0 grow basis-auto gap-2">
             <m-user class="contents" [user]="run.user" avatarClass="h-7" aliasClass="min-w-0 truncate" />
           </div>
           <div class="flex shrink-0 flex-col items-end sm:contents">
-            <p class="text-shadow pointer-events-none text-lg sm:basis-1/10">{{ run.time | timing }}</p>
-            <p class="text-shadow pointer-events-none text-right text-sm text-gray-200 sm:basis-3/20 sm:text-base sm:text-gray-50">
+            <p class="pointer-events-none text-lg text-shadow sm:basis-1/10">{{ run.time | timing }}</p>
+            <p class="pointer-events-none text-right text-sm text-gray-200 text-shadow sm:basis-3/20 sm:text-base sm:text-gray-50">
               {{ run.createdAt | timeAgo }}
             </p>
           </div>
           @if (isModOrAdmin) {
             <button
               type="button"
-              class="flex items-center rounded bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100 sm:ml-4"
+              class="flex items-center rounded-sm bg-red-500 p-1 text-sm text-white opacity-70 transition-opacity hover:opacity-100 sm:ml-4"
               (click)="deleteRun(run)"
             >
               <m-icon class="h-4 w-4" icon="delete" />

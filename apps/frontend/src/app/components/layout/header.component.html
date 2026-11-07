@@ -3,27 +3,27 @@
     <m-icon (click)="toggleSidenav()" icon="menu" class="item" />
   </div>
   <a routerLink="/" class="item mr-auto flex min-w-0 items-center px-2 md:px-4">
-    <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" class="h-auto w-[10.5rem] max-w-full md:w-[279px]" />
+    <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" class="h-auto w-42 max-w-full md:w-[279px]" />
   </a>
 
   <div class="item" [style.anchor-name]="'--multisearch-anchor'" (click)="searchOverlay.toggle()">
     <m-icon class="h-auto" icon="magnify"></m-icon>
   </div>
 
-  @if (localUserService.user | async) {
+  @if (user()) {
     <div class="item relative" [style.anchor-name]="'--notification-anchor'" (click)="notificationsOverlay.toggle()">
-      @if (unreadNotificationsCount > 0) {
-        <p class="badge badge-blue absolute right-0.5 top-1 z-10 md:right-1.5 md:top-1.5">
-          {{ unreadNotificationsCount.toString() }}
+      @if (unreadNotificationsCount() > 0) {
+        <p class="badge absolute top-1 right-0.5 z-10 badge-blue md:top-1.5 md:right-1.5">
+          {{ unreadNotificationsCount().toString() }}
         </p>
       }
-      <m-icon class="size-auto !p-3 md:!p-[1.125rem]" [icon]="unreadNotificationsCount > 0 ? 'bell-alert' : 'bell'"></m-icon>
+      <m-icon class="size-auto p-3! md:p-4.5!" [icon]="unreadNotificationsCount() > 0 ? 'bell-alert' : 'bell'"></m-icon>
     </div>
 
-    <p-menu #userMenu [model]="profileDropdownMenu" [popup]="true" appendTo="body"></p-menu>
+    <p-menu #userMenu [model]="profileDropdownMenu()" [popup]="true" appendTo="body"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
   } @else {
-    <button type="button" class="ml-1 mr-2 shrink-0 transition-all hover:brightness-110 md:ml-2 md:mr-3" (click)="localUserService.login()">
+    <button type="button" class="mr-2 ml-1 shrink-0 transition-all hover:brightness-110 md:mr-3 md:ml-2" (click)="localUserService.login()">
       <img src="/assets/images/steam-login-green-large.png" class="h-9 w-auto md:h-auto" />
     </button>
   }
@@ -34,12 +34,12 @@
 <m-popover
   #notificationsOverlay
   anchorName="--notification-anchor"
-  (onShow)="markingAsReadEnabled = true"
-  (onHide)="markingAsReadEnabled = false"
+  (onShow)="markingAsReadEnabled.set(true)"
+  (onHide)="markingAsReadEnabled.set(false)"
 >
   <m-notifications-menu
-    class="max-h-[80vh] w-[30rem] max-w-[calc(100vw-3rem)]"
+    class="max-h-[80vh] w-120 max-w-[calc(100vw-3rem)]"
     (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
-    [markingAsReadEnabled]="markingAsReadEnabled"
+    [markingAsReadEnabled]="markingAsReadEnabled()"
   />
 </m-popover>

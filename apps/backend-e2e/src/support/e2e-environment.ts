@@ -31,7 +31,6 @@ import {
   RequestUtil
 } from '@momentum/test-utils';
 import fastifyCookie from '@fastify/cookie';
-import multipart from '@fastify/multipart';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { AddressInfo } from 'node:net';
@@ -39,6 +38,7 @@ import { PrismaClient } from '@momentum/db';
 import Valkey from 'iovalkey';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 import { AppModule } from '../../../backend/src/app/app.module';
+import { MAX_MAP_IMAGE_SIZE, MAX_VMF_SIZE } from '@momentum/constants';
 import { VALIDATION_PIPE_CONFIG } from '../../../backend/src/app/dto';
 import { WebsocketAdapter } from '../../../backend/src/app/modules/websockets/websocket.adapter';
 import { WebsocketService } from '../../../backend/src/app/modules/websockets/websocket.service';
@@ -94,7 +94,13 @@ export async function setupE2ETestEnvironment(
   const moduleRef = await moduleBuilder.compile();
 
   const app = moduleRef.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      multipart: {
+        limits: {
+          fileSize: Math.max(MAX_VMF_SIZE, MAX_MAP_IMAGE_SIZE)
+        }
+      }
+    }),
     { bufferLogs: true, rawBody: true }
   );
 
@@ -123,8 +129,6 @@ export async function setupE2ETestEnvironment(
   await app.register(fastifyCookie, {
     secret: configService.get<string>('sessionSecret')
   });
-
-  await app.register(multipart);
 
   let wsUrl: string | undefined;
   if (options?.websockets) {

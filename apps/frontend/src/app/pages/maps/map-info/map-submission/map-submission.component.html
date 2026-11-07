@@ -1,17 +1,18 @@
-<fieldset class="card-inset mb-6 flex flex-col">
-  <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Details</legend>
+@let map = this.map();
+<fieldset class="mb-6 flex card-inset flex-col">
+  <legend class="font-display text-4xl font-bold text-gray-50 text-shadow-strong">Details</legend>
 
-  <p class="mt-1 text-sm font-medium uppercase text-gray-200">Submitted By</p>
-  <m-user [user]="map.submitter" avatarClass="!h-5" />
+  <p class="mt-1 text-sm font-medium text-gray-200 uppercase">Submitted By</p>
+  <m-user [user]="map.submitter" avatarClass="h-5!" />
 
-  <p class="mt-4 text-sm font-medium uppercase text-gray-200">
+  <p class="mt-4 text-sm font-medium text-gray-200 uppercase">
     Type
     <m-icon [mTooltip]="subType" class="ml-0.5 pt-0.5 text-sm" icon="help-circle" />
     <ng-template #subType><m-submission-type-info /></ng-template>
   </p>
   <p class="text-lg">{{ MapSubmissionType[map.submission.type] | titlecase }}</p>
 
-  <p class="mt-4 text-sm font-medium uppercase text-gray-200">Timeline</p>
+  <p class="mt-4 text-sm font-medium text-gray-200 uppercase">Timeline</p>
   <ul class="flex flex-wrap gap-x-8">
     @for (date of map.submission.dates; track $index) {
       <li [mTooltip]="timelineTooltip">
@@ -27,17 +28,17 @@
   <!-- Table on desktop. On mobile each suggestion is its own small card, with tags and comments on separate lines, since
        the five columns don't fit. Rows are display: contents on desktop so they take part in the parent grid. -->
   <div class="mt-5 grid grid-flow-row grid-cols-1 gap-2 md:grid-cols-[auto_auto_auto_auto_auto] md:gap-x-4 md:gap-y-1">
-    <p class="text-sm font-medium uppercase text-gray-200">Suggestions</p>
+    <p class="text-sm font-medium text-gray-200 uppercase">Suggestions</p>
     <div class="hidden md:contents">
-      <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Tier</p>
-      <p class="justify-self-center text-sm font-medium uppercase text-gray-250">Ranked</p>
-      <p class="text-sm font-medium uppercase text-gray-250">Tags</p>
-      <p class="text-sm font-medium uppercase text-gray-250">{{ hasComments ? 'Comment' : '' }}</p>
+      <p class="justify-self-center text-sm font-medium text-gray-250 uppercase">Tier</p>
+      <p class="justify-self-center text-sm font-medium text-gray-250 uppercase">Ranked</p>
+      <p class="text-sm font-medium text-gray-250 uppercase">Tags</p>
+      <p class="text-sm font-medium text-gray-250 uppercase">{{ hasComments() ? 'Comment' : '' }}</p>
     </div>
 
-    @for (gamemode of suggestions | unsortedKeyvalue; track $index) {
+    @for (gamemode of suggestions() | unsortedKeyvalue; track $index) {
       @if (gamemode.value.get(TrackType.MAIN)?.[0]; as mainSugg) {
-        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
+        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded-sm bg-black/10 px-3 py-2 md:contents">
           <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Main</p>
           <p
             class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
@@ -62,7 +63,7 @@
       }
 
       @for (bonus of gamemode.value.get(TrackType.BONUS); track $index) {
-        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded bg-black bg-opacity-10 px-3 py-2 md:contents">
+        <div class="grid grid-cols-[1fr_auto_auto] items-center gap-x-4 gap-y-1 rounded-sm bg-black/10 px-3 py-2 md:contents">
           <p class="text-sm font-medium text-gray-100">{{ GamemodeInfo.get(gamemode.key).name }} - Bonus {{ bonus.trackNum }}</p>
           <p
             class="text-sm font-medium max-md:before:text-gray-250 max-md:before:content-['Tier_'] md:justify-self-center"
@@ -89,10 +90,10 @@
   </div>
 </fieldset>
 
-<fieldset class="card-inset scroll-thin mb-6 flex max-h-[50vh] flex-col overflow-y-scroll">
-  <legend class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Versions</legend>
+<fieldset class="mb-6 flex scroll-thin max-h-[50vh] card-inset flex-col overflow-y-scroll">
+  <legend class="font-display text-4xl font-bold text-gray-50 text-shadow-strong">Versions</legend>
 
-  @for (version of versions.slice(0, visibleVersions); track version.versionNum) {
+  @for (version of versions().slice(0, visibleVersions()); track version.versionNum) {
     <div class="mt-1 flex w-fit gap-3" [mTooltip]="versionTooltip">
       <p class="text-sm font-medium uppercase">Version {{ version.versionNum }}</p>
       <p class="text-sm font-medium text-gray-200">{{ version.createdAt | date: 'yyyy-MM-dd HH:mm' }}</p>
@@ -101,30 +102,30 @@
       <p><b>Version Submitted By - </b>{{ version.submitter ? version.submitter.alias : 'N/A' }}</p>
     </ng-template>
     @if (version.changelog) {
-      <p class="mt-2 whitespace-pre-wrap text-sm [overflow-wrap:anywhere]">{{ version.changelog }}</p>
+      <p class="mt-2 text-sm wrap-anywhere whitespace-pre-wrap">{{ version.changelog }}</p>
     }
-    <p class="mb-4 mt-1 last:mb-0">
-      <a class="link mr-4 text-sm font-medium" [href]="version.downloadURL">Download BSP</a>
-      <a class="link mr-4 text-sm font-medium" [href]="getLumperUrl(version)">Open in Lumper</a>
-      <a class="link mr-4 cursor-pointer text-sm font-medium" (click)="downloadOlderZoneFile(version.id)">Download Zones</a>
+    <p class="mt-1 mb-4 last:mb-0">
+      <a class="mr-4 text-sm font-medium link" [href]="version.downloadURL">Download BSP</a>
+      <a class="mr-4 text-sm font-medium link" [href]="getLumperUrl(version)">Open in Lumper</a>
+      <a class="mr-4 cursor-pointer text-sm font-medium link" (click)="downloadOlderZoneFile(version.id)">Download Zones</a>
       @if (version.vmfDownloadURL) {
-        <a class="link text-sm font-medium" [href]="version.vmfDownloadURL">Download VMF</a>
+        <a class="text-sm font-medium link" [href]="version.vmfDownloadURL">Download VMF</a>
       }
     </p>
   }
 
-  @if (visibleVersions < versions.length) {
+  @if (visibleVersions() < versions().length) {
     <p>
-      {{ versions.length - visibleVersions | plural: 'more version' }} -
-      <a class="link cursor-pointer font-medium" (click)="visibleVersions = visibleVersions + 5">Load more</a>
+      {{ versions().length - visibleVersions() | plural: 'more version' }} -
+      <a class="cursor-pointer font-medium link" (click)="visibleVersions.set(visibleVersions() + 5)">Load more</a>
     </p>
   }
 </fieldset>
 
 <fieldset class="card-inset">
   <legend class="mb-2 flex w-full items-center">
-    <p class="text-shadow-strong font-display text-4xl font-bold text-gray-50">Reviews</p>
-    <div class="h-[1px] flex-grow bg-white bg-opacity-10"></div>
+    <p class="font-display text-4xl font-bold text-gray-50 text-shadow-strong">Reviews</p>
+    <div class="h-px grow bg-white/10"></div>
   </legend>
   <m-map-review-list class="flex flex-col gap-4" [map]="map" />
 </fieldset>

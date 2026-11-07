@@ -1,13 +1,13 @@
 <div class="grid grid-cols-1 gap-4 lg:grid-flow-col lg:grid-cols-[minmax(auto,14rem)_1fr] lg:grid-rows-[auto_auto]">
-  <p class="card-title text-nowrap text-40 md:text-48">Your Maps</p>
+  <p class="card-title text-40 text-nowrap md:text-48">Your Maps</p>
   <div class="flex flex-col gap-4">
-    @if (hasSubmissionBan) {
+    @if (hasSubmissionBan()) {
       <p>You are banned from map submission</p>
     } @else {
       <m-card title="Map Summary">
-        @if (summaryLoading || summary?.length > 0) {
-          <div class="flex flex-col gap-1" [mSpinner]="summaryLoading">
-            @for (item of summary; track item.status) {
+        @if (summaryLoading() || summary()?.length > 0) {
+          <div class="flex flex-col gap-1" [mSpinner]="summaryLoading()">
+            @for (item of summary(); track item.status) {
               <p class="text-gray-300">{{ MapStatusName.get(item.status) }}</p>
               <p class="mb-1 text-gray-50">{{ item.statusCount }}</p>
             }
@@ -24,12 +24,12 @@
     <form class="flex w-full flex-col gap-2 lg:ml-auto lg:w-auto" [formGroup]="filters">
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:flex-wrap-reverse md:justify-end">
         <input
-          class="textinput order-1 min-w-0 flex-1 backdrop-blur-lg md:order-none md:w-64 md:flex-none"
+          class="order-1 min-w-0 flex-1 textinput backdrop-blur-lg md:order-0 md:w-64 md:flex-none"
           type="text"
           placeholder="Map Name"
           formControlName="name"
         />
-        <div class="order-3 flex w-full items-center gap-2 md:order-none md:w-auto">
+        <div class="order-3 flex w-full items-center gap-2 md:order-0 md:w-auto">
           <m-user-select class="min-w-0 flex-1 md:flex-none" formControlName="credit" />
           <m-dropdown
             class="shrink-0"
@@ -40,7 +40,7 @@
             tooltipPosition="top"
           />
         </div>
-        <button (click)="filters.reset({ status: [] })" type="button" class="btn order-2 size-10 p-0 md:order-none md:size-8">
+        <button (click)="filters.reset({ status: [] })" type="button" class="btn order-2 size-10 p-0 md:order-0 md:size-8">
           <m-icon icon="filter-remove" class="size-5" />
         </button>
       </div>
@@ -62,5 +62,5 @@
       </div>
     </form>
   </div>
-  <m-map-list [maps]="maps" [loadMore]="loadMore" [loading]="loading" [isSubmissionPage]="true" />
+  <m-map-list [maps]="maps()" [loadMore]="loadMore" [loading]="loading()" [isSubmissionPage]="true" />
 </div>

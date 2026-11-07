@@ -1,12 +1,12 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  selector: 'form[preventEnterSubmit]',
+  selector: 'form[mPreventEnterSubmit]',
   standalone: true
 })
 export class PreventEnterSubmitDirective {
   @HostListener('keydown.enter', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
+  onKeyDown(event: Event): void {
     event.preventDefault();
   }
 }

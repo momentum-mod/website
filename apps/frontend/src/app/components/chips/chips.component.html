@@ -1,54 +1,50 @@
-<div [style.anchor-name]="anchorName" class="inputlike flex flex-wrap items-center gap-1.5 px-1.5 py-1.5">
+<div [style.anchor-name]="anchorName" class="flex flex-wrap items-center gap-1.5 inputlike px-1.5 py-1.5">
   <button
     (click)="op.toggle()"
-    [mTooltip]="available.length > 0 ? 'Add ' + typeName : null"
-    [disabled]="available.length === 0"
+    [mTooltip]="available().length > 0 ? 'Add ' + typeName() : null"
+    [disabled]="available().length === 0"
     type="button"
-    class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
+    class="grid size-7 rounded-sm bg-white/10 p-0.5 text-white opacity-50 transition-colors not-disabled:hover:opacity-80 [&:not(:disabled)]:hover:bg-white/20"
   >
     <m-icon icon="plus-thick" class="size-6" />
   </button>
   <button
     type="button"
     (click)="reset()"
-    [mTooltip]="available.length > 0 ? 'Reset ' + typeName : null"
-    [disabled]="selected.length === 0"
-    class="grid size-7 rounded bg-white bg-opacity-10 p-0.5 text-white opacity-50 transition-colors [&:not(:disabled)]:hover:bg-opacity-20 [&:not(:disabled)]:hover:opacity-80"
+    [mTooltip]="available().length > 0 ? 'Reset ' + typeName() : null"
+    [disabled]="selected().length === 0"
+    class="grid size-7 rounded-sm bg-white/10 p-0.5 text-white opacity-50 transition-colors not-disabled:hover:opacity-80 [&:not(:disabled)]:hover:bg-white/20"
   >
     <m-icon icon="close-thick" class="size-6" />
   </button>
-  @for (chip of selected; track $index; let sIndex = $index) {
+  @for (chip of selected(); track $index; let sIndex = $index) {
     <div
-      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 py-2 pl-2.5 pr-1.5 transition-colors hover:bg-opacity-60"
-      [mTooltip]="hoverNames ? getChipName(chip) : null"
+      class="flex h-7 items-center gap-1 rounded-sm border border-white/5 bg-blue-400/50 py-2 pr-1.5 pl-2.5 transition-colors hover:bg-blue-400/60"
+      [mTooltip]="hoverNames() ? getChipName(chip) : null"
     >
       @if (getChipImage(chip); as chipImage) {
         <img class="aspect-square h-6" [src]="chipImage" />
       }
 
-      @if (!hoverNames) {
+      @if (!hoverNames()) {
         <span class="font-medium text-gray-50">{{ getChipName(chip) }}</span>
       }
 
       <button
         (click)="remove(chip)"
-        class="flex items-center rounded-full bg-white bg-opacity-0 p-0.5 text-gray-50 transition-colors hover:bg-opacity-20"
+        class="flex items-center rounded-full bg-white/0 p-0.5 text-gray-50 transition-colors hover:bg-white/20"
         type="button"
       >
         <m-icon icon="close-thick" class="size-4" />
       </button>
-      <ng-container [ngTemplateOutlet]="appendEachSelectedTemplate" [ngTemplateOutletContext]="{ index: sIndex }"></ng-container>
+      <ng-container [ngTemplateOutlet]="appendEachSelectedTemplate()" [ngTemplateOutletContext]="{ index: sIndex }"></ng-container>
     </div>
   }
 </div>
 <m-popover #op [classList]="'p-0'" [anchorName]="anchorName">
   <div class="flex max-w-xl flex-wrap gap-2">
-    @for (chip of available; track $index) {
-      <button
-        (click)="add(chip)"
-        class="flex gap-2 rounded bg-white bg-opacity-10 px-2 py-1.5 transition-colors hover:bg-opacity-20"
-        type="button"
-      >
+    @for (chip of available(); track $index) {
+      <button (click)="add(chip)" class="flex gap-2 rounded-sm bg-white/10 px-2 py-1.5 transition-colors hover:bg-white/20" type="button">
         @if (getChipImage(chip); as chipImage) {
           <img class="aspect-square h-6" [src]="chipImage" />
         }

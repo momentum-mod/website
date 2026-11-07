@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import {
   AdminActivity,
   AdminActivityType,
@@ -16,11 +16,11 @@ import * as Enum from '@momentum/enum';
   selector: 'm-admin-activity-entry',
   template: `
     <div
-      class="grid grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 bg-black bg-opacity-10 p-3 shadow-inner sm:grid-cols-[6rem_1fr_1fr] sm:gap-x-8 sm:p-4"
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 gap-y-1 bg-black/10 p-3 inset-shadow-sm sm:grid-cols-[6rem_1fr_1fr] sm:gap-x-8 sm:p-4"
     >
       <p class="col-start-2 font-medium">Old Value</p>
       <p class="font-medium">New Value</p>
-      @for (diffEntry of diffEntries; track diffEntry.key) {
+      @for (diffEntry of diffEntries(); track diffEntry.key) {
         <p class="font-medium">{{ diffEntry.key }}</p>
         @if (diffEntry.oldValue != null) {
           <p class="font-mono whitespace-pre-wrap [word-wrap:anywhere]">
@@ -40,25 +40,20 @@ import * as Enum from '@momentum/enum';
     </div>
   `
 })
-export class AdminActivityEntryComponent implements OnInit {
-  @Input({ required: true }) activityData: AdminActivityEntryData;
+export class AdminActivityEntryComponent {
+  readonly activityData = input.required<AdminActivityEntryData>();
 
-  protected diffEntries: Array<{
-    key: string;
-    oldValue: string;
-    newValue: string;
-  }> = [];
-
-  ngOnInit() {
-    if (this.activityData.diff)
-      this.diffEntries = Object.entries(this.activityData.diff).map(
-        ([key, [oldValue, newValue]]) => ({
-          key,
-          oldValue,
-          newValue
-        })
-      );
-  }
+  protected readonly diffEntries = computed<
+    Array<{ key: string; oldValue: string; newValue: string }>
+  >(() => {
+    const { diff } = this.activityData();
+    if (!diff) return [];
+    return Object.entries(diff).map(([key, [oldValue, newValue]]) => ({
+      key,
+      oldValue,
+      newValue
+    }));
+  });
 
   static getActivityData(
     activity: AdminActivity & { oldData: any; newData: any }

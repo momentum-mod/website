@@ -3,25 +3,25 @@ import {
   OnChanges,
   HostBinding,
   ElementRef,
-  Input,
-  inject
+  inject,
+  input
 } from '@angular/core';
 
 /**
  * Directive for smoothly animating heights of components.
- * The `smoothHeight` animation must be provided to the *parent* component to
+ * The `mSmoothHeight` animation must be provided to the *parent* component to
  * work.
  *
  * This will forcible set the component to `display: block`!
  *
  * Based on https://stackoverflow.com/a/52277742
  */
-@Directive({ selector: '[smoothHeight]', standalone: true })
+@Directive({ selector: '[mSmoothHeight]', standalone: true })
 export class SmoothHeightAnimDirective implements OnChanges {
   private readonly elRef = inject(ElementRef);
 
-  @Input() smoothHeight: boolean;
-  @Input() display = 'block';
+  readonly mSmoothHeight = input<boolean>();
+  readonly display = input('block');
   private pulse: boolean;
   private startHeight: number;
 
@@ -31,7 +31,10 @@ export class SmoothHeightAnimDirective implements OnChanges {
   }
 
   @HostBinding('style') get styles(): CSSStyleDeclaration {
-    return { display: this.display, overflow: 'hidden' } as CSSStyleDeclaration;
+    return {
+      display: this.display(),
+      overflow: 'hidden'
+    } as CSSStyleDeclaration;
   }
 
   setStartHeight() {

@@ -1,11 +1,13 @@
 import { ParseFilePipe, PipeTransform } from '@nestjs/common';
-import * as Multer from '@nest-lab/fastify-multer';
+import { UploadedMultipartFile } from '@nestjs/platform-fastify/multipart';
 
-export class ParseFilesPipe implements PipeTransform<Multer.File[]> {
+export class ParseFilesPipe implements PipeTransform<UploadedMultipartFile[]> {
   constructor(private readonly pipe: ParseFilePipe) {}
 
   async transform(
-    files: Readonly<Multer.File[]> | Readonly<Record<string, Multer.File>>
+    files:
+      | Readonly<UploadedMultipartFile[]>
+      | Readonly<Record<string, UploadedMultipartFile>>
   ) {
     if (!files) return [];
     for (const file of typeof files === 'object' ? Object.values(files) : files)

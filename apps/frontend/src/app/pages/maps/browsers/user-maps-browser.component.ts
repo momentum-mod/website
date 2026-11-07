@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   Ban,
   MapCreditName,
@@ -21,10 +21,10 @@ import {
   ReactiveFormsModule
 } from '@angular/forms';
 import { EMPTY, merge, of, Subject } from 'rxjs';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '@openng/optimus-ui/api';
 import { debounceTime, filter, map, switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from '@openng/optimus-ui/multiselect';
 import { UserSelectComponent } from '../../../components/user-select/user-select.component';
 import { MapListComponent } from '../../../components/map-list/map-list.component';
 import { LocalUserService } from '../../../services/data/local-user.service';
@@ -86,7 +86,7 @@ export class UserMapsBrowserComponent implements OnInit {
   protected readonly MapSortNameFn = (type: MapSortType): string =>
     MapSortTypeName.get(type);
 
-  protected hasSubmissionBan = false;
+  protected readonly hasSubmissionBan = signal(false);
 
   protected readonly filters = this.nnfb.group({
     name: this.nnfb.control<string>(''),
@@ -96,39 +96,39 @@ export class UserMapsBrowserComponent implements OnInit {
     sortType: this.nnfb.control<MapSortType>(this.MapSortOptions[0])
   });
 
-  protected maps: MMap[] = [];
-  protected summary: MapSummary[];
-  protected summaryLoading = true;
+  protected readonly maps = signal<MMap[]>([]);
+  protected readonly summary = signal<MapSummary[] | null>(null);
+  protected readonly summaryLoading = signal(true);
 
   private skip = 0;
-  protected loading = false;
-  protected loadMore = new Subject<void>();
+  protected readonly loading = signal(false);
+  protected readonly loadMore = new Subject<void>();
   protected readonly initialItems = 16;
   protected readonly itemsPerLoad = 8;
 
   ngOnInit() {
     if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
-      this.hasSubmissionBan = true;
+      this.hasSubmissionBan.set(true);
       return;
     }
 
     setupPersistentForm(this.filters, 'USER_MAPS_FILTERS', this.destroyRef);
 
     this.localUserService.getSubmittedMapSummary().subscribe((res) => {
-      this.summaryLoading = false;
-      this.summary = res;
+      this.summaryLoading.set(false);
+      this.summary.set(res);
     });
 
     merge(
       of(this.initialItems),
       this.loadMore.pipe(
-        filter(() => !this.loading),
+        filter(() => !this.loading()),
         map(() => this.itemsPerLoad)
       ),
       this.filters.valueChanges.pipe(
         debounceTime(200),
         tap(() => {
-          this.maps = [];
+          this.maps.set([]);
           this.skip = 0;
         }),
         map(() => this.initialItems)
@@ -136,7 +136,7 @@ export class UserMapsBrowserComponent implements OnInit {
     )
       .pipe(
         filter(() => this.filters.valid),
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap((take) => {
           const { name, status, credit, creditType, sortType } =
             this.filters.getRawValue();
@@ -160,9 +160,9 @@ export class UserMapsBrowserComponent implements OnInit {
       )
       .subscribe({
         next: (res: PagedResponse<MMap>) => {
-          this.maps.push(...res.data);
+          this.maps.update((maps) => [...maps, ...res.data]);
           this.skip += res.returnCount;
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -170,7 +170,7 @@ export class UserMapsBrowserComponent implements OnInit {
             summary: 'Error fetching maps!',
             detail: httpError.error.message
           });
-          this.loading = false;
+          this.loading.set(false);
         }
       });
   }

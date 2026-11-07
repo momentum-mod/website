@@ -1,5 +1,5 @@
 import { Directive, inject } from '@angular/core';
-import { DatePicker as PDatePicker } from 'primeng/datepicker';
+import { DatePicker as PDatePicker } from '@openng/optimus-ui/datepicker';
 
 /**
  * Converts the resulting date to UTC timezone.
@@ -7,6 +7,8 @@ import { DatePicker as PDatePicker } from 'primeng/datepicker';
  * Doesn't support range or multiple selection.
  */
 @Directive({
+  // Since we're hijack the PrimeNG/OptimusUI datepicker
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'p-date-picker[utc]'
 })
 export class DatePickerUTC {

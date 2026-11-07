@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   NonNullableFormBuilder,
   ReactiveFormsModule,
@@ -9,12 +9,15 @@ import {
   ReportCategory,
   ReportType
 } from '@momentum/constants';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SelectModule } from 'primeng/select';
+import { MessageService } from '@openng/optimus-ui/api';
+import {
+  DynamicDialogConfig,
+  DynamicDialogRef
+} from '@openng/optimus-ui/dynamicdialog';
+import { SelectModule } from '@openng/optimus-ui/select';
 import { ReportService } from '../../../services/data/report.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Select } from 'primeng/select';
+import { Select } from '@openng/optimus-ui/select';
 
 @Component({
   selector: 'm-create-report-dialog',
@@ -37,8 +40,11 @@ export class CreateReportDialogComponent implements OnInit {
     { value: ReportCategory.OTHER, label: 'Other' }
   ];
 
-  @Input() reportType: ReportType;
-  @Input() reportData: number;
+  // DynamicDialog passes data via DynamicDialogConfig.data, not inputs.
+  private readonly config =
+    inject<DynamicDialogConfig<{ reportType: ReportType; reportData: number }>>(
+      DynamicDialogConfig
+    );
 
   protected readonly MAX_REPORT_MESSAGE_LENGTH = MAX_REPORT_MESSAGE_LENGTH;
 
@@ -61,8 +67,8 @@ export class CreateReportDialogComponent implements OnInit {
 
   ngOnInit() {
     this.createReportForm.patchValue({
-      type: this.reportType,
-      data: this.reportData
+      type: this.config.data?.reportType,
+      data: this.config.data?.reportData
     });
   }
 

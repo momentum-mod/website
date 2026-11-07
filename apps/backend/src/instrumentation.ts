@@ -25,11 +25,27 @@ const opts: Sentry.NodeOptions = {
   dsn,
   environment: process.env['SENTRY_ENV'],
   tracesSampleRate: sampleRate,
-  profilesSampleRate: sampleRate,
+  profileSessionSampleRate: sampleRate,
+  profileLifecycle: 'trace',
   debug: false,
   normalizeDepth: 10,
   integrations,
-  _experiments: { enableLogs: true }
+  // Sentry 11 collects all of these by default; keep the v10 behaviour (when
+  // sendDefaultPii was unset) rather than start sending user/request data.
+  // https://docs.sentry.io/platforms/javascript/guides/node/migration/v10-to-v11/
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    httpHeaders: {
+      request: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+      response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] }
+    },
+    httpBodies: [],
+    urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+    genAI: { inputs: false, outputs: false },
+    databaseQueryData: false,
+    graphQL: { document: false, variables: false }
+  }
 };
 
 if (process.env['NODE_ENV'] === Environment.PRODUCTION && dsn) {

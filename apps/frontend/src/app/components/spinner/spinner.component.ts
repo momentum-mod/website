@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'm-spinner',
   imports: [NgClass],
-  template: '<span [ngClass]="spinnerClass"></span>',
+  template: '<span [ngClass]="spinnerClass()"></span>',
   styles: [
     `
       :host {
@@ -23,7 +23,7 @@ import { NgClass } from '@angular/common';
 
         span {
           border-radius: 50%;
-          border: 0.25rem solid theme('colors.gray.200');
+          border: 0.25rem solid var(--color-gray-200);
           border-bottom-color: transparent;
           height: 48px;
           aspect-ratio: 1/1;
@@ -43,5 +43,5 @@ import { NgClass } from '@angular/common';
   ]
 })
 export class SpinnerComponent {
-  @Input() spinnerClass = '';
+  readonly spinnerClass = input('');
 }

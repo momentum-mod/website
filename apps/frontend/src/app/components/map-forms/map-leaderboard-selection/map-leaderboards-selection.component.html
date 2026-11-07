@@ -1,20 +1,18 @@
 <button
   type="button"
-  class="btn btn-blue mb-3 ml-auto lg:-mb-6"
-  [ngClass]="{ 'pointer-events-none saturate-50': disabled }"
+  class="btn mb-3 ml-auto btn-blue lg:-mb-6"
+  [ngClass]="{ 'pointer-events-none saturate-50': disabled() }"
   (click)="addEmptyItem()"
 >
   Add Leaderboard
 </button>
 <!-- A table from lg up. Below that, each row becomes a small card of labelled fields, since the columns can't fit. -->
 <table
-  class="grid w-full border-collapse grid-cols-1 gap-3 lg:gap-1 lg:[grid-template-columns:var(--lb-cols)]"
+  class="grid w-full border-collapse grid-cols-1 gap-3 lg:grid-cols-(--lb-cols) lg:gap-1"
   [ngClass]="{
-    'pointer-events-none brightness-50 saturate-50': disabled
+    'pointer-events-none brightness-50 saturate-50': disabled()
   }"
-  [style.--lb-cols]="
-    `minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`
-  "
+  [style.--lb-cols]="`minmax(10rem,1fr) minmax(8rem,1fr) 8rem auto minmax(1rem,auto)${wasApproved() ? '' : ' minmax(8rem,4fr)'} minmax(8rem,4fr) auto`"
 >
   <thead class="mt-3 hidden bg-gray-950 p-3 lg:contents">
     <tr class="contents">
@@ -24,7 +22,7 @@
       <th class="text-center">Tier</th>
       <!-- Header text makes the column wider than the checkbox which looks crap, use an evil absolute to get it looking acceptable-->
       <th class="relative"><span class="absolute left-0">Ranked</span></th>
-      @if (!wasApproved) {
+      @if (!wasApproved()) {
         <th class="text-center">Comments</th>
       }
       <th class="text-center">Tags</th>
@@ -32,23 +30,23 @@
     </tr>
   </thead>
   <tbody class="contents">
-    @for (item of value; track $index) {
-      <tr class="grid grid-cols-2 items-end gap-2 rounded bg-black bg-opacity-10 p-3 lg:contents lg:bg-transparent lg:p-0">
+    @for (item of value(); track $index) {
+      <tr class="grid grid-cols-2 items-end gap-2 rounded-sm bg-black/10 p-3 lg:contents lg:bg-transparent lg:p-0">
         <td>
-          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Gamemode</p>
+          <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Gamemode</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.gamemode"
-            [options]="wasApproved ? getTrackGamemodes(item.trackType, item.trackNum) : Gamemodes"
+            [options]="wasApproved() ? getTrackGamemodes(item.trackType, item.trackNum) : Gamemodes"
             optionLabel="label"
             optionValue="gamemode"
             (blur)="onTouched()"
-            (onChange)="onChange(value)"
+            (onChange)="onChange(value())"
             appendTo="body"
           />
         </td>
         <td>
-          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Type</p>
+          <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Type</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.trackType"
@@ -62,53 +60,53 @@
         </td>
         <td class="max-lg:empty:hidden">
           @if (item.trackType === TrackType.BONUS) {
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Track</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Track</p>
             <p-select
               class="w-full"
               [(ngModel)]="item.trackNum"
-              [options]="availableBonusTracks"
+              [options]="availableBonusTracks()"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           }
         </td>
         <td>
-          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Tier</p>
+          <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Tier</p>
           <p-select
             class="w-full"
             [(ngModel)]="item.tier"
             [options]="[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
             (blur)="onTouched()"
-            (onChange)="onChange(value)"
+            (onChange)="onChange(value())"
             appendTo="body"
           />
         </td>
         <td class="ml-auto max-lg:flex max-lg:items-center max-lg:gap-3">
-          <p class="text-xs font-medium uppercase text-gray-200 lg:hidden">Ranked</p>
+          <p class="text-xs font-medium text-gray-200 uppercase lg:hidden">Ranked</p>
           <input
             type="checkbox"
-            class="checkbox h-[2.625rem] before:h-1/2 before:w-1/2"
+            class="checkbox h-10.5 before:h-1/2 before:w-1/2"
             [ngModel]="item.type === LeaderboardType.RANKED"
             (ngModelChange)="updateRankedCheckbox(item, $event)"
             (blur)="onTouched()"
           />
         </td>
-        @if (!wasApproved) {
+        @if (!wasApproved()) {
           <td class="max-lg:col-span-2">
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Comments</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Comments</p>
             <input
               type="text"
-              class="textinput w-full"
+              class="w-full textinput"
               [(ngModel)]="item.comment"
               [maxlength]="MAX_MAP_SUGGESTION_COMMENT_LENGTH"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
         }
         <td class="max-lg:col-span-2">
-          <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 lg:hidden">Tags</p>
+          <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase lg:hidden">Tags</p>
           <m-chips
             typeName="Tags"
             [chips]="MapTags.get(item.gamemode)"

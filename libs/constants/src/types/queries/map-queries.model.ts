@@ -161,18 +161,17 @@ export interface CreateMap extends Pick<MMap, 'name'> {
   portingChangelog?: string;
 }
 
-export interface UpdateMap
-  extends Partial<
-    Pick<
-      CreateMap,
-      | 'name'
-      | 'suggestions'
-      | 'placeholders'
-      | 'testInvites'
-      | 'credits'
-      | 'submissionType'
-    >
-  > {
+export interface UpdateMap extends Partial<
+  Pick<
+    CreateMap,
+    | 'name'
+    | 'suggestions'
+    | 'placeholders'
+    | 'testInvites'
+    | 'credits'
+    | 'submissionType'
+  >
+> {
   status?: MapStatus;
   info?: UpdateMapInfo;
   portingChangelog?: string;
@@ -255,8 +254,10 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
 //#endregion
 //#region Submissions
 
-export interface CreateMapVersion
-  extends Pick<MapVersion, 'changelog' | 'zones'> {
+export interface CreateMapVersion extends Pick<
+  MapVersion,
+  'changelog' | 'zones'
+> {
   resetLeaderboards?: boolean;
   hasBSP: boolean;
 }

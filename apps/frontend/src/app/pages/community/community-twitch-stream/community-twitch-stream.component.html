@@ -1,19 +1,19 @@
-<m-card title="Live Streams" [loading]="!queriedStreams">
+<m-card title="Live Streams" [loading]="!queriedStreams()">
   <a
     header
     href="https://www.twitch.tv/directory/game/Momentum%20Mod"
     target="_blank"
     rel="noopener noreferrer"
-    class="btn btn-purple btn-thin flex items-center gap-1.5"
+    class="btn flex items-center gap-1.5 btn-thin btn-purple"
   >
     <m-icon icon="twitch" pack="si" class="h-4 w-4" />
     <span>Watch on Twitch</span>
   </a>
 
-  @if (queriedStreams && streams.length === 0) {
+  @if (queriedStreams() && streams().length === 0) {
     <div class="flex flex-col items-center justify-center px-4 py-16 text-center">
       <div
-        class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-purple-950/40 text-purple-400 shadow-inner"
+        class="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-purple-950/40 text-purple-400 inset-shadow-sm"
       >
         <m-icon icon="television-classic-off" class="h-10 w-10 opacity-75" />
       </div>
@@ -26,7 +26,7 @@
         href="https://www.twitch.tv/directory/game/Momentum%20Mod"
         target="_blank"
         rel="noopener noreferrer"
-        class="btn btn-purple mt-5 flex items-center gap-2"
+        class="btn mt-5 flex items-center gap-2 btn-purple"
       >
         <m-icon icon="twitch" pack="si" class="h-4 w-4" />
         <span>Browse Momentum Mod Directory</span>
@@ -34,9 +34,9 @@
     </div>
   }
 
-  @if (queriedStreams && streams.length > 0) {
+  @if (queriedStreams() && streams().length > 0) {
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      @for (stream of streams; track stream.id) {
+      @for (stream of streams(); track stream.id) {
         <m-twitch-data [stream]="stream" />
       }
     </div>

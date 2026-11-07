@@ -3,19 +3,18 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
-  Input,
-  NgZone,
   OnDestroy,
-  Output,
   PLATFORM_ID,
   Renderer2,
-  ViewChild,
   forwardRef,
-  inject
+  inject,
+  input,
+  output,
+  signal,
+  viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DomHandler } from 'primeng/dom';
+import { DomHandler } from '@openng/optimus-ui/dom';
 
 export interface SliderChangeEvent {
   event: Event;
@@ -46,7 +45,7 @@ export interface SliderSlideEndEvent {
     <!-- This styling is terrible, full of constants and absolute positioning.
          Doing it well with the fucking number markers would probably take me
          hours, and we only use this in one place currently. -->
-    @if (markers) {
+    @if (markers(); as markers) {
       <div class="relative h-4 w-full pointer-events-none select-none">
         @for (marker of markers; track $index) {
           <!-- Hate these bastards. -->
@@ -63,12 +62,12 @@ export interface SliderSlideEndEvent {
 
     <div class="relative h-3 w-full" (click)="onBarClick($event)">
       <div
-        class="absolute block w-full h-1 bg-gray-400 top-1 bottom-1 rounded shadow overflow-hidden"
+        class="absolute block w-full h-1 bg-gray-400 top-1 bottom-1 rounded-sm shadow-sm overflow-hidden"
       >
         <span
-          class="block relative bg-gradient-to-r from-blue-500 to-blue-300 h-full"
+          class="block relative bg-linear-to-r from-blue-500 to-blue-300 h-full"
           [ngStyle]="
-            range
+            range()
               ? {
                   left: offset != null ? offset + '%' : handleValues[0] + '%',
                   width: diff
@@ -79,10 +78,10 @@ export interface SliderSlideEndEvent {
           "
         ></span>
       </div>
-      @if (range) {
+      @if (range()) {
         <span
           #sliderHandleStart
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: rangeStartLeft }"
           [ngClass]="{ 'handle--active': handleIndex === 0 }"
@@ -91,16 +90,16 @@ export interface SliderSlideEndEvent {
           (touchmove)="onDrag($event)"
           (touchend)="onDragEnd($event)"
           role="slider"
-          [attr.tabindex]="disabled ? null : tabindex"
-          [attr.aria-valuemin]="min"
+          [attr.tabindex]="disabled() ? null : tabindex()"
+          [attr.aria-valuemin]="min()"
           [attr.aria-valuenow]="value ? value[0] : null"
-          [attr.aria-valuemax]="max"
-          [attr.aria-labelledby]="ariaLabelledBy"
-          [attr.aria-label]="ariaLabel"
+          [attr.aria-valuemax]="max()"
+          [attr.aria-labelledby]="ariaLabelledBy()"
+          [attr.aria-label]="ariaLabel()"
         ></span>
         <span
           #sliderHandleEnd
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: rangeEndLeft }"
           [ngClass]="{ 'handle--active': handleIndex === 1 }"
@@ -108,30 +107,30 @@ export interface SliderSlideEndEvent {
           (touchstart)="onDragStart($event, 1)"
           (touchmove)="onDrag($event)"
           (touchend)="onDragEnd($event)"
-          [attr.tabindex]="disabled ? null : tabindex"
-          [attr.aria-valuemin]="min"
+          [attr.tabindex]="disabled() ? null : tabindex()"
+          [attr.aria-valuemin]="min()"
           [attr.aria-valuenow]="value ? value[1] : null"
-          [attr.aria-valuemax]="max"
-          [attr.aria-labelledby]="ariaLabelledBy"
-          [attr.aria-label]="ariaLabel"
+          [attr.aria-valuemax]="max()"
+          [attr.aria-labelledby]="ariaLabelledBy()"
+          [attr.aria-label]="ariaLabel()"
         ></span>
       } @else {
         <span
           #sliderHandle
-          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-sm bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
+          class="absolute cursor-grab block w-3 h-3 -translate-x-1.5 rounded-xs bg-gray-50 hover:bg-gray-300 transition-colors before:absolute before:-inset-3 before:content-['']"
           [style.transition]="dragging ? 'none' : null"
           [ngStyle]="{ left: handleValue + '%' }"
           (touchstart)="onDragStart($event)"
           (touchmove)="onDrag($event)"
           (touchend)="onDragEnd($event)"
           (mousedown)="onMouseDown($event)"
-          [attr.tabindex]="disabled ? null : tabindex"
+          [attr.tabindex]="disabled() ? null : tabindex()"
           role="slider"
-          [attr.aria-valuemin]="min"
+          [attr.aria-valuemin]="min()"
           [attr.aria-valuenow]="value"
-          [attr.aria-valuemax]="max"
-          [attr.aria-labelledby]="ariaLabelledBy"
-          [attr.aria-label]="ariaLabel"
+          [attr.aria-valuemax]="max()"
+          [attr.aria-labelledby]="ariaLabelledBy()"
+          [attr.aria-label]="ariaLabel()"
         ></span>
       }
     </div>
@@ -155,51 +154,49 @@ export interface SliderSlideEndEvent {
       multi: true
     }
   ]
-  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SliderComponent implements OnDestroy, ControlValueAccessor {
   private readonly document = inject<Document>(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   readonly el = inject(ElementRef);
   readonly renderer = inject(Renderer2);
-  private readonly ngZone = inject(NgZone);
   readonly cd = inject(ChangeDetectorRef);
 
   /** When present, it specifies that the element should be disabled */
-  @Input() disabled: boolean;
+  protected readonly disabled = signal(false);
 
   /**  Mininum boundary value */
-  @Input() min = 0;
+  readonly min = input(0);
 
   /** Maximum boundary value */
-  @Input() max = 100;
+  readonly max = input(100);
 
   /**  Step factor to increment/decrement the value */
-  @Input() step: number;
+  readonly step = input<number>();
 
   /**  When specified, allows two boundary values to be picked */
-  @Input() range: boolean;
+  readonly range = input<boolean>();
 
-  @Input() markers?: number[];
+  readonly markers = input<number[]>();
 
   /**  Defines a string that labels the input for accessibility */
-  @Input() ariaLabel?: string;
+  readonly ariaLabel = input<string>();
 
   /**  Establishes relationships between the component and label(s) where its value should be one or more element IDs */
-  @Input() ariaLabelledBy?: string;
+  readonly ariaLabelledBy = input<string>();
 
   /** Index of the element in tabbing order */
-  @Input() tabindex = 0;
+  readonly tabindex = input(0);
 
   /** Callback to invoke on value change */
-  @Output() sliderChange = new EventEmitter<SliderChangeEvent>();
+  readonly sliderChange = output<SliderChangeEvent>();
 
   /**  Callback to invoke when slide ended */
-  @Output() slideEnd = new EventEmitter<SliderSlideEndEvent>();
+  readonly slideEnd = output<SliderSlideEndEvent>();
 
-  @ViewChild('sliderHandle') sliderHandle?: ElementRef | null;
-  @ViewChild('sliderHandleStart') sliderHandleStart?: ElementRef | null;
-  @ViewChild('sliderHandleEnd') sliderHandleEnd?: ElementRef | null;
+  readonly sliderHandle = viewChild<ElementRef>('sliderHandle');
+  readonly sliderHandleStart = viewChild<ElementRef>('sliderHandleStart');
+  readonly sliderHandleEnd = viewChild<ElementRef>('sliderHandleEnd');
 
   onChange: (value: number[] | number) => void = () => void 0;
   onTouched: () => void = () => void 0;
@@ -225,13 +222,13 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   private starty?: number | null;
 
   onMouseDown(event: Event, index?: number) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     this.dragging = true;
     this.updateDomData();
     this.sliderHandleClick = true;
     this.handleIndex =
-      this.range && this.handleValues?.[0] === this.max ? 0 : index!;
+      this.range() && this.handleValues?.[0] === this.max() ? 0 : index!;
 
     this.bindDragListeners();
     (event.target as HTMLInputElement).focus();
@@ -239,15 +236,15 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   onDragStart(event: TouchEvent, index?: number) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     const touchobj: any = event.changedTouches[0];
-    this.startHandleValue = this.range
+    this.startHandleValue = this.range()
       ? this.handleValues[index!]
       : this.handleValue;
     this.dragging = true;
     this.handleIndex =
-      this.range && this.handleValues?.[0] === this.max ? 0 : index!;
+      this.range() && this.handleValues?.[0] === this.max() ? 0 : index!;
 
     this.startx = Number.parseInt(touchobj.clientX, 10);
     this.barWidth = this.el.nativeElement.offsetWidth;
@@ -256,7 +253,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   onDrag(event: TouchEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     const touchObj: any = event.changedTouches[0];
     const handleValue =
@@ -271,11 +268,11 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   onDragEnd(event: TouchEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     this.dragging = false;
 
-    if (this.range)
+    if (this.range())
       this.slideEnd.emit({
         originalEvent: event,
         values: this.values!
@@ -290,14 +287,14 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   onBarClick(event: MouseEvent) {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
     if (!this.sliderHandleClick) {
       this.updateDomData();
       this.handleChange(event);
 
       this.slideEnd.emit(
-        this.range
+        this.range()
           ? { originalEvent: event, values: this.values! }
           : { originalEvent: event, value: this.value! }
       );
@@ -314,48 +311,37 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   bindDragListeners() {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.ngZone.runOutsideAngular(() => {
-      const documentTarget: any = this.el
-        ? this.el.nativeElement.ownerDocument
-        : this.document;
+    const documentTarget: any = this.el
+      ? this.el.nativeElement.ownerDocument
+      : this.document;
 
-      if (!this.dragListener) {
-        this.dragListener = this.renderer.listen(
-          documentTarget,
-          'mousemove',
-          (event) => {
-            if (this.dragging) {
-              this.ngZone.run(() => this.handleChange(event));
-            }
-          }
-        );
-      }
+    if (!this.dragListener) {
+      this.dragListener = this.renderer.listen(
+        documentTarget,
+        'mousemove',
+        (event) => {
+          if (this.dragging) this.handleChange(event);
+        }
+      );
+    }
 
-      if (!this.mouseupListener) {
-        this.mouseupListener = this.renderer.listen(
-          documentTarget,
-          'mouseup',
-          (event) => {
-            if (this.dragging) {
-              this.dragging = false;
-              this.ngZone.run(() =>
-                this.slideEnd.emit(
-                  this.range
-                    ? {
-                        originalEvent: event,
-                        values: this.values!
-                      }
-                    : {
-                        originalEvent: event,
-                        value: this.value!
-                      }
-                )
-              );
-            }
+    if (!this.mouseupListener) {
+      this.mouseupListener = this.renderer.listen(
+        documentTarget,
+        'mouseup',
+        (event) => {
+          if (this.dragging) {
+            this.dragging = false;
+            this.cd.markForCheck();
+            this.slideEnd.emit(
+              this.range()
+                ? { originalEvent: event, values: this.values! }
+                : { originalEvent: event, value: this.value! }
+            );
           }
-        );
-      }
-    });
+        }
+      );
+    }
   }
 
   unbindDragListeners() {
@@ -373,15 +359,15 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   setValueFromHandle(event: Event, handleValue: any) {
     const newValue = this.getValueFromHandle(handleValue);
 
-    if (this.range) {
-      if (this.step) {
+    if (this.range()) {
+      if (this.step()) {
         this.handleStepChange(newValue, this.values![this.handleIndex]);
       } else {
         this.handleValues[this.handleIndex] = handleValue;
         this.updateValue(newValue, event);
       }
     } else {
-      if (this.step) {
+      if (this.step()) {
         this.handleStepChange(newValue, this.value!);
       } else {
         this.handleValue = handleValue;
@@ -399,11 +385,13 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
     if (diff < 0) {
       val =
         oldValue +
-        Math.ceil(newValue / this.step! - oldValue / this.step!) * this.step!;
+        Math.ceil(newValue / this.step()! - oldValue / this.step()!) *
+          this.step()!;
     } else if (diff > 0) {
       val =
         oldValue +
-        Math.floor(newValue / this.step! - oldValue / this.step!) * this.step!;
+        Math.floor(newValue / this.step()! - oldValue / this.step()!) *
+          this.step()!;
     }
 
     this.updateValue(val);
@@ -411,7 +399,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   writeValue(value: any): void {
-    if (this.range) this.values = value || [0, 0];
+    if (this.range()) this.values = value || [0, 0];
     else this.value = value || 0;
 
     this.updateHandleValue();
@@ -428,7 +416,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   setDisabledState(val: boolean): void {
-    this.disabled = val;
+    this.disabled.set(val);
     this.cd.markForCheck();
   }
 
@@ -454,23 +442,24 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   updateHandleValue(): void {
-    if (this.range) {
+    if (this.range()) {
       this.handleValues[0] =
-        ((this.values![0] < this.min ? 0 : this.values![0] - this.min) * 100) /
-        (this.max - this.min);
-      this.handleValues[1] =
-        ((this.values![1] > this.max ? 100 : this.values![1] - this.min) *
+        ((this.values![0] < this.min() ? 0 : this.values![0] - this.min()) *
           100) /
-        (this.max - this.min);
+        (this.max() - this.min());
+      this.handleValues[1] =
+        ((this.values![1] > this.max() ? 100 : this.values![1] - this.min()) *
+          100) /
+        (this.max() - this.min());
     } else {
-      if (this.value! < this.min) this.handleValue = 0;
-      else if (this.value! > this.max) this.handleValue = 100;
+      if (this.value! < this.min()) this.handleValue = 0;
+      else if (this.value! > this.max()) this.handleValue = 100;
       else
         this.handleValue =
-          ((this.value! - this.min) * 100) / (this.max - this.min);
+          ((this.value! - this.min()) * 100) / (this.max() - this.min());
     }
 
-    if (this.step) {
+    if (this.step()) {
       this.updateDiffAndOffset();
     }
   }
@@ -489,33 +478,34 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   updateValue(val: number, event?: Event): void {
-    if (this.range) {
+    if (this.range()) {
       let value = val;
 
       if (this.handleIndex === 0) {
-        if (value < this.min) {
-          value = this.min;
+        if (value < this.min()) {
+          value = this.min();
           this.handleValues[0] = 0;
-        } else if (value > this.values![1] && value > this.max) {
-          value = this.max;
+        } else if (value > this.values![1] && value > this.max()) {
+          value = this.max();
           this.handleValues[0] = 100;
         }
-        this.sliderHandleStart?.nativeElement.focus();
+        this.sliderHandleStart()?.nativeElement.focus();
       } else {
-        if (value > this.max) {
-          value = this.max;
+        if (value > this.max()) {
+          value = this.max();
           this.handleValues[1] = 100;
           this.offset = this.handleValues[1];
-        } else if (value < this.min) {
-          value = this.min;
+        } else if (value < this.min()) {
+          value = this.min();
           this.handleValues[1] = 0;
         } else if (value < this.values![0]) {
           this.offset = this.handleValues[1];
         }
-        this.sliderHandleEnd?.nativeElement.focus();
+        this.sliderHandleEnd()?.nativeElement.focus();
       }
 
-      if (this.step) {
+      const step = this.step();
+      if (step) {
         this.updateHandleValue();
       } else {
         this.updateDiffAndOffset();
@@ -527,7 +517,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
       // This oldValues != newValues check is a change I added. Otherwise it
       // spews change events when dragging, even if nothing has changed - Tom
       if (
-        !this.step ||
+        !step ||
         newValues[0] !== oldValues[0] ||
         newValues[1] !== oldValues[1]
       ) {
@@ -535,28 +525,28 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
         this.sliderChange.emit({ event: event!, values: this.values! });
       }
     } else {
-      if (val < this.min) {
-        val = this.min;
+      if (val < this.min()) {
+        val = this.min();
         this.handleValue = 0;
-      } else if (val > this.max) {
-        val = this.max;
+      } else if (val > this.max()) {
+        val = this.max();
         this.handleValue = 100;
       }
 
       // Same as above.
       const oldValue = this.value;
       this.value = this.getNormalizedValue(val);
-      if (!this.step || oldValue !== this.value) {
+      if (!this.step() || oldValue !== this.value) {
         this.onChange(this.value);
         this.sliderChange.emit({ event: event as Event, value: this.value });
       }
-      this.sliderHandle?.nativeElement.focus();
+      this.sliderHandle()?.nativeElement.focus();
     }
     this.updateHandleValue();
   }
 
   getValueFromHandle(handleValue: number): number {
-    return (this.max - this.min) * (handleValue / 100) + this.min;
+    return (this.max() - this.min()) * (handleValue / 100) + this.min();
   }
 
   getDecimalsCount(value: number): number {
@@ -566,7 +556,7 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   }
 
   getNormalizedValue(val: number): number {
-    const decimalsCount = this.getDecimalsCount(this.step!);
+    const decimalsCount = this.getDecimalsCount(this.step()!);
     if (decimalsCount > 0) {
       return +Number.parseFloat(val.toString()).toFixed(decimalsCount);
     } else {

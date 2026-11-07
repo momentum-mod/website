@@ -5,7 +5,7 @@ import {
   DatabaseSync,
   StatementResultingChanges,
   StatementSync,
-  SupportedValueType
+  SQLInputValue
 } from 'node:sqlite';
 
 export class DailyMessageCountService extends Service {
@@ -21,13 +21,13 @@ class MessageCountStatement {
     statement.setReadBigInts(true);
   }
 
-  all(...params: Array<SupportedValueType | Date>): MessageCount[] {
+  all(...params: Array<SQLInputValue | Date>): MessageCount[] {
     return this.statement
       .all(...stringifyDateInParams(params))
       .map((res) => this.normalizeResult(res as RawMessageCount));
   }
 
-  get(...params: Array<SupportedValueType | Date>): MessageCount | null {
+  get(...params: Array<SQLInputValue | Date>): MessageCount | null {
     const statementResult = this.statement.get(
       ...stringifyDateInParams(params)
     );
@@ -35,7 +35,7 @@ class MessageCountStatement {
     return this.normalizeResult(statementResult as RawMessageCount);
   }
 
-  run(...params: Array<SupportedValueType | Date>): StatementResultingChanges {
+  run(...params: Array<SQLInputValue | Date>): StatementResultingChanges {
     return this.statement.run(...stringifyDateInParams(params));
   }
 
@@ -50,8 +50,8 @@ class MessageCountStatement {
 }
 // toISOString always returns time in UTC timezone
 function stringifyDateInParams(
-  params: Array<SupportedValueType | Date>
-): Array<SupportedValueType> {
+  params: Array<SQLInputValue | Date>
+): Array<SQLInputValue> {
   return params.map((param) =>
     param instanceof Date ? param.toISOString().split('T')[0] : param
   );

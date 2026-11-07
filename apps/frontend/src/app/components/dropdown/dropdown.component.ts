@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { IconComponent } from '../../icons';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -17,31 +17,31 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class DropdownComponent implements ControlValueAccessor {
   // First element is used as default for dropdown button in template.
-  @Input({ required: true }) entries: number[] = [];
+  readonly entries = input.required<number[]>();
 
   // If you're adding support for string entries, use the same strategy as chips component does
-  @Input({ required: true }) nameFn: (entry: number) => string;
+  readonly nameFn = input.required<(entry: number) => string>();
 
-  protected selectedEntry: number;
+  protected readonly selectedEntry = signal<number | null>(null);
 
   // HTML id needed for popover usage, can't use a class.
   protected readonly id = `dropdown-${Math.random().toString(36).substring(2, 12)}`;
 
-  protected disabled = false;
+  protected readonly disabled = signal(false);
 
   select(entry: number): void {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.selectedEntry = entry;
-    this.onChange(this.selectedEntry);
+    this.selectedEntry.set(entry);
+    this.onChange(entry);
   }
 
   setDisabledState(setDisabled: boolean): void {
-    this.disabled = setDisabled;
+    this.disabled.set(setDisabled);
   }
 
   writeValue(entry: number): void {
-    this.selectedEntry = entry;
+    this.selectedEntry.set(entry);
   }
 
   onChange: (entry: number) => void = () => void 0;

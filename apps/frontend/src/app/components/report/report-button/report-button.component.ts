@@ -1,35 +1,28 @@
-import {
-  Component,
-  HostBinding,
-  HostListener,
-  Input,
-  inject
-} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ReportType } from '@momentum/constants';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService } from '@openng/optimus-ui/dynamicdialog';
 import { CreateReportDialogComponent } from '../create-report-dialog/create-report-dialog.component';
 import { IconComponent } from '../../../icons';
 
 @Component({
   selector: 'm-report-button',
   imports: [IconComponent],
+  host: {
+    class: 'btn btn-red',
+    '(click)': 'onClick()'
+  },
   template: '<m-icon icon="flag-outline"/>'
 })
 export class ReportButtonComponent {
   private readonly dialogService = inject(DialogService);
 
-  @Input() reportType: ReportType;
-  @Input() reportData: string;
+  readonly reportType = input<ReportType>();
+  readonly reportData = input<string>();
 
-  @HostBinding('class') get classes() {
-    return 'btn btn-red';
-  }
-
-  @HostListener('click')
   onClick() {
     this.dialogService.open(CreateReportDialogComponent, {
       header: 'Submit Report',
-      data: { reportData: this.reportData, reportType: this.reportType }
+      data: { reportData: this.reportData(), reportType: this.reportType() }
     });
   }
 }

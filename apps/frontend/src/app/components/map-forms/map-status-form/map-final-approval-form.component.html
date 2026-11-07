@@ -1,7 +1,7 @@
 <m-accordion>
-  @for (group of groupedLeaderboards | keyvalue: groupLbSortFn; track $index) {
+  @for (group of groupedLeaderboards() | keyvalue: groupLbSortFn; track $index) {
     <m-accordion-item title="{{ GamemodeInfo.get(group.key).name }} - {{ group.value.totalRuns }} runs submitted">
-      <div class="flex flex-col gap-8 bg-black bg-opacity-10 p-3 shadow-inner sm:p-8 sm:pt-6">
+      <div class="flex flex-col gap-8 bg-black/10 p-3 inset-shadow-sm sm:p-8 sm:pt-6">
         @for (leaderboard of group.value.leaderboards; track $index) {
           @if (leaderboard.trackType !== TrackType.STAGE) {
             <div class="grid grid-cols-1 gap-6 xl:grid-cols-[auto_20rem_20rem] xl:gap-12">
@@ -49,7 +49,7 @@
                   @for (tag of leaderboard.subSugg?.tags; track $index) {
                     <button
                       (click)="leaderboard.tags.push(tag)"
-                      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 p-2 transition-colors hover:bg-opacity-60"
+                      class="flex h-7 items-center gap-1 rounded-sm border border-white/5 bg-blue-400/50 p-2 transition-colors hover:bg-blue-400/60"
                       type="button"
                     >
                       <p class="pointer-events-none font-medium text-gray-50">{{ mapTagEnglishName(tag) }}</p>
@@ -63,7 +63,7 @@
                   @for (tuple of leaderboard.reviewTags; track $index) {
                     <button
                       (click)="leaderboard.tags.push(tuple[0])"
-                      class="flex h-7 items-center gap-1 rounded border border-white border-opacity-5 bg-blue-400 bg-opacity-50 p-2 transition-colors hover:bg-opacity-60"
+                      class="flex h-7 items-center gap-1 rounded-sm border border-white/5 bg-blue-400/50 p-2 transition-colors hover:bg-blue-400/60"
                       type="button"
                     >
                       <p class="pointer-events-none font-medium text-gray-50">{{ mapTagEnglishName(tuple[0]) }}</p>
@@ -78,7 +78,7 @@
                   <p [ngClass]="{ 'opacity-50': leaderboard.type === LeaderboardType.HIDDEN }">Tier</p>
                   <input
                     type="number"
-                    class="textinput w-16 px-2"
+                    class="w-16 textinput px-2"
                     min="1"
                     [(ngModel)]="leaderboard.tier"
                     max="10"
@@ -96,14 +96,14 @@
                     optionValue="type"
                     optionLabel="label"
                     placeholder="Select Type"
-                    [disabled]="disabled"
+                    [disabled]="disabled()"
                     (onChange)="onChange(value)"
                     appendTo="body"
                   />
 
                   <p>Tags</p>
                   <m-chips
-                    class="min-w-[12rem] flex-grow"
+                    class="min-w-48 grow"
                     [chips]="MapTags.get(leaderboard.gamemode)"
                     [nameFn]="mapTagEnglishName"
                     [ngModel]="leaderboard.tags"

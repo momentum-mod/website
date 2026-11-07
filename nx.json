@@ -2,19 +2,23 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "momentum",
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
+    "build": [
+      {
+        "dependsOn": ["^build"],
+        "inputs": ["production", "^production"]
+      },
+      {
+        "filter": {
+          "plugin": "@nx/webpack/plugin"
+        },
+        "defaultConfiguration": "production"
+      }
+    ],
     "lint": {
       "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"]
     },
     "e2e": {
       "inputs": ["default", "^production"]
-    },
-    "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"],
-      "cache": true
     }
   },
   "namedInputs": {
@@ -57,12 +61,6 @@
     "@schematics/angular:service": {
       "type": "service"
     },
-    "@nx/angular:scam": {
-      "type": "component"
-    },
-    "@nx/angular:scam-directive": {
-      "type": "directive"
-    },
     "@nx/angular:guard": {
       "typeSeparator": "."
     },
@@ -99,5 +97,43 @@
   "neverConnectToCloud": true,
   "tui": {
     "enabled": false
-  }
+  },
+  "analytics": false,
+  "affected": {
+    "legacy": true
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/backend/**/*",
+        "apps/backend-e2e/**/*",
+        "apps/discord-bot-internal/**/*",
+        "apps/frontend/**/*",
+        "libs/bitflags/**/*",
+        "libs/constants/**/*",
+        "libs/db/**/*",
+        "libs/enum/**/*",
+        "libs/formats/bsp/**/*",
+        "libs/formats/replay/**/*",
+        "libs/formats/zone/**/*",
+        "libs/random/**/*",
+        "libs/util-fn/**/*",
+        "libs/xp-systems/**/*"
+      ],
+      "exclude": ["apps/frontend/src/app/theme/shared_styling/**/*"]
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "serveTargetName": "serve"
+      }
+    }
+  ]
 }

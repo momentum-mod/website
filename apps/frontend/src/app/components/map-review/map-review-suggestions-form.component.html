@@ -1,65 +1,65 @@
-@if (value && value.length > 0 && !disabled) {
+@if (value().length > 0 && !disabled()) {
   <!-- On mobile, each item is a small card with labelled fields, rather than a row of the 7-column table. -->
   <table class="mb-2 grid border-collapse grid-cols-1 gap-2 md:grid-cols-[auto_8rem_auto_auto_auto_4fr_auto] md:gap-0.5">
     <thead class="hidden bg-gray-950 md:contents">
       <tr class="contents">
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Gamemode</th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Track Type</th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Track Number</th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">Gamemode</th>
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">Track Type</th>
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">Track Number</th>
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">
           Tier
           <m-icon icon="asterisk" class="mb-0.5 p-1 align-middle" mTooltip="Required" />
         </th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Rating</th>
-        <th class="my-auto pl-1 pr-4 text-left text-sm font-medium text-gray-200">Tags</th>
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">Rating</th>
+        <th class="my-auto pr-4 pl-1 text-left text-sm font-medium text-gray-200">Tags</th>
         <th></th>
       </tr>
     </thead>
     <tbody class="contents">
-      @for (item of value; track item; let i = $index) {
-        <tr class="mt-2 grid grid-cols-2 gap-2 rounded bg-black bg-opacity-10 p-2 md:contents md:bg-transparent md:p-0">
+      @for (item of value(); track item; let i = $index) {
+        <tr class="mt-2 grid grid-cols-2 gap-2 rounded-sm bg-black/10 p-2 md:contents md:bg-transparent md:p-0">
           <td>
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Gamemode</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Gamemode</p>
             <p-select
-              class="max-md:w-full [&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded-sm"
               [(ngModel)]="item.gamemode"
               [options]="availableGamemodes"
               optionLabel="label"
               optionValue="gamemode"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
           <td>
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Track Type</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Track Type</p>
             <p-select
-              class="max-md:w-full [&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded-sm"
               [(ngModel)]="item.trackType"
               [options]="TrackTypes"
               optionLabel="label"
               optionValue="type"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
           <td>
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Track Number</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Track Number</p>
             <p-select
-              class="max-md:w-full [&>.p-dropdown]:rounded"
+              class="max-md:w-full [&>.p-dropdown]:rounded-sm"
               [(ngModel)]="item.trackNum"
               optionLabel="label"
               optionValue="trackNum"
-              [options]="item.trackType === TrackType.BONUS ? availableBonusTracks : []"
+              [options]="item.trackType === TrackType.BONUS ? availableBonusTracks() : []"
               [disabled]="item.trackType !== TrackType.BONUS"
               (blur)="onTouched()"
-              (onChange)="onChange(value)"
+              (onChange)="onChange(value())"
               appendTo="body"
             />
           </td>
           <td>
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Tier</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Tier</p>
             <input
               type="number"
               class="textinput max-md:w-full"
@@ -68,11 +68,11 @@
               step="1"
               [(ngModel)]="item.tier"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
           <td>
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Rating</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Rating</p>
             <input
               type="number"
               class="textinput max-md:w-full"
@@ -81,11 +81,11 @@
               step="1"
               [(ngModel)]="item.gameplayRating"
               (blur)="onTouched()"
-              (change)="onChange(value)"
+              (change)="onChange(value())"
             />
           </td>
           <td class="max-md:col-span-2">
-            <p class="mb-0.5 text-xs font-medium uppercase text-gray-200 md:hidden">Tags</p>
+            <p class="mb-0.5 text-xs font-medium text-gray-200 uppercase md:hidden">Tags</p>
             <m-chips
               typeName="Tags"
               [chips]="MapTags.get(item.gamemode)"
@@ -95,7 +95,7 @@
             />
           </td>
           <td class="max-md:col-span-2 max-md:justify-self-end">
-            <button type="button" class="btn btn-red rounded px-2" (click)="removeItem(i)">
+            <button type="button" class="btn rounded-sm px-2 btn-red" (click)="removeItem(i)">
               <m-icon icon="delete-outline" />
             </button>
           </td>

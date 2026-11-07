@@ -1,7 +1,7 @@
-import { Tooltip as PTooltip, TooltipStyle } from 'primeng/tooltip';
-import { Directive, Input, QueryList, TemplateRef } from '@angular/core';
-import { UniqueComponentId } from 'primeng/utils';
-import { DomHandler } from 'primeng/dom';
+import { Tooltip as PTooltip, TooltipStyle } from '@openng/optimus-ui/tooltip';
+import { Directive, Input, TemplateRef, input } from '@angular/core';
+import { UniqueComponentId } from '@openng/optimus-ui/utils';
+import { DomHandler } from '@openng/optimus-ui/dom';
 
 /**
  * Overriden PrimeNG Tooltip directive adding extra utilities for
@@ -17,6 +17,8 @@ import { DomHandler } from 'primeng/dom';
   providers: [TooltipStyle]
 })
 export class TooltipDirective extends PTooltip {
+  // These @Input()s override decorator inputs on Optimus UI's Tooltip, so they
+  // can't be signal inputs.
   /**
    * Event to show the tooltip.
    * If any string other than 'hover' or 'focus' are given, it won't register
@@ -30,14 +32,12 @@ export class TooltipDirective extends PTooltip {
    * Content of the tooltip.
    */
   @Input('mTooltip') override content:
-    | string
-    | TemplateRef<HTMLElement>
-    | undefined = undefined;
+    string | TemplateRef<HTMLElement> | undefined = undefined;
 
   /**
-   * String by which to distuingish multiple instances in a QueryList
+   * String by which to distuingish multiple instances in a viewChildren() query
    */
-  @Input() tooltipContext?: any;
+  readonly tooltipContext = input<any>();
 
   /**
    * Overriden position to make `top` the default.
@@ -65,6 +65,7 @@ export class TooltipDirective extends PTooltip {
     life: null,
     autoHide: true,
     hideOnEscape: true,
+    showOnEllipsis: false,
     id: UniqueComponentId() + '_tooltip'
   };
 
@@ -159,14 +160,14 @@ export class TooltipDirective extends PTooltip {
   }
 
   /**
-   * Pick out a specific tooltip from a @ViewChildren querylist based on some
+   * Pick out a specific tooltip from a viewChildren() query based on some
    * property.
    */
   static findByContext(
-    tooltips: QueryList<TooltipDirective>,
+    tooltips: readonly TooltipDirective[],
     context: any
   ): TooltipDirective | undefined {
-    return tooltips.find((t) => t.tooltipContext === context);
+    return tooltips.find((t) => t.tooltipContext() === context);
   }
 
   /**

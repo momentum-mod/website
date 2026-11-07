@@ -3,12 +3,12 @@
     <textarea
       [formControl]="mainText"
       placeholder="... (Required)"
-      class="textinput grow resize-none overflow-hidden"
+      class="grow resize-none overflow-hidden textinput"
       rows="6"
       (keydown.control.enter)="submit()"
-      dynamicTextareaHeight
+      mDynamicTextareaHeight
     ></textarea>
-    @if (!editing) {
+    @if (!editing()) {
       <m-multi-file-upload
         class="h-auto md:max-w-[20%]"
         [formControl]="images"
@@ -22,17 +22,17 @@
       />
     }
   </div>
-  @if (MAX_REVIEW_LENGTH / 2 < mainText.value?.length) {
-    <span class="ml-2 text-sm">{{ MAX_REVIEW_LENGTH - mainText.value?.length | plural: 'character' }} remaining</span>
+  @if (MAX_REVIEW_LENGTH / 2 < mainTextLength()) {
+    <span class="ml-2 text-sm">{{ MAX_REVIEW_LENGTH - mainTextLength() | plural: 'character' }} remaining</span>
   }
 
-  <m-map-review-suggestions-form #suggs [formControl]="suggestions" [map]="map" />
-  @if (suggestions.invalid) {
-    <p class="medium mb-2 ml-auto font-medium italic text-red-500">{{ suggestions.errors['error'] }}</p>
+  <m-map-review-suggestions-form #suggs [formControl]="suggestions" [map]="map()" />
+  @if (suggestionsInvalid()) {
+    <p class="medium mb-2 ml-auto font-medium text-red-500 italic">{{ suggestions.errors['error'] }}</p>
   }
 
   <div class="flex flex-wrap items-center justify-end gap-2">
-    @if (isReviewer && !editing) {
+    @if (isReviewer && !editing()) {
       <p>Require resolving</p>
       <m-icon
         icon="tooltip-question-outline"
@@ -48,10 +48,10 @@
         <input type="checkbox" class="checkbox" [formControl]="approves" />
       }
     }
-    @if (editing) {
-      <button type="button" class="btn btn-red btn-thin self-end" (click)="canceledEditing.next()">Cancel editing</button>
+    @if (editing()) {
+      <button type="button" class="btn self-end btn-thin btn-red" (click)="canceledEditing.emit()">Cancel editing</button>
     }
-    <button type="button" class="btn btn-blue btn-thin" (click)="suggs.addEmptyItem()">
+    <button type="button" class="btn btn-thin btn-blue" (click)="suggs.addEmptyItem()">
       Add Tier/Ranking Suggestions
       <m-icon class="ml-2" icon="tooltip-question-outline" [mTooltip]="suggestionInfo" />
     </button>
@@ -69,8 +69,8 @@
         </p>
       </div>
     </ng-template>
-    <button type="submit" class="btn btn-green btn-thin self-end" [disabled]="loading || form.invalid || form.pristine">
-      {{ editing ? 'Update' : 'Post' }}
+    <button type="submit" class="btn self-end btn-thin btn-green" [disabled]="!canSubmit()">
+      {{ editing() ? 'Update' : 'Post' }}
     </button>
   </div>
 </form>

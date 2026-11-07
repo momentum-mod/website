@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
   selector: 'm-hidden-leaderboards-info',
   template: `
     <div class="prose p-3">
-      <p class="text-lg font-medium">{{ title }}</p>
+      <p class="text-lg font-medium">{{ title() }}</p>
       <p>
         Hidden leaderboards are leaderboards for gamemodes that the map is not
         supposed to be played on.
@@ -22,5 +22,5 @@ import { Component, Input } from '@angular/core';
   `
 })
 export class HiddenLeaderboardsInfoComponent {
-  @Input() title = 'Hidden Leaderboard';
+  readonly title = input('Hidden Leaderboard');
 }
