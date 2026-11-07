@@ -56,3 +56,7 @@ export type UserMapFavoritesGetExpand = Array<
 export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: UserMapFavoritesGetExpand;
 };
+
+export interface PlayerChatBansQuery {
+  steamIDs: string[];
+}
