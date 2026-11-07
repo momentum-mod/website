@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  NgZone,
   OnDestroy,
   PLATFORM_ID,
   Renderer2,
@@ -161,7 +160,6 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   private readonly platformId = inject(PLATFORM_ID);
   readonly el = inject(ElementRef);
   readonly renderer = inject(Renderer2);
-  private readonly ngZone = inject(NgZone);
   readonly cd = inject(ChangeDetectorRef);
 
   /** When present, it specifies that the element should be disabled */
@@ -313,49 +311,37 @@ export class SliderComponent implements OnDestroy, ControlValueAccessor {
   bindDragListeners() {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.ngZone.runOutsideAngular(() => {
-      const documentTarget: any = this.el
-        ? this.el.nativeElement.ownerDocument
-        : this.document;
+    const documentTarget: any = this.el
+      ? this.el.nativeElement.ownerDocument
+      : this.document;
 
-      if (!this.dragListener) {
-        this.dragListener = this.renderer.listen(
-          documentTarget,
-          'mousemove',
-          (event) => {
-            if (this.dragging) {
-              this.ngZone.run(() => this.handleChange(event));
-            }
-          }
-        );
-      }
+    if (!this.dragListener) {
+      this.dragListener = this.renderer.listen(
+        documentTarget,
+        'mousemove',
+        (event) => {
+          if (this.dragging) this.handleChange(event);
+        }
+      );
+    }
 
-      if (!this.mouseupListener) {
-        this.mouseupListener = this.renderer.listen(
-          documentTarget,
-          'mouseup',
-          (event) => {
-            if (this.dragging) {
-              this.dragging = false;
-              this.cd.markForCheck();
-              this.ngZone.run(() =>
-                this.slideEnd.emit(
-                  this.range()
-                    ? {
-                        originalEvent: event,
-                        values: this.values!
-                      }
-                    : {
-                        originalEvent: event,
-                        value: this.value!
-                      }
-                )
-              );
-            }
+    if (!this.mouseupListener) {
+      this.mouseupListener = this.renderer.listen(
+        documentTarget,
+        'mouseup',
+        (event) => {
+          if (this.dragging) {
+            this.dragging = false;
+            this.cd.markForCheck();
+            this.slideEnd.emit(
+              this.range()
+                ? { originalEvent: event, values: this.values! }
+                : { originalEvent: event, value: this.value! }
+            );
           }
-        );
-      }
-    });
+        }
+      );
+    }
   }
 
   unbindDragListeners() {
