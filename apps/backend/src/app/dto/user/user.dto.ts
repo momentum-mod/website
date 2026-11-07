@@ -66,11 +66,12 @@ export class UserDto implements User {
   @ApiProperty()
   @Expose()
   @IsString()
+  @IsOptional()
   get avatarURL(): string {
+    if (!this.avatar) return undefined;
+
     return steamAvatarUrl(
-      Bitflags.has(this.bans, Ban.AVATAR) || !this.avatar
-        ? STEAM_MISSING_AVATAR
-        : this.avatar
+      Bitflags.has(this.bans, Ban.AVATAR) ? STEAM_MISSING_AVATAR : this.avatar
     );
   }
 
