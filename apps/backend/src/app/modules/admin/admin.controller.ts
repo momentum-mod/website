@@ -37,6 +37,7 @@ import { KillswitchService } from '../killswitch/killswitch.service';
 import { UsersService } from '../users/users.service';
 import {
   AdminActivityDto,
+  AdminCreateChatBanDto,
   AdminDeleteAllRunsDto,
   AdminDeleteRunDto,
   AdminGetAdminActivitiesQueryDto,
@@ -331,6 +332,21 @@ export class AdminController {
     @Query() query: AdminGetChatBansQueryDto
   ): Promise<PagedResponseDto<ChatBanDto>> {
     return this.adminService.getChatBans(query);
+  }
+
+  @Post('/chat-bans')
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+  @ApiOperation({
+    summary: 'Issue a chat/voice ban, without it coming from a report'
+  })
+  @ApiBody({ type: AdminCreateChatBanDto, required: true })
+  @ApiCreatedResponse({ type: ChatBanDto, description: 'The issued ban' })
+  @ApiNotFoundResponse({ description: 'Target user not found' })
+  createChatBan(
+    @LoggedInUser('id') userID: number,
+    @Body() body: AdminCreateChatBanDto
+  ): Promise<ChatBanDto> {
+    return this.adminService.createChatBan(userID, body);
   }
 
   @Patch('/chat-bans/:banID')

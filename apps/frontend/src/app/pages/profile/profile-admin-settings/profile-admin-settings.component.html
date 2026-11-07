@@ -1,6 +1,46 @@
 <div class="flex max-h-[75vh] flex-col gap-4 overflow-y-auto">
   <div [mSpinner]="loadingChatBans">
-    <h2>Communication Bans</h2>
+    <div class="mb-2 flex items-center justify-between gap-2">
+      <h2>Communication Bans</h2>
+      @if (!showIssueChatBan) {
+        <button type="button" class="btn btn-red" (click)="toggleIssueChatBan()">Issue Ban</button>
+      }
+    </div>
+    @if (showIssueChatBan) {
+      <form [formGroup]="issueChatBanForm" class="card-inset mb-3 flex flex-col gap-2 p-3" (ngSubmit)="issueChatBans()">
+        <div class="flex flex-wrap gap-x-6 gap-y-1">
+          <label class="flex items-center">
+            <input type="checkbox" class="checkbox mr-2" formControlName="banChat" />
+            Ban from text chat
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="checkbox mr-2" formControlName="banVoice" />
+            Ban from voice chat
+          </label>
+        </div>
+        <label>Duration</label>
+        <p-select formControlName="banDuration" [options]="BanDurations" optionLabel="label" optionValue="value" appendTo="body" />
+        <label
+          >Reason
+          <m-icon
+            class="ml-1 pt-0.5 text-sm"
+            icon="help-circle"
+            mTooltip="This is shown to the player in-game when they try to chat or use voice while banned"
+          />
+        </label>
+        <textarea rows="2" class="textinput" [maxLength]="MAX_REPORT_MESSAGE_LENGTH" formControlName="banReason"></textarea>
+        <div class="flex gap-2">
+          <button type="button" class="btn" (click)="toggleIssueChatBan()">Cancel</button>
+          <button
+            type="submit"
+            class="btn btn-red"
+            [disabled]="issuingChatBan || (!issueChatBanForm.value.banChat && !issueChatBanForm.value.banVoice)"
+          >
+            Issue Ban
+          </button>
+        </div>
+      </form>
+    }
     @if (!loadingChatBans && chatBans.length === 0) {
       <p class="text-gray-300">This user has no communication bans.</p>
     }
