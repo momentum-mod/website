@@ -103,7 +103,6 @@ export class ActiveChatBanDto
 /** Steam's limit on lobby members, so a client can query its whole lobby. */
 const MAX_PLAYER_CHAT_BANS_QUERY = 250;
 
-/** Body of the `chatbans.get` message. */
 export class PlayerChatBansQueryDto implements PlayerChatBansQuery {
   @ApiProperty({
     type: String,
@@ -135,10 +134,6 @@ export class PlayerChatBansDto implements PlayerChatBans {
   readonly bans: PlayerChatBanDto[];
 }
 
-/**
- * Response to `chatbans.get`, with an entry for each queried player that has
- * active bans. Players with none, or no account, are left out.
- */
 export class PlayerChatBansListDto implements PlayerChatBansList {
   @NestedProperty(PlayerChatBansDto, { isArray: true, required: true })
   readonly players: PlayerChatBansDto[];
