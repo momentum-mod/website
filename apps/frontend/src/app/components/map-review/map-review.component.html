@@ -161,10 +161,7 @@
               <div class="flex gap-1">
                 @if (MAX_REVIEW_COMMENT_LENGTH / 2 < editForm.value.textInput?.length) {
                   <span class="ml-2 self-start text-sm"
-                    >{{
-                      MAX_REVIEW_COMMENT_LENGTH - $safeNavigationMigration(editForm.value.textInput?.length) | plural: 'character'
-                    }}
-                    remaining</span
+                    >{{ MAX_REVIEW_COMMENT_LENGTH - editForm.value.textInput?.length | plural: 'character' }} remaining</span
                   >
                 }
                 <button type="button" class="btn ml-auto btn-thin btn-red" (click)="cancelEditComment(comment.id)">Cancel</button>
@@ -212,12 +209,7 @@
     </form>
   }
   @if (MAX_REVIEW_COMMENT_LENGTH / 2 < commentInput.value.textInput?.length) {
-    <span class="ml-2 text-sm"
-      >{{
-        MAX_REVIEW_COMMENT_LENGTH - $safeNavigationMigration(commentInput.value.textInput?.length) | plural: 'character'
-      }}
-      remaining</span
-    >
+    <span class="ml-2 text-sm">{{ MAX_REVIEW_COMMENT_LENGTH - commentInput.value.textInput?.length | plural: 'character' }} remaining</span>
   }
 
   @if (isReviewer) {

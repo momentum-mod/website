@@ -3,12 +3,9 @@
 @let name = this.name();
 @let prefix = this.prefix();
 @let authors = this.authors();
-<a [routerLink]="'/maps/' + $safeNavigationMigration(map?.name)" class="group flex h-full flex-col shadow-sm">
+<a [routerLink]="'/maps/' + map?.name" class="group flex h-full flex-col shadow-sm">
   <div class="stack aspect-video">
-    <img
-      [src]="$safeNavigationMigration(map.thumbnail?.small)"
-      class="h-full w-full rounded-t border-b border-black/5 transition-all group-hover:brightness-110"
-    />
+    <img [src]="map.thumbnail?.small" class="h-full w-full rounded-t border-b border-black/5 transition-all group-hover:brightness-110" />
     @if (user()) {
       <button
         type="button"
@@ -41,7 +38,7 @@
             <p
               class="flex h-10 items-center rounded-sm border border-white/10 bg-gray-400/50 px-2 pb-0.5 font-display text-20 backdrop-blur-md text-shadow-strong"
             >
-              {{ $safeNavigationMigration(lb.bonuses?.length) | plural: 'bonus' : 'bonuses' }}
+              {{ lb.bonuses?.length | plural: 'bonus' : 'bonuses' }}
             </p>
           }
           @if (lb.type === LeaderboardType.UNRANKED) {
@@ -96,14 +93,14 @@
         <!-- At least 1 author is always required. -->
         By
         @if (authors[0]?.id) {
-          <a class="link text-gray-50" [routerLink]="'/profile/' + $safeNavigationMigration(authors[0]?.id)">{{ authors[0].alias }}</a>
+          <a class="link text-gray-50" [routerLink]="'/profile/' + authors[0]?.id">{{ authors[0].alias }}</a>
         } @else {
           <span class="text-gray-200">{{ authors[0].alias }}</span>
         }
         <!-- prettier-ignore -->
         @if (authors.length > 1) {,
             @if (authors[1]?.id) {
-              <a class="link text-gray-50" [routerLink]="'/profile/' + $safeNavigationMigration(authors[1]?.id)">{{ authors[1].alias }}</a>
+              <a class="link text-gray-50" [routerLink]="'/profile/' + authors[1]?.id">{{ authors[1].alias }}</a>
             } @else {
               <span class="text-gray-200">{{ authors[1].alias }}</span>
             }
@@ -134,7 +131,7 @@
         </p>
       }
       @if (showApprovedDate() && map.info?.approvedDate) {
-        <p class="mt-auto text-right text-gray-100">Released {{ $safeNavigationMigration(map.info?.approvedDate) | timeAgo }}</p>
+        <p class="mt-auto text-right text-gray-100">Released {{ map.info?.approvedDate | timeAgo }}</p>
       } @else {
         <p class="mt-auto text-right text-gray-100">Added {{ map.createdAt | timeAgo }}</p>
       }
