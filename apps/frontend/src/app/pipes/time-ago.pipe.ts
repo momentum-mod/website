@@ -1,7 +1,6 @@
 import {
   Pipe,
   PipeTransform,
-  NgZone,
   ChangeDetectorRef,
   OnDestroy
 } from '@angular/core';
@@ -17,9 +16,7 @@ export class TimeAgoPipe implements PipeTransform, OnDestroy {
     // throws when attempted to provide ChangeDetectorRef.
     // If I spend any longer on this I'll lose my mind.
     // eslint-disable-next-line @angular-eslint/prefer-inject
-    private changeDetectorRef: ChangeDetectorRef,
-    // eslint-disable-next-line @angular-eslint/prefer-inject
-    private ngZone: NgZone
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   transform(value: string | Date) {
@@ -33,13 +30,9 @@ export class TimeAgoPipe implements PipeTransform, OnDestroy {
 
     if (Number.isNaN(seconds)) return '';
 
-    this.timer = this.ngZone.runOutsideAngular(() =>
-      window?.setTimeout(
-        () => this.ngZone.run(() => this.changeDetectorRef.markForCheck()),
-        Number.isNaN(seconds)
-          ? 1000
-          : this.getSecondsUntilUpdate(seconds) * 1000
-      )
+    this.timer = window?.setTimeout(
+      () => this.changeDetectorRef.markForCheck(),
+      Number.isNaN(seconds) ? 1000 : this.getSecondsUntilUpdate(seconds) * 1000
     );
 
     const minutes = Math.round(Math.abs(seconds / 60));
