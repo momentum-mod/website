@@ -1,16 +1,13 @@
 import * as assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
-import { ChangeDetectorRef, NgZone } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { TimeAgoPipe } from './time-ago.pipe';
 
 describe('TimeAgoPipe', () => {
   let pipe: TimeAgoPipe;
 
   beforeEach(() => {
-    pipe = new TimeAgoPipe(
-      { markForCheck: () => {} } as ChangeDetectorRef,
-      { runOutsideAngular: (fn) => fn(), run: (fn) => fn() } as NgZone
-    );
+    pipe = new TimeAgoPipe({ markForCheck: () => {} } as ChangeDetectorRef);
   });
 
   afterEach(() => {
