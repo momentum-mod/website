@@ -101,7 +101,7 @@
         @if (user.profile?.bio?.length > 0) {
           <p class="scroll-thin max-h-60 card-inset overflow-y-auto text-ellipsis whitespace-break-spaces">{{ user.profile.bio }}</p>
         }
-        @if (($safeNavigationMigration(user.profile?.socials) | unsortedKeyvalue)?.length) {
+        @if ((user.profile?.socials | unsortedKeyvalue)?.length) {
           <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
             @for (social of user.profile.socials | unsortedKeyvalue; track social) {
               @if (social.value) {
@@ -130,8 +130,8 @@
               <ul class="scroll-thin max-h-70 overflow-y-auto">
                 @for (usr of followedByUsers; track usr) {
                   <li class="py-1">
-                    <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followee?.id)" class="flex items-center">
-                      <m-avatar class="mr-2 h-12" [url]="$safeNavigationMigration(usr.followee?.avatarURL)" />
+                    <a [routerLink]="'/profile/' + usr.followee?.id" class="flex items-center">
+                      <m-avatar class="mr-2 h-12" [url]="usr.followee?.avatarURL" />
                       <p>
                         {{ usr.followee?.alias }}<br />
                         <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>
@@ -154,8 +154,8 @@
                 <ul class="scroll-thin max-h-70 overflow-y-auto">
                   @for (usr of followingUsers; track usr) {
                     <li class="py-1">
-                      <a [routerLink]="'/profile/' + $safeNavigationMigration(usr.followed?.id)" class="flex items-center">
-                        <m-avatar class="mr-2 h-12" [url]="$safeNavigationMigration(usr.followed?.avatarURL)" />
+                      <a [routerLink]="'/profile/' + usr.followed?.id" class="flex items-center">
+                        <m-avatar class="mr-2 h-12" [url]="usr.followed?.avatarURL" />
                         <p>
                           {{ usr.followed?.alias }}<br />
                           <span class="text-gray-300">Since - {{ usr.createdAt | date }}</span>

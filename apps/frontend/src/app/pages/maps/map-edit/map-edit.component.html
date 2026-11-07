@@ -9,7 +9,7 @@
 @let isSubmittingVersionForm = this.isSubmittingVersionForm();
 @let isSubmittingTestInviteForm = this.isSubmittingTestInviteForm();
 <m-card-header titleSize="5" title="Edit Map">
-  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + $safeNavigationMigration(map?.name)">Return to Map</button>
+  <button type="button" class="btn -mb-4" [routerLink]="'/maps/' + map?.name">Return to Map</button>
 </m-card-header>
 
 <!-- Using `display: none` instead of ngIf to hide stuff as this component
@@ -173,7 +173,7 @@
       </p>
     }
     <button class="btn ml-auto btn-green" type="submit" [disabled]="loading || mainForm.pristine || mainForm.invalid">Update Map</button>
-    <button type="button" class="btn" [routerLink]="'/maps/' + $safeNavigationMigration(map?.name)">Return to Map</button>
+    <button type="button" class="btn" [routerLink]="'/maps/' + map?.name">Return to Map</button>
   </div>
 </form>
 
