@@ -188,17 +188,9 @@ export interface ChatBan {
 
 export type ActiveChatBan = Pick<ChatBan, 'type' | 'expiresAt' | 'reason'>;
 
-/**
- * A player's active chat/voice bans as other players' game clients see them,
- * so they can mute the player. Has no reason, which is only for the player.
- */
 export interface PlayerChatBans {
   steamID: string;
   bans: Pick<ChatBan, 'type' | 'expiresAt'>[];
-}
-
-export interface PlayerChatBansQuery {
-  steamIDs: string[];
 }
 
 export interface PlayerChatBansList {
