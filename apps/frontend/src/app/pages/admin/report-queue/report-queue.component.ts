@@ -29,8 +29,7 @@ export class ReportQueueComponent implements OnInit {
   protected readonly ReportType = ReportType;
 
   protected readonly reportQueue = signal<Report[]>([]);
-  // Bound to a <select>, so becomes the string 'true'/'false' once changed.
-  protected readonly resolved = signal<boolean | string>(false);
+  protected readonly resolved = signal<'true' | 'false'>('false');
 
   protected readonly rows = 10;
   protected readonly totalRecords = signal(0);
@@ -58,7 +57,7 @@ export class ReportQueueComponent implements OnInit {
         switchMap(() =>
           this.adminService.getReports({
             expand: ['submitter', 'resolver'],
-            resolved: this.resolved() as boolean,
+            resolved: this.resolved() === 'true',
             take: this.rows,
             skip: this.first()
           })
