@@ -8,6 +8,8 @@ import {
   sendClusterMessage
 } from '../../../clustered';
 import type { AuthenticatedWebSocket } from './websocket.adapter';
+import { WsResponseDto } from '../../dto';
+import { instanceToPlain } from 'class-transformer';
 
 type Client = AuthenticatedWebSocket;
 
@@ -116,12 +118,21 @@ export class WebsocketService implements OnModuleInit {
     return this.activeClients.get(userID);
   }
 
-  broadcastToAll(message: JsonValue) {
-    this.dispatch({ key: WS_BROADCAST_ALL_KEY, message });
+  broadcastToAll<T>(message: WsResponseDto<T>) {
+    this.dispatch({
+      key: WS_BROADCAST_ALL_KEY,
+      // `instanceToPlain` applies same class-transformer behavior as
+      // ClassSerializerInterceptor would on HTTP/WS responses.
+      message: instanceToPlain(message)
+    });
   }
 
-  broadcastToUsers(userIDs: number[], message: JsonValue) {
-    this.dispatch({ key: WS_BROADCAST_USERS_KEY, userIDs, message });
+  broadcastToUsers<T>(userIDs: number[], message: WsResponseDto<T>) {
+    this.dispatch({
+      key: WS_BROADCAST_USERS_KEY,
+      userIDs,
+      message: instanceToPlain(message)
+    });
   }
 
   private dispatch(payload: PubSubPayload) {
