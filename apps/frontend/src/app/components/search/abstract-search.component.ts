@@ -19,8 +19,6 @@ export abstract class AbstractSearchComponent<T> implements OnInit {
   public readonly selected = output<T>();
 
   public readonly search = this.nnfb.control<string>('');
-  // Status and value change asynchronously (debounce, responses), so templates
-  // read these rather than the control directly.
   protected readonly searchStatus = toSignal(this.search.statusChanges, {
     initialValue: this.search.status
   });
