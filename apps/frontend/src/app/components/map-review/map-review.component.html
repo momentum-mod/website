@@ -156,7 +156,7 @@
                 [formControl]="editForm.controls.textInput"
                 placeholder="Update comment"
                 class="my-1 grow resize-none overflow-hidden textinput px-2 py-1"
-                dynamicTextareaHeight
+                mDynamicTextareaHeight
               ></textarea>
               <div class="flex gap-1">
                 @if (MAX_REVIEW_COMMENT_LENGTH / 2 < editForm.value.textInput?.length) {
@@ -193,7 +193,7 @@
         [formControl]="commentInput.controls.textInput"
         placeholder="Leave a comment"
         class="min-w-0 grow resize-none overflow-hidden textinput px-2 py-1 max-md:basis-full"
-        dynamicTextareaHeight
+        mDynamicTextareaHeight
       ></textarea>
       @if (commentInput.dirty) {
         <div>

@@ -1,8 +1,7 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  // eslint-disable-next-line @angular-eslint/directive-selector
-  selector: 'form[preventEnterSubmit]',
+  selector: 'form[mPreventEnterSubmit]',
   standalone: true
 })
 export class PreventEnterSubmitDirective {

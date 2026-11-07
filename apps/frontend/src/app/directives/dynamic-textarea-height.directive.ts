@@ -7,8 +7,7 @@ import {
 } from '@angular/core';
 
 @Directive({
-  // eslint-disable-next-line @angular-eslint/directive-selector
-  selector: '[dynamicTextareaHeight]'
+  selector: '[mDynamicTextareaHeight]'
 })
 export class DynamicTextareaHeightDirective {
   private readonly renderer = inject(Renderer2);

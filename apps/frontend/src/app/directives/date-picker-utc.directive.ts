@@ -7,6 +7,7 @@ import { DatePicker as PDatePicker } from '@openng/optimus-ui/datepicker';
  * Doesn't support range or multiple selection.
  */
 @Directive({
+  // Since we're hijack the PrimeNG/OptimusUI datepicker
   // eslint-disable-next-line @angular-eslint/directive-selector
   selector: 'p-date-picker[utc]'
 })

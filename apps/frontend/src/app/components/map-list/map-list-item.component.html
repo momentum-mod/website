@@ -84,10 +84,7 @@
     class="border-t-none flex grow flex-col rounded-b border border-white/5 bg-white/5 p-4 pt-3.5 backdrop-blur-xl transition-colors group-hover:bg-white/10"
   >
     <div class="mb-2 flex min-h-8 flex-wrap items-center gap-y-2">
-      <p
-        class="contents min-h-8"
-        [fontSizeLerp]="{ chars: name.length + $safeNavigationMigration(prefix?.length), startAt: 26, baseRem: 2 }"
-      >
+      <p class="contents min-h-8" [mFontSizeLerp]="{ chars: name.length + (prefix?.length || 0), startAt: 26, baseRem: 2 }">
         @if (prefix) {
           <span class="mr-1 font-display leading-none font-bold text-gray-250">{{ prefix }}</span>
         }
