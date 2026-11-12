@@ -32,7 +32,12 @@ export class JwtGuard implements CanActivate {
     }
 
     try {
-      request.user = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(token);
+
+      // Game refresh tokens outlive game access tokens
+      if (payload.gameRefresh) throw new UnauthorizedException();
+
+      request.user = payload;
       // Set on raw request as well so pino-http passes userID to Sentry
       request.raw.user = request.user;
 

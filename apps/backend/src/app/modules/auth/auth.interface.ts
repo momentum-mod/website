@@ -14,6 +14,8 @@ export type AuthenticatedUser = Pick<User, 'id' | 'steamID'>;
  */
 export interface UserJwtPayload {
   id: number;
+  /** Set on game refresh tokens, which can't refresh web tokens or authorize requests */
+  gameRefresh?: boolean;
 }
 
 /**

@@ -56,6 +56,39 @@ describe('JwtAuthService', () => {
     assert.strictEqual(jwt.expiresIn, jwtConfig.expTime);
   };
 
+  const testGameTokenDto = (user, jwt, withRefreshToken: boolean) => {
+    assertValidDto(jwt, JWTResponseGameDto);
+
+    const decodedAccessToken = testJwtService.decode(
+      jwt.token
+    ) as UserJwtAccessPayloadVerified;
+    assert.partialDeepStrictEqual(decodedAccessToken, {
+      id: user.id,
+      steamID: user.steamID.toString(),
+      gameAuth: true
+    });
+
+    assert.strictEqual(decodedAccessToken.exp - decodedAccessToken.iat, 2 * 60); // 2m
+
+    if (!withRefreshToken) {
+      assert.strictEqual(jwt.refreshToken, undefined);
+      return;
+    }
+
+    const decodedRefreshToken = testJwtService.decode(
+      jwt.refreshToken
+    ) as UserJwtAccessPayloadVerified;
+    assert.strictEqual(decodedRefreshToken.id, user.id);
+    assert.strictEqual(decodedRefreshToken.gameRefresh, true);
+    assert.strictEqual(decodedRefreshToken.gameAuth, undefined);
+    assert.strictEqual(decodedRefreshToken.steamID, undefined);
+
+    assert.strictEqual(
+      decodedRefreshToken.exp - decodedRefreshToken.iat,
+      3 * 60
+    ); // 3m
+  };
+
   before(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: jwtSecret })],
@@ -119,27 +152,22 @@ describe('JwtAuthService', () => {
       updatedAt: new Date()
     };
 
-    it('should generate a game JWT DTO', async () => {
+    it('should generate a game JWT DTO without a refresh token by default', async () => {
       const jwt = await service.loginGame({
         id: user.id,
         steamID: user.steamID
       });
 
-      assertValidDto(jwt, JWTResponseGameDto);
+      testGameTokenDto(user, jwt, false);
+    });
 
-      const decodedAccessToken = testJwtService.decode(
-        jwt.token
-      ) as UserJwtAccessPayloadVerified;
-      assert.partialDeepStrictEqual(decodedAccessToken, {
-        id: user.id,
-        steamID: user.steamID.toString(),
-        gameAuth: true
-      });
+    it('should include a game refresh token when requested', async () => {
+      const jwt = await service.loginGame(
+        { id: user.id, steamID: user.steamID },
+        true
+      );
 
-      assert.strictEqual(
-        decodedAccessToken.exp - decodedAccessToken.iat,
-        2 * 60
-      ); // 2m
+      testGameTokenDto(user, jwt, true);
     });
   });
 
@@ -184,6 +212,76 @@ describe('JwtAuthService', () => {
       );
       await assert.rejects(
         service.refreshRefreshToken(token),
+        UnauthorizedException
+      );
+    });
+
+    it('should throw an UnauthorizedException for a game refresh token', async () => {
+      const token = testJwtService.sign({ id: user.id, gameRefresh: true });
+
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(user as any)
+      );
+      await assert.rejects(
+        service.refreshRefreshToken(token),
+        UnauthorizedException
+      );
+    });
+  });
+
+  describe('refreshGameToken', () => {
+    const user = {
+      alias: 'Lancaster Dodd',
+      avatar: 'processing.png',
+      country: 'US',
+      id: 1,
+      steamID: 1n,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    it('should generate game tokens for a valid game refresh token', async () => {
+      const token = testJwtService.sign({ id: user.id, gameRefresh: true });
+
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(user as any)
+      );
+
+      const jwt = await service.refreshGameToken(token);
+
+      testGameTokenDto(user, jwt, true);
+    });
+
+    it('should throw an UnauthorizedException for a web refresh token', async () => {
+      const token = testJwtService.sign({ id: user.id });
+
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(user as any)
+      );
+      await assert.rejects(
+        service.refreshGameToken(token),
+        UnauthorizedException
+      );
+    });
+
+    it('should throw an UnauthorizedException for an invalid token', async () => {
+      const token =
+        testJwtService.sign({ id: user.id, gameRefresh: true }) + 'a';
+
+      await assert.rejects(
+        service.refreshGameToken(token),
+        UnauthorizedException
+      );
+    });
+
+    it('should throw an UnauthorizedException if the user does not exist in DB', async () => {
+      const token = testJwtService.sign({ id: user.id, gameRefresh: true });
+
+      db.user.findUnique.mock.mockImplementationOnce(() =>
+        Promise.resolve(undefined)
+      );
+      await assert.rejects(
+        service.refreshGameToken(token),
         UnauthorizedException
       );
     });

@@ -3,7 +3,9 @@ import {
   Controller,
   Get,
   HttpStatus,
+  ParseBoolPipe,
   Post,
+  Query,
   RawBodyRequest,
   Redirect,
   Req,
@@ -20,6 +22,7 @@ import {
   ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse
@@ -109,6 +112,12 @@ export class AuthController {
     description: 'Octet-stream of a Steam user auth ticket from Steam',
     required: true
   })
+  @ApiQuery({
+    name: 'refresh',
+    type: Boolean,
+    required: false,
+    description: 'Include a refresh token for /auth/game/refresh'
+  })
   @ApiOkResponse({
     type: JWTResponseGameDto,
     description: 'Authorized steam user token'
@@ -136,9 +145,28 @@ export class AuthController {
   })
   async steamGameAuth(
     @Req() req: RawBodyRequest<FastifyRequest>,
-    @LoggedInUser() user
+    @LoggedInUser() user,
+    @Query('refresh', new ParseBoolPipe({ optional: true })) refresh?: boolean
   ): Promise<JWTResponseGameDto> {
-    return this.authService.loginGame(user);
+    return this.authService.loginGame(user, refresh ?? false);
+  }
+
+  @BypassJwtAuth()
+  @Post('/game/refresh')
+  @ApiOperation({
+    summary:
+      'Generate new game tokens for a game refresh token, without needing Steam'
+  })
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiOkResponse({
+    type: JWTResponseGameDto,
+    description: 'Refreshed game tokens'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'When the refresh token is invalid, expired or not a game one'
+  })
+  refreshGameToken(@Body() body: RefreshTokenDto) {
+    return this.authService.refreshGameToken(body.refreshToken);
   }
 
   @BypassJwtAuth()

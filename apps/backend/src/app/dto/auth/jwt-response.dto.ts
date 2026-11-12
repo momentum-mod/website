@@ -1,4 +1,4 @@
-﻿import { IsJWT, IsPositive, IsString } from 'class-validator';
+﻿import { IsJWT, IsOptional, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { JWTResponseGame, JWTResponseWeb } from '@momentum/constants';
 
@@ -30,4 +30,14 @@ export class JWTResponseGameDto implements JWTResponseGame {
   })
   @IsPositive()
   readonly length: number;
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description:
+      'A JWT refresh token for /auth/game/refresh, only included when requested'
+  })
+  @IsJWT()
+  @IsOptional()
+  readonly refreshToken?: string;
 }

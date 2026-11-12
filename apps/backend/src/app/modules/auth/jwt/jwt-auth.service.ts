@@ -36,18 +36,15 @@ export class JwtAuthService {
     return this.generateWebTokenPair(user.id, user.steamID);
   }
 
-  async loginGame(user: AuthenticatedUser): Promise<JWTResponseGameDto> {
-    // Game doesn't get a refresh token, just a longer lasting access token.
-    const token = await this.generateAccessToken({
-      id: user.id,
-      steamID: user.steamID,
-      gameAuth: true
-    });
-
-    return DtoFactory(JWTResponseGameDto, {
-      token,
-      length: token.length
-    });
+  /**
+   * Older game clients reject unknown response fields, so the refresh token is
+   * only included when the client asks for it.
+   */
+  async loginGame(
+    user: AuthenticatedUser,
+    withRefreshToken = false
+  ): Promise<JWTResponseGameDto> {
+    return this.generateGameTokens(user.id, user.steamID, withRefreshToken);
   }
 
   //#endregion
@@ -55,11 +52,43 @@ export class JwtAuthService {
   //#region Tokens
 
   async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
-    const { id } = this.verifyJwt(refreshToken);
+    const { id, gameRefresh } = this.verifyJwt(refreshToken);
+
+    if (gameRefresh) throw new UnauthorizedException('Invalid token');
 
     const user = await this.getUser(id);
 
     return await this.generateWebTokenPair(id, user.steamID);
+  }
+
+  /** Renews game tokens without needing a Steam ticket. */
+  async refreshGameToken(refreshToken: string): Promise<JWTResponseGameDto> {
+    const { id, gameRefresh } = this.verifyJwt(refreshToken);
+
+    if (!gameRefresh) throw new UnauthorizedException('Invalid token');
+
+    const user = await this.getUser(id);
+
+    return await this.generateGameTokens(id, user.steamID, true);
+  }
+
+  private async generateGameTokens(
+    id: number,
+    steamID: bigint,
+    withRefreshToken: boolean
+  ): Promise<JWTResponseGameDto> {
+    const [token, refreshToken] = await parallel(
+      this.generateAccessToken({ id, steamID, gameAuth: true }),
+      withRefreshToken
+        ? this.generateRefreshToken({ id, gameRefresh: true })
+        : Promise.resolve(undefined)
+    );
+
+    return DtoFactory(JWTResponseGameDto, {
+      token,
+      length: token.length,
+      ...(refreshToken && { refreshToken })
+    });
   }
 
   private async generateWebTokenPair(

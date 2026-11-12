@@ -124,6 +124,7 @@ export interface JWTResponseWeb {
 export interface JWTResponseGame {
   token: string;
   length: number;
+  refreshToken?: string;
 }
 
 export interface RefreshToken {
