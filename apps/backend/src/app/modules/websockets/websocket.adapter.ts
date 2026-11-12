@@ -149,6 +149,12 @@ export class WebsocketAdapter extends AbstractWsAdapter<
     socket: Stream.Duplex,
     head: Buffer
   ) {
+    // Upgrade sockets have no error listener, so a client resetting the
+    // connection would crash the process
+    const onSocketError = (err: Error) =>
+      this.logger.warn(`WebSocket upgrade socket error: ${err.message}`);
+    socket.on('error', onSocketError);
+
     try {
       const url = new URL(request.url ?? '', `ws://${request.headers.host}/`);
 
@@ -176,6 +182,8 @@ export class WebsocketAdapter extends AbstractWsAdapter<
       }
 
       wsServer.handleUpgrade(request, socket, head, (ws) => {
+        socket.removeListener('error', onSocketError);
+
         const client = ws as AuthenticatedWebSocket;
         client.userId = payload.id;
         this.wsService.addClient(payload.id, client);
