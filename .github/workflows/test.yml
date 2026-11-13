@@ -11,28 +11,28 @@ jobs:
     name: Install Dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Original node_modules Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: original_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: node_modules Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -49,25 +49,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
           submodules: 'true'
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -102,18 +102,18 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -130,7 +130,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -138,18 +138,18 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -166,25 +166,25 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -250,7 +250,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: install-deps
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -258,18 +258,18 @@ jobs:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: modules-${{ github.run_id }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'

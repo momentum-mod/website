@@ -22,25 +22,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: 'true'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: node_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
 
       - name: Prisma Cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: libs/db/src/generated
           key: prisma-${{ github.run_id }}
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24.22.1
           cache: 'npm'
