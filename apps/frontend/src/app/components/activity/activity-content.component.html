@@ -6,8 +6,7 @@
   </a>
   <p>{{ d.actionText }}</p>
   <p [ngStyle]="{ cursor: d.link ? 'pointer' : 'auto' }" [routerLink]="d.link ? d.link : null">
-    <b [ngClass]="'text-' + d.color">{{ d.eventText }}</b
-    >!
+    <b [ngClass]="'text-' + d.color">{{ d.eventText }}</b>!
   </p>
   <m-icon class="text-3xl" [ngStyle]="{ color: d.color }" [icon]="d.icon" />
   <p class="ml-auto" [ngClass]="dateNone() ? 'd-none' : ''">{{ activity().createdAt | timeAgo }}</p>
