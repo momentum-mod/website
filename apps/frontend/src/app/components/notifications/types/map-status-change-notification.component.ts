@@ -37,29 +37,6 @@ import { RouterLink } from '@angular/router';
     </div>
   `,
   host: { class: 'notification-card' },
-  // Colors correspond to tailwind,
-  // but can't use it as it get removed by tree shaking.
-  // TODO: use safelist when we have moved to Tailwind V4.
-  styles: `
-    .disabled {
-      color: rgb(223 139 142); /* text-red-300 */
-    }
-    .content-approval {
-      color: rgb(243 189 119); /* text-orange-300 */
-    }
-    .private-testing {
-      color: rgb(189 148 250); /* text-purple-300 */
-    }
-    .public-testing {
-      color: rgb(117 202 245); /* text-blue-300 */
-    }
-    .final-approval {
-      color: rgb(252, 211, 77); /* text-amber-300 */
-    }
-    .approved {
-      color: rgb(190, 242, 100); /* text-lime-300 */
-    }
-  `,
   imports: [NgClass, RouterLink, IconComponent]
 })
 export class MapStatusChangeNotificationComponent {
@@ -71,18 +48,6 @@ export class MapStatusChangeNotificationComponent {
 
   statusColorClass(status: MapStatus) {
     switch (status) {
-      case MapStatus.DISABLED:
-        return 'disabled';
-      case MapStatus.CONTENT_APPROVAL:
-        return 'content-approval';
-      case MapStatus.PRIVATE_TESTING:
-        return 'private-testing';
-      case MapStatus.PUBLIC_TESTING:
-        return 'public-testing';
-      case MapStatus.FINAL_APPROVAL:
-        return 'final-approval';
-      case MapStatus.APPROVED:
-        return 'approved';
       default:
         return '';
     }
