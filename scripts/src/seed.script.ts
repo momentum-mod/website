@@ -267,45 +267,58 @@ prismaWrapper(async (prisma: PrismaClient) => {
     ),
 
     async () => {
-      try {
-        imageBuffers = await Promise.all(
-          arrayFrom(randRange(vars.imageFetches), () =>
-            axios
-              // Sometimes picsum will fail and break script; temp substitutes:
-              // .get('https://placedog.net/480/360', {
-              // .get('http://placebeard.it/2560/1440', {
-              .get('https://picsum.photos/2560/1440', {
-                responseType: 'arraybuffer'
-              })
-              .then(async (res) => ({
-                small: await sharp(res.data)
-                  .resize(480, 360, { fit: 'inside' })
-                  .jpeg({ mozjpeg: true, quality: 90 })
-                  .toBuffer(),
-                medium: await sharp(res.data)
-                  .resize(1280, 720, { fit: 'inside' })
-                  .jpeg({ mozjpeg: true, quality: 90 })
-                  .toBuffer(),
-                large: await sharp(res.data)
-                  .resize(1920, 1080, { fit: 'inside' })
-                  .jpeg({ mozjpeg: true, quality: 90 })
-                  .toBuffer(),
-                xl: await sharp(res.data)
-                  .resize(2560, 1440, { fit: 'inside' })
-                  .jpeg({ mozjpeg: true, quality: 90 })
-                  .toBuffer()
-              }))
-          )
-        );
-      } catch {
-        throw new Error(
-          'Failed to fetch placeholder map images, picsum is probably dead. See script source for alternatives.'
-        );
+      // In order of preference; these services go down occasionally
+      const imageSources = [
+        'https://picsum.photos/2560/1440',
+        // Caps each side at 1000px
+        'https://placedog.net/1000/563?random'
+      ];
+      const numImages = randRange(vars.imageFetches);
+
+      for (const source of imageSources) {
+        try {
+          imageBuffers = await fetchImages(source, numImages);
+          console.log(`Fetched map images from ${source}`);
+          return;
+        } catch (error) {
+          console.warn(
+            `Failed to fetch map images from ${source}: ${error.message}`
+          );
+        }
       }
 
-      console.log('Fetched map images');
+      throw new Error(
+        'Failed to fetch placeholder map images from any source, add another to imageSources.'
+      );
     }
   );
+
+  async function fetchImages(source: string, count: number) {
+    return Promise.all(
+      arrayFrom(count, () =>
+        axios
+          .get(source, { responseType: 'arraybuffer', timeout: 20_000 })
+          .then(async (res) => ({
+            small: await sharp(res.data)
+              .resize(480, 360, { fit: 'inside' })
+              .jpeg({ mozjpeg: true, quality: 90 })
+              .toBuffer(),
+            medium: await sharp(res.data)
+              .resize(1280, 720, { fit: 'inside' })
+              .jpeg({ mozjpeg: true, quality: 90 })
+              .toBuffer(),
+            large: await sharp(res.data)
+              .resize(1920, 1080, { fit: 'inside' })
+              .jpeg({ mozjpeg: true, quality: 90 })
+              .toBuffer(),
+            xl: await sharp(res.data)
+              .resize(2560, 1440, { fit: 'inside' })
+              .jpeg({ mozjpeg: true, quality: 90 })
+              .toBuffer()
+          }))
+      )
+    );
+  }
 
   const users = Random.shuffle(
     await prisma.user.findMany({ include: { profile: true } })
