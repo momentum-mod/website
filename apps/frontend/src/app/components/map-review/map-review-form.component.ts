@@ -64,7 +64,8 @@ export class MapReviewFormComponent {
   protected readonly MAX_REVIEW_IMAGES = MAX_REVIEW_IMAGES;
   protected readonly MAX_REVIEW_LENGTH = MAX_REVIEW_LENGTH;
 
-  readonly map = input.required<MMap>();
+  // Not required: the suggestions validator reads it before inputs are set
+  readonly map = input<MMap>();
   readonly editing = input(false);
   readonly reviewID = input<number>(); // Only applicable if editing
   public readonly reviewPosted = output<void>();
