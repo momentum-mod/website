@@ -33,7 +33,6 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
-import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class LeaderboardRunsService {
@@ -45,8 +44,7 @@ export class LeaderboardRunsService {
     private readonly fileStoreService: FileStoreService,
     private readonly steamService: SteamService,
     private readonly rankingService: RankingService,
-    private readonly userCache: UserCacheService,
-    private readonly runCountService: RunCountService
+    private readonly userCache: UserCacheService
   ) {}
 
   async getRuns(
@@ -376,25 +374,41 @@ export class LeaderboardRunsService {
     });
 
     const { gamemode, style } = query;
-    const [rows, counts] = await Promise.all([
-      this.leaderboardRunsDbService.getMapUserCompletions({
-        mapID,
-        gamemode,
-        style,
-        userID: loggedInUserID
-      }),
-      this.runCountService.getMapCounts(mapID)
-    ]);
+    const tracks = await this.db.leaderboard.findMany({
+      where: { mapID, gamemode, style },
+      select: { trackType: true, trackNum: true },
+      orderBy: [{ trackType: 'asc' }, { trackNum: 'asc' }]
+    });
 
-    return rows.map(({ trackType, trackNum, rank }) =>
+    const ranks = await this.rankingService.getUserRunRanks(
+      loggedInUserID,
+      tracks.map((track) => ({ mapID, gamemode, style, ...track }))
+    );
+
+    if (ranks) {
+      return tracks.map(({ trackType, trackNum }, i) =>
+        DtoFactory(MapCompletionDto, {
+          trackType,
+          trackNum,
+          totalCompletions: ranks[i].totalRuns,
+          rank: ranks[i].rank ?? null
+        })
+      );
+    }
+
+    const rows = await this.leaderboardRunsDbService.getMapUserCompletions({
+      mapID,
+      gamemode,
+      style,
+      userID: loggedInUserID
+    });
+
+    return rows.map((row) =>
       DtoFactory(MapCompletionDto, {
-        trackType,
-        trackNum,
-        totalCompletions:
-          counts.get(
-            RunCountService.field({ gamemode, trackType, trackNum, style })
-          ) ?? 0,
-        rank
+        trackType: row.trackType,
+        trackNum: row.trackNum,
+        totalCompletions: row.totalCompletions ?? 0,
+        rank: row.rank
       })
     );
   }

@@ -19,7 +19,6 @@ import { DiscordModule } from '../discord/discord.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ValkeyModule } from '../valkey/valkey.module';
 import { RankingModule } from '../ranking/ranking.module';
-import { RunCountModule } from '../run-count/run-count.module';
 
 @Module({
   imports: [
@@ -34,8 +33,7 @@ import { RunCountModule } from '../run-count/run-count.module';
     KillswitchModule,
     DiscordModule,
     NotificationsModule,
-    RankingModule,
-    RunCountModule
+    RankingModule
   ],
   controllers: [MapsController],
   providers: [

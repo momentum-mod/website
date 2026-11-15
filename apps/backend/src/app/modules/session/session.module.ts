@@ -9,7 +9,6 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { ValkeyModule } from '../valkey/valkey.module';
 import { RunsModule } from '../runs/runs.module';
 import { RankingModule } from '../ranking/ranking.module';
-import { RunCountModule } from '../run-count/run-count.module';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { RunCountModule } from '../run-count/run-count.module';
     forwardRef(() => MapsModule),
     KillswitchModule,
     RankingModule,
-    RunCountModule,
     forwardRef(() => RunsModule)
   ],
   controllers: [SessionController],

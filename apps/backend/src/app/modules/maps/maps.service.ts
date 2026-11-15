@@ -105,7 +105,6 @@ import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
 import { RankingService } from '../ranking/ranking.service';
-import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class MapsService {
@@ -124,8 +123,7 @@ export class MapsService {
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
-    private readonly rankingService: RankingService,
-    private readonly runCountService: RunCountService
+    private readonly rankingService: RankingService
   ) {}
 
   //#region Gets
@@ -881,13 +879,11 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
-    // A new version of an approved map can add or remove stages and bonuses
-    // (which changes what each is worth) or reset runs, so rank points need
-    // recomputing for its leaderboards before and after the change.
-    const rankedLeaderboardsBefore =
-      map.status === MapStatus.APPROVED
-        ? await this.rankingService.getMapLeaderboards(mapID)
-        : [];
+    // A new version can add or remove stages and bonuses (which changes what
+    // each is worth on an approved map) or reset runs, so run ranks and rank
+    // points need recomputing for its leaderboards before and after the change.
+    const leaderboardsBefore =
+      await this.rankingService.getMapLeaderboards(mapID);
 
     const newVersion = await this.db.$transaction(async (tx) => {
       const newVersion = await tx.mapVersion.create({
@@ -962,14 +958,10 @@ export class MapsService {
       return newVersion;
     });
 
-    await this.runCountService.invalidate(mapID);
-
-    if (map.status === MapStatus.APPROVED) {
-      await this.rankingService.queueLeaderboardUpdates([
-        ...rankedLeaderboardsBefore,
-        ...(await this.rankingService.getMapLeaderboards(mapID))
-      ]);
-    }
+    await this.rankingService.queueLeaderboardUpdates([
+      ...leaderboardsBefore,
+      ...(await this.rankingService.getMapLeaderboards(mapID))
+    ]);
 
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
@@ -1567,13 +1559,9 @@ export class MapsService {
     }
 
     // Status changes and leaderboard type/tier changes both affect which runs
-    // earn rank points and how many. Queued after the transaction so the
-    // worker sees the committed state.
-    if (newStatus !== oldStatus || dto.leaderboards) {
-      await this.rankingService.queueMapUpdates(mapID);
-    }
-
-    await this.runCountService.invalidate(mapID);
+    // earn rank points and how many, and remaking leaderboards deletes their
+    // runs. Queued after the transaction so the worker sees the committed state.
+    await this.rankingService.queueMapUpdates(mapID);
   }
 
   private getGeneralMapDataUpdate(
@@ -2148,7 +2136,6 @@ export class MapsService {
     );
 
     await this.rankingService.queueLeaderboardUpdates(leaderboards);
-    await this.runCountService.invalidate(mapID);
   }
 
   private async deleteMapFiles(mapID: number) {

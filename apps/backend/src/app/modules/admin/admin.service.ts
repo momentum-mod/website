@@ -34,7 +34,6 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { AdminActivityService } from './admin-activity.service';
 import { UsersService } from '../users/users.service';
 import { RankingService } from '../ranking/ranking.service';
-import { RunCountService } from '../run-count/run-count.service';
 import { UserCacheService } from '../user-cache/user-cache.service';
 import { serializeLeaderboard } from '../ranking/rank-points.keys';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
@@ -48,7 +47,6 @@ export class AdminService {
     private readonly adminActivityService: AdminActivityService,
     private readonly usersService: UsersService,
     private readonly rankingService: RankingService,
-    private readonly runCountService: RunCountService,
     private readonly userCache: UserCacheService,
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService
@@ -339,7 +337,6 @@ export class AdminService {
 
     await Promise.all([
       this.rankingService.queueLeaderboardUpdates([run]),
-      this.runCountService.invalidate(run.mapID),
       this.deleteRunFiles(run),
       this.adminActivityService.create(
         adminID,
@@ -373,9 +370,6 @@ export class AdminService {
     await this.rankingService.queueLeaderboardUpdates([
       ...new Map(runs.map((run) => [serializeLeaderboard(run), run])).values()
     ]);
-    await this.runCountService.invalidate(
-      ...new Set(runs.map((run) => run.mapID))
-    );
 
     // Copy all replay files to the deleted-runs location with bounded
     // concurrency, then bulk-delete all sources in one request.

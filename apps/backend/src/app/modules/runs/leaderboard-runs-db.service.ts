@@ -130,9 +130,9 @@ export class LeaderboardRunsDbService {
 
   /**
    * Get every track (leaderboard) on a map for a given gamemode + style, along
-   * with the given user's PB rank (null where the user hasn't completed the
-   * track). The PB time is not returned - the game caches it per track/style
-   * from GetMap.
+   * with its total completions and the given user's PB rank (null where the user
+   * hasn't completed the track). The PB time is not returned - the game caches it
+   * per track/style from GetMap.
    */
   async getMapUserCompletions(args: {
     mapID: number;
@@ -144,6 +144,7 @@ export class LeaderboardRunsDbService {
     Array<{
       trackType: number;
       trackNum: number;
+      totalCompletions: number | null;
       rank: number | null;
     }>
   > {
