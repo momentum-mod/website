@@ -10,7 +10,6 @@ import { RunsController } from './runs.controller';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
 import { RankingModule } from '../ranking/ranking.module';
 import { UserCacheModule } from '../user-cache/user-cache.module';
-import { RunCountModule } from '../run-count/run-count.module';
 
 @Module({
   imports: [
@@ -19,8 +18,7 @@ import { RunCountModule } from '../run-count/run-count.module';
     FileStoreModule,
     SteamModule,
     RankingModule,
-    UserCacheModule,
-    RunCountModule
+    UserCacheModule
   ],
   providers: [
     LeaderboardRunsService,

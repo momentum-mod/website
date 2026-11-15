@@ -55,6 +55,9 @@ const RANK_POINTS_JOB_NAME = 'RankPointsQueueJob';
 const RANK_POINTS_JOB_CRON = '*/2 * * * * *';
 /** Lock expiry. Refreshed between batches, so only needs to outlive one. */
 const LOCK_TTL_MS = 60_000;
+/** Bump when the Valkey key layout changes, so the data gets rebuilt. */
+const LAYOUT_VERSION = 2;
+export const RANK_DATA_VERSION = `${RANK_POINTS_VERSION}.${LAYOUT_VERSION}`;
 
 interface LeaderboardEligibility {
   type: LeaderboardType | number;
@@ -81,7 +84,10 @@ export function isRankPointsEligible(
 }
 
 /**
- * Rank points, stored in Valkey.
+ * Rank points and run ranks, stored in Valkey.
+ *
+ * Every leaderboard with runs has a sorted set of userID -> rank of that
+ * user's run ("run ranks"), whatever its type or its map's status.
  *
  * Every RANKED leaderboard (main track, stage or bonus) on an APPROVED map has
  * a sorted set of userID -> points ("track"), and every gamemode+style has a
@@ -91,8 +97,9 @@ export function isRankPointsEligible(
  * Updates flow through a queue: anything that changes a leaderboard's runs or
  * eligibility calls `queueLeaderboardUpdates`, and a worker on the first
  * cluster worker periodically drains the queue, recomputing each leaderboard
- * from Postgres into a staging set and then committing batches of staging sets
- * into their ladders atomically.
+ * from Postgres: its run ranks are replaced directly, and its points go into a
+ * staging set, batches of which are then committed into their ladders
+ * atomically.
  *
  * All of this is derived data: `rebuildAll` regenerates it from Postgres.
  */
@@ -127,9 +134,9 @@ export class RankingService implements OnModuleInit {
     if (!isFirstWorker()) return;
 
     const version = await this.valkey.get(RankPointsKeys.version);
-    if (version !== String(RANK_POINTS_VERSION)) {
+    if (version !== RANK_DATA_VERSION) {
       this.logger.log(
-        `Rank points data is at version ${version ?? 'none'}, expected ${RANK_POINTS_VERSION}. Rebuilding...`
+        `Rank points data is at version ${version ?? 'none'}, expected ${RANK_DATA_VERSION}. Rebuilding...`
       );
       // Don't block startup on this, it can take a while on a large DB.
       this.rebuildAllInBackground();
@@ -156,9 +163,9 @@ export class RankingService implements OnModuleInit {
   //#region Updates
 
   /**
-   * Mark leaderboards as needing their points recomputed. Safe to call for
-   * leaderboards that turn out to be ineligible or deleted; they'll simply be
-   * removed from their ladder.
+   * Mark leaderboards as needing their run ranks and points recomputed. Safe
+   * to call for leaderboards that turn out to be ineligible or deleted; they'll
+   * simply be removed from their ladder.
    *
    * Call *after* the DB transaction that changed them has committed.
    */
@@ -193,7 +200,8 @@ export class RankingService implements OnModuleInit {
   /**
    * Queue every leaderboard of a map. Use after anything that can change a
    * map's status, its leaderboards' type/tier, or how many stages or bonuses
-   * it has (stage and bonus points depend on all three).
+   * it has (stage and bonus points depend on all three), or that can delete
+   * its runs.
    */
   async queueMapUpdates(mapID: number): Promise<void> {
     await this.queueLeaderboardUpdates(await this.getMapLeaderboards(mapID));
@@ -273,23 +281,14 @@ export class RankingService implements OnModuleInit {
       for (const prefix of [
         RankPointsKeys.trackPrefix,
         RankPointsKeys.stagingPrefix,
-        RankPointsKeys.ladderPrefix
+        RankPointsKeys.ladderPrefix,
+        RankPointsKeys.runRanksPrefix
       ]) {
         await this.deleteByPrefix(prefix);
       }
 
-      const leaderboards = await this.db.leaderboard.findMany({
-        where: {
-          type: LeaderboardType.RANKED,
-          mmap: { status: MapStatus.APPROVED }
-        },
-        select: {
-          mapID: true,
-          gamemode: true,
-          trackType: true,
-          trackNum: true,
-          style: true
-        }
+      const leaderboards = await this.db.leaderboardRun.groupBy({
+        by: ['mapID', 'gamemode', 'trackType', 'trackNum', 'style']
       });
 
       for (let i = 0; i < leaderboards.length; i += 1000) {
@@ -298,7 +297,7 @@ export class RankingService implements OnModuleInit {
 
       await this.drainQueue(token);
 
-      await this.valkey.set(RankPointsKeys.version, RANK_POINTS_VERSION);
+      await this.valkey.set(RankPointsKeys.version, RANK_DATA_VERSION);
     } finally {
       await this.releaseLock(token);
     }
@@ -339,48 +338,56 @@ export class RankingService implements OnModuleInit {
   }
 
   /**
-   * Recompute a leaderboard's points from Postgres into its staging set. If
-   * the leaderboard no longer awards points (or no longer exists), the staging
-   * set is removed so the commit drops the track from the ladder.
+   * Recompute a leaderboard from Postgres: replace its run ranks, and put its
+   * points into its staging set. If the leaderboard no longer awards points
+   * (or no longer exists), the staging set is removed so the commit drops the
+   * track from the ladder.
    */
   private async stageLeaderboard(lb: LeaderboardIdentifier): Promise<void> {
-    const stagingKey = RankPointsKeys.staging(lb);
-
-    const scoring = await this.getTrackScoring(lb);
-    if (!scoring) {
-      await this.valkey.del(stagingKey);
-      return;
-    }
-
-    const runs = await this.db.$queryRawTyped(
-      TypedSql.getLeaderboardRankOrder(
-        lb.mapID,
-        lb.gamemode,
-        lb.trackType,
-        lb.trackNum,
-        lb.style
+    const [scoring, runs] = await Promise.all([
+      this.getTrackScoring(lb),
+      this.db.$queryRawTyped(
+        TypedSql.getLeaderboardRankOrder(
+          lb.mapID,
+          lb.gamemode,
+          lb.trackType,
+          lb.trackNum,
+          lb.style
+        )
       )
-    );
+    ]);
 
-    if (runs.length === 0) {
-      await this.valkey.del(stagingKey);
-      return;
-    }
-
-    const { tier, weight } = scoring;
     const completions = runs.length;
-    const members: Array<number | string> = [];
+    const ranks: number[] = [];
+    const points: number[] = [];
     for (const run of runs) {
-      members.push(
-        getRankPoints(run.rank, completions, tier, weight),
-        run.userID
-      );
+      ranks.push(run.rank, run.userID);
+      if (scoring) {
+        points.push(
+          getRankPoints(run.rank, completions, scoring.tier, scoring.weight),
+          run.userID
+        );
+      }
     }
 
-    // Atomic DEL + ZADD so a concurrent commit never sees a half-written set.
-    const multi = this.valkey.multi().del(stagingKey);
-    for (let i = 0; i < members.length; i += ZADD_CHUNK * 2) {
-      multi.zadd(stagingKey, ...members.slice(i, i + ZADD_CHUNK * 2));
+    await Promise.all([
+      this.replaceSortedSet(RankPointsKeys.runRanks(lb), ranks),
+      this.replaceSortedSet(RankPointsKeys.staging(lb), points)
+    ]);
+  }
+
+  /**
+   * Replace a sorted set with the given flat list of score, member pairs,
+   * removing it if there are none. Atomic, so a concurrent read or commit never
+   * sees a half-written set.
+   */
+  private async replaceSortedSet(
+    key: string,
+    scoreMembers: number[]
+  ): Promise<void> {
+    const multi = this.valkey.multi().del(key);
+    for (let i = 0; i < scoreMembers.length; i += ZADD_CHUNK * 2) {
+      multi.zadd(key, ...scoreMembers.slice(i, i + ZADD_CHUNK * 2));
     }
     await multi.exec();
   }
@@ -565,6 +572,34 @@ export class RankingService implements OnModuleInit {
     );
 
     return scores.map((score) => (score === null ? undefined : Number(score)));
+  }
+
+  /**
+   * A user's rank and the number of runs on each of the given leaderboards.
+   * `rank` is undefined where the user has no run. Returns null while the data
+   * isn't built, in which case ranks have to come from Postgres instead.
+   */
+  async getUserRunRanks(
+    userID: number,
+    leaderboards: LeaderboardIdentifier[]
+  ): Promise<Array<{ rank?: number; totalRuns: number }> | null> {
+    const pipeline = this.valkey.pipeline().get(RankPointsKeys.version);
+    const member = userID.toString();
+    for (const lb of leaderboards) {
+      const key = RankPointsKeys.runRanks(lb);
+      pipeline.zscore(key, member).zcard(key);
+    }
+    const [[, version], ...results] = await pipeline.exec();
+
+    if (version !== RANK_DATA_VERSION) return null;
+
+    return leaderboards.map((_, i) => {
+      const rank = results[i * 2][1] as string | null;
+      return {
+        rank: rank === null ? undefined : Number(rank),
+        totalRuns: results[i * 2 + 1][1] as number
+      };
+    });
   }
 
   async getUserTrackPoints(

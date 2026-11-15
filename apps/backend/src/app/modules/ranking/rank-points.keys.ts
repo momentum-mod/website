@@ -6,9 +6,10 @@ import { Gamemode, LeaderboardIdentifier, Style } from '@momentum/constants';
  *   rankpoints:ladder:<gamemode>:<style>   ZSET userID -> total points on that ladder
  *   rankpoints:track:<leaderboard>         ZSET userID -> committed points on that track
  *   rankpoints:staging:<leaderboard>       ZSET userID -> freshly computed, not yet committed
+ *   rankpoints:runranks:<leaderboard>      ZSET userID -> rank of their run on that leaderboard
  *   rankpoints:queue                       SET of <leaderboard> strings awaiting an update
  *   rankpoints:lock                        STRING, held by whichever worker is processing
- *   rankpoints:version                     STRING, RANK_POINTS_VERSION the data was built with
+ *   rankpoints:version                     STRING, RANK_DATA_VERSION the data was built with
  *
  * <leaderboard> is `mapID:gamemode:trackType:trackNum:style`.
  */
@@ -21,6 +22,7 @@ export const RankPointsKeys = {
   trackPrefix: `${PREFIX}:track:`,
   stagingPrefix: `${PREFIX}:staging:`,
   ladderPrefix: `${PREFIX}:ladder:`,
+  runRanksPrefix: `${PREFIX}:runranks:`,
 
   ladder(gamemode: Gamemode, style: Style): string {
     return `${this.ladderPrefix}${gamemode}:${style}`;
@@ -32,6 +34,10 @@ export const RankPointsKeys = {
 
   staging(lb: LeaderboardIdentifier): string {
     return this.stagingPrefix + serializeLeaderboard(lb);
+  },
+
+  runRanks(lb: LeaderboardIdentifier): string {
+    return this.runRanksPrefix + serializeLeaderboard(lb);
   }
 };
 

@@ -10,7 +10,9 @@ import {
   TrackType
 } from '@momentum/constants';
 import { LeaderboardRun, TypedSql, User } from '@momentum/db';
+import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
 import {
+  app,
   prisma,
   req,
   db,
@@ -138,18 +140,22 @@ describe('Admin', () => {
       });
 
       it('should remove the run from the map user completions', async () => {
-        const getMainCompletions = async () => {
+        const ranking = app.get(RankingService);
+        const getMain = async () => {
           const res = await req.get({
             url: `maps/${map.id}/user-completions`,
             status: 200,
             query: { gamemode: Gamemode.AHOP },
             token: adminToken
           });
-          return res.body.find(({ trackType }) => trackType === TrackType.MAIN)
-            .totalCompletions;
+          return res.body.find(({ trackType }) => trackType === TrackType.MAIN);
         };
 
-        assert.equal(await getMainCompletions(), 2);
+        await ranking.rebuildAll();
+        assert.partialDeepStrictEqual(await getMain(), {
+          totalCompletions: 2,
+          rank: 2
+        });
 
         await req.post({
           url: 'admin/delete-run',
@@ -166,7 +172,11 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        assert.equal(await getMainCompletions(), 1);
+        await ranking.processQueue();
+        assert.partialDeepStrictEqual(await getMain(), {
+          totalCompletions: 1,
+          rank: 1
+        });
       });
 
       it('should allow a mod to delete a leaderboard run and archive the replay', async () => {
