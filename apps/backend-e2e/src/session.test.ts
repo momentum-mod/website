@@ -364,6 +364,29 @@ describe('Session', () => {
           assert.equal(mapStats.uniqueCompletions, 1);
         });
 
+        it('should count a first completion in the map user completions', async () => {
+          const getMainCompletions = async () => {
+            const res = await req.get({
+              url: `maps/${map.id}/user-completions`,
+              status: 200,
+              query: { gamemode: Gamemode.AHOP },
+              token
+            });
+            return res.body.find(
+              ({ trackType }) => trackType === TrackType.MAIN
+            ).totalCompletions;
+          };
+
+          assert.equal(await getMainCompletions(), 10);
+
+          await submitRun();
+          assert.equal(await getMainCompletions(), 11);
+
+          // A second run on the same leaderboard isn't another completion.
+          await submitRun();
+          assert.equal(await getMainCompletions(), 11);
+        });
+
         it('should create an activity if the user achieved a PB', async () => {
           await submitRun();
 

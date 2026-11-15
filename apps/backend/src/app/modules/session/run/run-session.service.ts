@@ -50,6 +50,7 @@ import {
   isRankPointsEligible,
   RankingService
 } from '../../ranking/ranking.service';
+import { RunCountService } from '../../run-count/run-count.service';
 import { getRankPoints } from '@momentum/xp-systems';
 
 @Injectable()
@@ -64,7 +65,8 @@ export class RunSessionService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly killswitch: KillswitchService,
-    private readonly rankingService: RankingService
+    private readonly rankingService: RankingService,
+    private readonly runCountService: RunCountService
   ) {}
 
   //#region Run Session (game WebSocket)
@@ -414,6 +416,16 @@ export class RunSessionService {
           )
         : Promise.resolve()
     ]);
+
+    if (!existingRun) {
+      await this.runCountService.increment({
+        mapID: submittedRun.mapID,
+        gamemode: submittedRun.gamemode,
+        trackType: submittedRun.trackType,
+        trackNum: submittedRun.trackNum,
+        style
+      });
+    }
 
     if (isPB && isRankPointsEligible(leaderboard)) {
       const leaderboardID = {

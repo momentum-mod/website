@@ -105,6 +105,7 @@ import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
 import { RankingService } from '../ranking/ranking.service';
+import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class MapsService {
@@ -123,7 +124,8 @@ export class MapsService {
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
-    private readonly rankingService: RankingService
+    private readonly rankingService: RankingService,
+    private readonly runCountService: RunCountService
   ) {}
 
   //#region Gets
@@ -960,6 +962,8 @@ export class MapsService {
       return newVersion;
     });
 
+    await this.runCountService.invalidate(mapID);
+
     if (map.status === MapStatus.APPROVED) {
       await this.rankingService.queueLeaderboardUpdates([
         ...rankedLeaderboardsBefore,
@@ -1568,6 +1572,8 @@ export class MapsService {
     if (newStatus !== oldStatus || dto.leaderboards) {
       await this.rankingService.queueMapUpdates(mapID);
     }
+
+    await this.runCountService.invalidate(mapID);
   }
 
   private getGeneralMapDataUpdate(
@@ -2142,6 +2148,7 @@ export class MapsService {
     );
 
     await this.rankingService.queueLeaderboardUpdates(leaderboards);
+    await this.runCountService.invalidate(mapID);
   }
 
   private async deleteMapFiles(mapID: number) {

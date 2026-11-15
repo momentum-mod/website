@@ -137,6 +137,38 @@ describe('Admin', () => {
         });
       });
 
+      it('should remove the run from the map user completions', async () => {
+        const getMainCompletions = async () => {
+          const res = await req.get({
+            url: `maps/${map.id}/user-completions`,
+            status: 200,
+            query: { gamemode: Gamemode.AHOP },
+            token: adminToken
+          });
+          return res.body.find(({ trackType }) => trackType === TrackType.MAIN)
+            .totalCompletions;
+        };
+
+        assert.equal(await getMainCompletions(), 2);
+
+        await req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: run.mapID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID,
+            reason: 'hello'
+          },
+          status: 204,
+          token: adminToken
+        });
+
+        assert.equal(await getMainCompletions(), 1);
+      });
+
       it('should allow a mod to delete a leaderboard run and archive the replay', async () => {
         await req.post({
           url: 'admin/delete-run',
