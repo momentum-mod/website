@@ -5,18 +5,9 @@
 SELECT
     lb."trackType",
     lb."trackNum",
-    counts."totalCompletions",
     urun."rank"
 FROM
     "Leaderboard" lb
-    LEFT JOIN LATERAL (
-        SELECT
-            COUNT(*)::int AS "totalCompletions"
-        FROM
-            "LeaderboardRun" r
-        WHERE (r."mapID", r."gamemode", r."trackType", r."trackNum", r."style")
-            = (lb."mapID", lb."gamemode", lb."trackType", lb."trackNum", lb."style")
-    ) counts ON TRUE
     LEFT JOIN LATERAL (
         SELECT
             (

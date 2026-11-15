@@ -33,6 +33,7 @@ import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class LeaderboardRunsService {
@@ -44,7 +45,8 @@ export class LeaderboardRunsService {
     private readonly fileStoreService: FileStoreService,
     private readonly steamService: SteamService,
     private readonly rankingService: RankingService,
-    private readonly userCache: UserCacheService
+    private readonly userCache: UserCacheService,
+    private readonly runCountService: RunCountService
   ) {}
 
   async getRuns(
@@ -361,19 +363,26 @@ export class LeaderboardRunsService {
       userID: loggedInUserID
     });
 
-    const rows = await this.leaderboardRunsDbService.getMapUserCompletions({
-      mapID,
-      gamemode: query.gamemode,
-      style: query.style,
-      userID: loggedInUserID
-    });
+    const { gamemode, style } = query;
+    const [rows, counts] = await Promise.all([
+      this.leaderboardRunsDbService.getMapUserCompletions({
+        mapID,
+        gamemode,
+        style,
+        userID: loggedInUserID
+      }),
+      this.runCountService.getMapCounts(mapID)
+    ]);
 
-    return rows.map((row) =>
+    return rows.map(({ trackType, trackNum, rank }) =>
       DtoFactory(MapCompletionDto, {
-        trackType: row.trackType,
-        trackNum: row.trackNum,
-        totalCompletions: row.totalCompletions,
-        rank: row.rank
+        trackType,
+        trackNum,
+        totalCompletions:
+          counts.get(
+            RunCountService.field({ gamemode, trackType, trackNum, style })
+          ) ?? 0,
+        rank
       })
     );
   }

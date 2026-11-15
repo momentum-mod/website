@@ -133,8 +133,8 @@ export class LeaderboardRunsDbService {
   }
 
   /**
-   * Get every track on a map for a gamemode + style, with its total completions
-   * and the user's PB rank (null if not completed).
+   * Get every track on a map for a gamemode + style, with the user's PB rank
+   * (null if not completed).
    */
   async getMapUserCompletions(args: {
     mapID: number;
@@ -142,7 +142,7 @@ export class LeaderboardRunsDbService {
     style: Style;
     userID: number;
     transaction?: ExtendedPrismaServiceTransaction;
-  }): Promise<MapCompletion[]> {
+  }): Promise<Omit<MapCompletion, 'totalCompletions'>[]> {
     const sql = TypedSql.getMapUserCompletions(
       args.mapID,
       args.gamemode,
@@ -157,7 +157,6 @@ export class LeaderboardRunsDbService {
     return rows.map((row) => ({
       trackType: row.trackType as TrackType,
       trackNum: row.trackNum,
-      totalCompletions: row.totalCompletions ?? 0,
       rank: row.rank
     }));
   }

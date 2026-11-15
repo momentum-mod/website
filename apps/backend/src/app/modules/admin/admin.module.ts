@@ -8,6 +8,7 @@ import { AdminActivityService } from './admin-activity.service';
 import { MapReviewModule } from '../map-review/map-review.module';
 import { KillswitchModule } from '../killswitch/killswitch.module';
 import { RankingModule } from '../ranking/ranking.module';
+import { RunCountModule } from '../run-count/run-count.module';
 import { UserCacheModule } from '../user-cache/user-cache.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -22,6 +23,7 @@ import { ReportsModule } from '../reports/reports.module';
     forwardRef(() => MapReviewModule),
     KillswitchModule,
     RankingModule,
+    RunCountModule,
     UserCacheModule,
     NotificationsModule,
     FileStoreModule,
