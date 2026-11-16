@@ -10,13 +10,16 @@ const sampleRate = enableTracing
   ? Number(process.env['SENTRY_TRACE_SAMPLE_RATE'])
   : 0;
 
-const integrations = [];
+// Forwards Pino logs (e.g. from nestjs-pino) to Sentry Logs. Doesn't create
+// error events; exceptions are captured by the exception filter instead.
+// https://docs.sentry.io/platforms/javascript/guides/node/configuration/integrations/pino/
+const integrations = [Sentry.pinoIntegration()];
 
 if (process.env['SENTRY_TRACE_PRISMA'] === 'true') {
   integrations.push(Sentry.prismaIntegration());
 }
 
-//https://docs.sentry.io/platforms/javascript/guides/node/profiling/#runtime-flags
+// https://docs.sentry.io/platforms/javascript/guides/node/profiling/#runtime-flags
 if (process.env['SENTRY_ENABLE_NODE_PROFILING'] === 'true') {
   integrations.push(nodeProfilingIntegration());
 }

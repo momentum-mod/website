@@ -1,12 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, RequestMethod, VERSION_NEUTRAL } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { LoggerModule, Params as PinoParams } from 'nestjs-pino';
-import pino from 'pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, seconds } from '@nestjs/throttler';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ScheduleModule } from '@nestjs/schedule';
-import * as Sentry from '@sentry/node';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { ConfigFactory, Environment, validate } from './config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -29,6 +27,7 @@ import { TwitchModule } from './modules/twitch/twitch.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
 import { WebsocketsModule } from './modules/websockets/websockets.module';
+import { IncomingMessage, ServerResponse } from 'node:http';
 
 @Module({
   imports: [
@@ -75,10 +74,34 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
     LoggerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (config: ConfigService): Promise<PinoParams> => ({
+        // nestjs-pino's default route gets prefixed with our default URI
+        // version, so it only logs requests under /v1. VERSION_NEUTRAL mounts
+        // it at the root, covering version-neutral controllers (auth) and
+        // unmatched paths too. Healthchecks are excluded as they're constantly
+        // polled.
+        forRoutes: [
+          {
+            path: '{*splat}',
+            method: RequestMethod.ALL,
+            version: VERSION_NEUTRAL
+          }
+        ],
+        exclude: [
+          {
+            path: 'health',
+            method: RequestMethod.ALL,
+            version: VERSION_NEUTRAL
+          }
+        ],
         pinoHttp: {
           level: config.getOrThrow('logLevel'),
+          // Name request logs by endpoint rather than "request completed".
+          customSuccessMessage: requestLogMessage,
+          customErrorMessage: requestLogMessage,
           // In dev mode, output human-readable strings using `pino-pretty`,
-          // filtering out most HTTP header noise.
+          // filtering out most HTTP header noise. In production we log JSON to
+          // stdout, and Sentry's `pinoIntegration` (see instrumentation.ts)
+          // forwards logs to Sentry.
           ...(config.getOrThrow('env') !== Environment.PRODUCTION
             ? {
                 serializers: {
@@ -94,80 +117,7 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
                   worker: { execArgv: [] }
                 }
               }
-            : {
-                stream: {
-                  // TODO: This is a hacky impl fromhttps://github.com/getsentry/sentry-javascript/issues/15952
-                  // Official integration for Pino is on the way, using til then.
-                  write: async (log) => {
-                    // Write to default pino output too (STDOUT)
-                    pino.destination(1).write(log);
-
-                    const cleanedLog = log
-                      .replace(/\\n/g, ' ')
-                      .replace(/\s+/g, ' ')
-                      .trim(); // Clean up log format
-                    const cleanedLogJson = JSON.parse(cleanedLog); // Parse cleaned log to JSON
-                    Sentry.addBreadcrumb({
-                      type:
-                        cleanedLogJson.type === 'error' ? 'error' : 'default',
-                      category: cleanedLogJson.type,
-                      level: cleanedLogJson.level,
-                      message: cleanedLogJson.message || 'Log message',
-                      data: cleanedLogJson // Parse cleaned log for Sentry
-                    });
-
-                    // TODO: Don't work
-                    // Sentry.setUser({
-                    //   id: this.userId ?? undefined
-                    // });
-
-                    switch (cleanedLogJson.level) {
-                      case 'trace':
-                        Sentry.logger.trace(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      case 'debug':
-                        Sentry.logger.debug(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      case 'info':
-                        Sentry.logger.info(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      case 'warn':
-                        Sentry.logger.warn(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      case 'error':
-                        Sentry.logger.error(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      case 'fatal':
-                        Sentry.logger.fatal(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                      default:
-                        Sentry.logger.info(
-                          cleanedLogJson.message,
-                          cleanedLogJson
-                        );
-                        break;
-                    }
-                  }
-                }
-              })
+            : {})
         }
       })
     }),
@@ -200,3 +150,7 @@ import { WebsocketsModule } from './modules/websockets/websockets.module';
   ]
 })
 export class AppModule {}
+
+function requestLogMessage(req: IncomingMessage, res: ServerResponse): string {
+  return `${req.method} ${req.url?.split('?')[0]} [${res.statusCode}]`;
+}
