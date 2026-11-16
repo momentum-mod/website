@@ -153,5 +153,17 @@
       "@nestjs/common": "$@nestjs/common",
       "@nestjs/core": "$@nestjs/core"
     }
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.6.0": true,
+    "@prisma/engines@7.10.1": true,
+    "@scarf/scarf@1.4.0": true,
+    "@sentry/node-cpu-profiler@2.4.4": true,
+    "esbuild@0.28.2": true,
+    "lmdb@3.5.6": true,
+    "msgpackr-extract@3.0.6": true,
+    "nx@24.0.6": true,
+    "prisma@7.10.1": true,
+    "protobufjs@7.6.6": true
   }
 }
