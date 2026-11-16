@@ -33,6 +33,8 @@ export class JwtGuard implements CanActivate {
 
     try {
       request.user = await this.jwtService.verifyAsync(token);
+      // Set on raw request as well so pino-http passes userID to Sentry
+      request.raw.user = request.user;
 
       if (Sentry.isInitialized()) {
         Sentry.setUser({ id: request.user.id });
