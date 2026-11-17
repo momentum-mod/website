@@ -46,7 +46,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { LevelIndicatorComponent } from '../../components/level-indicator/level-indicator.component';
 import { EnumValuePipe } from '../../pipes/enum-value.pipe';
 import { SpinnerDirective } from '../../directives/spinner.directive';
-import { DatePipe, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
@@ -68,7 +68,6 @@ import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-
     SpinnerDirective,
     RouterModule,
     EnumValuePipe,
-    DatePipe,
     NgStyle,
     IconComponent,
     TooltipDirective,
