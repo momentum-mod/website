@@ -1,3 +1,5 @@
+@let followFetchType = this.followFetchType();
+@let followCount = this.followCount();
 <div class="min-w-0 flex-grow basis-0">
   <h3 class="font-display font-bold">
     {{ followFetchType === 'follower' ? 'Followers' : 'Following' }}
@@ -17,10 +19,10 @@
       [scrollWindow]="false"
       [infiniteScrollDistance]="2"
       [infiniteScrollThrottle]="100"
-      [mSpinner]="loading"
+      [mSpinner]="loading()"
       (scrolled)="load.next()"
     >
-      @for (follow of follows; track follow) {
+      @for (follow of follows(); track follow) {
         @if (followFetchType === 'follower' ? follow.followee : follow.followed; as usr) {
           <li class="py-1">
             <a [routerLink]="'/profile/' + usr.id" class="flex items-center">

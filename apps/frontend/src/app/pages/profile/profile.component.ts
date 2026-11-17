@@ -4,7 +4,7 @@ import {
   OnInit,
   inject,
   signal,
-  ViewChild
+  viewChild
 } from '@angular/core';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import {
@@ -133,8 +133,7 @@ export class ProfileComponent implements OnInit {
     Record<MapCreditType, MapCredit[]>
   > | null>(null);
 
-  @ViewChild('followingList')
-  private followingList?: FollowComponent;
+  private readonly followingList = viewChild<FollowComponent>('followingList');
 
   ngOnInit() {
     this.route.paramMap
@@ -367,7 +366,7 @@ export class ProfileComponent implements OnInit {
         );
         this.steamFriendsToAdd.set(new Set());
 
-        this.followingList?.refresh();
+        this.followingList()?.refresh();
       },
       error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
