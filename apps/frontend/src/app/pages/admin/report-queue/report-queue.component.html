@@ -1,7 +1,7 @@
 <m-card [title]="'Report Queue'" cardClass="p-0!">
   <ng-container header>
     <label>Resolved: </label>
-    <select name="Resolved" (change)="filterChange.next()" [(ngModel)]="resolved">
+    <select name="Resolved" class="inputlike px-1 py-0.5 *:bg-gray-700" (change)="filterChange.next()" [(ngModel)]="resolved">
       <option value="true">Yes</option>
       <option selected="selected" value="false">No</option>
     </select>
@@ -16,17 +16,21 @@
     <div class="w-[19%] px-2 py-1 text-center">Resolution Message</div>
     <div class="w-[9%] px-2 py-1 text-center">Actions</div>
   </div>
-  <ul [mSpinner]="loading()" class="divide-y divide-white/10">
-    @for (report of reportQueue(); track $index) {
-      <li class="basis-full">
-        <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
-      </li>
-    } @empty {
-      @if (!loading()) {
-        <i class="block px-2 py-1">There are no reports that match the search criteria.</i>
+  <!-- Spinner lives on a wrapper: it appends itself as a last child, which would
+       make divide-y's :not(:last-child) border the final row. -->
+  <div [mSpinner]="loading()">
+    <ul class="divide-y divide-white/10">
+      @for (report of reportQueue(); track $index) {
+        <li class="basis-full">
+          <m-queued-report [report]="report" (reportUpdate)="refresh.next()" />
+        </li>
+      } @empty {
+        @if (!loading()) {
+          <i class="block px-2 py-1">There are no reports that match the search criteria.</i>
+        }
       }
-    }
-  </ul>
+    </ul>
+  </div>
   <p-paginator
     class="block border-t border-white/10 px-3 py-2"
     (onPageChange)="pageChange.next($event)"
