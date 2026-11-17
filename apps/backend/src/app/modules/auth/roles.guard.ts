@@ -44,30 +44,6 @@ export class RolesGuard implements CanActivate {
       select: { roles: true }
     });
 
-    // If you're not familiar with bit flags, they're just a bunch of booleans
-    // encoded into a single integer. Always think of them in terms of binary
-    // numbers, not decimal! Let's say the allowed roles are 0100 and 1000 (
-    // so joined together as 1100). The user's roles are some combination of
-    // flags (or none, in which case just 0000). By ANDing the allowed roles
-    // with the actual roles, we see if any 1s line up, and if so, the resultant
-    // value will be non-zero.
-    //
-    // E.g. if user roles are 0001 we have
-    //   1100
-    // & 0001 (if top and bottom place are 1, resultant place is 1, otherwise 0)
-    // = 0000 = 0 (fail)
-    //
-    // For 0101:
-    //   0101
-    // & 1100
-    // = 0100 != 0 (pass)
-    //
-    // This method saves making an SQL table full of booleans, and is easy to
-    // work with once you get the general concept. Remember, rows of binary
-    // digits, not decimals!
-
-    // This non-strict check is type-safe, may as well save a few CPU cycles...
-    // eslint-disable-next-line eqeqeq
-    return (Bitflags.join(...requiredRoles) & user.roles) != 0;
+    return (Bitflags.join(...requiredRoles) & user.roles) !== 0;
   }
 }
