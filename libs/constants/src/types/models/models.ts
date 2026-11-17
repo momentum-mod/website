@@ -281,6 +281,10 @@ export interface MapPreSignedUrl {
   url: string;
 }
 
+export interface RunDownloadUrl {
+  url: string;
+}
+
 export interface MapReview {
   id: number;
   mainText: string;
@@ -488,8 +492,6 @@ export interface LeaderboardRun {
   trackNum: number;
   style: Style;
   time: number;
-  downloadURL: string;
-  replayHash: string;
   flags: Style[];
   splits?: RunSplits.Splits;
   rank: number;

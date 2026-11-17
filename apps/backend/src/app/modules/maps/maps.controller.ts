@@ -66,6 +66,7 @@ import {
   MapInfoDto,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
+  MapLeaderboardGetRunDownloadQueryDto,
   MapListVersionDto,
   MapReviewDto,
   MapReviewsGetQueryDto,
@@ -78,6 +79,7 @@ import {
   UpdateMapImagesDto,
   UpdateMapTestInviteDto,
   MapPreSignedUrlDto,
+  RunDownloadUrlDto,
   VALIDATION_PIPE_CONFIG,
   CreateMapVersionDto,
   FeaturedMapsForGamemodeDto
@@ -645,6 +647,27 @@ export class MapsController {
     @Query() query?: MapLeaderboardGetRunQueryDto
   ): Promise<LeaderboardRunDto> {
     return this.runsService.getRun(mapID, query, userID);
+  }
+
+  @Get('/:mapID/leaderboard/runDownload')
+  @ApiOperation({
+    summary: 'Returns a short-lived URL to download a leaderboard run replay'
+  })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiOkResponse({ type: RunDownloadUrlDto })
+  @ApiNotFoundResponse({ description: 'Map not found' })
+  @ApiNotFoundResponse({ description: 'Run not found' })
+  getLeaderboardRunDownload(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
+    @Query() query: MapLeaderboardGetRunDownloadQueryDto
+  ): Promise<RunDownloadUrlDto> {
+    return this.runsService.getRunDownloadURL(mapID, query, userID);
   }
 
   @Get('/:mapID/leaderboardStats')

@@ -7,19 +7,23 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
   MapLeaderboardGetQueryDto,
   MapLeaderboardGetRunQueryDto,
+  MapLeaderboardGetRunDownloadQueryDto,
   PagedResponseDto,
-  LeaderboardRunDto
+  LeaderboardRunDto,
+  RunDownloadUrlDto
 } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
+import { RunFileStoreService } from '../filestore/run-file-store.service';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
 
 @Injectable()
@@ -30,7 +34,9 @@ export class LeaderboardRunsService {
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
     private readonly fileStoreService: FileStoreService,
-    private readonly steamService: SteamService
+    private readonly runFileStoreService: RunFileStoreService,
+    private readonly steamService: SteamService,
+    private readonly config: ConfigService
   ) {}
 
   async getRuns(
@@ -196,6 +202,42 @@ export class LeaderboardRunsService {
     }
 
     throw new NotFoundException('Run not found');
+  }
+
+  async getRunDownloadURL(
+    mapID: number,
+    query: MapLeaderboardGetRunDownloadQueryDto,
+    loggedInUserID: number
+  ): Promise<RunDownloadUrlDto> {
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID: loggedInUserID
+    });
+
+    const run = await this.db.leaderboardRun.findUnique({
+      where: {
+        userID_gamemode_style_mapID_trackType_trackNum: {
+          userID: query.userID,
+          gamemode: query.gamemode,
+          style: query.style,
+          mapID,
+          trackType: query.trackType,
+          trackNum: query.trackNum
+        }
+      },
+      select: { replayHash: true }
+    });
+
+    if (!run?.replayHash) {
+      throw new NotFoundException('Run not found');
+    }
+
+    return DtoFactory(RunDownloadUrlDto, {
+      url: await this.runFileStoreService.getPreSignedDownloadUrl(
+        runPath(run.replayHash),
+        this.config.getOrThrow('limits.preSignedUrlExpTime')
+      )
+    });
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {

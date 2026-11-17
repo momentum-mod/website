@@ -34,6 +34,7 @@ export * from './run/past-run.dto';
 export * from './run/leaderboard.dto';
 export * from './run/run-session.dto';
 export * from './run/completed-run.dto';
+export * from './run/run-download-url.dto';
 export * from './run/run-session-timestamp.dto';
 export * from './user/user.dto';
 export * from './user/follow.dto';

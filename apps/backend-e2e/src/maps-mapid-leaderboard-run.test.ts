@@ -65,6 +65,8 @@ describe('Maps', () => {
           mapID: map.id,
           userID: u1.id
         });
+        assert.ok(!Object.hasOwn(res.body, 'downloadURL'));
+        assert.ok(!Object.hasOwn(res.body, 'replayHash'));
       });
 
       it('should return a run on a stage track', async () => {

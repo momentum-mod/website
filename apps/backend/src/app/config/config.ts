@@ -34,8 +34,7 @@ export const ConfigFactory = (): ConfigInterface => {
     url: {
       backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,
       frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200',
-      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest', // Includes /bucket
-      runCdn: process.env['RUN_CDN_URL'] || ''
+      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest' // Includes /bucket
     },
     appIDs: STEAM_APPIDS,
     jwt: {

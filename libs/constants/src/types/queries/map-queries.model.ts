@@ -251,6 +251,14 @@ export type MapLeaderboardGetRunQuery = PagedQuery & {
   rank?: number;
 };
 
+export type MapLeaderboardGetRunDownloadQuery = {
+  gamemode: Gamemode;
+  trackType?: TrackType; // Default 0
+  trackNum?: number; // Default 1
+  style?: Style; // Default 0
+  userID: number;
+};
+
 //#endregion
 //#region Submissions
 

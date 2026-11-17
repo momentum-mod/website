@@ -85,7 +85,8 @@ describe('Maps', () => {
 
         for (const item of res.body.data) {
           assert.ok(Object.hasOwn(item, 'user'));
-          assert.ok(Object.hasOwn(item, 'downloadURL'));
+          assert.ok(!Object.hasOwn(item, 'downloadURL'));
+          assert.ok(!Object.hasOwn(item, 'replayHash'));
           assert.ok(!Object.hasOwn(item, 'splits'));
         }
       });

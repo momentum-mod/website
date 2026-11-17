@@ -14,7 +14,6 @@ export interface ConfigInterface {
     backend: string;
     frontend: string;
     cdn: string;
-    runCdn: string;
   };
   port: number;
   appIDs: number[];
