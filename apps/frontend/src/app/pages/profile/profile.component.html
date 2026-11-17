@@ -15,30 +15,37 @@
   <div class="grid grid-cols-5 gap-4">
     <div class="col-span-full flex flex-col xl:col-span-3">
       <div
-        class="mb-4 flex flex-col gap-3 rounded-sm border border-white/10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:p-4 lg:flex-row lg:gap-4"
+        class="mb-4 flex flex-col gap-3 rounded-sm border border-white/10 bg-cover bg-center bg-no-repeat p-3 text-xl sm:flex-row sm:gap-4 sm:p-4"
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
         @if (avatarLoaded) {
           <div
-            class="size-28 shrink-0 rounded-2xl bg-cover bg-no-repeat lg:size-40"
+            class="size-28 shrink-0 rounded-2xl bg-cover bg-no-repeat shadow-lg sm:size-40"
             [ngStyle]="{
               'background-image': 'url(' + avatarUrl + ')'
             }"
           ></div>
         }
-        <div class="flex min-w-0 grow flex-col justify-between gap-3 lg:gap-0">
-          <div class="flex flex-wrap gap-1 lg:flex-nowrap">
+        <div class="flex min-w-0 grow flex-col justify-between gap-3 sm:gap-0">
+          <div class="flex flex-wrap gap-1">
             <h1
-              class="flex grow items-center gap-2 leading-none font-medium [--font-lerp-scale:0.8] sm:[--font-lerp-scale:1]"
+              class="flex grow items-center gap-3 leading-none font-medium [--font-lerp-scale:0.8] text-shadow md:[--font-lerp-scale:1]"
               [mFontSizeLerp]="{ chars: user.alias.length, startAt: 16, baseRem: 2.25 }"
             >
               {{ user.alias }}
               @if (user.country && user.country.length === 2) {
-                <span [title]="countryDisplayName" class="rounded-sm inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"></span>
+                <span
+                  [title]="countryDisplayName"
+                  class="rounded-sm drop-shadow-sm inline-block w-7 text-4 fi fi-{{ user.country.toLowerCase() }}"
+                ></span>
               }
               @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
                 <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" mTooltip="Steam Profile">
-                  <m-icon class="h-7 w-7 text-gray-50 transition duration-100 ease-out hover:text-blue-500" icon="steam" pack="si" />
+                  <m-icon
+                    class="h-7 w-7 pt-0.5 text-gray-50 drop-shadow-sm transition duration-100 ease-out hover:text-blue-500"
+                    icon="steam"
+                    pack="si"
+                  />
                 </a>
               }
             </h1>
