@@ -114,6 +114,14 @@ export class ConfigValidation {
   @IsOptionalWithEmptyString()
   readonly THROTTLE_LIMIT?: string;
 
+  @IsNumberString()
+  @IsOptionalWithEmptyString()
+  readonly RUN_DOWNLOAD_TTL?: string;
+
+  @IsNumberString()
+  @IsOptionalWithEmptyString()
+  readonly RUN_DOWNLOAD_LIMIT?: string;
+
   @IsString()
   @IsIn(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
   @IsOptional()

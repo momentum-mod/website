@@ -8,13 +8,15 @@ import { PastRunsService } from './past-runs.service';
 import { LeaderboardService } from './leaderboard.service';
 import { RunsController } from './runs.controller';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { ValkeyModule } from '../valkey/valkey.module';
 
 @Module({
   imports: [
     DbModule,
     forwardRef(() => MapsModule),
     FileStoreModule,
-    SteamModule
+    SteamModule,
+    ValkeyModule
   ],
   providers: [
     LeaderboardRunsService,

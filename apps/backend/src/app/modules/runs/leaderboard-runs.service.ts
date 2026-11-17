@@ -2,6 +2,8 @@ import {
   BadRequestException,
   forwardRef,
   GoneException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -12,11 +14,11 @@ import { runPath } from '@momentum/constants';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
-  MapLeaderboardGetQueryDto,
-  MapLeaderboardGetRunQueryDto,
-  MapLeaderboardGetRunDownloadQueryDto,
-  PagedResponseDto,
   LeaderboardRunDto,
+  MapLeaderboardGetQueryDto,
+  MapLeaderboardGetRunDownloadQueryDto,
+  MapLeaderboardGetRunQueryDto,
+  PagedResponseDto,
   RunDownloadUrlDto
 } from '../../dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -25,6 +27,8 @@ import { MapsService } from '../maps/maps.service';
 import { FileStoreService } from '../filestore/file-store.service';
 import { RunFileStoreService } from '../filestore/run-file-store.service';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { ValkeyService } from '../valkey/valkey.service';
+import { Config, Environment } from '../../config';
 
 @Injectable()
 export class LeaderboardRunsService {
@@ -36,8 +40,11 @@ export class LeaderboardRunsService {
     private readonly fileStoreService: FileStoreService,
     private readonly runFileStoreService: RunFileStoreService,
     private readonly steamService: SteamService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
+    private readonly valkey: ValkeyService
   ) {}
+
+  private readonly isProd = Config.env === Environment.PRODUCTION;
 
   async getRuns(
     mapID: number,
@@ -207,7 +214,8 @@ export class LeaderboardRunsService {
   async getRunDownloadURL(
     mapID: number,
     query: MapLeaderboardGetRunDownloadQueryDto,
-    loggedInUserID: number
+    loggedInUserID: number,
+    limit: boolean
   ): Promise<RunDownloadUrlDto> {
     await this.mapsService.getMapAndCheckReadAccess({
       mapID,
@@ -232,12 +240,42 @@ export class LeaderboardRunsService {
       throw new NotFoundException('Run not found');
     }
 
+    if (this.isProd && limit) {
+      await this.checkRunDownloadLimit(loggedInUserID);
+    }
+
     return DtoFactory(RunDownloadUrlDto, {
       url: await this.runFileStoreService.getPreSignedDownloadUrl(
         runPath(run.replayHash),
         this.config.getOrThrow('limits.preSignedUrlExpTime')
       )
     });
+  }
+
+  /**
+   * Count a replay download against the user's limit, throwing a 429 if
+   * they've exceeded it. The counter is created with a TTL on the first
+   * download in a window, and later downloads just increment it, so the count
+   * resets once the TTL since that first download elapses.
+   */
+  private async checkRunDownloadLimit(userID: number): Promise<void> {
+    const { ttl, limit } = this.config.getOrThrow('throttle.runDownload');
+    const key = `${RUN_DOWNLOADS_VALKEY_KEY}:${userID}`;
+
+    const [, [error, count]] = await this.valkey
+      .multi()
+      .set(key, 0, 'EX', ttl, 'NX')
+      .incr(key)
+      .exec();
+
+    if (error) throw error;
+
+    if ((count as number) > limit) {
+      throw new HttpException(
+        'Run download limit exceeded',
+        HttpStatus.TOO_MANY_REQUESTS
+      );
+    }
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {
@@ -252,3 +290,5 @@ export class LeaderboardRunsService {
     );
   }
 }
+
+export const RUN_DOWNLOADS_VALKEY_KEY = 'momentum:run_downloads';

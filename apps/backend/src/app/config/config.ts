@@ -114,10 +114,13 @@ export const ConfigFactory = (): ConfigInterface => {
       streamsUpdateSchedule:
         process.env['TWITCH_STREAMS_UPDATE_SCHEDULE'] ?? '*/5 * * * *'
     },
-    // Only applied in production; throttling is disabled in dev and test.
     throttle: {
       ttl: +(process.env['THROTTLE_TTL'] || 60),
-      limit: +(process.env['THROTTLE_LIMIT'] || 200)
+      limit: +(process.env['THROTTLE_LIMIT'] || 200),
+      runDownload: {
+        ttl: +(process.env['RUN_DOWNLOAD_TTL'] || 3600),
+        limit: +(process.env['RUN_DOWNLOAD_LIMIT'] || 50)
+      }
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',

@@ -28,6 +28,7 @@ import {
   ApiGoneResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
+  ApiTooManyRequestsResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -102,6 +103,7 @@ import { KillswitchGuard } from '../killswitch/killswitch.guard';
 import { Killswitch } from '../killswitch/killswitch.decorator';
 import { MapReviewStatsDto } from '../../dto/map/map-review-stats.dto';
 import { Config } from '../../config';
+import { GameAuthGuard } from '../auth/jwt/game.guard';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -650,24 +652,23 @@ export class MapsController {
   }
 
   @Get('/:mapID/leaderboard/runDownload')
+  @UseGuards(GameAuthGuard)
   @ApiOperation({
     summary: 'Returns a short-lived URL to download a leaderboard run replay'
   })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
+  @ApiParam({ name: 'mapID', type: Number, required: true })
   @ApiOkResponse({ type: RunDownloadUrlDto })
   @ApiNotFoundResponse({ description: 'Map not found' })
   @ApiNotFoundResponse({ description: 'Run not found' })
+  @ApiTooManyRequestsResponse({
+    description: 'User has exceeded their run download limit'
+  })
   getLeaderboardRunDownload(
     @Param('mapID', ParseInt32SafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
     @Query() query: MapLeaderboardGetRunDownloadQueryDto
   ): Promise<RunDownloadUrlDto> {
-    return this.runsService.getRunDownloadURL(mapID, query, userID);
+    return this.runsService.getRunDownloadURL(mapID, query, userID, true);
   }
 
   @Get('/:mapID/leaderboardStats')

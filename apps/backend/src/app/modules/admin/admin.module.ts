@@ -10,6 +10,7 @@ import { KillswitchModule } from '../killswitch/killswitch.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
+import { RunsModule } from '../runs/runs.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { FileStoreModule } from '../filestore/file-store.module';
     forwardRef(() => MapsModule),
     forwardRef(() => UsersModule),
     forwardRef(() => MapReviewModule),
+    forwardRef(() => RunsModule),
     KillswitchModule,
     NotificationsModule,
     FileStoreModule
