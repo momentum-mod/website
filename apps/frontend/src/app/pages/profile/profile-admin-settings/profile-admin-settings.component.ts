@@ -108,8 +108,8 @@ export class ProfileAdminSettingsComponent implements OnInit {
   private pendingRoles: Flags<Role> = 0 as Flags<Role>;
   private pendingBans: Flags<Ban> = 0 as Flags<Ban>;
 
-  protected showIssueChatBan = false;
-  protected issuingChatBan = false;
+  protected readonly showIssueChatBan = signal(false);
+  protected readonly issuingChatBan = signal(false);
 
   protected readonly issueChatBanForm = this.nnfb.group({
     banChat: this.nnfb.control<boolean>(false),
@@ -238,8 +238,8 @@ export class ProfileAdminSettingsComponent implements OnInit {
   }
 
   protected toggleIssueChatBan() {
-    this.showIssueChatBan = !this.showIssueChatBan;
-    if (!this.showIssueChatBan) this.issueChatBanForm.reset();
+    this.showIssueChatBan.update((show) => !show);
+    if (!this.showIssueChatBan()) this.issueChatBanForm.reset();
   }
 
   protected issueChatBans() {
@@ -256,7 +256,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
       ? new Date(Date.now() + banDuration).toISOString()
       : null;
 
-    this.issuingChatBan = true;
+    this.issuingChatBan.set(true);
     forkJoin(
       types.map((type) =>
         this.adminService.createChatBan({
@@ -268,8 +268,8 @@ export class ProfileAdminSettingsComponent implements OnInit {
       )
     ).subscribe({
       next: () => {
-        this.issuingChatBan = false;
-        this.showIssueChatBan = false;
+        this.issuingChatBan.set(false);
+        this.showIssueChatBan.set(false);
         this.issueChatBanForm.reset();
         this.messageService.add({
           severity: 'success',
@@ -278,7 +278,7 @@ export class ProfileAdminSettingsComponent implements OnInit {
         this.loadChatBans();
       },
       error: (httpError: HttpErrorResponse) => {
-        this.issuingChatBan = false;
+        this.issuingChatBan.set(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Could not issue the ban',
