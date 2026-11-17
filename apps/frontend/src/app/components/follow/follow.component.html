@@ -1,6 +1,6 @@
 @let followFetchType = this.followFetchType();
 @let followCount = this.followCount();
-<div class="min-w-0 flex-grow basis-0">
+<div class="min-w-0 grow basis-0">
   <h3 class="font-display font-bold">
     {{ followFetchType === 'follower' ? 'Followers' : 'Following' }}
     ({{ followCount }})
@@ -14,7 +14,7 @@
     </h5>
   } @else {
     <ul
-      class="scroll-thin max-h-[17.5rem] overflow-y-auto"
+      class="scroll-thin max-h-70 overflow-y-auto"
       infinite-scroll
       [scrollWindow]="false"
       [infiniteScrollDistance]="2"
