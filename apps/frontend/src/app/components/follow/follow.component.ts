@@ -1,10 +1,11 @@
 import {
   Component,
-  Input,
   OnChanges,
   OnInit,
   SimpleChanges,
   inject,
+  input,
+  signal,
   DestroyRef
 } from '@angular/core';
 import {
@@ -49,24 +50,23 @@ export class FollowComponent implements OnInit, OnChanges {
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  @Input({ required: true }) userSubject!: BehaviorSubject<User>;
+  readonly userSubject = input.required<BehaviorSubject<User>>();
 
   /**
    * The follow type to fetch, either:
    * follower: Followers of the user.
    * following: The users the LU is following.
    */
-  @Input({ required: true }) followFetchType!: 'follower' | 'following';
+  readonly followFetchType = input.required<'follower' | 'following'>();
 
   private readonly ITEMS_PER_PAGE = 20;
 
-  protected follows: Follow[] = [];
-  protected followCount = 0;
+  protected readonly follows = signal<Follow[]>([]);
+  protected readonly followCount = signal(0);
 
   private page = 0;
-  protected canLoadMore = true;
-  protected loading = false;
-  protected initialized = false;
+  private canLoadMore = true;
+  protected readonly loading = signal(false);
 
   // Emits on first load, and whenever p-scroller wants new data
   protected readonly load = new Subject<void>();
@@ -89,38 +89,34 @@ export class FollowComponent implements OnInit, OnChanges {
             take: this.ITEMS_PER_PAGE
           });
 
-          switch (this.followFetchType) {
+          switch (this.followFetchType()) {
             case 'follower':
               fetchFn = () =>
                 this.usersService.getFollowersOfUser(
-                  this.userSubject.getValue(),
+                  this.userSubject().getValue(),
                   skipTake()
                 );
               break;
             case 'following':
               fetchFn = () =>
                 this.usersService.getUserFollows(
-                  this.userSubject.getValue(),
+                  this.userSubject().getValue(),
                   skipTake()
                 );
               break;
           }
 
           this.clearFollows();
-          this.loading = false;
 
           return merge(
             this.load,
-            this.userSubject.pipe(
+            this.userSubject().pipe(
               filter((user): user is User => !!user),
-              tap(() => {
-                this.clearFollows();
-                this.loading = false;
-              })
+              tap(() => this.clearFollows())
             )
           ).pipe(
-            filter(() => this.canLoadMore && !this.loading),
-            tap(() => (this.loading = true)),
+            filter(() => this.canLoadMore && !this.loading()),
+            tap(() => this.loading.set(true)),
             switchMap(() => fetchFn())
           );
         })
@@ -128,12 +124,12 @@ export class FollowComponent implements OnInit, OnChanges {
       .subscribe({
         next: (res: PagedResponse<Follow>) => {
           this.canLoadMore = res.returnCount === this.ITEMS_PER_PAGE;
-          this.followCount = res.totalCount;
+          this.followCount.set(res.totalCount);
 
           if (res.returnCount !== 0) {
-            this.follows.push(...res.data);
+            this.follows.update((follows) => [...follows, ...res.data]);
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (httpError: HttpErrorResponse) => {
           this.messageService.add({
@@ -142,18 +138,18 @@ export class FollowComponent implements OnInit, OnChanges {
             detail: httpError.error.message
           });
           this.page = Math.max(0, this.page - 1);
-          this.loading = false;
+          this.loading.set(false);
         }
       });
     this.typeChange.next();
   }
 
   private clearFollows(): void {
-    this.follows = [];
-    this.followCount = 0;
+    this.follows.set([]);
+    this.followCount.set(0);
     this.page = 0;
     this.canLoadMore = true;
-    this.loading = false;
+    this.loading.set(false);
   }
 
   public refresh(): void {
