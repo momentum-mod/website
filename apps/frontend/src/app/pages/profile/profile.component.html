@@ -118,10 +118,10 @@
         }
 
         <div class="flex flex-col gap-4 sm:flex-row">
-          <m-follow [userSubject]="userSubject" followFetchType="follower" class="min-w-0 flex-grow basis-0" />
+          <m-follow [userSubject]="userSubject" followFetchType="follower" class="min-w-0 grow basis-0" />
           @if (!hasRole(Role.PLACEHOLDER) && !hasRole(Role.DELETED)) {
             <div class="h-px bg-gray-400 sm:h-auto sm:w-px"></div>
-            <m-follow #followingList [userSubject]="userSubject" followFetchType="following" class="min-w-0 flex-grow basis-0" />
+            <m-follow #followingList [userSubject]="userSubject" followFetchType="following" class="min-w-0 grow basis-0" />
           }
         </div>
 
