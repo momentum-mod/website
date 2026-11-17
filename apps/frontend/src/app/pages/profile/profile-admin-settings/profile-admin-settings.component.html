@@ -11,7 +11,7 @@
       }
     </div>
     @if (showIssueChatBan) {
-      <form [formGroup]="issueChatBanForm" class="card-inset mb-3 flex flex-col gap-2 p-3" (ngSubmit)="issueChatBans()">
+      <form [formGroup]="issueChatBanForm" class="mb-3 flex card-inset flex-col gap-2 p-3" (ngSubmit)="issueChatBans()">
         <div class="flex flex-wrap gap-x-6 gap-y-1">
           <label class="flex items-center">
             <input type="checkbox" class="checkbox mr-2" formControlName="banChat" />

@@ -40,9 +40,7 @@ interface UserConnectedPayload {
 }
 
 type PubSubPayload =
-  | BroadcastAllPayload
-  | BroadcastUsersPayload
-  | UserConnectedPayload;
+  BroadcastAllPayload | BroadcastUsersPayload | UserConnectedPayload;
 
 /**
  * Owns the set of active WebSocket connections for the current worker and
