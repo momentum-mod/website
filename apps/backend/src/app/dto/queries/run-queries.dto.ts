@@ -29,7 +29,7 @@ export class PastRunsGetAllQueryDto
   @SkipQueryProperty(0)
   skip = 0;
 
-  @TakeQueryProperty(10)
+  @TakeQueryProperty(10, 20)
   take = 10;
 
   @ExpandQueryProperty(['user', 'map', 'leaderboardRun'])

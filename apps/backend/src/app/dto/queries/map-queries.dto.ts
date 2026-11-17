@@ -56,7 +56,7 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   @SkipQueryProperty(0)
   skip = 0;
 
-  @TakeQueryProperty(10, 100)
+  @TakeQueryProperty(10, 50)
   take = 10;
 
   @StringQueryProperty({

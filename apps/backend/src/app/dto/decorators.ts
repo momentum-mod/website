@@ -236,7 +236,7 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
  */
 export function TakeQueryProperty(
   def: number,
-  max = 100,
+  max: number,
   min = 0
 ): PropertyDecorator {
   return applyDecorators(
