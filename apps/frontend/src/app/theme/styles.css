@@ -837,7 +837,11 @@
     padding: 0.75rem;
     text-align: center;
 
+    /* Same input-ish look as the inputlike utility, but with a dashed border */
     border: 2px dashed rgb(255 255 255 / 0.15);
+    border-radius: 0.25rem;
+    background-color: rgb(0 0 0 / 0.25);
+    box-shadow: inset 0 0 0.75rem rgb(0 0 0 / 0.1);
 
     transition-property: color, border-color;
     transition-timing-function: ease-out;
@@ -848,14 +852,22 @@
 
       &:hover {
         border-color: rgb(255 255 255 / 0.15);
+        background-color: rgb(0 0 0 / 0.3);
+      }
+
+      &:focus {
+        background-color: rgb(0 0 0 / 0.35);
+        outline: none !important;
       }
     }
 
     &.dragging:not(:disabled) {
       border-color: rgb(255 255 255 / 0.5);
+      background-color: rgb(0 0 0 / 0.3);
     }
 
     &:disabled {
+      opacity: 0.5;
       filter: contrast(0.5) brightness(0.5);
     }
 
