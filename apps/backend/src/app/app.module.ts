@@ -26,6 +26,8 @@ import { GameConnectionModule } from './modules/game-connection/game-connection.
 import { TwitchModule } from './modules/twitch/twitch.module';
 import { pick } from '@momentum/util-fn';
 import { ValkeyModule } from './modules/valkey/valkey.module';
+import { ValkeyService } from './modules/valkey/valkey.service';
+import { ValkeyThrottlerStorage } from './modules/valkey/valkey-throttler-storage';
 import { WebsocketsModule } from './modules/websockets/websockets.module';
 import { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -39,30 +41,19 @@ import { IncomingMessage, ServerResponse } from 'node:http';
     }),
     // Per-endpoint rate limiting.
     ThrottlerModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      imports: [ValkeyModule],
+      inject: [ConfigService, ValkeyService],
+      useFactory: (config: ConfigService, valkey: ValkeyService) => ({
         throttlers:
-          config.getOrThrow('env') !== Environment.PRODUCTION
-            ? []
-            : [
-                // If request limit is exceeded within the ttl, deny by throwing exception.
-                // This throttler is provided globally, but applies to each endpoint individually.
-                // If any endpoint needs to exceed the limit, consider redesigning it or
-                // override it with @SkipThrottle or @Throttle on the endpoint or whole controller.
+          config.getOrThrow('env') === Environment.PRODUCTION
+            ? [
                 {
                   ttl: seconds(config.getOrThrow('throttle.ttl')),
                   limit: config.getOrThrow('throttle.limit')
                 }
               ]
-        // This only limits per-instance; we could store in Valkey instead in the future if needed.
-        // Though if we're deploying multiple servers it'd have to be per-cluster -- latency
-        // of so many Valkey queries over the internet would never be worth it.
-        // If we ever care about rate-limiting that much, we should limit
-        // expensive endpoints based on whether or not the header contains a valid JWT.
-        // Nest's ThrottleModule doesn't support that out of the box,
-        // but we could do a custom guard that overrides handleRequest,
-        // to increasing/decreasing the limit option based on whether a valid JWT was attached,
-        // then call the base method. (see https://github.com/nestjs/throttler/blob/master/src/throttler.guard.ts)
+            : [],
+        storage: new ValkeyThrottlerStorage(valkey)
       })
     }),
     SentryModule.forRoot(),
