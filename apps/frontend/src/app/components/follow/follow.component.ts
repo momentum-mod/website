@@ -23,10 +23,7 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { UsersService } from '../../services/data/users.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SpinnerDirective } from '../../directives/spinner.directive';
-import { SelectModule } from '@openng/optimus-ui/select';
-import { FormsModule } from '@angular/forms';
-import { CardComponent } from '../card/card.component';
-import { NgStyle, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { RouterLink } from '@angular/router';
 
@@ -34,12 +31,8 @@ import { RouterLink } from '@angular/router';
   selector: 'm-follow',
   templateUrl: './follow.component.html',
   imports: [
-    SelectModule,
-    FormsModule,
-    CardComponent,
     InfiniteScrollDirective,
     SpinnerDirective,
-    NgStyle,
     RouterLink,
     DatePipe,
     AvatarComponent
