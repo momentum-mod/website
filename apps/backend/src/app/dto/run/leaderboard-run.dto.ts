@@ -2,7 +2,6 @@ import {
   DateString,
   Gamemode,
   LeaderboardRun,
-  runPath,
   RunSplits,
   Style,
   TrackType
@@ -10,12 +9,10 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
-  IsHash,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
-  IsUrl,
   Min
 } from 'class-validator';
 import { Exclude, Expose, plainToInstance } from 'class-transformer';
@@ -27,12 +24,7 @@ import {
   IdProperty,
   NestedProperty
 } from '../decorators';
-import { Config } from '../../config';
 import { LeaderboardDto } from './leaderboard.dto';
-
-const CDN_URL = Config.runStorage.bucketName
-  ? Config.url.runCdn
-  : Config.url.cdn;
 
 export class LeaderboardRunDto implements LeaderboardRun {
   @EnumProperty(Gamemode, { description: 'The gamemode the run took place in' })
@@ -60,25 +52,7 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsNumber()
   readonly time: number;
 
-  @ApiProperty({
-    type: String,
-    description:
-      'URL to download in S3 storage. Not available when the run is awaiting validating.'
-  })
-  @Expose()
-  @IsOptional()
-  @IsString()
-  @IsUrl({ require_tld: false })
-  get downloadURL() {
-    return `${CDN_URL}/${runPath(this.replayHash)}`;
-  }
-
-  @ApiProperty({
-    description:
-      'Hash of the replay file. Not available when the run is awaiting validating.'
-  })
-  @IsHash('sha1')
-  @IsOptional()
+  @Exclude()
   readonly replayHash: string;
 
   @ApiProperty({

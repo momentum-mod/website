@@ -14,7 +14,6 @@ export interface ConfigInterface {
     backend: string;
     frontend: string;
     cdn: string;
-    runCdn: string;
   };
   port: number;
   appIDs: number[];
@@ -76,6 +75,11 @@ export interface ConfigInterface {
     clientId: string;
     clientSecret: string;
     streamsUpdateSchedule: string;
+  };
+  throttle: {
+    ttl: number;
+    limit: number;
+    runDownload: { ttl: number; limit: number };
   };
   mapListUpdateSchedule: string;
   sitemapMaxAge: string;

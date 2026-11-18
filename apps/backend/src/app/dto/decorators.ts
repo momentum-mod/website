@@ -236,7 +236,7 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
  */
 export function TakeQueryProperty(
   def: number,
-  max = 100,
+  max: number,
   min = 0
 ): PropertyDecorator {
   return applyDecorators(
@@ -388,6 +388,7 @@ export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
     // logic handling incoming data; all Prisma args for a stored BigInt take
     // `bigint | number`.
     TypeDecorator(() => Number),
+    IsInt(),
     conditionalDecorator(!required, IsOptional)
   );
 }

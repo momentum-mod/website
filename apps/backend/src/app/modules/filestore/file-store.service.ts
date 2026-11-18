@@ -197,7 +197,7 @@ export class FileStoreService {
   }
 
   /**
-   * Get pre-signed url for an object with set key and size
+   * Get pre-signed url for uploading an object with set key and size
    */
   async getPreSignedUrl(
     fileKey: string,
@@ -208,6 +208,23 @@ export class FileStoreService {
       Bucket: this.bucket,
       Key: fileKey,
       ContentLength: fileSize
+    });
+
+    return await getSignedUrl(this.s3Client, command, {
+      expiresIn: urlExpires
+    });
+  }
+
+  /**
+   * Get pre-signed url for downloading an object
+   */
+  async getPreSignedDownloadUrl(
+    fileKey: string,
+    urlExpires: number
+  ): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: fileKey
     });
 
     return await getSignedUrl(this.s3Client, command, {

@@ -49,11 +49,13 @@ import {
   CreateMapVersionDto,
   CreateUserDto,
   MapDto,
+  MapLeaderboardGetRunDownloadQueryDto,
   MapReviewDto,
   MapsGetAllAdminQueryDto,
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
+  RunDownloadUrlDto,
   UpdateChatBanDto,
   UpdateMapDto,
   UpdateReportDto,
@@ -70,6 +72,7 @@ import {
 } from '@nestjs/platform-fastify/multipart';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { Config } from '../../config';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -84,7 +87,8 @@ export class AdminController {
     private readonly mapReviewService: MapReviewService,
     private readonly usersService: UsersService,
     private readonly adminActivityService: AdminActivityService,
-    private readonly killswitchService: KillswitchService
+    private readonly killswitchService: KillswitchService,
+    private readonly runsService: LeaderboardRunsService
   ) {}
 
   @Post('/users')
@@ -484,5 +488,21 @@ export class AdminController {
     @LoggedInUser('id') userID: number
   ): Promise<void> {
     return this.adminService.createAdminAnnouncement(userID, body);
+  }
+
+  @Get('/maps/:mapID/leaderboard/runDownload')
+  @ApiOperation({
+    summary: 'Returns a short-lived URL to download a leaderboard run replay'
+  })
+  @ApiParam({ name: 'mapID', type: Number, required: true })
+  @ApiOkResponse({ type: RunDownloadUrlDto })
+  @ApiNotFoundResponse({ description: 'Map not found' })
+  @ApiNotFoundResponse({ description: 'Run not found' })
+  getLeaderboardRunDownload(
+    @Param('mapID', ParseInt32SafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
+    @Query() query: MapLeaderboardGetRunDownloadQueryDto
+  ): Promise<RunDownloadUrlDto> {
+    return this.runsService.getRunDownloadURL(mapID, query, userID, false);
   }
 }

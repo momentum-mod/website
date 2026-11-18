@@ -34,8 +34,7 @@ export const ConfigFactory = (): ConfigInterface => {
     url: {
       backend: process.env['BACKEND_URL'] || `http://localhost:${port}`,
       frontend: process.env['FRONTEND_URL'] || 'http://localhost:4200',
-      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest', // Includes /bucket
-      runCdn: process.env['RUN_CDN_URL'] || ''
+      cdn: process.env['CDN_URL'] || 'http://localhost:9000/momtest' // Includes /bucket
     },
     appIDs: STEAM_APPIDS,
     jwt: {
@@ -114,6 +113,14 @@ export const ConfigFactory = (): ConfigInterface => {
       clientSecret: process.env['TWITCH_CLIENT_SECRET'] ?? '',
       streamsUpdateSchedule:
         process.env['TWITCH_STREAMS_UPDATE_SCHEDULE'] ?? '*/5 * * * *'
+    },
+    throttle: {
+      ttl: +(process.env['THROTTLE_TTL'] || 60),
+      limit: +(process.env['THROTTLE_LIMIT'] || 200),
+      runDownload: {
+        ttl: +(process.env['RUN_DOWNLOAD_TTL'] || 3600),
+        limit: +(process.env['RUN_DOWNLOAD_LIMIT'] || 50)
+      }
     },
     mapListUpdateSchedule:
       process.env['MAP_LIST_UPDATE_SCHEDULE'] ?? '* * * * *',

@@ -21,6 +21,7 @@ import {
   MapRunsGetExpand,
   MapRunsGetFilter,
   MapLeaderboardGetRunQuery,
+  MapLeaderboardGetRunDownloadQuery,
   MapSortType,
   MapCreditType,
   MapsGetAllUserSubmissionFilter,
@@ -47,6 +48,7 @@ import {
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
 import { IsIn, Max } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 
 //#region Get All
 
@@ -54,7 +56,7 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   @SkipQueryProperty(0)
   skip = 0;
 
-  @TakeQueryProperty(10, 100)
+  @TakeQueryProperty(10, 50)
   take = 10;
 
   @StringQueryProperty({
@@ -344,6 +346,22 @@ export class MapLeaderboardGetRunQueryDto
 
   @SingleExpandQueryProperty('stats')
   readonly expand?: MapRunsGetExpand;
+}
+
+export class MapLeaderboardGetRunDownloadQueryDto
+  extends PickType(MapLeaderboardGetRunQueryDto, [
+    'gamemode',
+    'trackType',
+    'trackNum',
+    'style'
+  ] as const)
+  implements MapLeaderboardGetRunDownloadQuery
+{
+  @IntQueryProperty({
+    required: true,
+    description: 'Download the run for this userID'
+  })
+  readonly userID: number;
 }
 
 //#endregion

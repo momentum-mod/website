@@ -6,12 +6,15 @@
     <img src="assets/images/logo.svg" width="279" height="45" alt="Momentum Mod Logo" class="h-auto w-42 max-w-full md:w-[279px]" />
   </a>
 
-  <div class="item" [style.anchor-name]="'--multisearch-anchor'" (click)="searchOverlay.toggle()">
+  <div #multisearchAnchor class="item" (click)="searchOverlay.toggle()">
     <m-icon class="h-auto" icon="magnify"></m-icon>
   </div>
+  <m-popover #searchOverlay [anchor]="multisearchAnchor">
+    <m-multisearch (selected)="searchOverlay.hide()" />
+  </m-popover>
 
   @if (user()) {
-    <div class="item relative" [style.anchor-name]="'--notification-anchor'" (click)="notificationsOverlay.toggle()">
+    <div #notificationAnchor class="item relative" (click)="notificationsOverlay.toggle()">
       @if (unreadNotificationsCount() > 0) {
         <p class="badge absolute top-1 right-0.5 z-10 badge-blue md:top-1.5 md:right-1.5">
           {{ unreadNotificationsCount().toString() }}
@@ -22,24 +25,21 @@
 
     <p-menu #userMenu [model]="profileDropdownMenu()" [popup]="true" appendTo="body"></p-menu>
     <m-player-card (click)="userMenu.toggle($event)" />
+    <m-popover
+      #notificationsOverlay
+      [anchor]="notificationAnchor"
+      (onShow)="markingAsReadEnabled.set(true)"
+      (onHide)="markingAsReadEnabled.set(false)"
+    >
+      <m-notifications-menu
+        class="max-h-[80vh] w-120 max-w-[calc(100vw-3rem)]"
+        (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
+        [markingAsReadEnabled]="markingAsReadEnabled()"
+      />
+    </m-popover>
   } @else {
     <button type="button" class="mr-2 ml-1 shrink-0 transition-all hover:brightness-110 md:mr-3 md:ml-2" (click)="localUserService.login()">
       <img src="/assets/images/steam-login-green-large.png" class="h-9 w-auto md:h-auto" />
     </button>
   }
 </div>
-<m-popover #searchOverlay anchorName="--multisearch-anchor">
-  <m-multisearch (selected)="searchOverlay.hide()" />
-</m-popover>
-<m-popover
-  #notificationsOverlay
-  anchorName="--notification-anchor"
-  (onShow)="markingAsReadEnabled.set(true)"
-  (onHide)="markingAsReadEnabled.set(false)"
->
-  <m-notifications-menu
-    class="max-h-[80vh] w-120 max-w-[calc(100vw-3rem)]"
-    (unreadNotificationsCount)="updateUnreadNotificationsCount($event)"
-    [markingAsReadEnabled]="markingAsReadEnabled()"
-  />
-</m-popover>

@@ -55,7 +55,8 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
   protected readonly value = signal(new GroupedMapCredits());
 
   protected readonly MapCreditType = MapCreditType;
-  protected readonly MapCreditNames = MapCreditNames;
+  protected readonly MapCreditNames: ReadonlyMap<MapCreditType, string> =
+    MapCreditNames;
 
   protected readonly connectedTo = Enum.values(MapCreditType).map(String);
 
@@ -70,12 +71,15 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
       .getAll()
       .find((userEntry) => userEntry.userID === user.id);
     if (existingUserCredit) {
-      TooltipDirective.findByContext(this.tooltips(), type).setAndShow(
-        `User is already in the "${MapCreditNames.get(
-          existingUserCredit.type
-        )}" credits, just drag the credit instead!`,
-        true
-      );
+      this.tooltips()
+        .find((item) => {
+          return item.tooltipId() === type.toString();
+        })
+        .setAndShow(
+          `User is already in the "${MapCreditNames.get(
+            existingUserCredit.type
+          )}" credits, just drag the credit instead!`
+        );
     } else {
       searchComponent.resetSearchBox();
       this.value().add({ user, type, description: null });
@@ -103,12 +107,15 @@ export class MapCreditsSelectionComponent implements ControlValueAccessor {
           placeholderEntry.alias === searchComponent.search.value
       );
     if (existingPlaceholderCredit) {
-      TooltipDirective.findByContext(this.tooltips(), type).setAndShow(
-        `Placeholder is already in the "${MapCreditNames.get(
-          existingPlaceholderCredit.type
-        )}" credits, just drag the credit instead!`,
-        true
-      );
+      this.tooltips()
+        .find((item) => {
+          return item.tooltipId() === type.toString();
+        })
+        .setAndShow(
+          `Placeholder is already in the "${MapCreditNames.get(
+            existingPlaceholderCredit.type
+          )}" credits, just drag the credit instead!`
+        );
       return;
     }
 

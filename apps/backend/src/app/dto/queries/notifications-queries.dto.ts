@@ -19,7 +19,7 @@ export class NotificationsGetQueryDto
   @SkipQueryProperty(0)
   skip = 0;
 
-  @TakeQueryProperty(25)
+  @TakeQueryProperty(25, 100)
   take = 25;
 }
 

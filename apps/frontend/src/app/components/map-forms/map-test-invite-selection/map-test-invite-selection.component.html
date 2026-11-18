@@ -4,8 +4,8 @@
     'pointer-events-none opacity-25': disabled()
   }"
 >
-  <div class="lg:w-1/2">
-    <m-user-search #searchInput (selected)="addUser($event, searchInput)" mTooltip tooltipEvent="noop" />
+  <div class="lg:w-1/2" mTooltip [tooltipDuration]="2000" tooltipEvent="noop">
+    <m-user-search #searchInput (selected)="addUser($event, searchInput)" />
   </div>
   <div class="flex min-h-40 flex-col overflow-y-auto rounded-sm bg-black/25 py-2 lg:w-1/2">
     @for (user of users(); track user) {

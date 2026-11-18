@@ -164,7 +164,7 @@ import { LeaderboardRun as PLeaderboardRun } from '@momentum/db';
 assertTypeCorrespondence<
   LeaderboardRun,
   PLeaderboardRun,
-  { pastRunID: number; splits: MakeOptional }
+  { pastRunID: number; splits: MakeOptional; replayHash: OmitMe }
 >();
 
 import { PastRun } from './models';
