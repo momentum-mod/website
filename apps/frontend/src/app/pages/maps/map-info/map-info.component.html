@@ -56,16 +56,11 @@
         </button>
         @if (map.currentVersion.downloadURL; as bsp) {
           <div>
-            <a
-              (click)="downloadOverlay.show()"
-              [style.anchor-name]="'--download-anchor'"
-              class="btn btn-purple"
-              mTooltip="Download map file"
-            >
+            <a #downloadAnchor (click)="downloadOverlay.show()" class="btn btn-purple" mTooltip="Download map file">
               <m-icon class="pb-0.5" icon="download" />
             </a>
-            <m-popover #downloadOverlay anchorName="--download-anchor">
-              <div class="max-w-lg">
+            <m-popover #downloadOverlay [anchor]="downloadAnchor">
+              <div class="max-w-lg min-w-60">
                 <p class="mb-1 text-sm text-gray-200 italic">
                   For convenience we recommend downloading and launching maps through the in-game map browser!
                 </p>
@@ -186,11 +181,13 @@
             </ng-template>
           }
           <div class="flex items-center gap-1" [mTooltip]="dateTooltip">
-            <p class="font-display text-24 drop-shadow-md">{{ map.info?.creationDate || map.createdAt | date }}</p>
+            <p class="font-display text-24 drop-shadow-md">
+              {{ map.info?.creationDate ? (map.info.creationDate | date: 'mediumDate' : 'UTC') : (map.createdAt | date) }}
+            </p>
             <m-icon class="text-24 drop-shadow-md" icon="calendar"></m-icon>
           </div>
           <ng-template #dateTooltip>
-            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date }}</p>
+            <p class="text-right"><b>Created On - </b>{{ map.info?.creationDate | date: 'mediumDate' : 'UTC' }}</p>
             <p class="text-right"><b>Added in Momentum - </b>{{ map.createdAt | date }}</p>
             @if (map.info?.approvedDate) {
               <p class="text-right"><b>Released in Momentum - </b>{{ map.info?.approvedDate | date }}</p>

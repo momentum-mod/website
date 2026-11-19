@@ -132,8 +132,10 @@ export class SteamService {
       )
         throw new UnauthorizedException('Invalid user ticket');
 
-      return BigInt(steamData.params.steamid);
-    } catch {
+      return BigInt(steamData.response.params.steamid);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
+
       throw new ServiceUnavailableException(
         'Failed to authenticate user with Steam'
       );

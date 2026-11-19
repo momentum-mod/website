@@ -1,4 +1,11 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+  viewChild
+} from '@angular/core';
 import { filter, switchMap, tap } from 'rxjs/operators';
 import {
   ActivatedRoute,
@@ -24,6 +31,7 @@ import { MessageService } from '@openng/optimus-ui/api';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TitleService } from '../../services/title.service';
 import { ActivityComponent } from '../../components/activity/activity.component';
+import { FollowComponent } from '../../components/follow/follow.component';
 import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
 import { RoleBadgesComponent } from '../../components/role-badges/role-badges.component';
 import { Icon, IconComponent } from '../../icons';
@@ -38,7 +46,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { LevelIndicatorComponent } from '../../components/level-indicator/level-indicator.component';
 import { EnumValuePipe } from '../../pipes/enum-value.pipe';
 import { SpinnerDirective } from '../../directives/spinner.directive';
-import { DatePipe, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { UnsortedKeyvaluePipe } from '../../pipes/unsorted-keyvalue.pipe';
 import { AvatarComponent } from '../../components/avatar/avatar.component';
@@ -60,7 +68,6 @@ import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-
     SpinnerDirective,
     RouterModule,
     EnumValuePipe,
-    DatePipe,
     NgStyle,
     IconComponent,
     TooltipDirective,
@@ -69,7 +76,8 @@ import { ProfileAdminSettingsComponent } from './profile-admin-settings/profile-
     SpinnerComponent,
     LevelIndicatorComponent,
     DialogModule,
-    ProfileChatBansComponent
+    ProfileChatBansComponent,
+    FollowComponent
   ]
 })
 export class ProfileComponent implements OnInit {
@@ -108,8 +116,6 @@ export class ProfileComponent implements OnInit {
   protected readonly avatarUrl = signal('/assets/images/blank_avatar.jpg');
   protected readonly avatarLoaded = signal(false);
   protected readonly countryDisplayName = signal('');
-  protected readonly followingUsers = signal<Follow[]>([]);
-  protected readonly followedByUsers = signal<Follow[]>([]);
   readonly localFollowStatus = new BehaviorSubject<Follow>(null);
   protected readonly localFollow = toSignal(this.localFollowStatus);
   protected readonly localUser = toSignal(this.localUserService.user);
@@ -125,6 +131,8 @@ export class ProfileComponent implements OnInit {
   protected readonly creditMap = signal<Partial<
     Record<MapCreditType, MapCredit[]>
   > | null>(null);
+
+  private readonly followingList = viewChild<FollowComponent>('followingList');
 
   ngOnInit() {
     this.route.paramMap
@@ -166,16 +174,6 @@ export class ProfileComponent implements OnInit {
           this.currLevelXp.set(this.xpService.getCosmeticXpForLevel(level));
           this.nextLevelXp.set(this.xpService.getCosmeticXpForLevel(level + 1));
 
-          this.usersService.getUserFollows(user).subscribe({
-            next: (response) => this.followingUsers.set(response.data),
-            error: (httpError: HttpErrorResponse) =>
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Could not retrieve user follows',
-                detail: httpError.error.message
-              })
-          });
-
           this.usersService
             .getMapCredits(user.id, {
               expand: ['map', 'info'],
@@ -201,19 +199,15 @@ export class ProfileComponent implements OnInit {
 
           this.localUserService
             .checkFollowStatus(user)
-            .pipe(
-              switchMap((response) => {
-                this.localFollowStatus.next(response.local);
-                return this.usersService.getFollowersOfUser(user);
-              }),
-              takeUntilDestroyed(this.destroyRef)
-            )
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-              next: (response) => this.followedByUsers.set(response.data),
+              next: (response) => {
+                this.localFollowStatus.next(response.local);
+              },
               error: (httpError: HttpErrorResponse) =>
                 this.messageService.add({
                   severity: 'error',
-                  summary: 'Could not retrieve user followers',
+                  summary: 'Could not retrieve follow status',
                   detail: httpError.error.message
                 })
             });
@@ -371,15 +365,7 @@ export class ProfileComponent implements OnInit {
         );
         this.steamFriendsToAdd.set(new Set());
 
-        this.usersService.getUserFollows(this.user()).subscribe({
-          next: (response) => this.followingUsers.set(response.data),
-          error: (httpError: HttpErrorResponse) =>
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Could not retrieve user follows',
-              detail: httpError.error.message
-            })
-        });
+        this.followingList()?.refresh();
       },
       error: (httpError: HttpErrorResponse) =>
         this.messageService.add({
