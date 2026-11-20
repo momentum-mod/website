@@ -230,8 +230,7 @@ export class MapLeaderboardComponent implements OnChanges {
   );
 
   protected readonly pageReport = computed(
-    () =>
-      `${this.pageOf(this.skip() + 1)} of ${this.pageOf(this.totalCount())}`
+    () => `${this.pageOf(this.skip() + 1)} of ${this.pageOf(this.totalCount())}`
   );
 
   protected readonly load = new Subject<void>();
