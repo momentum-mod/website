@@ -75,7 +75,7 @@ describe('Maps', () => {
         });
 
         await Promise.all([
-          // Main track: u1 ties an earlier WR run (rank 2), 4 completions.
+          // Main track: u1 ties an earlier WR run (rank 1), 4 completions.
           db.createLbRun({
             map,
             user: others[2],
@@ -159,13 +159,14 @@ describe('Maps', () => {
             (e) => e.trackType === trackType && e.trackNum === trackNum
           );
 
-        // Main track: ties the WR but submitted later (rank 2). Tier, PB time,
-        // and the completion group are not returned by this endpoint - the
-        // game/front end derive those.
+        // Main track: tied WR (rank 1), submitted after the other WR run.
+        // Tier, PB time, and the completion group are not returned by this
+        // endpoint - the game/front end derive those.
         assert.ok(
           matchesPartial(find(TrackType.MAIN, 1), {
             totalCompletions: 4,
-            rank: 2
+            rank: 1,
+            position: 2
           })
         );
         assert.ok(!Object.hasOwn(find(TrackType.MAIN, 1), 'tier'));
@@ -176,7 +177,8 @@ describe('Maps', () => {
         assert.ok(
           matchesPartial(find(TrackType.STAGE, 1), {
             totalCompletions: 2,
-            rank: 2
+            rank: 2,
+            position: 2
           })
         );
 
@@ -184,7 +186,8 @@ describe('Maps', () => {
         assert.ok(
           matchesPartial(find(TrackType.STAGE, 2), {
             totalCompletions: 1,
-            rank: null
+            rank: null,
+            position: null
           })
         );
 
@@ -192,7 +195,8 @@ describe('Maps', () => {
         assert.ok(
           matchesPartial(find(TrackType.BONUS, 1), {
             totalCompletions: 11,
-            rank: 11
+            rank: 11,
+            position: 11
           })
         );
 
@@ -200,7 +204,8 @@ describe('Maps', () => {
         assert.ok(
           matchesPartial(find(TrackType.BONUS, 2), {
             totalCompletions: 1,
-            rank: 1
+            rank: 1,
+            position: 1
           })
         );
       });

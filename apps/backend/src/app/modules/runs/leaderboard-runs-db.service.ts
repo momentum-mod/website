@@ -158,7 +158,8 @@ export class LeaderboardRunsDbService {
       trackType: row.trackType as TrackType,
       trackNum: row.trackNum,
       totalCompletions: row.totalCompletions ?? 0,
-      rank: row.rank
+      rank: row.rank,
+      position: row.position
     }));
   }
 
@@ -184,11 +185,12 @@ export class LeaderboardRunsDbService {
   }
 
   /**
-   * Get the rank of a user's run on a specific leaderboard.
+   * Get the rank of a user's run on a specific leaderboard, and its position in
+   * leaderboard order (ties broken by submission date).
    */
   async getUserRank(
     args: LeaderboardQuery & { userID: number }
-  ): Promise<number | undefined> {
+  ): Promise<{ rank: number; position: number } | undefined> {
     const sql = TypedSql.getLeaderboardRunRank(
       args.mapID,
       args.gamemode,
@@ -202,6 +204,6 @@ export class LeaderboardRunsDbService {
       ? await args.transaction.$queryRawTyped(sql)
       : await this.db.$queryRawTyped(sql);
 
-    return runs?.[0]?.rank ?? undefined;
+    return runs?.[0];
   }
 }

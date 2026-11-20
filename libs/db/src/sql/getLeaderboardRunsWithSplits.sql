@@ -26,7 +26,17 @@ SELECT
     u."roles" AS "user_roles",
     u."bans" AS "user_bans",
     u."createdAt" AS "user_createdAt",
-    CAST(ROW_NUMBER() OVER (ORDER BY r."time", r."createdAt") + $6 AS INT) AS "rank"
+    CAST(
+        CASE WHEN r."time" = MIN(r."time") OVER () THEN (
+            SELECT
+                COUNT(*)
+            FROM
+                "LeaderboardRun" f
+            WHERE (f."mapID", f."gamemode", f."trackType", f."trackNum", f."style") = ($1, $2, $3, $4, $5)
+            AND f."time" < r."time") + 1
+        ELSE
+            RANK() OVER (ORDER BY r."time") + $6
+        END AS INT) AS "rank"
 FROM (
     SELECT
         *
@@ -34,23 +44,28 @@ FROM (
         "LeaderboardRun"
     WHERE ("mapID", "gamemode", "trackType", "trackNum", "style") = ($1, $2, $3, $4, $5)
     AND ("time",
-        "createdAt") >= (
+        "createdAt",
+        "userID") >= (
         SELECT
             "time",
-            "createdAt"
+            "createdAt",
+            "userID"
         FROM
             "LeaderboardRun"
         WHERE ("mapID", "gamemode", "trackType", "trackNum", "style") = ($1, $2, $3, $4, $5)
     ORDER BY
         "time",
-        "createdAt" OFFSET $6
+        "createdAt",
+        "userID" OFFSET $6
     LIMIT 1)
 ORDER BY
     "time",
-    "createdAt"
+    "createdAt",
+    "userID"
 LIMIT $7) r
     INNER JOIN "User" AS "u" ON "userID" = "u"."id"
 ORDER BY
     r."time",
-    r."createdAt";
+    r."createdAt",
+    r."userID";
 

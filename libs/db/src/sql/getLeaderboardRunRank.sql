@@ -11,8 +11,16 @@ SELECT
         FROM
             "LeaderboardRun" r2
         WHERE (r2."mapID", r2."gamemode", r2."trackType", r2."trackNum", r2."style") = ($1, $2, $3, $4, $5)
-          AND (r2."time", r2."createdAt") < (r."time", r."createdAt")
-    ) AS rank
+          AND r2."time" < r."time"
+    ) AS rank,
+    (
+        SELECT
+            COUNT(*)::int + 1
+        FROM
+            "LeaderboardRun" r2
+        WHERE (r2."mapID", r2."gamemode", r2."trackType", r2."trackNum", r2."style") = ($1, $2, $3, $4, $5)
+          AND (r2."time", r2."createdAt", r2."userID") < (r."time", r."createdAt", r."userID")
+    ) AS position
 FROM
     "LeaderboardRun" r
 WHERE (r."mapID", r."gamemode", r."trackType", r."trackNum", r."style") = ($1, $2, $3, $4, $5)

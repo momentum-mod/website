@@ -69,7 +69,7 @@ export class LeaderboardRunsService {
       // Not really a filter; just a way to jump to the part of the leaderboard
       // your run is at.
       if (filter === 'around') {
-        const rank = await this.leaderboardRunsDbService.getUserRank({
+        const userRank = await this.leaderboardRunsDbService.getUserRank({
           mapID,
           gamemode: query.gamemode,
           trackType: query.trackType,
@@ -78,17 +78,14 @@ export class LeaderboardRunsService {
           userID: loggedInUserID
         });
 
-        if (!rank) {
+        if (!userRank) {
           throw new GoneException('User has no runs on this leaderboard');
         }
 
-        // Return the page-aligned window of `take` runs that contains the
-        // user's PB, using the same fixed page size the client paginates with.
-        // The client derives which page this is from its own row in the
-        // response (rank -> floor((rank - 1) / take)).
-        const page = Math.floor((rank - 1) / query.take);
-        const skip = page * query.take;
+        // The page containing the user's run. By position, as a tie can span
+        // pages.
         const take = query.take;
+        const skip = Math.floor((userRank.position - 1) / take) * take;
 
         dbCall = this.leaderboardRunsDbService.getRankedRuns({
           mapID,
@@ -231,7 +228,8 @@ export class LeaderboardRunsService {
         trackType: row.trackType,
         trackNum: row.trackNum,
         totalCompletions: row.totalCompletions,
-        rank: row.rank
+        rank: row.rank,
+        position: row.position
       })
     );
   }

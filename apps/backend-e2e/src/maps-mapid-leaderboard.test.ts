@@ -270,6 +270,87 @@ describe('Maps', () => {
       });
     });
 
+    describe('GET - tied times', () => {
+      let map, runs;
+
+      before(async () => {
+        map = await db.createMap();
+        runs = [];
+        for (const [i, time] of [100, 200, 200, 200, 200, 300].entries()) {
+          runs.push(
+            await db.createLbRun({
+              map,
+              time,
+              // Some runs share a submission date as well as a time
+              createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, Math.min(i, 2)))
+            })
+          );
+        }
+      });
+
+      after(async () => {
+        await db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap');
+      });
+
+      it('should give tied runs the same rank across pages', async () => {
+        const page = [];
+        for (const skip of [0, 3]) {
+          const res = await req.get({
+            url: `maps/${map.id}/leaderboard`,
+            query: { gamemode: Gamemode.AHOP, skip, take: 3 },
+            status: 200,
+            validatePaged: { type: LeaderboardRunDto, returnCount: 3 }
+          });
+          page.push(...res.body.data);
+        }
+
+        assert.deepEqual(
+          page.map(({ userID }) => userID),
+          runs.map(({ userID }) => userID)
+        );
+        assert.deepEqual(
+          page.map(({ rank }) => rank),
+          [1, 2, 2, 2, 2, 6]
+        );
+      });
+
+      it('should give tied runs the same rank when filtering by userIDs', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: {
+            gamemode: Gamemode.AHOP,
+            userIDs: `${runs[2].userID},${runs[5].userID}`
+          },
+          status: 200,
+          validatePaged: { type: LeaderboardRunDto, returnCount: 2 }
+        });
+
+        assert.deepEqual(
+          res.body.data.map(({ rank }) => rank),
+          [2, 6]
+        );
+      });
+
+      it("should return the page containing your run when it's tied across pages", async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'around', take: 3 },
+          status: 200,
+          token: auth.login(runs[4].user),
+          validatePaged: { type: LeaderboardRunDto, returnCount: 3 }
+        });
+
+        assert.deepEqual(
+          res.body.data.map(({ userID }) => userID),
+          runs.slice(3).map(({ userID }) => userID)
+        );
+        assert.deepEqual(
+          res.body.data.map(({ rank }) => rank),
+          [2, 2, 6]
+        );
+      });
+    });
+
     describe("GET - 'friends' filter", () => {
       const mockSteamIDs: bigint[] = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n];
       let map, user, token, steamService: SteamService;

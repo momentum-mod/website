@@ -6,7 +6,8 @@ SELECT
     lb."trackType",
     lb."trackNum",
     counts."totalCompletions",
-    urun."rank"
+    urun."rank",
+    urun."position"
 FROM
     "Leaderboard" lb
     LEFT JOIN LATERAL (
@@ -26,8 +27,17 @@ FROM
                     "LeaderboardRun" r2
                 WHERE (r2."mapID", r2."gamemode", r2."trackType", r2."trackNum", r2."style")
                     = (lb."mapID", lb."gamemode", lb."trackType", lb."trackNum", lb."style")
-                  AND (r2."time", r2."createdAt") < (ur."time", ur."createdAt")
-            ) AS "rank"
+                  AND r2."time" < ur."time"
+            ) AS "rank",
+            (
+                SELECT
+                    COUNT(*)::int + 1
+                FROM
+                    "LeaderboardRun" r2
+                WHERE (r2."mapID", r2."gamemode", r2."trackType", r2."trackNum", r2."style")
+                    = (lb."mapID", lb."gamemode", lb."trackType", lb."trackNum", lb."style")
+                  AND (r2."time", r2."createdAt", r2."userID") < (ur."time", ur."createdAt", ur."userID")
+            ) AS "position"
         FROM
             "LeaderboardRun" ur
         WHERE (ur."mapID", ur."gamemode", ur."trackType", ur."trackNum", ur."style")

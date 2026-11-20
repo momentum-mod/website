@@ -29,4 +29,15 @@ export class MapCompletionDto implements MapCompletion {
   @IsInt()
   @IsOptional()
   readonly rank: number | null;
+
+  @ApiProperty({
+    type: Number,
+    description:
+      "The user PB's place in leaderboard order, with ties ordered by " +
+      'submission date. Null if not completed',
+    nullable: true
+  })
+  @IsInt()
+  @IsOptional()
+  readonly position: number | null;
 }

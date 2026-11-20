@@ -19,7 +19,7 @@ WITH ranked AS (
         "flags",
         "pastRunID",
         "createdAt",
-        CAST(ROW_NUMBER() OVER (ORDER BY "time", "createdAt") AS int) "rank"
+        CAST(RANK() OVER (ORDER BY "time") AS int) "rank"
     FROM
         "LeaderboardRun"
     WHERE ("mapID", "gamemode", "trackType", "trackNum", "style") = ($1, $2, $3, $4, $5))
@@ -40,6 +40,7 @@ WHERE
     "u"."steamID" = ANY ($6)
 ORDER BY
     "ranked"."time",
-    "ranked"."createdAt" OFFSET $7
+    "ranked"."createdAt",
+    "ranked"."userID" OFFSET $7
 LIMIT $8;
 

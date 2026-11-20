@@ -638,7 +638,7 @@ export class RunSessionService {
       });
     }
 
-    newPB.rank = await this.leaderboardRunsDbService.getUserRank({
+    const pbRank = await this.leaderboardRunsDbService.getUserRank({
       transaction: tx,
       mapID: submittedRun.mapID,
       gamemode: submittedRun.gamemode,
@@ -647,6 +647,7 @@ export class RunSessionService {
       style: style,
       userID: submittedRun.userID
     });
+    newPB.rank = pbRank?.rank;
 
     return {
       xpGain,

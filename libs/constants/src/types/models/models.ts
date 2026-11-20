@@ -509,6 +509,8 @@ export interface MapCompletion {
   totalCompletions: number;
   /** Null if the user hasn't completed the track */
   rank: number | null;
+  /** Place in leaderboard order, with ties ordered by submission date */
+  position: number | null;
 }
 
 export interface LeaderboardRun {
