@@ -8,9 +8,9 @@ import * as Enum from '@momentum/enum';
  * Usage: `@Param('gamemode', new ParseEnumPipe(Gamemode)) gamemode: Gamemode`
  */
 @Injectable()
-export class ParseEnumPipe<T extends Record<string, string | number>>
-  implements PipeTransform<string, number>
-{
+export class ParseEnumPipe<
+  T extends Record<string, string | number>
+> implements PipeTransform<string, number> {
   private readonly values: number[];
 
   constructor(enumType: T) {
