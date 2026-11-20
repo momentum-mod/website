@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, OnChanges, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   GamemodeInfo,
@@ -25,23 +25,24 @@ export class ProfileRanksComponent implements OnChanges {
   protected readonly Style = Style;
   protected readonly styleEnglishName = styleEnglishName;
 
-  @Input({ required: true }) userID: number;
+  readonly userID = input.required<number>();
 
-  protected ranks: UserRank[] = [];
-  protected loading = false;
+  protected readonly ranks = signal<UserRank[]>([]);
+  protected readonly loading = signal(false);
 
   ngOnChanges(): void {
-    if (!this.userID) return;
+    const userID = this.userID();
+    if (!userID) return;
 
-    this.loading = true;
-    this.rankingService.getUserRanks(this.userID).subscribe({
+    this.loading.set(true);
+    this.rankingService.getUserRanks(userID).subscribe({
       next: (ranks) => {
-        this.ranks = ranks.sort((a, b) => a.rank - b.rank);
-        this.loading = false;
+        this.ranks.set(ranks.sort((a, b) => a.rank - b.rank));
+        this.loading.set(false);
       },
       error: () => {
-        this.ranks = [];
-        this.loading = false;
+        this.ranks.set([]);
+        this.loading.set(false);
       }
     });
   }
