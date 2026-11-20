@@ -1,14 +1,14 @@
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import { MessageService } from 'primeng/api';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
-import { SelectModule } from 'primeng/select';
+import { MessageService } from '@openng/optimus-ui/api';
+import { PaginatorModule, PaginatorState } from '@openng/optimus-ui/paginator';
+import { SelectModule } from '@openng/optimus-ui/select';
 import {
   Gamemode,
   GamemodeDefaultUIStyle,
@@ -38,8 +38,7 @@ import { NumberWithCommasPipe } from '../../../pipes/number-with-commas.pipe';
     SelectModule,
     FormsModule,
     NumberWithCommasPipe,
-    NgClass,
-    AsyncPipe
+    NgClass
   ]
 })
 export class RankingsComponent implements OnInit {
@@ -48,20 +47,24 @@ export class RankingsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  protected readonly localUserService = inject(LocalUserService);
+  private readonly localUserService = inject(LocalUserService);
 
-  protected gamemode: Gamemode = Gamemode.SURF;
-  protected style: Style = Style.NORMAL;
-  protected styleOptions: Array<{ label: string; value: Style }> = [];
+  protected readonly localUser = toSignal(this.localUserService.user);
 
-  protected entries: RankEntry[] = [];
-  protected totalCount = 0;
-  protected loading = false;
-  protected skip = 0;
+  protected readonly gamemode = signal(Gamemode.SURF);
+  protected readonly style = signal(Style.NORMAL);
+  protected readonly styleOptions = signal<
+    Array<{ label: string; value: Style }>
+  >([]);
+
+  protected readonly entries = signal<RankEntry[]>([]);
+  protected readonly totalCount = signal(0);
+  protected readonly loading = signal(false);
+  protected readonly skip = signal(0);
   protected readonly take = 20;
 
   /** Set after "Jump to me" until the player navigates elsewhere. */
-  protected aroundSelf = false;
+  protected readonly aroundSelf = signal(false);
   private jumpToSelf = false;
 
   private readonly load = new Subject<void>();
@@ -71,28 +74,28 @@ export class RankingsComponent implements OnInit {
     const params = this.route.snapshot.queryParamMap;
     const gamemode = Number(params.get('gamemode'));
     if (Enum.values(Gamemode).includes(gamemode)) {
-      this.gamemode = gamemode;
+      this.gamemode.set(gamemode);
     }
     this.updateStyleOptions();
     const style = Number(params.get('style'));
-    if (this.styleOptions.some(({ value }) => value === style)) {
-      this.style = style;
+    if (this.styleOptions().some(({ value }) => value === style)) {
+      this.style.set(style);
     }
 
     this.load
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.rankingService
-            .getLadder(this.gamemode, {
-              style: this.style,
-              skip: this.skip,
+            .getLadder(this.gamemode(), {
+              style: this.style(),
+              skip: this.skip(),
               take: this.take,
               filter: this.jumpToSelf ? 'around' : undefined
             })
             .pipe(
               catchError((error: HttpErrorResponse) => {
-                this.loading = false;
+                this.loading.set(false);
                 this.jumpToSelf = false;
                 this.messageService.add({
                   severity: 'error',
@@ -121,19 +124,19 @@ export class RankingsComponent implements OnInit {
             const pageSkip =
               Math.floor((self.rank - 1) / this.take) * this.take;
             if (pageSkip !== response.data[0].rank - 1) {
-              this.skip = pageSkip;
+              this.skip.set(pageSkip);
               this.scrollToSelfAfterLoad = true;
               this.load.next();
               return;
             }
-            this.skip = pageSkip;
+            this.skip.set(pageSkip);
           }
           this.scrollToSelfAfterLoad = true;
         }
 
-        this.entries = response.data;
-        this.totalCount = response.totalCount;
-        this.loading = false;
+        this.entries.set(response.data);
+        this.totalCount.set(response.totalCount);
+        this.loading.set(false);
 
         if (this.scrollToSelfAfterLoad) {
           this.scrollToSelfAfterLoad = false;
@@ -150,48 +153,50 @@ export class RankingsComponent implements OnInit {
   }
 
   protected setGamemode(gamemode: Gamemode): void {
-    this.gamemode = gamemode;
+    this.gamemode.set(gamemode);
     this.updateStyleOptions();
-    this.style = GamemodeDefaultUIStyle.get(gamemode);
+    this.style.set(GamemodeDefaultUIStyle.get(gamemode));
     this.reset();
   }
 
   protected setStyle(style: Style): void {
-    this.style = style;
+    this.style.set(style);
     this.reset();
   }
 
   protected onPageChange(event: PaginatorState): void {
-    if (event.first === this.skip) return;
-    this.skip = event.first;
-    this.aroundSelf = false;
+    if (event.first === this.skip()) return;
+    this.skip.set(event.first);
+    this.aroundSelf.set(false);
     this.load.next();
   }
 
   protected onJumpToSelf(): void {
     this.jumpToSelf = true;
-    this.aroundSelf = true;
+    this.aroundSelf.set(true);
     this.load.next();
   }
 
   protected isLocalUser(entry: RankEntry): boolean {
-    return this.localUserService.user.value?.id === entry.userID;
+    return this.localUser()?.id === entry.userID;
   }
 
   private reset(): void {
-    this.skip = 0;
-    this.aroundSelf = false;
+    this.skip.set(0);
+    this.aroundSelf.set(false);
     void this.router.navigate([], {
-      queryParams: { gamemode: this.gamemode, style: this.style },
+      queryParams: { gamemode: this.gamemode(), style: this.style() },
       replaceUrl: true
     });
     this.load.next();
   }
 
   private updateStyleOptions(): void {
-    this.styleOptions = [...GamemodeStyles.get(this.gamemode)].map((value) => ({
-      label: styleEnglishName(value),
-      value
-    }));
+    this.styleOptions.set(
+      [...GamemodeStyles.get(this.gamemode())].map((value) => ({
+        label: styleEnglishName(value),
+        value
+      }))
+    );
   }
 }

@@ -1,4 +1,6 @@
 <h3 class="font-display font-bold">Rankings</h3>
+@let ranks = this.ranks();
+@let loading = this.loading();
 <div [mSpinner]="loading">
   @if (ranks.length === 0) {
     @if (!loading) {
@@ -8,14 +10,14 @@
     <div class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
       @for (rank of ranks; track rank.gamemode + '-' + rank.style) {
         <a
-          class="flex flex-col rounded border border-white border-opacity-10 bg-white bg-opacity-5 p-3 transition-colors hover:bg-opacity-10"
+          class="flex flex-col rounded-sm border border-white/10 bg-white/5 p-3 transition-colors hover:bg-white/10"
           routerLink="/community/rankings"
           [queryParams]="{ gamemode: rank.gamemode, style: rank.style }"
         >
-          <p class="text-sm font-bold uppercase text-gray-200">
+          <p class="text-sm font-bold text-gray-200 uppercase">
             {{ GamemodeInfo.get(rank.gamemode)?.name }}
             @if (rank.style !== Style.NORMAL) {
-              <span class="font-normal normal-case text-gray-300"> · {{ styleEnglishName(rank.style) }}</span>
+              <span class="font-normal text-gray-300 normal-case"> · {{ styleEnglishName(rank.style) }}</span>
             }
           </p>
           <p class="font-display text-3xl leading-tight">

@@ -1,12 +1,19 @@
-import { Component, DestroyRef, Input, OnChanges, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnChanges,
+  inject,
+  input,
+  signal
+} from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, Subject } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import { MessageService } from 'primeng/api';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { MessageService } from '@openng/optimus-ui/api';
+import { PaginatorModule, PaginatorState } from '@openng/optimus-ui/paginator';
 import {
   CompletionGroup,
   Gamemode,
@@ -51,16 +58,16 @@ export class ProfileRunsComponent implements OnChanges {
 
   protected readonly GamemodeInfo = GamemodeInfo;
 
-  @Input({ required: true }) userID: number;
+  readonly userID = input.required<number>();
 
-  protected gamemode: Gamemode | null = null;
-  protected rankedOnly = true;
+  protected readonly gamemode = signal<Gamemode | null>(null);
+  protected readonly rankedOnly = signal(true);
   /** Hide stage and bonus runs, which otherwise crowd out main tracks. */
-  protected mainOnly = true;
-  protected runs: LeaderboardRun[] = [];
-  protected totalCount = 0;
-  protected loading = false;
-  protected skip = 0;
+  protected readonly mainOnly = signal(true);
+  protected readonly runs = signal<LeaderboardRun[]>([]);
+  protected readonly totalCount = signal(0);
+  protected readonly loading = signal(false);
+  protected readonly skip = signal(0);
   protected readonly take = 10;
 
   private readonly load = new Subject<void>();
@@ -68,23 +75,23 @@ export class ProfileRunsComponent implements OnChanges {
   constructor() {
     this.load
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => this.loading.set(true)),
         switchMap(() =>
           this.usersService
-            .getUserRuns(this.userID, {
-              gamemode: this.gamemode ?? undefined,
+            .getUserRuns(this.userID(), {
+              gamemode: this.gamemode() ?? undefined,
               // Every RANKED leaderboard awards points: main tracks, stages
               // and bonuses.
-              ...(this.rankedOnly && {
+              ...(this.rankedOnly() && {
                 leaderboardType: LeaderboardType.RANKED
               }),
-              ...(this.mainOnly && { trackType: TrackType.MAIN }),
-              skip: this.skip,
+              ...(this.mainOnly() && { trackType: TrackType.MAIN }),
+              skip: this.skip(),
               take: this.take
             })
             .pipe(
               catchError((error: HttpErrorResponse) => {
-                this.loading = false;
+                this.loading.set(false);
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Error fetching runs',
@@ -97,40 +104,40 @@ export class ProfileRunsComponent implements OnChanges {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((response) => {
-        this.runs = response.data;
-        this.totalCount = response.totalCount;
-        this.loading = false;
+        this.runs.set(response.data);
+        this.totalCount.set(response.totalCount);
+        this.loading.set(false);
       });
   }
 
   ngOnChanges(): void {
-    if (!this.userID) return;
-    this.skip = 0;
+    if (!this.userID()) return;
+    this.skip.set(0);
     this.load.next();
   }
 
   protected setGamemode(gamemode: Gamemode | null): void {
-    this.gamemode = gamemode;
-    this.skip = 0;
+    this.gamemode.set(gamemode);
+    this.skip.set(0);
     this.load.next();
   }
 
   protected setRankedOnly(rankedOnly: boolean): void {
-    if (rankedOnly === this.rankedOnly) return;
-    this.rankedOnly = rankedOnly;
-    this.skip = 0;
+    if (rankedOnly === this.rankedOnly()) return;
+    this.rankedOnly.set(rankedOnly);
+    this.skip.set(0);
     this.load.next();
   }
 
   protected setMainOnly(mainOnly: boolean): void {
-    if (mainOnly === this.mainOnly) return;
-    this.mainOnly = mainOnly;
-    this.skip = 0;
+    if (mainOnly === this.mainOnly()) return;
+    this.mainOnly.set(mainOnly);
+    this.skip.set(0);
     this.load.next();
   }
 
   protected onPageChange(event: PaginatorState): void {
-    this.skip = event.first;
+    this.skip.set(event.first);
     this.load.next();
   }
 

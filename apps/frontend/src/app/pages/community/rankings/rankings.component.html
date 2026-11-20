@@ -1,6 +1,8 @@
+@let entries = this.entries();
+@let loading = this.loading();
 <m-card title="Rankings">
   <div class="flex flex-col gap-4">
-    <m-gamemode-select [allowNull]="false" [value]="gamemode" (valueChange)="setGamemode($event)" />
+    <m-gamemode-select [allowNull]="false" [value]="gamemode()" (valueChange)="setGamemode($event)" />
 
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <p class="text-gray-200">
@@ -8,18 +10,18 @@
         <a class="link" href="https://docs.momentum-mod.org/guide/ranking/">See how points are calculated</a>.
       </p>
       <div class="ml-auto flex items-center gap-2">
-        @if (styleOptions.length > 1) {
+        @if (styleOptions().length > 1) {
           <p-select
-            [ngModel]="style"
+            [ngModel]="style()"
             (ngModelChange)="setStyle($event)"
-            [options]="styleOptions"
+            [options]="styleOptions()"
             optionLabel="label"
             optionValue="value"
             appendTo="body"
           />
         }
-        @if (localUserService.user | async) {
-          <button type="button" class="btn" [ngClass]="{ 'btn-blue': aroundSelf }" (click)="onJumpToSelf()">Jump to me</button>
+        @if (localUser()) {
+          <button type="button" class="btn" [ngClass]="{ 'btn-blue': aroundSelf() }" (click)="onJumpToSelf()">Jump to me</button>
         }
       </div>
     </div>
@@ -37,17 +39,17 @@
         </div>
         @for (entry of entries; track entry.userID) {
           <div
-            class="mt-[0.375rem] flex items-center gap-2 rounded border border-white border-opacity-5 bg-white !bg-opacity-10 px-3 py-2 shadow transition-colors odd:bg-gray-200 hover:!bg-white hover:!bg-opacity-[0.15] sm:gap-0 sm:px-4"
+            class="mt-1.5 flex items-center gap-2 rounded-sm border border-white/5 bg-white/10! px-3 py-2 shadow-sm transition-colors odd:bg-gray-200 hover:bg-white! hover:bg-white/15! sm:gap-0 sm:px-4"
             [id]="isLocalUser(entry) ? 'rank-entry-self' : null"
-            [ngClass]="{ 'outline outline-1 [outline-color:rgb(255_255_255/0.4)]': isLocalUser(entry) }"
+            [ngClass]="{ 'outline-1 outline-white/40 outline-solid': isLocalUser(entry) }"
           >
-            <p class="text-shadow pointer-events-none w-12 shrink-0 text-left font-display text-2xl sm:w-auto sm:basis-1/10">
+            <p class="pointer-events-none w-12 shrink-0 text-left font-display text-2xl text-shadow sm:w-auto sm:basis-1/10">
               {{ entry.rank }}
             </p>
             <div class="flex min-w-0 grow basis-auto gap-2">
               <m-user class="contents min-w-0" [user]="entry.user" avatarClass="h-7" aliasClass="min-w-0 truncate" />
             </div>
-            <p class="text-shadow pointer-events-none shrink-0 pl-2 text-right font-display text-2xl sm:basis-1/5">
+            <p class="pointer-events-none shrink-0 pl-2 text-right font-display text-2xl text-shadow sm:basis-1/5">
               {{ entry.points | numberWithCommas }}
             </p>
           </div>
@@ -55,9 +57,9 @@
         <p-paginator
           class="mt-4 block"
           (onPageChange)="onPageChange($event)"
-          [first]="skip"
+          [first]="skip()"
           [rows]="take"
-          [totalRecords]="totalCount"
+          [totalRecords]="totalCount()"
           [showCurrentPageReport]="true"
           [alwaysShow]="false"
         />

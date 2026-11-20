@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, model } from '@angular/core';
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Gamemode } from '@momentum/constants';
 
@@ -15,15 +15,13 @@ import { Gamemode } from '@momentum/constants';
 export class GamemodeSelectComponent {
   protected readonly Gamemode = Gamemode;
 
-  @Input() value: Gamemode | null = null;
-  @Output() readonly valueChange = new EventEmitter<Gamemode | null>();
+  readonly value = model<Gamemode | null>(null);
 
   /** Whether to offer the "All modes" (null) option. */
-  @Input() allowNull = true;
+  readonly allowNull = input(true);
 
   protected select(mode: Gamemode | null): void {
-    if (mode === this.value) return;
-    this.value = mode;
-    this.valueChange.emit(mode);
+    if (mode === this.value()) return;
+    this.value.set(mode);
   }
 }
