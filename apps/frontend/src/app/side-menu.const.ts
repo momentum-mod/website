@@ -41,6 +41,12 @@ export const SIDENAV_ITEMS: Array<{
     isPublic: true,
     items: [
       {
+        title: 'Rankings',
+        link: '/community/rankings',
+        icon: 'trophy',
+        isPublic: true
+      },
+      {
         title: 'Streams',
         link: '/community/twitch',
         icon: 'twitch',

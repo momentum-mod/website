@@ -9,7 +9,15 @@ import {
   TrackType
 } from '@momentum/constants';
 import { arrayFrom } from '@momentum/util-fn';
-import { req, db, registerE2ETestFile } from './support/e2e-environment';
+import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
+import { RankPointsKeys } from '../../backend/src/app/modules/ranking/rank-points.keys';
+import {
+  app,
+  req,
+  db,
+  valkey,
+  registerE2ETestFile
+} from './support/e2e-environment';
 
 describe('Maps', () => {
   registerE2ETestFile();
@@ -138,6 +146,8 @@ describe('Maps', () => {
             trackNum: 2
           })
         ]);
+
+        await app.get(RankingService).rebuildAll();
       });
 
       after(async () => {
@@ -203,6 +213,25 @@ describe('Maps', () => {
             rank: 1
           })
         );
+      });
+
+      it('should return the same from Postgres while run ranks are not built', async () => {
+        const getCompletions = async () => {
+          const res = await req.get({
+            url: `maps/${map.id}/user-completions`,
+            status: 200,
+            query: { gamemode: Gamemode.AHOP },
+            token
+          });
+          return res.body;
+        };
+
+        const fromRunRanks = await getCompletions();
+
+        await valkey.del(RankPointsKeys.version);
+        assert.deepEqual(await getCompletions(), fromRunRanks);
+
+        await app.get(RankingService).rebuildAll();
       });
 
       it('should order entries by trackType then trackNum', async () => {

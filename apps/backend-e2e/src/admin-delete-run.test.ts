@@ -10,7 +10,9 @@ import {
   TrackType
 } from '@momentum/constants';
 import { LeaderboardRun, TypedSql, User } from '@momentum/db';
+import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
 import {
+  app,
   prisma,
   req,
   db,
@@ -134,6 +136,46 @@ describe('Admin', () => {
             userID: run.userID
           },
           comment: 'hello'
+        });
+      });
+
+      it('should remove the run from the map user completions', async () => {
+        const ranking = app.get(RankingService);
+        const getMain = async () => {
+          const res = await req.get({
+            url: `maps/${map.id}/user-completions`,
+            status: 200,
+            query: { gamemode: Gamemode.AHOP },
+            token: adminToken
+          });
+          return res.body.find(({ trackType }) => trackType === TrackType.MAIN);
+        };
+
+        await ranking.rebuildAll();
+        assert.partialDeepStrictEqual(await getMain(), {
+          totalCompletions: 2,
+          rank: 2
+        });
+
+        await req.post({
+          url: 'admin/delete-run',
+          body: {
+            mapID: run.mapID,
+            gamemode: run.gamemode,
+            trackType: run.trackType,
+            trackNum: run.trackNum,
+            style: run.style,
+            userID: run.userID,
+            reason: 'hello'
+          },
+          status: 204,
+          token: adminToken
+        });
+
+        await ranking.processQueue();
+        assert.partialDeepStrictEqual(await getMain(), {
+          totalCompletions: 1,
+          rank: 1
         });
       });
 

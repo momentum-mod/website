@@ -26,6 +26,7 @@ import { TypedSql } from '@momentum/db';
 import { ZonesStubString } from '@momentum/formats/zone';
 import * as ReplayFile from '@momentum/formats/replay';
 import {
+  app,
   prisma,
   valkey,
   req,
@@ -33,6 +34,9 @@ import {
   registerE2ETestFile,
   resetKillswitches
 } from './support/e2e-environment';
+import { getRankPoints } from '@momentum/xp-systems';
+import { RankingService } from '../../backend/src/app/modules/ranking/ranking.service';
+import { RankPointsKeys } from '../../backend/src/app/modules/ranking/rank-points.keys';
 
 describe('Session', () => {
   registerE2ETestFile();
@@ -203,6 +207,27 @@ describe('Session', () => {
           assert.equal(completedRun.totalRuns, 11);
         });
 
+        it('should include rank points for the new PB and update the ladder', async () => {
+          const res = await submitRun();
+          const completedRun = res.body[0];
+
+          // Rank 2 of 11 on a tier 1 leaderboard. Computed directly so the
+          // player sees it immediately, before the ladder catches up.
+          const expected = getRankPoints(2, 11, 1);
+          assert.equal(completedRun.newPersonalBest.points, expected);
+
+          // The leaderboard should have been queued for a ladder update.
+          await app.get(RankingService).processQueue();
+
+          assert.equal(
+            await valkey.zscore(
+              RankPointsKeys.ladder(Gamemode.AHOP, Style.NORMAL),
+              user.id.toString()
+            ),
+            expected.toString()
+          );
+        });
+
         // Note that now we're using a window function the rank column isn't
         // materialized. These tests is effectively just checking the window
         // function behaves correctly.
@@ -300,14 +325,13 @@ describe('Session', () => {
           assert.equal(res.statusCode, 200);
           assertValidDto(completedRun, CompletedRunDto);
           assert.equal(completedRun.isNewPersonalBest, false);
-          // assert.equal(completedRun.xp.rankXP, 0);
           assert.equal(completedRun.totalRuns, 10);
 
           const ranksAfter = await getRuns();
           assert.deepEqual(ranksBefore, ranksAfter);
         });
 
-        it('should assign cosmetic and rank XP for the run', async () => {
+        it('should assign cosmetic XP for the run', async () => {
           const res = await submitRun();
 
           const completedRun = res.body[0];
@@ -318,7 +342,6 @@ describe('Session', () => {
               time: any(Number),
               newPersonalBest: { rank: 2 },
               xp: {
-                // rankXP: any(Number),
                 cosXP: {
                   oldXP: 0,
                   gainXP: any(Number)
@@ -339,6 +362,34 @@ describe('Session', () => {
           });
           assert.equal(mapStats.completions, 2);
           assert.equal(mapStats.uniqueCompletions, 1);
+        });
+
+        it('should update the map user completions', async () => {
+          const ranking = app.get(RankingService);
+          const getMain = async () => {
+            const res = await req.get({
+              url: `maps/${map.id}/user-completions`,
+              status: 200,
+              query: { gamemode: Gamemode.AHOP },
+              token
+            });
+            return res.body.find(
+              ({ trackType }) => trackType === TrackType.MAIN
+            );
+          };
+
+          await ranking.rebuildAll();
+          assert.partialDeepStrictEqual(await getMain(), {
+            totalCompletions: 10,
+            rank: null
+          });
+
+          await submitRun();
+          await ranking.processQueue();
+          assert.partialDeepStrictEqual(await getMain(), {
+            totalCompletions: 11,
+            rank: 2
+          });
         });
 
         it('should create an activity if the user achieved a PB', async () => {
