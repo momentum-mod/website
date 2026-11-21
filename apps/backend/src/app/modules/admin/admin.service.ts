@@ -39,6 +39,7 @@ import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
 import { BansService } from '../reports/bans.service';
+import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class AdminService {
@@ -48,7 +49,8 @@ export class AdminService {
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly fileStore: FileStoreService,
-    private readonly bans: BansService
+    private readonly bans: BansService,
+    private readonly runCountService: RunCountService
   ) {}
 
   async createPlaceholderUser(
@@ -330,6 +332,7 @@ export class AdminService {
     await this.db.leaderboardRun.delete({ where });
 
     await Promise.all([
+      this.runCountService.invalidate(run.mapID),
       this.deleteRunFiles(run),
       this.adminActivityService.create(
         adminID,
@@ -358,6 +361,9 @@ export class AdminService {
     await this.db.leaderboardRun.deleteMany({
       where: { userID }
     });
+    await this.runCountService.invalidate(
+      ...new Set(runs.map((run) => run.mapID))
+    );
 
     // Copy all replay files to the deleted-runs location with bounded
     // concurrency, then bulk-delete all sources in one request.

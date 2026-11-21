@@ -104,6 +104,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
+import { RunCountService } from '../run-count/run-count.service';
 
 @Injectable()
 export class MapsService {
@@ -121,7 +122,8 @@ export class MapsService {
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
-    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
+    private readonly runCountService: RunCountService
   ) {}
 
   //#region Gets
@@ -945,6 +947,8 @@ export class MapsService {
       return newVersion;
     });
 
+    await this.runCountService.invalidate(mapID);
+
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
       : undefined;
@@ -1538,6 +1542,8 @@ export class MapsService {
     if (newStatus === MapStatus.APPROVED || oldStatus === MapStatus.APPROVED) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
+
+    await this.runCountService.invalidate(mapID);
   }
 
   private getGeneralMapDataUpdate(
@@ -2104,6 +2110,8 @@ export class MapsService {
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
     );
+
+    await this.runCountService.invalidate(mapID);
   }
 
   private async deleteMapFiles(mapID: number) {

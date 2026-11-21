@@ -11,6 +11,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { ReportsModule } from '../reports/reports.module';
+import { RunCountModule } from '../run-count/run-count.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { ReportsModule } from '../reports/reports.module';
     KillswitchModule,
     NotificationsModule,
     FileStoreModule,
-    ReportsModule
+    ReportsModule,
+    RunCountModule
   ],
   controllers: [AdminController],
   providers: [AdminService, AdminActivityService, NotificationsService],

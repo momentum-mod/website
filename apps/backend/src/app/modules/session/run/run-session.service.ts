@@ -46,6 +46,7 @@ import { RunProcessor } from './run-processor.class';
 import { ValkeyService } from '../../valkey/valkey.service';
 import { RunFileStoreService } from '../../filestore/run-file-store.service';
 import { LeaderboardRunsDbService } from '../../runs/leaderboard-runs-db.service';
+import { RunCountService } from '../../run-count/run-count.service';
 
 @Injectable()
 export class RunSessionService {
@@ -58,7 +59,8 @@ export class RunSessionService {
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService,
     private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
-    private readonly killswitch: KillswitchService
+    private readonly killswitch: KillswitchService,
+    private readonly runCountService: RunCountService
   ) {}
 
   //#region Run Session (game WebSocket)
@@ -415,6 +417,16 @@ export class RunSessionService {
             )
           : Promise.resolve()
       ]);
+
+    if (!existingRun) {
+      await this.runCountService.increment({
+        mapID: submittedRun.mapID,
+        gamemode: submittedRun.gamemode,
+        trackType: submittedRun.trackType,
+        trackNum: submittedRun.trackNum,
+        style
+      });
+    }
 
     if (isWR) {
       await this.db.activity.create({

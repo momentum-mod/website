@@ -8,13 +8,15 @@ import { PastRunsService } from './past-runs.service';
 import { LeaderboardService } from './leaderboard.service';
 import { RunsController } from './runs.controller';
 import { LeaderboardRunsDbService } from './leaderboard-runs-db.service';
+import { RunCountModule } from '../run-count/run-count.module';
 
 @Module({
   imports: [
     DbModule,
     forwardRef(() => MapsModule),
     FileStoreModule,
-    SteamModule
+    SteamModule,
+    RunCountModule
   ],
   providers: [
     LeaderboardRunsService,
