@@ -48,14 +48,14 @@
             <div class="flex gap-1">
               @if (!isLocal && localUser() && !localUserService.isLimited) {
                 <m-report-button
-                  class="aspect-square p-2"
+                  class="aspect-square"
                   mTooltip="Report Profile"
                   [reportType]="ReportType.USER_PROFILE_REPORT"
                   [reportData]="user.id.toString()"
                 />
                 <button
                   type="button"
-                  class="btn stack aspect-square p-2 btn-green"
+                  class="btn stack aspect-square btn-green"
                   [mTooltip]="localFollow() ? 'Unfollow' : 'Follow'"
                   (click)="toggleFollow()"
                 >
@@ -65,7 +65,7 @@
                 @if (localFollow()) {
                   <button
                     type="button"
-                    class="btn aspect-square p-2 btn-blue"
+                    class="btn aspect-square btn-blue"
                     mTooltip="Edit Notifications"
                     (click)="editFollowNotifications()"
                   >
@@ -74,12 +74,12 @@
                 }
               }
               @if (localUserService.isModOrAdmin) {
-                <button class="btn aspect-square p-2 btn-orange" type="button" mTooltip="Admin Settings" (click)="onAdminSettings()">
+                <button class="btn aspect-square btn-orange" type="button" mTooltip="Admin Settings" (click)="onAdminSettings()">
                   <m-icon icon="shield-crown-outline" />
                 </button>
               }
               @if (isLocal || localUserService.isModOrAdmin) {
-                <button class="btn aspect-square p-2 btn-purple" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
+                <button class="btn aspect-square btn-purple" type="button" mTooltip="Edit Profile" (click)="onEditProfile()">
                   <m-icon icon="note-edit" />
                 </button>
               }
