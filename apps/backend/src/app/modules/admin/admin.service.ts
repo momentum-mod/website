@@ -263,7 +263,7 @@ export class AdminService {
       // Keep verified user-unique-name invariant.
       if (Bitflags.has(update.roles, Role.VERIFIED)) {
         const sameNameMatches = await this.db.user.findMany({
-          where: { alias: update.alias, NOT: { id: userID } },
+          where: { alias: update.alias ?? user.alias, NOT: { id: userID } },
           select: { roles: true }
         });
         if (
