@@ -249,6 +249,133 @@ describe('Admin', () => {
         );
       });
 
+      describe('when the player already has an active ban', () => {
+        let secondReport, existingBan;
+
+        beforeEach(async () => {
+          secondReport = await prisma.report.create({
+            data: {
+              data: target.id,
+              type: ReportType.PLAYER_REPORT,
+              category: ReportCategory.INAPPROPRIATE_CONTENT,
+              message: 'was also mean in chat',
+              resolved: false,
+              submitterID: admin.id
+            }
+          });
+
+          existingBan = await prisma.chatBan.create({
+            data: {
+              type: ChatBanType.CHAT,
+              expiresAt: inAnHour(),
+              reason: 'first',
+              targetID: target.id,
+              issuerID: admin.id,
+              reportID: playerReport.id
+            }
+          });
+        });
+
+        it('should extend the existing ban with a longer one', async () => {
+          await req.patch({
+            url: `admin/reports/${secondReport.id}`,
+            status: 204,
+            body: {
+              resolved: true,
+              resolutionMessage: 'banned',
+              chatBans: [{ type: ChatBanType.CHAT, reason: 'second' }]
+            },
+            token: adminToken
+          });
+
+          const bans = await prisma.chatBan.findMany({
+            where: { targetID: target.id }
+          });
+          assert.equal(bans.length, 1);
+          assert.partialDeepStrictEqual(bans[0], {
+            id: existingBan.id,
+            expiresAt: null,
+            reason: 'second',
+            reportID: secondReport.id
+          });
+
+          await expectAdminActivityWasCreated(
+            admin.id,
+            AdminActivityType.CHAT_BAN_UPDATE
+          );
+        });
+
+        it('should leave the existing ban alone given a shorter one', async () => {
+          await req.patch({
+            url: `admin/reports/${secondReport.id}`,
+            status: 204,
+            body: {
+              resolved: true,
+              resolutionMessage: 'banned',
+              chatBans: [
+                {
+                  type: ChatBanType.CHAT,
+                  expiresAt: new Date(Date.now() + 60_000).toISOString(),
+                  reason: 'second'
+                }
+              ]
+            },
+            token: adminToken
+          });
+
+          const bans = await prisma.chatBan.findMany({
+            where: { targetID: target.id }
+          });
+          assert.equal(bans.length, 1);
+          assert.deepStrictEqual(bans[0], existingBan);
+        });
+
+        it('should still issue a ban of the other type', async () => {
+          await req.patch({
+            url: `admin/reports/${secondReport.id}`,
+            status: 204,
+            body: {
+              resolved: true,
+              resolutionMessage: 'banned',
+              chatBans: [{ type: ChatBanType.VOICE }]
+            },
+            token: adminToken
+          });
+
+          const bans = await prisma.chatBan.findMany({
+            where: { targetID: target.id }
+          });
+          assert.equal(bans.length, 2);
+        });
+      });
+
+      it('should create a new ban if the previous one has expired', async () => {
+        await prisma.chatBan.create({
+          data: {
+            type: ChatBanType.CHAT,
+            expiresAt: new Date(Date.now() - 60_000),
+            targetID: target.id,
+            issuerID: admin.id
+          }
+        });
+
+        await req.patch({
+          url: `admin/reports/${playerReport.id}`,
+          status: 204,
+          body: {
+            resolved: true,
+            resolutionMessage: 'banned',
+            chatBans: [{ type: ChatBanType.CHAT }]
+          },
+          token: adminToken
+        });
+
+        const bans = await prisma.chatBan.findMany({
+          where: { targetID: target.id }
+        });
+        assert.equal(bans.length, 2);
+      });
+
       it('should resolve a player report without any bans', async () => {
         await req.patch({
           url: `admin/reports/${playerReport.id}`,

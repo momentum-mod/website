@@ -38,7 +38,7 @@ import { UsersService } from '../users/users.service';
 import { AdminAnnouncementDto } from '../../dto/user/announcement.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { FileStoreService } from '../filestore/file-store.service';
-import { BansService } from '../reports/bans.service';
+import { activeBanFilter, BansService } from '../reports/bans.service';
 
 @Injectable()
 export class AdminService {
@@ -526,24 +526,52 @@ export class AdminService {
     return DtoFactory(ChatBanDto, created);
   }
 
-  /** Doesn't broadcast the change, so several bans can be sent as one update. */
+  /**
+   * A player has at most one active ban of each type. If they already have
+   * one, it's replaced by the new ban only if the new one lasts longer.
+   *
+   * Doesn't broadcast the change, so several bans can be sent as one update.
+   */
   private async issueChatBan(
     adminID: number,
     targetID: number,
     ban: CreateChatBan,
     reportID?: number
   ) {
+    const expiresAt = ban.expiresAt ? new Date(ban.expiresAt) : null;
+    const data = {
+      expiresAt,
+      reason: ban.reason ?? null,
+      issuerID: adminID,
+      reportID: reportID ?? null
+    };
+
+    const existing = await this.db.chatBan.findFirst({
+      where: { targetID, type: ban.type, ...activeBanFilter() },
+      orderBy: { expiresAt: { sort: 'desc', nulls: 'first' } }
+    });
+
+    if (existing) {
+      if (!outlasts(expiresAt, existing.expiresAt)) return existing;
+
+      const updated = await this.db.chatBan.update({
+        where: { id: existing.id },
+        data
+      });
+
+      await this.adminActivityService.create(
+        adminID,
+        AdminActivityType.CHAT_BAN_UPDATE,
+        existing.id,
+        updated,
+        existing
+      );
+
+      return updated;
+    }
+
     const created = await this.db.chatBan.create({
-      data: {
-        type: ban.type,
-        expiresAt: ban.expiresAt ?? null,
-        reason: ban.reason ?? null,
-        target: { connect: { id: targetID } },
-        issuer: { connect: { id: adminID } },
-        ...(reportID !== undefined
-          ? { report: { connect: { id: reportID } } }
-          : {})
-      }
+      data: { ...data, type: ban.type, targetID }
     });
 
     await this.adminActivityService.create(
@@ -639,4 +667,10 @@ export class AdminService {
       this.db
     );
   }
+}
+
+/** Whether expiry `a` is after expiry `b`, where null is permanent. */
+function outlasts(a: Date | null, b: Date | null): boolean {
+  if (b === null) return false;
+  return a === null || a > b;
 }
