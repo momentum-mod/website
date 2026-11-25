@@ -6,6 +6,7 @@ import {
   IsString,
   IsUrl,
   Length,
+  Min,
   MinLength,
   validateSync
 } from 'class-validator';
@@ -66,6 +67,11 @@ export class ConfigValidation {
 
   @IsUrl({ require_tld: false, protocols: ['postgresql'] })
   readonly DATABASE_URL?: string;
+
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  readonly DATABASE_POOL_SIZE?: number;
 
   @IsString()
   readonly STORAGE_REGION?: string;

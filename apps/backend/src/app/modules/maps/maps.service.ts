@@ -104,6 +104,7 @@ import { MapDiscordNotifications } from './map-discord-notifications.service';
 import { MapSortTypeOrder } from './query-utils/map-sort-type-orderby';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LeaderboardRunsDbService } from '../runs/leaderboard-runs-db.service';
+import { RankingService } from '../ranking/ranking.service';
 
 @Injectable()
 export class MapsService {
@@ -121,7 +122,8 @@ export class MapsService {
     private readonly mapListService: MapListService,
     private readonly discordNotificationService: MapDiscordNotifications,
     private readonly notificationService: NotificationsService,
-    private readonly leaderboardRunsDbService: LeaderboardRunsDbService
+    private readonly leaderboardRunsDbService: LeaderboardRunsDbService,
+    private readonly rankingService: RankingService
   ) {}
 
   //#region Gets
@@ -872,6 +874,12 @@ export class MapsService {
     const oldVersion = map.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
+    // Leaderboards can be added or removed, so queue both the old and new ones
+    const leaderboardsBefore =
+      map.status === MapStatus.APPROVED
+        ? await this.rankingService.getMapLeaderboards(mapID)
+        : [];
+
     const newVersion = await this.db.$transaction(async (tx) => {
       const newVersion = await tx.mapVersion.create({
         data: {
@@ -944,6 +952,13 @@ export class MapsService {
 
       return newVersion;
     });
+
+    if (map.status === MapStatus.APPROVED) {
+      await this.rankingService.queueLeaderboardUpdates([
+        ...leaderboardsBefore,
+        ...(await this.rankingService.getMapLeaderboards(mapID))
+      ]);
+    }
 
     const zippedVmf = hasVmf
       ? await this.zipVmfFiles(map.name, newVersionNum, vmfFiles)
@@ -1538,6 +1553,10 @@ export class MapsService {
     if (newStatus === MapStatus.APPROVED || oldStatus === MapStatus.APPROVED) {
       void this.mapListService.scheduleMapListUpdate(FlatMapList.APPROVED);
     }
+
+    if (newStatus !== oldStatus || dto.leaderboards) {
+      await this.rankingService.queueMapUpdates(mapID);
+    }
   }
 
   private getGeneralMapDataUpdate(
@@ -2042,6 +2061,8 @@ export class MapsService {
 
     await this.deleteMapFiles(mapID);
 
+    const leaderboards = await this.rankingService.getMapLeaderboards(mapID);
+
     if (map.info.approvedDate) {
       // Disable map without touching leaderboards
 
@@ -2104,6 +2125,8 @@ export class MapsService {
         ? FlatMapList.SUBMISSION
         : FlatMapList.APPROVED
     );
+
+    await this.rankingService.queueLeaderboardUpdates(leaderboards);
   }
 
   private async deleteMapFiles(mapID: number) {

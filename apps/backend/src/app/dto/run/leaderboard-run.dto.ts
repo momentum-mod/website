@@ -100,12 +100,29 @@ export class LeaderboardRunDto implements LeaderboardRun {
   @IsInt()
   readonly rank: number;
 
-  // @ApiProperty({
-  //   type: Number,
-  //   description: 'Rank XP for the run'
-  // })
-  // @IsInt()
-  // readonly rankXP: number;
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description:
+      'Rank points the run is worth. Only present for runs on RANKED ' +
+      'leaderboards on approved maps, and only on endpoints that look them up.'
+  })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  readonly points?: number;
+
+  @ApiProperty({
+    type: Number,
+    required: false,
+    description:
+      "Total runs on the run's leaderboard. Only present on endpoints that " +
+      'look it up.'
+  })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  readonly totalRuns?: number;
 
   @IdProperty()
   readonly userID: number;
