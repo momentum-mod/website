@@ -94,6 +94,6 @@ const playerBansSelect = () => ({
   }
 });
 
-const activeBanFilter = (): Prisma.ChatBanWhereInput => ({
+export const activeBanFilter = (): Prisma.ChatBanWhereInput => ({
   OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }]
 });
