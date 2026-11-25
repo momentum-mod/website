@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { STEAM_MISSING_AVATAR_URL } from '@momentum/constants';
 
 /**
@@ -9,9 +9,13 @@ import { STEAM_MISSING_AVATAR_URL } from '@momentum/constants';
 @Component({
   selector: 'm-avatar',
   template: `
-    <img [src]="url()" class="aspect-square h-full rounded-sm shadow-md" />
+    <img
+      [src]="actualUrl()"
+      class="aspect-square h-full rounded-sm shadow-md"
+    />
   `
 })
 export class AvatarComponent {
-  readonly url = input<string>(STEAM_MISSING_AVATAR_URL);
+  readonly url = input<string>();
+  readonly actualUrl = computed(() => this.url() ?? STEAM_MISSING_AVATAR_URL);
 }

@@ -113,7 +113,7 @@ export class ProfileComponent implements OnInit {
   readonly userSubject = new BehaviorSubject<User>(null);
   protected readonly user = signal<User | null>(null);
   protected readonly isLocal = signal(true);
-  protected readonly avatarUrl = signal('/assets/images/blank_avatar.jpg');
+  protected readonly avatarUrl = signal(undefined);
   protected readonly avatarLoaded = signal(false);
   protected readonly countryDisplayName = signal('');
   readonly localFollowStatus = new BehaviorSubject<Follow>(null);
@@ -163,7 +163,7 @@ export class ProfileComponent implements OnInit {
             this.titleService.setTitle(user.alias);
           }
           this.userSubject.next(user);
-          if (user.avatarURL) this.avatarUrl.set(user.avatarURL);
+          this.avatarUrl.set(user.avatarURL);
 
           this.avatarLoaded.set(true);
           this.countryDisplayName.set(ISOCountryCode[user.country]);
