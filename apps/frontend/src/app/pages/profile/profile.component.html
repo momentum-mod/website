@@ -19,12 +19,7 @@
         style="background-image: url('/assets/images/playercard_bg.png')"
       >
         @if (avatarLoaded) {
-          <div
-            class="size-28 shrink-0 rounded-2xl bg-cover bg-no-repeat sm:size-40"
-            [ngStyle]="{
-              'background-image': 'url(' + avatarUrl + ')'
-            }"
-          ></div>
+          <m-avatar class="size-28 shrink-0 overflow-clip rounded-2xl sm:size-40" [url]="avatarUrl" />
         }
         <div class="flex min-w-0 grow flex-col justify-between gap-3 sm:gap-0">
           <div class="flex flex-row flex-wrap gap-1">
