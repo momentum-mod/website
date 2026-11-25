@@ -104,6 +104,12 @@ export class MapFinalApprovalFormComponent implements ControlValueAccessor {
     // Doesn't have an actual value as value, just a getter.
   }
 
+  addTag(leaderboard: MapSubmissionApproval, tag: MapTag) {
+    if (leaderboard.tags.includes(tag)) return;
+    leaderboard.tags = [...leaderboard.tags, tag];
+    this.onChange(this.value);
+  }
+
   updateTags(leaderboard: MapSubmissionApproval, tags: MapTag[]) {
     leaderboard.tags = tags;
     this.onChange(this.value);

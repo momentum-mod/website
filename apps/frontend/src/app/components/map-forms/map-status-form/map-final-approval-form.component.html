@@ -48,7 +48,7 @@
                 <div class="-mt-1 flex flex-wrap gap-1.5">
                   @for (tag of leaderboard.subSugg?.tags; track $index) {
                     <button
-                      (click)="leaderboard.tags.push(tag)"
+                      (click)="addTag(leaderboard, tag)"
                       class="flex h-7 items-center gap-1 rounded-sm border border-white/5 bg-blue-400/50 p-2 transition-colors hover:bg-blue-400/60"
                       type="button"
                     >
@@ -62,7 +62,7 @@
                 <div class="-mt-1 mb-2 flex flex-wrap gap-1.5">
                   @for (tuple of leaderboard.reviewTags; track $index) {
                     <button
-                      (click)="leaderboard.tags.push(tuple[0])"
+                      (click)="addTag(leaderboard, tuple[0])"
                       class="flex h-7 items-center gap-1 rounded-sm border border-white/5 bg-blue-400/50 p-2 transition-colors hover:bg-blue-400/60"
                       type="button"
                     >
